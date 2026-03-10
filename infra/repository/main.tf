@@ -3,9 +3,10 @@ module "github_repository" {
   version = "~> 1.0"
 
   repository = {
-    name                   = "io-growth"
-    description            = ""
-    topics                 = []
-    reviewers_teams        = []
+    name            = "io-growth"
+    description     = ""
+    topics          = []
+    reviewers_teams = []
+    jira_boards_ids = ["IEG"]
   }
 }

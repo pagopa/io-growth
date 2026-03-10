@@ -53,6 +53,7 @@ module "azure-PROD-CED_bootstrap" {
     key_vault = {
       name                = module.azure-PROD-CED_core_values.common_key_vault.name
       resource_group_name = module.azure-PROD-CED_core_values.common_key_vault.resource_group_name
+      use_rbac            = true
     }
     use_github_app = true
   }

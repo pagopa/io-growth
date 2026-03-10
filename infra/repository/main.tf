@@ -6,7 +6,7 @@ module "github_repository" {
     name            = "io-growth"
     description     = ""
     topics          = []
-    reviewers_teams = []
+    reviewers_teams = ["io-ecosystem-growth-contributors"]
     jira_boards_ids = ["IEG"]
   }
 }

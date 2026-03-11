@@ -1,0 +1,131 @@
+@startuml er diagram
+
+entity Organization {
+    * id: uuid
+    --
+    * external_id: uuid
+    * name: string
+}
+
+entity Place {
+    * id: uuid
+    --
+    * organization_id : uuid <<FK>>
+    * name: string
+    * type: enum("online","offline")
+}
+
+entity Website {
+    * id: uuid
+    --
+    * organization_id : uuid <<FK>>
+    * place_id : uuid <<FK>>
+    * url: string
+}
+
+entity Address {
+    * id: uuid
+    --
+    * place_id : uuid <<FK>>
+    * street: string
+    * city: string
+    * state: string
+    * postal_code: string
+    * country: string
+}
+
+entity SupportContact {
+    * id: uuid
+    --
+    * place_id : uuid <<FK>>
+    * type: enum("email","phone","website")
+    * value: string
+}
+
+entity OpportunityPlace {
+    * opportunity_id : uuid <<FK>>
+    * place_id : uuid <<FK>>
+}
+
+entity Opportunity {
+    * id: uuid
+    --
+    * organization_id : uuid <<FK>>
+    * status: enum
+    * date_from: date
+    date_to: date
+    url: string
+}
+
+entity EligibleBenefit {
+    * id: uuid
+    --
+    * opportunity_id : uuid <<FK>>
+    * value: integer
+    * type: enum("percentual","absolute")
+}
+
+entity CaregiverBenefit {
+    * id: uuid
+    --
+    * opportunity_id : uuid <<FK>>
+    * value: integer
+    * type: enum("percentual","absolute")
+}
+
+entity LocalizedName {
+    * id: uuid
+    --
+    * opportunity_id : uuid <<FK>>
+    * language: enum
+    * value: string
+}
+
+entity LocalizedDescription {
+    * id: uuid
+    --
+    * opportunity_id : uuid <<FK>>
+    * language: enum
+    * value: string
+}
+
+entity LocalizedCondition {
+    * id: uuid
+    --
+    * opportunity_id : uuid <<FK>>
+    * language: enum
+    * value: string
+}
+
+entity LocalizedType {
+    * id: uuid
+    --
+    * opportunity_id : uuid <<FK>>
+    * language: enum
+    * value: enum
+}
+
+entity LocalizedCategory {
+    * id: uuid
+    --
+    * opportunity_id : uuid <<FK>>
+    * language: enum
+    * value: enum
+}
+
+Organization ||--|{ Place
+Organization ||--|{ Opportunity
+Place ||--o| Address
+Place ||--o| Website
+Place ||--|{ SupportContact
+Place ||--|{ OpportunityPlace
+Opportunity ||--|{ OpportunityPlace
+LocalizedName }|--|| Opportunity
+LocalizedDescription }|--|| Opportunity
+LocalizedCondition }|--|| Opportunity
+LocalizedType }|--|| Opportunity
+LocalizedCategory }|--|| Opportunity
+Opportunity ||--|| EligibleBenefit
+Opportunity ||--o| CaregiverBenefit
+
+@enduml

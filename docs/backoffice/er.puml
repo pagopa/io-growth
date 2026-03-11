@@ -5,6 +5,8 @@ entity Organization {
     --
     * external_id: uuid
     * name: string
+    * created_at: timestamp
+    * updated_at: timestamp
 }
 
 entity Place {
@@ -13,14 +15,17 @@ entity Place {
     * organization_id : uuid <<FK>>
     * name: string
     * type: enum("online","offline")
+    * created_at: timestamp
+    * updated_at: timestamp
 }
 
 entity Website {
     * id: uuid
     --
-    * organization_id : uuid <<FK>>
     * place_id : uuid <<FK>>
     * url: string
+    * created_at: timestamp
+    * updated_at: timestamp
 }
 
 entity Address {
@@ -32,6 +37,8 @@ entity Address {
     * state: string
     * postal_code: string
     * country: string
+    * created_at: timestamp
+    * updated_at: timestamp
 }
 
 entity SupportContact {
@@ -40,6 +47,8 @@ entity SupportContact {
     * place_id : uuid <<FK>>
     * type: enum("email","phone","website")
     * value: string
+    * created_at: timestamp
+    * updated_at: timestamp
 }
 
 entity OpportunityPlace {
@@ -55,6 +64,8 @@ entity Opportunity {
     * date_from: date
     date_to: date
     url: string
+    * created_at: timestamp
+    * updated_at: timestamp
 }
 
 entity EligibleBenefit {
@@ -63,6 +74,8 @@ entity EligibleBenefit {
     * opportunity_id : uuid <<FK>>
     * value: integer
     * type: enum("percentual","absolute")
+    * created_at: timestamp
+    * updated_at: timestamp
 }
 
 entity CaregiverBenefit {
@@ -71,46 +84,19 @@ entity CaregiverBenefit {
     * opportunity_id : uuid <<FK>>
     * value: integer
     * type: enum("percentual","absolute")
+    * created_at: timestamp
+    * updated_at: timestamp
 }
 
-entity LocalizedName {
+entity LocalizedMetadata {
     * id: uuid
     --
     * opportunity_id : uuid <<FK>>
-    * language: enum
+    * key: enum("name","description","condition","type","category")
+    * language: enum ("en","fr","de","sl","it")
     * value: string
-}
-
-entity LocalizedDescription {
-    * id: uuid
-    --
-    * opportunity_id : uuid <<FK>>
-    * language: enum
-    * value: string
-}
-
-entity LocalizedCondition {
-    * id: uuid
-    --
-    * opportunity_id : uuid <<FK>>
-    * language: enum
-    * value: string
-}
-
-entity LocalizedType {
-    * id: uuid
-    --
-    * opportunity_id : uuid <<FK>>
-    * language: enum
-    * value: enum
-}
-
-entity LocalizedCategory {
-    * id: uuid
-    --
-    * opportunity_id : uuid <<FK>>
-    * language: enum
-    * value: enum
+    * created_at: timestamp
+    * updated_at: timestamp
 }
 
 Organization ||--|{ Place
@@ -120,11 +106,7 @@ Place ||--o| Website
 Place ||--|{ SupportContact
 Place ||--|{ OpportunityPlace
 Opportunity ||--|{ OpportunityPlace
-LocalizedName }|--|| Opportunity
-LocalizedDescription }|--|| Opportunity
-LocalizedCondition }|--|| Opportunity
-LocalizedType }|--|| Opportunity
-LocalizedCategory }|--|| Opportunity
+LocalizedMetadata }|--|| Opportunity
 Opportunity ||--|| EligibleBenefit
 Opportunity ||--o| CaregiverBenefit
 

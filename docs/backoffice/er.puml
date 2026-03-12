@@ -1,4 +1,4 @@
-@startuml er diagram
+@startuml ced_er_diagram
 
 entity Organization {
     * id: uuid
@@ -12,7 +12,7 @@ entity Organization {
 entity Place {
     * id: uuid
     --
-    * organization_id : uuid <<FK>>
+    * organization_id: uuid <<FK>>
     * name: string
     * type: enum("online","offline")
     * created_at: timestamp
@@ -22,7 +22,7 @@ entity Place {
 entity Website {
     * id: uuid
     --
-    * place_id : uuid <<FK>>
+    * place_id: uuid <<FK>>
     * url: string
     * created_at: timestamp
     * updated_at: timestamp
@@ -31,7 +31,7 @@ entity Website {
 entity Address {
     * id: uuid
     --
-    * place_id : uuid <<FK>>
+    * place_id: uuid <<FK>>
     * street: string
     * city: string
     * state: string
@@ -44,7 +44,7 @@ entity Address {
 entity SupportContact {
     * id: uuid
     --
-    * place_id : uuid <<FK>>
+    * place_id: uuid <<FK>>
     * type: enum("email","phone","website")
     * value: string
     * created_at: timestamp
@@ -52,15 +52,15 @@ entity SupportContact {
 }
 
 entity OpportunityPlace {
-    * opportunity_id : uuid <<FK>>
-    * place_id : uuid <<FK>>
+    * opportunity_id: uuid <<FK>>
+    * place_id: uuid <<FK>>
 }
 
 entity Opportunity {
     * id: uuid
     --
-    * organization_id : uuid <<FK>>
-    * status: enum
+    * organization_id: uuid <<FK>>
+    * status: enum("draft","published","suspended","archived")
     * date_from: date
     date_to: date
     url: string
@@ -71,7 +71,7 @@ entity Opportunity {
 entity EligibleBenefit {
     * id: uuid
     --
-    * opportunity_id : uuid <<FK>>
+    * opportunity_id: uuid <<FK>>
     * value: integer
     * type: enum("percentual","absolute")
     * created_at: timestamp
@@ -81,7 +81,7 @@ entity EligibleBenefit {
 entity CaregiverBenefit {
     * id: uuid
     --
-    * opportunity_id : uuid <<FK>>
+    * opportunity_id: uuid <<FK>>
     * value: integer
     * type: enum("percentual","absolute")
     * created_at: timestamp
@@ -91,9 +91,9 @@ entity CaregiverBenefit {
 entity LocalizedMetadata {
     * id: uuid
     --
-    * opportunity_id : uuid <<FK>>
+    * opportunity_id: uuid <<FK>>
     * key: enum("name","description","condition","type","category")
-    * language: enum ("en","fr","de","sl","it")
+    * language: enum("en","fr","de","sl","it")
     * value: string
     * created_at: timestamp
     * updated_at: timestamp

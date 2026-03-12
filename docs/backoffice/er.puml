@@ -1,6 +1,6 @@
 @startuml ced_er_diagram
 
-entity Organization {
+entity Operator {
     * id: uuid
     --
     * external_id: uuid
@@ -10,10 +10,10 @@ entity Organization {
     * updated_at: timestamp
 }
 
-entity Operator {
+entity Referent {
     * id: uuid
     --
-    * organization_id: uuid <<FK>>
+    * operator_id: uuid <<FK>>
     * fullname: string
     * created_at: timestamp
     * updated_at: timestamp
@@ -22,7 +22,7 @@ entity Operator {
 entity Place {
     * id: uuid
     --
-    * organization_id: uuid <<FK>>
+    * operator_id: uuid <<FK>>
     * name: string
     * type: enum("online","offline")
     * created_at: timestamp
@@ -69,7 +69,7 @@ entity OpportunityPlace {
 entity Opportunity {
     * id: uuid
     --
-    * organization_id: uuid <<FK>>
+    * operator_id: uuid <<FK>>
     * status: enum("draft","test_pending","test_passed","published","suspended","deleted")
     * date_from: date
     date_to: date
@@ -112,18 +112,18 @@ entity LocalizedMetadata {
 entity ChangeAudit {
     * id: uuid
     --
-    * operator_id: uuid <<FK>>
+    * referent_id: uuid <<FK>>
     * entity_type: enum("opportunity","place","support_contact","address","website","localized_metadata","beneficiary_benefit","caregiver_benefit")
     * entity_id: uuid
     * change_type: enum("create","update")
     * created_at: timestamp
-    diff: json
+    * value: json
 }
 
-ChangeAudit }|--|| Operator
-Organization ||--|{ Operator
-Organization ||--|{ Place
-Organization ||--|{ Opportunity
+ChangeAudit }|--|| Referent
+Operator ||--|{ Referent
+Operator ||--|{ Place
+Operator ||--|{ Opportunity
 Place ||--o| Address
 Place ||--o| Website
 Place ||--|{ SupportContact

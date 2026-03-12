@@ -5,6 +5,15 @@ entity Organization {
     --
     * external_id: uuid
     * name: string
+    * status: enum("active","suspended","revoked")
+    * created_at: timestamp
+    * updated_at: timestamp
+}
+
+entity Operator {
+    * id: uuid
+    --
+    * organization_id: uuid <<FK>>
     * created_at: timestamp
     * updated_at: timestamp
 }
@@ -60,7 +69,7 @@ entity Opportunity {
     * id: uuid
     --
     * organization_id: uuid <<FK>>
-    * status: enum("draft","published","suspended","archived")
+    * status: enum("draft","test_pending","test_passed","published","suspended","deleted")
     * date_from: date
     date_to: date
     url: string
@@ -99,6 +108,19 @@ entity LocalizedMetadata {
     * updated_at: timestamp
 }
 
+entity ChangeAudit {
+    * id: uuid
+    --
+    * operator_id: uuid <<FK>>
+    * entity_type: enum("opportunity","place")
+    * entity_id: uuid
+    * change_type: enum("create","update")
+    * created_at: timestamp
+    diff: json
+}
+
+ChangeAudit }|--|| Operator
+Organization ||--|{ Operator
 Organization ||--|{ Place
 Organization ||--|{ Opportunity
 Place ||--o| Address

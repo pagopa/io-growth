@@ -112,7 +112,7 @@ entity ChangeAudit {
     * id: uuid
     --
     * operator_id: uuid <<FK>>
-    * entity_type: enum("opportunity","place")
+    * entity_type: enum("opportunity","place","support_contact","address","website","localized_metadata","beneficiary_benefit","caregiver_benefit")
     * entity_id: uuid
     * change_type: enum("create","update")
     * created_at: timestamp

@@ -68,7 +68,7 @@ entity Opportunity {
     * updated_at: timestamp
 }
 
-entity EligibleBenefit {
+entity BeneficiaryBenefit {
     * id: uuid
     --
     * opportunity_id: uuid <<FK>>
@@ -107,7 +107,7 @@ Place ||--|{ SupportContact
 Place ||--|{ OpportunityPlace
 Opportunity ||--|{ OpportunityPlace
 LocalizedMetadata }|--|| Opportunity
-Opportunity ||--|| EligibleBenefit
+Opportunity ||--|| BeneficiaryBenefit
 Opportunity ||--o| CaregiverBenefit
 
 @enduml

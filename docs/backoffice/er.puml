@@ -14,6 +14,7 @@ entity Operator {
     * id: uuid
     --
     * organization_id: uuid <<FK>>
+    * fullname: string
     * created_at: timestamp
     * updated_at: timestamp
 }

@@ -1,0 +1,26 @@
+@startuml Sequence place creation
+participant "Referent" as ref
+participant "CED Backend" as be
+participant "Redis" as rd
+participant "PostgreSQL" as pg
+
+ref -> be: POST with session token and place data
+activate be
+be -> rd: Check session token
+alt Session token valid
+    be -> pg: GET place by external id
+    alt Place found
+        be -> be: Check place data
+        alt Place data is changed
+            be -> pg: update Place data
+        end
+    else Place not found
+        be -> pg: Create Place
+    end
+    be -> ref: 201 Created
+else Session not found
+    be -> ref: 401 Unauthorized
+    deactivate be
+end
+
+@enduml

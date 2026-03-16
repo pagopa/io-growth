@@ -1,0 +1,33 @@
+@startuml Sequence Referent Access
+participant "Referent" as ref
+participant "CED Backend" as be
+participant "Redis" as rd
+participant "PostgreSQL" as pg
+
+ref -> be: Get with AR token
+activate be
+be -> be: Process and verify AR token
+be -> pg: GET referent
+alt Referent found
+    be -> be: Check referent data
+    alt Referent data is changed
+        be -> pg: update Referent data
+    end
+else Referent not found
+    be -> pg: GET operator
+    alt Operator found
+        be -> be: Check operator data
+        alt Operator data is changed
+            be -> pg: update Operator data
+        end
+        be -> pg: Create Referent with Operator Id
+    else Operator not found
+        be -> pg: Create Operator 
+        be -> pg: Create Referent with Operator Id
+    end
+end
+be -> rd: Create session
+be -> ref: Session token
+deactivate be
+
+@enduml

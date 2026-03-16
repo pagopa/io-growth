@@ -1,0 +1,22 @@
+@startuml Sequence opportunity suspension
+participant "Referent" as ref
+participant "CED Backend" as be
+participant "Redis" as rd
+participant "PostgreSQL" as pg
+
+ref -> be: POST with session token and opportunity id
+activate be
+be -> rd: Check session token
+alt Session token valid
+    be -> pg: GET opportunity by external id
+    alt Opportunity exists
+        be -> pg: Set status=SUSPENDED for opportunity
+    else Opportunity does not exist
+        be -> ref: 404 Not Found
+    end
+else Session not found
+    be -> ref: 401 Unauthorized
+    deactivate be
+end
+
+@enduml

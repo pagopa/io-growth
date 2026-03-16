@@ -1,0 +1,41 @@
+@startuml ced_read_model
+
+entity OpportunityMaterializedView {
+    * id: uuid
+    --
+    * operator_id: uuid <<FK>>
+    * status: enum("draft","test_pending","test_passed","published","suspended","deleted")
+    * date_from: date
+    * name: string
+    * description: string
+    * condition: string
+    * type: string
+    * category: string
+    * beneficiary_benefit_value: integer
+    * beneficiary_benefit_type: enum("percentual","absolute")
+    * language: enum("en","fr","de","sl","it")
+    * search_vector: tsvector
+    date_to: date
+    url: string
+    caregiver_benefit_value: integer
+    caregiver_benefit_type: enum("percentual","absolute")
+}
+
+entity PlaceMaterializedView {
+    * id: uuid
+    --
+    * opportunity_id: uuid <<FK>>
+    * name: string
+    * type: enum("online","offline")
+    * search_vector: tsvector
+    street: string
+    city: string
+    state: string
+    postal_code: string
+    country: string
+    url: string
+}
+
+OpportunityMaterializedView }|--|{ PlaceMaterializedView
+
+@enduml

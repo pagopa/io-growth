@@ -1,0 +1,26 @@
+@startuml Sequence opportunity creation
+participant "Referent" as ref
+participant "CED Backend" as be
+participant "Redis" as rd
+participant "PostgreSQL" as pg
+
+ref -> be: POST with session token and opportunity data
+activate be
+be -> rd: Check session token
+alt Session token valid
+    be -> pg: GET opportunity by external id
+    alt Opportunity found
+        be -> be: Check opportunity data
+        alt Opportunity data is changed
+            be -> pg: update Opportunity data
+        end
+    else Opportunity not found
+        be -> pg: Create Opportunity
+    end
+    be -> ref: 201 Created
+else Session not found
+    be -> ref: 401 Unauthorized
+    deactivate be
+end
+
+@enduml

@@ -1,0 +1,20 @@
+@startuml Sequence opportunity to place binding
+participant "Referent" as ref
+participant "CED Backend" as be
+participant "Redis" as rd
+participant "PostgreSQL" as pg
+
+ref -> be: POST with session token and opportunity to place binding data
+activate be
+be -> rd: Check session token
+alt Session token valid
+    be -> pg: GET opportunity by external id
+    be -> pg: GET place by external id
+    be -> pg: Create opportunity to place binding
+    be -> ref: 201 Created
+else Session not found
+    be -> ref: 401 Unauthorized
+    deactivate be
+end
+
+@enduml

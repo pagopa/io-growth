@@ -1,8 +1,11 @@
 {
-  "image": "mcr.microsoft.com/devcontainers/base:debian@sha256:da67c59f82e057e0ccb81ec7d13fb50464c26f477638018e6de1b2623a008a3a",
+  "dockerComposeFile": "docker-compose.yml",
+  "service": "workspace",
+  "workspaceFolder": "/workspaces/io-growth",
   "features": {
     "ghcr.io/devcontainers-extra/features/pre-commit:2": {},
     "ghcr.io/devcontainers/features/azure-cli:1": {},
+    "ghcr.io/jlaundry/devcontainer-features/azure-functions-core-tools:1": {},
     "ghcr.io/devcontainers/features/github-cli:1": {},
     "ghcr.io/devcontainers/features/terraform:1": {
       "version": "latest",
@@ -13,9 +16,9 @@
     "ghcr.io/pagopa/devcontainer-features/trivy:1": {},
     "ghcr.io/pagopa/devcontainer-features/plantuml:1": {},
     "ghcr.io/devcontainers/features/node:1": {
-      "version": "20",
+      "version": "22",
       "installYarnUsingApt": false,
-      "pnpmVersion": "none",
+      "pnpmVersion": "latest",
       "nvmInstallPath": "/opt/nvm"
     },
     "ghcr.io/devcontainers/features/docker-outside-of-docker:1": {}
@@ -29,6 +32,7 @@
         "-vscjava.vscode-java-pack",
         "-ms-dotnettools.csharp",
         "-ms-azuretools.vscode-azureterraform",
+        "ms-azuretools.vscode-azurefunctions",
         "ms-azuretools.vscode-azure-github-copilot",
         "ms-vscode.vscode-websearchforcopilot",
         "ms-azuretools.vscode-azureterraform",

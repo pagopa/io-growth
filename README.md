@@ -1,7 +1,5 @@
 # io-growth
 
-
-
 ## Getting Started
 
 ### Using Devcontainer
@@ -18,12 +16,23 @@ The preferred way to setup your development environment is to use [Devcontainer]
 3. Open the project root folder and select `Dev Containers: Reopen in Container` from the command palette
 4. Visual Studio Code will build the devcontainer image and then open the project inside the container, with all the needed tools and extension configured
 
+The devcontainer includes the following services, started automatically via docker-compose:
+
+| Service                          | Image                                     | Ports                                            | Default credentials                                    |
+| -------------------------------- | ----------------------------------------- | ------------------------------------------------ | ------------------------------------------------------ |
+| PostgreSQL                       | `postgres:17`                             | `5432`                                           | user: `postgres`, password: `postgres`, db: `postgres` |
+| Azurite (Azure Storage emulator) | `mcr.microsoft.com/azure-storage/azurite` | `10000` (blob), `10001` (queue), `10002` (table) | Default Azurite connection string                      |
+| Redis                            | `redis:7`                                 | `6379`                                           | No auth enabled by default                             |
+
+Connection details are available inside the workspace container via environment variables (`POSTGRES_HOST`, `POSTGRES_PORT`, `AZURITE_HOST`, `REDIS_HOST`, etc.).
+
 #### Console
 
 If you use a code editor that doesn't support Dev Container, you can still run it in your terminal.
 
 1. Follow the instructions of the following chapter ("Using local machine") to setup your local environment
 2. Run devcontainer from your terminal
+
 ```bash
 pnpm devcontainer up --workspace-folder .
 pnpm devcontainer exec --workspace-folder . /bin/bash
@@ -49,6 +58,7 @@ nodenv install
 ```
 
 3. Build all the workspaces contained by this repo
+
 ```bash
 pnpm build
 ```
@@ -135,7 +145,7 @@ Changeset takes care of bumping packages, updating the changelog, and tagging th
 
 - When opening a Pull Request with a change intended to be published, [add a changeset file](https://github.com/changesets/changesets/blob/main/docs/adding-a-changeset.md) to the proposed changes.
 - Once the Pull Request is merged, a new Pull Request named `Version Packages` will be automatically opened with all the release changes such as version bumping for each involved app or package and changelog update; if an open `Version Packages` PR already exists, it will be updated and the package versions calculated accordingly (see https://github.com/changesets/changesets/blob/main/docs/decisions.md#how-changesets-are-combined).
-Only apps and packages mentioned in the changeset files will be bumped.
+  Only apps and packages mentioned in the changeset files will be bumped.
 - Review the `Version Packages` PR and merge it when ready. Changeset files will be deleted.
 - A Release entry is created for each app or package whose version has been bumped.
 
@@ -158,6 +168,7 @@ terraform init
 terraform plan
 terraform apply
 ```
+
 ### Workflow automation
 
 The workflow `infra_plan.yaml` is executed on every PR that edits the `infra/resources` folder or the workflow definition itself. It executes a `terraform plan` and comments the PR with the result. If the plan fails, the workflow fails.

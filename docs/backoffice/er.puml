@@ -1,20 +1,23 @@
 @startuml ced_er_diagram
 
+entity ChangeAudit {
+    * id: uuid
+    --
+    * referent_external_id: string
+    * referent_fullname: string
+    * entity_type: enum("opportunity","place","support_contact",...)
+    * entity_id: uuid
+    * change_type: enum("create","update")
+    * created_at: timestamp
+    * value: json
+}
+
 entity Operator {
     * id: uuid
     --
     * external_id: uuid
     * name: string
     * status: enum("active","suspended","revoked")
-    * created_at: timestamp
-    * updated_at: timestamp
-}
-
-entity Referent {
-    * id: uuid
-    --
-    * operator_id: uuid <<FK>>
-    * fullname: string
     * created_at: timestamp
     * updated_at: timestamp
 }
@@ -109,19 +112,6 @@ entity LocalizedMetadata {
     * updated_at: timestamp
 }
 
-entity ChangeAudit {
-    * id: uuid
-    --
-    * referent_id: uuid <<FK>>
-    * entity_type: enum("opportunity","place","support_contact","address","website","localized_metadata","beneficiary_benefit","caregiver_benefit")
-    * entity_id: uuid
-    * change_type: enum("create","update")
-    * created_at: timestamp
-    * value: json
-}
-
-ChangeAudit }|--|| Referent
-Operator ||--|{ Referent
 Operator ||--|{ Place
 Operator ||--|{ Opportunity
 Place ||--o| Address

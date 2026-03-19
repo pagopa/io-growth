@@ -18,7 +18,7 @@
     "ghcr.io/devcontainers/features/node:1": {
       "version": "22",
       "installYarnUsingApt": false,
-      "pnpmVersion": "latest",
+      "pnpmVersion": "none",
       "nvmInstallPath": "/opt/nvm"
     },
     "ghcr.io/devcontainers/features/docker-outside-of-docker:1": {}

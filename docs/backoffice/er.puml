@@ -3,6 +3,7 @@
 entity ChangeAudit {
     * id: uuid
     --
+    * operator_id: uuid <<FK>>
     * referent_external_id: string
     * referent_fullname: string
     * entity_type: enum("opportunity","place","support_contact",...)

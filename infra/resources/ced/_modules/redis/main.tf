@@ -1,18 +1,16 @@
-# No pagopa-dx module available for standalone Key Vault — using azurerm resource
-resource "azurerm_key_vault" "this" {
+# No pagopa-dx module available for Redis Cache — using azurerm resource
+resource "azurerm_redis_cache" "this" {
   name                          = var.name
   location                      = var.location
   resource_group_name           = var.resource_group_name
-  tenant_id                     = var.tenant_id
+  capacity                      = var.capacity
+  family                        = var.family
   sku_name                      = var.sku_name
-  rbac_authorization_enabled    = true
-  soft_delete_retention_days    = 30
-  purge_protection_enabled      = true
+  minimum_tls_version           = "1.2"
   public_network_access_enabled = false
 
-  network_acls {
-    bypass         = "AzureServices"
-    default_action = "Deny"
+  redis_configuration {
+    maxmemory_policy = var.maxmemory_policy
   }
 
   tags = var.tags
@@ -26,9 +24,9 @@ resource "azurerm_private_endpoint" "this" {
 
   private_service_connection {
     name                           = "${var.name}-pep"
-    private_connection_resource_id = azurerm_key_vault.this.id
+    private_connection_resource_id = azurerm_redis_cache.this.id
     is_manual_connection           = false
-    subresource_names              = ["vault"]
+    subresource_names              = ["redisCache"]
   }
 
   private_dns_zone_group {

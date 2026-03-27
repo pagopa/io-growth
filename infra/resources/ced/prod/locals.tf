@@ -1,13 +1,19 @@
 locals {
-  prefix         = "io"
+  prefix         = "ced"
   env_short      = "p"
   location_short = "itn"
-  domain         = "ced"
 
-  project = "${local.prefix}-${local.env_short}-${local.location_short}-${local.domain}"
+  project = "${local.prefix}-${local.env_short}-${local.location_short}"
 
   location           = "italynorth"
   secondary_location = "germanywestcentral"
+
+  core_state = {
+    resource_group_name  = "ced-p-itn-tfstate-rg-01"
+    storage_account_name = "cedpitntfstatest01"
+    container_name       = "terraform-state"
+    key                  = "ced.core.prod.tfstate"
+  }
 
   tags = {
     CostCenter     = "TS310 - PAGAMENTI & SERVIZI"

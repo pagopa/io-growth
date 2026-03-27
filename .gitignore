@@ -310,3 +310,5 @@ terraform.rc
 
 # pnpm
 .pnpm-store
+
+infra/**/temp

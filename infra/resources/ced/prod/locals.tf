@@ -2,6 +2,7 @@ locals {
   prefix         = "ced"
   env_short      = "p"
   location_short = "itn"
+  domain          = ""
 
   project = "${local.prefix}-${local.env_short}-${local.location_short}"
 

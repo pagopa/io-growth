@@ -40,30 +40,10 @@ resource "dx_available_subnet_cidr" "cidr_24" {
   prefix_length      = 24
 }
 
-resource "azurerm_resource_group" "ced_common" {
-  name     = "${local.project}-common-rg-01"
-  location = local.location
-}
-
-resource "azurerm_resource_group" "ced_portal" {
-  name     = "${local.project}-portal-rg-01"
-  location = local.location
-}
-
-resource "azurerm_resource_group" "ced_usage" {
-  name     = "${local.project}-usage-rg-01"
-  location = local.location
-}
-
-resource "azurerm_resource_group" "ced_request" {
-  name     = "${local.project}-request-rg-01"
-  location = local.location
-}
-
 module "dns" {
   source = "../_modules/dns"
 
-  resource_group_name = azurerm_resource_group.ced_common.name
+  resource_group_name = module.azure_core_values.network_resource_group_name
 
   virtual_network = {
     id   = module.azure_core_values.common_vnet.id

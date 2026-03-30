@@ -31,15 +31,40 @@ variable "sku_name" {
   default     = "Premium"
 }
 
-variable "maxmemory_policy" {
+variable "redis_version" {
   type        = string
-  description = "The eviction policy for the Redis Cache."
-  default     = "volatile-lru"
+  description = "The version of Redis to use: 4 (deprecated) or 6."
+  default     = "6"
+}
+
+variable "enable_authentication" {
+  type        = bool
+  description = "If set to false, the Redis instance will be accessible without authentication."
+  default     = true
+}
+
+variable "custom_zones" {
+  type        = list(number)
+  description = "(Optional/Premium Only) Specifies a list of Availability Zones in which this Redis Cache should be located."
+  default     = []
+}
+
+variable "patch_schedules" {
+  type = list(object({
+    day_of_week    = string
+    start_hour_utc = number
+  }))
+  default = []
 }
 
 variable "subnet_pep_id" {
   type        = string
   description = "The ID of the subnet used for private endpoints."
+}
+
+variable "virtual_network_id" {
+  type        = string
+  description = "The ID of the virtual network used for the private endpoint."
 }
 
 variable "private_dns_zone_id" {

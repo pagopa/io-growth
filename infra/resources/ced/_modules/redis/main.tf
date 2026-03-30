@@ -1,36 +1,23 @@
-# No pagopa-dx module available for Redis Cache — using azurerm resource
-resource "azurerm_redis_cache" "this" {
-  name                          = var.name
-  location                      = var.location
-  resource_group_name           = var.resource_group_name
-  capacity                      = var.capacity
-  family                        = var.family
-  sku_name                      = var.sku_name
-  minimum_tls_version           = "1.2"
-  public_network_access_enabled = false
+module "redis_cache" {
+  source = "github.com/pagopa/terraform-azurerm-v4//redis_cache?ref=v5.5.0"
 
-  redis_configuration {
-    maxmemory_policy = var.maxmemory_policy
-  }
-
-  tags = var.tags
-}
-
-resource "azurerm_private_endpoint" "this" {
-  name                = "${var.name}-pep"
-  location            = var.location
+  name                = var.name
   resource_group_name = var.resource_group_name
-  subnet_id           = var.subnet_pep_id
+  location            = var.location
 
-  private_service_connection {
-    name                           = "${var.name}-pep"
-    private_connection_resource_id = azurerm_redis_cache.this.id
-    is_manual_connection           = false
-    subresource_names              = ["redisCache"]
-  }
+  capacity              = var.capacity
+  family                = var.family
+  sku_name              = var.sku_name
+  redis_version         = var.redis_version
+  enable_authentication = var.enable_authentication
+  custom_zones          = var.custom_zones
 
-  private_dns_zone_group {
-    name                 = "private-dns-zone-group"
+  patch_schedules = var.patch_schedules
+
+  private_endpoint = {
+    enabled              = true
+    subnet_id            = var.subnet_pep_id
+    virtual_network_id   = var.virtual_network_id
     private_dns_zone_ids = [var.private_dns_zone_id]
   }
 

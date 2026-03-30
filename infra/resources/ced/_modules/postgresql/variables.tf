@@ -28,6 +28,7 @@ variable "admin_username" {
 variable "admin_password" {
   type        = string
   description = "The administrator password for the PostgreSQL Flexible Server."
+  ephemeral = true
   sensitive   = true
 }
 

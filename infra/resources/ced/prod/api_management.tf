@@ -11,7 +11,7 @@ module "ced_apim" {
 
   resource_group_name = module.azure_core_values.common_resource_group_name
   use_case            = "high_load"
-  
+
   virtual_network = {
     resource_group_name = module.azure_core_values.network_resource_group_name
     name                = module.azure_core_values.common_vnet.name

@@ -16,6 +16,6 @@ jobs:
         azure_dns_zone: ced.pagopa.it
         key_vault_name: ced-p-itn-common-kv-01
         force_renew_cert: true
-        environment: prod
+        environment: infra-prod
         use_selfhosted_agent: true
       

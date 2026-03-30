@@ -1,0 +1,21 @@
+name: Release Infrastructure CED
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      # Trigger the workflow when resources are modified
+      - "infra/resources/ced/**"
+
+jobs:
+  release_prod:
+    uses: pagopa/dx/.github/workflows/infra_apply.yaml@main
+    name: Release Infrastructure CED
+    secrets: inherit
+    with:
+      environment: prod
+      base_path: infra/resources/ced
+      override_github_environment: infra-prod
+      use_private_agent: true

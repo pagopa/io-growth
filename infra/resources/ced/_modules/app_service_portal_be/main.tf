@@ -8,7 +8,7 @@ module "app_service" {
 
   use_case          = var.use_case
   health_check_path = var.health_check_path
-  app_settings      = var.app_settings
+  app_settings      = local.app_settings
 
   virtual_network = var.virtual_network
   subnet_pep_id   = var.subnet_pep_id

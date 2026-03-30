@@ -31,11 +31,6 @@ variable "health_check_path" {
   description = "Path of the endpoint where health probe is exposed."
 }
 
-variable "app_settings" {
-  type        = map(string)
-  description = "Application settings as a map of key-value pairs."
-}
-
 variable "virtual_network" {
   type = object({
     name                = string

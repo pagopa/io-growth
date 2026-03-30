@@ -1,4 +1,4 @@
-name: Renew Application Gateway Certs
+name: Renew Application Gateway Certs CED
 
 on:
   workflow_dispatch: {}
@@ -8,7 +8,7 @@ on:
 jobs:
   renew:
     uses: pagopa/io-infra/.github/workflows/ssl_certificate_renewal.yaml@b04e50d300f48d840b77d5e913ede0d8a605aa4f
-    name: Renew Application Gateway certificate
+    name: Renew Application Gateway certificate CED
     secrets: inherit
     with:
         csr_common_name: api.ced.pagopa.it

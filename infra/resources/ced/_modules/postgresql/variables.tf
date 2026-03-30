@@ -76,7 +76,6 @@ variable "create_replica" {
 variable "replica_location" {
   type        = string
   description = "Location for the replica server."
-  default     = null
 }
 
 variable "backup_retention_days" {

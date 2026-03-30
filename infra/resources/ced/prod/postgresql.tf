@@ -14,8 +14,8 @@ module "postgresql" {
     instance_number = "01"
   }
 
-
   storage_mb = 262144
+  replica_location = local.secondary_location
 
   resource_group_name = module.azure_core_values.common_resource_group_name
   tags                = local.tags

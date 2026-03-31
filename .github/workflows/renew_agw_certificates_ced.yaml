@@ -8,22 +8,13 @@ on:
 jobs:
 
   renew-certificate:
-    name: Create or Renew Certificate CED
-    runs-on: ubuntu-latest
-    environment: infra-prod-cd
-
-    steps:
-      - name: Renew TLS Certificate CED
-        uses: pagopa/dx/actions/renew-tls-certificate@main
-        with:
-          force_renewal: true
-          key_vault_name: ced-p-itn-common-kv-01
-          csr_common_name: api.ced.pagopa.it
-          dns_zone: ced.pagopa.it
-          dns_zone_resource_group: ced-p-itn-network-rg-01
-          arm_client_id: ${{ secrets.ARM_CLIENT_ID }}
-          arm_subscription_id: ${{ secrets.ARM_SUBSCRIPTION_ID }}
-          arm_tenant_id: ${{ secrets.ARM_TENANT_ID }}
-          lets_encrypt_private_key_json: ${{ secrets.LETS_ENCRYPT_PRIVATE_KEY_JSON }}
-          lets_encrypt_registration_json: ${{ secrets.LETS_ENCRYPT_REGISTRATION_JSON }}
-      
+    uses: pagopa/dx/.github/workflows/release-certificate-v1.yaml@main
+    name: Create or Renew Certificate CED    
+    secrets: inherit
+    with:
+      force_renewal: true
+      key_vault_name: ced-p-itn-common-kv-01
+      csr_common_name: api.ced.pagopa.it
+      dns_zone: ced.pagopa.it
+      dns_zone_resource_group: ced-p-itn-network-rg-01
+      environment: infra-prod

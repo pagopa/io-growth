@@ -14,6 +14,7 @@
 | Name | Version |
 |------|---------|
 | <a name="provider_azuread"></a> [azuread](#provider\_azuread) | 2.53.1 |
+| <a name="provider_azurerm.PROD-CED"></a> [azurerm.PROD-CED](#provider\_azurerm.PROD-CED) | 4.63.0 |
 
 ## Modules
 
@@ -26,9 +27,11 @@
 
 | Name | Type |
 |------|------|
+| [azurerm_role_assignment.infra_cd_common_rg_key_vault_secrets_user](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/role_assignment) | resource |
 | [azuread_group.admins](https://registry.terraform.io/providers/hashicorp/azuread/latest/docs/data-sources/group) | data source |
 | [azuread_group.developers](https://registry.terraform.io/providers/hashicorp/azuread/latest/docs/data-sources/group) | data source |
 | [azuread_group.externals](https://registry.terraform.io/providers/hashicorp/azuread/latest/docs/data-sources/group) | data source |
+| [azurerm_resource_group.common](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/resource_group) | data source |
 
 ## Inputs
 

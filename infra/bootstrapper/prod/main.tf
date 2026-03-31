@@ -64,3 +64,11 @@ module "azure-PROD-CED_bootstrap" {
 
   tags = local.tags
 }
+
+resource "azurerm_role_assignment" "infra_cd_common_rg_key_vault_secrets_user" {
+  provider             = azurerm.PROD-CED
+  scope                = data.azurerm_resource_group.common.id
+  role_definition_name = "Key Vault Secrets User"
+  principal_id         = module.azure-PROD-CED_bootstrap.identities.infra.cd.principal_id
+  description          = "Allow io-growth Infra CD identity to read Key Vault secrets in the common resource group"
+}

@@ -4,18 +4,19 @@ on:
   workflow_dispatch: {}
   schedule:
     - cron: '0 2 1 * *'  # At 02:00 on day-of-month 1
+permissions:
+  id-token: write
 
 jobs:
-  renew:
-    uses: pagopa/io-infra/.github/workflows/ssl_certificate_renewal.yaml@b04e50d300f48d840b77d5e913ede0d8a605aa4f
-    name: Renew Application Gateway certificate CED
+
+  renew-certificate:
+    uses: pagopa/dx/.github/workflows/release-certificate-v1.yaml@main
+    name: Create or Renew Certificate CED    
     secrets: inherit
     with:
-        csr_common_name: api.ced.pagopa.it
-        azure_dns_zone_resource_group: ced-p-itn-network-rg-01
-        azure_dns_zone: ced.pagopa.it
-        key_vault_name: ced-p-itn-common-kv-01
-        force_renew_cert: true
-        environment: infra-prod
-        use_selfhosted_agent: true
-      
+      force_renewal: true
+      key_vault_name: ced-p-itn-common-kv-01
+      csr_common_name: api.ced.pagopa.it
+      dns_zone: ced.pagopa.it
+      dns_zone_resource_group: ced-p-itn-network-rg-01
+      environment: infra-prod

@@ -37,7 +37,7 @@ module "redis" {
 
   subnet_pep_id       = module.azure_core_values.common_pep_snet.id
   virtual_network_id  = module.azure_core_values.common_vnet.id
-  private_dns_zone_id = module.dns.private_dns_zones["redis"].id
+  private_dns_zone_id = module.azure_core_values.private_dns_zones["redis"].id
 
   tags = local.tags
 }

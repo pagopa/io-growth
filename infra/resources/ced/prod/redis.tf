@@ -12,7 +12,7 @@ module "redis" {
   clustering_policy         = "NoCluster"
 
   subnet_pep_id       = module.azure_core_values.common_pep_snet.id
-  private_dns_zone_id = module.azure_core_values.private_dns_zones["redis"].id
+  private_dns_zone_id = data.azurerm_private_dns_zone.managed_redis.id
 
   tags = local.tags
 }

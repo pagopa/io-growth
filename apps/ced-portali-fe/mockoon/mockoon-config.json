@@ -1,0 +1,113 @@
+{
+    "uuid": "89eb3964-861e-4565-ac11-dbe8931ec2dc",
+    "lastMigration": 33,
+    "name": "Ced",
+    "endpointPrefix": "",
+    "latency": 0,
+    "port": 3001,
+    "hostname": "",
+    "folders": [],
+    "routes": [
+        {
+            "uuid": "15ccebf6-2ca1-4eb5-b7d8-232e8d4e50db",
+            "type": "http",
+            "documentation": "Elenco agevolazioni",
+            "method": "get",
+            "endpoint": "api/benefits",
+            "responses": [
+                {
+                    "uuid": "2b72d703-d310-45f6-8e17-365836adad2b",
+                    "body": "[\n    {\n        \"name\": \"Test Revisione\",\n        \"category\": \"Mobilita\",\n        \"created_by\": \"31-03-2026\",\n        \"state\": \"Revisione\"\n    },\n    {\n        \"name\": \"Test Bozza\",\n        \"category\": \"Mobilita\",\n        \"created_by\": \"31-03-2026\",\n        \"state\": \"Bozza\"\n    },\n    {\n        \"name\": \"Test modifiche richieste\",\n        \"category\": \"Mobilita\",\n        \"created_by\": \"31-03-2026\",\n        \"state\": \"Modifiche_Richieste\"\n    },\n    {\n        \"name\": \"Test Pubblicata\",\n        \"category\": \"Mobilita\",\n        \"created_by\": \"31-03-2026\",\n        \"state\": \"Pubblicata\"\n    },\n    {\n        \"name\": \"Test Pubblicazione Programmata\",\n        \"category\": \"Mobilita\",\n        \"created_by\": \"31-03-2026\",\n        \"state\": \"Pubblicazione_Programmata\"\n    }\n]",
+                    "latency": 0,
+                    "statusCode": 200,
+                    "label": "Response with all statuses",
+                    "headers": [],
+                    "bodyType": "INLINE",
+                    "filePath": "",
+                    "databucketID": "",
+                    "sendFileAsBody": false,
+                    "rules": [],
+                    "rulesOperator": "OR",
+                    "disableTemplating": false,
+                    "fallbackTo404": false,
+                    "default": true,
+                    "crudKey": "id",
+                    "callbacks": []
+                },
+                {
+                    "uuid": "ff25f763-7669-43f0-b42c-c4fd1e40cadb",
+                    "body": "[]",
+                    "latency": 0,
+                    "statusCode": 200,
+                    "label": "Empty response",
+                    "headers": [],
+                    "bodyType": "INLINE",
+                    "filePath": "",
+                    "databucketID": "",
+                    "sendFileAsBody": false,
+                    "rules": [],
+                    "rulesOperator": "OR",
+                    "disableTemplating": false,
+                    "fallbackTo404": false,
+                    "default": false,
+                    "crudKey": "id",
+                    "callbacks": []
+                }
+            ],
+            "responseMode": null,
+            "streamingMode": null,
+            "streamingInterval": 0
+        }
+    ],
+    "rootChildren": [
+        {
+            "type": "route",
+            "uuid": "15ccebf6-2ca1-4eb5-b7d8-232e8d4e50db"
+        }
+    ],
+    "proxyMode": false,
+    "proxyHost": "",
+    "proxyRemovePrefix": false,
+    "tlsOptions": {
+        "enabled": false,
+        "type": "CERT",
+        "pfxPath": "",
+        "certPath": "",
+        "keyPath": "",
+        "caPath": "",
+        "passphrase": ""
+    },
+    "cors": true,
+    "headers": [
+        {
+            "key": "Content-Type",
+            "value": "application/json"
+        },
+        {
+            "key": "Access-Control-Allow-Origin",
+            "value": "*"
+        },
+        {
+            "key": "Access-Control-Allow-Methods",
+            "value": "GET,POST,PUT,PATCH,DELETE,HEAD,OPTIONS"
+        },
+        {
+            "key": "Access-Control-Allow-Headers",
+            "value": "Content-Type, Origin, Accept, Authorization, Content-Length, X-Requested-With"
+        }
+    ],
+    "proxyReqHeaders": [
+        {
+            "key": "",
+            "value": ""
+        }
+    ],
+    "proxyResHeaders": [
+        {
+            "key": "",
+            "value": ""
+        }
+    ],
+    "data": [],
+    "callbacks": []
+}

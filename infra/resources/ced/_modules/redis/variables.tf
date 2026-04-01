@@ -1,11 +1,11 @@
 variable "name" {
   type        = string
-  description = "The name of the Redis Cache."
+  description = "The name of the Managed Redis instance."
 }
 
 variable "location" {
   type        = string
-  description = "The Azure region where the Redis Cache will be created."
+  description = "The Azure region where the Managed Redis instance will be created."
 }
 
 variable "resource_group_name" {
@@ -13,58 +13,48 @@ variable "resource_group_name" {
   description = "The name of the resource group."
 }
 
-variable "capacity" {
-  type        = number
-  description = "The size of the Redis Cache."
-  default     = 1
-}
-
-variable "family" {
-  type        = string
-  description = "The SKU family. Valid values are C (Basic/Standard) and P (Premium)."
-  default     = "P"
-}
-
 variable "sku_name" {
   type        = string
-  description = "The SKU name. Valid values are Basic, Standard, and Premium."
-  default     = "Premium"
+  description = "The Managed Redis SKU name, for example Balanced_B10."
 }
 
-variable "redis_version" {
-  type        = string
-  description = "The version of Redis to use: 4 (deprecated) or 6."
-  default     = "6"
+variable "high_availability_enabled" {
+  type        = bool
+  description = "Whether to enable high availability for the Managed Redis instance."
+  default     = true
 }
 
 variable "enable_authentication" {
   type        = bool
-  description = "If set to false, the Redis instance will be accessible without authentication."
+  description = "Whether access-key authentication is enabled for the default database."
   default     = true
 }
 
-variable "custom_zones" {
-  type        = list(number)
-  description = "(Optional/Premium Only) Specifies a list of Availability Zones in which this Redis Cache should be located."
-  default     = []
+variable "client_protocol" {
+  type        = string
+  description = "The client protocol for the default database. Valid values are Encrypted and Plaintext."
+  default     = "Encrypted"
+
+  validation {
+    condition     = contains(["Encrypted", "Plaintext"], var.client_protocol)
+    error_message = "client_protocol must be either Encrypted or Plaintext."
+  }
 }
 
-variable "patch_schedules" {
-  type = list(object({
-    day_of_week    = string
-    start_hour_utc = number
-  }))
-  default = []
+variable "clustering_policy" {
+  type        = string
+  description = "The clustering policy for the default database. Valid values are EnterpriseCluster, OSSCluster, and NoCluster."
+  default     = "NoCluster"
+
+  validation {
+    condition     = contains(["EnterpriseCluster", "OSSCluster", "NoCluster"], var.clustering_policy)
+    error_message = "clustering_policy must be one of EnterpriseCluster, OSSCluster, or NoCluster."
+  }
 }
 
 variable "subnet_pep_id" {
   type        = string
   description = "The ID of the subnet used for private endpoints."
-}
-
-variable "virtual_network_id" {
-  type        = string
-  description = "The ID of the virtual network used for the private endpoint."
 }
 
 variable "private_dns_zone_id" {

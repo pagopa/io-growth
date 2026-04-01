@@ -1,24 +1,37 @@
-module "redis_cache" {
-  source = "github.com/pagopa/terraform-azurerm-v4//redis_cache?ref=v5.5.0"
-
+resource "azurerm_managed_redis" "this" {
   name                = var.name
-  resource_group_name = var.resource_group_name
   location            = var.location
+  resource_group_name = var.resource_group_name
+  sku_name            = var.sku_name
 
-  capacity              = var.capacity
-  family                = var.family
-  sku_name              = var.sku_name
-  redis_version         = var.redis_version
-  enable_authentication = var.enable_authentication
-  custom_zones          = var.custom_zones
+  high_availability_enabled = var.high_availability_enabled
+  public_network_access     = "Disabled"
 
-  patch_schedules = var.patch_schedules
+  default_database {
+    access_keys_authentication_enabled = var.enable_authentication
+    client_protocol                    = var.client_protocol
+    clustering_policy                  = var.clustering_policy
+  }
 
-  private_endpoint = {
-    enabled              = true
-    subnet_id            = var.subnet_pep_id
-    virtual_network_id   = var.virtual_network_id
+  tags = var.tags
+}
+
+resource "azurerm_private_endpoint" "this" {
+  name                = "${azurerm_managed_redis.this.name}-private-endpoint"
+  location            = var.location
+  resource_group_name = var.resource_group_name
+  subnet_id           = var.subnet_pep_id
+
+  private_dns_zone_group {
+    name                 = "${azurerm_managed_redis.this.name}-private-dns-zone-group"
     private_dns_zone_ids = [var.private_dns_zone_id]
+  }
+
+  private_service_connection {
+    name                           = "${azurerm_managed_redis.this.name}-private-service-connection"
+    private_connection_resource_id = azurerm_managed_redis.this.id
+    is_manual_connection           = false
+    subresource_names              = ["redisEnterprise"]
   }
 
   tags = var.tags

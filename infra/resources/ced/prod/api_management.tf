@@ -20,8 +20,8 @@ module "ced_apim" {
   subnet_cidr   = dx_available_subnet_cidr.cidr_24.cidr_block
   subnet_pep_id = module.azure_core_values.common_pep_snet.id
 
-  publisher_email = "todo:publisheremail"
-  publisher_name  = "todo:publishername"
+  publisher_email = "team-io-growth@pagopa.it"
+  publisher_name  = "Team IO Ecosystem Growth"
 
   tags = local.tags
 }

@@ -17,11 +17,11 @@ locals {
   }
 
   tags = {
-    CostCenter     = "TS310 - PAGAMENTI & SERVIZI"
+    CostCenter     = "TS000 - Tecnologia e Servizi"
     CreatedBy      = "Terraform"
     Environment    = "Prod"
-    Owner          = "IO"
-    ManagementTeam = "IO GROWTH"
+    BusinessUnit   = "CED"
+    ManagementTeam = "IO ECOSYSTEM GROWTH"
     Source         = "https://github.com/pagopa/io-growth/blob/main/infra/resources/ced/prod"
   }
 }

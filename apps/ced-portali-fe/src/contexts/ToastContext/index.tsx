@@ -5,9 +5,9 @@ import {
   useMemo,
   useState,
   type PropsWithChildren,
-} from "react";
+} from 'react';
 
-type ToastVariant = "success" | "error" | "info";
+type ToastVariant = 'success' | 'error' | 'info';
 
 interface ToastState {
   message: string;
@@ -24,7 +24,7 @@ export function ToastProvider({ children }: PropsWithChildren) {
   const [toast, setToast] = useState<ToastState | null>(null);
 
   const showToast = useCallback(
-    (message: string, variant: ToastVariant = "info") => {
+    (message: string, variant: ToastVariant = 'info') => {
       setToast({ message, variant });
       window.setTimeout(() => setToast(null), 2500);
     },
@@ -39,19 +39,19 @@ export function ToastProvider({ children }: PropsWithChildren) {
       {toast ? (
         <div
           style={{
-            position: "fixed",
+            position: 'fixed',
             right: 24,
             bottom: 24,
-            padding: "14px 18px",
+            padding: '14px 18px',
             borderRadius: 14,
-            color: "#fff",
+            color: '#fff',
             background:
-              toast.variant === "error"
-                ? "#b42318"
-                : toast.variant === "success"
-                  ? "#117a65"
-                  : "#1c6dd0",
-            boxShadow: "0 18px 40px rgba(28, 73, 127, 0.18)",
+              toast.variant === 'error'
+                ? '#b42318'
+                : toast.variant === 'success'
+                  ? '#117a65'
+                  : '#1c6dd0',
+            boxShadow: '0 18px 40px rgba(28, 73, 127, 0.18)',
           }}
         >
           {toast.message}
@@ -65,7 +65,7 @@ export function useToast() {
   const context = useContext(ToastContext);
 
   if (!context) {
-    throw new Error("useToast must be used within ToastProvider");
+    throw new Error('useToast must be used within ToastProvider');
   }
 
   return context;

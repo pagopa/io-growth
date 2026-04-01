@@ -12,7 +12,7 @@ const APPROVED_STATES: Set<BenefitState> = new Set([
   'Pubblicazione_Programmata',
 ]);
 
-export function useBenefitsData() {
+export const useBenefitsData = () => {
   const query = useGetBenefitsQuery();
 
   const items = useMemo(() => query.data ?? [], [query.data]);
@@ -34,8 +34,8 @@ export function useBenefitsData() {
     approvedItems,
     hasItems: Boolean(items.length),
   };
-}
+};
 
-export function formatBenefitRow(item: Benefit) {
+export const formatBenefitRow = (item: Benefit) => {
   return `${item.name} · ${item.category} · ${item.created_by} · ${item.state}`;
-}
+};

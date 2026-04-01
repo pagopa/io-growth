@@ -6,6 +6,6 @@ export const APP_ROUTES = {
   NOT_FOUND: '*',
 } as const;
 
-export const BenefitsPage = lazy(() => import('../pages/Home'));
+export const HomePage = lazy(() => import('../pages/Home'));
 export const UnauthorizedPage = lazy(() => import('../pages/Unauthorized'));
 export const NotFoundPage = lazy(() => import('../pages/NotFound'));

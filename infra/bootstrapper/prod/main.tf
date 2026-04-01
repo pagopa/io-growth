@@ -58,25 +58,11 @@ module "azure-PROD-CED_bootstrap" {
     use_github_app = true
   }
 
+  additional_resource_group_ids = [data.azurerm_resource_group.common.id]
+
   pep_vnet_id                        = module.azure-PROD-CED_core_values.common_vnet.id
   private_dns_zone_resource_group_id = module.azure-PROD-CED_core_values.network_resource_group_id
   opex_resource_group_id             = module.azure-PROD-CED_core_values.opex_resource_group_id
 
   tags = local.tags
-}
-
-resource "azurerm_role_assignment" "infra_cd_common_rg_key_vault_secrets_officer" {
-  provider             = azurerm.PROD-CED
-  scope                = data.azurerm_resource_group.common.id
-  role_definition_name = "Key Vault Secrets Officer"
-  principal_id         = module.azure-PROD-CED_bootstrap.identities.infra.cd.principal_id
-  description          = "Allow io-growth Infra CD identity to manage Key Vault secrets in the common resource group"
-}
-
-resource "azurerm_role_assignment" "infra_cd_common_rg_key_vault_certificates_officer" {
-  provider             = azurerm.PROD-CED
-  scope                = data.azurerm_resource_group.common.id
-  role_definition_name = "Key Vault Certificates Officer"
-  principal_id         = module.azure-PROD-CED_bootstrap.identities.infra.cd.principal_id
-  description          = "Allow io-growth Infra CD identity to manage Key Vault certificates in the common resource group"
 }

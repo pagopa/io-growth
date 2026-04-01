@@ -1,6 +1,5 @@
 import { italia } from '@pagopa/mui-italia';
 import { Box } from '@mui/material';
-
 import { MainContent } from './MainContent';
 import {
   Footer,
@@ -9,7 +8,7 @@ import {
   TopUtilityBar,
 } from '../../components';
 
-export default function BenefitsPage() {
+export default function HomePage() {
   return (
     <Box
       sx={{

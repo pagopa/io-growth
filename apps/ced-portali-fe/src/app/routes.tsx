@@ -3,7 +3,7 @@ import { Route, Routes } from 'react-router-dom';
 import { ProtectedRoute } from '../core/auth/ProtectedRoute';
 import {
   APP_ROUTES,
-  BenefitsPage,
+  HomePage,
   NotFoundPage,
   UnauthorizedPage,
 } from './routeConfig';
@@ -13,7 +13,7 @@ export function AppRoutes() {
     <Suspense fallback={<div style={{ padding: 24 }}>Loading...</div>}>
       <Routes>
         <Route>
-          <Route path={APP_ROUTES.HOME} element={<BenefitsPage />} />
+          <Route path={APP_ROUTES.HOME} element={<HomePage />} />
           <Route
             path={APP_ROUTES.UNAUTHORIZED}
             element={<UnauthorizedPage />}

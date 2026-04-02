@@ -1,24 +1,24 @@
-module "app_service_portal_be" {
-  source = "../_modules/app_service_portal_be"
+module "common_container_app_environment" {
+  source = "../_modules/common_container_app_environment"
 
   environment = {
     prefix          = local.prefix
     env_short       = local.env_short
     location        = local.location
-    app_name        = "portal-be"
+    app_name        = "common"
     instance_number = "01"
   }
 
   resource_group_name = module.azure_core_values.common_resource_group_name
   tags                = local.tags
 
-  health_check_path = "/health"
+  log_analytics_workspace_id = module.azure_core_values.common_log_analytics_workspace.id
 
   virtual_network = {
-    resource_group_name = module.azure_core_values.network_resource_group_name
     name                = module.azure_core_values.common_vnet.name
+    resource_group_name = module.azure_core_values.network_resource_group_name
   }
 
-  subnet_cidr   = dx_available_subnet_cidr.cidr_26.cidr_block
+  subnet_cidr   = dx_available_subnet_cidr.cidr_23.cidr_block
   subnet_pep_id = module.azure_core_values.common_pep_snet.id
 }

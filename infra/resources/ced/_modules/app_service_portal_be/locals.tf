@@ -1,5 +1,0 @@
-locals {
-  app_settings = {
-
-  }
-}

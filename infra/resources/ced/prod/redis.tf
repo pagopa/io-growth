@@ -1,11 +1,11 @@
 module "redis" {
   source = "../_modules/redis"
 
-  name                = "${local.project}-redis-01"
+  name                = "${local.project}-redis-common-01"
   resource_group_name = module.azure_core_values.common_resource_group_name
   location            = local.location
 
-  sku_name                  = "Balanced_B10"
+  sku_name                  = "Balanced_B5"
   high_availability_enabled = true
   enable_authentication     = true
   client_protocol           = "Encrypted"

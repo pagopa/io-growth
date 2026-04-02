@@ -58,6 +58,8 @@ module "azure-PROD-CED_bootstrap" {
     use_github_app = true
   }
 
+  apim_id = data.azurerm_api_management.ced_apim.id
+
   additional_resource_group_ids = [data.azurerm_resource_group.common.id]
 
   pep_vnet_id                        = module.azure-PROD-CED_core_values.common_vnet.id

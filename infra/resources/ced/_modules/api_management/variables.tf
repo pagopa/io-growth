@@ -3,6 +3,7 @@ variable "environment" {
     prefix          = string
     env_short       = string
     location        = string
+    location_short  = string
     domain          = optional(string)
     app_name        = string
     instance_number = string

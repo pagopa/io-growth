@@ -5,6 +5,7 @@ module "ced_apim" {
     prefix          = local.prefix
     env_short       = local.env_short
     location        = local.location
+    location_short  = local.location_short
     app_name        = "apim"
     instance_number = "01"
   }

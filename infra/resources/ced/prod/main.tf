@@ -45,6 +45,12 @@ resource "dx_available_subnet_cidr" "cidr_24" {
   prefix_length      = 24
 }
 
+resource "dx_available_subnet_cidr" "cidr_23" {
+  provider           = dx
+  virtual_network_id = module.azure_core_values.common_vnet.id
+  prefix_length      = 23
+}
+
 module "dns" {
   source = "../_modules/dns"
 

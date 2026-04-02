@@ -40,13 +40,11 @@ variable "admin_password_version" {
 variable "key_vault_id" {
   type        = string
   description = "Key Vault ID for storing the admin password secret."
-  default     = null
 }
 
 variable "subnet_pep_id" {
   type        = string
   description = "The ID of the subnet used for private endpoints."
-  default     = null
 }
 
 variable "db_version" {
@@ -58,7 +56,6 @@ variable "db_version" {
 variable "storage_mb" {
   type        = number
   description = "Maximum storage allowed in MB."
-  default     = 32768
 }
 
 variable "pgbouncer_enabled" {
@@ -70,7 +67,7 @@ variable "pgbouncer_enabled" {
 variable "create_replica" {
   type        = bool
   description = "Whether to create a replica PostgreSQL Flexible Server."
-  default     = true
+  default     = false
 }
 
 variable "replica_location" {

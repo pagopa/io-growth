@@ -17,7 +17,7 @@ module "ced_apim" {
     name                = module.azure_core_values.common_vnet.name
   }
 
-  subnet_cidr   = dx_available_subnet_cidr.cidr_24.cidr_block
+  subnet_cidr   = dx_available_subnet_cidr.cidr_23.cidr_block
   subnet_pep_id = module.azure_core_values.common_pep_snet.id
 
   publisher_email = "team-io-growth@pagopa.it"

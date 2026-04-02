@@ -7,7 +7,7 @@ module "redis" {
 
   sku_name                  = "Balanced_B5"
   high_availability_enabled = true
-  enable_authentication     = true
+  enable_authentication     = false
   client_protocol           = "Encrypted"
   clustering_policy         = "NoCluster"
 

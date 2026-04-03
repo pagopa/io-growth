@@ -28,28 +28,18 @@ export function BenefitsContentState({
   const theme = useTheme();
   const hasData = !isLoading && !isError && items.length > 0;
 
-  return (
-    <Paper
-      elevation={0}
-      sx={{
-        mt: 2,
-        borderRadius: 2.5,
-        border: '8px solid',
-        borderColor: theme.palette.divider,
-        bgcolor: 'common.white',
-        minHeight: 164,
-        display: hasData ? 'block' : 'grid',
-        placeItems: hasData ? 'normal' : 'center',
-      }}
-    >
-      {isLoading ? (
+  const renderContent = () => {
+    if (isLoading)
+      return (
         <Stack spacing={1} alignItems="center" textAlign="center">
           <CircularProgress size={28} />
           <Typography sx={{ fontSize: 16, color: 'text.secondary' }}>
             Caricamento agevolazioni...
           </Typography>
         </Stack>
-      ) : isError ? (
+      );
+    if (isError)
+      return (
         <Stack spacing={1.5} alignItems="center" textAlign="center">
           <WarningAmberRoundedIcon
             sx={{ color: 'text.secondary', fontSize: 28 }}
@@ -67,7 +57,9 @@ export function BenefitsContentState({
             Riprova
           </Button>
         </Stack>
-      ) : items.length === 0 ? (
+      );
+    if (items.length === 0)
+      return (
         <Stack spacing={1} alignItems="center" textAlign="center">
           <WarningAmberRoundedIcon
             sx={{ color: 'text.secondary', fontSize: 28 }}
@@ -87,9 +79,25 @@ export function BenefitsContentState({
               : 'Qui vedrai le agevolazioni approvate.'}
           </Typography>
         </Stack>
-      ) : (
-        <BenefitsTable items={items} />
-      )}
+      );
+    return <BenefitsTable items={items} />;
+  };
+
+  return (
+    <Paper
+      elevation={0}
+      sx={{
+        mt: 2,
+        borderRadius: 2.5,
+        border: '8px solid',
+        borderColor: theme.palette.divider,
+        bgcolor: 'common.white',
+        minHeight: 164,
+        display: hasData ? 'block' : 'grid',
+        placeItems: hasData ? 'normal' : 'center',
+      }}
+    >
+      {renderContent()}
     </Paper>
   );
 }

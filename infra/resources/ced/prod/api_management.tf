@@ -1,3 +1,9 @@
+resource "dx_available_subnet_cidr" "cidr_23_apim" {
+  provider           = dx
+  virtual_network_id = module.azure_core_values.common_vnet.id
+  prefix_length      = 23
+}
+
 module "ced_apim" {
   source = "../_modules/api_management"
 
@@ -18,7 +24,7 @@ module "ced_apim" {
     name                = module.azure_core_values.common_vnet.name
   }
 
-  subnet_cidr   = dx_available_subnet_cidr.cidr_23.cidr_block
+  subnet_cidr   = dx_available_subnet_cidr.cidr_23_apim.cidr_block
   subnet_pep_id = module.azure_core_values.common_pep_snet.id
 
   publisher_email = "team-io-growth@pagopa.it"
@@ -26,4 +32,3 @@ module "ced_apim" {
 
   tags = local.tags
 }
-

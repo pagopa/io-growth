@@ -1,3 +1,9 @@
+resource "dx_available_subnet_cidr" "cidr_24_agw" {
+  provider           = dx
+  virtual_network_id = module.azure_core_values.common_vnet.id
+  prefix_length      = 24
+}
+
 module "application_gateway" {
   source = "../_modules/application_gateway"
 
@@ -20,7 +26,7 @@ module "application_gateway" {
     name                = module.azure_core_values.common_vnet.name
   }
 
-  subnet_cidr = dx_available_subnet_cidr.cidr_24.cidr_block
+  subnet_cidr = dx_available_subnet_cidr.cidr_24_agw.cidr_block
 
   key_vault_name = module.azure_core_values.common_key_vault.name
 
@@ -34,6 +40,25 @@ module "application_gateway" {
   azurerm_monitor_action_group_id = azurerm_monitor_action_group.ced_error_action_group.id
 
   alert_sensitivity = "Medium"
+
+  tags = local.tags
+}
+
+################################################################################
+# DNS Configuration
+################################################################################
+
+data "azurerm_dns_zone" "ced" {
+  name                = "ced.pagopa.it"
+  resource_group_name = module.azure_core_values.network_resource_group_name
+}
+
+resource "azurerm_dns_a_record" "api" {
+  name                = "api"
+  zone_name           = data.azurerm_dns_zone.ced.name
+  resource_group_name = data.azurerm_dns_zone.ced.resource_group_name
+  ttl                 = 3600
+  records             = [module.application_gateway.agw.ip_address]
 
   tags = local.tags
 }

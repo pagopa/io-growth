@@ -5,13 +5,13 @@ resource "azurerm_monitor_action_group" "ced_error_action_group" {
 
   email_receiver {
     name                    = "email"
-    email_address           = "todo:anemail"
+    email_address           = "@Microsoft.KeyVault(VaultName=${module.azure_core_values.common_key_vault.name};SecretName=action-group-email)"
     use_common_alert_schema = true
   }
 
   email_receiver {
     name                    = "slack"
-    email_address           = "todo:aslackemail"
+    email_address           = "@Microsoft.KeyVault(VaultName=${module.azure_core_values.common_key_vault.name};SecretName=action-group-slack)"
     use_common_alert_schema = true
   }
 

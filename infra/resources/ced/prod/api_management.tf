@@ -1,0 +1,34 @@
+resource "dx_available_subnet_cidr" "cidr_23_apim" {
+  provider           = dx
+  virtual_network_id = module.azure_core_values.common_vnet.id
+  prefix_length      = 23
+}
+
+module "ced_apim" {
+  source = "../_modules/api_management"
+
+  environment = {
+    prefix          = local.prefix
+    env_short       = local.env_short
+    location        = local.location
+    location_short  = local.location_short
+    app_name        = "apim"
+    instance_number = "01"
+  }
+
+  resource_group_name = module.azure_core_values.common_resource_group_name
+  use_case            = "high_load"
+
+  virtual_network = {
+    resource_group_name = module.azure_core_values.network_resource_group_name
+    name                = module.azure_core_values.common_vnet.name
+  }
+
+  subnet_cidr   = dx_available_subnet_cidr.cidr_23_apim.cidr_block
+  subnet_pep_id = module.azure_core_values.common_pep_snet.id
+
+  publisher_email = "team-io-growth@pagopa.it"
+  publisher_name  = "Team IO Ecosystem Growth"
+
+  tags = local.tags
+}

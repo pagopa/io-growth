@@ -58,6 +58,8 @@ module "azure-PROD-CED_bootstrap" {
     use_github_app = true
   }
 
+  apim_id = data.azurerm_api_management.ced_apim.id
+
   additional_resource_group_ids = [data.azurerm_resource_group.common.id]
 
   pep_vnet_id                        = module.azure-PROD-CED_core_values.common_vnet.id
@@ -65,4 +67,27 @@ module "azure-PROD-CED_bootstrap" {
   opex_resource_group_id             = module.azure-PROD-CED_core_values.opex_resource_group_id
 
   tags = local.tags
+}
+
+resource "azurerm_role_definition" "infra_ci_stapp_list_secrets" {
+  provider    = azurerm.PROD-CED
+  name        = "PagoPA Static Web App List Secrets"
+  scope       = module.azure-PROD-CED_core_values.subscription_id
+  description = "Allow listing secrets for Azure Static Web Apps, required by the Terraform azurerm provider"
+
+  permissions {
+    actions = ["Microsoft.Web/staticSites/listSecrets/action"]
+  }
+
+  assignable_scopes = [
+    module.azure-PROD-CED_core_values.subscription_id
+  ]
+}
+
+resource "azurerm_role_assignment" "infra_ci_stapp_list_secrets" {
+  provider           = azurerm.PROD-CED
+  scope              = data.azurerm_static_web_app.portal_fe.id
+  role_definition_id = azurerm_role_definition.infra_ci_stapp_list_secrets.role_definition_resource_id
+  principal_id       = module.azure-PROD-CED_bootstrap.identities.infra.ci.principal_id
+  description        = "Allow io-growth Infra CI identity to list secrets for the portal frontend Static Web App"
 }

@@ -33,18 +33,6 @@ module "azure_core_values" {
   core_state = local.core_state
 }
 
-resource "dx_available_subnet_cidr" "cidr_26" {
-  provider           = dx
-  virtual_network_id = module.azure_core_values.common_vnet.id
-  prefix_length      = 26
-}
-
-resource "dx_available_subnet_cidr" "cidr_24" {
-  provider           = dx
-  virtual_network_id = module.azure_core_values.common_vnet.id
-  prefix_length      = 24
-}
-
 module "dns" {
   source = "../_modules/dns"
 

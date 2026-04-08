@@ -5,7 +5,7 @@ on:
         branches:
             - main
         paths:
-            - "apps/portal-fe/**"
+            - "apps/ced-portal-fe/**"
     pull_request:
         types:
             - opened
@@ -15,7 +15,7 @@ on:
         branches:
             - main
         paths:
-            - "apps/portal-fe/**"
+            - "apps/ced-portal-fe/**"
 
 jobs:
     deploy_portal_fe:
@@ -23,7 +23,7 @@ jobs:
         name: Deploy Portal FE
         secrets: inherit
         with:
-            workspace_name: portal-fe
+            workspace_name: ced-portal-fe
             output_dir: dist
             static_web_app_name: ced-p-itn-portalfe-stapp-01
             resource_group_name: ced-p-itn-common-rg-01

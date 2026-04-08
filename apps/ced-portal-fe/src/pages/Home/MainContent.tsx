@@ -21,10 +21,14 @@ export const MainContent = () => {
   const displayedItems = activeTab === 0 ? inManagementItems : approvedItems;
   return (
     <Box
-      sx={{ flex: 1, px: { xs: 2, md: 3.5 }, py: { xs: 3, md: 4.5 } }}
+      sx={{
+        minHeight: '100%',
+        px: { xs: 2, md: 3.5 },
+        py: { xs: 3, md: 4.5 },
+      }}
       bgcolor={theme.palette.common.neutralGray}
     >
-      <Stack spacing={3}>
+      <Stack spacing={3} sx={{ minHeight: '100%' }}>
         <MainContentHeader />
         <BenefitsFiltersBar statusOptions={statusOptions} />
 

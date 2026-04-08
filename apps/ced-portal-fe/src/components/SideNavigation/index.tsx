@@ -64,6 +64,7 @@ export function SideNavigation() {
       component="aside"
       sx={{
         width: { xs: 88, md: 340 },
+        height: '100%',
         bgcolor: 'common.white',
         borderRight: '1px solid',
         borderColor: 'divider',

@@ -1,0 +1,24 @@
+name: Deploy Portal BE to Azure Container App
+
+on:
+  workflow_dispatch: {}
+  push:
+    branches:
+      - main
+    paths:
+      - "apps/ced-portal-be/CHANGELOG.md"
+      - ".github/workflows/deploy_portal_be.yaml"
+
+jobs:
+  deploy_portal_be:
+    uses: pagopa/dx/.github/workflows/release-azure-containerapp-v1.yaml@main
+    name: Deploy Portal BE
+    secrets: inherit
+    with:
+      container_app: ced-p-itn-portal-be-ca-01
+      resource_group_name: ced-p-itn-common-rg-01
+      environment: prod
+      docker_image_description: "Portal Backend"
+      use_private_agent: true
+      use_labels: true
+      build_args: "APP_NAME=ced-portal-be"

@@ -1,12 +1,22 @@
 name: Deploy Portal FE to Azure Static Web App
 
 on:
-  workflow_dispatch:
-  push:
-      branches:
-          - main
-      paths:
-          - "apps/ced-portal-fe/**"
+    workflow_dispatch:
+    push:
+        branches:
+            - main
+        paths:
+            - "apps/ced-portal-fe/**"
+    pull_request:
+        types:
+            - opened
+            - synchronize
+            - reopened
+            - closed
+        branches:
+            - main
+        paths:
+            - "apps/ced-portal-fe/**"
 
 jobs:
     deploy_portal_fe:

@@ -1,7 +1,7 @@
 name: Deploy Portal BE to Azure Container App
 
 on:
-  workflow_dispatch: {}
+  workflow_dispatch:
   push:
     branches:
       - main

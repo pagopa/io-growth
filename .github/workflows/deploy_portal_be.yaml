@@ -17,6 +17,6 @@ jobs:
     with:
       container_app: ced-p-itn-portal-be-ca-01
       resource_group_name: ced-p-itn-common-rg-01
-      environment: prod
+      environment: app-prod
       docker_image_description: "Portal Backend"
       build_args: "APP_NAME=ced-portal-be"

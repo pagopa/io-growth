@@ -19,6 +19,4 @@ jobs:
       resource_group_name: ced-p-itn-common-rg-01
       environment: prod
       docker_image_description: "Portal Backend"
-      use_private_agent: true
-      use_labels: true
       build_args: "APP_NAME=ced-portal-be"

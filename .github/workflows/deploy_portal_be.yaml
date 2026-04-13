@@ -19,6 +19,7 @@ jobs:
     name: Deploy Portal BE
     secrets: inherit
     with:
+      # The dockerfile_context and dockerfile_path are not specified because the defaults are './' and './Dockerfile' respectively.
       container_app: ced-p-itn-portal-be-ca-01
       resource_group_name: ced-p-itn-common-rg-01
       environment: app-prod

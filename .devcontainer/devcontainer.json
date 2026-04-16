@@ -2,6 +2,7 @@
   "dockerComposeFile": "docker-compose.yml",
   "service": "workspace",
   "workspaceFolder": "/workspaces/io-growth",
+  "initializeCommand": "powershell.exe -NoProfile -ExecutionPolicy Bypass -File ./.devcontainer/scripts/export-devcontainer-ca.ps1 || pwsh -NoProfile -File ./.devcontainer/scripts/export-devcontainer-ca.ps1 || echo Skipping Windows certificate export",
   "features": {
     "ghcr.io/devcontainers-extra/features/pre-commit:2": {},
     "ghcr.io/devcontainers/features/azure-cli:1": {},
@@ -21,7 +22,9 @@
       "pnpmVersion": "none",
       "nvmInstallPath": "/opt/nvm"
     },
-    "ghcr.io/devcontainers/features/docker-outside-of-docker:1": {}
+    "ghcr.io/devcontainers/features/docker-outside-of-docker:1": {
+      "moby": true
+    }
   },
   "postStartCommand": {
     "set-workspace-as-safe-dir": "git config --global --add safe.directory ${containerWorkspaceFolder}"
@@ -45,8 +48,7 @@
         "vitest.explorer",
         "redhat.vscode-yaml",
         "dbaeumer.vscode-eslint",
-        "github.copilot",
-        "github.copilot-chat"
+        "github.copilot"
       ]
     }
   }

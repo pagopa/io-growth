@@ -1,1 +1,1 @@
-///exports here
+export { ToastProvider, useToast } from './ToastContext';

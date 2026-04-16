@@ -1,0 +1,7 @@
+{
+  "eslint.workingDirectories": [
+    {
+      "directory": "apps/ced-portal-be"
+    }
+  ]
+}

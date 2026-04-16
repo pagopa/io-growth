@@ -4,9 +4,7 @@ import { setLocalizedField } from '../../../../features/agreementDetailCreation/
 import { AgreementLanguageTabs } from './components/AgreementLanguageTabs';
 import { useCallback } from 'react';
 import { AgreementDetailHeading } from './components/AgreementDetailHeading';
-
 import { AppSelect, AppTextField } from '../../../../components';
-import { getBenefitTypeOptions } from '../AgreementCompanionSection/utils/agreementForm';
 import { FixedPriceBenefitFields } from './components/FixedPriceBenefitFields';
 import {
   selectActiveAgreementLanguage,

@@ -2,7 +2,7 @@ import ArrowBackRoundedIcon from '@mui/icons-material/ArrowBackRounded';
 import SaveAltRoundedIcon from '@mui/icons-material/SaveAltRounded';
 import { Button, Stack } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
-import { APP_ROUTES } from '../../../app/routeConfig';
+import { APP_ROUTES } from '../../../../../app/routeConfig';
 
 interface AgreementCreationActionsProps {
   onSaveDraft: () => void;

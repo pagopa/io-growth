@@ -1,2 +1,2 @@
-///exports here
-export * from './agreementFormCopy';
+export * from './copy/agreementCopy';
+export * from './copy/types';

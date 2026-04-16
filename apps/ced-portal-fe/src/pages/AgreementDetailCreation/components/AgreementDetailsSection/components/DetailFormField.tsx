@@ -1,5 +1,5 @@
 import { FormField, FormFieldProps } from '../../../../../components';
-import { getAgreementDetailsFormCopy } from '../../../../../constants';
+import { getAgreementCopy } from '../../../../../constants';
 import {
   selectActiveAgreementLanguage,
   selectFieldActiveAgreementLanguageForm,
@@ -17,7 +17,7 @@ export const DetailFormField = ({
   ...restProps
 }: DetailFormFieldProps) => {
   const activeLanguage = useAppSelector(selectActiveAgreementLanguage);
-  const copy = getAgreementDetailsFormCopy(activeLanguage);
+  const copy = getAgreementCopy(activeLanguage).detailsForm;
   const formConfig = getFormConfig(copy);
   const { placeholder, helperText, title } = formConfig.detail[name];
   const value = useAppSelector(selectFieldActiveAgreementLanguageForm(name));

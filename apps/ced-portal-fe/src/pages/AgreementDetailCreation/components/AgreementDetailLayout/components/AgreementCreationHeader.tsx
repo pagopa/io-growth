@@ -1,7 +1,7 @@
 import ArrowBackIosNewRoundedIcon from '@mui/icons-material/ArrowBackIosNewRounded';
 import { Button, Stack, Typography } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
-import { APP_ROUTES } from '../../../app/routeConfig';
+import { APP_ROUTES } from '../../../../../app/routeConfig';
 
 export function AgreementCreationHeader() {
   const navigate = useNavigate();

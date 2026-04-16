@@ -14,12 +14,18 @@ import {
 } from '../../../../features/agreementDetailCreation/selectors';
 import { DetailFormField } from './components/DetailFormField';
 import { AgreementDetailsFieldKey } from '../../../../features/agreementDetailCreation/types';
-import { getAgreementDetailsFormCopy } from '../../../../constants';
+import { getAgreementCopy } from '../../../../constants';
 
 export function AgreementDetailsSection() {
   const dispatch = useAppDispatch();
   const activeLanguage = useAppSelector(selectActiveAgreementLanguage);
-  const copy = getAgreementDetailsFormCopy(activeLanguage);
+  const copy = getAgreementCopy(activeLanguage);
+  console.log(
+    '🚀 ~ AgreementDetailsSection ~ copy:',
+    copy.detailsForm.benefitTypeOptions,
+  );
+
+  const benefitOptions = Object.values(copy.detailsForm.benefitTypeOptions);
 
   const benefitType = useAppSelector(
     selectFieldActiveAgreementLanguageForm('benefitType'),
@@ -42,7 +48,7 @@ export function AgreementDetailsSection() {
     (field: AgreementDetailsFieldKey, value: string | number) => {
       handleFieldChange(field, value);
 
-      if (value !== copy.benefitTypeOptions.fixedPrice) {
+      if (value !== copy.detailsForm.benefitTypeOptions.fixedPrice) {
         handleFieldChange('benefitDiscountValue', '');
         handleFieldChange('benefitDiscountValueType', '');
         handleFieldChange('otherBenefitTypeDescription', '');
@@ -55,8 +61,8 @@ export function AgreementDetailsSection() {
     <Paper elevation={0} sx={{ borderRadius: 2.5, p: { xs: 2, md: 3 } }}>
       <Stack spacing={2}>
         <AgreementDetailHeading
-          sectionTitle={copy.sectionTitle}
-          sectionDescription={copy.sectionDescription}
+          sectionTitle={copy.detailsForm.sectionTitle}
+          sectionDescription={copy.detailsForm.sectionDescription}
         />
 
         <AgreementLanguageTabs />
@@ -75,13 +81,16 @@ export function AgreementDetailsSection() {
               handleBenefitTypeChange('benefitType', event.target.value)
             }
           >
-            <AppSelect options={getBenefitTypeOptions(copy)} />
+            <AppSelect options={benefitOptions ?? []} />
           </DetailFormField>
 
           <FixedPriceBenefitFields />
 
           <DetailFormField
-            hide={benefitType !== copy.benefitTypeOptions.other}
+            hide={
+              benefitType !==
+              copy.additionalSections.companion.benefitTypeOptions.other
+            }
             name={'otherBenefitTypeDescription'}
             onChange={(event) =>
               handleFieldChange(
@@ -108,7 +117,7 @@ export function AgreementDetailsSection() {
               handleFieldChange('category', event.target.value)
             }
           >
-            <AppSelect options={copy.categoryOptions} />
+            <AppSelect options={copy.detailsForm.categoryOptions} />
           </DetailFormField>
 
           <DetailFormField

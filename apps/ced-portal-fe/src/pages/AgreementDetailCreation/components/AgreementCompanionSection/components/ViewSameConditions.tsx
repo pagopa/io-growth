@@ -5,10 +5,9 @@ import {
   selectFieldActiveAgreementLanguageForm,
 } from '../../../../../features/agreementDetailCreation/selectors';
 import { BenefitDiscountValueType } from '../../../../../features/agreementDetailCreation/types';
-import { getBenefitTypeOptions } from '../utils/agreementForm';
 import { FixedPriceFields } from './FixedPriceFields';
 import { DetailFormField } from '../../AgreementDetailsSection/components/DetailFormField';
-import { getAgreementDetailsFormCopy } from '../../../../../constants';
+import { getAgreementCopy } from '../../../../../constants';
 
 export const ViewSameConditions = () => {
   const benefitType = useAppSelector(
@@ -25,15 +24,15 @@ export const ViewSameConditions = () => {
   );
 
   const activeLanguage = useAppSelector(selectActiveAgreementLanguage);
-  const companionCopy = getAgreementDetailsFormCopy(activeLanguage);
+
+  const companionCopy =
+    getAgreementCopy(activeLanguage).additionalSections.companion;
+
+  const benefitTypeOptions = Object.values(companionCopy.benefitTypeOptions);
   return (
     <>
       <DetailFormField name={'benefitType'}>
-        <AppSelect
-          options={getBenefitTypeOptions(companionCopy)}
-          value={benefitType}
-          disabled
-        />
+        <AppSelect options={benefitTypeOptions} value={benefitType} disabled />
       </DetailFormField>
       {benefitType === companionCopy.benefitTypeOptions.fixedPrice && (
         <FixedPriceFields

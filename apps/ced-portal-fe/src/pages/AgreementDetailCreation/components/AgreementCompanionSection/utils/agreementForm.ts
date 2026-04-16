@@ -4,13 +4,6 @@ import {
   AgreementDetailsFieldKey,
 } from '../../../../../features/agreementDetailCreation/types';
 
-export const getBenefitTypeOptions = (copy: AgreementDetailsFormCopy) => [
-  copy.benefitTypeOptions.free,
-  copy.benefitTypeOptions.fixedPrice,
-  copy.benefitTypeOptions.priority,
-  copy.benefitTypeOptions.other,
-];
-
 export const benefitDiscountValueTypeOptions = [
   { label: 'Percentage', value: 'percentage' },
   { label: 'Fixed Amount', value: 'fixed' },

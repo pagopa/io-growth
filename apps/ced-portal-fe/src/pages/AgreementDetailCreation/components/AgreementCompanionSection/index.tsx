@@ -11,7 +11,6 @@ import {
 import { useCallback } from 'react';
 
 import { useAppDispatch, useAppSelector } from '../../../../hooks';
-import { getAgreementAdditionalSectionsCopy } from '../agreementAdditionalSections.config';
 import {
   setCompanionBenefitEnabled,
   setLocalizedCompanionField,
@@ -23,15 +22,14 @@ import {
 } from '../../../../features/agreementDetailCreation/selectors';
 import { AgreementLocalizedFormState } from '../../../../features/agreementDetailCreation/types';
 import { BenefitDetailsSection } from './components/BenefitDetailsSection';
-import { getAgreementDetailsFormCopy } from '../../../../constants';
+import { getAgreementCopy } from '../../../../constants';
 
 export const AgreementCompanionSection = () => {
   const dispatch = useAppDispatch();
   const activeLanguage = useAppSelector(selectActiveAgreementLanguage);
   const companionCopy =
-    getAgreementAdditionalSectionsCopy(activeLanguage).companion;
+    getAgreementCopy(activeLanguage).additionalSections.companion;
 
-  const copy = getAgreementDetailsFormCopy(activeLanguage);
   const isCompanionBenefit = useAppSelector(
     selectFieldActiveAgreementLanguageCompanionForm('isCompanionBenefit'),
   );

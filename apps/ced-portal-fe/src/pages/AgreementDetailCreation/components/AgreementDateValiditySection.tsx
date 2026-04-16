@@ -14,11 +14,11 @@ import {
   setHasEndDate,
   setStartDate,
 } from '../../../features/agreementDetailCreation/agreementDetailCreationSlice';
-import { getAgreementAdditionalSectionsCopy } from './agreementAdditionalSections.config';
 import {
   selectActiveAgreementLanguage,
   selectActiveAgreementLanguageForm,
 } from '../../../features/agreementDetailCreation/selectors';
+import { getAgreementCopy } from '../../../constants';
 
 export function AgreementValiditySection() {
   const dispatch = useAppDispatch();
@@ -26,7 +26,7 @@ export function AgreementValiditySection() {
   const { hasEndDate, startDate, endDate } = useAppSelector(
     selectActiveAgreementLanguageForm,
   );
-  const copy = getAgreementAdditionalSectionsCopy(activeLanguage).validity;
+  const copy = getAgreementCopy(activeLanguage).additionalSections.validity;
 
   const renderEndDateField = useCallback(() => {
     if (!hasEndDate) {

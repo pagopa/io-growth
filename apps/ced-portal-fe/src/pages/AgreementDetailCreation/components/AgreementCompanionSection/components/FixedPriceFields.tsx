@@ -8,18 +8,18 @@ import {
   Stack,
   TextField,
 } from '@mui/material';
-import { BenefitDiscountValueType } from '../../types';
 import { useAppDispatch, useAppSelector } from '../../../../../hooks';
 import {
   setCompanionDiscountValue,
   setCompanionDiscountValueType,
 } from '../../../../../features/agreementDetailCreation/agreementDetailCreationSlice';
 import { useMemo } from 'react';
-import { getAgreementAdditionalSectionsCopy } from '../../agreementAdditionalSections.config';
 import {
   selectActiveAgreementLanguage,
   selectFieldActiveAgreementLanguageCompanionForm,
 } from '../../../../../features/agreementDetailCreation/selectors';
+import { BenefitDiscountValueType } from '../../../../../features/agreementDetailCreation/types';
+import { getAgreementCopy } from '../../../../../constants';
 
 type FixedPriceFieldsProps = {
   sameValues?: boolean;
@@ -35,12 +35,14 @@ export const FixedPriceFields = ({
   const dispatch = useAppDispatch();
   const activeLanguage = useAppSelector(selectActiveAgreementLanguage);
 
-  const copy = getAgreementAdditionalSectionsCopy(activeLanguage).companion;
+  const copy = getAgreementCopy(activeLanguage).additionalSections.companion;
+
+  const fixedPriceBenefitType = copy.benefitTypeOptions.fixedPrice;
 
   const isFixedPriceBenefit =
     useAppSelector(
       selectFieldActiveAgreementLanguageCompanionForm('companionBenefitType'),
-    ) === copy.benefitTypeOptions.fixedPrice;
+    ) === fixedPriceBenefitType;
 
   const companionDiscountValueType = useAppSelector(
     selectFieldActiveAgreementLanguageCompanionForm(

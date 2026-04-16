@@ -11,17 +11,23 @@ import {
   selectFieldActiveAgreementLanguageForm,
 } from '../../../../../features/agreementDetailCreation/selectors';
 import { AgreementDetailsFieldKey } from '../../../../../features/agreementDetailCreation/types';
-import { getAgreementDetailsFormCopy } from '../../../../../constants';
+import { getAgreementCopy } from '../../../../../constants';
 
 export const FixedPriceBenefitFields = () => {
   const dispatch = useAppDispatch();
 
   const activeLanguage = useAppSelector(selectActiveAgreementLanguage);
-  const copy = getAgreementDetailsFormCopy(activeLanguage);
+  const copy = getAgreementCopy(activeLanguage);
+
+  const fixedPriceBenefitType =
+    copy.additionalSections.companion.benefitTypeOptions.fixedPrice;
+
+  const otherBenefitType =
+    copy.additionalSections.companion.benefitTypeOptions.other;
 
   const isFixedPriceBenefit =
     useAppSelector(selectFieldActiveAgreementLanguageForm('benefitType')) ===
-    copy.benefitTypeOptions.fixedPrice;
+    fixedPriceBenefitType;
 
   const discountType = useAppSelector(
     selectFieldActiveAgreementLanguageForm('benefitDiscountValueType'),
@@ -49,7 +55,7 @@ export const FixedPriceBenefitFields = () => {
         }),
       );
 
-      if (value !== copy.benefitTypeOptions.fixedPrice) {
+      if (value !== fixedPriceBenefitType) {
         dispatch(
           setLocalizedField({
             languageId: activeLanguage,
@@ -59,7 +65,7 @@ export const FixedPriceBenefitFields = () => {
         );
       }
 
-      if (value !== copy.benefitTypeOptions.other) {
+      if (value !== otherBenefitType) {
         dispatch(
           setLocalizedField({
             languageId: activeLanguage,
@@ -69,12 +75,7 @@ export const FixedPriceBenefitFields = () => {
         );
       }
     },
-    [
-      activeLanguage,
-      copy.benefitTypeOptions.fixedPrice,
-      copy.benefitTypeOptions.other,
-      dispatch,
-    ],
+    [activeLanguage, dispatch, fixedPriceBenefitType, otherBenefitType],
   );
 
   const handleChange = useCallback(
@@ -108,11 +109,11 @@ export const FixedPriceBenefitFields = () => {
         value={discountType}
         options={[
           {
-            label: copy.discountTypeOptions.percentage,
+            label: copy.detailsForm.discountTypeOptions.percentage,
             value: 'percentage',
           },
           {
-            label: copy.discountTypeOptions.fixed,
+            label: copy.detailsForm.discountTypeOptions.fixed,
             value: 'fixed',
           },
         ]}
@@ -137,7 +138,7 @@ export const FixedPriceBenefitFields = () => {
           {discountIcon}
         </Box>
         <AppTextField
-          label={copy.discountValueLabel}
+          label={copy.detailsForm.discountValueLabel}
           value={discountValue}
           onChange={(event) =>
             handleChange(benefitOptionalField, event.target.value)

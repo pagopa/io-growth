@@ -1,6 +1,7 @@
 name: Deploy Portal FE to Azure Static Web App
 
 on:
+    workflow_dispatch:
     push:
         branches:
             - main
@@ -25,8 +26,8 @@ jobs:
         with:
             workspace_name: ced-portal-fe
             output_dir: dist
-            static_web_app_name: ced-p-itn-portalfe-stapp-01
+            static_web_app_name: ced-p-itn-portal-fe-stapp-01
             resource_group_name: ced-p-itn-common-rg-01
             environment: app-prod
             use_private_agent: true
-            use_labels: true
+            use_labels: false

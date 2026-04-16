@@ -1,0 +1,53 @@
+# Version control
+.git
+.gitignore
+.gitattributes
+
+# Dev container & IDE
+.devcontainer
+.vscode
+.idea
+*.swp
+*.swo
+
+# OS artefacts
+.DS_Store
+Thumbs.db
+
+# Root-level build caches (turbo)
+.turbo
+
+# Dependencies — reinstalled inside the container
+node_modules
+**/node_modules
+.pnpm-store
+
+# Compiled output — rebuilt inside the container
+dist
+build
+**/dist
+**/build
+
+# Environment & secrets — never bake these into an image
+.env
+.env.*
+*.pem
+*.key
+
+# Logs
+*.log
+logs/
+
+# Test artefacts
+coverage
+**/coverage
+.nyc_output
+**/.nyc_output
+
+# Infrastructure & docs — not needed at runtime
+infra/
+docs/
+*.md
+
+# CI / GitHub
+.github/

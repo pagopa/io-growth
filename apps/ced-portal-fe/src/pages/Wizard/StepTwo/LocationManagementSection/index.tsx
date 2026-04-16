@@ -8,12 +8,18 @@ import {
   Typography,
 } from '@mui/material';
 import { SectionCard } from '../../../../components';
+import { useGetLocationsQuery } from '../../../../features/location/api';
 import {
   selectAccessPoint,
   selectNationwide,
+  selectSelectedSedeIds,
   setNationwide,
 } from '../../../../features/wizard/slice';
 import { useAppDispatch, useAppSelector } from '../../../../hooks/store';
+import { useLocationSelectionFlow } from '../hooks/useLocationSelectionFlow';
+import { AddLocationModal } from './AddLocationModal';
+import { LocationList } from './LocationList';
+import { SelectLocationModal } from './SelectLocationModal';
 
 export function LocationManagementSection() {
   const dispatch = useAppDispatch();
@@ -22,46 +28,97 @@ export function LocationManagementSection() {
   const showTerritorySection =
     accessPoint === 'territory' || accessPoint === 'both';
 
+  const selectedLocationIds = useAppSelector(selectSelectedSedeIds);
+  const { data: availableLocations = [] } = useGetLocationsQuery(undefined, {
+    skip: !showTerritorySection,
+  });
+  const selectedLocations = availableLocations.filter((s) =>
+    selectedLocationIds.includes(s.id),
+  );
+
+  const {
+    modal,
+    pendingSelection,
+    setPendingSelection,
+    handleAddClick,
+    handleAddConfirm,
+    handleSelectConfirm,
+    handleSelectClose,
+    handleAddNew,
+    handleBack,
+    handleAddClose,
+    handleRemove,
+  } = useLocationSelectionFlow();
+
   if (!showTerritorySection) return null;
 
   return (
-    <SectionCard sx={{ gap: '31px' }}>
-      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-        <LocationOnIcon sx={{ color: 'text.disabled', fontSize: 24 }} />
-        <Typography
-          variant="body2"
-          sx={{ color: 'common.neutralBlack' }}
-          fontWeight={600}
-        >
-          Sedi
-        </Typography>
-      </Box>
-
-      <FormControlLabel
-        control={
-          <Switch
-            checked={nationwide}
-            size="medium"
-            onChange={(e) => dispatch(setNationwide(e.target.checked))}
-          />
-        }
-        label={
-          <Typography variant="body2" fontWeight={600}>
-            Su tutto il territorio nazionale
+    <>
+      <SectionCard sx={{ gap: '31px' }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          <LocationOnIcon sx={{ color: 'text.disabled', fontSize: 24 }} />
+          <Typography
+            variant="body2"
+            sx={{ color: 'common.neutralBlack' }}
+            fontWeight={600}
+          >
+            Sedi
           </Typography>
-        }
-        sx={{ ml: 0, gap: 1 }}
-      />
+        </Box>
 
-      {!nationwide && (
-        <Button
-          variant="contained"
-          startIcon={<AddIcon />}
-          sx={{ textTransform: 'none', alignSelf: 'flex-start' }}
-        >
-          Aggiungi sedi
-        </Button>
+        <FormControlLabel
+          control={
+            <Switch
+              checked={nationwide}
+              size="medium"
+              onChange={(e) => dispatch(setNationwide(e.target.checked))}
+            />
+          }
+          label={
+            <Typography variant="body2" fontWeight={600}>
+              Su tutto il territorio nazionale
+            </Typography>
+          }
+          sx={{ ml: 0, gap: 1 }}
+        />
+
+        {!nationwide && (
+          <>
+            <Button
+              variant="contained"
+              startIcon={<AddIcon />}
+              onClick={() => handleAddClick(availableLocations.length > 0)}
+              sx={{ textTransform: 'none', alignSelf: 'flex-start' }}
+            >
+              Aggiungi sedi
+            </Button>
+
+            <LocationList locations={selectedLocations} onRemove={handleRemove} />
+          </>
+        )}
+      </SectionCard>
+
+      {modal === 'select' && (
+        <SelectLocationModal
+          open
+          locations={availableLocations}
+          selected={pendingSelection}
+          onSelectedChange={setPendingSelection}
+          onClose={handleSelectClose}
+          onAddNew={handleAddNew}
+          onConfirm={handleSelectConfirm}
+        />
       )}
-    </SectionCard>
+
+      {(modal === 'add' || modal === 'add-from-select') && (
+        <AddLocationModal
+          open
+          onClose={handleAddClose}
+          onConfirm={handleAddConfirm}
+          onBack={modal === 'add-from-select' ? handleBack : undefined}
+          existingLocations={availableLocations}
+        />
+      )}
+    </>
   );
 }

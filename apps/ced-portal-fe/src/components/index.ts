@@ -1,5 +1,6 @@
 export * from './Autocomplete';
 export * from './Checkbox';
+export * from './DataTable';
 export * from './DatePicker';
 export * from './Modal';
 export * from './RadioList';

@@ -1,113 +1,191 @@
 {
-    "uuid": "89eb3964-861e-4565-ac11-dbe8931ec2dc",
-    "lastMigration": 33,
-    "name": "Ced",
-    "endpointPrefix": "",
-    "latency": 0,
-    "port": 3001,
-    "hostname": "",
-    "folders": [],
-    "routes": [
+  "uuid": "89eb3964-861e-4565-ac11-dbe8931ec2dc",
+  "lastMigration": 33,
+  "name": "Ced",
+  "endpointPrefix": "",
+  "latency": 0,
+  "port": 3001,
+  "hostname": "",
+  "folders": [],
+  "routes": [
+    {
+      "uuid": "15ccebf6-2ca1-4eb5-b7d8-232e8d4e50db",
+      "type": "http",
+      "documentation": "Elenco agevolazioni",
+      "method": "get",
+      "endpoint": "api/benefits",
+      "responses": [
         {
-            "uuid": "15ccebf6-2ca1-4eb5-b7d8-232e8d4e50db",
-            "type": "http",
-            "documentation": "Elenco agevolazioni",
-            "method": "get",
-            "endpoint": "api/benefits",
-            "responses": [
-                {
-                    "uuid": "2b72d703-d310-45f6-8e17-365836adad2b",
-                    "body": "[\n    {\n        \"name\": \"Test Revisione\",\n        \"category\": \"Mobilita\",\n        \"created_by\": \"31-03-2026\",\n        \"state\": \"Revisione\"\n    },\n    {\n        \"name\": \"Test Bozza\",\n        \"category\": \"Mobilita\",\n        \"created_by\": \"31-03-2026\",\n        \"state\": \"Bozza\"\n    },\n    {\n        \"name\": \"Test modifiche richieste\",\n        \"category\": \"Mobilita\",\n        \"created_by\": \"31-03-2026\",\n        \"state\": \"Modifiche_Richieste\"\n    },\n    {\n        \"name\": \"Test Pubblicata\",\n        \"category\": \"Mobilita\",\n        \"created_by\": \"31-03-2026\",\n        \"state\": \"Pubblicata\"\n    },\n    {\n        \"name\": \"Test Pubblicazione Programmata\",\n        \"category\": \"Mobilita\",\n        \"created_by\": \"31-03-2026\",\n        \"state\": \"Pubblicazione_Programmata\"\n    }\n]",
-                    "latency": 0,
-                    "statusCode": 200,
-                    "label": "Response with all statuses",
-                    "headers": [],
-                    "bodyType": "INLINE",
-                    "filePath": "",
-                    "databucketID": "",
-                    "sendFileAsBody": false,
-                    "rules": [],
-                    "rulesOperator": "OR",
-                    "disableTemplating": false,
-                    "fallbackTo404": false,
-                    "default": true,
-                    "crudKey": "id",
-                    "callbacks": []
-                },
-                {
-                    "uuid": "ff25f763-7669-43f0-b42c-c4fd1e40cadb",
-                    "body": "[]",
-                    "latency": 0,
-                    "statusCode": 200,
-                    "label": "Empty response",
-                    "headers": [],
-                    "bodyType": "INLINE",
-                    "filePath": "",
-                    "databucketID": "",
-                    "sendFileAsBody": false,
-                    "rules": [],
-                    "rulesOperator": "OR",
-                    "disableTemplating": false,
-                    "fallbackTo404": false,
-                    "default": false,
-                    "crudKey": "id",
-                    "callbacks": []
-                }
-            ],
-            "responseMode": null,
-            "streamingMode": null,
-            "streamingInterval": 0
-        }
-    ],
-    "rootChildren": [
+          "uuid": "2b72d703-d310-45f6-8e17-365836adad2b",
+          "body": "[\n    {\n        \"name\": \"Test Revisione\",\n        \"category\": \"Mobilita\",\n        \"created_by\": \"31-03-2026\",\n        \"state\": \"Revisione\"\n    },\n    {\n        \"name\": \"Test Bozza\",\n        \"category\": \"Mobilita\",\n        \"created_by\": \"31-03-2026\",\n        \"state\": \"Bozza\"\n    },\n    {\n        \"name\": \"Test modifiche richieste\",\n        \"category\": \"Mobilita\",\n        \"created_by\": \"31-03-2026\",\n        \"state\": \"Modifiche_Richieste\"\n    },\n    {\n        \"name\": \"Test Pubblicata\",\n        \"category\": \"Mobilita\",\n        \"created_by\": \"31-03-2026\",\n        \"state\": \"Pubblicata\"\n    },\n    {\n        \"name\": \"Test Pubblicazione Programmata\",\n        \"category\": \"Mobilita\",\n        \"created_by\": \"31-03-2026\",\n        \"state\": \"Pubblicazione_Programmata\"\n    }\n]",
+          "latency": 0,
+          "statusCode": 200,
+          "label": "Response with all statuses",
+          "headers": [],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": true,
+          "crudKey": "id",
+          "callbacks": []
+        },
         {
-            "type": "route",
-            "uuid": "15ccebf6-2ca1-4eb5-b7d8-232e8d4e50db"
+          "uuid": "ff25f763-7669-43f0-b42c-c4fd1e40cadb",
+          "body": "[]",
+          "latency": 0,
+          "statusCode": 200,
+          "label": "Empty response",
+          "headers": [],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": false,
+          "crudKey": "id",
+          "callbacks": []
         }
-    ],
-    "proxyMode": false,
-    "proxyHost": "",
-    "proxyRemovePrefix": false,
-    "tlsOptions": {
-        "enabled": false,
-        "type": "CERT",
-        "pfxPath": "",
-        "certPath": "",
-        "keyPath": "",
-        "caPath": "",
-        "passphrase": ""
+      ],
+      "responseMode": null,
+      "streamingMode": null,
+      "streamingInterval": 0
     },
-    "cors": true,
-    "headers": [
+    {
+      "uuid": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+      "type": "http",
+      "documentation": "Ricerca indirizzi",
+      "method": "get",
+      "endpoint": "api/addresses/search",
+      "responses": [
         {
-            "key": "Content-Type",
-            "value": "application/json"
-        },
-        {
-            "key": "Access-Control-Allow-Origin",
-            "value": "*"
-        },
-        {
-            "key": "Access-Control-Allow-Methods",
-            "value": "GET,POST,PUT,PATCH,DELETE,HEAD,OPTIONS"
-        },
-        {
-            "key": "Access-Control-Allow-Headers",
-            "value": "Content-Type, Origin, Accept, Authorization, Content-Length, X-Requested-With"
+          "uuid": "a1b2c3d4-e5f6-7890-abcd-ef1234567891",
+          "body": "[\n    {\n        \"label\": \"Viale A. Ricci, 24\",\n        \"city\": \"Ferrara\",\n        \"postalCode\": \"44121\",\n        \"province\": \"FE\"\n    },\n    {\n        \"label\": \"Via Roma, 10\",\n        \"city\": \"Milano\",\n        \"postalCode\": \"20121\",\n        \"province\": \"MI\"\n    },\n    {\n        \"label\": \"Corso Vittorio Emanuele II, 5\",\n        \"city\": \"Roma\",\n        \"postalCode\": \"00186\",\n        \"province\": \"RM\"\n    },\n    {\n        \"label\": \"Via Garibaldi, 3\",\n        \"city\": \"Torino\",\n        \"postalCode\": \"10122\",\n        \"province\": \"TO\"\n    },\n    {\n        \"label\": \"Piazza Navona, 1\",\n        \"city\": \"Roma\",\n        \"postalCode\": \"00186\",\n        \"province\": \"RM\"\n    },\n    {\n        \"label\": \"Via Manzoni, 7\",\n        \"city\": \"Milano\",\n        \"postalCode\": \"20121\",\n        \"province\": \"MI\"\n    },\n    {\n        \"label\": \"Lungarno degli Archibusieri, 4\",\n        \"city\": \"Firenze\",\n        \"postalCode\": \"50122\",\n        \"province\": \"FI\"\n    },\n    {\n        \"label\": \"Via Toledo, 256\",\n        \"city\": \"Napoli\",\n        \"postalCode\": \"80132\",\n        \"province\": \"NA\"\n    },\n    {\n        \"label\": \"Via XX Settembre, 14\",\n        \"city\": \"Genova\",\n        \"postalCode\": \"16121\",\n        \"province\": \"GE\"\n    },\n    {\n        \"label\": \"Corso Buenos Aires, 33\",\n        \"city\": \"Milano\",\n        \"postalCode\": \"20124\",\n        \"province\": \"MI\"\n    }\n]",
+          "latency": 0,
+          "statusCode": 200,
+          "label": "Address suggestions",
+          "headers": [],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": true,
+          "crudKey": "id",
+          "callbacks": []
         }
-    ],
-    "proxyReqHeaders": [
+      ],
+      "responseMode": null,
+      "streamingMode": null,
+      "streamingInterval": 0
+    },
+    {
+      "uuid": "c3d4e5f6-a7b8-9012-cdef-123456789012",
+      "type": "crud",
+      "documentation": "Sedi CRUD",
+      "method": "get",
+      "endpoint": "api/sedi",
+      "responses": [
         {
-            "key": "",
-            "value": ""
+          "uuid": "c3d4e5f6-a7b8-9012-cdef-123456789013",
+          "body": "",
+          "latency": 0,
+          "statusCode": 200,
+          "label": "Sedi data bucket",
+          "headers": [],
+          "bodyType": "DATABUCKET",
+          "filePath": "",
+          "databucketID": "sedi",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": true,
+          "crudKey": "id",
+          "callbacks": []
         }
-    ],
-    "proxyResHeaders": [
-        {
-            "key": "",
-            "value": ""
-        }
-    ],
-    "data": [],
-    "callbacks": []
+      ],
+      "responseMode": null,
+      "streamingMode": null,
+      "streamingInterval": 0
+    }
+  ],
+  "rootChildren": [
+    {
+      "type": "route",
+      "uuid": "15ccebf6-2ca1-4eb5-b7d8-232e8d4e50db"
+    },
+    {
+      "type": "route",
+      "uuid": "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+    },
+    {
+      "type": "route",
+      "uuid": "c3d4e5f6-a7b8-9012-cdef-123456789012"
+    }
+  ],
+  "proxyMode": false,
+  "proxyHost": "",
+  "proxyRemovePrefix": false,
+  "tlsOptions": {
+    "enabled": false,
+    "type": "CERT",
+    "pfxPath": "",
+    "certPath": "",
+    "keyPath": "",
+    "caPath": "",
+    "passphrase": ""
+  },
+  "cors": true,
+  "headers": [
+    {
+      "key": "Content-Type",
+      "value": "application/json"
+    },
+    {
+      "key": "Access-Control-Allow-Origin",
+      "value": "*"
+    },
+    {
+      "key": "Access-Control-Allow-Methods",
+      "value": "GET,POST,PUT,PATCH,DELETE,HEAD,OPTIONS"
+    },
+    {
+      "key": "Access-Control-Allow-Headers",
+      "value": "Content-Type, Origin, Accept, Authorization, Content-Length, X-Requested-With"
+    }
+  ],
+  "proxyReqHeaders": [
+    {
+      "key": "",
+      "value": ""
+    }
+  ],
+  "proxyResHeaders": [
+    {
+      "key": "",
+      "value": ""
+    }
+  ],
+  "data": [
+    {
+      "uuid": "sedi-bucket-0001-0000-0000-000000000001",
+      "id": "sedi",
+      "name": "Sedi",
+      "value": "[]",
+      "parsed": true
+    }
+  ],
+  "callbacks": []
 }

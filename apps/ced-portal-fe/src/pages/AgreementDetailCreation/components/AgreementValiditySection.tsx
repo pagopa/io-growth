@@ -10,13 +10,15 @@ import {
 import { useCallback } from 'react';
 import { useAppDispatch, useAppSelector } from '../../../hooks';
 import {
-  selectActiveAgreementLanguage,
-  selectActiveAgreementLanguageForm,
   setEndDate,
   setHasEndDate,
   setStartDate,
 } from '../../../features/agreementDetailCreation/agreementDetailCreationSlice';
 import { getAgreementAdditionalSectionsCopy } from './agreementAdditionalSections.config';
+import {
+  selectActiveAgreementLanguage,
+  selectActiveAgreementLanguageForm,
+} from '../../../features/agreementDetailCreation/selectors';
 
 export function AgreementValiditySection() {
   const dispatch = useAppDispatch();

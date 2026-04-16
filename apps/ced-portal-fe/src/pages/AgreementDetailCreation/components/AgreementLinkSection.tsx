@@ -1,12 +1,12 @@
 import LinkRoundedIcon from '@mui/icons-material/LinkRounded';
 import { Paper, Stack, TextField, Typography } from '@mui/material';
 import { useAppDispatch, useAppSelector } from '../../../hooks';
+import { setBenefitUrl } from '../../../features/agreementDetailCreation/agreementDetailCreationSlice';
+import { getAgreementAdditionalSectionsCopy } from './agreementAdditionalSections.config';
 import {
   selectActiveAgreementLanguage,
   selectActiveAgreementLanguageForm,
-  setBenefitUrl,
-} from '../../../features/agreementDetailCreation/agreementDetailCreationSlice';
-import { getAgreementAdditionalSectionsCopy } from './agreementAdditionalSections.config';
+} from '../../../features/agreementDetailCreation/selectors';
 
 export function AgreementLinkSection() {
   const dispatch = useAppDispatch();

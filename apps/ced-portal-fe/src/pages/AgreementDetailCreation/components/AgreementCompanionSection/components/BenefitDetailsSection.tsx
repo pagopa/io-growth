@@ -1,0 +1,64 @@
+import { AppSelect, AppTextField } from '../../../../../components';
+import { useAppSelector } from '../../../../../hooks';
+import {
+  selectActiveAgreementLanguage,
+  selectFieldActiveAgreementLanguageCompanionForm,
+} from '../../../../../features/agreementDetailCreation/selectors';
+import { AgreementLocalizedFormState } from '../../../../../features/agreementDetailCreation/types';
+import { getBenefitTypeOptions } from '../utils/agreementForm';
+import { FixedPriceFields } from './FixedPriceFields';
+import { ViewSameConditions } from './ViewSameConditions';
+import { CompanionFormField } from './CompanionFormField';
+import { getAgreementDetailsFormCopy } from '../../../../../constants';
+
+type BenefitDetailsSectionProps = {
+  handleFieldChange: (
+    field: keyof AgreementLocalizedFormState['companion'],
+    value: string | number,
+  ) => void;
+};
+
+export const BenefitDetailsSection = ({
+  handleFieldChange,
+}: BenefitDetailsSectionProps) => {
+  const sameConditionAsOwner = useAppSelector(
+    selectFieldActiveAgreementLanguageCompanionForm('isSameConditionAsOwner'),
+  );
+  const companionbenefitType = useAppSelector(
+    selectFieldActiveAgreementLanguageCompanionForm('companionBenefitType'),
+  );
+
+  const activeLanguage = useAppSelector(selectActiveAgreementLanguage);
+  const companionCopy = getAgreementDetailsFormCopy(activeLanguage);
+
+  if (sameConditionAsOwner) {
+    return <ViewSameConditions />;
+  }
+
+  return (
+    <>
+      <CompanionFormField
+        name={'companionBenefitType'}
+        onChange={(event) =>
+          handleFieldChange('companionBenefitType', event.target.value)
+        }
+      >
+        <AppSelect options={getBenefitTypeOptions(companionCopy)} />
+      </CompanionFormField>
+      <FixedPriceFields />
+
+      <CompanionFormField
+        hide={companionbenefitType !== companionCopy.benefitTypeOptions.other}
+        name={'companionOtherBenefitTypeDescription'}
+        onChange={(event) =>
+          handleFieldChange(
+            'companionOtherBenefitTypeDescription',
+            event.target.value,
+          )
+        }
+      >
+        <AppTextField fullWidth />
+      </CompanionFormField>
+    </>
+  );
+};

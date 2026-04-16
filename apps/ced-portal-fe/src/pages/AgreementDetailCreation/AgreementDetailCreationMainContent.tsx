@@ -1,11 +1,11 @@
 import { Box, Stack, useTheme } from '@mui/material';
-import { AgreementCompanionSection } from './components/AgreementCompanionSection';
 import { AgreementCreationActions } from './components/AgreementCreationActions';
 import { AgreementCreationHeader } from './components/AgreementCreationHeader';
 import { AgreementCreationStepper } from './components/AgreementCreationStepper';
-import { AgreementDetailsSection } from './components/AgreementDetailsSection';
 import { AgreementLinkSection } from './components/AgreementLinkSection';
 import { AgreementValiditySection } from './components/AgreementValiditySection';
+import { AgreementDetailsSection } from './components/AgreementDetailsSection';
+import { AgreementCompanionSection } from './components/AgreementCompanionSection';
 
 export const AgreementDetailCreationMainContent = () => {
   const theme = useTheme();

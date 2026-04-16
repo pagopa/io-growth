@@ -4,7 +4,7 @@ interface AppSelectProps extends Omit<
   SelectProps<string>,
   'renderValue' | 'children'
 > {
-  placeholder: string;
+  placeholder?: string;
   options: string[];
   emptyOptionLabel?: string;
 }
@@ -21,8 +21,8 @@ export const AppSelect = ({
   const mergedSx = Array.isArray(sx)
     ? [
         {
-          minWidth: { xs: '100%', lg: 160 },
-          maxWidth: { xs: '100%', lg: 160 },
+          minWidth: { xs: '100%' },
+          maxWidth: { xs: '100%' },
           bgcolor: 'common.white',
           borderRadius: 2,
           minHeight: 56,
@@ -31,8 +31,8 @@ export const AppSelect = ({
       ]
     : [
         {
-          minWidth: { xs: '100%', lg: 160 },
-          maxWidth: { xs: '100%', lg: 160 },
+          minWidth: { xs: '100%' },
+          maxWidth: { xs: '100%' },
           bgcolor: 'common.white',
           borderRadius: 2,
           minHeight: 56,

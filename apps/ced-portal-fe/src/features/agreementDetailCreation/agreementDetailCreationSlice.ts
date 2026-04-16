@@ -2,57 +2,16 @@ import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
 import {
   AGREEMENT_LANGUAGE_TABS,
   DEFAULT_AGREEMENT_LANGUAGE,
-} from '../../pages/AgreementDetailCreation/components/agreementLanguageTabs.config';
-import type {
+} from '../../pages/AgreementDetailCreation/components/AgreementCompanionSection/utils/agreementLanguageTabs.config';
+
+import {
   AgreementDetailsFieldKey,
-  AgreementDetailsFields,
+  AgreementLocalizedFormState,
   BenefitDiscountValueType,
-} from '../../pages/AgreementDetailCreation/components/types';
-import type { RootState } from '../../core/store';
-
-const EMPTY_DETAILS: AgreementDetailsFields = {
-  name: '',
-  benefitType: '',
-  benefitDiscountValueType: 'fixed',
-  benefitDiscountValue: '',
-  otherBenefitTypeDescription: '',
-  description: '',
-  category: '',
-  conditions: '',
-};
-
-interface AgreementLocalizedFormState {
-  details: AgreementDetailsFields;
-  isCompanionBenefit: boolean;
-  isSameConditionAsOwner: boolean;
-  companionBenefitType: string;
-  companionDiscountValueType: BenefitDiscountValueType;
-  companionDiscountValue: string;
-  companionOtherBenefitTypeDescription: string;
-  hasEndDate: boolean;
-  startDate: string;
-  endDate: string;
-  benefitUrl: string;
-}
+} from './types';
+import { createEmptyLanguageFormState } from './constants';
 
 type AgreementLocalizedForm = Record<string, AgreementLocalizedFormState>;
-
-const createEmptyLanguageFormState = (): AgreementLocalizedFormState => ({
-  details: { ...EMPTY_DETAILS },
-  isCompanionBenefit: false,
-  isSameConditionAsOwner: false,
-  companionBenefitType: '',
-  companionDiscountValueType: 'fixed',
-  companionDiscountValue: '',
-  companionOtherBenefitTypeDescription: '',
-  hasEndDate: false,
-  startDate: '',
-  endDate: '',
-  benefitUrl: '',
-});
-
-const EMPTY_LANGUAGE_FORM_STATE: AgreementLocalizedFormState =
-  createEmptyLanguageFormState();
 
 const createInitialLocalizedForm = (): AgreementLocalizedForm =>
   AGREEMENT_LANGUAGE_TABS.reduce<AgreementLocalizedForm>((acc, language) => {
@@ -83,10 +42,10 @@ const getLanguageFormState = (
 };
 
 const resetCompanionData = (languageFormState: AgreementLocalizedFormState) => {
-  languageFormState.companionBenefitType = '';
-  languageFormState.companionDiscountValueType = 'fixed';
-  languageFormState.companionDiscountValue = '';
-  languageFormState.companionOtherBenefitTypeDescription = '';
+  languageFormState.companion.companionBenefitType = '';
+  languageFormState.companion.companionDiscountValueType = 'fixed';
+  languageFormState.companion.companionDiscountValue = '';
+  languageFormState.companion.companionOtherBenefitTypeDescription = '';
 };
 
 export const agreementDetailCreationSlice = createSlice({
@@ -114,6 +73,21 @@ export const agreementDetailCreationSlice = createSlice({
 
       languageFormState.details[field] = value;
     },
+    setLocalizedCompanionField: (
+      state: AgreementDetailCreationState,
+      action: PayloadAction<{
+        languageId: string;
+        field: keyof AgreementLocalizedFormState['companion'];
+        value: string | boolean;
+      }>,
+    ) => {
+      const { languageId, field, value } = action.payload;
+      const languageFormState = getLanguageFormState(state, languageId);
+      languageFormState.companion = {
+        ...languageFormState.companion,
+        [field]: value,
+      };
+    },
     setCompanionBenefitEnabled: (
       state,
       action: PayloadAction<{ languageId: string; value: boolean }>,
@@ -121,9 +95,9 @@ export const agreementDetailCreationSlice = createSlice({
       const { languageId, value } = action.payload;
       const languageFormState = getLanguageFormState(state, languageId);
 
-      languageFormState.isCompanionBenefit = value;
+      languageFormState.companion.isCompanionBenefit = value;
       if (!value) {
-        languageFormState.isSameConditionAsOwner = false;
+        languageFormState.companion.isSameConditionAsOwner = false;
         resetCompanionData(languageFormState);
       }
     },
@@ -134,7 +108,7 @@ export const agreementDetailCreationSlice = createSlice({
       const { languageId, value } = action.payload;
       const languageFormState = getLanguageFormState(state, languageId);
 
-      languageFormState.isSameConditionAsOwner = value;
+      languageFormState.companion.isSameConditionAsOwner = value;
       if (value) {
         resetCompanionData(languageFormState);
       }
@@ -145,7 +119,7 @@ export const agreementDetailCreationSlice = createSlice({
     ) => {
       const { languageId, value } = action.payload;
       const languageFormState = getLanguageFormState(state, languageId);
-      languageFormState.companionBenefitType = value;
+      languageFormState.companion.companionBenefitType = value;
     },
     setCompanionDiscountValueType: (
       state,
@@ -156,7 +130,7 @@ export const agreementDetailCreationSlice = createSlice({
     ) => {
       const { languageId, value } = action.payload;
       const languageFormState = getLanguageFormState(state, languageId);
-      languageFormState.companionDiscountValueType = value;
+      languageFormState.companion.companionDiscountValueType = value;
     },
     setCompanionDiscountValue: (
       state,
@@ -164,7 +138,7 @@ export const agreementDetailCreationSlice = createSlice({
     ) => {
       const { languageId, value } = action.payload;
       const languageFormState = getLanguageFormState(state, languageId);
-      languageFormState.companionDiscountValue = value;
+      languageFormState.companion.companionDiscountValue = value;
     },
     setCompanionOtherBenefitTypeDescription: (
       state,
@@ -172,7 +146,7 @@ export const agreementDetailCreationSlice = createSlice({
     ) => {
       const { languageId, value } = action.payload;
       const languageFormState = getLanguageFormState(state, languageId);
-      languageFormState.companionOtherBenefitTypeDescription = value;
+      languageFormState.companion.companionOtherBenefitTypeDescription = value;
     },
     setHasEndDate: (
       state,
@@ -213,6 +187,7 @@ export const agreementDetailCreationSlice = createSlice({
 export const {
   setActiveLanguage,
   setLocalizedField,
+  setLocalizedCompanionField,
   setCompanionBenefitEnabled,
   setSameConditionAsOwner,
   setCompanionBenefitType,
@@ -228,17 +203,3 @@ export const {
 
 export const agreementDetailCreationReducer =
   agreementDetailCreationSlice.reducer;
-
-export const selectAgreementDetailCreationState = (state: RootState) =>
-  state.agreementDetailCreation;
-
-export const selectActiveAgreementLanguage = (state: RootState) =>
-  state.agreementDetailCreation.activeLanguage;
-
-export const selectActiveAgreementLanguageForm = (state: RootState) => {
-  const agreementState = state.agreementDetailCreation;
-  return (
-    agreementState.localizedForm[agreementState.activeLanguage] ??
-    EMPTY_LANGUAGE_FORM_STATE
-  );
-};

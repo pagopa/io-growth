@@ -1,10 +1,8 @@
 import { Tab, Tabs } from '@mui/material';
-import { useAppDispatch, useAppSelector } from '../../../hooks';
-import {
-  selectActiveAgreementLanguage,
-  setActiveLanguage,
-} from '../../../features/agreementDetailCreation/agreementDetailCreationSlice';
-import { AGREEMENT_LANGUAGE_TABS } from './agreementLanguageTabs.config';
+import { useAppDispatch, useAppSelector } from '../../../../../hooks';
+import { setActiveLanguage } from '../../../../../features/agreementDetailCreation/agreementDetailCreationSlice';
+import { AGREEMENT_LANGUAGE_TABS } from '../../AgreementCompanionSection/utils/agreementLanguageTabs.config';
+import { selectActiveAgreementLanguage } from '../../../../../features/agreementDetailCreation/selectors';
 
 export function AgreementLanguageTabs() {
   const dispatch = useAppDispatch();

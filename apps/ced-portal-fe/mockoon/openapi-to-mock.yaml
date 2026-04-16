@@ -1,0 +1,336 @@
+openapi: 3.0.3
+info:
+  title: Frontend Starter Blueprint Mock API
+  version: 1.0.0
+  description: OpenAPI da importare in Mockoon per avviare rapidamente i mock del frontend.
+servers:
+  - url: http://localhost:3001/api
+tags:
+  - name: Session
+  - name: Dashboard
+  - name: Benefits
+  - name: AccessPoints
+  - name: Health
+paths:
+  /health:
+    get:
+      tags:
+        - Health
+      summary: Healthcheck del mock server
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: ok
+                  service:
+                    type: string
+                    example: mockoon
+  /session:
+    get:
+      tags:
+        - Session
+      summary: Recupera la sessione corrente
+      responses:
+        "200":
+          description: Sessione valida
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SessionPayload"
+              example:
+                token: demo-token
+                user:
+                  id: "1"
+                  name: Mario Rossi
+                  email: mario.rossi@example.com
+        "401":
+          description: Sessione non valida
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 401
+                message: Unauthorized
+  /dashboard:
+    get:
+      tags:
+        - Dashboard
+      summary: Recupera i KPI dashboard
+      responses:
+        "200":
+          description: Dati dashboard
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DashboardResponse"
+              example:
+                items:
+                  - id: sessions
+                    label: Active sessions
+                    value: "128"
+                  - id: conversion
+                    label: Conversion rate
+                    value: "4.2%"
+                  - id: latency
+                    label: Median latency
+                    value: 240ms
+  /benefits:
+    get:
+      tags:
+        - Benefits
+      summary: Elenco agevolazioni
+      parameters:
+        - in: query
+          name: search
+          schema:
+            type: string
+        - in: query
+          name: state
+          schema:
+            type: string
+            enum:
+              - Revisione
+              - Bozza
+              - Modifiche_Richieste
+              - Pubblicata
+              - Pubblicazione_Programmata
+      responses:
+        "200":
+          description: Lista agevolazioni
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BenefitsResponse"
+              example:
+                - name: Bonus Trasporti Regione
+                  category: Mobilita
+                  created_by: "31-03-2026"
+                  state: Revisione
+                - name: Voucher Cultura Giovani
+                  category: Istruzione
+                  created_by: "28-03-2026"
+                  state: Bozza
+                - name: Sostegno Affitto Famiglie
+                  category: Casa
+                  created_by: "26-03-2026"
+                  state: Modifiche_Richieste
+                - name: Bonus Energia PMI
+                  category: Imprese
+                  created_by: "22-03-2026"
+                  state: Pubblicata
+                - name: Incentivo Sport 2026
+                  category: Sport
+                  created_by: "18-03-2026"
+                  state: Pubblicazione_Programmata
+    post:
+      tags:
+        - Benefits
+      summary: Crea una nuova agevolazione
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BenefitInput"
+      responses:
+        "201":
+          description: Agevolazione creata
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Benefit"
+              example:
+                id: ben-001
+                name: Nuova agevolazione
+                status: draft
+                createdAt: "2026-03-26T10:00:00Z"
+        "400":
+          description: Payload non valido
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /access-points:
+    get:
+      tags:
+        - AccessPoints
+      summary: Elenco punti di accesso
+      responses:
+        "200":
+          description: Lista punti di accesso
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AccessPointsResponse"
+              example:
+                items:
+                  - id: ap-001
+                    name: Sportello Ferrara Centro
+                    address: Piazza Trento Trieste 1, Ferrara
+                    city: Ferrara
+components:
+  schemas:
+    SessionPayload:
+      type: object
+      required:
+        - token
+        - user
+      properties:
+        token:
+          type: string
+        user:
+          $ref: "#/components/schemas/User"
+    User:
+      type: object
+      required:
+        - id
+        - name
+        - email
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+    DashboardItem:
+      type: object
+      required:
+        - id
+        - label
+        - value
+      properties:
+        id:
+          type: string
+        label:
+          type: string
+        value:
+          type: string
+    DashboardResponse:
+      type: object
+      required:
+        - items
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/DashboardItem"
+    BenefitState:
+      type: string
+      enum:
+        - Revisione
+        - Bozza
+        - Modifiche_Richieste
+        - Pubblicata
+        - Pubblicazione_Programmata
+    BenefitListItem:
+      type: object
+      required:
+        - name
+        - category
+        - created_by
+        - state
+      properties:
+        name:
+          type: string
+          example: Bonus Trasporti Regione
+        category:
+          type: string
+          example: Mobilita
+        created_by:
+          type: string
+          pattern: "^[0-9]{2}-[0-9]{2}-[0-9]{4}$"
+          description: Data nel formato dd-mm-yyyy
+          example: "31-03-2026"
+        state:
+          $ref: "#/components/schemas/BenefitState"
+    Benefit:
+      type: object
+      required:
+        - id
+        - name
+        - status
+        - createdAt
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        status:
+          type: string
+          enum:
+            - draft
+            - active
+            - expired
+        createdAt:
+          type: string
+          format: date-time
+    BenefitInput:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+        status:
+          type: string
+          enum:
+            - draft
+            - active
+            - expired
+    BenefitsResponse:
+      type: array
+      items:
+        $ref: "#/components/schemas/BenefitListItem"
+      example:
+        - name: Bonus Trasporti Regione
+          category: Mobilita
+          created_by: "31-03-2026"
+          state: Revisione
+        - name: Voucher Cultura Giovani
+          category: Istruzione
+          created_by: "28-03-2026"
+          state: Bozza
+    AccessPoint:
+      type: object
+      required:
+        - id
+        - name
+        - address
+        - city
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        address:
+          type: string
+        city:
+          type: string
+    AccessPointsResponse:
+      type: object
+      required:
+        - items
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/AccessPoint"
+    ErrorResponse:
+      type: object
+      required:
+        - statusCode
+        - message
+      properties:
+        statusCode:
+          type: integer
+        message:
+          type: string

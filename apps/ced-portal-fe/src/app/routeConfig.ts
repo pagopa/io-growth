@@ -5,6 +5,7 @@ export const APP_ROUTES = {
   AGREEMENT_DETAIL_CREATION: '/agevolazioni/crea/dettagli',
   UNAUTHORIZED: '/unauthorized',
   NOT_FOUND: '*',
+  WIZARD: '/app/wizard',
 } as const;
 
 export const HomePage = lazy(() => import('../pages/Home'));
@@ -13,3 +14,4 @@ export const AgreementDetailCreationPage = lazy(
 );
 export const UnauthorizedPage = lazy(() => import('../pages/Unauthorized'));
 export const NotFoundPage = lazy(() => import('../pages/NotFound'));
+export const WizardPage = lazy(() => import('../pages/Wizard'));

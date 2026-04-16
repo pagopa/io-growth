@@ -18,10 +18,6 @@ export function AgreementDetailsSection() {
   const dispatch = useAppDispatch();
   const activeLanguage = useAppSelector(selectActiveAgreementLanguage);
   const copy = getAgreementCopy(activeLanguage);
-  console.log(
-    '🚀 ~ AgreementDetailsSection ~ copy:',
-    copy.detailsForm.benefitTypeOptions,
-  );
 
   const benefitOptions = Object.values(copy.detailsForm.benefitTypeOptions);
 

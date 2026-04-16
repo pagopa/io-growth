@@ -7,11 +7,20 @@
       "outputs": []
     },
     "typecheck": {
-      "dependsOn": ["^build"],
-      "inputs": []
+      "inputs": [
+        "src/**/*.ts",
+        "package.json",
+        "tsconfig.json",
+        "!vitest.config.*"
+      ],
+      "outputs": [],
+      "dependsOn": ["^build", "^typecheck"]
+    },
+    "lint": {
+      "inputs": ["src/**/*.ts"]
     },
     "lint:check": {
-      "inputs": []
+      "inputs": ["src/**/*.ts"]
     },
     "format:check": {},
     "test": {

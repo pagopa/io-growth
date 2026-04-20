@@ -5,7 +5,6 @@ import type { AddressOption, Contact, LocationFormState } from './types';
 const initialState: LocationFormState = {
   name: '',
   address: '',
-  addressSelected: false,
   city: '',
   postalCode: '',
   province: '',
@@ -21,7 +20,6 @@ const locationSlice = createSlice({
     },
     setLocationAddress(state, action: PayloadAction<string>) {
       state.address = action.payload;
-      state.addressSelected = false;
       if (!action.payload) {
         state.city = '';
         state.postalCode = '';
@@ -30,7 +28,6 @@ const locationSlice = createSlice({
     },
     setLocationAddressFromOption(state, action: PayloadAction<AddressOption>) {
       state.address = action.payload.label;
-      state.addressSelected = true;
       state.city = action.payload.city;
       state.postalCode = action.payload.postalCode;
       state.province = action.payload.province;
@@ -84,6 +81,6 @@ export const locationReducer = locationSlice.reducer;
 
 export const selectLocationForm = (state: RootState) => state.location;
 export const selectIsLocationFormValid = (state: RootState) => {
-  const { name, address, addressSelected } = state.location;
-  return name.trim().length > 0 && address.trim().length > 0 && addressSelected;
+  const { name, address, city } = state.location;
+  return name.trim().length > 0 && address.trim().length > 0 && city.trim().length > 0;
 };

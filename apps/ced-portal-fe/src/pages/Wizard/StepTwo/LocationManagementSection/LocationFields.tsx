@@ -1,7 +1,10 @@
 import { Box } from '@mui/material';
 import { AppAutocomplete, AppTextField } from '../../../../components';
-import { useLocationAddressSearch } from '../hooks/useLocationAddressSearch';
-import { selectLocationForm, setLocationName } from '../../../../features/location/locationSlice';
+import { useLocationAddressSearch } from '../../../../features/location/hooks';
+import {
+  selectLocationForm,
+  setLocationName,
+} from '../../../../features/location/locationSlice';
 import type { Location } from '../../../../features/location/types';
 import { useAppDispatch, useAppSelector } from '../../../../hooks/store';
 
@@ -11,9 +14,13 @@ interface LocationFieldsProps {
 
 export function LocationFields({ existingLocations }: LocationFieldsProps) {
   const dispatch = useAppDispatch();
-  const { name, address, city, postalCode, province } = useAppSelector(selectLocationForm);
-  const { addressOptions, autocompleteOpen, handleAddressInputChange, onFocus, onBlur } =
-    useLocationAddressSearch(existingLocations);
+  const { name, address, city, postalCode, province } =
+    useAppSelector(selectLocationForm);
+  const {
+    addressOptions,
+    handleAddressChange,
+    handleAddressSelect,
+  } = useLocationAddressSearch(existingLocations);
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
@@ -28,11 +35,9 @@ export function LocationFields({ existingLocations }: LocationFieldsProps) {
         label="Indirizzo"
         required
         options={addressOptions}
-        open={autocompleteOpen}
         inputValue={address}
-        onInputChange={handleAddressInputChange}
-        onFocus={onFocus}
-        onBlur={onBlur}
+        onValueChange={handleAddressChange}
+        onSelect={handleAddressSelect}
       />
 
       {city && (

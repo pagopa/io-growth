@@ -7,7 +7,8 @@ import { Footer, PageHeader, TopUtilityBar } from '../../components';
 import {
   selectAccessPoint,
   selectNationwide,
-  selectSelectedSedeIds,
+  selectSelectedLocationIds,
+  selectSelectedWebsiteIds,
 } from '../../features/wizard/slice';
 import { useAppSelector } from '../../hooks/store';
 import { WizardFooter } from './components/WizardFooter';
@@ -34,14 +35,18 @@ export default function WizardPage() {
 
   const accessPoint = useAppSelector(selectAccessPoint);
   const nationwide = useAppSelector(selectNationwide);
-  const selectedSedeIds = useAppSelector(selectSelectedSedeIds);
+  const selectedLocationIds = useAppSelector(selectSelectedLocationIds);
+  const selectedWebsiteIds = useAppSelector(selectSelectedWebsiteIds);
 
   const isStepValid = (step: number): boolean => {
-    if (step === 1) {
-      const needsLocation = accessPoint === 'territory' || accessPoint === 'both';
-      return !needsLocation || nationwide || selectedSedeIds.length > 0;
-    }
-    return true;
+    if (step !== 0) return true;
+    const hasTerritory = accessPoint === 'territory' || accessPoint === 'both';
+    const hasOnline = accessPoint === 'online' || accessPoint === 'both';
+    return (
+      !!accessPoint &&
+      (!hasTerritory || nationwide || selectedLocationIds.length > 0) &&
+      (!hasOnline || selectedWebsiteIds.length > 0)
+    );
   };
 
   const handleBack = () => {

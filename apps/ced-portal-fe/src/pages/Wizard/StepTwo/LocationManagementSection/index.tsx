@@ -12,7 +12,7 @@ import { useGetLocationsQuery } from '../../../../features/location/api';
 import {
   selectAccessPoint,
   selectNationwide,
-  selectSelectedSedeIds,
+  selectSelectedLocationIds,
   setNationwide,
 } from '../../../../features/wizard/slice';
 import { useAppDispatch, useAppSelector } from '../../../../hooks/store';
@@ -25,10 +25,9 @@ export function LocationManagementSection() {
   const dispatch = useAppDispatch();
   const accessPoint = useAppSelector(selectAccessPoint);
   const nationwide = useAppSelector(selectNationwide);
-  const showTerritorySection =
-    accessPoint === 'territory' || accessPoint === 'both';
+  const showTerritorySection = accessPoint === 'territory';
 
-  const selectedLocationIds = useAppSelector(selectSelectedSedeIds);
+  const selectedLocationIds = useAppSelector(selectSelectedLocationIds);
   const { data: availableLocations = [] } = useGetLocationsQuery(undefined, {
     skip: !showTerritorySection,
   });
@@ -54,7 +53,7 @@ export function LocationManagementSection() {
 
   return (
     <>
-      <SectionCard sx={{ gap: '31px' }}>
+      <SectionCard sx={{ gap: 4 }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
           <LocationOnIcon sx={{ color: 'text.disabled', fontSize: 24 }} />
           <Typography
@@ -93,7 +92,10 @@ export function LocationManagementSection() {
               Aggiungi sedi
             </Button>
 
-            <LocationList locations={selectedLocations} onRemove={handleRemove} />
+            <LocationList
+              locations={selectedLocations}
+              onRemove={handleRemove}
+            />
           </>
         )}
       </SectionCard>

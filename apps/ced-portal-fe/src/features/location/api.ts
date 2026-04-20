@@ -7,12 +7,12 @@ export const locationApi = baseApi.injectEndpoints({
       query: (q) => `/addresses/search?q=${encodeURIComponent(q)}`,
     }),
     getLocations: builder.query<Location[], void>({
-      query: () => '/sedi',
+      query: () => '/locations',
       providesTags: ['Locations'],
     }),
     createLocation: builder.mutation<Location, CreateLocationPayload>({
       query: (body) => ({
-        url: '/sedi',
+        url: '/locations',
         method: 'POST',
         body,
       }),
@@ -20,7 +20,7 @@ export const locationApi = baseApi.injectEndpoints({
     }),
     deleteLocation: builder.mutation<void, string>({
       query: (id) => ({
-        url: `/sedi/${id}`,
+        url: `/locations/${id}`,
         method: 'DELETE',
       }),
       invalidatesTags: ['Locations'],

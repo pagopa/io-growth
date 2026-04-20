@@ -21,8 +21,8 @@ export function BenefitsFiltersBar({ statusOptions }: BenefitsFiltersBarProps) {
         }}
       />
 
-      <AppSelect placeholder="Categoria" options={statusOptions} />
-      <AppSelect placeholder="Stato" options={statusOptions} />
+      <AppSelect label="Categoria" placeholder="Categoria" options={statusOptions} />
+      <AppSelect label="Stato" placeholder="Stato" options={statusOptions} />
 
       <Stack
         direction="row"

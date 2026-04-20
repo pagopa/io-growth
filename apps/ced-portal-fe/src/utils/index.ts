@@ -1,1 +1,1 @@
-///Exports of utils here
+export { isValidHttpsUrl } from './urlValidator';

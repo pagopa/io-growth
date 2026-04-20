@@ -2,22 +2,18 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import { Box, IconButton, useTheme } from '@mui/material';
 import { AppSelect, AppTextField } from '../../../../components';
 import type { Contact } from '../../../../features/location/types';
-import {
-  removeLocationContact,
-  updateLocationContact,
-} from '../../../../features/location/locationSlice';
-import { useAppDispatch } from '../../../../hooks/store';
 
 const CONTACT_TYPE_OPTIONS = ['Telefono', 'Sito web'];
 
 interface ContactRowProps {
   contact: Contact;
   index: number;
+  onRemove: (index: number) => void;
+  onChange: (params: { index: number; field: keyof Contact; value: string }) => void;
 }
 
-export function ContactRow({ contact, index }: ContactRowProps) {
+export function ContactRow({ contact, index, onRemove, onChange }: ContactRowProps) {
   const theme = useTheme();
-  const dispatch = useAppDispatch();
 
   return (
     <Box
@@ -38,7 +34,7 @@ export function ContactRow({ contact, index }: ContactRowProps) {
       >
         {index > 0 && (
           <IconButton
-            onClick={() => dispatch(removeLocationContact(index))}
+            onClick={() => onRemove(index)}
             sx={{ color: theme.palette.error.dark, p: 2 }}
           >
             <DeleteIcon />
@@ -49,13 +45,7 @@ export function ContactRow({ contact, index }: ContactRowProps) {
           options={CONTACT_TYPE_OPTIONS}
           value={contact.type}
           onChange={(e) =>
-            dispatch(
-              updateLocationContact({
-                index,
-                field: 'type',
-                value: e.target.value as string,
-              }),
-            )
+            onChange({ index, field: 'type', value: e.target.value as string })
           }
           sx={{
             minWidth: { xs: 0, sm: '200px' },
@@ -68,11 +58,7 @@ export function ContactRow({ contact, index }: ContactRowProps) {
       <AppTextField
         label="Inserisci contatto"
         value={contact.value}
-        onChange={(e) =>
-          dispatch(
-            updateLocationContact({ index, field: 'value', value: e.target.value }),
-          )
-        }
+        onChange={(e) => onChange({ index, field: 'value', value: e.target.value })}
         sx={{ flex: 1 }}
       />
     </Box>

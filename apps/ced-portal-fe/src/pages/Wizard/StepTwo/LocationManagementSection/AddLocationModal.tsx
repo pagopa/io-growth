@@ -20,7 +20,10 @@ export function AddLocationModal({
   onBack,
   existingLocations = [],
 }: AddLocationModalProps) {
-  const { handleConfirm, handleClose, isLoading } = useLocationSubmit(onConfirm, onClose);
+  const { handleConfirm, handleClose, isLoading } = useLocationSubmit(
+    onConfirm,
+    onClose,
+  );
 
   return (
     <AppModal

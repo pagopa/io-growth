@@ -29,7 +29,8 @@ const initialState: WizardFormState = {
   link: '',
   accessPoint: '',
   nationwide: false,
-  selectedSedeIds: [],
+  selectedLocationIds: [],
+  selectedWebsiteIds: [],
 };
 
 const wizardSlice = createSlice({
@@ -42,11 +43,19 @@ const wizardSlice = createSlice({
     setNationwide(state, action: PayloadAction<boolean>) {
       state.nationwide = action.payload;
     },
-    setSelectedSedeIds(state, action: PayloadAction<string[]>) {
-      state.selectedSedeIds = action.payload;
+    setSelectedLocationIds(state, action: PayloadAction<string[]>) {
+      state.selectedLocationIds = action.payload;
     },
-    removeSelectedSedeId(state, action: PayloadAction<string>) {
-      state.selectedSedeIds = state.selectedSedeIds.filter(
+    removeSelectedLocationId(state, action: PayloadAction<string>) {
+      state.selectedLocationIds = state.selectedLocationIds.filter(
+        (id) => id !== action.payload,
+      );
+    },
+    setSelectedWebsiteIds(state, action: PayloadAction<string[]>) {
+      state.selectedWebsiteIds = action.payload;
+    },
+    removeSelectedWebsiteId(state, action: PayloadAction<string>) {
+      state.selectedWebsiteIds = state.selectedWebsiteIds.filter(
         (id) => id !== action.payload,
       );
     },
@@ -56,12 +65,17 @@ const wizardSlice = createSlice({
 export const {
   setAccessPoint,
   setNationwide,
-  setSelectedSedeIds,
-  removeSelectedSedeId,
+  setSelectedLocationIds,
+  removeSelectedLocationId,
+  setSelectedWebsiteIds,
+  removeSelectedWebsiteId,
 } = wizardSlice.actions;
 
 export const wizardReducer = wizardSlice.reducer;
 
 export const selectAccessPoint = (state: RootState) => state.wizard.accessPoint;
 export const selectNationwide = (state: RootState) => state.wizard.nationwide;
-export const selectSelectedSedeIds = (state: RootState) => state.wizard.selectedSedeIds;
+export const selectSelectedLocationIds = (state: RootState) =>
+  state.wizard.selectedLocationIds;
+export const selectSelectedWebsiteIds = (state: RootState) =>
+  state.wizard.selectedWebsiteIds;

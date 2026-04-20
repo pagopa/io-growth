@@ -3,23 +3,31 @@ import { useAppSelector } from '../../../hooks/store';
 import {
   selectAccessPoint,
   selectNationwide,
-  selectSelectedSedeIds,
+  selectSelectedLocationIds,
+  selectSelectedWebsiteIds,
 } from '../../../features/wizard/slice';
 import type { StepProps } from '../index';
 import { WizardAlert } from '../components/WizardAlert';
 import { AccessPointSection } from './AccessPointSection';
 import { LocationManagementSection } from './LocationManagementSection';
+import { WebsiteManagementSection } from './WebsiteManagementSection';
 
 export function StepTwo({ attempted }: StepProps) {
   const accessPoint = useAppSelector(selectAccessPoint);
   const nationwide = useAppSelector(selectNationwide);
-  const selectedSedeIds = useAppSelector(selectSelectedSedeIds);
+  const selectedLocationIds = useAppSelector(selectSelectedLocationIds);
+  const selectedWebsiteIds = useAppSelector(selectSelectedWebsiteIds);
 
   const needsLocation =
     attempted &&
-    (accessPoint === 'territory' || accessPoint === 'both') &&
+    accessPoint === 'territory' &&
     !nationwide &&
-    selectedSedeIds.length === 0;
+    selectedLocationIds.length === 0;
+
+  const needsWebsite =
+    attempted &&
+    accessPoint === 'online' &&
+    selectedWebsiteIds.length === 0;
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
@@ -29,8 +37,10 @@ export function StepTwo({ attempted }: StepProps) {
           una sede.
         </WizardAlert>
       )}
+      {needsWebsite && <WizardAlert>Indica almeno un sito web.</WizardAlert>}
       <AccessPointSection />
       <LocationManagementSection />
+      <WebsiteManagementSection />
     </Box>
   );
 }

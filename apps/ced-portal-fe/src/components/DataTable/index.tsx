@@ -19,9 +19,17 @@ import type { DataTableProps, SortDirection } from './types';
 
 function LoadingState() {
   return (
-    <Stack spacing={1.5} alignItems="center" justifyContent="center" textAlign="center" minHeight={127}>
+    <Stack
+      spacing={1.5}
+      alignItems="center"
+      justifyContent="center"
+      textAlign="center"
+      minHeight={127}
+    >
       <CircularProgress size={28} />
-      <Typography sx={{ fontSize: 18, fontWeight: 700, color: 'text.secondary' }}>
+      <Typography
+        sx={{ fontSize: 18, fontWeight: 700, color: 'text.secondary' }}
+      >
         Caricamento...
       </Typography>
     </Stack>
@@ -30,9 +38,16 @@ function LoadingState() {
 
 function ErrorState({ onRetry }: { onRetry?: () => void }) {
   return (
-    <Stack spacing={1.5} alignItems="center" justifyContent="center" textAlign="center">
+    <Stack
+      spacing={1.5}
+      alignItems="center"
+      justifyContent="center"
+      textAlign="center"
+    >
       <WarningAmberRoundedIcon sx={{ color: 'text.secondary', fontSize: 28 }} />
-      <Typography sx={{ fontSize: 18, fontWeight: 700, color: 'text.secondary' }}>
+      <Typography
+        sx={{ fontSize: 18, fontWeight: 700, color: 'text.secondary' }}
+      >
         Errore durante il caricamento
       </Typography>
       {onRetry && (
@@ -48,7 +63,9 @@ function EmptyState({ message }: { message: string }) {
   return (
     <Stack spacing={1} alignItems="center" textAlign="center">
       <WarningAmberRoundedIcon sx={{ color: 'text.secondary', fontSize: 28 }} />
-      <Typography sx={{ fontSize: 18, fontWeight: 700, color: 'text.secondary' }}>
+      <Typography
+        sx={{ fontSize: 18, fontWeight: 700, color: 'text.secondary' }}
+      >
         {message}
       </Typography>
     </Stack>
@@ -81,7 +98,9 @@ export function DataTable<T>({
       const result =
         typeof left === 'number' && typeof right === 'number'
           ? left - right
-          : String(left).localeCompare(String(right), 'it', { sensitivity: 'base' });
+          : String(left).localeCompare(String(right), 'it', {
+              sensitivity: 'base',
+            });
       return sortDirection === 'asc' ? result : -result;
     });
   }, [items, sortBy, sortDirection, columns]);
@@ -140,8 +159,12 @@ export function DataTable<T>({
                 sortDirection={sortBy === col.id ? sortDirection : false}
                 onClick={() => handleSort(col.id, col.sortable)}
                 sx={{
-                  ...(col.hideBreakpoint ? { display: col.hideBreakpoint } : {}),
-                  ...(col.sortable ? { cursor: 'pointer', userSelect: 'none' } : {}),
+                  ...(col.hideBreakpoint
+                    ? { display: col.hideBreakpoint }
+                    : {}),
+                  ...(col.sortable
+                    ? { cursor: 'pointer', userSelect: 'none' }
+                    : {}),
                 }}
               >
                 {col.sortable ? (
@@ -178,7 +201,9 @@ export function DataTable<T>({
                   py: 1.65,
                   fontSize: 16,
                   color: theme.palette.text.primary,
-                  ...(index > 0 ? { borderTop: `1px solid ${theme.palette.divider}` } : {}),
+                  ...(index > 0
+                    ? { borderTop: `1px solid ${theme.palette.divider}` }
+                    : {}),
                 },
               }}
             >
@@ -187,12 +212,18 @@ export function DataTable<T>({
                   key={col.id}
                   align={col.align}
                   width={col.width}
-                  sx={col.hideBreakpoint ? { display: col.hideBreakpoint } : undefined}
+                  sx={
+                    col.hideBreakpoint
+                      ? { display: col.hideBreakpoint }
+                      : undefined
+                  }
                 >
                   {col.renderCell(item)}
                 </TableCell>
               ))}
-              {rowAction && <TableCell>{rowAction.renderAction(item)}</TableCell>}
+              {rowAction && (
+                <TableCell>{rowAction.renderAction(item)}</TableCell>
+              )}
             </TableRow>
           ))}
         </TableBody>

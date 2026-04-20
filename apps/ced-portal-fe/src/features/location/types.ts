@@ -1,3 +1,8 @@
+export interface Contact {
+  type: string;
+  value: string;
+}
+
 export interface AddressOption {
   label: string;
   city: string;
@@ -6,15 +11,9 @@ export interface AddressOption {
   [key: string]: unknown;
 }
 
-export interface Contact {
-  type: string;
-  value: string;
-}
-
 export interface LocationFormState {
   name: string;
   address: string;
-  addressSelected: boolean;
   city: string;
   postalCode: string;
   province: string;

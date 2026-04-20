@@ -23,5 +23,6 @@ export interface WizardFormState {
   link: string;
   accessPoint: AccessPoint;
   nationwide: boolean;
-  selectedSedeIds: string[];
+  selectedLocationIds: string[];
+  selectedWebsiteIds: string[];
 }

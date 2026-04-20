@@ -15,7 +15,7 @@ import { WebsiteList } from './WebsiteList';
 
 export function WebsiteManagementSection() {
   const accessPoint = useAppSelector(selectAccessPoint);
-  const showWebsiteSection = accessPoint === 'online';
+  const showWebsiteSection = accessPoint === 'online' || accessPoint === 'both';
 
   const selectedWebsiteIds = useAppSelector(selectSelectedWebsiteIds);
   const { data: availableWebsites = [] } = useGetWebsitesQuery(undefined, {

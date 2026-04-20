@@ -20,13 +20,13 @@ export function StepTwo({ attempted }: StepProps) {
 
   const needsLocation =
     attempted &&
-    accessPoint === 'territory' &&
+    (accessPoint === 'territory' || accessPoint === 'both') &&
     !nationwide &&
     selectedLocationIds.length === 0;
 
   const needsWebsite =
     attempted &&
-    accessPoint === 'online' &&
+    (accessPoint === 'online' || accessPoint === 'both') &&
     selectedWebsiteIds.length === 0;
 
   return (

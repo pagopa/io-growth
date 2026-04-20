@@ -27,6 +27,7 @@ entity Profile {
     * id: uuid
     --
     * operator_id: uuid <<FK>>
+    * place_id: uuid <<FK>>
     * display_name: string
     * created_at: timestamp
     * updated_at: timestamp

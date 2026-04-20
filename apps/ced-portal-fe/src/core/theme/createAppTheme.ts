@@ -46,6 +46,13 @@ export const createAppTheme = () =>
           },
         },
       },
+      MuiFormLabel: {
+        styleOverrides: {
+          asterisk: {
+            color: '#d32f2f',
+          },
+        },
+      },
       MuiButton: {
         styleOverrides: {
           containedPrimary: {

@@ -7,6 +7,7 @@ import {
   Typography,
   useTheme,
 } from '@mui/material';
+import { useMemo } from 'react';
 import type { Benefit } from '../../../features/benefits/types';
 import { BenefitsTable } from './BenefitsTable';
 
@@ -18,6 +19,13 @@ interface BenefitsContentStateProps {
   onRetry: () => void;
 }
 
+const IN_MANAGEMENT_STATES = new Set([
+  'Revisione',
+  'Bozza',
+  'Modifiche_Richieste',
+]);
+const APPROVED_STATES = new Set(['Pubblicata', 'Pubblicazione_Programmata']);
+
 export function BenefitsContentState({
   isLoading,
   isError,
@@ -26,7 +34,13 @@ export function BenefitsContentState({
   onRetry,
 }: BenefitsContentStateProps) {
   const theme = useTheme();
-  const hasData = !isLoading && !isError && items.length > 0;
+  const filteredItems = useMemo(() => {
+    if (activeTab === 0) {
+      return items.filter((item) => IN_MANAGEMENT_STATES.has(item.state));
+    }
+    return items.filter((item) => APPROVED_STATES.has(item.state));
+  }, [activeTab, items]);
+  const hasData = !isLoading && !isError && filteredItems.length > 0;
 
   const renderContent = () => {
     if (isLoading)
@@ -58,7 +72,7 @@ export function BenefitsContentState({
           </Button>
         </Stack>
       );
-    if (items.length === 0)
+    if (filteredItems.length === 0)
       return (
         <Stack spacing={1} alignItems="center" textAlign="center">
           <WarningAmberRoundedIcon
@@ -80,7 +94,7 @@ export function BenefitsContentState({
           </Typography>
         </Stack>
       );
-    return <BenefitsTable items={items} />;
+    return <BenefitsTable items={filteredItems} />;
   };
 
   return (

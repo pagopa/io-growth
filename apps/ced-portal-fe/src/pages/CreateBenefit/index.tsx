@@ -3,13 +3,18 @@ import { useState } from 'react';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { Box, Button, Container, Typography } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
+import { APP_ROUTES } from '../../app/routeConfig';
+import { useSaveBenefitDraftMutation } from '../../features/benefits/api';
 import {
   selectAccessPoint,
   selectNationwide,
   selectSelectedLocationIds,
   selectSelectedWebsiteIds,
 } from '../../features/wizard/slice';
+import { selectAgreementDetailCreationState } from '../../features/agreementDetailCreation/selectors';
 import { useAppSelector } from '../../hooks/store';
+import { useToast } from '../../contexts/ToastContext';
+import { AppModal } from '../../components';
 import { WizardFooter } from './components/WizardFooter';
 import { WizardStepper } from './components/WizardStepper';
 import { StepOne } from './StepOne';
@@ -33,11 +38,16 @@ export default function CreateBenefitPage() {
   const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState(0);
   const [attempted, setAttempted] = useState(false);
+  const [submitReviewOpen, setSubmitReviewOpen] = useState(false);
+  const { showToast } = useToast();
+
+  const [saveDraft, { isLoading: isSavingDraft }] = useSaveBenefitDraftMutation();
 
   const accessPoint = useAppSelector(selectAccessPoint);
   const nationwide = useAppSelector(selectNationwide);
   const selectedLocationIds = useAppSelector(selectSelectedLocationIds);
   const selectedWebsiteIds = useAppSelector(selectSelectedWebsiteIds);
+  const agreementState = useAppSelector(selectAgreementDetailCreationState);
 
   const isStepValid = (step: number): boolean => {
     if (step !== 1) return true;
@@ -48,6 +58,22 @@ export default function CreateBenefitPage() {
       (!hasTerritory || nationwide || selectedLocationIds.length > 0) &&
       (!hasOnline || selectedWebsiteIds.length > 0)
     );
+  };
+
+  const handleSaveDraft = async () => {
+    try {
+      await saveDraft({
+        localizedForm: agreementState.localizedForm,
+        accessPoint,
+        nationwide,
+        selectedLocationIds,
+        selectedWebsiteIds,
+      }).unwrap();
+      showToast('Bozza salvata con successo', 'success');
+      navigate(APP_ROUTES.HOME);
+    } catch {
+      showToast('Errore durante il salvataggio della bozza', 'error');
+    }
   };
 
   const handleBack = () => {
@@ -63,11 +89,16 @@ export default function CreateBenefitPage() {
     setAttempted(true);
     if (!isStepValid(currentStep)) return;
     if (currentStep === STEPS.length - 1) {
-      navigate(-1);
+      setSubmitReviewOpen(true);
     } else {
       setAttempted(false);
       setCurrentStep((s) => s + 1);
     }
+  };
+
+  const handleConfirmSubmitReview = () => {
+    setSubmitReviewOpen(false);
+    navigate(-1);
   };
 
   const CurrentStep = STEPS[currentStep]?.component ?? null;
@@ -119,9 +150,21 @@ export default function CreateBenefitPage() {
             totalSteps={STEPS.length}
             onBack={handleBack}
             onNext={handleNext}
+            onSaveDraft={handleSaveDraft}
+            isSavingDraft={isSavingDraft}
           />
         </Container>
       </Box>
+      <AppModal
+        open={submitReviewOpen}
+        onClose={() => setSubmitReviewOpen(false)}
+        title="Invia in revisione"
+        description="Il Dipartimento effettuerà la revisione della tua agevolazione. Il processo potrebbe richiedere diverso tempo. Se approvata, sarà pubblicata su IO a partire dalla data di inizio validità che hai scelto."
+      >
+        <Button variant="contained" fullWidth onClick={handleConfirmSubmitReview}>
+          Invia in revisione
+        </Button>
+      </AppModal>
     </Box>
   );
 }

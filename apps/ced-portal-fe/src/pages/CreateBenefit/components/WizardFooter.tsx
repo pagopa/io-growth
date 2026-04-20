@@ -7,6 +7,8 @@ interface WizardFooterProps {
   totalSteps: number;
   onBack: () => void;
   onNext: () => void;
+  onSaveDraft: () => void;
+  isSavingDraft?: boolean;
 }
 
 export function WizardFooter({
@@ -14,6 +16,8 @@ export function WizardFooter({
   totalSteps,
   onBack,
   onNext,
+  onSaveDraft,
+  isSavingDraft = false,
 }: WizardFooterProps) {
   const isLastStep = currentStep === totalSteps - 1;
 
@@ -23,8 +27,13 @@ export function WizardFooter({
         Indietro
       </Button>
       <Stack direction="row" spacing={2}>
-        <Button variant="outlined" startIcon={<SaveOutlinedIcon />}>
-          Salva bozza
+        <Button
+          variant="outlined"
+          startIcon={<SaveOutlinedIcon />}
+          onClick={onSaveDraft}
+          disabled={isSavingDraft}
+        >
+          {isSavingDraft ? 'Salvataggio...' : 'Salva bozza'}
         </Button>
         <Button variant="contained" onClick={onNext}>
           {isLastStep ? 'Invia in revisione' : 'Continua'}

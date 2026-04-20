@@ -150,6 +150,37 @@
       "responseMode": null,
       "streamingMode": null,
       "streamingInterval": 0
+    },
+    {
+      "uuid": "b1c2d3e4-f5a6-7890-bcde-f01234567890",
+      "type": "http",
+      "documentation": "Salva agevolazione in bozza",
+      "method": "post",
+      "endpoint": "api/benefits/draft",
+      "responses": [
+        {
+          "uuid": "b1c2d3e4-f5a6-7890-bcde-f01234567891",
+          "body": "{\"id\": \"benefit-draft-001\", \"status\": \"Bozza\", \"createdAt\": \"2026-04-20T10:00:00Z\"}",
+          "latency": 500,
+          "statusCode": 201,
+          "label": "Draft saved successfully",
+          "headers": [],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": true,
+          "crudKey": "id",
+          "callbacks": []
+        }
+      ],
+      "responseMode": null,
+      "streamingMode": null,
+      "streamingInterval": 0
     }
   ],
   "rootChildren": [
@@ -168,6 +199,10 @@
     {
       "type": "route",
       "uuid": "c3d4e5f6-a7b8-9012-cdef-123456789012"
+    },
+    {
+      "type": "route",
+      "uuid": "b1c2d3e4-f5a6-7890-bcde-f01234567890"
     }
   ],
   "proxyMode": false,

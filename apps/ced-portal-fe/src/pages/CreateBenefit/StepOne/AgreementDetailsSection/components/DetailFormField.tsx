@@ -26,6 +26,7 @@ export const DetailFormField = ({
     <FormField
       value={value}
       title={title}
+      label={placeholder}
       helperText={helperText}
       placeholder={placeholder}
       {...restProps}

@@ -3,7 +3,6 @@ import { useState } from 'react';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { Box, Button, Container, Typography } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
-import { Footer, PageHeader, TopUtilityBar } from '../../components';
 import {
   selectAccessPoint,
   selectNationwide,
@@ -13,6 +12,7 @@ import {
 import { useAppSelector } from '../../hooks/store';
 import { WizardFooter } from './components/WizardFooter';
 import { WizardStepper } from './components/WizardStepper';
+import { StepOne } from './StepOne';
 import { StepTwo } from './StepTwo';
 
 export interface StepProps {
@@ -25,10 +25,11 @@ interface StepConfig {
 }
 
 const STEPS: StepConfig[] = [
-  { label: 'Indica i punti di accesso', component: StepTwo }, // TODO: implementare step 2
+  { label: 'Dettagli agevolazione', component: StepOne },
+  { label: 'Indica i punti di accesso', component: StepTwo },
 ];
 
-export default function WizardPage() {
+export default function CreateBenefitPage() {
   const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState(0);
   const [attempted, setAttempted] = useState(false);
@@ -39,7 +40,7 @@ export default function WizardPage() {
   const selectedWebsiteIds = useAppSelector(selectSelectedWebsiteIds);
 
   const isStepValid = (step: number): boolean => {
-    if (step !== 0) return true;
+    if (step !== 1) return true;
     const hasTerritory = accessPoint === 'territory' || accessPoint === 'both';
     const hasOnline = accessPoint === 'online' || accessPoint === 'both';
     return (
@@ -81,8 +82,6 @@ export default function WizardPage() {
         flexDirection: 'column',
       }}
     >
-      <TopUtilityBar />
-      <PageHeader />
       <Box component="main" sx={{ flex: 1, overflowY: 'auto', py: 3 }}>
         <Container maxWidth={false} sx={{ maxWidth: 760 }}>
           <Button
@@ -123,7 +122,6 @@ export default function WizardPage() {
           />
         </Container>
       </Box>
-      <Footer />
     </Box>
   );
 }

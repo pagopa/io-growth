@@ -8,17 +8,17 @@ import {
   Stack,
 } from '@mui/material';
 import { useCallback } from 'react';
-import { useAppDispatch, useAppSelector } from '../../../hooks';
+import { useAppDispatch, useAppSelector } from '../../../../hooks';
 import {
   setEndDate,
   setHasEndDate,
   setStartDate,
-} from '../../../features/agreementDetailCreation/agreementDetailCreationSlice';
+} from '../../../../features/agreementDetailCreation/agreementDetailCreationSlice';
 import {
   selectActiveAgreementLanguage,
   selectActiveAgreementLanguageForm,
-} from '../../../features/agreementDetailCreation/selectors';
-import { getAgreementCopy } from '../../../constants';
+} from '../../../../features/agreementDetailCreation/selectors';
+import { getAgreementCopy } from '../../../../constants';
 
 export function AgreementValiditySection() {
   const dispatch = useAppDispatch();

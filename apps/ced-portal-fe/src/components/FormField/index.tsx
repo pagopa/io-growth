@@ -5,6 +5,7 @@ export type FormFieldProps = {
   children: React.ReactElement<Record<string, unknown>>;
   value?: string | number | boolean;
   title?: string;
+  label?: string;
   helperText?: string;
   placeholder?: string;
   hide?: boolean;
@@ -17,6 +18,7 @@ export const FormField = ({
   hide,
   value,
   title,
+  label,
   helperText,
   placeholder,
   children,
@@ -33,6 +35,7 @@ export const FormField = ({
     value,
     onChange,
     placeholder,
+    ...(label !== undefined && { label }),
   });
 
   return (

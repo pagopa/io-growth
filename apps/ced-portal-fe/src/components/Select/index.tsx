@@ -14,13 +14,9 @@ interface AppSelectProps extends Omit<
   SelectProps<string | string[]>,
   'children' | 'label'
 > {
-<<<<<<< HEAD
+  label?: string;
   placeholder?: string;
-  options: string[];
-=======
-  label: string;
   options?: string[];
->>>>>>> cebf64c (feat: step 2 access points)
   emptyOptionLabel?: string;
   helperText?: string;
   fullWidth?: boolean;
@@ -29,11 +25,11 @@ interface AppSelectProps extends Omit<
 }
 
 export const AppSelect = ({
-  label,
+  label = '',
   options,
   emptyOptionLabel,
   helperText,
-  fullWidth = false,
+  fullWidth = true,
   sx,
   value,
   defaultValue = '',
@@ -43,29 +39,6 @@ export const AppSelect = ({
   children,
   ...props
 }: AppSelectProps) => {
-<<<<<<< HEAD
-  const mergedSx = Array.isArray(sx)
-    ? [
-        {
-          minWidth: { xs: '100%' },
-          maxWidth: { xs: '100%' },
-          bgcolor: 'common.white',
-          borderRadius: 2,
-          minHeight: 56,
-        },
-        ...sx,
-      ]
-    : [
-        {
-          minWidth: { xs: '100%' },
-          maxWidth: { xs: '100%' },
-          bgcolor: 'common.white',
-          borderRadius: 2,
-          minHeight: 56,
-        },
-        sx,
-      ];
-=======
   const [open, setOpen] = useState(false);
   const isControlled = value !== undefined;
   const currentValue = isControlled ? value : defaultValue;
@@ -84,7 +57,6 @@ export const AppSelect = ({
       minHeight: 56,
     },
   };
->>>>>>> cebf64c (feat: step 2 access points)
 
   return (
     <FormControl

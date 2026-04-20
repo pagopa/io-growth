@@ -30,9 +30,10 @@ export const CompanionFormField = ({
   return (
     <FormField
       value={value}
-      placeholder={placeholder}
-      helperText={helperText}
       title={title}
+      label={placeholder}
+      helperText={helperText}
+      placeholder={placeholder}
       {...restProps}
     />
   );

@@ -1,8 +1,8 @@
 import { Box, useTheme } from '@mui/material';
-import { AgreementLinkSection } from './components/AgreementLinkSection';
-import { AgreementValiditySection } from './components/AgreementDateValiditySection';
-import { AgreementDetailsSection } from './components/AgreementDetailsSection';
-import { AgreementCompanionSection } from './components/AgreementCompanionSection';
+import { AgreementLinkSection } from '../CreateBenefit/StepOne/AgreementLinkSection';
+import { AgreementValiditySection } from '../CreateBenefit/StepOne/AgreementValiditySection';
+import { AgreementDetailsSection } from '../CreateBenefit/StepOne/AgreementDetailsSection';
+import { AgreementCompanionSection } from '../CreateBenefit/StepOne/AgreementCompanionSection';
 import { AgreementDetailLayout } from './components/AgreementDetailLayout';
 
 export const AgreementDetailCreationMainContent = () => {

@@ -1,7 +1,8 @@
-import { ok } from "neverthrow";
+import type { UseCase } from "@pagopa/io-core-domain";
+import type { BaseError } from "@pagopa/io-core-domain/errors";
 
-import type { BaseError } from "../../domain/errors/errors.js";
-import type { UseCase } from "../../domain/ports/inbound/use-case.js";
+import { ok } from "neverthrow";
+import { readFileSync } from "node:fs";
 
 export interface InfoOutput {
   readonly name: string;
@@ -9,13 +10,18 @@ export interface InfoOutput {
   readonly version: string;
 }
 
+const packageInfo = JSON.parse(
+  readFileSync(new URL("../../../package.json", import.meta.url), "utf8"),
+) as Pick<InfoOutput, "name" | "version">;
+
 export const getInfoUseCase: UseCase<
   Record<string, never>,
   InfoOutput,
   BaseError
 > = async () =>
+  //TODO check for database connection, external services, etc.
   ok({
-    name: "portal-be",
+    name: packageInfo.name,
     ok: true,
-    version: "0.0.1",
+    version: packageInfo.version,
   });

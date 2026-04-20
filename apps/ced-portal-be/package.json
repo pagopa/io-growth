@@ -20,14 +20,15 @@
     "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
-    "express": "catalog:",
+    "@pagopa/io-core-adapter-fastify": "workspace:^",
+    "@pagopa/io-core-domain": "workspace:^",
     "neverthrow": "catalog:",
     "@standard-schema/spec": "^1.1.0",
+    "fastify": "catalog:",
     "zod": "^3.25.1"
   },
   "devDependencies": {
     "@tsconfig/node22": "catalog:",
-    "@types/express": "catalog:",
     "@types/node": "catalog:",
     "@vitest/coverage-v8": "catalog:",
     "typescript": "catalog:",

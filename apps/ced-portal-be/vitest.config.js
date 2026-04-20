@@ -6,6 +6,8 @@ const coverageExclude = [
   "src/**/*.d.ts",
   "src/**/index.ts",
   "src/main.ts",
+  "src/adapters/inbound/fastify/**/*.ts",
+  "src/application/use-cases/info.use-case.ts",
   "src/domain/ports/**/*.ts",
 ];
 

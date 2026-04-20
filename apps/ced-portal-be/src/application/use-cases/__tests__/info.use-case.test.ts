@@ -1,21 +1,24 @@
+import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 
 import { getInfoUseCase } from "../info.use-case.js";
 
+const packageInfo = JSON.parse(
+  readFileSync(new URL("../../../../package.json", import.meta.url), "utf8"),
+) as {
+  name: string;
+  version: string;
+};
+
 describe("getInfoUseCase", () => {
-  it("returns the application health payload", async () => {
+  it("should return the service info from package metadata", async () => {
     const result = await getInfoUseCase({});
 
     expect(result.isOk()).toBe(true);
-
-    if (result.isErr()) {
-      throw new Error("Expected getInfoUseCase to succeed");
-    }
-
     expect(result.value).toEqual({
-      name: "portal-be",
+      name: packageInfo.name,
       ok: true,
-      version: "0.0.1",
+      version: packageInfo.version,
     });
   });
 });

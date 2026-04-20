@@ -54,6 +54,7 @@ export const agreementDetailCreationSlice = createSlice({
   reducers: {
     setActiveLanguage: (state, action: PayloadAction<string>) => {
       state.activeLanguage = action.payload;
+      getLanguageFormState(state, action.payload);
     },
     setLocalizedField: (
       state,

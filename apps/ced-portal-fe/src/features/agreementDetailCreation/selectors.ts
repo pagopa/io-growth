@@ -1,5 +1,4 @@
 import { RootState } from '../../core/store';
-import { createEmptyLanguageFormState, EMPTY_DETAILS } from './constants';
 import type {
   AgreementCompanionFields,
   AgreementDetailsFieldKey,
@@ -13,29 +12,21 @@ export const selectActiveAgreementLanguage = (state: RootState) =>
 
 export const selectActiveAgreementLanguageForm = (state: RootState) => {
   const agreementState = state.agreementDetailCreation;
-  return (
-    agreementState.localizedForm[agreementState.activeLanguage] ??
-    createEmptyLanguageFormState()
-  );
+  return agreementState.localizedForm[agreementState.activeLanguage];
 };
 
 export const selectFieldActiveAgreementLanguageForm =
   (field: AgreementDetailsFieldKey) => (state: RootState) => {
     const agreementState = state.agreementDetailCreation;
-    return (
-      agreementState.localizedForm[agreementState.activeLanguage]?.details[
-        field
-      ] ?? EMPTY_DETAILS[field]
-    );
+    return agreementState.localizedForm[agreementState.activeLanguage].details[
+      field
+    ];
   };
 
 export const selectFieldActiveAgreementLanguageCompanionForm =
   <K extends keyof AgreementCompanionFields>(field: K) =>
   (state: RootState): AgreementCompanionFields[K] => {
     const agreementState = state.agreementDetailCreation;
-    return (
-      agreementState.localizedForm[agreementState.activeLanguage]?.companion[
-        field
-      ] ?? createEmptyLanguageFormState().companion[field]
-    );
+    return agreementState.localizedForm[agreementState.activeLanguage]
+      .companion[field];
   };

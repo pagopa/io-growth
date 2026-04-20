@@ -15,9 +15,10 @@ export const AppRadioGroup = ({
   value,
   onChange,
   options,
+  ...radioGroupProps
 }: AppRadioGroupProps) => {
   return (
-    <RadioGroup row value={value} onChange={onChange}>
+    <RadioGroup row value={value} onChange={onChange} {...radioGroupProps}>
       {options.map((option) => (
         <FormControlLabel
           key={option.value}

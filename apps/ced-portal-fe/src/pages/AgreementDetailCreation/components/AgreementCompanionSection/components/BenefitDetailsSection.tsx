@@ -23,7 +23,7 @@ export const BenefitDetailsSection = ({
   const sameConditionAsOwner = useAppSelector(
     selectFieldActiveAgreementLanguageCompanionForm('isSameConditionAsOwner'),
   );
-  const companionbenefitType = useAppSelector(
+  const companionBenefitType = useAppSelector(
     selectFieldActiveAgreementLanguageCompanionForm('companionBenefitType'),
   );
 
@@ -50,7 +50,7 @@ export const BenefitDetailsSection = ({
       <FixedPriceFields />
 
       <CompanionFormField
-        hide={companionbenefitType !== companionCopy.benefitTypeOptions.other}
+        hide={companionBenefitType !== companionCopy.benefitTypeOptions.other}
         name={'companionOtherBenefitTypeDescription'}
         onChange={(event) =>
           handleFieldChange(

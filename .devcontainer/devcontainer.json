@@ -2,7 +2,7 @@
   "dockerComposeFile": "docker-compose.yml",
   "service": "workspace",
   "workspaceFolder": "/workspaces/io-growth",
-  "initializeCommand": "powershell.exe -NoProfile -ExecutionPolicy Bypass -File ./.devcontainer/scripts/export-devcontainer-ca.ps1 || pwsh -NoProfile -File ./.devcontainer/scripts/export-devcontainer-ca.ps1 || echo Skipping Windows certificate export",
+  "initializeCommand": "sh ./.devcontainer/scripts/export-devcontainer-ca.sh || echo Windows host requires WSL or a POSIX shell for certificate export",
   "features": {
     "ghcr.io/devcontainers-extra/features/pre-commit:2": {},
     "ghcr.io/devcontainers/features/azure-cli:1": {},

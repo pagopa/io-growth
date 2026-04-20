@@ -10,11 +10,6 @@ param(
 $ErrorActionPreference = "Stop"
 [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.SecurityProtocolType]::Tls12
 
-if ($env:OS -ne "Windows_NT") {
-    Write-Host "This script only exports certificates on Windows hosts."
-    exit 0
-}
-
 function ConvertTo-Pem {
     param(
         [System.Security.Cryptography.X509Certificates.X509Certificate2]$Certificate

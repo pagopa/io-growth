@@ -18,21 +18,14 @@ The preferred way to setup your development environment is to use [Devcontainer]
 
 If you are on Windows and your network performs HTTPS inspection, Rancher Desktop can already trust the Windows root store while the Linux build used by Dev Container features still does not. In that case the build can fail with errors like `dev-container-features/pre-commit_0 ... exit code: 60`.
 
-Before reopening the project in the container, the devcontainer automatically runs the PowerShell exporter through `initializeCommand`. On Windows hosts it exports the issuer certificates seen by the Windows host for GitHub, GHCR and PyPI. On non-Windows hosts the command falls back to `pwsh` when available, otherwise it skips the export with no changes.
+Automatic certificate export:
 
-If you want to run the export manually before a rebuild, use:
-
-```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File .\.devcontainer\scripts\export-devcontainer-ca.ps1
-```
-
-If you already standardize on Git Bash, MSYS2, Cygwin, or WSL on Windows, you can also use:
-
-```sh
-sh ./.devcontainer/scripts/export-devcontainer-ca.sh
-```
-
-The shell script exits immediately on non-Windows hosts. On Git Bash/MSYS/Cygwin and on WSL it delegates to the PowerShell implementation that can read the Windows host proxy and certificate chain correctly, then writes generated `.crt` files into `.devcontainer/certs/`. These files are ignored by git and are installed automatically by the devcontainer base image before feature installation starts. Re-run the script if your corporate certificate chain changes.
+- `initializeCommand` always runs `.devcontainer/scripts/export-devcontainer-ca.sh`.
+- On macOS and Linux, the script exits immediately with no changes.
+- On Windows, the export is supported only from WSL or another environment with a POSIX shell, such as Git Bash, MSYS2, or Cygwin.
+- In that case, the shell wrapper invokes the PowerShell exporter and writes the generated `.crt` files into `.devcontainer/certs/`.
+- The generated certificates are ignored by git and installed in the devcontainer image before feature installation starts.
+- If `sh` is not available on Windows, the export is skipped and the devcontainer prints a message that WSL or a POSIX shell is required.
 
 The devcontainer includes the following services, started automatically via docker-compose:
 

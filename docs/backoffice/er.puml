@@ -23,6 +23,15 @@ entity Operator {
     * updated_at: timestamp
 }
 
+entity Profile {
+    * id: uuid
+    --
+    * operator_id: uuid <<FK>>
+    * display_name: string
+    * created_at: timestamp
+    * updated_at: timestamp
+}
+
 entity Place {
     * id: uuid
     --
@@ -115,13 +124,15 @@ entity LocalizedMetadata {
 
 Operator ||--|{ Place
 Operator ||--|{ Opportunity
+Operator ||--|| Profile
+Profile ||--|| Place
 Place ||--o| Address
 Place ||--o| Website
 Place ||--|{ SupportContact
 Place ||--|{ OpportunityPlace
 Opportunity ||--|{ OpportunityPlace
-LocalizedMetadata }|--|| Opportunity
 Opportunity ||--|| BeneficiaryBenefit
 Opportunity ||--o| CaregiverBenefit
+Opportunity ||--|{ LocalizedMetadata
 
 @enduml

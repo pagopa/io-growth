@@ -9,7 +9,7 @@ module "portal_be_container_app" {
     instance_number = "01"
   }
 
-  resource_group_name = module.azure_core_values.common_resource_group_name
+  resource_group_name = data.azurerm_resource_group.resource_rg.name
   tags                = local.tags
 
   container_app_environment_id = module.common_container_app_environment.id

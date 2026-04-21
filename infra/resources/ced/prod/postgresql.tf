@@ -17,7 +17,7 @@ module "postgresql" {
   storage_mb       = 262144
   replica_location = local.secondary_location
 
-  resource_group_name = module.azure_core_values.common_resource_group_name
+  resource_group_name = azurerm_resource_group.data_rg.name
   tags                = local.tags
 
   admin_username         = "pgadmin"

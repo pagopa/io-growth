@@ -26,6 +26,13 @@ provider "azurerm" {
 
 provider "dx" {}
 
+resource "azurerm_resource_group" "data_rg" {
+  name     = "${local.project}-data-rg-01"
+  location = local.location
+
+  tags = local.tags
+}
+
 module "azure_core_values" {
   source  = "pagopa-dx/azure-core-values-exporter/azurerm"
   version = "~> 0.0"

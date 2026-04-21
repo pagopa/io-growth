@@ -10,7 +10,7 @@ module "portal_fe_static_web_app" {
     instance_number = "01"
   }
 
-  resource_group_name = module.azure_core_values.common_resource_group_name
+  resource_group_name = data.azurerm_resource_group.resource_rg.name
   tags                = local.tags
 
   custom_domain                = "portal.ced.pagopa.it"

@@ -66,7 +66,7 @@ COPY --from=builder --chown=appuser:appgroup /app/deployed .
 # Drop to non-root for runtime
 USER appuser
 
-EXPOSE 80
+EXPOSE 8080
 
 
 CMD ["node", "dist/main.js"]

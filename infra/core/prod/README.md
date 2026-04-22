@@ -12,13 +12,13 @@
 
 | Name | Version |
 |------|---------|
-| <a name="provider_azurerm.PROD-CED"></a> [azurerm.PROD-CED](#provider\_azurerm.PROD-CED) | 4.63.0 |
+| <a name="provider_azurerm.PROD-CED"></a> [azurerm.PROD-CED](#provider\_azurerm.PROD-CED) | 4.69.0 |
 
 ## Modules
 
 | Name | Source | Version |
 |------|--------|---------|
-| <a name="module_azure-PROD-CED_core"></a> [azure-PROD-CED\_core](#module\_azure-PROD-CED\_core) | pagopa-dx/azure-core-infra/azurerm | ~> 2.0 |
+| <a name="module_azure-PROD-CED_core"></a> [azure-PROD-CED\_core](#module\_azure-PROD-CED\_core) | pagopa-dx/azure-core-infra/azurerm | ~> 4.0 |
 
 ## Resources
 

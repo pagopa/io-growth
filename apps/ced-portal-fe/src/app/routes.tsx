@@ -6,6 +6,7 @@ import {
   APP_ROUTES,
   CreateBenefitPage,
   HomePage,
+  OverviewCompleteDataPage,
   OverviewPage,
   NotFoundPage,
   UnauthorizedPage,
@@ -17,6 +18,10 @@ export function AppRoutes() {
       <Routes>
         <Route element={<AppLayout />}>
           <Route path={APP_ROUTES.OVERVIEW} element={<OverviewPage />} />
+          <Route
+            path={APP_ROUTES.OVERVIEW_COMPLETE_DATA}
+            element={<OverviewCompleteDataPage />}
+          />
           <Route path={APP_ROUTES.HOME} element={<HomePage />} />
           <Route
             path={APP_ROUTES.CREATE_BENEFIT}

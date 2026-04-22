@@ -1,7 +1,10 @@
 import { Box, Button, Stack, Typography, useTheme } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
+import { APP_ROUTES } from '../../app/routeConfig';
 
 export default function OverviewPage() {
   const theme = useTheme();
+  const navigate = useNavigate();
 
   return (
     <Box
@@ -30,6 +33,7 @@ export default function OverviewPage() {
             variant="contained"
             color="primary"
             size="large"
+            onClick={() => navigate(APP_ROUTES.OVERVIEW_COMPLETE_DATA)}
             sx={{ borderRadius: 2, px: 3, fontWeight: 700 }}
           >
             Completa dati

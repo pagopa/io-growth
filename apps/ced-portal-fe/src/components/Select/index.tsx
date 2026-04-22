@@ -14,7 +14,7 @@ interface AppSelectProps extends Omit<
   SelectProps<string | string[]>,
   'children' | 'label'
 > {
-  label: string;
+  label?: string;
   options?: string[];
   emptyOptionLabel?: string;
   helperText?: string;

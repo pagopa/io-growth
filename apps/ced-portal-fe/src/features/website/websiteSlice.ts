@@ -64,7 +64,8 @@ export const {
 export const websiteReducer = websiteSlice.reducer;
 
 export const selectWebsiteForm = (state: RootState) => state.website;
-export const selectWebsiteUrlError = (state: RootState) => state.website.urlError;
+export const selectWebsiteUrlError = (state: RootState) =>
+  state.website.urlError;
 export const selectIsWebsiteFormValid = (state: RootState) => {
   const { name, url } = state.website;
   return name.trim().length > 0 && isValidHttpsUrl(url);

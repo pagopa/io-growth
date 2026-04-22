@@ -20,17 +20,13 @@ export function AppRoutes() {
             path={APP_ROUTES.CREATE_BENEFIT}
             element={<CreateBenefitPage />}
           />
-<<<<<<< HEAD
-=======
           <Route element={<ProtectedRoute />}>
             <Route
               path="/app"
               element={<div style={{ padding: 24 }}>App area</div>}
             />
           </Route>
-          <Route path={APP_ROUTES.WIZARD} element={<WizardPage />} />
           <Route path={APP_ROUTES.NOT_FOUND} element={<NotFoundPage />} />
->>>>>>> cebf64c (feat: step 2 access points)
         </Route>
         <Route path={APP_ROUTES.UNAUTHORIZED} element={<UnauthorizedPage />} />
         <Route element={<ProtectedRoute />}>

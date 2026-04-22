@@ -82,5 +82,9 @@ export const locationReducer = locationSlice.reducer;
 export const selectLocationForm = (state: RootState) => state.location;
 export const selectIsLocationFormValid = (state: RootState) => {
   const { name, address, city } = state.location;
-  return name.trim().length > 0 && address.trim().length > 0 && city.trim().length > 0;
+  return (
+    name.trim().length > 0 &&
+    address.trim().length > 0 &&
+    city.trim().length > 0
+  );
 };

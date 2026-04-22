@@ -1,11 +1,16 @@
-import { DatePicker, type DatePickerProps } from '@mui/x-date-pickers/DatePicker';
+import {
+  DatePicker,
+  type DatePickerProps,
+} from '@mui/x-date-pickers/DatePicker';
 import { format, isValid, parse } from 'date-fns';
 
 const DATE_FORMAT = 'dd/MM/yyyy';
 const REFERENCE_DATE = new Date();
 
-export interface AppDatePickerProps
-  extends Omit<DatePickerProps<Date>, 'value' | 'onChange'> {
+export interface AppDatePickerProps extends Omit<
+  DatePickerProps<Date>,
+  'value' | 'onChange'
+> {
   /** String in dd/MM/yyyy format — empty string = no date */
   value: string;
   onChange: (value: string) => void;
@@ -48,7 +53,7 @@ export function AppDatePicker({
             minHeight: 56,
           },
           '& .MuiOutlinedInput-root.Mui-disabled': {
-            backgroundColor: '#F4F5F8',
+            backgroundColor: 'common.neutralGray',
           },
           '& .MuiFormHelperText-root': {
             fontSize: '0.875rem',

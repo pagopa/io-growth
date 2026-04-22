@@ -44,7 +44,6 @@ const checkedIcon = (
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-
     }}
   >
     <CheckRoundedIcon
@@ -55,7 +54,6 @@ const checkedIcon = (
         strokeWidth: 1.5,
         strokeLinecap: 'round',
         strokeLinejoin: 'round',
-
       }}
     />
   </Box>
@@ -76,7 +74,12 @@ export const AppRadioList = ({
         key={option.value}
         value={option.value}
         label={option.label}
-        sx={{ ml: 0, width: '100%', maxWidth: itemMaxWidth, '& .MuiFormControlLabel-label': { fontSize: 16, fontWeight: 600 } }}
+        sx={{
+          ml: 0,
+          width: '100%',
+          maxWidth: itemMaxWidth,
+          '& .MuiFormControlLabel-label': { fontSize: 16, fontWeight: 600 },
+        }}
         control={
           <Radio
             disableRipple

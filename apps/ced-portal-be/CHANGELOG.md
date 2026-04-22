@@ -1,5 +1,11 @@
 # ced-portal-be
 
+## 0.0.4
+
+### Patch Changes
+
+- e22f615: init
+
 ## 0.0.3
 
 ### Patch Changes

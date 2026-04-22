@@ -1,8 +1,11 @@
 import type { ReactNode } from 'react';
 import MenuRoundedIcon from '@mui/icons-material/MenuRounded';
+import DashboardOutlinedIcon from '@mui/icons-material/DashboardOutlined';
 import LocalOfferOutlinedIcon from '@mui/icons-material/LocalOfferOutlined';
 import PlaceIcon from '@mui/icons-material/Place';
 import { italia } from '@pagopa/mui-italia';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { APP_ROUTES } from '../../app/routeConfig';
 import {
   Box,
   IconButton,
@@ -16,13 +19,16 @@ function NavItem({
   active = false,
   icon,
   label,
+  onClick,
 }: {
   active?: boolean;
   icon: ReactNode;
   label: string;
+  onClick?: () => void;
 }) {
   return (
     <ListItemButton
+      onClick={onClick}
       selected={active}
       sx={{
         minHeight: 64,
@@ -59,6 +65,11 @@ function NavItem({
 }
 
 export function SideNavigation() {
+  const navigate = useNavigate();
+  const { pathname } = useLocation();
+  const isOverviewActive = pathname === APP_ROUTES.OVERVIEW;
+  const isBenefitsActive = pathname === APP_ROUTES.HOME;
+
   return (
     <Box
       component="aside"
@@ -75,9 +86,16 @@ export function SideNavigation() {
     >
       <List disablePadding sx={{ py: 2.5 }}>
         <NavItem
-          active
+          active={isOverviewActive}
+          icon={<DashboardOutlinedIcon />}
+          label="Panoramica"
+          onClick={() => navigate(APP_ROUTES.OVERVIEW)}
+        />
+        <NavItem
+          active={isBenefitsActive}
           icon={<LocalOfferOutlinedIcon />}
           label="Agevolazioni"
+          onClick={() => navigate(APP_ROUTES.HOME)}
         />
         <NavItem icon={<PlaceIcon />} label="Punti di accesso" />
       </List>

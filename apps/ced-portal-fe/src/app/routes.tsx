@@ -6,6 +6,7 @@ import {
   APP_ROUTES,
   CreateBenefitPage,
   HomePage,
+  OverviewPage,
   NotFoundPage,
   UnauthorizedPage,
 } from './routeConfig';
@@ -15,6 +16,7 @@ export function AppRoutes() {
     <Suspense fallback={<div style={{ padding: 24 }}>Loading...</div>}>
       <Routes>
         <Route element={<AppLayout />}>
+          <Route path={APP_ROUTES.OVERVIEW} element={<OverviewPage />} />
           <Route path={APP_ROUTES.HOME} element={<HomePage />} />
           <Route
             path={APP_ROUTES.CREATE_BENEFIT}

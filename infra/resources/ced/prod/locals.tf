@@ -18,7 +18,7 @@ locals {
 
   # Portal BE Container App configuration
   portal_be = {
-    target_port = 8080
+    target_port = 80
 
     image = "ghcr.io/pagopa/io-growth/ced-portal-be:latest"
 

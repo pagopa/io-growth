@@ -26,7 +26,7 @@ locals {
       PORT = "8080"
     }
 
-    health_check_path = "/info"
+    health_check_path = "/api/info"
   }
 
   tags = {

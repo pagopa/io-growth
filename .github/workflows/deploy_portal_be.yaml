@@ -2,7 +2,9 @@ name: Deploy Portal BE to Azure Container App
 
 permissions:
   contents: read
-  packages: read
+  attestations: write
+  packages: write
+  id-token: write
 
 on:
   workflow_dispatch:
@@ -24,5 +26,5 @@ jobs:
       resource_group_name: ced-p-itn-rg-01
       environment: app-prod
       docker_image_description: "CED Portal Backend - Backend service for the operator's CED portal to manage opportunities"
-      docker_image_name: ced-portal-be
+      docker_image_name: pagopa/ced-portal-be
       build_args: "APP_NAME=ced-portal-be"

@@ -18,6 +18,7 @@
     "test:coverage": "turbo run test:coverage",
     "build": "turbo run build",
     "typecheck": "turbo run typecheck",
-    "version": "changeset version && pnpm install"
+    "version": "changeset version && pnpm install",
+    "release": "changeset tag"
   }
 }

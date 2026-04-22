@@ -15,13 +15,25 @@ module "portal_be_container_app" {
   container_app_environment_id = module.common_container_app_environment.id
   user_assigned_identity_id    = module.common_container_app_environment.user_assigned_identity.id
 
-  target_port = 80
+  target_port = local.portal_be.target_port
 
   container_app_templates = [
     {
-      image = "docker.io/traefik/whoami:latest"
+      image        = local.portal_be.image
+      app_settings = local.portal_be.app_settings
+
       liveness_probe = {
-        path      = "/health"
+        path      = local.portal_be.health_check_path
+        transport = "HTTP"
+      }
+
+      readiness_probe = {
+        path      = local.portal_be.health_check_path
+        transport = "HTTP"
+      }
+
+      startup_probe = {
+        path      = local.portal_be.health_check_path
         transport = "HTTP"
       }
     }

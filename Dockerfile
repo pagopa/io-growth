@@ -33,7 +33,7 @@ RUN corepack enable pnpm
 COPY --from=pruner /app/out/json/ .
 COPY --from=pruner /app/out/pnpm-lock.yaml ./pnpm-lock.yaml
 
-# Install all dependencies 
+# Install all dependencies
 RUN pnpm install --frozen-lockfile
 
 # Copy pruned source code
@@ -66,7 +66,7 @@ COPY --from=builder --chown=appuser:appgroup /app/deployed .
 # Drop to non-root for runtime
 USER appuser
 
-EXPOSE 3000
+EXPOSE 8080
 
 
 CMD ["node", "dist/main.js"]

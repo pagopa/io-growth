@@ -16,6 +16,19 @@ locals {
     key                  = "ced.core.prod.tfstate"
   }
 
+  # Portal BE Container App configuration
+  portal_be = {
+    target_port = 8080
+
+    image = "ghcr.io/pagopa/io-growth/ced-portal-be:latest"
+
+    app_settings = {
+      PORT = "8080"
+    }
+
+    health_check_path = "/info"
+  }
+
   tags = {
     CostCenter     = "TS000 - Tecnologia e Servizi"
     CreatedBy      = "Terraform"

@@ -1,7 +1,11 @@
 import AddIcon from '@mui/icons-material/Add';
 import { Box, Button, Stack, Typography } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
+import { APP_ROUTES } from '../../../app/routeConfig';
 
 export function MainContentHeader() {
+  const navigate = useNavigate();
+
   return (
     <Stack
       direction={{ xs: 'column', md: 'row' }}
@@ -26,6 +30,7 @@ export function MainContentHeader() {
         color="primary"
         size="large"
         startIcon={<AddIcon />}
+        onClick={() => navigate(APP_ROUTES.AGREEMENT_DETAIL_CREATION)}
         sx={{
           borderRadius: 2,
           px: 3,

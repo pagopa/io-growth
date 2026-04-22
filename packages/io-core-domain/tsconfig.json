@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "extends": "@tsconfig/node22/tsconfig.json",
+  "compilerOptions": {
+    "moduleResolution": "nodenext",
+    "forceConsistentCasingInFileNames": true,
+    "outDir": "dist",
+    "rootDir": "src",
+    "declaration": true
+  },
+  "exclude": [
+    "dist",
+    "node_modules",
+    "**/__tests__/*",
+    "vite.config.mts"
+  ]
+}

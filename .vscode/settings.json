@@ -1,3 +1,11 @@
 {
-  "files.eol": "\n"
+  "files.eol": "\n",
+  "eslint.workingDirectories": [
+    {
+      "directory": "apps/*"
+    },
+    {
+      "directory": "packages/*"
+    }
+  ]
 }

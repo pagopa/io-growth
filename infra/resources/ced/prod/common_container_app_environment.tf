@@ -17,7 +17,7 @@ module "common_container_app_environment" {
     instance_number = "01"
   }
 
-  resource_group_name = module.azure_core_values.common_resource_group_name
+  resource_group_name = data.azurerm_resource_group.resource_rg.name
   tags                = local.tags
 
   log_analytics_workspace_id = module.azure_core_values.common_log_analytics_workspace.id

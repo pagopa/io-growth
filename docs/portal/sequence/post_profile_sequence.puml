@@ -1,0 +1,30 @@
+@startuml Sequence Profile Creation
+participant "Referent" as ref
+participant "CED Backend" as be
+participant "Redis" as rd
+participant "Assets Storage" as as
+participant "PostgreSQL" as pg
+
+ref -> be: POST with session token and profile data
+activate be
+be -> rd: Check session token
+alt Session token valid
+    be -> pg: GET referent
+    be -> as: GET logo
+    alt Logo found
+      be -> as: GET cover
+      alt Cover found
+        be -> pg: Create Profile
+        be -> ref: 201 Created
+      else Cover not found
+        be -> ref: 400 Bad Request
+      end
+    else Logo not found
+      be -> ref: 400 Bad Request
+    end
+else Session not found
+    be -> ref: 401 Unauthorized
+    deactivate be
+end
+
+@enduml

@@ -13,7 +13,10 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
+  background-color: #e3f2fd;
+  overflow: hidden;
 }
-body > div {
+
+#root {
   height: 100dvh;
 }

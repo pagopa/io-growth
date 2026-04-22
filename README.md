@@ -37,6 +37,10 @@ The devcontainer includes the following services, started automatically via dock
 
 Connection details are available inside the workspace container via environment variables (`POSTGRES_HOST`, `POSTGRES_PORT`, `AZURITE_HOST`, `REDIS_HOST`, etc.).
 
+When you run an extra container from inside the devcontainer with `docker run -p ...`, the published port is exposed on the host Docker daemon, not on the workspace container's own `localhost`.
+
+- From your local use `http://localhost:<port>`
+
 #### Console
 
 If you use a code editor that doesn't support Dev Container, you can still run it in your terminal.
@@ -73,6 +77,19 @@ nodenv install
 ```bash
 pnpm build
 ```
+
+### Run `ced-portal-be` in Docker
+
+From the repository root, build the image with the renamed workspace name and publish port `3000`:
+
+```bash
+docker build -t ced-portal-be-local --build-arg APP_NAME=ced-portal-be .
+docker run --rm -p 3000:3000 ced-portal-be-local
+```
+
+You can then call the health endpoint at `GET /api/info`:
+
+- From your local: `http://localhost:3000/api/info`
 
 ## Release management
 

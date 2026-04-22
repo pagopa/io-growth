@@ -2,7 +2,7 @@ module "redis" {
   source = "../_modules/redis"
 
   name                = "${local.project}-redis-common-01"
-  resource_group_name = module.azure_core_values.common_resource_group_name
+  resource_group_name = azurerm_resource_group.data_rg.name
   location            = local.location
 
   sku_name                  = "Balanced_B5"

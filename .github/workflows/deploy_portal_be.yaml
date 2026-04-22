@@ -2,7 +2,9 @@ name: Deploy Portal BE to Azure Container App
 
 permissions:
   contents: read
-  packages: read
+  attestations: write
+  packages: write
+  id-token: write
 
 on:
   workflow_dispatch:

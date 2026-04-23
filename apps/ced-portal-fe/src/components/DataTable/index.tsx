@@ -14,7 +14,7 @@ import {
   Typography,
   useTheme,
 } from '@mui/material';
-import { useCallback, useMemo, useState } from 'react';
+import { type ReactNode, useCallback, useMemo, useState } from 'react';
 import type { DataTableProps, SortDirection } from './types';
 
 function LoadingState() {
@@ -120,90 +120,50 @@ export function DataTable<T>({
 
   if (hideWhenEmpty && items.length === 0) return null;
 
-  const hasData = !isLoading && !isError && items.length > 0;
+  const paperSx = [
+    {
+      borderRadius: 2.5,
+      border: '8px solid',
+      borderColor: theme.palette.divider,
+      bgcolor: 'common.white',
+    },
+    ...(Array.isArray(sx) ? sx : [sx]),
+  ] as const;
 
-  const content = isLoading ? (
-    <LoadingState />
-  ) : isError ? (
-    <ErrorState onRetry={onRetry} />
-  ) : items.length === 0 ? (
-    <EmptyState message={emptyMessage} />
-  ) : (
-    <TableContainer>
-      <Table
-        size="small"
-        sx={{
-          borderCollapse: 'separate',
-          borderSpacing: 0,
-          '& .MuiTableCell-root': { borderBottom: 'none' },
-        }}
-      >
-        <TableHead>
-          <TableRow
-            sx={{
-              bgcolor: theme.palette.divider,
-              height: 48,
-              '& .MuiTableCell-root': {
-                bgcolor: theme.palette.divider,
-                fontWeight: 700,
-                fontSize: 16,
-                py: 1.8,
-              },
-            }}
-          >
-            {columns.map((col) => (
-              <TableCell
-                key={col.id}
-                align={col.align}
-                width={col.width}
-                sortDirection={sortBy === col.id ? sortDirection : false}
-                onClick={() => handleSort(col.id, col.sortable)}
-                sx={{
-                  ...(col.hideBreakpoint
-                    ? { display: col.hideBreakpoint }
-                    : {}),
-                  ...(col.sortable
-                    ? { cursor: 'pointer', userSelect: 'none' }
-                    : {}),
-                }}
-              >
-                {col.sortable ? (
-                  <Stack direction="row" spacing={0.6} alignItems="center">
-                    <span>{col.label}</span>
-                    <SouthRoundedIcon
-                      sx={{
-                        fontSize: 18,
-                        transform:
-                          sortBy === col.id && sortDirection === 'asc'
-                            ? 'rotate(180deg)'
-                            : 'rotate(0deg)',
-                        transition: 'transform 0.2s ease',
-                      }}
-                    />
-                  </Stack>
-                ) : (
-                  col.label
-                )}
-              </TableCell>
-            ))}
-            {rowAction && <TableCell width={rowAction.width ?? 48} />}
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {sortedItems.map((item, index) => (
+  const StatePaper = ({ children }: { children: ReactNode }) => (
+    <Paper
+      elevation={0}
+      sx={[...paperSx, { display: 'grid', placeItems: 'center', py: 2 }]}
+    >
+      {children}
+    </Paper>
+  );
+
+  if (isLoading) return <StatePaper><LoadingState /></StatePaper>;
+  if (isError) return <StatePaper><ErrorState onRetry={onRetry} /></StatePaper>;
+  if (items.length === 0) return <StatePaper><EmptyState message={emptyMessage} /></StatePaper>;
+
+  return (
+    <Paper elevation={0} sx={paperSx}>
+      <TableContainer>
+        <Table
+          size="small"
+          sx={{
+            borderCollapse: 'separate',
+            borderSpacing: 0,
+            '& .MuiTableCell-root': { borderBottom: 'none' },
+          }}
+        >
+          <TableHead>
             <TableRow
-              key={getRowKey(item)}
               sx={{
-                bgcolor: theme.palette.background.paper,
+                bgcolor: theme.palette.divider,
                 height: 48,
                 '& .MuiTableCell-root': {
-                  bgcolor: theme.palette.background.paper,
-                  py: 1.65,
+                  bgcolor: theme.palette.divider,
+                  fontWeight: 700,
                   fontSize: 16,
-                  color: theme.palette.text.primary,
-                  ...(index > 0
-                    ? { borderTop: `1px solid ${theme.palette.divider}` }
-                    : {}),
+                  py: 1.8,
                 },
               }}
             >
@@ -212,42 +172,79 @@ export function DataTable<T>({
                   key={col.id}
                   align={col.align}
                   width={col.width}
-                  sx={
-                    col.hideBreakpoint
+                  sortDirection={sortBy === col.id ? sortDirection : false}
+                  onClick={() => handleSort(col.id, col.sortable)}
+                  sx={{
+                    ...(col.hideBreakpoint
                       ? { display: col.hideBreakpoint }
-                      : undefined
-                  }
+                      : {}),
+                    ...(col.sortable
+                      ? { cursor: 'pointer', userSelect: 'none' }
+                      : {}),
+                  }}
                 >
-                  {col.renderCell(item)}
+                  {col.sortable ? (
+                    <Stack direction="row" spacing={0.6} alignItems="center">
+                      <span>{col.label}</span>
+                      <SouthRoundedIcon
+                        sx={{
+                          fontSize: 18,
+                          transform:
+                            sortBy === col.id && sortDirection === 'asc'
+                              ? 'rotate(180deg)'
+                              : 'rotate(0deg)',
+                          transition: 'transform 0.2s ease',
+                        }}
+                      />
+                    </Stack>
+                  ) : (
+                    col.label
+                  )}
                 </TableCell>
               ))}
-              {rowAction && (
-                <TableCell>{rowAction.renderAction(item)}</TableCell>
-              )}
+              {rowAction && <TableCell width={rowAction.width ?? 48} />}
             </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </TableContainer>
-  );
-
-  return (
-    <Paper
-      elevation={0}
-      sx={[
-        {
-          borderRadius: 2.5,
-          border: '8px solid',
-          borderColor: theme.palette.divider,
-          bgcolor: 'common.white',
-          display: hasData ? 'block' : 'grid',
-          placeItems: hasData ? 'normal' : 'center',
-          py: hasData ? 0 : 2,
-        },
-        ...(Array.isArray(sx) ? sx : [sx]),
-      ]}
-    >
-      {content}
+          </TableHead>
+          <TableBody>
+            {sortedItems.map((item, index) => (
+              <TableRow
+                key={getRowKey(item)}
+                sx={{
+                  bgcolor: theme.palette.background.paper,
+                  height: 48,
+                  '& .MuiTableCell-root': {
+                    bgcolor: theme.palette.background.paper,
+                    py: 1.65,
+                    fontSize: 16,
+                    color: theme.palette.text.primary,
+                    ...(index > 0
+                      ? { borderTop: `1px solid ${theme.palette.divider}` }
+                      : {}),
+                  },
+                }}
+              >
+                {columns.map((col) => (
+                  <TableCell
+                    key={col.id}
+                    align={col.align}
+                    width={col.width}
+                    sx={
+                      col.hideBreakpoint
+                        ? { display: col.hideBreakpoint }
+                        : undefined
+                    }
+                  >
+                    {col.renderCell(item)}
+                  </TableCell>
+                ))}
+                {rowAction && (
+                  <TableCell>{rowAction.renderAction(item)}</TableCell>
+                )}
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
     </Paper>
   );
 }

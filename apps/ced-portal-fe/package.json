@@ -1,7 +1,7 @@
 {
   "name": "ced-portal-fe",
   "private": true,
-  "version": "0.1.0",
+  "version": "0.1.1",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -53,7 +53,7 @@
     "prettier": "^3.5.3",
     "typescript": "^5.8.2",
     "typescript-eslint": "^8.26.1",
-    "vite": "^5.4.14",
+    "vite": "^6.0.0",
     "vite-plugin-typescript": "^1.0.4",
     "vite-tsconfig-paths": "^5.0.1",
     "vitest": "^3.2.4"

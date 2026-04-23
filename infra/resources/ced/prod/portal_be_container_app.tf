@@ -15,7 +15,8 @@ module "portal_be_container_app" {
   container_app_environment_id = module.common_container_app_environment.id
   user_assigned_identity_id    = module.common_container_app_environment.user_assigned_identity.id
 
-  target_port = local.portal_be.target_port
+  target_port           = local.portal_be.target_port
+  public_access_enabled = true
 
   container_app_templates = [
     {

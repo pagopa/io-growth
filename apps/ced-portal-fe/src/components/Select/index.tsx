@@ -15,7 +15,6 @@ interface AppSelectProps extends Omit<
   'children' | 'label'
 > {
   label?: string;
-  placeholder?: string;
   options?: string[];
   emptyOptionLabel?: string;
   helperText?: string;
@@ -25,11 +24,10 @@ interface AppSelectProps extends Omit<
 }
 
 export const AppSelect = ({
-  label = '',
+  label,
   options,
-  emptyOptionLabel,
   helperText,
-  fullWidth = true,
+  fullWidth = false,
   sx,
   value,
   defaultValue = '',

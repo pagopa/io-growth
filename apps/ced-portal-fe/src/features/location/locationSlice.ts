@@ -2,14 +2,21 @@ import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
 import type { RootState } from '../../core/store';
 import type { AddressOption, Contact, LocationFormState } from './types';
 
-const initialState: LocationFormState = {
-  name: '',
-  address: '',
-  city: '',
-  postalCode: '',
-  province: '',
-  contacts: [{ type: '', value: '' }],
-};
+const createEmptyContact = (): Contact => ({
+  type: null,
+  value: null,
+});
+
+const createInitialState = (): LocationFormState => ({
+  name: null,
+  address: null,
+  city: null,
+  postalCode: null,
+  province: null,
+  contacts: [createEmptyContact()],
+});
+
+const initialState: LocationFormState = createInitialState();
 
 const locationSlice = createSlice({
   name: 'location',
@@ -20,10 +27,10 @@ const locationSlice = createSlice({
     },
     setLocationAddress(state, action: PayloadAction<string>) {
       state.address = action.payload;
-      if (!action.payload) {
-        state.city = '';
-        state.postalCode = '';
-        state.province = '';
+      if (!state.address) {
+        state.city = null;
+        state.postalCode = null;
+        state.province = null;
       }
     },
     setLocationAddressFromOption(state, action: PayloadAction<AddressOption>) {
@@ -32,17 +39,17 @@ const locationSlice = createSlice({
       state.postalCode = action.payload.postalCode;
       state.province = action.payload.province;
     },
-    setLocationCity(state, action: PayloadAction<string>) {
+    setLocationCity(state, action: PayloadAction<string | null>) {
       state.city = action.payload;
     },
-    setLocationPostalCode(state, action: PayloadAction<string>) {
+    setLocationPostalCode(state, action: PayloadAction<string | null>) {
       state.postalCode = action.payload;
     },
-    setLocationProvince(state, action: PayloadAction<string>) {
+    setLocationProvince(state, action: PayloadAction<string | null>) {
       state.province = action.payload;
     },
     addLocationContact(state) {
-      state.contacts.push({ type: '', value: '' });
+      state.contacts.push(createEmptyContact());
     },
     removeLocationContact(state, action: PayloadAction<number>) {
       state.contacts.splice(action.payload, 1);
@@ -52,11 +59,13 @@ const locationSlice = createSlice({
       action: PayloadAction<{
         index: number;
         field: keyof Contact;
-        value: string;
+        value: string | null;
       }>,
     ) {
       const { index, field, value } = action.payload;
-      state.contacts[index][field] = value;
+      if (state.contacts[index]) {
+        state.contacts[index][field] = value;
+      }
     },
     resetLocationForm() {
       return initialState;
@@ -80,11 +89,8 @@ export const {
 export const locationReducer = locationSlice.reducer;
 
 export const selectLocationForm = (state: RootState) => state.location;
+
 export const selectIsLocationFormValid = (state: RootState) => {
   const { name, address, city } = state.location;
-  return (
-    name.trim().length > 0 &&
-    address.trim().length > 0 &&
-    city.trim().length > 0
-  );
+  return !!name && !!address && !!city;
 };

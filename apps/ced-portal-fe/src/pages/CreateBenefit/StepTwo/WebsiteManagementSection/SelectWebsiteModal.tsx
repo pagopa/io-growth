@@ -34,7 +34,9 @@ export function SelectWebsiteModal({
       description="Se non è presente nell'elenco, aggiungi un nuovo sito web."
       label="Seleziona uno o più siti web"
       addNewLabel="Aggiungi nuovo sito web"
-      icon={<LanguageIcon sx={{ fontSize: 16, color: 'common.decorativeIcon' }} />}
+      icon={
+        <LanguageIcon sx={{ fontSize: 16, color: 'common.decorativeIcon' }} />
+      }
       getSubtitle={(site) => site.url}
     />
   );

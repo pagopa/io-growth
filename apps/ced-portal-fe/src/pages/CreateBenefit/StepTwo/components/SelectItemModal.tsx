@@ -14,7 +14,7 @@ import { useMemo, type ReactNode } from 'react';
 import { AppCheckbox, AppModal, AppSelect } from '../../../../components';
 
 interface NamedItem {
-  id: string;
+  id: string | null;
   name: string;
 }
 
@@ -92,12 +92,17 @@ export function SelectItemModal<T extends NamedItem>({
     if (isAllSelected) {
       onSelectedChange([]);
     } else {
-      onSelectedChange(items.map((item) => item.id));
+      onSelectedChange(items.map((item) => item.id ?? ''));
     }
   };
 
   return (
-    <AppModal open={open} onClose={onClose} title={title} description={description}>
+    <AppModal
+      open={open}
+      onClose={onClose}
+      title={title}
+      description={description}
+    >
       <AppSelect
         multiple
         displayEmpty
@@ -172,7 +177,7 @@ export function SelectItemModal<T extends NamedItem>({
         {items.map((item) => (
           <MenuItem
             key={item.id}
-            value={item.id}
+            value={item.id ?? ''}
             sx={{
               alignItems: 'flex-start',
               '&.Mui-selected': { color: 'text.primary' },
@@ -196,7 +201,10 @@ export function SelectItemModal<T extends NamedItem>({
               secondary={getSubtitle(item)}
               secondaryTypographyProps={{ sx: { pl: '20px' } }}
             />
-            <AppCheckbox checked={selected.includes(item.id)} sx={{ mt: 0.25 }} />
+            <AppCheckbox
+              checked={selected.includes(item.id ?? '')}
+              sx={{ mt: 0.25 }}
+            />
           </MenuItem>
         ))}
       </AppSelect>

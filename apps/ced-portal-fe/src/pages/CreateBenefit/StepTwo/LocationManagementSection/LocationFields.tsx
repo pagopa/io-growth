@@ -16,11 +16,8 @@ export function LocationFields({ existingLocations }: LocationFieldsProps) {
   const dispatch = useAppDispatch();
   const { name, address, city, postalCode, province } =
     useAppSelector(selectLocationForm);
-  const {
-    addressOptions,
-    handleAddressChange,
-    handleAddressSelect,
-  } = useLocationAddressSearch(existingLocations);
+  const { addressOptions, handleAddressChange, handleAddressSelect } =
+    useLocationAddressSearch(existingLocations);
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
@@ -35,7 +32,7 @@ export function LocationFields({ existingLocations }: LocationFieldsProps) {
         label="Indirizzo"
         required
         options={addressOptions}
-        inputValue={address}
+        inputValue={address || ''}
         onValueChange={handleAddressChange}
         onSelect={handleAddressSelect}
       />

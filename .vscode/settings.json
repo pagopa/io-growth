@@ -1,7 +1,11 @@
 {
+  "files.eol": "\n",
   "eslint.workingDirectories": [
     {
-      "directory": "apps/ced-portal-be"
+      "directory": "apps/*"
+    },
+    {
+      "directory": "packages/*"
     }
   ]
 }

@@ -9,10 +9,19 @@ interface ContactRowProps {
   contact: Contact;
   index: number;
   onRemove: (index: number) => void;
-  onChange: (params: { index: number; field: keyof Contact; value: string }) => void;
+  onChange: (params: {
+    index: number;
+    field: keyof Contact;
+    value: string;
+  }) => void;
 }
 
-export function ContactRow({ contact, index, onRemove, onChange }: ContactRowProps) {
+export function ContactRow({
+  contact,
+  index,
+  onRemove,
+  onChange,
+}: ContactRowProps) {
   const theme = useTheme();
 
   return (
@@ -43,7 +52,7 @@ export function ContactRow({ contact, index, onRemove, onChange }: ContactRowPro
         <AppSelect
           label="Tipo di contatto"
           options={CONTACT_TYPE_OPTIONS}
-          value={contact.type}
+          value={contact.type || undefined}
           onChange={(e) =>
             onChange({ index, field: 'type', value: e.target.value as string })
           }
@@ -58,7 +67,9 @@ export function ContactRow({ contact, index, onRemove, onChange }: ContactRowPro
       <AppTextField
         label="Inserisci contatto"
         value={contact.value}
-        onChange={(e) => onChange({ index, field: 'value', value: e.target.value })}
+        onChange={(e) =>
+          onChange({ index, field: 'value', value: e.target.value })
+        }
         sx={{ flex: 1 }}
       />
     </Box>

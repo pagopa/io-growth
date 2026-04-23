@@ -1,5 +1,4 @@
 import type { Contact } from '../location/types';
-export type { Contact };
 
 export interface WebsiteFormState {
   name: string | null;

@@ -21,3 +21,7 @@ data "azurerm_private_dns_zone" "managed_redis" {
   name                = "privatelink.redis.azure.net"
   resource_group_name = module.azure_core_values.network_resource_group_name
 }
+
+data "azurerm_resource_group" "resource_rg" {
+  name = "ced-p-itn-rg-01"
+}

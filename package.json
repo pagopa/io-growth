@@ -9,5 +9,16 @@
     "@changesets/cli": "^2.30.0",
     "@devcontainers/cli": "^0.84.0",
     "turbo": "^2.8.14"
+  },
+  "scripts": {
+    "code-review": "turbo run format:check lint:check test:coverage",
+    "lint": "turbo run lint",
+    "format": "turbo run format",
+    "test": "turbo run test",
+    "test:coverage": "turbo run test:coverage",
+    "build": "turbo run build",
+    "typecheck": "turbo run typecheck",
+    "version": "changeset version && pnpm install",
+    "release": "changeset tag"
   }
 }

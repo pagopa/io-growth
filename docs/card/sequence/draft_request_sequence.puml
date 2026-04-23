@@ -1,0 +1,54 @@
+@startuml Draft Request Sequence Diagram
+
+actor "FE (User App)" as FE
+participant "BFF (Our System)" as BFF
+database "Local DB\n(partitionKey, idLavorazione, state)" as DB
+box "INPS Services (PDND)" #LightBlue
+  participant "MS INPS\n(GestioneDomandaCED)" as INPS
+end box
+
+title 2. New Application Data Submission (NuovaDomandaInBozza) - DRAFT state
+
+FE -> BFF: Submit New Application Data (Dati completi)
+
+BFF -> BFF: Generate NEW Idempotency Key (IK_NEW)
+
+== Local DB Write 1: Create DRAFT Record ==
+BFF -> DB: CREATE Record (partitionKey, IK_NEW, state: DRAFT, idLavorazione: NULL)
+
+alt DB Write 1 SUCCESS
+    DB --> BFF: OK
+
+    BFF -> INPS: NuovaDomandaInBozza(Dati completi) \n <<Header: Idempotency Key = IK_NEW>>
+
+    alt INPS Success (HTTP 200 OK)
+        INPS --> BFF: idLavorazione (X)
+
+        == Local DB Write 2: Update to READY_FOR_PHOTO_UPLOAD ==
+        BFF -> DB: UPDATE Record (idLavorazione=X, IK_NEW, state: READY_FOR_PHOTO_UPLOAD)
+
+        alt DB Update SUCCESS
+            DB --> BFF: OK
+            BFF --> FE: Success (idLavorazione=X, Next step: Photo required)
+
+        else DB Update FAILURE (***INCONSISTENCY POINT***)
+            DB --> BFF: ERROR (Timeout)
+            note right of BFF: INPS has draft (idLavorazione=X). \nLocal DB shows DRAFT (idLavorazione=NULL). \nReconciliation (Flow 1) will DELETE this record next time, forcing restart.
+            BFF --> FE: System Error (HTTP 500)
+        end
+
+    else INPS Validation Failure (HTTP 400 BAD REQUEST)
+        INPS --> BFF: Validation Error Code
+        note right of BFF: INPS did not save the bozza.
+        BFF --> FE: Validation Error: (Details: Error Code and Description)
+        
+    else INPS System Error (HTTP 500 INTERNAL ERROR)
+        INPS --> BFF: Error Code 100
+        BFF --> FE: System Error (HTTP 500)
+    end
+
+else DB Write 1 FAILURE (Fatal Error)
+    DB --> BFF: ERROR (e.g., Connection issue)
+    BFF --> FE: HTTP System Error (HTTP 500)
+end
+@enduml

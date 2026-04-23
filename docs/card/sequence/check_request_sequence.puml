@@ -1,0 +1,54 @@
+@startuml Check Request Sequence Diagram
+
+actor "FE (User App)" as FE
+participant "BFF (Our System)" as BFF
+database "Local DB\n(partitionKey, idLavorazione, state)" as DB
+box "INPS Services (PDND)" #LightBlue
+  participant "MS INPS\n(GestioneDomandaCED)" as INPS
+end box
+
+title 1. Initialization and Decision Loop (CheckDomanda) - With Reconciliation
+
+FE -> BFF: Request Current Step (codiceFiscale)
+
+BFF -> DB: Retrieve Local Record (R) by partitionKey
+DB --> BFF: R (R.state, R.idLavorazione, R.idempotencyKey)
+
+BFF -> INPS: CheckDomanda(codiceFiscale)
+INPS --> BFF: esitoCheck, idLavorazione_INPS (X)
+
+alt INPS State READY FOR NEW DRAFT (esitoCheck = 10 or 50)
+    alt Local Record R exists
+        note right of BFF: Inconsistency: INPS says no active draft (10/50), but local DB has stale record.
+        BFF -> DB: DELETE Record R
+        DB --> BFF: OK
+    end
+    BFF --> FE: Status: READY_FOR_NEW_DRAFT (Display Data Entry Form)
+
+else INPS has active draft/processing (esitoCheck = 20, 30, 40)
+    alt Local Record R exists and R.state = DRAFT (R.idLavorazione == NULL)
+        note right of BFF: Inconsistency detected: Local DRAFT creation failed last time. \nUser rule: Delete local DRAFT and force restart.
+        BFF -> DB: DELETE Record R
+        DB --> BFF: OK
+        BFF --> FE: Status: READY_FOR_NEW_DRAFT (FE must start NuovaDomandaInBozza again)
+
+    else Local Record R exists but is in UPLOADING or is STALE (needs update)
+        BFF -> BFF: Map esitoCheck (20->READY_FOR_PHOTO_UPLOAD; 30->READY_FOR_DOCUMENTS_UPLOAD; 40->ACQUIRED)
+        BFF -> DB: UPDATE R (state, idLavorazione=X, IK=R.idempotencyKey)
+        DB --> BFF: OK (Reconciliation Complete)
+        BFF --> FE: Status: Current reconciled state
+
+    else Local Record R is NULL (Missing/Clean start, but INPS has state)
+        BFF -> BFF: Generate Idempotency Key (IK_NEW)
+        BFF -> DB: CREATE Record (partitionKey, idLavorazione=X, IK_NEW, state based on esitoCheck)
+        DB --> BFF: OK
+        BFF --> FE: Status: Current reconciled state
+
+    else Local Record R is consistent
+        BFF --> FE: Status: R.state
+    end
+
+else INPS Error (e.g., 700, 212)
+    BFF --> FE: Error: Cannot proceed (Details: Error Code)
+end
+@enduml 

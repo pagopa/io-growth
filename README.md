@@ -16,6 +16,17 @@ The preferred way to setup your development environment is to use [Devcontainer]
 3. Open the project root folder and select `Dev Containers: Reopen in Container` from the command palette
 4. Visual Studio Code will build the devcontainer image and then open the project inside the container, with all the needed tools and extension configured
 
+If you are on Windows and your network performs HTTPS inspection, Rancher Desktop can already trust the Windows root store while the Linux build used by Dev Container features still does not. In that case the build can fail with errors like `dev-container-features/pre-commit_0 ... exit code: 60`.
+
+Automatic certificate export:
+
+- `initializeCommand` always runs `.devcontainer/scripts/export-devcontainer-ca.sh`.
+- On macOS and Linux, the script exits immediately with no changes.
+- On Windows, the export is supported only from WSL or another environment with a POSIX shell, such as Git Bash, MSYS2, or Cygwin.
+- In that case, the shell wrapper invokes the PowerShell exporter and writes the generated `.crt` files into `.devcontainer/certs/`.
+- The generated certificates are ignored by git and installed in the devcontainer image before feature installation starts.
+- If `sh` is not available on Windows, the export is skipped and the devcontainer prints a message that WSL or a POSIX shell is required.
+
 The devcontainer includes the following services, started automatically via docker-compose:
 
 | Service                          | Image                                     | Ports                                            | Default credentials                                    |
@@ -25,6 +36,10 @@ The devcontainer includes the following services, started automatically via dock
 | Redis                            | `redis:7`                                 | `6379`                                           | No auth enabled by default                             |
 
 Connection details are available inside the workspace container via environment variables (`POSTGRES_HOST`, `POSTGRES_PORT`, `AZURITE_HOST`, `REDIS_HOST`, etc.).
+
+When you run an extra container from inside the devcontainer with `docker run -p ...`, the published port is exposed on the host Docker daemon, not on the workspace container's own `localhost`.
+
+- From your local use `http://localhost:<port>`
 
 #### Console
 
@@ -62,6 +77,19 @@ nodenv install
 ```bash
 pnpm build
 ```
+
+### Run `ced-portal-be` in Docker
+
+From the repository root, build the image with the renamed workspace name and publish port `3000`:
+
+```bash
+docker build -t ced-portal-be-local --build-arg APP_NAME=ced-portal-be .
+docker run --rm -p 3000:3000 ced-portal-be-local
+```
+
+You can then call the health endpoint at `GET /api/info`:
+
+- From your local: `http://localhost:3000/api/info`
 
 ## Release management
 

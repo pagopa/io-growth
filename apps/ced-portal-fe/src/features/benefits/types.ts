@@ -16,6 +16,6 @@ export type BenefitsResponse = Benefit[];
 
 export interface SaveBenefitDraftResponse {
   id: string;
-  status: 'Bozza';
+  status: Extract<BenefitState, 'Bozza'>;
   createdAt: string;
 }

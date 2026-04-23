@@ -1,6 +1,8 @@
 services:
   workspace:
-    image: mcr.microsoft.com/devcontainers/base:debian@sha256:da67c59f82e057e0ccb81ec7d13fb50464c26f477638018e6de1b2623a008a3a
+    build:
+      context: .
+      dockerfile: Dockerfile
     volumes:
       - ..:/workspaces/io-growth:cached
     command: sleep infinity
@@ -18,7 +20,7 @@ services:
       REDIS_PORT: "6379"
 
   postgres:
-    image: postgres:17@sha256:b994732fcf33f73776c65d3a5bf1f80c00120ba5007e8ab90307b1a743c1fc16
+    image: postgres:16.13@sha256:760ea41aae126965bedd587d35a23de37447bb13a6ac4444bef6ff73b8b72234
     restart: unless-stopped
     environment:
       POSTGRES_USER: postgres

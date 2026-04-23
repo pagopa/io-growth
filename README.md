@@ -16,6 +16,17 @@ The preferred way to setup your development environment is to use [Devcontainer]
 3. Open the project root folder and select `Dev Containers: Reopen in Container` from the command palette
 4. Visual Studio Code will build the devcontainer image and then open the project inside the container, with all the needed tools and extension configured
 
+If you are on Windows and your network performs HTTPS inspection, Rancher Desktop can already trust the Windows root store while the Linux build used by Dev Container features still does not. In that case the build can fail with errors like `dev-container-features/pre-commit_0 ... exit code: 60`.
+
+Automatic certificate export:
+
+- `initializeCommand` always runs `.devcontainer/scripts/export-devcontainer-ca.sh`.
+- On macOS and Linux, the script exits immediately with no changes.
+- On Windows, the export is supported only from WSL or another environment with a POSIX shell, such as Git Bash, MSYS2, or Cygwin.
+- In that case, the shell wrapper invokes the PowerShell exporter and writes the generated `.crt` files into `.devcontainer/certs/`.
+- The generated certificates are ignored by git and installed in the devcontainer image before feature installation starts.
+- If `sh` is not available on Windows, the export is skipped and the devcontainer prints a message that WSL or a POSIX shell is required.
+
 The devcontainer includes the following services, started automatically via docker-compose:
 
 | Service                          | Image                                     | Ports                                            | Default credentials                                    |

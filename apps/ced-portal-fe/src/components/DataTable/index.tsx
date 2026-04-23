@@ -1,5 +1,5 @@
-import { Paper, useTheme } from '@mui/material';
-import { type ReactNode, useCallback, useMemo, useState } from 'react';
+import { useTheme } from '@mui/material';
+import { useCallback, useMemo, useState } from 'react';
 import { TableGrid } from './components/TableGrid';
 import type { DataTableProps, SortDirection } from './types';
 import { DataTableLoading } from './components/DataTableLoadingState';

@@ -1,5 +1,5 @@
 import { baseApi } from '../../core/api/baseApi';
-import type { BenefitsResponse } from './types';
+import type { BenefitsResponse, SaveBenefitDraftResponse } from './types';
 
 export const benefitsApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
@@ -7,7 +7,15 @@ export const benefitsApi = baseApi.injectEndpoints({
       query: () => '/benefits',
       providesTags: ['Benefits'],
     }),
+    saveBenefitDraft: builder.mutation<SaveBenefitDraftResponse, unknown>({
+      query: (body) => ({
+        url: '/benefits/draft',
+        method: 'POST',
+        body,
+      }),
+      invalidatesTags: ['Benefits'],
+    }),
   }),
 });
 
-export const { useGetBenefitsQuery } = benefitsApi;
+export const { useGetBenefitsQuery, useSaveBenefitDraftMutation } = benefitsApi;

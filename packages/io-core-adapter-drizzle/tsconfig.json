@@ -3,7 +3,6 @@
   "extends": "@tsconfig/node22/tsconfig.json",
   "compilerOptions": {
     "moduleResolution": "nodenext",
-    "allowSyntheticDefaultImports": true,
     "forceConsistentCasingInFileNames": true,
     "outDir": "dist",
     "rootDir": "src",
@@ -13,6 +12,5 @@
     "strict": true,
     "skipLibCheck": true
   },
-  "include": ["src"],
-  "exclude": ["**/__tests__/*"]
+  "exclude": ["dist", "node_modules", "**/__tests__/*", "vite.config.mts"]
 }

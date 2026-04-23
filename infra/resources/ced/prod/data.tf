@@ -25,3 +25,8 @@ data "azurerm_private_dns_zone" "managed_redis" {
 data "azurerm_resource_group" "resource_rg" {
   name = "ced-p-itn-rg-01"
 }
+
+data "azurerm_user_assigned_identity" "app_cd" {
+  name                = "ced-p-itn-app-github-cd-id-01"
+  resource_group_name = "ced-p-itn-rg-01"
+}

@@ -23,7 +23,12 @@ locals {
     image = "ghcr.io/pagopa/io-growth/ced-portal-be:latest"
 
     app_settings = {
-      PORT = "8080"
+      PORT          = "8080"
+      POSTGRES_HOST = "${module.postgresql.postgres.name}.postgres.database.azure.com"
+      POSTGRES_PORT = "5432"
+      POSTGRES_DB   = azurerm_postgresql_flexible_server_database.ced_portal.name
+      POSTGRES_USER = module.common_container_app_environment.user_assigned_identity.client_id
+      USE_ENTRA_ID  = "true"
     }
 
     health_check_path = "/api/info"

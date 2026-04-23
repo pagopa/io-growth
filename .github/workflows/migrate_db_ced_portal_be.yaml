@@ -1,0 +1,48 @@
+name: Run Portal BE DB Migrations
+
+permissions:
+    contents: read
+    id-token: write
+
+on:
+    workflow_dispatch: {}
+
+jobs:
+    run_migrations:
+        name: Run DB Migrations
+        runs-on: [ self-hosted, prod ]
+        environment: app-prod-cd
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+
+            - name: Setup Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version-file: ".node-version"
+
+            - name: Install pnpm
+              run: corepack enable && corepack prepare
+
+            - name: Install dependencies
+              run: pnpm install --frozen-lockfile
+
+            - name: Build
+              run: pnpm --filter @pagopa/io-core-adapter-drizzle build && pnpm --filter
+                  ced-portal-be build
+
+            - name: Azure Login (OIDC)
+              uses: azure/login@v2
+              with:
+                  client-id: ${{ secrets.ARM_CLIENT_ID }}
+                  tenant-id: ${{ secrets.ARM_TENANT_ID }}
+                  subscription-id: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+
+            - name: Run migrations
+              env:
+                  POSTGRES_HOST: ${{ secrets.CED_POSTGRES_HOST }}
+                  POSTGRES_PORT: ${{ secrets.CED_POSTGRES_PORT }}
+                  POSTGRES_USER: ${{ secrets.CED_POSTGRES_USER }}
+                  POSTGRES_DB: ${{ secrets.CED_POSTGRES_DB }}
+                  USE_ENTRA_ID: "true"
+              run: pnpm --filter ced-portal-be migrate:prod

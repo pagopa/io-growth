@@ -22,7 +22,7 @@
     "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
-    "@azure/identity": "^4.9.1",
+    "drizzle-orm": "^0.44.2",
     "postgres": "^3.4.7"
   },
   "devDependencies": {

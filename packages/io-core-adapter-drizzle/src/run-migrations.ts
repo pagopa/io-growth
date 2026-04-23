@@ -1,6 +1,6 @@
 import type { DrizzleConnectionConfig } from "./client.js";
 
-import { createPostgresClient } from "./client.js";
+import { createMigrationClient } from "./client.js";
 import { runVersionedMigrations } from "./migrator.js";
 import { runRecurrentMigrations } from "./recurrent-runner.js";
 
@@ -15,7 +15,7 @@ export const runAllMigrations = async (
 ): Promise<void> => {
   console.log("[migrations] Starting migration run...");
 
-  const sql = await createPostgresClient(config.connection);
+  const sql = createMigrationClient(config.connection);
 
   try {
     await runVersionedMigrations(sql, config.migrationsFolder);

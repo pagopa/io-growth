@@ -1,5 +1,10 @@
-export { createPostgresClient } from "./client.js";
-export type { DrizzleConnectionConfig, SqlClient } from "./client.js";
+export { createMigrationClient, createRuntimeClient } from "./client.js";
+export type {
+  DrizzleConnectionConfig,
+  DrizzleDatabase,
+  RuntimeClientConfig,
+  SqlClient,
+} from "./client.js";
 
 export { runVersionedMigrations } from "./migrator.js";
 export { runRecurrentMigrations } from "./recurrent-runner.js";

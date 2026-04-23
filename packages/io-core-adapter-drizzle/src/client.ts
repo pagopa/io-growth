@@ -1,4 +1,6 @@
-import { DefaultAzureCredential } from "@azure/identity";
+import type { PostgresJsDatabase } from "drizzle-orm/postgres-js";
+
+import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
 
 export interface DrizzleConnectionConfig {
@@ -7,34 +9,49 @@ export interface DrizzleConnectionConfig {
   readonly password?: string;
   readonly port: number;
   readonly ssl?: boolean;
-  readonly useEntraId?: boolean;
   readonly user: string;
+}
+
+export type DrizzleDatabase<
+  TSchema extends Record<string, unknown> = Record<string, never>,
+> = PostgresJsDatabase<TSchema>;
+
+export interface RuntimeClientConfig extends DrizzleConnectionConfig {
+  readonly max?: number;
 }
 
 export type SqlClient = ReturnType<typeof postgres>;
 
-const ENTRA_PG_SCOPE = "https://ossrdbms-aad.database.windows.net/.default";
-
-const getEntraIdPassword = async (): Promise<string> => {
-  const credential = new DefaultAzureCredential();
-  const token = await credential.getToken(ENTRA_PG_SCOPE);
-  return token.token;
-};
-
-export const createPostgresClient = async (
+export const createMigrationClient = (
   config: DrizzleConnectionConfig,
-): Promise<SqlClient> => {
-  const password = config.useEntraId
-    ? await getEntraIdPassword()
-    : config.password;
-
-  return postgres({
+): SqlClient =>
+  postgres({
     database: config.database,
     host: config.host,
     max: 1,
-    password,
+    password: config.password,
     port: config.port,
-    ssl: config.useEntraId || config.ssl ? "require" : false,
+    ssl: config.ssl ? "require" : false,
     user: config.user,
   });
+
+export const createRuntimeClient = <
+  TSchema extends Record<string, unknown> = Record<string, never>,
+>(
+  config: RuntimeClientConfig,
+  schema?: TSchema,
+): { db: DrizzleDatabase<TSchema>; sql: SqlClient } => {
+  const sql = postgres({
+    database: config.database,
+    host: config.host,
+    max: config.max ?? 10,
+    password: config.password,
+    port: config.port,
+    ssl: config.ssl ? "require" : false,
+    user: config.user,
+  });
+
+  const db = drizzle(sql, { schema: schema ?? ({} as TSchema) });
+
+  return { db, sql };
 };

@@ -17,6 +17,11 @@ data "azurerm_key_vault_secret" "action_group_slack" {
   key_vault_id = data.azurerm_key_vault.common.id
 }
 
+data "azurerm_key_vault_secret" "db_admin_password" {
+  name         = module.postgresql.admin_password_secret.name
+  key_vault_id = data.azurerm_key_vault.common.id
+}
+
 data "azurerm_private_dns_zone" "managed_redis" {
   name                = "privatelink.redis.azure.net"
   resource_group_name = module.azure_core_values.network_resource_group_name
@@ -24,9 +29,4 @@ data "azurerm_private_dns_zone" "managed_redis" {
 
 data "azurerm_resource_group" "resource_rg" {
   name = "ced-p-itn-rg-01"
-}
-
-data "azurerm_user_assigned_identity" "app_cd" {
-  name                = "ced-p-itn-app-github-cd-id-01"
-  resource_group_name = "ced-p-itn-rg-01"
 }

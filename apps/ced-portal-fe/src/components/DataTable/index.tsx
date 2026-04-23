@@ -1,20 +1,14 @@
-import SouthRoundedIcon from '@mui/icons-material/SouthRounded';
 import WarningAmberRoundedIcon from '@mui/icons-material/WarningAmberRounded';
 import {
   Button,
   CircularProgress,
   Paper,
   Stack,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
   Typography,
   useTheme,
 } from '@mui/material';
 import { type ReactNode, useCallback, useMemo, useState } from 'react';
+import { TableGrid } from './TableGrid';
 import type { DataTableProps, SortDirection } from './types';
 
 function LoadingState() {
@@ -139,112 +133,35 @@ export function DataTable<T>({
     </Paper>
   );
 
-  if (isLoading) return <StatePaper><LoadingState /></StatePaper>;
-  if (isError) return <StatePaper><ErrorState onRetry={onRetry} /></StatePaper>;
-  if (items.length === 0) return <StatePaper><EmptyState message={emptyMessage} /></StatePaper>;
+  if (isLoading)
+    return (
+      <StatePaper>
+        <LoadingState />
+      </StatePaper>
+    );
+  if (isError)
+    return (
+      <StatePaper>
+        <ErrorState onRetry={onRetry} />
+      </StatePaper>
+    );
+  if (items.length === 0)
+    return (
+      <StatePaper>
+        <EmptyState message={emptyMessage} />
+      </StatePaper>
+    );
 
   return (
-    <Paper elevation={0} sx={paperSx}>
-      <TableContainer>
-        <Table
-          size="small"
-          sx={{
-            borderCollapse: 'separate',
-            borderSpacing: 0,
-            '& .MuiTableCell-root': { borderBottom: 'none' },
-          }}
-        >
-          <TableHead>
-            <TableRow
-              sx={{
-                bgcolor: theme.palette.divider,
-                height: 48,
-                '& .MuiTableCell-root': {
-                  bgcolor: theme.palette.divider,
-                  fontWeight: 700,
-                  fontSize: 16,
-                  py: 1.8,
-                },
-              }}
-            >
-              {columns.map((col) => (
-                <TableCell
-                  key={col.id}
-                  align={col.align}
-                  width={col.width}
-                  sortDirection={sortBy === col.id ? sortDirection : false}
-                  onClick={() => handleSort(col.id, col.sortable)}
-                  sx={{
-                    ...(col.hideBreakpoint
-                      ? { display: col.hideBreakpoint }
-                      : {}),
-                    ...(col.sortable
-                      ? { cursor: 'pointer', userSelect: 'none' }
-                      : {}),
-                  }}
-                >
-                  {col.sortable ? (
-                    <Stack direction="row" spacing={0.6} alignItems="center">
-                      <span>{col.label}</span>
-                      <SouthRoundedIcon
-                        sx={{
-                          fontSize: 18,
-                          transform:
-                            sortBy === col.id && sortDirection === 'asc'
-                              ? 'rotate(180deg)'
-                              : 'rotate(0deg)',
-                          transition: 'transform 0.2s ease',
-                        }}
-                      />
-                    </Stack>
-                  ) : (
-                    col.label
-                  )}
-                </TableCell>
-              ))}
-              {rowAction && <TableCell width={rowAction.width ?? 48} />}
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {sortedItems.map((item, index) => (
-              <TableRow
-                key={getRowKey(item)}
-                sx={{
-                  bgcolor: theme.palette.background.paper,
-                  height: 48,
-                  '& .MuiTableCell-root': {
-                    bgcolor: theme.palette.background.paper,
-                    py: 1.65,
-                    fontSize: 16,
-                    color: theme.palette.text.primary,
-                    ...(index > 0
-                      ? { borderTop: `1px solid ${theme.palette.divider}` }
-                      : {}),
-                  },
-                }}
-              >
-                {columns.map((col) => (
-                  <TableCell
-                    key={col.id}
-                    align={col.align}
-                    width={col.width}
-                    sx={
-                      col.hideBreakpoint
-                        ? { display: col.hideBreakpoint }
-                        : undefined
-                    }
-                  >
-                    {col.renderCell(item)}
-                  </TableCell>
-                ))}
-                {rowAction && (
-                  <TableCell>{rowAction.renderAction(item)}</TableCell>
-                )}
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
-    </Paper>
+    <TableGrid
+      columns={columns}
+      sortedItems={sortedItems}
+      getRowKey={getRowKey}
+      rowAction={rowAction}
+      sortBy={sortBy}
+      sortDirection={sortDirection}
+      onSort={handleSort}
+      sx={paperSx}
+    />
   );
 }

@@ -15,7 +15,7 @@ import type {
   DataTableColumn,
   DataTableRowAction,
   SortDirection,
-} from './types';
+} from '../types';
 
 interface TableGridProps<T> {
   columns: DataTableColumn<T>[];

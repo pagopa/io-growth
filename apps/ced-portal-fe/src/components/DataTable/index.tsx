@@ -1,70 +1,10 @@
-import WarningAmberRoundedIcon from '@mui/icons-material/WarningAmberRounded';
-import {
-  Button,
-  CircularProgress,
-  Paper,
-  Stack,
-  Typography,
-  useTheme,
-} from '@mui/material';
+import { Paper, useTheme } from '@mui/material';
 import { type ReactNode, useCallback, useMemo, useState } from 'react';
-import { TableGrid } from './TableGrid';
+import { TableGrid } from './components/TableGrid';
 import type { DataTableProps, SortDirection } from './types';
-
-function LoadingState() {
-  return (
-    <Stack
-      spacing={1.5}
-      alignItems="center"
-      justifyContent="center"
-      textAlign="center"
-      minHeight={127}
-    >
-      <CircularProgress size={28} />
-      <Typography
-        sx={{ fontSize: 18, fontWeight: 700, color: 'text.secondary' }}
-      >
-        Caricamento...
-      </Typography>
-    </Stack>
-  );
-}
-
-function ErrorState({ onRetry }: { onRetry?: () => void }) {
-  return (
-    <Stack
-      spacing={1.5}
-      alignItems="center"
-      justifyContent="center"
-      textAlign="center"
-    >
-      <WarningAmberRoundedIcon sx={{ color: 'text.secondary', fontSize: 28 }} />
-      <Typography
-        sx={{ fontSize: 18, fontWeight: 700, color: 'text.secondary' }}
-      >
-        Errore durante il caricamento
-      </Typography>
-      {onRetry && (
-        <Button variant="text" onClick={onRetry}>
-          Riprova
-        </Button>
-      )}
-    </Stack>
-  );
-}
-
-function EmptyState({ message }: { message: string }) {
-  return (
-    <Stack spacing={1} alignItems="center" textAlign="center">
-      <WarningAmberRoundedIcon sx={{ color: 'text.secondary', fontSize: 28 }} />
-      <Typography
-        sx={{ fontSize: 18, fontWeight: 700, color: 'text.secondary' }}
-      >
-        {message}
-      </Typography>
-    </Stack>
-  );
-}
+import { DataTableLoading } from './components/DataTableLoadingState';
+import { DataTableErrorState } from './components/DataTableErrorState';
+import { DataTableEmptyState } from './components/DataTableEmptyState';
 
 export function DataTable<T>({
   columns,
@@ -114,7 +54,7 @@ export function DataTable<T>({
 
   if (hideWhenEmpty && items.length === 0) return null;
 
-  const paperSx = [
+  const gridSx = [
     {
       borderRadius: 2.5,
       border: '8px solid',
@@ -124,33 +64,11 @@ export function DataTable<T>({
     ...(Array.isArray(sx) ? sx : [sx]),
   ] as const;
 
-  const StatePaper = ({ children }: { children: ReactNode }) => (
-    <Paper
-      elevation={0}
-      sx={[...paperSx, { display: 'grid', placeItems: 'center', py: 2 }]}
-    >
-      {children}
-    </Paper>
-  );
+  if (isLoading) return <DataTableLoading />;
 
-  if (isLoading)
-    return (
-      <StatePaper>
-        <LoadingState />
-      </StatePaper>
-    );
-  if (isError)
-    return (
-      <StatePaper>
-        <ErrorState onRetry={onRetry} />
-      </StatePaper>
-    );
-  if (items.length === 0)
-    return (
-      <StatePaper>
-        <EmptyState message={emptyMessage} />
-      </StatePaper>
-    );
+  if (isError) return <DataTableErrorState onRetry={onRetry} />;
+
+  if (items.length === 0) return <DataTableEmptyState message={emptyMessage} />;
 
   return (
     <TableGrid
@@ -161,7 +79,7 @@ export function DataTable<T>({
       sortBy={sortBy}
       sortDirection={sortDirection}
       onSort={handleSort}
-      sx={paperSx}
+      sx={gridSx}
     />
   );
 }

@@ -42,7 +42,7 @@ export function AppAutocomplete<T extends AutocompleteOption>({
   const [isFocused, setIsFocused] = useState(false);
   const [selectionMade, setSelectionMade] = useState(false);
   const hasResults = options.length > 0;
-    const isOpen = open ?? (hasResults && isFocused && !selectionMade);
+  const isOpen = open ?? (hasResults && isFocused && !selectionMade);
 
   return (
     <Autocomplete

@@ -5,32 +5,39 @@ import type { Contact } from '../location/types';
 import type { WebsiteFormState } from './types';
 import { isValidHttpsUrl } from '../../utils';
 
-const initialState: WebsiteFormState = {
-  name: '',
-  url: '',
-  urlError: '',
-  contacts: [{ type: '', value: '' }],
-};
+const createEmptyContact = (): Contact => ({
+  type: null,
+  value: null,
+});
+
+const createInitialState = (): WebsiteFormState => ({
+  name: null,
+  url: null,
+  urlError: null,
+  contacts: [createEmptyContact()],
+});
+
+const initialState: WebsiteFormState = createInitialState();
 
 const websiteSlice = createSlice({
   name: 'website',
   initialState,
   reducers: {
-    setWebsiteName(state, action: PayloadAction<string>) {
+    setWebsiteName(state, action: PayloadAction<string | null>) {
       state.name = action.payload;
     },
-    setWebsiteUrl(state, action: PayloadAction<string>) {
+    setWebsiteUrl(state, action: PayloadAction<string | null>) {
       state.url = action.payload;
-      state.urlError = '';
+      state.urlError = null;
     },
     validateWebsiteUrl(state) {
       state.urlError =
-        state.url.length > 0 && !isValidHttpsUrl(state.url)
+        state.url && state.url.length > 0 && !isValidHttpsUrl(state.url)
           ? 'Inserisci un URL valido (es. https://...)'
-          : '';
+          : null;
     },
     addWebsiteContact(state) {
-      state.contacts.push({ type: '', value: '' });
+      state.contacts.push(createEmptyContact());
     },
     removeWebsiteContact(state, action: PayloadAction<number>) {
       state.contacts.splice(action.payload, 1);
@@ -40,11 +47,13 @@ const websiteSlice = createSlice({
       action: PayloadAction<{
         index: number;
         field: keyof Contact;
-        value: string;
+        value: string | null;
       }>,
     ) {
       const { index, field, value } = action.payload;
-      state.contacts[index][field] = value;
+      if (state.contacts[index]) {
+        state.contacts[index][field] = value;
+      }
     },
     resetWebsiteForm() {
       return initialState;
@@ -69,5 +78,5 @@ export const selectWebsiteUrlError = (state: RootState) =>
   state.website.urlError;
 export const selectIsWebsiteFormValid = (state: RootState) => {
   const { name, url } = state.website;
-  return name.trim().length > 0 && isValidHttpsUrl(url);
+  return !!name && name.trim().length > 0 && !!url && isValidHttpsUrl(url);
 };

@@ -2,15 +2,15 @@ import type { Contact } from '../location/types';
 export type { Contact };
 
 export interface WebsiteFormState {
-  name: string;
-  url: string;
-  urlError: string;
+  name: string | null;
+  url: string | null;
+  urlError: string | null;
   contacts: Contact[];
 }
 
 export interface CreateWebsitePayload {
-  name: string;
-  url: string;
+  name: string | null;
+  url: string | null;
   contacts: Contact[];
 }
 

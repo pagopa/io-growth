@@ -12,4 +12,6 @@ module "container_app" {
   container_app_templates = var.container_app_templates
   target_port             = var.target_port
   public_access_enabled   = var.public_access_enabled
+
+  secrets = var.secrets
 }

@@ -18,6 +18,17 @@ module "portal_be_container_app" {
   target_port           = local.portal_be.target_port
   public_access_enabled = true
 
+  secrets = [
+    {
+      name = "ced-p-itn-db-psql-01-backend-user"
+      key_vault_secret_id = data.azurerm_key_vault_secret.db_backend_user.id
+    },
+    {
+      name = "ced-p-itn-db-psql-01-backend-password"
+      key_vault_secret_id = data.azurerm_key_vault_secret.db_backend_password.id
+    }
+  ]
+
   container_app_templates = [
     {
       image        = local.portal_be.image

@@ -17,8 +17,13 @@ data "azurerm_key_vault_secret" "action_group_slack" {
   key_vault_id = data.azurerm_key_vault.common.id
 }
 
-data "azurerm_key_vault_secret" "db_admin_password" {
-  name         = module.postgresql.admin_password_secret.name
+data "azurerm_key_vault_secret" "db_backend_user" {
+  name         = "ced-p-itn-db-psql-01-backend-user"
+  key_vault_id = data.azurerm_key_vault.common.id
+}
+
+data "azurerm_key_vault_secret" "db_backend_password" {
+  name         = "ced-p-itn-db-psql-01-backend-password"
   key_vault_id = data.azurerm_key_vault.common.id
 }
 

@@ -25,10 +25,10 @@ locals {
     app_settings = {
       PORT              = "8080"
       POSTGRES_HOST     = "${module.postgresql.postgres.name}.postgres.database.azure.com"
-      POSTGRES_PORT     = "5432"
-      POSTGRES_DB       = azurerm_postgresql_flexible_server_database.ced_prod.name
-      POSTGRES_USER     = "pgadmin"
-      POSTGRES_PASSWORD = data.azurerm_key_vault_secret.db_admin_password.value
+      POSTGRES_PORT     = "6432"
+      POSTGRES_USER     = data.azurerm_key_vault_secret.db_backend_user.value
+      POSTGRES_PASSWORD = data.azurerm_key_vault_secret.db_backend_password.value
+      POSTGRES_DB       = azurerm_postgresql_flexible_server_database.ced_test.name
     }
 
     health_check_path = "/api/info"

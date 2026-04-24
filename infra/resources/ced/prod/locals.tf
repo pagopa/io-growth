@@ -16,7 +16,7 @@ locals {
     key                  = "ced.core.prod.tfstate"
   }
 
-  secrets_id_template = "${module.azure_core_values.common_key_vault.id}/secrets/%s"
+  secrets_id_template = "${data.azurerm_key_vault.common.vault_uri}/secrets/%s"
 
   # Portal BE Container App configuration
   portal_be = {

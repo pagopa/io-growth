@@ -315,3 +315,7 @@ terraform.rc
 .pnpm-store
 
 infra/**/temp
+
+# Linux core dumps
+core
+core.*

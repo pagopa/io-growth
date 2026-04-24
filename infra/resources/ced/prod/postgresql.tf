@@ -30,9 +30,17 @@ module "postgresql" {
   private_dns_zone_resource_group_name = module.azure_core_values.network_resource_group_name
 }
 
-# Application database
+# Prod database
 resource "azurerm_postgresql_flexible_server_database" "ced_prod" {
   name      = "ced_prod"
+  server_id = module.postgresql.postgres.id
+  charset   = "UTF8"
+  collation = "en_US.utf8"
+}
+
+# Test database
+resource "azurerm_postgresql_flexible_server_database" "ced_test" {
+  name      = "ced_test"
   server_id = module.postgresql.postgres.id
   charset   = "UTF8"
   collation = "en_US.utf8"

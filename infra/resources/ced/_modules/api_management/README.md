@@ -8,29 +8,29 @@ No requirements.
 ## Providers
 
 | Name | Version |
-|------|---------|
+| ---- | ------- |
 | <a name="provider_azurerm"></a> [azurerm](#provider\_azurerm) | n/a |
 
 ## Modules
 
 | Name | Source | Version |
-|------|--------|---------|
+| ---- | ------ | ------- |
 | <a name="module_api_management"></a> [api\_management](#module\_api\_management) | pagopa-dx/azure-api-management/azurerm | ~> 2.0 |
 
 ## Resources
 
 | Name | Type |
-|------|------|
+| ---- | ---- |
 | [azurerm_subnet.apim_subnet](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/subnet) | resource |
 
 ## Inputs
 
 | Name | Description | Type | Default | Required |
-|------|-------------|------|---------|:--------:|
+| ---- | ----------- | ---- | ------- | :------: |
 | <a name="input_application_insights"></a> [application\_insights](#input\_application\_insights) | Application Insights integration. | <pre>object({<br/>    enabled             = bool<br/>    connection_string   = string<br/>    id                  = optional(string, null)<br/>    sampling_percentage = number<br/>    verbosity           = string<br/>  })</pre> | <pre>{<br/>  "connection_string": null,<br/>  "enabled": false,<br/>  "id": null,<br/>  "sampling_percentage": 0,<br/>  "verbosity": "error"<br/>}</pre> | no |
 | <a name="input_certificate_names"></a> [certificate\_names](#input\_certificate\_names) | A list of Key Vault certificate names. | `list(string)` | `[]` | no |
 | <a name="input_enable_public_network_access"></a> [enable\_public\_network\_access](#input\_enable\_public\_network\_access) | Specifies whether public network access is enabled. | `bool` | `true` | no |
-| <a name="input_environment"></a> [environment](#input\_environment) | Environment configuration for resource naming. | <pre>object({<br/>    prefix          = string<br/>    env_short       = string<br/>    location        = string<br/>    domain          = optional(string)<br/>    app_name        = string<br/>    instance_number = string<br/>  })</pre> | n/a | yes |
+| <a name="input_environment"></a> [environment](#input\_environment) | Environment configuration for resource naming. | <pre>object({<br/>    prefix          = string<br/>    env_short       = string<br/>    location        = string<br/>    location_short  = string<br/>    domain          = optional(string)<br/>    app_name        = string<br/>    instance_number = string<br/>  })</pre> | n/a | yes |
 | <a name="input_hostname_configuration"></a> [hostname\_configuration](#input\_hostname\_configuration) | Custom domain configurations. | <pre>object({<br/>    proxy = optional(list(object({<br/>      host_name           = string<br/>      key_vault_id        = string<br/>      default_ssl_binding = optional(bool, false)<br/>    })), [])<br/>    management = optional(list(object({<br/>      host_name    = string<br/>      key_vault_id = string<br/>    })), [])<br/>    portal = optional(list(object({<br/>      host_name    = string<br/>      key_vault_id = string<br/>    })), [])<br/>    developer_portal = optional(list(object({<br/>      host_name    = string<br/>      key_vault_id = string<br/>    })), [])<br/>    scm = optional(list(object({<br/>      host_name    = string<br/>      key_vault_id = string<br/>    })), [])<br/>  })</pre> | `{}` | no |
 | <a name="input_key_vault_id"></a> [key\_vault\_id](#input\_key\_vault\_id) | The ID of the Key Vault. | `string` | `null` | no |
 | <a name="input_monitoring"></a> [monitoring](#input\_monitoring) | Monitoring configuration. | <pre>object({<br/>    enabled                    = bool<br/>    log_analytics_workspace_id = string<br/>    logs = optional(object({<br/>      enabled    = bool<br/>      groups     = optional(list(string), [])<br/>      categories = optional(list(string), [])<br/>    }), { enabled = false, groups = [], categories = [] })<br/>    metrics = optional(object({<br/>      enabled = bool<br/>    }), { enabled = false })<br/>  })</pre> | <pre>{<br/>  "enabled": false,<br/>  "log_analytics_workspace_id": null<br/>}</pre> | no |
@@ -49,7 +49,7 @@ No requirements.
 ## Outputs
 
 | Name | Description |
-|------|-------------|
+| ---- | ----------- |
 | <a name="output_gateway_hostname"></a> [gateway\_hostname](#output\_gateway\_hostname) | The hostname of the API Management gateway. |
 | <a name="output_gateway_url"></a> [gateway\_url](#output\_gateway\_url) | The URL of the API Management gateway. |
 | <a name="output_id"></a> [id](#output\_id) | The resource ID of the API Management instance. |

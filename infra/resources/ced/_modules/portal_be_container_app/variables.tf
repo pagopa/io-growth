@@ -86,8 +86,8 @@ variable "public_access_enabled" {
 }
 
 variable "secrets" {
-  type        = list(object({
-    name = string
+  type = list(object({
+    name                = string
     key_vault_secret_id = string
   }))
   description = "List of secrets to be created in the Container App and injected as environment variables in the container. The secret name will be used as environment variable name, while the value will be injected as environment variable value."

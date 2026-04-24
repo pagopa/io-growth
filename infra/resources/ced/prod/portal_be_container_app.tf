@@ -18,6 +18,17 @@ module "portal_be_container_app" {
   target_port           = local.portal_be.target_port
   public_access_enabled = true
 
+  secrets = [
+    {
+      name                = "POSTGRES_USER"
+      key_vault_secret_id = format(local.secrets_id_template, "ced-p-itn-db-psql-01-backend-user")
+    },
+    {
+      name                = "POSTGRES_PASSWORD"
+      key_vault_secret_id = format(local.secrets_id_template, "ced-p-itn-db-psql-01-backend-password")
+    }
+  ]
+
   container_app_templates = [
     {
       image        = local.portal_be.image

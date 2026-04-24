@@ -6,6 +6,19 @@
       "inputs": [],
       "outputs": []
     },
+    "migrate:dev": {
+      "dependsOn": ["^build"],
+      "cache": false
+    },
+    "migrate:prod": {
+      "dependsOn": ["^build"],
+      "cache": false
+    },
+    "run:dev": {
+      "dependsOn": ["^build"],
+      "persistent": true,
+      "cache": false
+    },
     "typecheck": {
       "inputs": [
         "src/**/*.ts",

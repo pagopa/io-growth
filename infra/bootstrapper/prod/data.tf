@@ -12,7 +12,7 @@ data "azurerm_api_management" "ced_apim" {
 data "azurerm_static_web_app" "portal_fe" {
   provider            = azurerm.PROD-CED
   name                = "ced-p-itn-portal-fe-stapp-01"
-  resource_group_name = "ced-p-itn-common-rg-01"
+  resource_group_name = "ced-p-itn-rg-01"
 }
 
 data "azuread_group" "admins" {

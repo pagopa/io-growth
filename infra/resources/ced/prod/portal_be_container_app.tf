@@ -20,12 +20,12 @@ module "portal_be_container_app" {
 
   secrets = [
     {
-      name = "ced-p-itn-db-psql-01-backend-user"
-      key_vault_secret_id = data.azurerm_key_vault_secret.db_backend_user.id
+      name = "POSTGRES_USER"
+      key_vault_secret_id = format(local.secrets_id_template, "ced-p-itn-db-psql-01-backend-user")
     },
     {
-      name = "ced-p-itn-db-psql-01-backend-password"
-      key_vault_secret_id = data.azurerm_key_vault_secret.db_backend_password.id
+      name = "POSTGRES_PASSWORD"
+      key_vault_secret_id = format(local.secrets_id_template, "ced-p-itn-db-psql-01-backend-password")
     }
   ]
 

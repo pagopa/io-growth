@@ -16,6 +16,8 @@ locals {
     key                  = "ced.core.prod.tfstate"
   }
 
+  secrets_id_template = "${module.azure_core_values.common_key_vault.id}/secrets/%s"
+
   # Portal BE Container App configuration
   portal_be = {
     target_port = 8080
@@ -23,10 +25,10 @@ locals {
     image = "ghcr.io/pagopa/io-growth/ced-portal-be:latest"
 
     app_settings = {
-      PORT              = "8080"
-      POSTGRES_HOST     = "${module.postgresql.postgres.name}.postgres.database.azure.com"
-      POSTGRES_PORT     = "6432"
-      POSTGRES_DB       = azurerm_postgresql_flexible_server_database.ced_test.name
+      PORT          = "8080"
+      POSTGRES_HOST = "${module.postgresql.postgres.name}.postgres.database.azure.com"
+      POSTGRES_PORT = "6432"
+      POSTGRES_DB   = azurerm_postgresql_flexible_server_database.ced_test.name
     }
 
     health_check_path = "/api/info"

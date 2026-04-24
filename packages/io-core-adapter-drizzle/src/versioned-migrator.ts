@@ -1,11 +1,11 @@
-import type { DrizzleConnectionConfig } from "./client.js";
+import type { RawSqlClientConfig } from "./client.js";
 
-import { createMigrationClient } from "./client.js";
+import { createRawSqlClient } from "./client.js";
 import { runVersionedMigrations } from "./migrator.js";
-import { runRecurrentMigrations } from "./recurrent-runner.js";
+import { runRecurrentMigrations } from "./recurrent-migrator.js";
 
 export interface MigrationConfig {
-  readonly connection: DrizzleConnectionConfig;
+  readonly connection: RawSqlClientConfig;
   readonly migrationsFolder: string;
   readonly recurrentFolder: string;
 }
@@ -15,7 +15,7 @@ export const runAllMigrations = async (
 ): Promise<void> => {
   console.log("[migrations] Starting migration run...");
 
-  const sql = createMigrationClient(config.connection);
+  const sql = createRawSqlClient(config.connection);
 
   try {
     await runVersionedMigrations(sql, config.migrationsFolder);

@@ -1,13 +1,14 @@
-export { createMigrationClient, createRuntimeClient } from "./client.js";
+export { createRawSqlClient, createTypedDbClient } from "./client.js";
 export type {
-  DrizzleConnectionConfig,
-  DrizzleDatabase,
-  RuntimeClientConfig,
-  SqlClient,
+  RawSqlClient,
+  RawSqlClientConfig,
+  TypedDatabase,
+  TypedDbClient,
+  TypedDbClientConfig,
 } from "./client.js";
 
 export { runVersionedMigrations } from "./migrator.js";
-export { runRecurrentMigrations } from "./recurrent-runner.js";
+export { runRecurrentMigrations } from "./recurrent-migrator.js";
 
-export { runAllMigrations } from "./run-migrations.js";
-export type { MigrationConfig } from "./run-migrations.js";
+export { runAllMigrations } from "./versioned-migrator.js";
+export type { MigrationConfig } from "./versioned-migrator.js";

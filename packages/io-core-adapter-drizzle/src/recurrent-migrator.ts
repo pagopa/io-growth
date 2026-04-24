@@ -2,14 +2,14 @@ import { createHash } from "node:crypto";
 import { readdir, readFile } from "node:fs/promises";
 import { join } from "node:path";
 
-import type { SqlClient } from "./client.js";
+import type { RawSqlClient } from "./client.js";
 
 const LOCK_KEY = 789_012_345;
 
 const sha256 = (content: string): string =>
   createHash("sha256").update(content).digest("hex");
 
-const ensureRecurrentTable = async (sql: SqlClient): Promise<void> => {
+const ensureRecurrentTable = async (sql: RawSqlClient): Promise<void> => {
   await sql`
     CREATE TABLE IF NOT EXISTS _recurrent_migrations (
       filename TEXT PRIMARY KEY,
@@ -20,7 +20,7 @@ const ensureRecurrentTable = async (sql: SqlClient): Promise<void> => {
 };
 
 export const runRecurrentMigrations = async (
-  sql: SqlClient,
+  sql: RawSqlClient,
   recurrentFolder: string,
 ): Promise<void> => {
   console.log(

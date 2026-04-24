@@ -1,10 +1,10 @@
-import type { RuntimeClientConfig } from "@pagopa/io-core-adapter-drizzle";
+import type { TypedDbClientConfig } from "@pagopa/io-core-adapter-drizzle";
 
-import { createRuntimeClient } from "@pagopa/io-core-adapter-drizzle";
+import { createTypedDbClient } from "@pagopa/io-core-adapter-drizzle";
 
 import * as schema from "./schema/index.js";
 
-const config: RuntimeClientConfig = {
+const config: TypedDbClientConfig = {
   database: process.env.POSTGRES_DB ?? "postgres",
   host: process.env.POSTGRES_HOST ?? "localhost",
   max: Number(process.env.POSTGRES_MAX_CONNECTIONS ?? "10"),
@@ -13,6 +13,4 @@ const config: RuntimeClientConfig = {
   user: process.env.POSTGRES_USER ?? "postgres",
 };
 
-const { db, sql } = createRuntimeClient(config, schema);
-
-export { db, sql };
+export const dbClient = createTypedDbClient(config, schema);

@@ -1,7 +1,7 @@
 import Fastify from "fastify";
 
 import { mountInfoHandler } from "./adapters/inbound/fastify/index.js";
-import { sql } from "./adapters/outbound/drizzle/client.js";
+import { dbClient } from "./adapters/outbound/drizzle/client.js";
 import { getInfoUseCase } from "./application/use-cases/info.use-case.js";
 
 const host = process.env.HOST ?? "0.0.0.0";
@@ -17,7 +17,7 @@ const app = Fastify();
 mountInfoHandler(app, getInfoUseCase);
 
 app.addHook("onClose", async () => {
-  await sql.end();
+  await dbClient.closeConnection();
 });
 
 await app.listen({ host, port });

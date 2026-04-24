@@ -1,11 +1,11 @@
 import { readdir, readFile } from "node:fs/promises";
 import { join } from "node:path";
 
-import type { SqlClient } from "./client.js";
+import type { RawSqlClient } from "./client.js";
 
 const LOCK_KEY = 789_012_346;
 
-const ensureMigrationsTable = async (sql: SqlClient): Promise<void> => {
+const ensureMigrationsTable = async (sql: RawSqlClient): Promise<void> => {
   await sql`
     CREATE TABLE IF NOT EXISTS _versioned_migrations (
       filename TEXT PRIMARY KEY,
@@ -15,7 +15,7 @@ const ensureMigrationsTable = async (sql: SqlClient): Promise<void> => {
 };
 
 export const runVersionedMigrations = async (
-  sql: SqlClient,
+  sql: RawSqlClient,
   migrationsFolder: string,
 ): Promise<void> => {
   console.log(

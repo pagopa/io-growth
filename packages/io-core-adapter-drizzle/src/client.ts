@@ -3,7 +3,9 @@ import type { PostgresJsDatabase } from "drizzle-orm/postgres-js";
 import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
 
-export interface DrizzleConnectionConfig {
+export type RawSqlClient = ReturnType<typeof postgres>;
+
+export interface RawSqlClientConfig {
   readonly database: string;
   readonly host: string;
   readonly password?: string;
@@ -12,19 +14,19 @@ export interface DrizzleConnectionConfig {
   readonly user: string;
 }
 
-export type DrizzleDatabase<
+export type TypedDatabase<
   TSchema extends Record<string, unknown> = Record<string, never>,
 > = PostgresJsDatabase<TSchema>;
 
-export interface RuntimeClientConfig extends DrizzleConnectionConfig {
+export type TypedDbClient<
+  TSchema extends Record<string, unknown> = Record<string, never>,
+> = TypedDatabase<TSchema> & { readonly closeConnection: () => Promise<void> };
+
+export interface TypedDbClientConfig extends RawSqlClientConfig {
   readonly max?: number;
 }
 
-export type SqlClient = ReturnType<typeof postgres>;
-
-export const createMigrationClient = (
-  config: DrizzleConnectionConfig,
-): SqlClient =>
+export const createRawSqlClient = (config: RawSqlClientConfig): RawSqlClient =>
   postgres({
     database: config.database,
     host: config.host,
@@ -35,12 +37,12 @@ export const createMigrationClient = (
     user: config.user,
   });
 
-export const createRuntimeClient = <
+export const createTypedDbClient = <
   TSchema extends Record<string, unknown> = Record<string, never>,
 >(
-  config: RuntimeClientConfig,
+  config: TypedDbClientConfig,
   schema?: TSchema,
-): { db: DrizzleDatabase<TSchema>; sql: SqlClient } => {
+): TypedDbClient<TSchema> => {
   const sql = postgres({
     database: config.database,
     host: config.host,
@@ -53,5 +55,5 @@ export const createRuntimeClient = <
 
   const db = drizzle(sql, { schema: schema ?? ({} as TSchema) });
 
-  return { db, sql };
+  return Object.assign(db, { closeConnection: () => sql.end() });
 };

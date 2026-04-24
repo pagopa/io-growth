@@ -1,5 +1,5 @@
 resource "github_actions_environment_secret" "ced_postgres_host" {
-  repository      = module.github_repository.name
+  repository      = module.azure-PROD-CED_bootstrap.repository.name
   environment     = "app-prod-cd"
   secret_name     = "CED_POSTGRES_HOST"
   plaintext_value = "placeholder"
@@ -10,7 +10,7 @@ resource "github_actions_environment_secret" "ced_postgres_host" {
 }
 
 resource "github_actions_environment_secret" "ced_postgres_port" {
-  repository      = module.github_repository.name
+  repository      = module.azure-PROD-CED_bootstrap.repository.name
   environment     = "app-prod-cd"
   secret_name     = "CED_POSTGRES_PORT"
   plaintext_value = "placeholder"
@@ -21,7 +21,7 @@ resource "github_actions_environment_secret" "ced_postgres_port" {
 }
 
 resource "github_actions_environment_secret" "ced_postgres_user" {
-  repository      = module.github_repository.name
+  repository      = module.azure-PROD-CED_bootstrap.repository.name
   environment     = "app-prod-cd"
   secret_name     = "CED_POSTGRES_USER"
   plaintext_value = "placeholder"
@@ -32,7 +32,7 @@ resource "github_actions_environment_secret" "ced_postgres_user" {
 }
 
 resource "github_actions_environment_secret" "ced_postgres_password" {
-  repository      = module.github_repository.name
+  repository      = module.azure-PROD-CED_bootstrap.repository.name
   environment     = "app-prod-cd"
   secret_name     = "CED_POSTGRES_PASSWORD"
   plaintext_value = "placeholder"
@@ -43,7 +43,7 @@ resource "github_actions_environment_secret" "ced_postgres_password" {
 }
 
 resource "github_actions_environment_secret" "ced_postgres_db" {
-  repository      = module.github_repository.name
+  repository      = module.azure-PROD-CED_bootstrap.repository.name
   environment     = "app-prod-cd"
   secret_name     = "CED_POSTGRES_DB"
   plaintext_value = "placeholder"

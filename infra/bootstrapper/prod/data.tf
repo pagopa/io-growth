@@ -3,6 +3,11 @@ data "azurerm_resource_group" "common" {
   name     = "ced-p-itn-common-rg-01"
 }
 
+data "azurerm_resource_group" "data_rg" {
+  provider = azurerm.PROD-CED
+  name     = "ced-p-itn-data-rg-01"
+}
+
 data "azurerm_api_management" "ced_apim" {
   provider            = azurerm.PROD-CED
   name                = "ced-p-itn-apim-01"

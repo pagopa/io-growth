@@ -60,7 +60,10 @@ module "azure-PROD-CED_bootstrap" {
 
   apim_id = data.azurerm_api_management.ced_apim.id
 
-  additional_resource_group_ids = [data.azurerm_resource_group.common.id]
+  additional_resource_group_ids = [
+    data.azurerm_resource_group.common.id,
+    data.azurerm_resource_group.data_rg.id,
+  ]
 
   pep_vnet_id                        = module.azure-PROD-CED_core_values.common_vnet.id
   private_dns_zone_resource_group_id = module.azure-PROD-CED_core_values.network_resource_group_id

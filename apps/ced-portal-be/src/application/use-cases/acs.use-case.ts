@@ -3,10 +3,11 @@ import type { BaseError } from "@pagopa/io-core-domain/errors";
 
 import { ValidationError } from "@pagopa/io-core-domain/errors";
 import { decodeJwt } from "jose";
-import { err, ResultAsync } from "neverthrow";
+import { err, okAsync, ResultAsync } from "neverthrow";
 import { randomBytes } from "node:crypto";
 import { z } from "zod";
 
+import type { OperatorStore } from "../ports/operator-store.port.js";
 import type { SessionStore } from "../ports/session-store.port.js";
 
 const TokenPayloadSchema = z.object({
@@ -14,6 +15,7 @@ const TokenPayloadSchema = z.object({
   name: z.string(),
   organization: z.object({
     id: z.string(),
+    name: z.string(),
     roles: z.array(z.object({ partyRole: z.string() })).nonempty(),
   }),
   uid: z.string(),
@@ -30,7 +32,10 @@ export interface AcsOutput {
 }
 
 export const makeAcsUseCase =
-  (sessionStore: SessionStore): UseCase<AcsInput, AcsOutput, BaseError> =>
+  (
+    sessionStore: SessionStore,
+    operatorStore: OperatorStore,
+  ): UseCase<AcsInput, AcsOutput, BaseError> =>
   async (input) => {
     const token = input.query.token;
 
@@ -43,23 +48,38 @@ export const makeAcsUseCase =
     }
 
     const { family_name, name, organization, uid } = parsed.data;
-    const session = {
-      firstName: name,
-      lastName: family_name,
-      organizationExternalId: organization.id,
-      referentExternalId: uid,
-      role: organization.roles[0].partyRole,
-    };
 
     const sessionToken = randomBytes(32).toString("hex");
     const sessionId = randomBytes(32).toString("hex");
 
-    return new ResultAsync(sessionStore.createSession(sessionToken, session))
-      .andThen(
-        () =>
-          new ResultAsync(
-            sessionStore.createOneTimeSessionId(sessionId, sessionToken, 60),
-          ),
+    return new ResultAsync(operatorStore.getByExternalId(organization.id))
+      .andThen((existingOperator) =>
+        existingOperator
+          ? okAsync(existingOperator)
+          : new ResultAsync(
+              operatorStore.create({
+                externalId: organization.id,
+                name: organization.name,
+                status: "active",
+              }),
+            ),
       )
-      .map(() => ({ url: "/authorize?id=" + sessionId }));
+      .andThen((operator) =>
+        new ResultAsync(
+          sessionStore.createSession(sessionToken, {
+            firstName: name,
+            lastName: family_name,
+            operatorId: operator.id,
+            operatorName: operator.name,
+            referentExternalId: uid,
+            role: organization.roles[0].partyRole,
+          }),
+        ).andThen(
+          () =>
+            new ResultAsync(
+              sessionStore.createOneTimeSessionId(sessionId, sessionToken, 60),
+            ),
+        ),
+      )
+      .map(() => ({ url: "/api/authorize?id=" + sessionId }));
   };

@@ -14,7 +14,8 @@ export interface AuthorizeInput {
 export interface AuthorizeOutput {
   readonly first_name: string;
   readonly last_name: string;
-  readonly sessionToken: string;
+  readonly operator_name: string;
+  readonly session_token: string;
 }
 
 export const makeAuthorizeUseCase =
@@ -28,6 +29,7 @@ export const makeAuthorizeUseCase =
       new ResultAsync(sessionStore.getSession(token)).map((session) => ({
         first_name: session.firstName,
         last_name: session.lastName,
-        sessionToken: token,
+        operator_name: session.operatorName,
+        session_token: token,
       })),
     );

@@ -17,7 +17,14 @@ describe("makeAuthorizeUseCase", () => {
   it("should return session data for a valid sessionId", async () => {
     const store = createMockSessionStore();
     const sessionToken = "a".repeat(64);
-    const session: Session = { firstName: "Mario", lastName: "Rossi" };
+    const session: Session = {
+      firstName: "Mario",
+      lastName: "Rossi",
+      operatorId: "op-id",
+      operatorName: "Op Name",
+      referentExternalId: "ref-id",
+      role: "OPERATOR",
+    };
 
     (
       store.getSessionTokenByOneTimeId as ReturnType<typeof vi.fn>
@@ -33,7 +40,7 @@ describe("makeAuthorizeUseCase", () => {
     expect(result._unsafeUnwrap()).toEqual({
       first_name: "Mario",
       last_name: "Rossi",
-      sessionToken,
+      session_token: sessionToken,
     });
   });
 

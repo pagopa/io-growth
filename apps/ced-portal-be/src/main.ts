@@ -6,6 +6,7 @@ import {
   mountInfoHandler,
 } from "./adapters/inbound/fastify/index.js";
 import { dbClient } from "./adapters/outbound/drizzle/client.js";
+import { createDrizzleOperatorStore } from "./adapters/outbound/drizzle/operator-store.drizzle.js";
 import { redisClient } from "./adapters/outbound/redis/client.js";
 import { createRedisSessionStore } from "./adapters/outbound/redis/session-store.redis.js";
 import { makeAcsUseCase } from "./application/use-cases/acs.use-case.js";
@@ -21,11 +22,12 @@ if (Number.isNaN(port)) {
 }
 
 const sessionStore = createRedisSessionStore(redisClient);
+const operatorStore = createDrizzleOperatorStore(dbClient);
 
 const app = Fastify();
 
 mountInfoHandler(app, getInfoUseCase);
-mountAcsHandler(app, makeAcsUseCase(sessionStore));
+mountAcsHandler(app, makeAcsUseCase(sessionStore, operatorStore));
 mountAuthorizeHandler(app, makeAuthorizeUseCase(sessionStore));
 
 app.addHook("onClose", async () => {

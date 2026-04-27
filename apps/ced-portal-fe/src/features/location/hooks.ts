@@ -21,13 +21,11 @@ export function useLocationSubmit(
     const { name, address, city, postalCode, province, contacts } =
       locationForm;
 
-    // Validate required fields are not null/empty
     if (!name?.trim() || !address?.trim() || !city?.trim()) {
       console.error('Required fields are missing');
       return;
     }
 
-    // Filter out invalid contacts
     const validContacts = contacts
       .filter((c) => c.type?.trim() && c.value?.trim())
       .map((c) => ({
@@ -61,7 +59,6 @@ export function useLocationAddressSearch(existingLocations: Location[]) {
   const dispatch = useAppDispatch();
   const { address } = useAppSelector(selectLocationForm);
 
-  // Ensure address is a valid string
   const searchAddress = address?.trim() || '';
 
   const { data: rawAddressOptions = [] } = useSearchAddressesQuery(

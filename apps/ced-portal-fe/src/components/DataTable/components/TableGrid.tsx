@@ -8,7 +8,6 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  useTheme,
 } from '@mui/material';
 import type { SxProps, Theme } from '@mui/material/styles';
 import type {
@@ -38,32 +37,12 @@ export function TableGrid<T>({
   onSort,
   sx,
 }: TableGridProps<T>) {
-  const theme = useTheme();
-
   return (
     <Paper elevation={0} sx={sx}>
       <TableContainer>
-        <Table
-          size="small"
-          sx={{
-            borderCollapse: 'separate',
-            borderSpacing: 0,
-            '& .MuiTableCell-root': { borderBottom: 'none' },
-          }}
-        >
+        <Table size="small">
           <TableHead>
-            <TableRow
-              sx={{
-                bgcolor: theme.palette.divider,
-                height: 48,
-                '& .MuiTableCell-root': {
-                  bgcolor: theme.palette.divider,
-                  fontWeight: 700,
-                  fontSize: 16,
-                  py: 1.8,
-                },
-              }}
-            >
+            <TableRow>
               {columns.map((col) => (
                 <TableCell
                   key={col.id}
@@ -103,23 +82,8 @@ export function TableGrid<T>({
             </TableRow>
           </TableHead>
           <TableBody>
-            {sortedItems.map((item, index) => (
-              <TableRow
-                key={getRowKey(item)}
-                sx={{
-                  bgcolor: theme.palette.background.paper,
-                  height: 48,
-                  '& .MuiTableCell-root': {
-                    bgcolor: theme.palette.background.paper,
-                    py: 1.65,
-                    fontSize: 16,
-                    color: theme.palette.text.primary,
-                    ...(index > 0
-                      ? { borderTop: `1px solid ${theme.palette.divider}` }
-                      : {}),
-                  },
-                }}
-              >
+            {sortedItems.map((item) => (
+              <TableRow key={getRowKey(item)}>
                 {columns.map((col) => (
                   <TableCell
                     key={col.id}

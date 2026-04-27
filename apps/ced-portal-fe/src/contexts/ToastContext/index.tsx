@@ -64,9 +64,9 @@ export function ToastProvider({ children }: PropsWithChildren) {
         };
       case 'success':
         return {
-          bg: theme.palette.success[100], // Corrisponde a #E1F4E1 nel tema MUI Italia
+          bg: theme.palette.success[100],
           border: theme.palette.common.alertSuccessBorder,
-          text: theme.palette.success[850], // Corrisponde a #224021
+          text: theme.palette.success[850],
           iconColor: theme.palette.common.white,
           iconBg: theme.palette.success[850],
           Icon: CheckRoundedIcon,

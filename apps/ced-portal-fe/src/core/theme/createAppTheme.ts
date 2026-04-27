@@ -181,6 +181,137 @@ export const createAppTheme = () =>
           },
         },
       },
+      MuiTable: {
+        styleOverrides: {
+          root: {
+            borderCollapse: 'separate',
+            borderSpacing: 0,
+            '& .MuiTableCell-root': {
+              borderBottom: 'none',
+            },
+          },
+        },
+      },
+      MuiTableHead: {
+        styleOverrides: {
+          root: {
+            '& .MuiTableRow-root': {
+              height: 48,
+              backgroundColor: muiItaliaTheme.palette.divider,
+              '& .MuiTableCell-root': {
+                backgroundColor: muiItaliaTheme.palette.divider,
+                fontWeight: 700,
+                fontSize: 16,
+                paddingY: 1.8,
+              },
+            },
+          },
+        },
+      },
+      MuiTableBody: {
+        styleOverrides: {
+          root: {
+            '& .MuiTableRow-root': {
+              height: 48,
+              backgroundColor: muiItaliaTheme.palette.background.paper,
+              '& .MuiTableCell-root': {
+                backgroundColor: muiItaliaTheme.palette.background.paper,
+                paddingY: 1.65,
+                fontSize: 16,
+                color: muiItaliaTheme.palette.text.primary,
+              },
+              '&:not(:first-of-type) .MuiTableCell-root': {
+                borderTop: `1px solid ${muiItaliaTheme.palette.divider}`,
+              },
+            },
+          },
+        },
+      },
+      MuiDatePicker: {
+        styleOverrides: {
+          root: {
+            width: '100%',
+            backgroundColor: muiItaliaTheme.palette.common.white,
+            '& .MuiOutlinedInput-root': {
+              borderRadius: 2,
+              minHeight: 56,
+            },
+            '& .MuiOutlinedInput-root.Mui-disabled': {
+              backgroundColor: muiItaliaTheme.palette.common.neutralGray,
+            },
+            '& .MuiFormHelperText-root': {
+              fontSize: '0.875rem',
+              fontWeight: 400,
+            },
+            '& .MuiFormLabel-asterisk': {
+              color: muiItaliaTheme.palette.error.main,
+            },
+          },
+        },
+      },
+      MuiStepper: {
+        styleOverrides: {
+          root: {
+            p: 0,
+            mb: 4,
+            width: '100%',
+            alignItems: 'flex-start',
+            '& .MuiStep-root': { p: 0, flex: 'none' },
+            '& .MuiStepLabel-root': {
+              flexDirection: 'column',
+              alignItems: 'center',
+              gap: 0,
+            },
+            '& .MuiStepLabel-iconContainer': { p: 0 },
+            '& .MuiStepLabel-labelContainer': { mt: 0.5, width: 'auto' },
+            '& .MuiStepLabel-label': {
+              color: NEUTRAL_BLACK,
+              fontWeight: 600,
+            },
+            '& .MuiStepIcon-root': {
+              width: 20,
+              height: 20,
+              color: '#D2D6E3',
+              '&.Mui-active, &.Mui-completed': {
+                color: muiItaliaTheme.palette.common.primaryButton,
+              },
+            },
+            '& .MuiStepIcon-text': {
+              fontSize: '12px',
+              fontWeight: 700,
+              fill: '#636B82',
+            },
+            '& .Mui-active .MuiStepIcon-text, & .Mui-completed .MuiStepIcon-text':
+              {
+                fill: '#ffffff',
+              },
+          },
+        },
+      },
+      MuiStepConnector: {
+        styleOverrides: {
+          root: {
+            flex: 1,
+            alignSelf: 'flex-start',
+            mt: '8px',
+          },
+          line: {
+            borderTopWidth: 4,
+            borderRadius: 2,
+            borderColor: '#D2D6E3',
+          },
+          active: {
+            '& .MuiStepConnector-line': {
+              borderColor: muiItaliaTheme.palette.common.primaryButton,
+            },
+          },
+          completed: {
+            '& .MuiStepConnector-line': {
+              borderColor: muiItaliaTheme.palette.common.primaryButton,
+            },
+          },
+        },
+      },
     },
   });
 

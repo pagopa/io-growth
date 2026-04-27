@@ -15,4 +15,10 @@ BEGIN
 END;
 $$;
 
-GRANT EXECUTE ON FUNCTION refresh_view(text) TO backend;
+DO $$
+BEGIN
+  IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'backend') THEN
+    GRANT EXECUTE ON FUNCTION refresh_view(text) TO backend;
+  END IF;
+END;
+$$;

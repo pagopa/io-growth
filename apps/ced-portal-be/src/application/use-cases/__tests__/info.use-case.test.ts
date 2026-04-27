@@ -15,7 +15,7 @@ describe("getInfoUseCase", () => {
     const result = await getInfoUseCase({});
 
     expect(result.isOk()).toBe(true);
-    expect(result.value).toEqual({
+    expect(result._unsafeUnwrap()).toEqual({
       name: packageInfo.name,
       ok: true,
       version: packageInfo.version,

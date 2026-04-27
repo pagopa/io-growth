@@ -1,48 +1,38 @@
 {
-  "name": "ced-portal-be",
-  "version": "0.0.4",
-  "private": true,
+  "name": "@pagopa/io-core-adapter-redis",
+  "version": "0.0.1",
   "license": "MIT",
   "type": "module",
-  "main": "dist/main.js",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
   "files": [
-    "dist/*"
+    "dist"
   ],
   "scripts": {
     "clean": "rm -rf dist",
     "build": "tsc",
-    "build:watch": "tsc -w",
     "typecheck": "tsc --noEmit",
     "lint": "pnpm lint:check --fix",
     "lint:check": "eslint .",
-    "start": "node dist/main.js",
-    "migrate:dev": "tsx src/migrate.ts",
-    "migrate:prod": "node dist/migrate.js",
-    "run:dev": "tsx --watch src/main.ts",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
-    "@pagopa/io-core-adapter-drizzle": "workspace:^",
-    "@pagopa/io-core-adapter-fastify": "workspace:^",
-    "@pagopa/io-core-adapter-redis": "workspace:^",
     "@pagopa/io-core-domain": "workspace:^",
-    "@standard-schema/spec": "^1.1.0",
-    "drizzle-orm": "^0.44.2",
-    "fastify": "catalog:",
-    "jose": "^6.2.2",
     "neverthrow": "catalog:",
-    "zod": "^3.25.1"
+    "redis": "^5.1.1"
   },
   "devDependencies": {
     "@pagopa/eslint-config": "catalog:",
     "@tsconfig/node22": "catalog:",
     "@types/node": "catalog:",
     "@vitest/coverage-v8": "catalog:",
-    "drizzle-kit": "^0.31.1",
     "eslint": "catalog:",
     "prettier": "catalog:",
-    "tsx": "^4.19.4",
     "typescript": "catalog:",
     "vitest": "catalog:"
   }

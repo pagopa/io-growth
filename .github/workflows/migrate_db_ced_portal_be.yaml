@@ -41,4 +41,5 @@ jobs:
           POSTGRES_USER: ${{ secrets.CED_POSTGRES_USER }}
           POSTGRES_PASSWORD: ${{ secrets.CED_POSTGRES_PASSWORD }}
           POSTGRES_DB: ${{ secrets.CED_POSTGRES_DB }}
+          POSTGRES_SSL: "true"
         run: pnpm --filter ced-portal-be migrate:prod

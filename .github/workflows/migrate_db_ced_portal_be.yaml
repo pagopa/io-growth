@@ -28,8 +28,11 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Build
-        run: pnpm --filter @pagopa/io-core-adapter-drizzle build && pnpm --filter
-          ced-portal-be build
+        run:
+          pnpm --filter @pagopa/io-core-domain build
+          pnpm --filter @pagopa/io-core-adapter-fastify build
+          pnpm --filter @pagopa/io-core-adapter-drizzle build
+          pnpm --filter ced-portal-be build
 
       - name: Run migrations
         env:

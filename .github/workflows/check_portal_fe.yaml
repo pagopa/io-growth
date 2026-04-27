@@ -12,6 +12,9 @@ on:
       - "apps/ced-portal-fe/**"
       - ".github/workflows/check_portal_fe.yaml"
 
+permissions:
+  contents: read
+
 jobs:
   prettier_and_eslint:
     runs-on: ubuntu-latest

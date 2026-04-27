@@ -13,5 +13,7 @@ interface LocationListProps {
 }
 
 export function LocationList({ locations, onRemove }: LocationListProps) {
-  return <ItemDataTable items={locations} columns={columns} onRemove={onRemove} />;
+  return (
+    <ItemDataTable items={locations} columns={columns} onRemove={onRemove} />
+  );
 }

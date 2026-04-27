@@ -8,10 +8,19 @@ interface ContactsSectionProps {
   contacts: Contact[];
   onAdd: () => void;
   onRemove: (index: number) => void;
-  onChange: (params: { index: number; field: keyof Contact; value: string }) => void;
+  onChange: (params: {
+    index: number;
+    field: keyof Contact;
+    value: string;
+  }) => void;
 }
 
-export function ContactsSection({ contacts, onAdd, onRemove, onChange }: ContactsSectionProps) {
+export function ContactsSection({
+  contacts,
+  onAdd,
+  onRemove,
+  onChange,
+}: ContactsSectionProps) {
   const theme = useTheme();
 
   return (

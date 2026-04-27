@@ -34,7 +34,9 @@ export function SelectLocationModal({
       description="Se non è presente nell'elenco, aggiungi una nuova sede."
       label="Seleziona una o più sedi"
       addNewLabel="Aggiungi nuova sede"
-      icon={<LocationOnIcon sx={{ fontSize: 16, color: 'common.decorativeIcon' }} />}
+      icon={
+        <LocationOnIcon sx={{ fontSize: 16, color: 'common.decorativeIcon' }} />
+      }
       getSubtitle={(loc) => loc.address}
     />
   );

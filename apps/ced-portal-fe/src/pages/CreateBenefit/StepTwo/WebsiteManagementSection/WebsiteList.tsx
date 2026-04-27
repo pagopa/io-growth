@@ -13,5 +13,7 @@ interface WebsiteListProps {
 }
 
 export function WebsiteList({ websites, onRemove }: WebsiteListProps) {
-  return <ItemDataTable items={websites} columns={columns} onRemove={onRemove} />;
+  return (
+    <ItemDataTable items={websites} columns={columns} onRemove={onRemove} />
+  );
 }

@@ -41,7 +41,8 @@ export default function CreateBenefitPage() {
   const [submitReviewOpen, setSubmitReviewOpen] = useState(false);
   const { showToast } = useToast();
 
-  const [saveDraft, { isLoading: isSavingDraft }] = useSaveBenefitDraftMutation();
+  const [saveDraft, { isLoading: isSavingDraft }] =
+    useSaveBenefitDraftMutation();
 
   const accessPoint = useAppSelector(selectAccessPoint);
   const nationwide = useAppSelector(selectNationwide);
@@ -161,7 +162,11 @@ export default function CreateBenefitPage() {
         title="Invia in revisione"
         description="Il Dipartimento effettuerà la revisione della tua agevolazione. Il processo potrebbe richiedere diverso tempo. Se approvata, sarà pubblicata su IO a partire dalla data di inizio validità che hai scelto."
       >
-        <Button variant="contained" fullWidth onClick={handleConfirmSubmitReview}>
+        <Button
+          variant="contained"
+          fullWidth
+          onClick={handleConfirmSubmitReview}
+        >
           Invia in revisione
         </Button>
       </AppModal>

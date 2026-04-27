@@ -5,6 +5,7 @@ import { wizardReducer } from '../../features/wizard/slice';
 import { locationReducer } from '../../features/location/locationSlice';
 import { websiteReducer } from '../../features/website/websiteSlice';
 import { agreementDetailCreationReducer } from '../../features/agreementDetailCreation/agreementDetailCreationSlice';
+import { benefitFiltersReducer } from '../../features/benefitsFilters/benefitFiltersSlice';
 
 export const store = configureStore({
   reducer: {
@@ -12,6 +13,7 @@ export const store = configureStore({
     wizard: wizardReducer,
     location: locationReducer,
     website: websiteReducer,
+    benefitFilters: benefitFiltersReducer,
     agreementDetailCreation: agreementDetailCreationReducer,
     [baseApi.reducerPath]: baseApi.reducer,
   },

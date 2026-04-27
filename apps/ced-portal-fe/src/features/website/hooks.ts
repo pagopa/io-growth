@@ -23,7 +23,11 @@ export function useWebsiteSubmit(
       return;
     }
     const { name, url, contacts } = websiteForm;
-    const result = await createWebsite({ name, url, contacts });
+    const result = await createWebsite({
+      name: name ?? '',
+      url: url ?? '',
+      contacts,
+    });
     if ('error' in result) return;
     dispatch(resetWebsiteForm());
     onConfirm(result.data);

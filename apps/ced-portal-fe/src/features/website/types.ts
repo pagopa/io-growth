@@ -1,8 +1,8 @@
 import type { Contact } from '../location/types';
 
 export interface WebsiteFormState {
-  name: string;
-  url: string;
+  name: string | null;
+  url: string | null;
   urlError: string | null;
   contacts: Contact[];
 }

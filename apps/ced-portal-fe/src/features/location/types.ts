@@ -12,11 +12,11 @@ export interface AddressOption {
 }
 
 export interface LocationFormState {
-  name: string;
-  address: string;
-  city: string;
-  postalCode: string;
-  province: string;
+  name: string | null;
+  address: string | null;
+  city: string | null;
+  postalCode: string | null;
+  province: string | null;
   contacts: Contact[];
 }
 

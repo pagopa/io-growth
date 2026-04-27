@@ -10,6 +10,7 @@ const config = {
     host: process.env.POSTGRES_HOST ?? "localhost",
     password: process.env.POSTGRES_PASSWORD,
     port: Number(process.env.POSTGRES_PORT ?? "5432"),
+    ssl: process.env.POSTGRES_SSL === "true",
     user: process.env.POSTGRES_USER ?? "postgres",
   },
   migrationsFolder: resolve(__dirname, "../drizzle/migrations"),

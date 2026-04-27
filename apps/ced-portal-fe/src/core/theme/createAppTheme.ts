@@ -1,5 +1,5 @@
 import { createTheme } from '@mui/material/styles';
-import { theme as muiItaliaTheme } from '@pagopa/mui-italia';
+import { theme as muiItaliaTheme, italia } from '@pagopa/mui-italia';
 
 const PRIMARY_BUTTON_BACKGROUND = '#0B3EE3';
 const PRIMARY_BUTTON_BACKGROUND_HOVER = '#004A96';
@@ -75,6 +75,109 @@ export const createAppTheme = () =>
             '&:hover': {
               backgroundColor: PRIMARY_BUTTON_BACKGROUND_HOVER,
             },
+          },
+        },
+      },
+      MuiAutocomplete: {
+        styleOverrides: {
+          root: {
+            '& .MuiAutocomplete-clearIndicator': {
+              display: 'none',
+            },
+          },
+        },
+      },
+
+      MuiCheckbox: {
+        styleOverrides: {
+          root: {
+            color: 'common.primaryButton',
+            '&.Mui-checked': { color: 'common.primaryButton' },
+            padding: 0,
+            '& .MuiSvgIcon-root': { fontSize: 18 },
+          },
+        },
+      },
+      MuiTextField: {
+        styleOverrides: {
+          root: {
+            backgroundColor: 'common.white',
+            '& .MuiOutlinedInput-root': {
+              borderRadius: 2,
+              minHeight: 56,
+            },
+            '& .MuiFormLabel-asterisk': {
+              color: '#e53935',
+            },
+          },
+        },
+      },
+      MuiFormControl: {
+        styleOverrides: {
+          root: {
+            minWidth: { xs: '100%', lg: 160 },
+            maxWidth: { xs: '100%', lg: 160 },
+            backgroundColor: 'common.white',
+            borderRadius: 2,
+            '& .MuiOutlinedInput-root': {
+              borderRadius: 2,
+              minHeight: 56,
+            },
+          },
+        },
+      },
+      MuiDialog: {
+        styleOverrides: {
+          paper: {
+            borderRadius: 3,
+          },
+        },
+      },
+      MuiFormControlLabel: {
+        styleOverrides: {
+          root: {
+            ml: 0,
+            width: '100%',
+            '& .MuiFormControlLabel-label': { fontSize: 16, fontWeight: 600 },
+          },
+        },
+      },
+      MuiRadio: {
+        styleOverrides: {
+          root: {
+            p: 0,
+            mr: 1,
+          },
+        },
+      },
+      MuiPaper: {
+        styleOverrides: {
+          root: {
+            borderRadius: 2,
+            bgcolor: 'background.paper',
+          },
+        },
+      },
+      MuiListItemButton: {
+        styleOverrides: {
+          root: {
+            minHeight: 64,
+            px: { xs: 2, md: 3 },
+            borderRight: '4px solid transparent',
+            '&.Mui-selected': {
+              borderRightColor: 'primary.main',
+              bgcolor: italia[50],
+            },
+            '&.Mui-selected:hover': {
+              bgcolor: italia[100],
+            },
+          },
+        },
+      },
+      MuiListItemIcon: {
+        styleOverrides: {
+          root: {
+            minWidth: 36,
           },
         },
       },

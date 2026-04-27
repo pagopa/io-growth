@@ -47,7 +47,6 @@ export function AppAutocomplete<T extends AutocompleteOption>({
   return (
     <Autocomplete
       freeSolo
-      sx={{ '& .Autocomplete-clearIndicator': { display: 'none' } }}
       open={isOpen}
       onFocus={() => setIsFocused(true)}
       onBlur={() => setIsFocused(false)}

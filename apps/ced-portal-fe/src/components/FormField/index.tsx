@@ -1,4 +1,5 @@
 import { Box, Typography } from '@mui/material';
+import { minWidth } from '@mui/system';
 import React from 'react';
 
 export type FormFieldProps = {
@@ -35,6 +36,7 @@ export const FormField = ({
     value,
     onChange,
     placeholder,
+    sx: { ...(children.props.sx || {}), minWidth: '100%' },
     ...(label !== undefined && { label }),
   });
 

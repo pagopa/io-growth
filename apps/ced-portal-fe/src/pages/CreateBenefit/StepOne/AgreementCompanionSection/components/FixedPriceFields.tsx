@@ -55,7 +55,7 @@ export const FixedPriceFields = ({
   );
   const discountIcon = useMemo(
     () =>
-      companionDiscountValueType === 'percentage' ? (
+      companionDiscountValueType === 'PERCENTAGE' ? (
         <PercentRoundedIcon sx={{ fontSize: 18 }} />
       ) : (
         <EuroRoundedIcon sx={{ fontSize: 18 }} />

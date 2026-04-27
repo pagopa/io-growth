@@ -1,4 +1,4 @@
-import { Paper, Stack } from '@mui/material';
+import { Divider, Paper, Stack, Typography } from '@mui/material';
 import { useAppDispatch, useAppSelector } from '../../../../hooks';
 import { setLocalizedField } from '../../../../features/agreementDetailCreation/agreementDetailCreationSlice';
 import { AgreementLanguageTabs } from './components/AgreementLanguageTabs';
@@ -12,14 +12,17 @@ import {
 } from '../../../../features/agreementDetailCreation/selectors';
 import { DetailFormField } from './components/DetailFormField';
 import { AgreementDetailsFieldKey } from '../../../../features/agreementDetailCreation/types';
-import { getAgreementCopy } from '../../../../constants';
+import {
+  benefitTypeOptions,
+  categoriesDropdownDescriptions,
+  categoriesOptions,
+  getAgreementCopy,
+} from '../../../../constants';
 
 export function AgreementDetailsSection() {
   const dispatch = useAppDispatch();
   const activeLanguage = useAppSelector(selectActiveAgreementLanguage);
   const copy = getAgreementCopy(activeLanguage);
-
-  const benefitOptions = Object.values(copy.detailsForm.benefitTypeOptions);
 
   const benefitType = useAppSelector(
     selectFieldActiveAgreementLanguageForm('benefitType'),
@@ -42,13 +45,13 @@ export function AgreementDetailsSection() {
     (field: AgreementDetailsFieldKey, value: string | number) => {
       handleFieldChange(field, value);
 
-      if (value !== copy.detailsForm.benefitTypeOptions.fixedPrice) {
+      if (value !== 'FIXED_PRICE') {
         handleFieldChange('benefitDiscountValue', '');
         handleFieldChange('benefitDiscountValueType', '');
         handleFieldChange('otherBenefitTypeDescription', '');
       }
     },
-    [copy, handleFieldChange],
+    [handleFieldChange],
   );
 
   return (
@@ -75,7 +78,7 @@ export function AgreementDetailsSection() {
               handleBenefitTypeChange('benefitType', event.target.value)
             }
           >
-            <AppSelect options={benefitOptions ?? []} />
+            <AppSelect options={benefitTypeOptions} />
           </DetailFormField>
 
           <FixedPriceBenefitFields />
@@ -111,7 +114,33 @@ export function AgreementDetailsSection() {
               handleFieldChange('category', event.target.value)
             }
           >
-            <AppSelect options={copy.detailsForm.categoryOptions} />
+            <AppSelect
+              options={categoriesOptions}
+              renderCustomOptions={({ label, value, lastElement }) => (
+                <Stack
+                  direction="column"
+                  spacing={0.5}
+                  alignItems="flex-start"
+                  width={'100%'}
+                >
+                  <Typography variant="body1" component="span">
+                    {label}
+                  </Typography>
+                  <Typography
+                    variant="body2"
+                    color="text.secondary"
+                    component="span"
+                  >
+                    {
+                      categoriesDropdownDescriptions[
+                        value as keyof typeof categoriesDropdownDescriptions
+                      ]
+                    }
+                  </Typography>
+                  {!lastElement && <Divider sx={{ width: '100%' }} />}
+                </Stack>
+              )}
+            />
           </DetailFormField>
 
           <DetailFormField

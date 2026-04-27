@@ -1,12 +1,52 @@
 import FilterAltOutlined from '@mui/icons-material/FilterAltOutlined';
-import { Button, Stack } from '@mui/material';
+import { Button, SelectChangeEvent, Stack } from '@mui/material';
 import { AppSelect, AppTextField } from '../../../components';
+import { useAppDispatch, useAppSelector } from '../../../hooks';
+import {
+  selectBenefitCategoryFilter,
+  selectBenefitNameFilter,
+  selectBenefitStatusFilter,
+} from '../../../features/benefitsFilters/selectors';
+import { categoriesOptions, statusOptions } from '../../../constants';
+import {
+  setBenefitCategoryFilter,
+  setBenefitNameFilter,
+  setBenefitStatusFilter,
+} from '../../../features/benefitsFilters/benefitFiltersSlice';
+import { useCallback } from 'react';
+import {
+  BenefitCategory,
+  BenefitStatus,
+} from '../../../features/benefitsFilters/types';
 
-interface BenefitsFiltersBarProps {
-  statusOptions: string[];
-}
+export const BenefitsFiltersBar = () => {
+  const dispatch = useAppDispatch();
 
-export function BenefitsFiltersBar({ statusOptions }: BenefitsFiltersBarProps) {
+  const nameFilter = useAppSelector(selectBenefitNameFilter);
+  const categoryFilter = useAppSelector(selectBenefitCategoryFilter);
+  const statusFilter = useAppSelector(selectBenefitStatusFilter);
+
+  const handleNameFilterChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      dispatch(setBenefitNameFilter(e.target.value));
+    },
+    [dispatch],
+  );
+
+  const handleCategoryFilterChange = useCallback(
+    (e: SelectChangeEvent<string | string[]>) => {
+      dispatch(setBenefitCategoryFilter(e.target.value as BenefitCategory));
+    },
+    [dispatch],
+  );
+
+  const handleStatusFilterChange = useCallback(
+    (e: SelectChangeEvent<string | string[]>) => {
+      dispatch(setBenefitStatusFilter(e.target.value as BenefitStatus));
+    },
+    [dispatch],
+  );
+
   return (
     <Stack
       direction={{ xs: 'column', lg: 'row' }}
@@ -17,6 +57,8 @@ export function BenefitsFiltersBar({ statusOptions }: BenefitsFiltersBarProps) {
       <AppTextField
         fullWidth
         placeholder="Cerca per nome"
+        value={nameFilter}
+        onChange={handleNameFilterChange}
         sx={{
           flex: 1,
           minWidth: 0,
@@ -25,17 +67,21 @@ export function BenefitsFiltersBar({ statusOptions }: BenefitsFiltersBarProps) {
 
       <AppSelect
         fullWidth
+        value={categoryFilter || undefined}
         sx={{ flex: 0.5 }}
         label="Categoria"
         placeholder="Categoria"
-        options={statusOptions}
+        options={categoriesOptions}
+        onChange={handleCategoryFilterChange}
       />
       <AppSelect
+        value={statusFilter || undefined}
         fullWidth
         sx={{ flex: 0.5 }}
         label="Stato"
         placeholder="Stato"
         options={statusOptions}
+        onChange={handleStatusFilterChange}
       />
 
       <Stack
@@ -57,4 +103,4 @@ export function BenefitsFiltersBar({ statusOptions }: BenefitsFiltersBarProps) {
       </Stack>
     </Stack>
   );
-}
+};

@@ -18,7 +18,13 @@ export const AppRadioGroup = ({
   ...radioGroupProps
 }: AppRadioGroupProps) => {
   return (
-    <RadioGroup row value={value} onChange={onChange} {...radioGroupProps}>
+    <RadioGroup
+      row
+      value={value}
+      onChange={onChange}
+      sx={{ flexWrap: 'nowrap' }}
+      {...radioGroupProps}
+    >
       {options.map((option) => (
         <FormControlLabel
           key={option.value}

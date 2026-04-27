@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import type { ReactNode } from 'react';
 import {
+  Divider,
   FormControl,
   FormHelperText,
   InputLabel,
@@ -14,11 +15,16 @@ interface AppSelectProps extends Omit<
   'children' | 'label'
 > {
   label?: string;
-  options?: string[];
+  options?: Array<{ value: string; label: string }>;
   emptyOptionLabel?: string;
   helperText?: string;
   fullWidth?: boolean;
   children?: ReactNode;
+  renderCustomOptions?: (params: {
+    value: string;
+    label: string;
+    lastElement: boolean;
+  }) => ReactNode;
 }
 
 export const AppSelect = ({
@@ -33,6 +39,7 @@ export const AppSelect = ({
   onOpen,
   onClose,
   children,
+  renderCustomOptions,
   ...props
 }: AppSelectProps) => {
   const [open, setOpen] = useState(false);
@@ -43,6 +50,38 @@ export const AppSelect = ({
     : currentValue !== '';
   const shrink = open || hasValue;
 
+  const renderOptions = useCallback(() => {
+    const renderItem = (params: {
+      value: string;
+      label: string;
+      lastElement: boolean;
+    }) => (renderCustomOptions ? renderCustomOptions(params) : params.label);
+
+    return options?.map(({ label, value }, index) => (
+      <MenuItem
+        key={value}
+        value={value}
+        sx={{
+          whiteSpace: 'normal',
+          height: 'auto',
+          paddingY: 1,
+          '&:hover': {
+            backgroundColor: 'transparent',
+          },
+          '&.Mui-focusVisible': {
+            backgroundColor: 'transparent',
+          },
+        }}
+      >
+        {renderItem({
+          label,
+          value,
+          lastElement: index === options.length - 1,
+        })}
+      </MenuItem>
+    ));
+  }, [options, renderCustomOptions]);
+
   return (
     <FormControl error={error} sx={sx}>
       <InputLabel shrink={shrink}>{label}</InputLabel>
@@ -51,6 +90,12 @@ export const AppSelect = ({
         value={isControlled ? value : undefined}
         defaultValue={isControlled ? undefined : defaultValue}
         open={open}
+        renderValue={(selected) => {
+          const selectedOpt = options?.find(
+            ({ value }) => value === selected,
+          )?.label;
+          return selectedOpt || '';
+        }}
         onOpen={(e) => {
           setOpen(true);
           onOpen?.(e);
@@ -61,14 +106,25 @@ export const AppSelect = ({
         }}
         notched={shrink}
         error={error}
+        MenuProps={{
+          anchorOrigin: {
+            vertical: 'bottom', // Ancora il menu alla parte bassa della select
+            horizontal: 'left',
+          },
+          transformOrigin: {
+            vertical: 'top', // La parte alta del menu parte dal punto di ancoraggio
+            horizontal: 'left',
+          },
+          PaperProps: {
+            sx: {
+              maxHeight: 300, // Imposta qui l'altezza massima desiderata in pixel
+              // L'overflow-y: 'auto' è gestito in automatico da MUI quando si fissa la maxHeight
+            },
+          },
+        }}
         {...props}
       >
-        {children ??
-          options?.map((option) => (
-            <MenuItem key={option} value={option}>
-              {option}
-            </MenuItem>
-          ))}
+        {renderOptions()}
       </Select>
       {helperText && (
         <FormHelperText sx={{ fontSize: '0.875rem', fontWeight: 400 }}>

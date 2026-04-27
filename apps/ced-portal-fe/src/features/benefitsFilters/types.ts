@@ -1,9 +1,9 @@
 export enum BenefitStatus {
-  SCHEDULED_PUBLICATION = 'Scheduled Publication',
-  DRAFT = 'Draft',
-  PUBLISHED = 'Published',
-  CHANGES_REQUESTED = 'Changes Requested',
-  UNDER_REVIEW = 'Under Review',
+  SCHEDULED_PUBLICATION = 'Pubblicazione programmata',
+  DRAFT = 'In bozza',
+  PUBLISHED = 'Pubblicata su IO',
+  CHANGES_REQUESTED = 'Modifiche richieste',
+  UNDER_REVIEW = 'In revisione',
 }
 
 export enum BenefitCategory {

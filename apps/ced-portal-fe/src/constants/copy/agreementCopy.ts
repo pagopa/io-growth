@@ -39,16 +39,6 @@ interface AgreementDetailsFormCopy {
   nameHelperText: string;
   benefitTypeLabel: string;
   benefitTypePlaceholder: string;
-  benefitTypeOptions: {
-    free: string;
-    fixedPrice: string;
-    priority: string;
-    other: string;
-  };
-  discountTypeOptions: {
-    percentage: string;
-    fixed: string;
-  };
   discountValueLabel: string;
   otherBenefitTypeLabel: string;
   descriptionLabel: string;
@@ -56,7 +46,6 @@ interface AgreementDetailsFormCopy {
   descriptionHelperText: string;
   categoryLabel: string;
   categoryPlaceholder: string;
-  categoryOptions: string[];
   conditionsLabel: string;
   conditionsPlaceholder: string;
   conditionsHelperText: string;
@@ -78,16 +67,6 @@ export const AGREEMENT_COPY_CONFIG: Record<string, AgreementCopy> = {
       nameHelperText: 'Inserisci un testo di max 50 caratteri',
       benefitTypeLabel: 'Tipo di agevolazione',
       benefitTypePlaceholder: 'Seleziona una tipologia',
-      benefitTypeOptions: {
-        free: 'Gratuito',
-        fixedPrice: 'Prezzo fisso agevolato',
-        priority: 'Priorita',
-        other: 'Altro',
-      },
-      discountTypeOptions: {
-        percentage: 'Percentuale',
-        fixed: 'Importo fisso',
-      },
       discountValueLabel: 'Importo dello sconto',
       otherBenefitTypeLabel: 'Scrivi il tipo di agevolazione che vuoi offrire',
       descriptionLabel: 'Descrizione',
@@ -95,12 +74,6 @@ export const AGREEMENT_COPY_CONFIG: Record<string, AgreementCopy> = {
       descriptionHelperText: 'Inserisci un testo di max 250 caratteri',
       categoryLabel: 'Categoria',
       categoryPlaceholder: 'Seleziona una categoria',
-      categoryOptions: [
-        'Cultura',
-        'Mobilita',
-        'Istruzione',
-        'Sport e tempo libero',
-      ],
       conditionsLabel: 'Condizioni',
       conditionsPlaceholder:
         "Specifica eventuali limitazioni dell'agevolazione",
@@ -151,16 +124,6 @@ export const AGREEMENT_COPY_CONFIG: Record<string, AgreementCopy> = {
       nameHelperText: 'Enter a text up to 50 characters',
       benefitTypeLabel: 'Benefit type',
       benefitTypePlaceholder: 'Select a type',
-      benefitTypeOptions: {
-        free: 'Free',
-        fixedPrice: 'Discounted fixed price',
-        priority: 'Priority',
-        other: 'Other',
-      },
-      discountTypeOptions: {
-        percentage: 'Percentage',
-        fixed: 'Fixed amount',
-      },
       discountValueLabel: 'Discount amount',
       otherBenefitTypeLabel: 'Write the benefit type you want to offer',
       descriptionLabel: 'Description',
@@ -168,12 +131,6 @@ export const AGREEMENT_COPY_CONFIG: Record<string, AgreementCopy> = {
       descriptionHelperText: 'Enter a text up to 250 characters',
       categoryLabel: 'Category',
       categoryPlaceholder: 'Select a category',
-      categoryOptions: [
-        'Culture',
-        'Mobility',
-        'Education',
-        'Sports and leisure',
-      ],
       conditionsLabel: 'Conditions',
       conditionsPlaceholder: 'Specify any benefit limitations',
       conditionsHelperText: 'Enter a text up to 200 characters',

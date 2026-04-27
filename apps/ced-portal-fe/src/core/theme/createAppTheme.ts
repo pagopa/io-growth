@@ -91,7 +91,7 @@ export const createAppTheme = () =>
       MuiCheckbox: {
         styleOverrides: {
           root: {
-            color: 'common.primaryButton',
+            color: muiItaliaTheme.palette.common.primaryButton,
             '&.Mui-checked': { color: 'common.primaryButton' },
             padding: 0,
             '& .MuiSvgIcon-root': { fontSize: 18 },
@@ -101,7 +101,7 @@ export const createAppTheme = () =>
       MuiTextField: {
         styleOverrides: {
           root: {
-            backgroundColor: 'common.white',
+            backgroundColor: muiItaliaTheme.palette.common.white,
             '& .MuiOutlinedInput-root': {
               borderRadius: 2,
               minHeight: 56,
@@ -117,7 +117,7 @@ export const createAppTheme = () =>
           root: {
             minWidth: { xs: '100%', lg: 160 },
             maxWidth: { xs: '100%', lg: 160 },
-            backgroundColor: 'common.white',
+            backgroundColor: muiItaliaTheme.palette.common.white,
             borderRadius: 2,
             '& .MuiOutlinedInput-root': {
               borderRadius: 2,
@@ -154,7 +154,7 @@ export const createAppTheme = () =>
         styleOverrides: {
           root: {
             borderRadius: 2,
-            bgcolor: 'background.paper',
+            bgcolor: muiItaliaTheme.palette.background.paper,
           },
         },
       },
@@ -165,7 +165,7 @@ export const createAppTheme = () =>
             px: { xs: 2, md: 3 },
             borderRight: '4px solid transparent',
             '&.Mui-selected': {
-              borderRightColor: 'primary.main',
+              borderRightColor: muiItaliaTheme.palette.primary.main,
               bgcolor: italia[50],
             },
             '&.Mui-selected:hover': {

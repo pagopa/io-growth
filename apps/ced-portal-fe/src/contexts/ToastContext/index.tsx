@@ -55,27 +55,27 @@ export function ToastProvider({ children }: PropsWithChildren) {
     switch (toast?.variant) {
       case 'error':
         return {
-          bg: (theme.palette.error as any)[100],
+          bg: theme.palette.error[100],
           border: theme.palette.error.light,
-          text: (theme.palette.error as any)[850],
+          text: theme.palette.error[850],
           iconColor: theme.palette.common.white,
           iconBg: theme.palette.error.main,
           Icon: ErrorIcon,
         };
       case 'success':
         return {
-          bg: (theme.palette.success as any)[100], // Corrisponde a #E1F4E1 nel tema MUI Italia
+          bg: theme.palette.success[100], // Corrisponde a #E1F4E1 nel tema MUI Italia
           border: theme.palette.common.alertSuccessBorder,
-          text: (theme.palette.success as any)[850], // Corrisponde a #224021
+          text: theme.palette.success[850], // Corrisponde a #224021
           iconColor: theme.palette.common.white,
-          iconBg: (theme.palette.success as any)[850],
+          iconBg: theme.palette.success[850],
           Icon: CheckRoundedIcon,
         };
       default:
         return {
-          bg: (theme.palette.info as any)[100],
+          bg: theme.palette.info[100],
           border: theme.palette.info.light,
-          text: (theme.palette.info as any)[850],
+          text: theme.palette.info[850],
           iconColor: theme.palette.common.white,
           iconBg: theme.palette.info.main,
           Icon: InfoIcon,
@@ -151,7 +151,7 @@ export function ToastProvider({ children }: PropsWithChildren) {
           <IconButton
             size="small"
             onClick={() => setToast(null)}
-            sx={{ color: (theme.palette.common as any).neutralBlack, p: 0.5 }}
+            sx={{ color: theme.palette.common.neutralBlack, p: 0.5 }}
           >
             <CloseIcon
               sx={{ fontSize: 14, stroke: 'currentColor', strokeWidth: 1.5 }}

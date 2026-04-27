@@ -7,9 +7,7 @@ export function WizardAlert({ children }: PropsWithChildren) {
     <Alert
       severity="error"
       icon={
-        <ReportIcon
-          sx={{ color: (t) => (t.palette.error as any)[850], fontSize: 24 }}
-        />
+        <ReportIcon sx={{ color: (t) => t.palette.error[850], fontSize: 24 }} />
       }
       sx={{
         bgcolor: 'common.alertErrorBg',

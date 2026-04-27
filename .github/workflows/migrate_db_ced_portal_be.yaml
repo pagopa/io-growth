@@ -28,7 +28,7 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Build
-        run:
+        run: |
           pnpm --filter @pagopa/io-core-domain build
           pnpm --filter @pagopa/io-core-adapter-fastify build
           pnpm --filter @pagopa/io-core-adapter-drizzle build

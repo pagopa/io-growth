@@ -1,0 +1,44 @@
+name: Check Portal FE - Prettier & ESLint
+
+on:
+  pull_request:
+    types:
+      - opened
+      - synchronize
+      - reopened
+    branches:
+      - main
+    paths:
+      - "apps/ced-portal-fe/**"
+      - ".github/workflows/check_portal_fe.yaml"
+
+jobs:
+  prettier_and_eslint:
+    runs-on: ubuntu-latest
+    name: Prettier & ESLint Check
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@c85c95e3d7a6135d5e076778c50aeadcf1fab514
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@d51c47c3406b257049fddc446026db9aaee50374
+        with:
+          version: 8
+
+      - name: Setup Node.js
+        uses: actions/setup-node@60edb5dd545a775178f62fe6c4953de7bccad4a1
+        with:
+          node-version: "22.22.1"
+          cache: "pnpm"
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run Prettier check
+        run: pnpm --filter ced-portal-fe format
+        continue-on-error: false
+
+      - name: Run ESLint check
+        run: pnpm --filter ced-portal-fe lint
+        continue-on-error: false

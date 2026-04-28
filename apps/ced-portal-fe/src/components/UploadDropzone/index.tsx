@@ -8,6 +8,24 @@ export type UploadDropzoneProps = {
   onFileSelect: (file: File | null) => void;
 };
 
+const MAX_FILE_NAME_LENGTH = 50;
+
+const truncateFileName = (
+  fileName: string,
+  maxLength = MAX_FILE_NAME_LENGTH,
+) => {
+  if (fileName.length <= maxLength) {
+    return fileName;
+  }
+
+  const extensionIndex = fileName.lastIndexOf('.');
+  const extension = extensionIndex > 0 ? fileName.slice(extensionIndex) : '';
+  const baseName = extension ? fileName.slice(0, extensionIndex) : fileName;
+  const truncatedBase = baseName.slice(0, maxLength - extension.length - 3);
+
+  return `${truncatedBase}...${extension}`;
+};
+
 export function UploadDropzone({
   selectedFileName,
   title,
@@ -28,6 +46,9 @@ export function UploadDropzone({
     const file = event.target.files?.[0] ?? null;
     onFileSelect(file);
   };
+
+  const displayFileName =
+    selectedFileName != null ? truncateFileName(selectedFileName) : subtitle;
 
   return (
     <Box
@@ -54,12 +75,22 @@ export function UploadDropzone({
         sx={{ minWidth: 0 }}
       >
         <UploadFile sx={{ color: 'common.black' }} />
-        <Stack spacing={0.25} sx={{ minWidth: 0 }}>
+        <Stack spacing={0.25}>
           <Typography variant="body2" fontWeight={600}>
             {title}
           </Typography>
-          <Typography variant="caption" color="text.secondary" noWrap>
-            {selectedFileName ?? subtitle}
+          <Typography
+            variant="caption"
+            color="text.secondary"
+            noWrap
+            title={selectedFileName ?? undefined}
+            sx={{
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap',
+            }}
+          >
+            {displayFileName}
           </Typography>
         </Stack>
       </Stack>
@@ -68,15 +99,8 @@ export function UploadDropzone({
         component="span"
         variant="contained"
         sx={{
-          display: 'flex',
-          height: '48px',
-          px: 3,
+          px: 4,
           py: 1.5,
-          flexDirection: 'column',
-          justifyContent: 'center',
-          alignItems: 'center',
-          textTransform: 'none',
-          whiteSpace: 'nowrap',
         }}
       >
         Carica file

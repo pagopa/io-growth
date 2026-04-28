@@ -101,7 +101,6 @@ export default function OpportunitiesPage() {
             variant={selected.size === 0 ? 'outlined' : 'contained'}
             color="primary"
             size="large"
-            disabled={selected.size === 0}
             onClick={() => {
               setPublishCount(selected.size);
               setPublishModalOpen(true);

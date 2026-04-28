@@ -147,7 +147,6 @@ export function ToastProvider({ children }: PropsWithChildren) {
             {toast.message}
           </Typography>
 
-          {/* Pulsante Chiusura MUI */}
           <IconButton
             size="small"
             onClick={() => setToast(null)}

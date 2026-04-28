@@ -5,7 +5,7 @@ import { err, ok } from "neverthrow";
 
 import type { RedisCommands } from "./client.js";
 
-export const redisSet = async <T>(
+export const set = async <T>(
   client: RedisCommands,
   key: string,
   value: T,
@@ -20,7 +20,7 @@ export const redisSet = async <T>(
   }
 };
 
-export const redisSetEx = async <T>(
+export const setEx = async <T>(
   client: RedisCommands,
   key: string,
   value: T,
@@ -36,7 +36,7 @@ export const redisSetEx = async <T>(
   }
 };
 
-export const redisGet = async <T>(
+export const get = async <T>(
   client: RedisCommands,
   key: string,
 ): Promise<Result<null | T, GenericError>> => {
@@ -53,7 +53,7 @@ export const redisGet = async <T>(
   }
 };
 
-export const redisDel = async (
+export const del = async (
   client: RedisCommands,
   key: string,
 ): Promise<Result<void, GenericError>> => {

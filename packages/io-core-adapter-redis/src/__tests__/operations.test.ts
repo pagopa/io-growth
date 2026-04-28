@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 
 import type { RedisCommands } from "../client.js";
 
-import { redisDel, redisGet, redisSet, redisSetEx } from "../operations.js";
+import { del, get, set, setEx } from "../operations.js";
 
 const createMockClient = () => {
   const mock = {
@@ -14,12 +14,12 @@ const createMockClient = () => {
   return mock as RedisCommands & typeof mock;
 };
 
-describe("redisSet", () => {
+describe("set", () => {
   it("should serialize value as JSON and call client.set", async () => {
     const client = createMockClient();
     client.set.mockResolvedValue("OK");
 
-    const result = await redisSet(client, "key1", { name: "test" });
+    const result = await set(client, "key1", { name: "test" });
 
     expect(result.isOk()).toBe(true);
     expect(client.set).toHaveBeenCalledWith("key1", '{"name":"test"}');
@@ -29,7 +29,7 @@ describe("redisSet", () => {
     const client = createMockClient();
     client.set.mockRejectedValue(new Error("connection lost"));
 
-    const result = await redisSet(client, "key1", { name: "test" });
+    const result = await set(client, "key1", { name: "test" });
 
     expect(result.isErr()).toBe(true);
     expect(result._unsafeUnwrapErr().kind).toBe("GenericError");
@@ -37,12 +37,12 @@ describe("redisSet", () => {
   });
 });
 
-describe("redisSetEx", () => {
+describe("setEx", () => {
   it("should serialize value as JSON and call client.setEx with TTL", async () => {
     const client = createMockClient();
     client.setEx.mockResolvedValue("OK");
 
-    const result = await redisSetEx(client, "key2", { id: 1 }, 60);
+    const result = await setEx(client, "key2", { id: 1 }, 60);
 
     expect(result.isOk()).toBe(true);
     expect(client.setEx).toHaveBeenCalledWith("key2", 60, '{"id":1}');
@@ -52,7 +52,7 @@ describe("redisSetEx", () => {
     const client = createMockClient();
     client.setEx.mockRejectedValue(new Error("timeout"));
 
-    const result = await redisSetEx(client, "key2", { id: 1 }, 60);
+    const result = await setEx(client, "key2", { id: 1 }, 60);
 
     expect(result.isErr()).toBe(true);
     expect(result._unsafeUnwrapErr().kind).toBe("GenericError");
@@ -60,15 +60,12 @@ describe("redisSetEx", () => {
   });
 });
 
-describe("redisGet", () => {
+describe("get", () => {
   it("should return parsed JSON value when key exists", async () => {
     const client = createMockClient();
     client.get.mockResolvedValue('{"name":"test","age":30}');
 
-    const result = await redisGet<{ age: number; name: string }>(
-      client,
-      "key3",
-    );
+    const result = await get<{ age: number; name: string }>(client, "key3");
 
     expect(result.isOk()).toBe(true);
     expect(result._unsafeUnwrap()).toEqual({ age: 30, name: "test" });
@@ -78,7 +75,7 @@ describe("redisGet", () => {
     const client = createMockClient();
     client.get.mockResolvedValue(null);
 
-    const result = await redisGet(client, "missing-key");
+    const result = await get(client, "missing-key");
 
     expect(result.isOk()).toBe(true);
     expect(result._unsafeUnwrap()).toBeNull();
@@ -88,7 +85,7 @@ describe("redisGet", () => {
     const client = createMockClient();
     client.get.mockRejectedValue(new Error("connection refused"));
 
-    const result = await redisGet(client, "key3");
+    const result = await get(client, "key3");
 
     expect(result.isErr()).toBe(true);
     expect(result._unsafeUnwrapErr().kind).toBe("GenericError");
@@ -99,7 +96,7 @@ describe("redisGet", () => {
     const client = createMockClient();
     client.get.mockResolvedValue("not-valid-json");
 
-    const result = await redisGet(client, "bad-json");
+    const result = await get(client, "bad-json");
 
     expect(result.isErr()).toBe(true);
     expect(result._unsafeUnwrapErr().kind).toBe("GenericError");
@@ -107,12 +104,12 @@ describe("redisGet", () => {
   });
 });
 
-describe("redisDel", () => {
+describe("del", () => {
   it("should call client.del with the key", async () => {
     const client = createMockClient();
     client.del.mockResolvedValue(1);
 
-    const result = await redisDel(client, "key4");
+    const result = await del(client, "key4");
 
     expect(result.isOk()).toBe(true);
     expect(client.del).toHaveBeenCalledWith("key4");
@@ -122,7 +119,7 @@ describe("redisDel", () => {
     const client = createMockClient();
     client.del.mockRejectedValue(new Error("network error"));
 
-    const result = await redisDel(client, "key4");
+    const result = await del(client, "key4");
 
     expect(result.isErr()).toBe(true);
     expect(result._unsafeUnwrapErr().kind).toBe("GenericError");

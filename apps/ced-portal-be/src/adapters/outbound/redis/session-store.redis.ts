@@ -2,12 +2,7 @@ import type { RedisCommands } from "@pagopa/io-core-adapter-redis";
 import type { BaseError } from "@pagopa/io-core-domain/errors";
 import type { Result } from "neverthrow";
 
-import {
-  redisDel,
-  redisGet,
-  redisSet,
-  redisSetEx,
-} from "@pagopa/io-core-adapter-redis";
+import { del, get, set, setEx } from "@pagopa/io-core-adapter-redis";
 import { NotFoundError } from "@pagopa/io-core-domain/errors";
 import { err, ok } from "neverthrow";
 
@@ -27,21 +22,18 @@ export const createRedisSessionStore = (
     sessionToken: string,
     ttlSeconds: number,
   ): Promise<Result<void, BaseError>> =>
-    redisSetEx(client, OTP_PREFIX + sessionId, sessionToken, ttlSeconds),
+    setEx(client, OTP_PREFIX + sessionId, sessionToken, ttlSeconds),
 
   createSession: (
     sessionToken: string,
     session: Session,
   ): Promise<Result<void, BaseError>> =>
-    redisSet(client, SESSION_PREFIX + sessionToken, session),
+    set(client, SESSION_PREFIX + sessionToken, session),
 
   getSession: async (
     sessionToken: string,
   ): Promise<Result<Session, BaseError>> => {
-    const result = await redisGet<Session>(
-      client,
-      SESSION_PREFIX + sessionToken,
-    );
+    const result = await get<Session>(client, SESSION_PREFIX + sessionToken);
     if (result.isErr()) {
       return err(result.error);
     }
@@ -54,7 +46,7 @@ export const createRedisSessionStore = (
   getSessionTokenByOneTimeId: async (
     sessionId: string,
   ): Promise<Result<string, BaseError>> => {
-    const result = await redisGet<string>(client, OTP_PREFIX + sessionId);
+    const result = await get<string>(client, OTP_PREFIX + sessionId);
     if (result.isErr()) {
       return err(result.error);
     }
@@ -62,7 +54,7 @@ export const createRedisSessionStore = (
       return err(new NotFoundError("SessionId", sessionId));
     }
     // One-shot: delete after retrieval
-    await redisDel(client, OTP_PREFIX + sessionId);
+    await del(client, OTP_PREFIX + sessionId);
     return ok(result.value);
   },
 });

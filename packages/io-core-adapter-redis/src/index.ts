@@ -5,4 +5,4 @@ export type {
   RedisClientInstance,
   RedisCommands,
 } from "./client.js";
-export { redisDel, redisGet, redisSet, redisSetEx } from "./operations.js";
+export { del, get, set, setEx } from "./operations.js";

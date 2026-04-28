@@ -57,3 +57,9 @@ resource "azurerm_role_assignment" "portal_be_kv_secrets_user" {
   role_definition_name = "Key Vault Secrets User"
   principal_id         = module.common_container_app_environment.user_assigned_identity.principal_id
 }
+
+resource "azurerm_role_assignment" "portal_be_redis_contributor" {
+  scope                = module.redis.id
+  role_definition_name = "Contributor"
+  principal_id         = module.common_container_app_environment.user_assigned_identity.principal_id
+}

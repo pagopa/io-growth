@@ -21,6 +21,6 @@ export enum BenefitCategory {
 
 export type BenefitFiltersState = {
   name: string | null;
-  status: BenefitStatus | null;
+  status: keyof typeof BenefitStatus | null;
   category: BenefitCategory | null;
 };

@@ -9,11 +9,10 @@ import {
 } from '../../../features/benefitsFilters/selectors';
 import { categoriesOptions, statusOptions } from '../../../constants';
 import {
-  setBenefitCategoryFilter,
-  setBenefitNameFilter,
-  setBenefitStatusFilter,
+  resetBenefitFilters,
+  setBenefitFilters,
 } from '../../../features/benefitsFilters/benefitFiltersSlice';
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
 import {
   BenefitCategory,
   BenefitStatus,
@@ -26,26 +25,47 @@ export const BenefitsFiltersBar = () => {
   const categoryFilter = useAppSelector(selectBenefitCategoryFilter);
   const statusFilter = useAppSelector(selectBenefitStatusFilter);
 
+  const [filters, setFilters] = useState({
+    name: nameFilter,
+    category: categoryFilter,
+    status: statusFilter,
+  });
+
   const handleNameFilterChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
-      dispatch(setBenefitNameFilter(e.target.value));
+      setFilters((prev) => ({ ...prev, name: e.target.value }));
     },
-    [dispatch],
+    [],
   );
 
   const handleCategoryFilterChange = useCallback(
     (e: SelectChangeEvent<string | string[]>) => {
-      dispatch(setBenefitCategoryFilter(e.target.value as BenefitCategory));
+      setFilters((prev) => ({
+        ...prev,
+        category: e.target.value as BenefitCategory,
+      }));
     },
-    [dispatch],
+    [],
   );
 
   const handleStatusFilterChange = useCallback(
     (e: SelectChangeEvent<string | string[]>) => {
-      dispatch(setBenefitStatusFilter(e.target.value as BenefitStatus));
+      setFilters((prev) => ({
+        ...prev,
+        status: e.target.value as keyof typeof BenefitStatus,
+      }));
     },
-    [dispatch],
+    [],
   );
+
+  const handleApplyFilters = useCallback(() => {
+    dispatch(setBenefitFilters(filters));
+  }, [dispatch, filters]);
+
+  const handleResetFilters = useCallback(() => {
+    dispatch(resetBenefitFilters());
+    setFilters({ name: null, category: null, status: null });
+  }, [dispatch]);
 
   return (
     <Stack
@@ -57,7 +77,7 @@ export const BenefitsFiltersBar = () => {
       <AppTextField
         fullWidth
         placeholder="Cerca per nome"
-        value={nameFilter}
+        value={filters.name || ''}
         onChange={handleNameFilterChange}
         sx={{
           flex: 1,
@@ -67,7 +87,7 @@ export const BenefitsFiltersBar = () => {
 
       <AppSelect
         fullWidth
-        value={categoryFilter || undefined}
+        value={filters.category || ''}
         sx={{ flex: 0.5 }}
         label="Categoria"
         placeholder="Categoria"
@@ -75,7 +95,7 @@ export const BenefitsFiltersBar = () => {
         onChange={handleCategoryFilterChange}
       />
       <AppSelect
-        value={statusFilter || undefined}
+        value={filters.status || ''}
         fullWidth
         sx={{ flex: 0.5 }}
         label="Stato"
@@ -94,10 +114,15 @@ export const BenefitsFiltersBar = () => {
           variant="text"
           startIcon={<FilterAltOutlined />}
           sx={{ fontWeight: 700, fontSize: 16, px: 0.5 }}
+          onClick={handleApplyFilters}
         >
           Filtra
         </Button>
-        <Button variant="text" sx={{ fontWeight: 700, fontSize: 16, px: 0.5 }}>
+        <Button
+          variant="text"
+          sx={{ fontWeight: 700, fontSize: 16, px: 0.5 }}
+          onClick={handleResetFilters}
+        >
           Rimuovi filtri
         </Button>
       </Stack>

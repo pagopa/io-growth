@@ -25,15 +25,22 @@ export function RequestChangesModal({
   onConfirm,
 }: Readonly<RequestChangesModalProps>) {
   const [message, setMessage] = useState('');
+  const [error, setError] = useState(false);
 
   const handleClose = () => {
     setMessage('');
+    setError(false);
     onClose();
   };
 
   const handleConfirm = () => {
+    if (message.trim().length === 0) {
+      setError(true);
+      return;
+    }
     onConfirm(message);
     setMessage('');
+    setError(false);
   };
 
   return (
@@ -70,10 +77,18 @@ export function RequestChangesModal({
             <TextField
               fullWidth
               required
+              error={error}
               label="Spiega in dettaglio cosa modificare"
-              helperText={`Inserisci un testo di max ${MAX_LENGTH} caratteri`}
+              helperText={
+                error
+                  ? 'Inserisci un testo'
+                  : `Inserisci un testo di max ${MAX_LENGTH} caratteri`
+              }
               value={message}
-              onChange={(e) => setMessage(e.target.value.slice(0, MAX_LENGTH))}
+              onChange={(e) => {
+                setMessage(e.target.value.slice(0, MAX_LENGTH));
+                if (error) setError(false);
+              }}
               inputProps={{ maxLength: MAX_LENGTH }}
             />
           </Box>
@@ -83,7 +98,6 @@ export function RequestChangesModal({
               variant="contained"
               color="primary"
               size="large"
-              disabled={message.trim().length === 0}
               onClick={handleConfirm}
               sx={{ fontWeight: 700, borderRadius: 2, px: 4 }}
             >

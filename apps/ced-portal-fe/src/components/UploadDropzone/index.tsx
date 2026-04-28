@@ -47,8 +47,9 @@ export function UploadDropzone({
     onFileSelect(file);
   };
 
-  const displayFileName =
-    selectedFileName != null ? truncateFileName(selectedFileName) : subtitle;
+  const displayFileName = selectedFileName
+    ? truncateFileName(selectedFileName)
+    : subtitle;
 
   return (
     <Box

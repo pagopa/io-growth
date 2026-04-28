@@ -4,6 +4,7 @@ import { theme as muiItaliaTheme, italia } from '@pagopa/mui-italia';
 const PRIMARY_BUTTON_BACKGROUND = '#0B3EE3';
 const PRIMARY_BUTTON_BACKGROUND_HOVER = '#004A96';
 const APP_NEUTRAL_GRAY = '#F4F5F8';
+const APP_NEUTRAL_DARK_GRAY = '#555C70';
 const DECORATIVE_ICON = '#BBC2D6';
 const NEUTRAL_BLACK = '#0E0F13';
 const ALERT_ERROR_BG = '#FFD9D9';
@@ -13,6 +14,7 @@ const ALERT_SUCCESS_BORDER = '#89D188';
 declare module '@mui/material/styles' {
   interface CommonColors {
     neutralGray: string;
+    neutralDarkGray: string;
     primaryButton: string;
     primaryButtonHover: string;
     decorativeIcon: string;
@@ -41,6 +43,7 @@ export const createAppTheme = () =>
         alertErrorBg: ALERT_ERROR_BG,
         alertErrorBorder: ALERT_ERROR_BORDER,
         alertSuccessBorder: ALERT_SUCCESS_BORDER,
+        neutralDarkGray: APP_NEUTRAL_DARK_GRAY,
       },
     },
     components: {

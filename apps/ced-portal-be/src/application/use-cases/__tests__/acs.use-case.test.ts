@@ -72,7 +72,6 @@ describe("makeAcsUseCase", () => {
         lastName: string;
         operatorId: string;
         operatorName: string;
-        organizationExternalId: string;
         referentExternalId: string;
         role: string;
       },
@@ -84,7 +83,6 @@ describe("makeAcsUseCase", () => {
       lastName: "Rossi",
       operatorId: "operator-uuid-123",
       operatorName: "Organization legal name",
-      organizationExternalId: "internalID",
       referentExternalId: "uid_12345",
       role: "OPERATOR",
     });

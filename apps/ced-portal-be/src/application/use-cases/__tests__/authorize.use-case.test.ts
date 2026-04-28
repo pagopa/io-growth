@@ -40,6 +40,7 @@ describe("makeAuthorizeUseCase", () => {
     expect(result._unsafeUnwrap()).toEqual({
       first_name: "Mario",
       last_name: "Rossi",
+      operator_name: "Op Name",
       session_token: sessionToken,
     });
   });

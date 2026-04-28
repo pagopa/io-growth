@@ -25,10 +25,14 @@ locals {
     image = "ghcr.io/pagopa/io-growth/ced-portal-be:latest"
 
     app_settings = {
-      PORT          = "8080"
-      POSTGRES_HOST = "${module.postgresql.postgres.name}.postgres.database.azure.com"
-      POSTGRES_PORT = "6432"
-      POSTGRES_DB   = azurerm_postgresql_flexible_server_database.ced_test.name
+      PORT            = "8080"
+      POSTGRES_HOST   = "${module.postgresql.postgres.name}.postgres.database.azure.com"
+      POSTGRES_PORT   = "6432"
+      POSTGRES_DB     = azurerm_postgresql_flexible_server_database.ced_test.name
+      REDIS_HOST      = module.redis.hostname
+      REDIS_PORT      = tostring(module.redis.ssl_port)
+      REDIS_TLS       = "true"
+      AZURE_CLIENT_ID = module.common_container_app_environment.user_assigned_identity.client_id
     }
 
     health_check_path = "/api/info"

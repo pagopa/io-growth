@@ -1,40 +1,28 @@
-import AddIcon from '@mui/icons-material/Add';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import ForumOutlinedIcon from '@mui/icons-material/ForumOutlined';
-import StorefrontOutlinedIcon from '@mui/icons-material/StorefrontOutlined';
 import { Box, Button, Paper, Stack, Typography } from '@mui/material';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import {
-  AppRadioGroup,
-  AppTextField,
-  UploadDropzone,
-} from '../../../components';
+import { ContactsSection } from './components/ContactsSection';
+import { EntityDataSection } from './components/EntityDataSection';
+import { InfoModal } from './components/InfoModal';
+import type { CompleteDataFormData } from './types';
 
-const SEDE_OPTIONS = [
-  { label: 'Sede fisica', value: 'fisica' },
-  { label: 'Online', value: 'online' },
-];
-
-const OVERLINE_LABEL_SX = {
-  color: '#555C70',
-  fontFeatureSettings: "'liga' off, 'clig' off",
-  fontFamily: 'Titillium Web',
-  fontSize: '14px',
-  fontStyle: 'normal',
-  fontWeight: 500,
-  lineHeight: 'normal',
-  textTransform: 'uppercase',
-} as const;
+const INITIAL_FORM_DATA: CompleteDataFormData = {
+  name: '',
+  sede: 'fisica',
+  address: '',
+  contacts: [{ contact: '', website: '' }],
+  logoFile: null,
+  coverFile: null,
+};
 
 export default function OverviewCompleteDataPage() {
   const navigate = useNavigate();
-  const [sede, setSede] = useState('fisica');
-  const [contacts, setContacts] = useState(['']);
-  const [logoFileName, setLogoFileName] = useState<string>();
-  const [coverFileName, setCoverFileName] = useState<string>();
-
-  const handleAddContact = () => setContacts((prev) => [...prev, '']);
+  const [infoModalType, setInfoModalType] = useState<'logo' | 'cover' | null>(
+    null,
+  );
+  const [formData, setFormData] =
+    useState<CompleteDataFormData>(INITIAL_FORM_DATA);
 
   return (
     <Box
@@ -62,17 +50,21 @@ export default function OverviewCompleteDataPage() {
             {/* Intestazione pagina */}
             <Box>
               <Stack spacing={1}>
-                <Typography variant="h6" fontWeight={700}>
-                  Completa i dati dell’ente
+                <Typography variant="h4" sx={{ fontSize: 32, fontWeight: 700 }}>
+                  Completa i dati dell&apos;ente
                 </Typography>
-                <Typography variant="body1" color="text.secondary">
-                  Queste informazioni saranno usate per identificarti sull’app
-                  IO
+                <Typography
+                  variant="body2"
+                  sx={{ fontSize: 18, color: 'text.secondary' }}
+                >
+                  Queste informazioni saranno usate per identificarti
+                  sull&apos;app IO
                 </Typography>
               </Stack>
               <Typography
                 variant="body2"
-                sx={{ mt: 3, fontWeight: 600, color: 'error.dark' }}
+                fontWeight={600}
+                sx={{ mt: 3, color: 'error.dark' }}
               >
                 * Campo obbligatorio
               </Typography>
@@ -87,158 +79,61 @@ export default function OverviewCompleteDataPage() {
                 p: 3,
                 flexDirection: 'column',
                 alignItems: 'flex-start',
-                gap: 3,
+                gap: 1,
                 alignSelf: 'stretch',
               }}
             >
-              <Typography fontWeight={700}>
-                Informazioni visibili sull’app IO
+              <Typography variant="h6" fontWeight={700}>
+                Informazioni visibili su IO
               </Typography>
               <Typography variant="body1" color="text.secondary">
-                Completa o modifica le informazioni del tuo ente.{' '}
+                Completa o modifica le informazioni del tuo ente.
               </Typography>
-              <Stack spacing={3} sx={{ width: '100%' }}>
-                {/* Sub-card con bordo grigio */}
-                <Paper
-                  variant="outlined"
-                  sx={{ borderRadius: 2, p: { xs: 1.5, md: 2 }, width: '100%' }}
-                >
-                  {/* Sezione: Dati dell'ente */}
-                  <Stack spacing={2}>
-                    <Stack direction="row" alignItems="center" spacing={1}>
-                      <StorefrontOutlinedIcon
-                        sx={{ color: 'text.secondary', fontSize: 20 }}
-                      />
-                      <Typography fontWeight={700} sx={{ lineHeight: 1.25 }}>
-                        Dati dell&apos;ente
-                      </Typography>
-                    </Stack>
+              <Stack spacing={2} sx={{ width: '100%' }}>
+                <EntityDataSection
+                  name={formData.name}
+                  sede={formData.sede}
+                  address={formData.address}
+                  logoFile={formData.logoFile}
+                  coverFile={formData.coverFile}
+                  onNameChange={(value) =>
+                    setFormData((prev) => ({ ...prev, name: value }))
+                  }
+                  onSedeChange={(value) =>
+                    setFormData((prev) => ({ ...prev, sede: value }))
+                  }
+                  onAddressChange={(value) =>
+                    setFormData((prev) => ({ ...prev, address: value }))
+                  }
+                  onLogoSelect={(file) =>
+                    setFormData((prev) => ({ ...prev, logoFile: file }))
+                  }
+                  onCoverSelect={(file) =>
+                    setFormData((prev) => ({ ...prev, coverFile: file }))
+                  }
+                  onInfoClick={setInfoModalType}
+                />
 
-                    <AppTextField
-                      required
-                      label="Nome visibile su IO"
-                      placeholder="Inserisci il nome visibile su IO"
-                      sx={{
-                        '& .MuiOutlinedInput-root': { borderRadius: '8px' },
-                      }}
-                    />
-
-                    <AppRadioGroup
-                      value={sede}
-                      onChange={(e) => setSede(e.target.value)}
-                      options={SEDE_OPTIONS}
-                      sx={{
-                        py: 2,
-                        gap: 1,
-                        '& .MuiFormControlLabel-root': { m: 0 },
-                      }}
-                    />
-
-                    <AppTextField
-                      required
-                      label="Indirizzo"
-                      placeholder="Inserisci l'indirizzo"
-                      sx={{
-                        '& .MuiOutlinedInput-root': { borderRadius: '8px' },
-                      }}
-                    />
-                    <Stack spacing={2}>
-                      <Stack spacing={0.5}>
-                        <Typography sx={OVERLINE_LABEL_SX}>
-                          Logo ente
-                        </Typography>
-                        <UploadDropzone
-                          selectedFileName={logoFileName}
-                          onFileSelect={(file) =>
-                            setLogoFileName(file ? file.name : undefined)
-                          }
-                          title={'Trascina qui il logo del tuo ente'}
-                          subtitle={
-                            'Dimensione massima 300 x 300px - Formato .jpg o .png'
-                          }
-                        />
-                        <Typography
-                          variant="body2"
-                          sx={{ mt: 3, fontWeight: 600, color: 'error.dark' }}
-                        >
-                          * Campo obbligatorio
-                        </Typography>
-                      </Stack>
-
-                      <Stack spacing={0.5}>
-                        <Typography sx={OVERLINE_LABEL_SX}>
-                          Immagine di copertina
-                        </Typography>
-                        <UploadDropzone
-                          selectedFileName={coverFileName}
-                          onFileSelect={(file) =>
-                            setCoverFileName(file ? file.name : undefined)
-                          }
-                          title={'Trascina qui un’immagine di copertina'}
-                          subtitle={
-                            'Dimensione massima 300 x 600 px - Formato .jpg o .png'
-                          }
-                        />
-                      </Stack>
-                    </Stack>
-                  </Stack>
-                </Paper>
-
-                {/* Sub-card con bordo grigio */}
-                <Paper
-                  variant="outlined"
-                  sx={{ borderRadius: 2, p: { xs: 1.5, md: 2 }, width: '100%' }}
-                >
-                  {/* Sezione: Contatti per l'assistenza */}
-                  <Stack spacing={2}>
-                    <Stack direction="row" alignItems="center" spacing={1}>
-                      <ForumOutlinedIcon
-                        sx={{ color: 'text.secondary', fontSize: 20 }}
-                      />
-                      <Typography fontWeight={700} sx={{ lineHeight: 1.25 }}>
-                        Contatti per l’assistenza
-                      </Typography>
-                    </Stack>
-
-                    {contacts.map((_, i) => (
-                      <Stack key={i} spacing={2}>
-                        <AppTextField
-                          required
-                          label={
-                            i === 0
-                              ? 'Inserisci contatto'
-                              : `Inserisci contatto ${i + 1}`
-                          }
-                          placeholder="Inserisci contatto"
-                          sx={{
-                            '& .MuiOutlinedInput-root': { borderRadius: '8px' },
-                          }}
-                        />
-                        <AppTextField
-                          label={
-                            i === 0
-                              ? 'Inserisci sito web'
-                              : `Inserisci sito web ${i + 1}`
-                          }
-                          placeholder="Sito web"
-                          sx={{
-                            '& .MuiOutlinedInput-root': { borderRadius: '8px' },
-                          }}
-                        />
-                      </Stack>
-                    ))}
-
-                    <Box>
-                      <Button
-                        startIcon={<AddIcon />}
-                        onClick={handleAddContact}
-                        sx={{ textTransform: 'none', fontWeight: 600, p: 0 }}
-                      >
-                        Aggiungi contatto
-                      </Button>
-                    </Box>
-                  </Stack>
-                </Paper>
+                <ContactsSection
+                  contacts={formData.contacts}
+                  onAddContact={() =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      contacts: [
+                        ...prev.contacts,
+                        { contact: '', website: '' },
+                      ],
+                    }))
+                  }
+                  onContactChange={(index, field, value) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      contacts: prev.contacts.map((contact, i) =>
+                        i === index ? { ...contact, [field]: value } : contact,
+                      ),
+                    }))
+                  }
+                />
               </Stack>
             </Paper>
 
@@ -247,6 +142,10 @@ export default function OverviewCompleteDataPage() {
               <Button
                 variant="contained"
                 size="large"
+                onClick={() => {
+                  console.log('Form submitted:', formData);
+                  // TODO: Handle form submission
+                }}
                 sx={{ borderRadius: 2, px: 4, fontWeight: 700 }}
               >
                 Continua
@@ -255,6 +154,12 @@ export default function OverviewCompleteDataPage() {
           </Stack>
         </Box>
       </Box>
+
+      <InfoModal
+        open={infoModalType !== null}
+        type={infoModalType}
+        onClose={() => setInfoModalType(null)}
+      />
     </Box>
   );
 }

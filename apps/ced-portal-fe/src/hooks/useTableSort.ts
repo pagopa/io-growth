@@ -1,6 +1,5 @@
 import { useCallback, useMemo, useState } from 'react';
 
-// Interfaccia generica che le colonne devono rispettare per poter essere ordinate
 export interface SortableColumn<T> {
   id: string;
   sortable?: boolean;
@@ -30,10 +29,8 @@ export const useTableSort = <T>({
       if (!isSortable) return;
 
       if (sortBy === columnId) {
-        // Se clicco sulla stessa colonna, inverto la direzione
         setSortDirection((current) => (current === 'asc' ? 'desc' : 'asc'));
       } else {
-        // Se clicco su una colonna nuova, imposto l'ID e resetto ad 'asc'
         setSortBy(columnId);
         setSortDirection('asc');
       }
@@ -44,7 +41,6 @@ export const useTableSort = <T>({
   const sortedItems = useMemo(() => {
     const selectedColumn = columns.find((col) => col.id === sortBy);
 
-    // Se non c'è una colonna selezionata o manca il sortAccessor, ritorniamo gli items originali
     if (!selectedColumn?.sortAccessor) {
       return items;
     }

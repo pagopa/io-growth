@@ -37,11 +37,10 @@ const getFilteredItems = (
 
     const matchesName =
       !nameFilter || name.toLowerCase().includes(nameFilter.toLowerCase());
-    console.log('matchesName:', matchesName);
+
     const matchesCategory = !categoryFilter || category === categoryFilter;
-    console.log('matchesCategory:', matchesCategory);
+
     const matchesStatus = !statusFilter || state === statusFilter;
-    console.log('matchesStatus:', matchesStatus);
 
     return matchesName && matchesCategory && matchesStatus;
   });

@@ -30,14 +30,12 @@ export const AppSelect = ({
   label,
   options,
   helperText,
-  fullWidth = false,
   sx,
   value,
   defaultValue = '',
   error,
   onOpen,
   onClose,
-  children,
   renderCustomOptions,
   ...props
 }: AppSelectProps) => {
@@ -107,17 +105,16 @@ export const AppSelect = ({
         error={error}
         MenuProps={{
           anchorOrigin: {
-            vertical: 'bottom', // Ancora il menu alla parte bassa della select
+            vertical: 'bottom',
             horizontal: 'left',
           },
           transformOrigin: {
-            vertical: 'top', // La parte alta del menu parte dal punto di ancoraggio
+            vertical: 'top',
             horizontal: 'left',
           },
           PaperProps: {
             sx: {
-              maxHeight: 300, // Imposta qui l'altezza massima desiderata in pixel
-              // L'overflow-y: 'auto' è gestito in automatico da MUI quando si fissa la maxHeight
+              maxHeight: 300,
             },
           },
         }}

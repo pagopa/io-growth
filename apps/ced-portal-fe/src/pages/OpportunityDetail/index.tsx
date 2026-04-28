@@ -177,6 +177,8 @@ export default function OpportunityDetailPage() {
         onClose={() => setPublishModalOpen(false)}
         onPublish={() => {
           setPublishModalOpen(false);
+          navigate(APP_ROUTES.OPPORTUNITIES);
+          showToast('Fatto!', 'success');
         }}
         count={1}
         publishDate={

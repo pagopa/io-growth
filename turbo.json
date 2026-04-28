@@ -39,13 +39,13 @@
     "test": {
       "dependsOn": ["^build"],
       "inputs": [],
-      "outputLogs": "errors-only"
+      "outputLogs": "full"
     },
     "test:coverage": {
       "dependsOn": ["^build"],
       "inputs": [],
       "outputs": ["coverage"],
-      "outputLogs": "errors-only"
+      "outputLogs": "full"
     }
   }
 }

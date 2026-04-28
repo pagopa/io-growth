@@ -55,7 +55,7 @@ describe("makeAcsUseCase", () => {
     const result = await useCase({ query: { token } });
 
     expect(result).toEqual(
-      ok({ url: expect.stringMatching(/^\/api\/authorize\?id=[a-f0-9]{64}$/) }),
+      ok({ sessionId: expect.stringMatching(/^[a-f0-9]{64}$/) }),
     );
 
     expect(operatorStore.getByExternalId).toHaveBeenCalledWith("internalID");
@@ -105,7 +105,7 @@ describe("makeAcsUseCase", () => {
     const result = await useCase({ query: { token } });
 
     expect(result).toEqual(
-      ok(expect.objectContaining({ url: expect.any(String) })),
+      ok(expect.objectContaining({ sessionId: expect.any(String) })),
     );
 
     expect(operatorStore.getByExternalId).toHaveBeenCalledWith("internalID");

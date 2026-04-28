@@ -4,10 +4,11 @@ import type { FastifyReply, FastifyRequest } from "fastify";
 
 import { sendErrorResponse } from "./errorMapper.js";
 
-export type HttpHandlerOptions =
+export type HttpHandlerOptions<O = unknown> =
   | {
       redirect: true;
       redirectCode?: 301 | 302 | 303 | 307 | 308;
+      redirectUrlBuilder?: (output: O) => string;
     }
   | {
       redirect?: false;
@@ -18,7 +19,7 @@ export const createHttpHandler =
   <TUseCaseInput extends object, O, E extends BaseError>(
     useCase: UseCase<TUseCaseInput, O, E>,
     inputValidator: InputValidator<FastifyRequest, TUseCaseInput>,
-    options: HttpHandlerOptions = { successCode: 200 },
+    options: HttpHandlerOptions<O> = { successCode: 200 },
   ) =>
   async (request: FastifyRequest, reply: FastifyReply) => {
     // Validate input using the provided input validator
@@ -37,7 +38,9 @@ export const createHttpHandler =
     }
 
     if (options.redirect) {
-      const { url } = result.value as { url: string };
+      const url = options.redirectUrlBuilder
+        ? options.redirectUrlBuilder(result.value)
+        : (result.value as { url: string }).url;
       return reply.redirect(url, options.redirectCode ?? 302);
     }
 

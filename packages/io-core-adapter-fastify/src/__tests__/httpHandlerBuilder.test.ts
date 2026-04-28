@@ -132,6 +132,22 @@ describe("createHttpHandler", () => {
       expect(state.redirectCode).toBe(307);
     });
 
+    it("should use redirectUrlBuilder when provided", async () => {
+      const useCase = vi.fn().mockResolvedValue(ok({ sessionId: "abc123" }));
+      const validator = vi.fn().mockResolvedValue(ok({}));
+      const { reply, state } = createReplyMock();
+
+      const handler = createHttpHandler(useCase, validator, {
+        redirect: true,
+        redirectUrlBuilder: ({ sessionId }: { sessionId: string }) =>
+          `/api/authorize?id=${sessionId}`,
+      });
+      await handler(emptyRequest, reply);
+
+      expect(state.redirectUrl).toBe("/api/authorize?id=abc123");
+      expect(state.redirectCode).toBe(302);
+    });
+
     it("should return error response on validation failure in redirect mode", async () => {
       const useCase = vi.fn();
       const validator = vi

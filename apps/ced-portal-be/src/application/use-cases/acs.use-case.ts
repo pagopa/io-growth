@@ -28,7 +28,7 @@ export interface AcsInput {
 }
 
 export interface AcsOutput {
-  readonly url: string;
+  readonly sessionId: string;
 }
 
 export const makeAcsUseCase =
@@ -81,5 +81,5 @@ export const makeAcsUseCase =
             ),
         ),
       )
-      .map(() => ({ url: "/api/authorize?id=" + sessionId }));
+      .map(() => ({ sessionId }));
   };

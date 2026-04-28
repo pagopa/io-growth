@@ -9,6 +9,8 @@ import {
 } from "@pagopa/io-core-adapter-fastify";
 import { z as zod } from "zod";
 
+import type { AcsOutput } from "../../../application/use-cases/acs.use-case.js";
+
 const acsSchema = zod.object({
   query: zod.object({
     token: zod.string().min(1),
@@ -17,14 +19,15 @@ const acsSchema = zod.object({
 
 type AcsValidatedInput = z.infer<typeof acsSchema>;
 
-export const mountAcsHandler = <O>(
+export const mountAcsHandler = (
   fastify: FastifyInstance,
-  useCase: UseCase<AcsValidatedInput, O, BaseError>,
+  useCase: UseCase<AcsValidatedInput, AcsOutput, BaseError>,
 ) => {
   fastify.get(
     "/api/acs",
     createHttpHandler(useCase, createHttpRequestValidator(acsSchema), {
       redirect: true,
+      redirectUrlBuilder: ({ sessionId }) => `/api/authorize?id=${sessionId}`,
     }),
   );
 };

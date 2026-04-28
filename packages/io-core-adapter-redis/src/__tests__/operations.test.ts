@@ -1,3 +1,4 @@
+import { err, ok } from "neverthrow";
 import { describe, expect, it, vi } from "vitest";
 
 import type { RedisCommands } from "../client.js";
@@ -21,7 +22,7 @@ describe("set", () => {
 
     const result = await set(client, "key1", { name: "test" });
 
-    expect(result.isOk()).toBe(true);
+    expect(result).toEqual(ok(undefined));
     expect(client.set).toHaveBeenCalledWith("key1", '{"name":"test"}');
   });
 
@@ -31,9 +32,14 @@ describe("set", () => {
 
     const result = await set(client, "key1", { name: "test" });
 
-    expect(result.isErr()).toBe(true);
-    expect(result._unsafeUnwrapErr().kind).toBe("GenericError");
-    expect(result._unsafeUnwrapErr().message).toContain("Redis SET failed");
+    expect(result).toEqual(
+      err(
+        expect.objectContaining({
+          kind: "GenericError",
+          message: expect.stringContaining("Redis SET failed"),
+        }),
+      ),
+    );
   });
 });
 
@@ -44,7 +50,7 @@ describe("setEx", () => {
 
     const result = await setEx(client, "key2", { id: 1 }, 60);
 
-    expect(result.isOk()).toBe(true);
+    expect(result).toEqual(ok(undefined));
     expect(client.setEx).toHaveBeenCalledWith("key2", 60, '{"id":1}');
   });
 
@@ -54,9 +60,14 @@ describe("setEx", () => {
 
     const result = await setEx(client, "key2", { id: 1 }, 60);
 
-    expect(result.isErr()).toBe(true);
-    expect(result._unsafeUnwrapErr().kind).toBe("GenericError");
-    expect(result._unsafeUnwrapErr().message).toContain("Redis SETEX failed");
+    expect(result).toEqual(
+      err(
+        expect.objectContaining({
+          kind: "GenericError",
+          message: expect.stringContaining("Redis SETEX failed"),
+        }),
+      ),
+    );
   });
 });
 
@@ -67,8 +78,7 @@ describe("get", () => {
 
     const result = await get<{ age: number; name: string }>(client, "key3");
 
-    expect(result.isOk()).toBe(true);
-    expect(result._unsafeUnwrap()).toEqual({ age: 30, name: "test" });
+    expect(result).toEqual(ok({ age: 30, name: "test" }));
   });
 
   it("should return null when key does not exist", async () => {
@@ -77,8 +87,7 @@ describe("get", () => {
 
     const result = await get(client, "missing-key");
 
-    expect(result.isOk()).toBe(true);
-    expect(result._unsafeUnwrap()).toBeNull();
+    expect(result).toEqual(ok(null));
   });
 
   it("should return GenericError when client.get throws", async () => {
@@ -87,9 +96,14 @@ describe("get", () => {
 
     const result = await get(client, "key3");
 
-    expect(result.isErr()).toBe(true);
-    expect(result._unsafeUnwrapErr().kind).toBe("GenericError");
-    expect(result._unsafeUnwrapErr().message).toContain("Redis GET failed");
+    expect(result).toEqual(
+      err(
+        expect.objectContaining({
+          kind: "GenericError",
+          message: expect.stringContaining("Redis GET failed"),
+        }),
+      ),
+    );
   });
 
   it("should return GenericError when JSON.parse fails", async () => {
@@ -98,9 +112,14 @@ describe("get", () => {
 
     const result = await get(client, "bad-json");
 
-    expect(result.isErr()).toBe(true);
-    expect(result._unsafeUnwrapErr().kind).toBe("GenericError");
-    expect(result._unsafeUnwrapErr().message).toContain("Redis GET failed");
+    expect(result).toEqual(
+      err(
+        expect.objectContaining({
+          kind: "GenericError",
+          message: expect.stringContaining("Redis GET failed"),
+        }),
+      ),
+    );
   });
 });
 
@@ -111,7 +130,7 @@ describe("del", () => {
 
     const result = await del(client, "key4");
 
-    expect(result.isOk()).toBe(true);
+    expect(result).toEqual(ok(undefined));
     expect(client.del).toHaveBeenCalledWith("key4");
   });
 
@@ -121,8 +140,13 @@ describe("del", () => {
 
     const result = await del(client, "key4");
 
-    expect(result.isErr()).toBe(true);
-    expect(result._unsafeUnwrapErr().kind).toBe("GenericError");
-    expect(result._unsafeUnwrapErr().message).toContain("Redis DEL failed");
+    expect(result).toEqual(
+      err(
+        expect.objectContaining({
+          kind: "GenericError",
+          message: expect.stringContaining("Redis DEL failed"),
+        }),
+      ),
+    );
   });
 });

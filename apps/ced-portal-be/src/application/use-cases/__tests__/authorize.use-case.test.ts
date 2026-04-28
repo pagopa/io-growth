@@ -36,13 +36,14 @@ describe("makeAuthorizeUseCase", () => {
     const useCase = makeAuthorizeUseCase(store);
     const result = await useCase({ query: { id: "some-session-id" } });
 
-    expect(result.isOk()).toBe(true);
-    expect(result._unsafeUnwrap()).toEqual({
-      first_name: "Mario",
-      last_name: "Rossi",
-      operator_name: "Op Name",
-      session_token: sessionToken,
-    });
+    expect(result).toEqual(
+      ok({
+        first_name: "Mario",
+        last_name: "Rossi",
+        operator_name: "Op Name",
+        session_token: sessionToken,
+      }),
+    );
   });
 
   it("should return NotFoundError when sessionId is expired or invalid", async () => {
@@ -54,8 +55,9 @@ describe("makeAuthorizeUseCase", () => {
     const useCase = makeAuthorizeUseCase(store);
     const result = await useCase({ query: { id: "bad-id" } });
 
-    expect(result.isErr()).toBe(true);
-    expect(result._unsafeUnwrapErr().kind).toBe("NotFoundError");
+    expect(result).toEqual(
+      err(expect.objectContaining({ kind: "NotFoundError" })),
+    );
     expect(store.getSession).not.toHaveBeenCalled();
   });
 
@@ -73,7 +75,8 @@ describe("makeAuthorizeUseCase", () => {
     const useCase = makeAuthorizeUseCase(store);
     const result = await useCase({ query: { id: "some-id" } });
 
-    expect(result.isErr()).toBe(true);
-    expect(result._unsafeUnwrapErr().kind).toBe("NotFoundError");
+    expect(result).toEqual(
+      err(expect.objectContaining({ kind: "NotFoundError" })),
+    );
   });
 });

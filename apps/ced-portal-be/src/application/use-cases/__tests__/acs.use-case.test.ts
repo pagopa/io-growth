@@ -1,5 +1,5 @@
 import { SignJWT } from "jose";
-import { ok } from "neverthrow";
+import { err, ok } from "neverthrow";
 import { describe, expect, it, vi } from "vitest";
 
 import type { OperatorStore } from "../../ports/operator-store.port.js";
@@ -54,10 +54,9 @@ describe("makeAcsUseCase", () => {
 
     const result = await useCase({ query: { token } });
 
-    expect(result.isOk()).toBe(true);
-
-    const output = result._unsafeUnwrap();
-    expect(output.url).toMatch(/^\/api\/authorize\?id=[a-f0-9]{64}$/);
+    expect(result).toEqual(
+      ok({ url: expect.stringMatching(/^\/api\/authorize\?id=[a-f0-9]{64}$/) }),
+    );
 
     expect(operatorStore.getByExternalId).toHaveBeenCalledWith("internalID");
     expect(operatorStore.create).not.toHaveBeenCalled();
@@ -105,7 +104,9 @@ describe("makeAcsUseCase", () => {
 
     const result = await useCase({ query: { token } });
 
-    expect(result.isOk()).toBe(true);
+    expect(result).toEqual(
+      ok(expect.objectContaining({ url: expect.any(String) })),
+    );
 
     expect(operatorStore.getByExternalId).toHaveBeenCalledWith("internalID");
     expect(operatorStore.create).toHaveBeenCalledWith({
@@ -128,8 +129,9 @@ describe("makeAcsUseCase", () => {
 
     const result = await useCase({ query: { token } });
 
-    expect(result.isErr()).toBe(true);
-    expect(result._unsafeUnwrapErr().kind).toBe("ValidationError");
+    expect(result).toEqual(
+      err(expect.objectContaining({ kind: "ValidationError" })),
+    );
     expect(sessionStore.createSession).not.toHaveBeenCalled();
   });
 
@@ -147,8 +149,9 @@ describe("makeAcsUseCase", () => {
 
     const result = await useCase({ query: { token } });
 
-    expect(result.isErr()).toBe(true);
-    expect(result._unsafeUnwrapErr().kind).toBe("GenericError");
+    expect(result).toEqual(
+      err(expect.objectContaining({ kind: "GenericError" })),
+    );
     expect(sessionStore.createSession).not.toHaveBeenCalled();
   });
 
@@ -164,8 +167,9 @@ describe("makeAcsUseCase", () => {
 
     const result = await useCase({ query: { token } });
 
-    expect(result.isErr()).toBe(true);
-    expect(result._unsafeUnwrapErr().kind).toBe("GenericError");
+    expect(result).toEqual(
+      err(expect.objectContaining({ kind: "GenericError" })),
+    );
     expect(sessionStore.createOneTimeSessionId).not.toHaveBeenCalled();
   });
 
@@ -183,7 +187,8 @@ describe("makeAcsUseCase", () => {
 
     const result = await useCase({ query: { token } });
 
-    expect(result.isErr()).toBe(true);
-    expect(result._unsafeUnwrapErr().kind).toBe("GenericError");
+    expect(result).toEqual(
+      err(expect.objectContaining({ kind: "GenericError" })),
+    );
   });
 });

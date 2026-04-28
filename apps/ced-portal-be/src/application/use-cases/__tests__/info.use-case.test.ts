@@ -1,3 +1,4 @@
+import { ok } from "neverthrow";
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 
@@ -14,11 +15,12 @@ describe("getInfoUseCase", () => {
   it("should return the service info from package metadata", async () => {
     const result = await getInfoUseCase({});
 
-    expect(result.isOk()).toBe(true);
-    expect(result._unsafeUnwrap()).toEqual({
-      name: packageInfo.name,
-      ok: true,
-      version: packageInfo.version,
-    });
+    expect(result).toEqual(
+      ok({
+        name: packageInfo.name,
+        ok: true,
+        version: packageInfo.version,
+      }),
+    );
   });
 });

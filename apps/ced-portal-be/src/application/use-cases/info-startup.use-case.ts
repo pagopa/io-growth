@@ -2,24 +2,23 @@ import type { UseCase } from "@pagopa/io-core-domain";
 import type { BaseError } from "@pagopa/io-core-domain/errors";
 
 import { ok } from "neverthrow";
-import { readFileSync } from "node:fs";
+import { readFile } from "node:fs/promises";
 
-export interface InfoOutput {
+export interface InfoStartupOutput {
   readonly name: string;
   readonly ok: boolean;
   readonly version: string;
 }
 
 const packageInfo = JSON.parse(
-  readFileSync(new URL("../../../package.json", import.meta.url), "utf8"),
-) as Pick<InfoOutput, "name" | "version">;
+  await readFile(new URL("../../../package.json", import.meta.url), "utf8"),
+) as Pick<InfoStartupOutput, "name" | "version">;
 
-export const getInfoUseCase: UseCase<
+export const getInfoStartupUseCase: UseCase<
   Record<string, never>,
-  InfoOutput,
+  InfoStartupOutput,
   BaseError
 > = async () =>
-  //TODO check for database connection, external services, etc.
   ok({
     name: packageInfo.name,
     ok: true,

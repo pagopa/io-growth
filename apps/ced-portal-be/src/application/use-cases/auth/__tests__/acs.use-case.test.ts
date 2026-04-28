@@ -2,8 +2,8 @@ import { SignJWT } from "jose";
 import { err, ok } from "neverthrow";
 import { describe, expect, it, vi } from "vitest";
 
-import type { OperatorRepository } from "../../../domain/ports/outbound/persistence/operator.repository.js";
-import type { SessionRepository } from "../../../domain/ports/outbound/persistence/session.repository.js";
+import type { OperatorRepository } from "../../../../domain/ports/outbound/persistence/operator.repository.js";
+import type { SessionRepository } from "../../../../domain/ports/outbound/persistence/session.repository.js";
 
 import { makeAcsUseCase } from "../acs.use-case.js";
 

@@ -3,7 +3,7 @@ import type { BaseError } from "@pagopa/io-core-domain/errors";
 
 import { ResultAsync } from "neverthrow";
 
-import type { SessionRepository } from "../../domain/ports/outbound/persistence/session.repository.js";
+import type { SessionRepository } from "../../../domain/ports/outbound/persistence/session.repository.js";
 
 export interface AuthorizeInput {
   readonly query: {

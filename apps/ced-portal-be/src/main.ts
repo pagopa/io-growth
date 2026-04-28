@@ -9,8 +9,8 @@ import { dbClient } from "./adapters/outbound/drizzle/client.js";
 import { createDrizzleOperatorRepository } from "./adapters/outbound/drizzle/drizzle-operator.repository.js";
 import { redisClient } from "./adapters/outbound/redis/client.js";
 import { createRedisSessionRepository } from "./adapters/outbound/redis/redis-session.repository.js";
-import { makeAcsUseCase } from "./application/use-cases/acs.use-case.js";
-import { makeAuthorizeUseCase } from "./application/use-cases/authorize.use-case.js";
+import { makeAcsUseCase } from "./application/use-cases/auth/acs.use-case.js";
+import { makeAuthorizeUseCase } from "./application/use-cases/auth/authorize.use-case.js";
 import { getInfoUseCase } from "./application/use-cases/info.use-case.js";
 
 const host = process.env.HOST ?? "0.0.0.0";

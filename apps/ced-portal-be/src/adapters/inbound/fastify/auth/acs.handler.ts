@@ -9,7 +9,7 @@ import {
 } from "@pagopa/io-core-adapter-fastify";
 import { z as zod } from "zod";
 
-import type { AcsOutput } from "../../../application/use-cases/acs.use-case.js";
+import type { AcsOutput } from "../../../../application/use-cases/auth/acs.use-case.js";
 
 const acsSchema = zod.object({
   query: zod.object({

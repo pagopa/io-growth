@@ -7,8 +7,8 @@ import { err, okAsync, ResultAsync } from "neverthrow";
 import { randomBytes } from "node:crypto";
 import { z } from "zod";
 
-import type { OperatorRepository } from "../../domain/ports/outbound/persistence/operator.repository.js";
-import type { SessionRepository } from "../../domain/ports/outbound/persistence/session.repository.js";
+import type { OperatorRepository } from "../../../domain/ports/outbound/persistence/operator.repository.js";
+import type { SessionRepository } from "../../../domain/ports/outbound/persistence/session.repository.js";
 
 const TokenPayloadSchema = z.object({
   family_name: z.string(),

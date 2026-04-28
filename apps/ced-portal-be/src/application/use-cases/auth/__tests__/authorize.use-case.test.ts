@@ -2,8 +2,8 @@ import { NotFoundError } from "@pagopa/io-core-domain/errors";
 import { err, ok } from "neverthrow";
 import { describe, expect, it, vi } from "vitest";
 
-import type { Session } from "../../../domain/entities/session.js";
-import type { SessionRepository } from "../../../domain/ports/outbound/persistence/session.repository.js";
+import type { Session } from "../../../../domain/entities/session.js";
+import type { SessionRepository } from "../../../../domain/ports/outbound/persistence/session.repository.js";
 
 import { makeAuthorizeUseCase } from "../authorize.use-case.js";
 

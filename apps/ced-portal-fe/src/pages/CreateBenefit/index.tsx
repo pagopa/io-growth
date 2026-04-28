@@ -1,5 +1,4 @@
-import type React from 'react';
-import { useState } from 'react';
+import { useState, type ComponentType } from 'react';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { Box, Button, Container, Typography } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
@@ -26,7 +25,7 @@ export interface StepProps {
 
 interface StepConfig {
   label: string;
-  component: React.ComponentType<StepProps>;
+  component: ComponentType<StepProps>;
 }
 
 const STEPS: StepConfig[] = [

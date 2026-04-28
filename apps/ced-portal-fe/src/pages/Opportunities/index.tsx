@@ -96,26 +96,27 @@ export default function OpportunitiesPage() {
               nuove proposte.
             </Typography>
           </Box>
-
-          <Button
-            variant={selected.size === 0 ? 'outlined' : 'contained'}
-            color="primary"
-            size="large"
-            onClick={() => {
-              setPublishCount(selected.size);
-              setPublishModalOpen(true);
-            }}
-            sx={{
-              borderRadius: 2,
-              px: 3,
-              fontSize: 16,
-              fontWeight: 700,
-              alignSelf: { xs: 'stretch', md: 'auto' },
-              whiteSpace: 'nowrap',
-            }}
-          >
-            Pubblica su IO ({selected.size})
-          </Button>
+          {selected.size > 0 && (
+            <Button
+              variant="contained"
+              color="primary"
+              size="large"
+              onClick={() => {
+                setPublishCount(selected.size);
+                setPublishModalOpen(true);
+              }}
+              sx={{
+                borderRadius: 2,
+                px: 3,
+                fontSize: 16,
+                fontWeight: 700,
+                alignSelf: { xs: 'stretch', md: 'auto' },
+                whiteSpace: 'nowrap',
+              }}
+            >
+              Pubblica su IO ({selected.size})
+            </Button>
+          )}
         </Stack>
 
         <OpportunitiesFiltersBar

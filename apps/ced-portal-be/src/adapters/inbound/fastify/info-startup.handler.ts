@@ -7,9 +7,9 @@ import {
   emptyValidator,
 } from "@pagopa/io-core-adapter-fastify";
 
-export const mountInfoHandler = <O>(
+export const mountInfoStartupHandler = <T>(
   fastify: FastifyInstance,
-  useCase: UseCase<Record<string, never>, O, BaseError>,
+  useCase: UseCase<Record<string, never>, T, BaseError>,
 ) => {
-  fastify.get("/api/info", createHttpHandler(useCase, emptyValidator));
+  fastify.get("/api/info/startup", createHttpHandler(useCase, emptyValidator));
 };

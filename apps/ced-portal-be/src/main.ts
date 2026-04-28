@@ -4,6 +4,8 @@ import {
   mountAcsHandler,
   mountAuthorizeHandler,
   mountInfoHandler,
+  mountInfoReadinessHandler,
+  mountInfoStartupHandler,
 } from "./adapters/inbound/fastify/index.js";
 import { dbClient } from "./adapters/outbound/drizzle/client.js";
 import { createDrizzleOperatorRepository } from "./adapters/outbound/drizzle/drizzle-operator.repository.js";
@@ -11,7 +13,9 @@ import { redisClient } from "./adapters/outbound/redis/client.js";
 import { createRedisSessionRepository } from "./adapters/outbound/redis/redis-session.repository.js";
 import { makeAcsUseCase } from "./application/use-cases/auth/acs.use-case.js";
 import { makeAuthorizeUseCase } from "./application/use-cases/auth/authorize.use-case.js";
-import { getInfoUseCase } from "./application/use-cases/info.use-case.js";
+import { createDrizzleHealthCheckRepository } from "./adapters/outbound/drizzle/health-check.repository.js";
+import { makeGetInfoReadinessUseCase } from "./application/use-cases/info-readiness.use-case.js";
+import { getInfoStartupUseCase } from "./application/use-cases/info-startup.use-case.js";
 
 const host = process.env.HOST ?? "0.0.0.0";
 const portValue = process.env.PORT;
@@ -26,7 +30,17 @@ const operatorRepository = createDrizzleOperatorRepository(dbClient);
 
 const app = Fastify();
 
-mountInfoHandler(app, getInfoUseCase);
+// Outbound adapters
+const healthCheckRepository = createDrizzleHealthCheckRepository(dbClient);
+
+// Use cases
+const getInfoReadinessUseCase = makeGetInfoReadinessUseCase({
+  healthCheckRepository,
+});
+
+// Inbound adapters
+mountInfoStartupHandler(app, getInfoStartupUseCase);
+mountInfoReadinessHandler(app, getInfoReadinessUseCase);
 mountAcsHandler(app, makeAcsUseCase(sessionRepository, operatorRepository));
 mountAuthorizeHandler(app, makeAuthorizeUseCase(sessionRepository));
 

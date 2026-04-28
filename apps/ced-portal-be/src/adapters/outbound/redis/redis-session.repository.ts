@@ -6,17 +6,15 @@ import { del, get, set, setEx } from "@pagopa/io-core-adapter-redis";
 import { NotFoundError } from "@pagopa/io-core-domain/errors";
 import { err, ok } from "neverthrow";
 
-import type {
-  Session,
-  SessionStore,
-} from "../../../application/ports/session-store.port.js";
+import type { Session } from "../../../domain/entities/session.js";
+import type { SessionRepository } from "../../../domain/ports/outbound/persistence/session.repository.js";
 
 const SESSION_PREFIX = "session:";
 const OTP_PREFIX = "otp:";
 
-export const createRedisSessionStore = (
+export const createRedisSessionRepository = (
   client: RedisCommands,
-): SessionStore => ({
+): SessionRepository => ({
   createOneTimeSessionId: (
     sessionId: string,
     sessionToken: string,

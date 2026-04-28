@@ -6,9 +6,9 @@ import {
   mountInfoHandler,
 } from "./adapters/inbound/fastify/index.js";
 import { dbClient } from "./adapters/outbound/drizzle/client.js";
-import { createDrizzleOperatorStore } from "./adapters/outbound/drizzle/operator-store.drizzle.js";
+import { createDrizzleOperatorRepository } from "./adapters/outbound/drizzle/drizzle-operator.repository.js";
 import { redisClient } from "./adapters/outbound/redis/client.js";
-import { createRedisSessionStore } from "./adapters/outbound/redis/session-store.redis.js";
+import { createRedisSessionRepository } from "./adapters/outbound/redis/redis-session.repository.js";
 import { makeAcsUseCase } from "./application/use-cases/acs.use-case.js";
 import { makeAuthorizeUseCase } from "./application/use-cases/authorize.use-case.js";
 import { getInfoUseCase } from "./application/use-cases/info.use-case.js";
@@ -21,14 +21,14 @@ if (Number.isNaN(port)) {
   throw new Error("PORT environment variable must be a valid integer");
 }
 
-const sessionStore = createRedisSessionStore(redisClient);
-const operatorStore = createDrizzleOperatorStore(dbClient);
+const sessionRepository = createRedisSessionRepository(redisClient);
+const operatorRepository = createDrizzleOperatorRepository(dbClient);
 
 const app = Fastify();
 
 mountInfoHandler(app, getInfoUseCase);
-mountAcsHandler(app, makeAcsUseCase(sessionStore, operatorStore));
-mountAuthorizeHandler(app, makeAuthorizeUseCase(sessionStore));
+mountAcsHandler(app, makeAcsUseCase(sessionRepository, operatorRepository));
+mountAuthorizeHandler(app, makeAuthorizeUseCase(sessionRepository));
 
 app.addHook("onClose", async () => {
   await redisClient.closeConnection();

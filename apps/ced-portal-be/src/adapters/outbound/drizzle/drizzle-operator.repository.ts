@@ -8,15 +8,17 @@ import { err, ok } from "neverthrow";
 import type {
   CreateOperatorInput,
   Operator,
-  OperatorStore,
-} from "../../../application/ports/operator-store.port.js";
+} from "../../../domain/entities/operator.js";
+import type { OperatorRepository } from "../../../domain/ports/outbound/persistence/operator.repository.js";
 
 import { dbClient } from "./client.js";
 import { operator } from "./schema/tables.js";
 
 type DbClient = typeof dbClient;
 
-export const createDrizzleOperatorStore = (db: DbClient): OperatorStore => ({
+export const createDrizzleOperatorRepository = (
+  db: DbClient,
+): OperatorRepository => ({
   create: async (
     input: CreateOperatorInput,
   ): Promise<Result<Operator, BaseError>> => {

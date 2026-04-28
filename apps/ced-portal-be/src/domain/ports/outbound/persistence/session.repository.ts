@@ -1,16 +1,9 @@
 import type { BaseError } from "@pagopa/io-core-domain/errors";
 import type { Result } from "neverthrow";
 
-export interface Session {
-  readonly firstName: string;
-  readonly lastName: string;
-  readonly operatorId: string;
-  readonly operatorName: string;
-  readonly referentExternalId: string;
-  readonly role: string;
-}
+import type { Session } from "../../../entities/session.js";
 
-export interface SessionStore {
+export interface SessionRepository {
   readonly createOneTimeSessionId: (
     sessionId: string,
     sessionToken: string,

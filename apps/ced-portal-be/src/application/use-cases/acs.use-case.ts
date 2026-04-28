@@ -7,8 +7,8 @@ import { err, okAsync, ResultAsync } from "neverthrow";
 import { randomBytes } from "node:crypto";
 import { z } from "zod";
 
-import type { OperatorStore } from "../ports/operator-store.port.js";
-import type { SessionStore } from "../ports/session-store.port.js";
+import type { OperatorRepository } from "../../domain/ports/outbound/persistence/operator.repository.js";
+import type { SessionRepository } from "../../domain/ports/outbound/persistence/session.repository.js";
 
 const TokenPayloadSchema = z.object({
   family_name: z.string(),
@@ -33,8 +33,8 @@ export interface AcsOutput {
 
 export const makeAcsUseCase =
   (
-    sessionStore: SessionStore,
-    operatorStore: OperatorStore,
+    sessionRepository: SessionRepository,
+    operatorRepository: OperatorRepository,
   ): UseCase<AcsInput, AcsOutput, BaseError> =>
   async (input) => {
     const token = input.query.token;
@@ -52,12 +52,12 @@ export const makeAcsUseCase =
     const sessionToken = randomBytes(32).toString("hex");
     const sessionId = randomBytes(32).toString("hex");
 
-    return new ResultAsync(operatorStore.getByExternalId(organization.id))
+    return new ResultAsync(operatorRepository.getByExternalId(organization.id))
       .andThen((existingOperator) =>
         existingOperator
           ? okAsync(existingOperator)
           : new ResultAsync(
-              operatorStore.create({
+              operatorRepository.create({
                 externalId: organization.id,
                 name: organization.name,
                 status: "active",
@@ -66,7 +66,7 @@ export const makeAcsUseCase =
       )
       .andThen((operator) =>
         new ResultAsync(
-          sessionStore.createSession(sessionToken, {
+          sessionRepository.createSession(sessionToken, {
             firstName: name,
             lastName: family_name,
             operatorId: operator.id,
@@ -77,7 +77,11 @@ export const makeAcsUseCase =
         ).andThen(
           () =>
             new ResultAsync(
-              sessionStore.createOneTimeSessionId(sessionId, sessionToken, 60),
+              sessionRepository.createOneTimeSessionId(
+                sessionId,
+                sessionToken,
+                60,
+              ),
             ),
         ),
       )

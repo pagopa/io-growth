@@ -2,8 +2,8 @@ import { SignJWT } from "jose";
 import { err, ok } from "neverthrow";
 import { describe, expect, it, vi } from "vitest";
 
-import type { OperatorStore } from "../../ports/operator-store.port.js";
-import type { SessionStore } from "../../ports/session-store.port.js";
+import type { OperatorRepository } from "../../../domain/ports/outbound/persistence/operator.repository.js";
+import type { SessionRepository } from "../../../domain/ports/outbound/persistence/session.repository.js";
 
 import { makeAcsUseCase } from "../acs.use-case.js";
 
@@ -31,25 +31,25 @@ const mockOperator = {
   name: "Organization legal name",
 };
 
-const createMockSessionStore = (): SessionStore => ({
+const createMockSessionRepository = (): SessionRepository => ({
   createOneTimeSessionId: vi.fn().mockResolvedValue(ok(undefined)),
   createSession: vi.fn().mockResolvedValue(ok(undefined)),
   getSession: vi.fn(),
   getSessionTokenByOneTimeId: vi.fn(),
 });
 
-const createMockOperatorStore = (
+const createMockOperatorRepository = (
   existing?: undefined | { id: string; name: string },
-): OperatorStore => ({
+): OperatorRepository => ({
   create: vi.fn().mockResolvedValue(ok(mockOperator)),
   getByExternalId: vi.fn().mockResolvedValue(ok(existing)),
 });
 
 describe("makeAcsUseCase", () => {
   it("should retrieve existing operator, create a session and return a redirect URL", async () => {
-    const sessionStore = createMockSessionStore();
-    const operatorStore = createMockOperatorStore(mockOperator);
-    const useCase = makeAcsUseCase(sessionStore, operatorStore);
+    const sessionRepository = createMockSessionRepository();
+    const operatorRepository = createMockOperatorRepository(mockOperator);
+    const useCase = makeAcsUseCase(sessionRepository, operatorRepository);
     const token = await makeToken(validPayload);
 
     const result = await useCase({ query: { token } });
@@ -58,12 +58,14 @@ describe("makeAcsUseCase", () => {
       ok({ sessionId: expect.stringMatching(/^[a-f0-9]{64}$/) }),
     );
 
-    expect(operatorStore.getByExternalId).toHaveBeenCalledWith("internalID");
-    expect(operatorStore.create).not.toHaveBeenCalled();
+    expect(operatorRepository.getByExternalId).toHaveBeenCalledWith(
+      "internalID",
+    );
+    expect(operatorRepository.create).not.toHaveBeenCalled();
 
-    expect(sessionStore.createSession).toHaveBeenCalledOnce();
+    expect(sessionRepository.createSession).toHaveBeenCalledOnce();
     const [sessionToken, session] = (
-      sessionStore.createSession as ReturnType<typeof vi.fn>
+      sessionRepository.createSession as ReturnType<typeof vi.fn>
     ).mock.calls[0] as [
       string,
       {
@@ -86,9 +88,9 @@ describe("makeAcsUseCase", () => {
       role: "OPERATOR",
     });
 
-    expect(sessionStore.createOneTimeSessionId).toHaveBeenCalledOnce();
+    expect(sessionRepository.createOneTimeSessionId).toHaveBeenCalledOnce();
     const [sessionId, boundToken, ttl] = (
-      sessionStore.createOneTimeSessionId as ReturnType<typeof vi.fn>
+      sessionRepository.createOneTimeSessionId as ReturnType<typeof vi.fn>
     ).mock.calls[0] as [string, string, number];
     expect(sessionId).toHaveLength(64);
     expect(sessionId).toMatch(/^[a-f0-9]{64}$/);
@@ -97,9 +99,9 @@ describe("makeAcsUseCase", () => {
   });
 
   it("should create operator when not found, then create session", async () => {
-    const sessionStore = createMockSessionStore();
-    const operatorStore = createMockOperatorStore(undefined);
-    const useCase = makeAcsUseCase(sessionStore, operatorStore);
+    const sessionRepository = createMockSessionRepository();
+    const operatorRepository = createMockOperatorRepository(undefined);
+    const useCase = makeAcsUseCase(sessionRepository, operatorRepository);
     const token = await makeToken(validPayload);
 
     const result = await useCase({ query: { token } });
@@ -108,23 +110,26 @@ describe("makeAcsUseCase", () => {
       ok(expect.objectContaining({ sessionId: expect.any(String) })),
     );
 
-    expect(operatorStore.getByExternalId).toHaveBeenCalledWith("internalID");
-    expect(operatorStore.create).toHaveBeenCalledWith({
+    expect(operatorRepository.getByExternalId).toHaveBeenCalledWith(
+      "internalID",
+    );
+    expect(operatorRepository.create).toHaveBeenCalledWith({
       externalId: "internalID",
       name: "Organization legal name",
       status: "active",
     });
 
-    const [, session] = (sessionStore.createSession as ReturnType<typeof vi.fn>)
-      .mock.calls[0] as [string, { operatorId: string; operatorName: string }];
+    const [, session] = (
+      sessionRepository.createSession as ReturnType<typeof vi.fn>
+    ).mock.calls[0] as [string, { operatorId: string; operatorName: string }];
     expect(session.operatorId).toBe("operator-uuid-123");
     expect(session.operatorName).toBe("Organization legal name");
   });
 
   it("should return a ValidationError when the token payload is invalid", async () => {
-    const sessionStore = createMockSessionStore();
-    const operatorStore = createMockOperatorStore();
-    const useCase = makeAcsUseCase(sessionStore, operatorStore);
+    const sessionRepository = createMockSessionRepository();
+    const operatorRepository = createMockOperatorRepository();
+    const useCase = makeAcsUseCase(sessionRepository, operatorRepository);
     const token = await makeToken({ name: "Mario" }); // missing required fields
 
     const result = await useCase({ query: { token } });
@@ -132,19 +137,19 @@ describe("makeAcsUseCase", () => {
     expect(result).toEqual(
       err(expect.objectContaining({ kind: "ValidationError" })),
     );
-    expect(sessionStore.createSession).not.toHaveBeenCalled();
+    expect(sessionRepository.createSession).not.toHaveBeenCalled();
   });
 
   it("should propagate error when getByExternalId fails", async () => {
-    const sessionStore = createMockSessionStore();
+    const sessionRepository = createMockSessionRepository();
     const { GenericError } = await import("@pagopa/io-core-domain/errors");
-    const operatorStore = createMockOperatorStore();
+    const operatorRepository = createMockOperatorRepository();
     (
-      operatorStore.getByExternalId as ReturnType<typeof vi.fn>
+      operatorRepository.getByExternalId as ReturnType<typeof vi.fn>
     ).mockResolvedValue(
       (await import("neverthrow")).err(new GenericError("db down")),
     );
-    const useCase = makeAcsUseCase(sessionStore, operatorStore);
+    const useCase = makeAcsUseCase(sessionRepository, operatorRepository);
     const token = await makeToken(validPayload);
 
     const result = await useCase({ query: { token } });
@@ -152,17 +157,19 @@ describe("makeAcsUseCase", () => {
     expect(result).toEqual(
       err(expect.objectContaining({ kind: "GenericError" })),
     );
-    expect(sessionStore.createSession).not.toHaveBeenCalled();
+    expect(sessionRepository.createSession).not.toHaveBeenCalled();
   });
 
   it("should propagate error when createSession fails", async () => {
-    const sessionStore = createMockSessionStore();
-    const operatorStore = createMockOperatorStore(mockOperator);
+    const sessionRepository = createMockSessionRepository();
+    const operatorRepository = createMockOperatorRepository(mockOperator);
     const { GenericError } = await import("@pagopa/io-core-domain/errors");
-    (sessionStore.createSession as ReturnType<typeof vi.fn>).mockResolvedValue(
+    (
+      sessionRepository.createSession as ReturnType<typeof vi.fn>
+    ).mockResolvedValue(
       (await import("neverthrow")).err(new GenericError("redis down")),
     );
-    const useCase = makeAcsUseCase(sessionStore, operatorStore);
+    const useCase = makeAcsUseCase(sessionRepository, operatorRepository);
     const token = await makeToken(validPayload);
 
     const result = await useCase({ query: { token } });
@@ -170,19 +177,19 @@ describe("makeAcsUseCase", () => {
     expect(result).toEqual(
       err(expect.objectContaining({ kind: "GenericError" })),
     );
-    expect(sessionStore.createOneTimeSessionId).not.toHaveBeenCalled();
+    expect(sessionRepository.createOneTimeSessionId).not.toHaveBeenCalled();
   });
 
   it("should propagate error when createOneTimeSessionId fails", async () => {
-    const sessionStore = createMockSessionStore();
-    const operatorStore = createMockOperatorStore(mockOperator);
+    const sessionRepository = createMockSessionRepository();
+    const operatorRepository = createMockOperatorRepository(mockOperator);
     const { GenericError } = await import("@pagopa/io-core-domain/errors");
     (
-      sessionStore.createOneTimeSessionId as ReturnType<typeof vi.fn>
+      sessionRepository.createOneTimeSessionId as ReturnType<typeof vi.fn>
     ).mockResolvedValue(
       (await import("neverthrow")).err(new GenericError("redis down")),
     );
-    const useCase = makeAcsUseCase(sessionStore, operatorStore);
+    const useCase = makeAcsUseCase(sessionRepository, operatorRepository);
     const token = await makeToken(validPayload);
 
     const result = await useCase({ query: { token } });

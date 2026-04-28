@@ -1,18 +1,12 @@
 import type { BaseError } from "@pagopa/io-core-domain/errors";
 import type { Result } from "neverthrow";
 
-export interface CreateOperatorInput {
-  readonly externalId: string;
-  readonly name: string;
-  readonly status: "active";
-}
+import type {
+  CreateOperatorInput,
+  Operator,
+} from "../../../entities/operator.js";
 
-export interface Operator {
-  readonly id: string;
-  readonly name: string;
-}
-
-export interface OperatorStore {
+export interface OperatorRepository {
   readonly create: (
     input: CreateOperatorInput,
   ) => Promise<Result<Operator, BaseError>>;

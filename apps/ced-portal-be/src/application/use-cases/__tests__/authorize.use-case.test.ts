@@ -2,11 +2,12 @@ import { NotFoundError } from "@pagopa/io-core-domain/errors";
 import { err, ok } from "neverthrow";
 import { describe, expect, it, vi } from "vitest";
 
-import type { Session, SessionStore } from "../../ports/session-store.port.js";
+import type { Session } from "../../../domain/entities/session.js";
+import type { SessionRepository } from "../../../domain/ports/outbound/persistence/session.repository.js";
 
 import { makeAuthorizeUseCase } from "../authorize.use-case.js";
 
-const createMockSessionStore = (): SessionStore => ({
+const createMockSessionRepository = (): SessionRepository => ({
   createOneTimeSessionId: vi.fn(),
   createSession: vi.fn(),
   getSession: vi.fn(),
@@ -15,7 +16,7 @@ const createMockSessionStore = (): SessionStore => ({
 
 describe("makeAuthorizeUseCase", () => {
   it("should return session data for a valid sessionId", async () => {
-    const store = createMockSessionStore();
+    const sessionRepository = createMockSessionRepository();
     const sessionToken = "a".repeat(64);
     const session: Session = {
       firstName: "Mario",
@@ -27,13 +28,13 @@ describe("makeAuthorizeUseCase", () => {
     };
 
     (
-      store.getSessionTokenByOneTimeId as ReturnType<typeof vi.fn>
+      sessionRepository.getSessionTokenByOneTimeId as ReturnType<typeof vi.fn>
     ).mockResolvedValue(ok(sessionToken));
-    (store.getSession as ReturnType<typeof vi.fn>).mockResolvedValue(
-      ok(session),
-    );
+    (
+      sessionRepository.getSession as ReturnType<typeof vi.fn>
+    ).mockResolvedValue(ok(session));
 
-    const useCase = makeAuthorizeUseCase(store);
+    const useCase = makeAuthorizeUseCase(sessionRepository);
     const result = await useCase({ query: { id: "some-session-id" } });
 
     expect(result).toEqual(
@@ -47,32 +48,32 @@ describe("makeAuthorizeUseCase", () => {
   });
 
   it("should return NotFoundError when sessionId is expired or invalid", async () => {
-    const store = createMockSessionStore();
+    const sessionRepository = createMockSessionRepository();
     (
-      store.getSessionTokenByOneTimeId as ReturnType<typeof vi.fn>
+      sessionRepository.getSessionTokenByOneTimeId as ReturnType<typeof vi.fn>
     ).mockResolvedValue(err(new NotFoundError("SessionId", "bad-id")));
 
-    const useCase = makeAuthorizeUseCase(store);
+    const useCase = makeAuthorizeUseCase(sessionRepository);
     const result = await useCase({ query: { id: "bad-id" } });
 
     expect(result).toEqual(
       err(expect.objectContaining({ kind: "NotFoundError" })),
     );
-    expect(store.getSession).not.toHaveBeenCalled();
+    expect(sessionRepository.getSession).not.toHaveBeenCalled();
   });
 
   it("should return NotFoundError when session is not found for the token", async () => {
-    const store = createMockSessionStore();
+    const sessionRepository = createMockSessionRepository();
     const sessionToken = "b".repeat(64);
 
     (
-      store.getSessionTokenByOneTimeId as ReturnType<typeof vi.fn>
+      sessionRepository.getSessionTokenByOneTimeId as ReturnType<typeof vi.fn>
     ).mockResolvedValue(ok(sessionToken));
-    (store.getSession as ReturnType<typeof vi.fn>).mockResolvedValue(
-      err(new NotFoundError("Session", sessionToken)),
-    );
+    (
+      sessionRepository.getSession as ReturnType<typeof vi.fn>
+    ).mockResolvedValue(err(new NotFoundError("Session", sessionToken)));
 
-    const useCase = makeAuthorizeUseCase(store);
+    const useCase = makeAuthorizeUseCase(sessionRepository);
     const result = await useCase({ query: { id: "some-id" } });
 
     expect(result).toEqual(

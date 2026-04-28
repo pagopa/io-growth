@@ -29,7 +29,7 @@ export function WebsiteFields() {
         onChange={(e) => dispatch(setWebsiteUrl(e.target.value))}
         onBlur={() => dispatch(validateWebsiteUrl())}
         error={!!urlError}
-        helperText={urlError || undefined}
+        helperText={urlError}
       />
     </Box>
   );

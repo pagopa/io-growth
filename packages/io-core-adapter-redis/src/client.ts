@@ -23,6 +23,7 @@ export type RedisClientInstance = ReturnType<typeof createClient>;
 export interface RedisCommands {
   del(key: string): Promise<number>;
   get(key: string): Promise<null | string>;
+  ping(): Promise<string>;
   set(key: string, value: string): Promise<unknown>;
   setEx(key: string, seconds: number, value: string): Promise<unknown>;
 }
@@ -95,6 +96,7 @@ export const createResilientRedisClient = async (
     closeConnection: () => client.closeConnection(),
     del: (key) => getClient().then((c) => c.del(key)),
     get: (key) => getClient().then((c) => c.get(key)),
+    ping: () => getClient().then((c) => c.ping()),
     set: (key, value) => getClient().then((c) => c.set(key, value)),
     setEx: (key, seconds, value) =>
       getClient().then((c) => c.setEx(key, seconds, value)),

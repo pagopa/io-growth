@@ -66,3 +66,14 @@ export const del = async (
     );
   }
 };
+
+export const ping = async (
+  client: RedisCommands,
+): Promise<Result<void, GenericError>> => {
+  try {
+    await client.ping();
+    return ok(undefined);
+  } catch (error) {
+    return err(new GenericError(`Redis PING failed: ${String(error)}`));
+  }
+};

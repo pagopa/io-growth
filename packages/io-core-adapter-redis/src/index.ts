@@ -7,4 +7,4 @@ export type {
   RedisCommands,
   ResilientRedisClient,
 } from "./client.js";
-export { del, get, set, setEx } from "./operations.js";
+export { del, get, ping, set, setEx } from "./operations.js";

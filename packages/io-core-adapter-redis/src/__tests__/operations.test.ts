@@ -3,12 +3,13 @@ import { describe, expect, it, vi } from "vitest";
 
 import type { RedisCommands } from "../client.js";
 
-import { del, get, set, setEx } from "../operations.js";
+import { del, get, ping, set, setEx } from "../operations.js";
 
 const createMockClient = () => {
   const mock = {
     del: vi.fn(),
     get: vi.fn(),
+    ping: vi.fn(),
     set: vi.fn(),
     setEx: vi.fn(),
   };
@@ -145,6 +146,34 @@ describe("del", () => {
         expect.objectContaining({
           kind: "GenericError",
           message: expect.stringContaining("Redis DEL failed"),
+        }),
+      ),
+    );
+  });
+});
+
+describe("ping", () => {
+  it("should return ok when client.ping succeeds", async () => {
+    const client = createMockClient();
+    client.ping.mockResolvedValue("PONG");
+
+    const result = await ping(client);
+
+    expect(result).toEqual(ok(undefined));
+    expect(client.ping).toHaveBeenCalledOnce();
+  });
+
+  it("should return GenericError when client.ping throws", async () => {
+    const client = createMockClient();
+    client.ping.mockRejectedValue(new Error("connection refused"));
+
+    const result = await ping(client);
+
+    expect(result).toEqual(
+      err(
+        expect.objectContaining({
+          kind: "GenericError",
+          message: expect.stringContaining("Redis PING failed"),
         }),
       ),
     );

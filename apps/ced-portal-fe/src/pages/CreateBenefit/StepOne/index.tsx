@@ -5,12 +5,12 @@ import { AgreementCompanionSection } from './AgreementCompanionSection';
 import { AgreementValiditySection } from './AgreementValiditySection';
 import { AgreementLinkSection } from './AgreementLinkSection';
 
-export function StepOne({ attempted: _attempted }: StepProps) {
+export function StepOne({ attempted }: StepProps) {
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-      <AgreementDetailsSection />
+      <AgreementDetailsSection attempted={attempted} />
       <AgreementCompanionSection />
-      <AgreementValiditySection />
+      <AgreementValiditySection attempted={attempted} />
       <AgreementLinkSection />
     </Box>
   );

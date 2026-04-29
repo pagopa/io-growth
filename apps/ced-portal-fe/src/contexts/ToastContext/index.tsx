@@ -1,11 +1,4 @@
-import {
-  createContext,
-  useCallback,
-  useContext,
-  useMemo,
-  useState,
-  type PropsWithChildren,
-} from 'react';
+import { useCallback, useMemo, useState, type PropsWithChildren } from 'react';
 import {
   Box,
   Typography,
@@ -13,28 +6,17 @@ import {
   keyframes,
   useTheme,
 } from '@mui/material';
-import ErrorIcon from '@mui/icons-material/Error';
+import ReportIcon from '@mui/icons-material/Report';
 import InfoIcon from '@mui/icons-material/Info';
 import CloseIcon from '@mui/icons-material/Close';
 import CheckRoundedIcon from '@mui/icons-material/CheckRounded';
+import { ToastState, ToastVariant } from './types';
+import { ToastContext } from './context';
 
 const slideUp = keyframes`
   from { opacity: 0; transform: translateY(20px); }
   to { opacity: 1; transform: translateY(0); }
 `;
-
-type ToastVariant = 'success' | 'error' | 'info';
-
-interface ToastState {
-  message: string;
-  variant: ToastVariant;
-}
-
-interface ToastContextValue {
-  showToast: (message: string, variant?: ToastVariant) => void;
-}
-
-const ToastContext = createContext<ToastContextValue | null>(null);
 
 export function ToastProvider({ children }: PropsWithChildren) {
   const [toast, setToast] = useState<ToastState | null>(null);
@@ -57,10 +39,9 @@ export function ToastProvider({ children }: PropsWithChildren) {
         return {
           bg: theme.palette.error[100],
           border: theme.palette.error.light,
-          text: theme.palette.error[850],
-          iconColor: theme.palette.common.white,
-          iconBg: theme.palette.error.main,
-          Icon: ErrorIcon,
+          text: theme.palette.common.toastError,
+          iconColor: theme.palette.common.toastError,
+          Icon: ReportIcon,
         };
       case 'success':
         return {
@@ -160,14 +141,4 @@ export function ToastProvider({ children }: PropsWithChildren) {
       ) : null}
     </ToastContext.Provider>
   );
-}
-
-export function useToast() {
-  const context = useContext(ToastContext);
-
-  if (!context) {
-    throw new Error('useToast must be used within ToastProvider');
-  }
-
-  return context;
 }

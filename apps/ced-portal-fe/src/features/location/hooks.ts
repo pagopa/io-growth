@@ -12,12 +12,14 @@ import type { AddressOption, Location } from './types';
 export function useLocationSubmit(
   onConfirm: (newLocation?: Location) => void,
   onClose: () => void,
+  setAttempted: (v: boolean) => void,
 ) {
   const dispatch = useAppDispatch();
   const locationForm = useAppSelector(selectLocationForm);
   const [createLocation, { isLoading }] = useCreateLocationMutation();
 
   const handleConfirm = async () => {
+    setAttempted(true);
     const { name, address, city, postalCode, province, contacts } =
       locationForm;
 

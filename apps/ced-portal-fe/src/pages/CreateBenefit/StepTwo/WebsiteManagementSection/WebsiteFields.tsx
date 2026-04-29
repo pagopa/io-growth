@@ -1,5 +1,5 @@
 import { Box } from '@mui/material';
-import { AppTextField } from '../../../../components';
+import { AppTextField, FormField } from '../../../../components';
 import {
   selectWebsiteForm,
   selectWebsiteUrlError,
@@ -8,29 +8,52 @@ import {
   validateWebsiteUrl,
 } from '../../../../features/website/websiteSlice';
 import { useAppDispatch, useAppSelector } from '../../../../hooks/store';
+import { useCheckRequiredField } from '../hooks/useCheckRequiredField';
 
-export function WebsiteFields() {
+interface WebsiteFieldsProps {
+  attempted?: boolean;
+}
+
+export function WebsiteFields({ attempted }: WebsiteFieldsProps) {
   const dispatch = useAppDispatch();
   const { name, url } = useAppSelector(selectWebsiteForm);
-  const urlError = useAppSelector(selectWebsiteUrlError);
+  const urlFormatError = useAppSelector(selectWebsiteUrlError);
+
+  const nameField = useCheckRequiredField({
+    value: name,
+    required: true,
+    attempted,
+  });
+  const urlRequired = useCheckRequiredField({
+    value: url,
+    required: true,
+    attempted,
+  });
+  const urlField = {
+    error: urlRequired.error || !!urlFormatError,
+    helperText: urlRequired.helperText ?? urlFormatError ?? undefined,
+  };
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-      <AppTextField
+      <FormField
+        value={name ?? ''}
         label="Nome"
         required
-        value={name}
         onChange={(e) => dispatch(setWebsiteName(e.target.value))}
-      />
-      <AppTextField
+        {...nameField}
+      >
+        <AppTextField />
+      </FormField>
+      <FormField
+        value={url ?? ''}
         label="URL"
         required
-        value={url}
         onChange={(e) => dispatch(setWebsiteUrl(e.target.value))}
-        onBlur={() => dispatch(validateWebsiteUrl())}
-        error={!!urlError}
-        helperText={urlError}
-      />
+        {...urlField}
+      >
+        <AppTextField onBlur={() => dispatch(validateWebsiteUrl())} />
+      </FormField>
     </Box>
   );
 }

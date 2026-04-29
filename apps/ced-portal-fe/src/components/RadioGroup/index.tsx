@@ -4,10 +4,11 @@ import {
   RadioGroup,
   RadioGroupProps,
 } from '@mui/material';
+import { ChangeEvent } from 'react';
 
 export type AppRadioGroupProps = {
   value?: string;
-  onChange?: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  onChange?: (event: ChangeEvent<HTMLInputElement>) => void;
   options: { label: string; value: string }[];
 } & RadioGroupProps;
 
@@ -18,7 +19,13 @@ export const AppRadioGroup = ({
   ...radioGroupProps
 }: AppRadioGroupProps) => {
   return (
-    <RadioGroup row value={value} onChange={onChange} {...radioGroupProps}>
+    <RadioGroup
+      row
+      value={value}
+      onChange={onChange}
+      sx={{ flexWrap: 'nowrap' }}
+      {...radioGroupProps}
+    >
       {options.map((option) => (
         <FormControlLabel
           key={option.value}

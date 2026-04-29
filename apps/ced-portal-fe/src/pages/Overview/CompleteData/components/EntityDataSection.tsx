@@ -73,7 +73,7 @@ export const EntityDataSection = ({
           options={SEDE_OPTIONS}
           sx={{
             py: 1,
-            gap: 30,
+            gap: 3,
             '& .MuiFormControlLabel-root': { m: 0 },
             color: 'common.neutralBlack',
             fontWeight: 600,

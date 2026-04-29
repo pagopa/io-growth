@@ -103,6 +103,12 @@ export const FixedPriceBenefitFields = () => {
   if (!isFixedPriceBenefit) {
     return null;
   }
+
+  const benefitPercentageError =
+    discountType === 'percentage' &&
+    discountValue !== '' &&
+    Number(discountValue) < 10;
+
   return (
     <Stack spacing={1.25}>
       <AppRadioGroup
@@ -140,6 +146,12 @@ export const FixedPriceBenefitFields = () => {
         <AppTextField
           label={copy.detailsForm.discountValueLabel}
           value={discountValue}
+          error={benefitPercentageError}
+          helperText={
+            benefitPercentageError
+              ? copy.detailsForm.discountValueError
+              : undefined
+          }
           onChange={(event) =>
             handleChange(benefitOptionalField, event.target.value)
           }

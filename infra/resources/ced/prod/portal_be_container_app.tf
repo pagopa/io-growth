@@ -35,17 +35,17 @@ module "portal_be_container_app" {
       app_settings = local.portal_be.app_settings
 
       liveness_probe = {
-        path      = local.portal_be.health_check_path
+        path      = local.portal_be.startup_probe_path
         transport = "HTTP"
       }
 
       readiness_probe = {
-        path      = local.portal_be.health_check_path
+        path      = local.portal_be.readiness_probe_path
         transport = "HTTP"
       }
 
       startup_probe = {
-        path      = local.portal_be.health_check_path
+        path      = local.portal_be.startup_probe_path
         transport = "HTTP"
       }
     }

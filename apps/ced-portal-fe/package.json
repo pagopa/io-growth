@@ -10,7 +10,8 @@
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "format": "prettier --check .",
-    "format:fix": "prettier --write ."
+    "format:fix": "prettier --write .",
+    "mock:start": "npx @mockoon/cli start --data mockoon/mockoon-config.json"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",

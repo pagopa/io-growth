@@ -14,8 +14,6 @@ export function SectionCard({ children, sx }: SectionCardProps) {
       sx={[
         {
           p: { xs: 1.5, sm: 2 },
-          borderRadius: 2,
-          bgcolor: 'background.paper',
           display: 'flex',
           flexDirection: 'column',
           gap: 2,

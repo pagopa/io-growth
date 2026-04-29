@@ -12,17 +12,31 @@ export function BenefitsFiltersBar({ statusOptions }: BenefitsFiltersBarProps) {
       direction={{ xs: 'column', lg: 'row' }}
       spacing={2}
       alignItems={{ xs: 'stretch', lg: 'center' }}
+      sx={{ width: '100%' }}
     >
       <AppTextField
         fullWidth
         placeholder="Cerca per nome"
         sx={{
-          maxWidth: 550,
+          flex: 1,
+          minWidth: 0,
         }}
       />
 
-      <AppSelect placeholder="Categoria" options={statusOptions} />
-      <AppSelect placeholder="Stato" options={statusOptions} />
+      <AppSelect
+        fullWidth
+        sx={{ flex: 0.5 }}
+        label="Categoria"
+        placeholder="Categoria"
+        options={statusOptions}
+      />
+      <AppSelect
+        fullWidth
+        sx={{ flex: 0.5 }}
+        label="Stato"
+        placeholder="Stato"
+        options={statusOptions}
+      />
 
       <Stack
         direction="row"

@@ -39,7 +39,6 @@ export function AppModal({
       }}
       fullWidth
       maxWidth={maxWidth}
-      PaperProps={{ sx: { borderRadius: 3 } }}
     >
       <DialogContent
         sx={{

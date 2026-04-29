@@ -30,7 +30,7 @@ export function MainContentHeader() {
         color="primary"
         size="large"
         startIcon={<AddIcon />}
-        onClick={() => navigate(APP_ROUTES.AGREEMENT_DETAIL_CREATION)}
+        onClick={() => navigate(APP_ROUTES.CREATE_BENEFIT)}
         sx={{
           borderRadius: 2,
           px: 3,

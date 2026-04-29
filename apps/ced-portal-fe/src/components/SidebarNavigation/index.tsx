@@ -2,7 +2,6 @@ import type { ReactNode } from 'react';
 import MenuRoundedIcon from '@mui/icons-material/MenuRounded';
 import LocalOfferOutlinedIcon from '@mui/icons-material/LocalOfferOutlined';
 import PlaceIcon from '@mui/icons-material/Place';
-import { italia } from '@pagopa/mui-italia';
 import {
   Box,
   IconButton,
@@ -22,25 +21,9 @@ function NavItem({
   label: string;
 }) {
   return (
-    <ListItemButton
-      selected={active}
-      sx={{
-        minHeight: 64,
-        px: { xs: 2, md: 3 },
-        borderRight: active ? '4px solid' : '4px solid transparent',
-        borderColor: active ? 'primary.main' : 'transparent',
-        bgcolor: active ? italia[50] : 'transparent',
-        '&.Mui-selected': {
-          bgcolor: italia[50],
-        },
-        '&.Mui-selected:hover': {
-          bgcolor: italia[100],
-        },
-      }}
-    >
+    <ListItemButton selected={active}>
       <ListItemIcon
         sx={{
-          minWidth: 36,
           color: active ? 'primary.main' : 'text.primary',
         }}
       >

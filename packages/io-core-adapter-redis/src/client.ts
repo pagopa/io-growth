@@ -67,6 +67,7 @@ export const createResilientRedisClient = async (
   config: RedisClientConfig,
 ): Promise<ResilientRedisClient> => {
   const onError = (error: unknown) => {
+    // TODO: send this log through OpenTelemetry instead of console.error.
     console.error("Redis client error:", error);
   };
 

@@ -8,11 +8,11 @@ const createEmptyContact = (): Contact => ({
 });
 
 const createInitialState = (): LocationFormState => ({
-  name: null,
-  address: null,
-  city: null,
-  postalCode: null,
-  province: null,
+  name: '',
+  address: '',
+  city: '',
+  postalCode: '',
+  province: '',
   contacts: [createEmptyContact()],
 });
 

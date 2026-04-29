@@ -80,7 +80,7 @@ export const AppSelect = ({
   }, [options, renderCustomOptions]);
 
   return (
-    <FormControl error={error} sx={sx}>
+    <FormControl error={error} sx={sx} required={props.required}>
       <InputLabel shrink={shrink}>{label}</InputLabel>
       <Select
         label={label}

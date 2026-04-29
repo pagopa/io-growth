@@ -1,0 +1,41 @@
+{
+  "name": "@pagopa/io-core-adapter-redis",
+  "version": "0.0.1",
+  "license": "MIT",
+  "type": "module",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "clean": "rm -rf dist",
+    "build": "tsc",
+    "typecheck": "tsc --noEmit",
+    "lint": "pnpm lint:check --fix",
+    "lint:check": "eslint .",
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage"
+  },
+  "dependencies": {
+    "@azure/identity": "^4.13.1",
+    "@pagopa/io-core-domain": "workspace:^",
+    "@redis/entraid": "^5.12.1",
+    "neverthrow": "catalog:",
+    "redis": "^5.1.1"
+  },
+  "devDependencies": {
+    "@pagopa/eslint-config": "catalog:",
+    "@tsconfig/node22": "catalog:",
+    "@types/node": "catalog:",
+    "@vitest/coverage-v8": "catalog:",
+    "eslint": "catalog:",
+    "prettier": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
+  }
+}

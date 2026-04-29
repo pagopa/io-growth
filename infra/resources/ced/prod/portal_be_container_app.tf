@@ -21,11 +21,11 @@ module "portal_be_container_app" {
   secrets = [
     {
       name                = "POSTGRES_USER"
-      key_vault_secret_id = format(local.secrets_id_template, "ced-p-itn-db-psql-01-backend-user")
+      key_vault_secret_id = format(local.secrets_id_template, "ced-p-itn-db-psql-01-admin-user")
     },
     {
       name                = "POSTGRES_PASSWORD"
-      key_vault_secret_id = format(local.secrets_id_template, "ced-p-itn-db-psql-01-backend-password")
+      key_vault_secret_id = format(local.secrets_id_template, "ced-p-itn-db-psql-01-admin-password")
     }
   ]
 
@@ -50,10 +50,4 @@ module "portal_be_container_app" {
       }
     }
   ]
-}
-
-resource "azurerm_role_assignment" "portal_be_kv_secrets_user" {
-  scope                = data.azurerm_key_vault.common.id
-  role_definition_name = "Key Vault Secrets User"
-  principal_id         = module.common_container_app_environment.user_assigned_identity.principal_id
 }

@@ -6,7 +6,7 @@ import {
   keyframes,
   useTheme,
 } from '@mui/material';
-import ErrorIcon from '@mui/icons-material/Error';
+import ReportIcon from '@mui/icons-material/Report';
 import InfoIcon from '@mui/icons-material/Info';
 import CloseIcon from '@mui/icons-material/Close';
 import CheckRoundedIcon from '@mui/icons-material/CheckRounded';
@@ -39,10 +39,9 @@ export function ToastProvider({ children }: PropsWithChildren) {
         return {
           bg: theme.palette.error[100],
           border: theme.palette.error.light,
-          text: theme.palette.error[850],
-          iconColor: theme.palette.common.white,
-          iconBg: theme.palette.error.main,
-          Icon: ErrorIcon,
+          text: theme.palette.common.toastError,
+          iconColor: theme.palette.common.toastError,
+          Icon: ReportIcon,
         };
       case 'success':
         return {

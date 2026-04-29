@@ -8,8 +8,8 @@ export interface WebsiteFormState {
 }
 
 export interface CreateWebsitePayload {
-  name: string | null;
-  url: string | null;
+  name: string;
+  url: string;
   contacts: Contact[];
 }
 

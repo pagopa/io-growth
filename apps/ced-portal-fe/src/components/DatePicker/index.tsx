@@ -44,27 +44,7 @@ export function AppDatePicker({
       value={dateValue}
       onChange={handleChange}
       format={DATE_FORMAT}
-      sx={[
-        {
-          width: '100%',
-          bgcolor: 'common.white',
-          '& .MuiOutlinedInput-root': {
-            borderRadius: 2,
-            minHeight: 56,
-          },
-          '& .MuiOutlinedInput-root.Mui-disabled': {
-            backgroundColor: 'common.neutralGray',
-          },
-          '& .MuiFormHelperText-root': {
-            fontSize: '0.875rem',
-            fontWeight: 400,
-          },
-          '& .MuiFormLabel-asterisk': {
-            color: 'error.main',
-          },
-        },
-        ...(Array.isArray(sx) ? sx : [sx]),
-      ]}
+      sx={Array.isArray(sx) ? sx : [sx]}
       slotProps={{
         textField: {
           onBlur,

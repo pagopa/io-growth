@@ -1,4 +1,3 @@
-import type React from 'react';
 import { useState } from 'react';
 import {
   Autocomplete,
@@ -17,7 +16,7 @@ type BaseMuiProps<T> = MuiAutocompleteProps<T | string, false, false, true>;
 export interface AppAutocompleteProps<
   T extends AutocompleteOption,
 > extends Pick<BaseMuiProps<T>, 'sx' | 'open'> {
-  label: React.ReactNode;
+  label?: string;
   options: T[];
   inputValue: string;
   required?: boolean;
@@ -37,7 +36,6 @@ export function AppAutocomplete<T extends AutocompleteOption>({
   helperText,
   onValueChange,
   onSelect,
-  ...props
 }: AppAutocompleteProps<T>) {
   const [isFocused, setIsFocused] = useState(false);
   const [selectionMade, setSelectionMade] = useState(false);
@@ -47,7 +45,6 @@ export function AppAutocomplete<T extends AutocompleteOption>({
   return (
     <Autocomplete
       freeSolo
-      sx={{ '& .Autocomplete-clearIndicator': { display: 'none' } }}
       open={isOpen}
       onFocus={() => setIsFocused(true)}
       onBlur={() => setIsFocused(false)}
@@ -92,7 +89,6 @@ export function AppAutocomplete<T extends AutocompleteOption>({
           helperText={helperText}
         />
       )}
-      {...props}
     />
   );
 }

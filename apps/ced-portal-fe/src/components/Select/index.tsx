@@ -8,7 +8,6 @@ import {
   Select,
   type SelectProps,
 } from '@mui/material';
-import type { SxProps, Theme } from '@mui/material/styles';
 
 interface AppSelectProps extends Omit<
   SelectProps<string | string[]>,
@@ -19,7 +18,6 @@ interface AppSelectProps extends Omit<
   emptyOptionLabel?: string;
   helperText?: string;
   fullWidth?: boolean;
-  sx?: SxProps<Theme>;
   children?: ReactNode;
 }
 
@@ -27,7 +25,6 @@ export const AppSelect = ({
   label,
   options,
   helperText,
-  fullWidth = false,
   sx,
   value,
   defaultValue = '',
@@ -45,22 +42,8 @@ export const AppSelect = ({
     : currentValue !== '';
   const shrink = open || hasValue;
 
-  const formControlSx: SxProps<Theme> = {
-    minWidth: fullWidth ? '100%' : { xs: '100%', lg: 160 },
-    maxWidth: fullWidth ? '100%' : { xs: '100%', lg: 160 },
-    bgcolor: 'common.white',
-    borderRadius: 2,
-    '& .MuiOutlinedInput-root': {
-      borderRadius: 2,
-      minHeight: 56,
-    },
-  };
-
   return (
-    <FormControl
-      error={error}
-      sx={Array.isArray(sx) ? [formControlSx, ...sx] : [formControlSx, sx]}
-    >
+    <FormControl error={error} sx={sx} required={props.required}>
       <InputLabel shrink={shrink}>{label}</InputLabel>
       <Select
         label={label}

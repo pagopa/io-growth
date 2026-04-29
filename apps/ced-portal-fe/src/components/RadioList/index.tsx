@@ -62,7 +62,6 @@ const checkedIcon = (
 export const AppRadioList = ({
   options,
   onChange,
-  itemMaxWidth = 320,
   ...props
 }: AppRadioListProps) => (
   <RadioGroup
@@ -74,19 +73,8 @@ export const AppRadioList = ({
         key={option.value}
         value={option.value}
         label={option.label}
-        sx={{
-          ml: 0,
-          width: '100%',
-          maxWidth: itemMaxWidth,
-          '& .MuiFormControlLabel-label': { fontSize: 16, fontWeight: 600 },
-        }}
         control={
-          <Radio
-            disableRipple
-            sx={{ p: 0, mr: 1 }}
-            icon={uncheckedIcon}
-            checkedIcon={checkedIcon}
-          />
+          <Radio disableRipple icon={uncheckedIcon} checkedIcon={checkedIcon} />
         }
       />
     ))}

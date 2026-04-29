@@ -3,8 +3,8 @@ import { Route, Routes } from 'react-router-dom';
 import { AppLayout } from '../layouts/AppLayout';
 import { ProtectedRoute } from '../core/auth/ProtectedRoute';
 import {
-  AgreementDetailCreationPage,
   APP_ROUTES,
+  CreateBenefitPage,
   HomePage,
   NotFoundPage,
   UnauthorizedPage,
@@ -17,9 +17,16 @@ export function AppRoutes() {
         <Route element={<AppLayout />}>
           <Route path={APP_ROUTES.HOME} element={<HomePage />} />
           <Route
-            path={APP_ROUTES.AGREEMENT_DETAIL_CREATION}
-            element={<AgreementDetailCreationPage />}
+            path={APP_ROUTES.CREATE_BENEFIT}
+            element={<CreateBenefitPage />}
           />
+          <Route element={<ProtectedRoute />}>
+            <Route
+              path="/app"
+              element={<div style={{ padding: 24 }}>App area</div>}
+            />
+          </Route>
+          <Route path={APP_ROUTES.NOT_FOUND} element={<NotFoundPage />} />
         </Route>
         <Route path={APP_ROUTES.UNAUTHORIZED} element={<UnauthorizedPage />} />
         <Route element={<ProtectedRoute />}>

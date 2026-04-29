@@ -12,22 +12,22 @@ import type { AddressOption, Location } from './types';
 export function useLocationSubmit(
   onConfirm: (newLocation?: Location) => void,
   onClose: () => void,
+  setAttempted: (v: boolean) => void,
 ) {
   const dispatch = useAppDispatch();
   const locationForm = useAppSelector(selectLocationForm);
   const [createLocation, { isLoading }] = useCreateLocationMutation();
 
   const handleConfirm = async () => {
+    setAttempted(true);
     const { name, address, city, postalCode, province, contacts } =
       locationForm;
 
-    // Validate required fields are not null/empty
     if (!name?.trim() || !address?.trim() || !city?.trim()) {
       console.error('Required fields are missing');
       return;
     }
 
-    // Filter out invalid contacts
     const validContacts = contacts
       .filter((c) => c.type?.trim() && c.value?.trim())
       .map((c) => ({
@@ -61,7 +61,6 @@ export function useLocationAddressSearch(existingLocations: Location[]) {
   const dispatch = useAppDispatch();
   const { address } = useAppSelector(selectLocationForm);
 
-  // Ensure address is a valid string
   const searchAddress = address?.trim() || '';
 
   const { data: rawAddressOptions = [] } = useSearchAddressesQuery(

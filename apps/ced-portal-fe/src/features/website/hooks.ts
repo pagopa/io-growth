@@ -11,6 +11,7 @@ import type { Website } from './types';
 export function useWebsiteSubmit(
   onConfirm: (newWebsite?: Website) => void,
   onClose: () => void,
+  setAttempted: (v: boolean) => void,
 ) {
   const dispatch = useAppDispatch();
   const websiteForm = useAppSelector(selectWebsiteForm);
@@ -18,12 +19,17 @@ export function useWebsiteSubmit(
   const [createWebsite, { isLoading }] = useCreateWebsiteMutation();
 
   const handleConfirm = async () => {
+    setAttempted(true);
     if (!isFormValid) {
       dispatch(validateWebsiteUrl());
       return;
     }
     const { name, url, contacts } = websiteForm;
-    const result = await createWebsite({ name, url, contacts });
+    const result = await createWebsite({
+      name: name ?? '',
+      url: url ?? '',
+      contacts,
+    });
     if ('error' in result) return;
     dispatch(resetWebsiteForm());
     onConfirm(result.data);

@@ -2,7 +2,7 @@ import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
 import {
   AGREEMENT_LANGUAGE_TABS,
   DEFAULT_AGREEMENT_LANGUAGE,
-} from '../../pages/AgreementDetailCreation/components/AgreementCompanionSection/utils/agreementLanguageTabs.config';
+} from '../../pages/CreateBenefit/StepOne/AgreementCompanionSection/utils/agreementLanguageTabs.config';
 
 import {
   AgreementDetailsFieldKey,

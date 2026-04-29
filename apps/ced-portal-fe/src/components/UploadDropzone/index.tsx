@@ -1,5 +1,6 @@
 import { UploadFile } from '@mui/icons-material';
 import { Box, Button, Stack, Typography } from '@mui/material';
+import type { ChangeEvent, DragEvent } from 'react';
 
 export type UploadDropzoneProps = {
   selectedFileName?: string;
@@ -32,17 +33,17 @@ export function UploadDropzone({
   subtitle,
   onFileSelect,
 }: UploadDropzoneProps) {
-  const handleDragOver = (event: React.DragEvent<HTMLLabelElement>) => {
+  const handleDragOver = (event: DragEvent<HTMLLabelElement>) => {
     event.preventDefault();
   };
 
-  const handleDrop = (event: React.DragEvent<HTMLLabelElement>) => {
+  const handleDrop = (event: DragEvent<HTMLLabelElement>) => {
     event.preventDefault();
     const file = event.dataTransfer.files?.[0] ?? null;
     onFileSelect(file);
   };
 
-  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0] ?? null;
     onFileSelect(file);
   };

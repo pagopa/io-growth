@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Button } from '@mui/material';
 import { AppModal } from '../../../../components';
 import { useWebsiteSubmit } from '../../../../features/website/hooks';
@@ -18,9 +19,11 @@ export function AddWebsiteModal({
   onConfirm,
   onBack,
 }: AddWebsiteModalProps) {
+  const [attempted, setAttempted] = useState(false);
   const { handleConfirm, handleClose, isLoading } = useWebsiteSubmit(
     onConfirm,
     onClose,
+    setAttempted,
   );
 
   return (
@@ -31,7 +34,7 @@ export function AddWebsiteModal({
       title="Aggiungi nuovo sito web"
       description="Le informazioni saranno visibili su IO nel dettaglio del sito web."
     >
-      <WebsiteFields />
+      <WebsiteFields attempted={attempted} />
 
       <WebsiteContactsSection />
 

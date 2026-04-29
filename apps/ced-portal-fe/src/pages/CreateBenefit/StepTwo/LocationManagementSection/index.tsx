@@ -21,7 +21,13 @@ import { AddLocationModal } from './AddLocationModal';
 import { LocationList } from './LocationList';
 import { SelectLocationModal } from './SelectLocationModal';
 
-export function LocationManagementSection() {
+interface LocationManagementSectionProps {
+  attempted?: boolean;
+}
+
+export function LocationManagementSection({
+  attempted,
+}: LocationManagementSectionProps) {
   const dispatch = useAppDispatch();
   const accessPoint = useAppSelector(selectAccessPoint);
   const nationwide = useAppSelector(selectNationwide);
@@ -120,6 +126,7 @@ export function LocationManagementSection() {
           onConfirm={handleAddConfirm}
           onBack={modal === 'add-from-select' ? handleBack : undefined}
           existingLocations={availableLocations}
+          attempted={attempted}
         />
       )}
     </>

@@ -50,6 +50,7 @@ interface AgreementDetailsFormCopy {
     fixed: string;
   };
   discountValueLabel: string;
+  discountValueError: string;
   otherBenefitTypeLabel: string;
   descriptionLabel: string;
   descriptionPlaceholder: string;
@@ -89,6 +90,7 @@ export const AGREEMENT_COPY_CONFIG: Record<string, AgreementCopy> = {
         fixed: 'Importo fisso',
       },
       discountValueLabel: 'Importo dello sconto',
+      discountValueError: 'Inserisci un valore compreso tra 10 e 100',
       otherBenefitTypeLabel: 'Scrivi il tipo di agevolazione che vuoi offrire',
       descriptionLabel: 'Descrizione',
       descriptionPlaceholder: "Descrivi brevemente l'agevolazione",
@@ -162,6 +164,7 @@ export const AGREEMENT_COPY_CONFIG: Record<string, AgreementCopy> = {
         fixed: 'Fixed amount',
       },
       discountValueLabel: 'Discount amount',
+      discountValueError: 'Enter a value between 10 and 100',
       otherBenefitTypeLabel: 'Write the benefit type you want to offer',
       descriptionLabel: 'Description',
       descriptionPlaceholder: 'Briefly describe the benefit',

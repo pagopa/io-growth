@@ -54,3 +54,23 @@ variable "subnet_pep_id" {
   description = "The ID of the subnet designated for hosting private endpoints. Required when public_network_access_enabled is false."
   default     = null
 }
+
+variable "key_vault_name" {
+  type        = string
+  description = "The name of the Key Vault to which the container app environment will be granted access."
+}
+
+variable "key_vault_resource_group_name" {
+  type        = string
+  description = "The name of the resource group where the Key Vault is located."
+}
+
+variable "redis_cache_id" {
+  type        = string
+  description = "The ID of the Redis cache to which the container app environment will be granted access."
+}
+
+variable "azure_subscription_id" {
+  type        = string
+  description = "The ID of the Azure subscription where the resources will be deployed."
+}

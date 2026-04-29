@@ -14,7 +14,9 @@ import { DetailFormField } from './components/DetailFormField';
 import { AgreementDetailsFieldKey } from '../../../../features/agreementDetailCreation/types';
 import { getAgreementCopy } from '../../../../constants';
 
-export function AgreementDetailsSection() {
+export function AgreementDetailsSection({
+  attempted,
+}: Readonly<{ attempted: boolean }>) {
   const dispatch = useAppDispatch();
   const activeLanguage = useAppSelector(selectActiveAgreementLanguage);
   const copy = getAgreementCopy(activeLanguage);
@@ -64,13 +66,17 @@ export function AgreementDetailsSection() {
         <Stack spacing={2}>
           <DetailFormField
             name={'name'}
+            required
+            attempted={attempted}
             onChange={(event) => handleFieldChange('name', event.target.value)}
           >
-            <AppTextField fullWidth inputProps={{ maxLength: 50 }} required />
+            <AppTextField fullWidth inputProps={{ maxLength: 50 }} />
           </DetailFormField>
 
           <DetailFormField
             name={'benefitType'}
+            required
+            attempted={attempted}
             onChange={(event) =>
               handleBenefitTypeChange('benefitType', event.target.value)
             }
@@ -98,6 +104,8 @@ export function AgreementDetailsSection() {
 
           <DetailFormField
             name={'description'}
+            required
+            attempted={attempted}
             onChange={(event) =>
               handleFieldChange('description', event.target.value)
             }
@@ -107,6 +115,8 @@ export function AgreementDetailsSection() {
 
           <DetailFormField
             name={'category'}
+            required
+            attempted={attempted}
             onChange={(event) =>
               handleFieldChange('category', event.target.value)
             }

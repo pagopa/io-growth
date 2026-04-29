@@ -22,9 +22,7 @@ const TokenPayloadSchema = z.object({
 });
 
 export interface AcsInput {
-  readonly query: {
-    readonly token: string;
-  };
+  readonly token: string;
 }
 
 export interface AcsOutput {
@@ -37,7 +35,7 @@ export const makeAcsUseCase =
     operatorRepository: OperatorRepository,
   ): UseCase<AcsInput, AcsOutput, BaseError> =>
   async (input) => {
-    const token = input.query.token;
+    const token = input.token;
 
     // TODO: verify token signature — for now every token is considered valid
 

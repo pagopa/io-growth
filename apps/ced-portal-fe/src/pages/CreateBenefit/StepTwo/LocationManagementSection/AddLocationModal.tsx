@@ -12,7 +12,6 @@ interface AddLocationModalProps {
   onConfirm: (newLocation?: Location) => void;
   onBack?: () => void;
   existingLocations?: Location[];
-  attempted?: boolean;
 }
 
 export function AddLocationModal({

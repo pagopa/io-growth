@@ -1,7 +1,6 @@
 import type { UseCase } from "@pagopa/io-core-domain";
 import type { BaseError } from "@pagopa/io-core-domain/errors";
 import type { FastifyInstance } from "fastify";
-import type { z } from "zod";
 
 import {
   createHttpHandler,
@@ -9,17 +8,21 @@ import {
 } from "@pagopa/io-core-adapter-fastify";
 import { z as zod } from "zod";
 
-const authorizeSchema = zod.object({
-  query: zod.object({
-    id: zod.string().min(1),
-  }),
-});
+import type { AuthorizeInput } from "../../../../application/use-cases/auth/authorize.use-case.js";
 
-type AuthorizeValidatedInput = z.infer<typeof authorizeSchema>;
+const authorizeSchema = zod
+  .object({
+    query: zod.object({
+      id: zod.string().min(1),
+    }),
+  })
+  .transform(({ query }) => ({
+    id: query.id,
+  }));
 
 export const mountAuthorizeHandler = <O>(
   fastify: FastifyInstance,
-  useCase: UseCase<AuthorizeValidatedInput, O, BaseError>,
+  useCase: UseCase<AuthorizeInput, O, BaseError>,
 ) => {
   fastify.get(
     "/api/authorize",

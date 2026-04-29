@@ -32,6 +32,7 @@ jobs:
           pnpm --filter @pagopa/io-core-domain build
           pnpm --filter @pagopa/io-core-adapter-fastify build
           pnpm --filter @pagopa/io-core-adapter-drizzle build
+          pnpm --filter @pagopa/io-core-adapter-redis build
           pnpm --filter ced-portal-be build
 
       - name: Run migrations

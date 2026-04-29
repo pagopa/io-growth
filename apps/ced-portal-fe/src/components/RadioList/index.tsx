@@ -62,7 +62,6 @@ const checkedIcon = (
 export const AppRadioList = ({
   options,
   onChange,
-  itemMaxWidth = 320,
   ...props
 }: AppRadioListProps) => (
   <RadioGroup

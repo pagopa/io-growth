@@ -1,11 +1,4 @@
-import {
-  createContext,
-  useCallback,
-  useContext,
-  useMemo,
-  useState,
-  type PropsWithChildren,
-} from 'react';
+import { useCallback, useMemo, useState, type PropsWithChildren } from 'react';
 import {
   Box,
   Typography,
@@ -17,24 +10,13 @@ import ErrorIcon from '@mui/icons-material/Error';
 import InfoIcon from '@mui/icons-material/Info';
 import CloseIcon from '@mui/icons-material/Close';
 import CheckRoundedIcon from '@mui/icons-material/CheckRounded';
+import { ToastState, ToastVariant } from './types';
+import { ToastContext } from './context';
 
 const slideUp = keyframes`
   from { opacity: 0; transform: translateY(20px); }
   to { opacity: 1; transform: translateY(0); }
 `;
-
-type ToastVariant = 'success' | 'error' | 'info';
-
-interface ToastState {
-  message: string;
-  variant: ToastVariant;
-}
-
-interface ToastContextValue {
-  showToast: (message: string, variant?: ToastVariant) => void;
-}
-
-const ToastContext = createContext<ToastContextValue | null>(null);
 
 export function ToastProvider({ children }: PropsWithChildren) {
   const [toast, setToast] = useState<ToastState | null>(null);
@@ -160,14 +142,4 @@ export function ToastProvider({ children }: PropsWithChildren) {
       ) : null}
     </ToastContext.Provider>
   );
-}
-
-export function useToast() {
-  const context = useContext(ToastContext);
-
-  if (!context) {
-    throw new Error('useToast must be used within ToastProvider');
-  }
-
-  return context;
 }

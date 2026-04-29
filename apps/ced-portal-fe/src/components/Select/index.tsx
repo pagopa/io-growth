@@ -25,7 +25,6 @@ export const AppSelect = ({
   label,
   options,
   helperText,
-  fullWidth = false,
   sx,
   value,
   defaultValue = '',

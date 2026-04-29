@@ -39,7 +39,7 @@ export function StepTwo({ attempted }: StepProps) {
       )}
       {needsWebsite && <WizardAlert>Indica almeno un sito web.</WizardAlert>}
       <AccessPointSection />
-      <LocationManagementSection attempted={attempted} />
+      <LocationManagementSection/>
       <WebsiteManagementSection />
     </Box>
   );

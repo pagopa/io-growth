@@ -10,7 +10,7 @@ export const useCheckRequiredField = ({
   attempted,
 }: Params) => {
   if (!required || !attempted) return { error: false, helperText: undefined };
-  const isEmpty = !value || !value.trim();
+  const isEmpty = !value?.trim();
   return {
     error: isEmpty,
     helperText: isEmpty ? 'Campo obbligatorio' : undefined,

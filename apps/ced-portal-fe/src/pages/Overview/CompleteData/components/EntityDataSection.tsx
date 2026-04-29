@@ -72,6 +72,7 @@ export const EntityDataSection = ({
           }
           options={SEDE_OPTIONS}
           sx={{
+            flexFlow: 'nowrap',
             py: 1,
             gap: 3,
             '& .MuiFormControlLabel-root': { m: 0 },

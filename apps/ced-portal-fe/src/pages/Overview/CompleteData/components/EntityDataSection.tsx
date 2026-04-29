@@ -92,19 +92,17 @@ export const EntityDataSection = ({
           }}
         />
 
-        <Stack spacing={1}>
+        <Stack spacing={2}>
           <Stack
             direction="row"
             alignItems="center"
             justifyContent="space-between"
-            spacing={1}
           >
             <Typography
               fontSize={14}
               fontWeight={600}
               sx={{
-                pb: 2,
-                pt: 1,
+                lineHeight: 1,
                 color: 'common.neutralDarkGray',
               }}
             >
@@ -113,10 +111,10 @@ export const EntityDataSection = ({
             <IconButton
               size="small"
               onClick={() => onInfoClick('logo')}
-              sx={{ color: 'text.action', mt: 0.5 }}
+              sx={{ color: 'text.action' }}
               aria-label="Informazioni logo ente"
             >
-              <InfoOutlinedIcon sx={{ fontSize: 18 }} />
+              <InfoOutlinedIcon sx={{ fontSize: 22 }} />
             </IconButton>
           </Stack>
           <UploadDropzone
@@ -130,20 +128,18 @@ export const EntityDataSection = ({
           </Typography>
         </Stack>
 
-        <Stack spacing={1}>
+        <Stack spacing={2}>
           <Stack
             direction="row"
             alignItems="center"
             justifyContent="space-between"
-            spacing={1}
           >
             <Typography
               fontSize={14}
               color={'text.description'}
               fontWeight={600}
               sx={{
-                pb: 2,
-                pt: 1,
+                lineHeight: 1,
                 color: 'common.neutralDarkGray',
               }}
             >
@@ -152,10 +148,10 @@ export const EntityDataSection = ({
             <IconButton
               size="small"
               onClick={() => onInfoClick('cover')}
-              sx={{ color: 'text.action', mt: 0.5 }}
+              sx={{ color: 'text.action' }}
               aria-label="Informazioni immagine di copertina"
             >
-              <InfoOutlinedIcon sx={{ fontSize: 18 }} />
+              <InfoOutlinedIcon sx={{ fontSize: 22 }} />
             </IconButton>
           </Stack>
           <UploadDropzone

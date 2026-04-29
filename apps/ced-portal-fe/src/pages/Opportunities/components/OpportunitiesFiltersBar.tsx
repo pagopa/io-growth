@@ -1,21 +1,8 @@
 import FilterAltOutlined from '@mui/icons-material/FilterAltOutlined';
 import { Button, Stack } from '@mui/material';
 import { AppSelect, AppTextField } from '../../../components';
+import { STATE_LABELS, STATE_OPTIONS } from '../../../constants';
 import type { OpportunityFilters } from '../../../features/opportunities/types';
-
-const STATE_OPTIONS = [
-  'Da_gestire',
-  'In_attesa_di_modifiche',
-  'Approvata',
-  'Non_attiva',
-];
-
-const STATE_LABELS: Record<string, string> = {
-  Da_gestire: 'Da gestire',
-  In_attesa_di_modifiche: 'In attesa di modifiche',
-  Approvata: 'Approvata',
-  Non_attiva: 'Non attiva',
-};
 
 interface OpportunitiesFiltersBarProps {
   filters: OpportunityFilters;

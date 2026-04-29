@@ -36,7 +36,8 @@ locals {
       AZURE_CLIENT_ID = module.common_container_app_environment.user_assigned_identity.client_id
     }
 
-    health_check_path = "/api/info"
+    startup_probe_path   = "/api/info/startup"
+    readiness_probe_path = "/api/info/readiness"
   }
 
   tags = {

@@ -7,14 +7,18 @@ import type { Contact } from '../types';
 interface ContactsSectionProps {
   contacts: Contact[];
   onAddContact: () => void;
+  onRemoveContact: (index: number) => void;
   onContactChange: (index: number, field: keyof Contact, value: string) => void;
 }
 
 export const ContactsSection = ({
   contacts,
   onAddContact,
+  onRemoveContact,
   onContactChange,
 }: ContactsSectionProps) => {
+  const [primaryContact, ...additionalContacts] = contacts;
+
   return (
     <Paper
       variant="outlined"
@@ -30,11 +34,28 @@ export const ContactsSection = ({
           </Typography>
         </Stack>
 
-        {contacts.map((contact, i) => (
+        {primaryContact && (
           <ContactRow
-            key={i}
+            key={0}
+            contact={primaryContact}
+            index={0}
+            canRemove={false}
+            showPhoneField
+            showDetails={false}
+            onRemove={onRemoveContact}
+            onChange={onContactChange}
+          />
+        )}
+
+        {additionalContacts.map((contact, i) => (
+          <ContactRow
+            key={i + 1}
             contact={contact}
-            index={i}
+            index={i + 1}
+            canRemove
+            showPhoneField={false}
+            showDetails
+            onRemove={onRemoveContact}
             onChange={onContactChange}
           />
         ))}

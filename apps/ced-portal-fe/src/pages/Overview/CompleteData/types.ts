@@ -1,5 +1,6 @@
 export interface Contact {
   contact: string;
+  type: string;
   website: string;
 }
 

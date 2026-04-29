@@ -11,7 +11,7 @@ const INITIAL_FORM_DATA: CompleteDataFormData = {
   name: '',
   sede: 'fisica',
   address: '',
-  contacts: [{ contact: '', website: '' }],
+  contacts: [{ contact: '', type: 'Sito web', website: '' }],
   logoFile: null,
   coverFile: null,
 };
@@ -121,8 +121,17 @@ export default function OverviewCompleteDataPage() {
                       ...prev,
                       contacts: [
                         ...prev.contacts,
-                        { contact: '', website: '' },
+                        { contact: '', type: 'Sito web', website: '' },
                       ],
+                    }))
+                  }
+                  onRemoveContact={(index) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      contacts:
+                        prev.contacts.length > 1
+                          ? prev.contacts.filter((_, i) => i !== index)
+                          : [{ contact: '', type: 'Sito web', website: '' }],
                     }))
                   }
                   onContactChange={(index, field, value) =>

@@ -12,12 +12,12 @@ import {
 } from '../../features/wizard/slice';
 import { selectAgreementDetailCreationState } from '../../features/agreementDetailCreation/selectors';
 import { useAppSelector } from '../../hooks/store';
-import { useToast } from '../../contexts/ToastContext';
 import { AppModal } from '../../components';
 import { WizardFooter } from './components/WizardFooter';
 import { WizardStepper } from './components/WizardStepper';
 import { StepOne } from './StepOne';
 import { StepTwo } from './StepTwo';
+import { useToast } from '../../contexts';
 
 export interface StepProps {
   attempted: boolean;
@@ -50,14 +50,28 @@ export default function CreateBenefitPage() {
   const agreementState = useAppSelector(selectAgreementDetailCreationState);
 
   const isStepValid = (step: number): boolean => {
-    if (step !== 1) return true;
-    const hasTerritory = accessPoint === 'territory' || accessPoint === 'both';
-    const hasOnline = accessPoint === 'online' || accessPoint === 'both';
-    return (
-      !!accessPoint &&
-      (!hasTerritory || nationwide || selectedLocationIds.length > 0) &&
-      (!hasOnline || selectedWebsiteIds.length > 0)
-    );
+    if (step === 0) {
+      const activeForm =
+        agreementState.localizedForm[agreementState.activeLanguage];
+      return (
+        activeForm.details.name.trim().length > 0 &&
+        activeForm.details.benefitType.trim().length > 0 &&
+        activeForm.details.description.trim().length > 0 &&
+        activeForm.details.category.trim().length > 0 &&
+        activeForm.startDate.trim().length > 0
+      );
+    }
+    if (step === 1) {
+      const hasTerritory =
+        accessPoint === 'territory' || accessPoint === 'both';
+      const hasOnline = accessPoint === 'online' || accessPoint === 'both';
+      return (
+        !!accessPoint &&
+        (!hasTerritory || nationwide || selectedLocationIds.length > 0) &&
+        (!hasOnline || selectedWebsiteIds.length > 0)
+      );
+    }
+    return true;
   };
 
   const handleSaveDraft = async () => {

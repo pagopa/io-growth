@@ -20,13 +20,16 @@ import {
 } from '../../../../features/agreementDetailCreation/selectors';
 import { getAgreementCopy } from '../../../../constants';
 
-export function AgreementValiditySection() {
+export function AgreementValiditySection({
+  attempted,
+}: Readonly<{ attempted: boolean }>) {
   const dispatch = useAppDispatch();
   const activeLanguage = useAppSelector(selectActiveAgreementLanguage);
   const { hasEndDate, startDate, endDate } = useAppSelector(
     selectActiveAgreementLanguageForm,
   );
   const copy = getAgreementCopy(activeLanguage).additionalSections.validity;
+  const startDateError = attempted && !startDate.trim();
 
   const renderEndDateField = useCallback(() => {
     if (!hasEndDate) {
@@ -100,6 +103,8 @@ export function AgreementValiditySection() {
               fullWidth
               label={copy.startDateLabel}
               required
+              error={startDateError}
+              helperText={startDateError ? 'Campo obbligatorio' : undefined}
               value={startDate}
               onChange={(event) =>
                 dispatch(

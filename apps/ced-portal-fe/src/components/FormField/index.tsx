@@ -6,6 +6,8 @@ export type FormFieldProps = {
   value?: string | number | boolean;
   title?: string;
   label?: string;
+  required?: boolean;
+  error?: boolean;
   helperText?: string;
   placeholder?: string;
   hide?: boolean;
@@ -19,8 +21,10 @@ export const FormField = ({
   value,
   title,
   label,
+  required,
   helperText,
   placeholder,
+  error,
   children,
   onChange,
 }: FormFieldProps) => {
@@ -32,11 +36,13 @@ export const FormField = ({
 
   const updatedChild = React.cloneElement(children, {
     ...children.props,
+    error,
+    required,
+    label,
     value,
     onChange,
     placeholder,
     sx: { ...(children.props.sx || {}), minWidth: '100%' },
-    ...(label !== undefined && { label }),
   });
 
   return (

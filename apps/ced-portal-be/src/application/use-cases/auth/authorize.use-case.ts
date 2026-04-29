@@ -6,9 +6,7 @@ import { ResultAsync } from "neverthrow";
 import type { SessionRepository } from "../../../domain/ports/outbound/persistence/session.repository.js";
 
 export interface AuthorizeInput {
-  readonly query: {
-    readonly id: string;
-  };
+  readonly id: string;
 }
 
 export interface AuthorizeOutput {
@@ -24,7 +22,7 @@ export const makeAuthorizeUseCase =
   ): UseCase<AuthorizeInput, AuthorizeOutput, BaseError> =>
   async (input) =>
     new ResultAsync(
-      sessionRepository.getSessionTokenByOneTimeId(input.query.id),
+      sessionRepository.getSessionTokenByOneTimeId(input.id),
     ).andThen((token) =>
       new ResultAsync(sessionRepository.getSession(token)).map((session) => ({
         first_name: session.firstName,

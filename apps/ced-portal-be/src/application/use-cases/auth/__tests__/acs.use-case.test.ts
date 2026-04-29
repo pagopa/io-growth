@@ -52,7 +52,7 @@ describe("makeAcsUseCase", () => {
     const useCase = makeAcsUseCase(sessionRepository, operatorRepository);
     const token = await makeToken(validPayload);
 
-    const result = await useCase({ query: { token } });
+    const result = await useCase({ token });
 
     expect(result).toEqual(
       ok({ sessionId: expect.stringMatching(/^[a-f0-9]{64}$/) }),
@@ -104,7 +104,7 @@ describe("makeAcsUseCase", () => {
     const useCase = makeAcsUseCase(sessionRepository, operatorRepository);
     const token = await makeToken(validPayload);
 
-    const result = await useCase({ query: { token } });
+    const result = await useCase({ token });
 
     expect(result).toEqual(
       ok(expect.objectContaining({ sessionId: expect.any(String) })),
@@ -132,7 +132,7 @@ describe("makeAcsUseCase", () => {
     const useCase = makeAcsUseCase(sessionRepository, operatorRepository);
     const token = await makeToken({ name: "Mario" }); // missing required fields
 
-    const result = await useCase({ query: { token } });
+    const result = await useCase({ token });
 
     expect(result).toEqual(
       err(expect.objectContaining({ kind: "ValidationError" })),
@@ -152,7 +152,7 @@ describe("makeAcsUseCase", () => {
     const useCase = makeAcsUseCase(sessionRepository, operatorRepository);
     const token = await makeToken(validPayload);
 
-    const result = await useCase({ query: { token } });
+    const result = await useCase({ token });
 
     expect(result).toEqual(
       err(expect.objectContaining({ kind: "GenericError" })),
@@ -172,7 +172,7 @@ describe("makeAcsUseCase", () => {
     const useCase = makeAcsUseCase(sessionRepository, operatorRepository);
     const token = await makeToken(validPayload);
 
-    const result = await useCase({ query: { token } });
+    const result = await useCase({ token });
 
     expect(result).toEqual(
       err(expect.objectContaining({ kind: "GenericError" })),
@@ -192,7 +192,7 @@ describe("makeAcsUseCase", () => {
     const useCase = makeAcsUseCase(sessionRepository, operatorRepository);
     const token = await makeToken(validPayload);
 
-    const result = await useCase({ query: { token } });
+    const result = await useCase({ token });
 
     expect(result).toEqual(
       err(expect.objectContaining({ kind: "GenericError" })),

@@ -35,7 +35,7 @@ describe("makeAuthorizeUseCase", () => {
     ).mockResolvedValue(ok(session));
 
     const useCase = makeAuthorizeUseCase(sessionRepository);
-    const result = await useCase({ query: { id: "some-session-id" } });
+    const result = await useCase({ id: "some-session-id" });
 
     expect(result).toEqual(
       ok({
@@ -54,7 +54,7 @@ describe("makeAuthorizeUseCase", () => {
     ).mockResolvedValue(err(new NotFoundError("SessionId", "bad-id")));
 
     const useCase = makeAuthorizeUseCase(sessionRepository);
-    const result = await useCase({ query: { id: "bad-id" } });
+    const result = await useCase({ id: "bad-id" });
 
     expect(result).toEqual(
       err(expect.objectContaining({ kind: "NotFoundError" })),
@@ -74,7 +74,7 @@ describe("makeAuthorizeUseCase", () => {
     ).mockResolvedValue(err(new NotFoundError("Session", sessionToken)));
 
     const useCase = makeAuthorizeUseCase(sessionRepository);
-    const result = await useCase({ query: { id: "some-id" } });
+    const result = await useCase({ id: "some-id" });
 
     expect(result).toEqual(
       err(expect.objectContaining({ kind: "NotFoundError" })),

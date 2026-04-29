@@ -13,7 +13,7 @@ export const createRedisHealthCheckRepository = (
       await client.ping();
       return ok(true as const);
     } catch {
-      return err(new GenericError("Session store connection failed"));
+      return err(new GenericError("Redis connection failed"));
     }
   },
 });

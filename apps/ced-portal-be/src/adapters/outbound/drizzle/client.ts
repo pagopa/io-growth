@@ -10,6 +10,7 @@ const config: TypedDbClientConfig = {
   max: Number(process.env.POSTGRES_MAX_CONNECTIONS ?? "10"),
   password: process.env.POSTGRES_PASSWORD,
   port: Number(process.env.POSTGRES_PORT ?? "6432"),
+  ssl: process.env.POSTGRES_SSL === "true",
   user: process.env.POSTGRES_USER ?? "postgres",
 };
 

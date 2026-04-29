@@ -4,6 +4,7 @@ import { useLocationSubmit } from '../../../../features/location/hooks';
 import type { Location } from '../../../../features/location/types';
 import { LocationContactsSection } from './LocationContactsSection';
 import { LocationFields } from './LocationFields';
+import { useState } from 'react';
 
 interface AddLocationModalProps {
   open: boolean;
@@ -11,6 +12,7 @@ interface AddLocationModalProps {
   onConfirm: (newLocation?: Location) => void;
   onBack?: () => void;
   existingLocations?: Location[];
+  attempted?: boolean;
 }
 
 export function AddLocationModal({
@@ -20,9 +22,11 @@ export function AddLocationModal({
   onBack,
   existingLocations = [],
 }: AddLocationModalProps) {
+  const [attempted, setAttempted] = useState(false);
   const { handleConfirm, handleClose, isLoading } = useLocationSubmit(
     onConfirm,
     onClose,
+    setAttempted,
   );
 
   return (
@@ -33,7 +37,10 @@ export function AddLocationModal({
       title="Aggiungi nuova sede"
       description="Le informazioni saranno visibili su IO nel dettaglio della sede."
     >
-      <LocationFields existingLocations={existingLocations} />
+      <LocationFields
+        existingLocations={existingLocations}
+        attempted={attempted}
+      />
 
       <LocationContactsSection />
 

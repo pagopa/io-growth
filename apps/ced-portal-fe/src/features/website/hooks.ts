@@ -11,6 +11,7 @@ import type { Website } from './types';
 export function useWebsiteSubmit(
   onConfirm: (newWebsite?: Website) => void,
   onClose: () => void,
+  setAttempted: (v: boolean) => void,
 ) {
   const dispatch = useAppDispatch();
   const websiteForm = useAppSelector(selectWebsiteForm);
@@ -18,6 +19,7 @@ export function useWebsiteSubmit(
   const [createWebsite, { isLoading }] = useCreateWebsiteMutation();
 
   const handleConfirm = async () => {
+    setAttempted(true);
     if (!isFormValid) {
       dispatch(validateWebsiteUrl());
       return;

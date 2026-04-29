@@ -100,6 +100,10 @@ export default function CreateBenefitPage() {
   };
 
   const handleNext = () => {
+    if (currentStep === 1 && !accessPoint) {
+      showToast('Indica il punto di accesso per continuare', 'error');
+      return;
+    }
     setAttempted(true);
     if (!isStepValid(currentStep)) return;
     if (currentStep === STEPS.length - 1) {

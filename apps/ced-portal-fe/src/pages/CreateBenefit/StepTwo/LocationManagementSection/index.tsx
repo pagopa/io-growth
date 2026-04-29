@@ -126,7 +126,6 @@ export function LocationManagementSection({
           onConfirm={handleAddConfirm}
           onBack={modal === 'add-from-select' ? handleBack : undefined}
           existingLocations={availableLocations}
-          attempted={attempted}
         />
       )}
     </>

@@ -11,10 +11,10 @@ export interface InfoStartupOutput {
 }
 
 const packageInfo = JSON.parse(
-  await readFile(new URL("../../../package.json", import.meta.url), "utf8"),
+  await readFile(new URL("../../../../package.json", import.meta.url), "utf8"),
 ) as Pick<InfoStartupOutput, "name" | "version">;
 
-export const getInfoStartupUseCase: UseCase<
+export const makeGetInfoStartupUseCase: UseCase<
   Record<string, never>,
   InfoStartupOutput,
   BaseError

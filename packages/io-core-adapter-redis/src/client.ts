@@ -47,6 +47,7 @@ export const createRedisClient = async (
     socket: {
       host: config.host,
       port: config.port,
+      reconnectStrategy: false,
       ...(config.tls ? { tls: true as const } : {}),
     },
   });
@@ -65,7 +66,13 @@ export type ResilientRedisClient = RedisCommands & {
 export const createResilientRedisClient = async (
   config: RedisClientConfig,
 ): Promise<ResilientRedisClient> => {
+  const onError = (error: unknown) => {
+    // TODO: send this log through OpenTelemetry instead of console.error.
+    console.error("Redis client error:", error);
+  };
+
   let client = await createRedisClient(config);
+  client.on("error", onError);
   let reconnectPromise: null | Promise<RedisClient> = null;
 
   const getClient = async (): Promise<RedisClient> => {
@@ -79,6 +86,7 @@ export const createResilientRedisClient = async (
         .then(() => createRedisClient(config))
         .then(
           (newClient) => {
+            newClient.on("error", onError);
             client = newClient;
             reconnectPromise = null;
             return newClient;

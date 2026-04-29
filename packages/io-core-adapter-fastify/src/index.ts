@@ -3,7 +3,10 @@ export {
   type ProblemDetails,
   sendErrorResponse,
 } from "./errorMapper.js";
-export { createHttpHandler } from "./httpHandlerBuilder.js";
+export {
+  createHttpHandler,
+  type HttpHandlerOptions,
+} from "./httpHandlerBuilder.js";
 export {
   createHttpRequestValidator,
   emptyValidator,

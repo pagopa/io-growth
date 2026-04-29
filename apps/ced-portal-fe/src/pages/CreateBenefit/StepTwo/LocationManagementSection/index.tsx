@@ -21,7 +21,6 @@ import { AddLocationModal } from './AddLocationModal';
 import { LocationList } from './LocationList';
 import { SelectLocationModal } from './SelectLocationModal';
 
-
 export function LocationManagementSection() {
   const dispatch = useAppDispatch();
   const accessPoint = useAppSelector(selectAccessPoint);

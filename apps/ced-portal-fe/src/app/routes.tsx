@@ -9,6 +9,8 @@ import {
   OverviewCompleteDataPage,
   OverviewPage,
   NotFoundPage,
+  OpportunitiesPage,
+  OpportunityDetailPage,
   UnauthorizedPage,
 } from './routeConfig';
 
@@ -26,6 +28,14 @@ export function AppRoutes() {
           <Route
             path={APP_ROUTES.CREATE_BENEFIT}
             element={<CreateBenefitPage />}
+          />
+          <Route
+            path={APP_ROUTES.OPPORTUNITIES}
+            element={<OpportunitiesPage />}
+          />
+          <Route
+            path={APP_ROUTES.OPPORTUNITY_DETAIL}
+            element={<OpportunityDetailPage />}
           />
           <Route element={<ProtectedRoute />}>
             <Route

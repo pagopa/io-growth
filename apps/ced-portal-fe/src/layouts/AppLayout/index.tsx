@@ -12,7 +12,9 @@ import {
 export function AppLayout() {
   const { pathname } = useLocation();
   const showSideNavigation =
-    pathname === APP_ROUTES.HOME || pathname === APP_ROUTES.OVERVIEW;
+    pathname === APP_ROUTES.HOME ||
+    pathname === APP_ROUTES.OVERVIEW ||
+    pathname === APP_ROUTES.OPPORTUNITIES;
 
   return (
     <Box

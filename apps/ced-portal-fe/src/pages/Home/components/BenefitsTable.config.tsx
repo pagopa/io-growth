@@ -49,8 +49,7 @@ export const benefitsTableColumns: BenefitsTableColumn[] = [
     id: 'state',
     label: 'Stato',
     sortable: true,
-    sortAccessor: (item) =>
-      BenefitStatus[item.state as keyof typeof BenefitStatus],
+    sortAccessor: (item) => BenefitStatus[item.state],
     renderCell: (item) => <Chip {...getChipConfig(item)} />,
   },
   {

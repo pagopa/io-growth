@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 import MenuRoundedIcon from '@mui/icons-material/MenuRounded';
-import LocalOfferOutlinedIcon from '@mui/icons-material/LocalOfferOutlined';
-import PlaceIcon from '@mui/icons-material/Place';
+import BusinessOutlinedIcon from '@mui/icons-material/BusinessOutlined';
+import PhotoOutlined from '@mui/icons-material/PhotoOutlined';
 import { italia } from '@pagopa/mui-italia';
 import {
   Box,
@@ -11,19 +11,26 @@ import {
   ListItemIcon,
   ListItemText,
 } from '@mui/material';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { APP_ROUTES } from '../../app/routeConfig';
+
+interface NavItemProps {
+  icon: ReactNode;
+  label: string;
+  active?: boolean;
+  onClick?: () => void;
+}
 
 function NavItem({
   active = false,
   icon,
   label,
-}: {
-  active?: boolean;
-  icon: ReactNode;
-  label: string;
-}) {
+  onClick,
+}: Readonly<NavItemProps>) {
   return (
     <ListItemButton
       selected={active}
+      onClick={onClick}
       sx={{
         minHeight: 64,
         px: { xs: 2, md: 3 },
@@ -59,6 +66,9 @@ function NavItem({
 }
 
 export function SideNavigation() {
+  const { pathname } = useLocation();
+  const navigate = useNavigate();
+
   return (
     <Box
       component="aside"
@@ -75,11 +85,17 @@ export function SideNavigation() {
     >
       <List disablePadding sx={{ py: 2.5 }}>
         <NavItem
-          active
-          icon={<LocalOfferOutlinedIcon />}
-          label="Agevolazioni"
+          active={pathname === APP_ROUTES.HOME}
+          icon={<BusinessOutlinedIcon />}
+          label="Enti"
+          onClick={() => navigate(APP_ROUTES.HOME)}
         />
-        <NavItem icon={<PlaceIcon />} label="Punti di accesso" />
+        <NavItem
+          active={pathname === APP_ROUTES.OPPORTUNITIES}
+          icon={<PhotoOutlined />}
+          label="Opportunità"
+          onClick={() => navigate(APP_ROUTES.OPPORTUNITIES)}
+        />
       </List>
 
       <Box sx={{ p: 2 }}>

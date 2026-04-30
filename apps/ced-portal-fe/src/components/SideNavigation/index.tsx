@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 import MenuRoundedIcon from '@mui/icons-material/MenuRounded';
-import BusinessOutlinedIcon from '@mui/icons-material/BusinessOutlined';
+import DashboardOutlinedIcon from '@mui/icons-material/DashboardOutlined';
+import LocalOfferOutlinedIcon from '@mui/icons-material/LocalOfferOutlined';
 import PhotoOutlined from '@mui/icons-material/PhotoOutlined';
 import { italia } from '@pagopa/mui-italia';
 import {
@@ -29,8 +30,8 @@ function NavItem({
 }: Readonly<NavItemProps>) {
   return (
     <ListItemButton
-      selected={active}
       onClick={onClick}
+      selected={active}
       sx={{
         minHeight: 64,
         px: { xs: 2, md: 3 },
@@ -66,8 +67,11 @@ function NavItem({
 }
 
 export function SideNavigation() {
-  const { pathname } = useLocation();
   const navigate = useNavigate();
+  const { pathname } = useLocation();
+  const isOverviewActive = pathname === APP_ROUTES.OVERVIEW;
+  const isBenefitsActive = pathname === APP_ROUTES.HOME;
+  const isOpportunitiesActive = pathname === APP_ROUTES.OPPORTUNITIES;
 
   return (
     <Box
@@ -85,13 +89,19 @@ export function SideNavigation() {
     >
       <List disablePadding sx={{ py: 2.5 }}>
         <NavItem
-          active={pathname === APP_ROUTES.HOME}
-          icon={<BusinessOutlinedIcon />}
-          label="Enti"
+          active={isOverviewActive}
+          icon={<DashboardOutlinedIcon />}
+          label="Panoramica"
+          onClick={() => navigate(APP_ROUTES.OVERVIEW)}
+        />
+        <NavItem
+          active={isBenefitsActive}
+          icon={<LocalOfferOutlinedIcon />}
+          label="Agevolazioni"
           onClick={() => navigate(APP_ROUTES.HOME)}
         />
         <NavItem
-          active={pathname === APP_ROUTES.OPPORTUNITIES}
+          active={isOpportunitiesActive}
           icon={<PhotoOutlined />}
           label="Opportunità"
           onClick={() => navigate(APP_ROUTES.OPPORTUNITIES)}

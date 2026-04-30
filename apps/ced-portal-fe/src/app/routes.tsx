@@ -6,6 +6,8 @@ import {
   APP_ROUTES,
   CreateBenefitPage,
   HomePage,
+  OverviewCompleteDataPage,
+  OverviewPage,
   NotFoundPage,
   OpportunitiesPage,
   OpportunityDetailPage,
@@ -17,6 +19,11 @@ export function AppRoutes() {
     <Suspense fallback={<div style={{ padding: 24 }}>Loading...</div>}>
       <Routes>
         <Route element={<AppLayout />}>
+          <Route path={APP_ROUTES.OVERVIEW} element={<OverviewPage />} />
+          <Route
+            path={APP_ROUTES.OVERVIEW_COMPLETE_DATA}
+            element={<OverviewCompleteDataPage />}
+          />
           <Route path={APP_ROUTES.HOME} element={<HomePage />} />
           <Route
             path={APP_ROUTES.CREATE_BENEFIT}

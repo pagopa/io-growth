@@ -4,7 +4,7 @@ import {
 } from '../../features/benefitsFilters/types';
 import { BenefitType, FixedPriceBenefitType } from './types';
 
-const genetareOptions = <T extends string>(
+const generateOptions = <T extends string>(
   enumObj: Record<T, string>,
 ): Array<{ value: T; label: string }> =>
   Object.entries<string>(enumObj).map(([key, label]) => ({
@@ -12,10 +12,10 @@ const genetareOptions = <T extends string>(
     label,
   }));
 
-export const categoriesOptions = genetareOptions(BenefitCategory);
-export const statusOptions = genetareOptions(BenefitStatus);
-export const benefitTypeOptions = genetareOptions(BenefitType);
-export const fixedPriceBenefitTypeOptions = genetareOptions(
+export const categoriesOptions = generateOptions(BenefitCategory);
+export const statusOptions = generateOptions(BenefitStatus);
+export const benefitTypeOptions = generateOptions(BenefitType);
+export const fixedPriceBenefitTypeOptions = generateOptions(
   FixedPriceBenefitType,
 );
 

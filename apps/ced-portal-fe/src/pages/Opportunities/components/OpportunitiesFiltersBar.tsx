@@ -1,7 +1,7 @@
 import FilterAltOutlined from '@mui/icons-material/FilterAltOutlined';
 import { Button, Stack } from '@mui/material';
 import { AppSelect, AppTextField } from '../../../components';
-import { STATE_LABELS, STATE_OPTIONS } from '../../../constants';
+import { STATE_OPTIONS } from '../../../constants';
 import type { OpportunityFilters } from '../../../features/opportunities/types';
 
 interface OpportunitiesFiltersBarProps {
@@ -36,14 +36,18 @@ export const OpportunitiesFiltersBar = ({
       sx={{ flex: 0.5 }}
       label="Stato"
       placeholder="Stato"
-      options={STATE_OPTIONS.map((s) => STATE_LABELS[s] ?? s)}
+      options={STATE_OPTIONS}
       value={
-        filters.state ? (STATE_LABELS[filters.state] ?? filters.state) : ''
+        filters.state
+          ? (STATE_OPTIONS.find((o) => o.value === filters.state)?.value ??
+            filters.state)
+          : ''
       }
       onChange={(e) => {
         const label = e.target.value as string;
         const key =
-          Object.entries(STATE_LABELS).find(([, v]) => v === label)?.[0] ?? '';
+          STATE_OPTIONS.find(({ label: oLabel }) => oLabel === label)?.value ??
+          '';
         onChange({ state: key });
       }}
     />

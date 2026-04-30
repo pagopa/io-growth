@@ -5,6 +5,7 @@ import { BenefitDiscountValueType } from '../../../../../features/agreementDetai
 import { FixedPriceFields } from './FixedPriceFields';
 import { DetailFormField } from '../../AgreementDetailsSection/components/DetailFormField';
 import { benefitTypeOptions } from '../../../../../constants';
+import { BenefitType } from '../../../../../constants/formOptions/types';
 
 export const ViewSameConditions = () => {
   const benefitType = useAppSelector(
@@ -25,7 +26,8 @@ export const ViewSameConditions = () => {
       <DetailFormField name={'benefitType'}>
         <AppSelect options={benefitTypeOptions} value={benefitType} disabled />
       </DetailFormField>
-      {benefitType === 'FIXED_PRICE' && (
+      {BenefitType[benefitType as keyof typeof BenefitType] ===
+        BenefitType.FIXED_PRICE && (
         <FixedPriceFields
           sameValues
           values={{

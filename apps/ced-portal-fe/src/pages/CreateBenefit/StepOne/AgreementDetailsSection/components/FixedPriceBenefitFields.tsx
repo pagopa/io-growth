@@ -15,6 +15,7 @@ import {
   fixedPriceBenefitTypeOptions,
   getAgreementCopy,
 } from '../../../../../constants';
+import { BenefitType } from '../../../../../constants/formOptions/types';
 
 export const FixedPriceBenefitFields = () => {
   const dispatch = useAppDispatch();
@@ -28,9 +29,13 @@ export const FixedPriceBenefitFields = () => {
   const otherBenefitType =
     copy.additionalSections.companion.benefitTypeOptions.other;
 
+  const benefitType = useAppSelector(
+    selectFieldActiveAgreementLanguageForm('benefitType'),
+  );
+
   const isFixedPriceBenefit =
-    useAppSelector(selectFieldActiveAgreementLanguageForm('benefitType')) ===
-    'FIXED_PRICE';
+    BenefitType[benefitType as keyof typeof BenefitType] ===
+    BenefitType.FIXED_PRICE;
 
   const discountType = useAppSelector(
     selectFieldActiveAgreementLanguageForm('benefitDiscountValueType'),

@@ -18,6 +18,7 @@ import {
   categoriesOptions,
   getAgreementCopy,
 } from '../../../../constants';
+import { BenefitType } from '../../../../constants/formOptions/types';
 
 export function AgreementDetailsSection({
   attempted,
@@ -47,7 +48,10 @@ export function AgreementDetailsSection({
     (field: AgreementDetailsFieldKey, value: string | number) => {
       handleFieldChange(field, value);
 
-      if (value !== 'FIXED_PRICE') {
+      if (
+        BenefitType[value as keyof typeof BenefitType] !==
+        BenefitType.FIXED_PRICE
+      ) {
         handleFieldChange('benefitDiscountValue', '');
         handleFieldChange('benefitDiscountValueType', '');
         handleFieldChange('otherBenefitTypeDescription', '');

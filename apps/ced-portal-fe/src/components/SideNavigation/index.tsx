@@ -95,13 +95,9 @@ export function SideNavigation() {
       <List disablePadding sx={{ py: 2.5 }}>
         {isAdmin ? (
           <>
+            <NavItem icon={<BusinessOutlinedIcon />} label="Enti" />
             <NavItem
-              active={pathname === APP_ROUTES.HOME}
-              icon={<BusinessOutlinedIcon />}
-              label="Enti"
-            />
-            <NavItem
-              active={pathname === APP_ROUTES.OPPORTUNITIES}
+              active={isOpportunitiesActive}
               icon={<PhotoOutlined />}
               label="Opportunità"
               onClick={() => navigate(APP_ROUTES.OPPORTUNITIES)}

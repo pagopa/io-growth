@@ -1,0 +1,438 @@
+openapi: 3.0.3
+info:
+  title: BFF - CED Application Management (INPS Cooperation)
+  description: |
+    Backend For Frontend (BFF) API for managing the CED application process.
+    The BFF handles all state transitions, idempotency logic (retrieving/generating the Idempotency Key internally),
+    and reconciliation with INPS. The Codice Fiscale (CF) is retrieved from the user's session.
+    All endpoints are protected by an opaque token in the Authorization header.
+  version: 1.0.0
+servers:
+  - url: https://api.your-bff.it/v1
+    description: BFF production endpoint
+
+security:
+  - BearerAuth: []
+
+paths:
+  /status:
+    get:
+      tags:
+        - Status Check and Reconciliation
+      summary: Retrieves the current application state (and initiates reconciliation)
+      description: |
+        Called upon user access or retry. Executes the INPS CheckDomanda call in the background,
+        reconciles the local DB state, and returns the current stable state required for the FE to direct the user flow.
+      operationId: getApplicationStatus
+      responses:
+        "200":
+          description: Application status determined (reconciled)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StateResponse"
+        "400":
+          description: INPS business/logic error (e.g., Active Card, foreign residence,
+            Codes 700, 212-214)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: BFF or INPS internal error (e.g., Code 100)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "503":
+          description: Critical DB service unavailable (Failure to read local state)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /request:
+    post:
+      tags:
+        - Application Creation
+      summary: Submits data for a new application draft (NuovaDomandaInBozza)
+      description: |
+        Invoked when the status is READY_FOR_NEW_DRAFT. The BFF generates a new Idempotency Key,
+        creates the DRAFT record in the local DB, calls NuovaDomandaInBozza, and transitions to READY_FOR_PHOTO_UPLOAD upon success.
+      operationId: createNewApplication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/NuovaDomandaInBozzaRequest"
+      responses:
+        "200":
+          description: Application saved as draft. Next state returned.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  state:
+                    $ref: "#/components/schemas/ApplicationState"
+                    example: READY_FOR_PHOTO_UPLOAD
+                  idLavorazione:
+                    type: string
+                    description: INPS idLavorazione associated with the application
+                    maxLength: 20
+        "400":
+          description: INPS data validation error (Codes 200-315)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: BFF or INPS internal error (Code 100)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "503":
+          description: Critical DB error during the first local save (DRAFT state)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /image:
+    post:
+      tags:
+        - Photo Upload
+      summary: Uploads the passport photo (FornisciFoto)
+      description: |
+        Invoked when the state is READY_FOR_PHOTO_UPLOAD. The BFF retrieves the existing Idempotency Key from the local DB,
+        calls FornisciFoto, and transitions to READY_FOR_DOCUMENTS_UPLOAD on success.
+      operationId: uploadPhoto
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FornisciFotoRequest"
+      responses:
+        "200":
+          description: Photo acquired and validated. Next state returned.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StateResponse"
+                properties:
+                  state:
+                    $ref: "#/components/schemas/ApplicationState"
+                    example: READY_FOR_DOCUMENTS_UPLOAD
+        "400":
+          description: Photo validation or state inconsistency error (Codes 900-911, 115)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: BFF or INPS internal error (Code 100)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "503":
+          description: Critical DB error during the first local save (UPLOADING_PHOTO)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /confirm:
+    post:
+      tags:
+        - Confirmation and Documentation
+      summary: Final confirmation of the application (ConfermaDomanda)
+      description: |
+        Invoked when the state is READY_FOR_DOCUMENTS_UPLOAD. The BFF retrieves the existing Idempotency Key,
+        calls ConfermaDomanda (with optional documentation), and transitions to ACQUIRED on success.
+      operationId: confirmApplication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ConfermaDomandaRequest"
+      responses:
+        "200":
+          description: Application acquired by INPS. Final state returned.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StateResponse"
+                properties:
+                  state:
+                    $ref: "#/components/schemas/ApplicationState"
+                    example: ACQUIRED
+        "400":
+          description: Documentation validation or state inconsistency error (Codes
+            400-409, 114, 115)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: BFF or INPS internal error (Code 100)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "503":
+          description: Critical DB error during the first local save (UPLOADING_DOCUMENTS)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: OpaqueToken
+      description: Opaque token retrieved from the Authorization header for securing
+        the BFF endpoints.
+
+  schemas:
+    ApplicationState:
+      type: string
+      description: Internal workflow state (managed by the BFF/DB) that guides the
+        FE's display logic.
+      enum:
+        - READY_FOR_NEW_DRAFT
+        - DRAFT
+        - READY_FOR_PHOTO_UPLOAD
+        - UPLOADING_PHOTO
+        - READY_FOR_DOCUMENTS_UPLOAD
+        - UPLOADING_DOCUMENTS
+        - ACQUIRED
+
+    StateResponse:
+      type: object
+      properties:
+        state:
+          $ref: "#/components/schemas/ApplicationState"
+          description: Current or final application state.
+
+    ErrorDetail:
+      type: object
+      description: Detail of the error returned by INPS.
+      properties:
+        errorCode:
+          type: string
+          description: Original INPS error code (e.g., 700, 212, 903).
+        description:
+          type: string
+          description: Human-readable error message.
+
+    ErrorResponse:
+      type: object
+      description: Standardized structure for error handling.
+      properties:
+        error:
+          type: object
+          properties:
+            type:
+              type: string
+              enum:
+                - VALIDATION_ERROR
+                - SYSTEM_ERROR
+                - SERVICE_UNAVAILABLE
+              description: Type of error managed by the BFF.
+            details:
+              $ref: "#/components/schemas/ErrorDetail"
+              description: Specific details of the INPS or system error.
+
+    # ----------------------------------------------------------------
+    # INPS Input Schemas (codiceFiscale excluded, handled by BFF from session)
+    # ----------------------------------------------------------------
+
+    NuovaDomandaInBozzaRequest:
+      type: object
+      description: Request body for NuovaDomandaInBozza. The BFF injects the
+        CodiceFiscale from the session.
+      required:
+        - informativaPrivacy
+        - nome
+        - cognome
+        - sesso
+        - statoNascita
+        - dataNascita
+        - idCittadinanza
+        - siglaProvinciaRec
+        - descrizioneComuneRec
+        - capRec
+        - indirizzoRec
+      properties:
+        informativaPrivacy:
+          type: boolean
+          description: 1=Acceptance of privacy policy
+        nome:
+          type: string
+          maxLength: 50
+          description: Full name
+        cognome:
+          type: string
+          maxLength: 50
+          description: Full surname
+        sesso:
+          type: string
+          maxLength: 1
+          enum: [ M, F ]
+          description: Gender
+        statoNascita:
+          type: string
+          maxLength: 60
+          description: Full description of the State of Birth
+        comuneNascita:
+          type: string
+          maxLength: 60
+          nullable: true
+          description: Full description of the Municipality of Birth (Required if
+            statoNascita is ITALIA)
+        siglaProvinciaNascita:
+          type: string
+          maxLength: 2
+          nullable: true
+          description: Province abbreviation of Birth (Required if statoNascita is ITALIA)
+        dataNascita:
+          type: string
+          format: date-time
+          description: Date of birth
+        idCittadinanza:
+          type: integer
+          description: 0=Italiana, 2=Paesi comunitari, 3=Paesi extracomunitari
+        dataScadenzaPermessoSoggiorno:
+          type: string
+          format: date-time
+          nullable: true
+          description: Permit expiration date (Required only if idCittadinanza = 3)
+        pressoNome:
+          type: string
+          maxLength: 40
+          nullable: true
+          description: Optional name for delivery
+        pressoCognome:
+          type: string
+          maxLength: 40
+          nullable: true
+          description: Optional surname for delivery. Pair PRESSO NOME/COGNOME is
+            exclusive of PRESSO DENOMINAZIONE.
+        pressoDenominazione:
+          type: string
+          maxLength: 40
+          nullable: true
+          description: Optional Denomination for delivery. Length must not exceed 40
+            characters.
+        siglaProvinciaRec:
+          type: string
+          maxLength: 2
+          description: Province abbreviation for delivery address
+        descrizioneComuneRec:
+          type: string
+          maxLength: 60
+          description: Municipality description for delivery address
+        capRec:
+          type: string
+          maxLength: 5
+          description: ZIP code for delivery address
+        indirizzoRec:
+          type: string
+          maxLength: 30
+          description: Delivery address (max 30 characters)
+        civicoRec:
+          type: string
+          maxLength: 10
+          nullable: true
+          description: House number (max 10 characters)
+        datiAggiuntiviRec:
+          type: string
+          maxLength: 45
+          nullable: true
+          description: Additional address data (max 45 characters)
+
+    FornisciFotoRequest:
+      type: object
+      description: Request body for FornisciFoto. The BFF injects the CodiceFiscale
+        from the session.
+      required:
+        - idLavorazione
+        - fotoCED
+        - informativaFoto
+      properties:
+        idLavorazione:
+          type: string
+          maxLength: 20
+          description: The INPS idLavorazione of the draft application.
+        fotoCED:
+          type: string
+          format: byte
+          description: Photo encoded in Base64 (max 2Mb).
+        informativaFoto:
+          type: boolean
+          description: 1=Acceptance of photo information.
+
+    ConfermaDomandaRequest:
+      type: object
+      description: Request body for ConfermaDomanda (with optional documentation). The
+        BFF injects the CodiceFiscale from the session.
+      required:
+        - idLavorazione
+      properties:
+        idLavorazione:
+          type: string
+          maxLength: 20
+          description: The INPS idLavorazione of the draft application.
+        tipologiaUlterioreDocumentazione:
+          type: string
+          maxLength: 1
+          nullable: true
+          description: 1 - Trento/Bolzano/Valle d’Aosta, 2 - Sentenza/Decreto, 3 -
+            Invalidità ante 2010.
+          enum: [ 1, 2, 3 ]
+        nomeFile:
+          type: string
+          maxLength: 255
+          nullable: true
+          description: Required if TipologiaUlterioreDocumentazione=1 or 3
+        allegato:
+          type: string
+          format: byte
+          nullable: true
+          description: Verbale in PDF encoded in Base64 (max 2Mb). Required if
+            TipologiaUlterioreDocumentazione=1 or 3.
+        siglaProvinciaTribunale:
+          type: string
+          maxLength: 2
+          nullable: true
+          description: Required if TipologiaUlterioreDocumentazione=2
+        descrizioneComuneTribunale:
+          type: string
+          maxLength: 60
+          nullable: true
+          description: Required if TipologiaUlterioreDocumentazione=2
+        dataSentenza:
+          type: string
+          format: date-time
+          nullable: true
+          description: Date of the Sentence/Homologation Decree. Required if
+            TipologiaUlterioreDocumentazione=2.
+        dichiarazioneConformitaVerbale:
+          type: boolean
+          nullable: true
+          description: 1=YES. Required if TipologiaUlterioreDocumentazione=1 or 3.
+        autodichiarazioneSentenza:
+          type: boolean
+          nullable: true
+          description: 1=YES. Required if TipologiaUlterioreDocumentazione=2.
+        dirittoAccompagnatore:
+          type: boolean
+          nullable: true
+          description: 0=NO, 1=SI. Independent of documentation type.

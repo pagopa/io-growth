@@ -1,0 +1,29 @@
+@startuml Get Opportunity Sequence
+
+actor "Citizen (IO App)" as cit
+participant "CED Browser BE" as be
+participant "Redis" as rd
+participant "PostgreSQL" as pg
+
+cit -> be: GET /api/opportunities/{opportunityId}
+note right of cit: token header: <session_token>
+activate be
+
+be -> rd: Validate session token
+alt Session token valid
+    rd --> be: Identity (fiscal code)
+
+    be -> pg: GET OpportunityMaterializedView by id\nwith status = published\nand date range valid
+    alt Opportunity found
+        be -> pg: GET PlaceMaterializedView by opportunity_id
+        pg --> be: Venues
+        be --> cit: 200 OpportunityDetail (full fields + venues)
+    else Opportunity not found or not published
+        be --> cit: 404 Not Found
+    end
+else Session token invalid or missing
+    be --> cit: 401 Unauthorized
+end
+deactivate be
+
+@enduml

@@ -2,7 +2,6 @@ import type { ReactNode } from 'react';
 import MenuRoundedIcon from '@mui/icons-material/MenuRounded';
 import DashboardOutlinedIcon from '@mui/icons-material/DashboardOutlined';
 import LocalOfferOutlinedIcon from '@mui/icons-material/LocalOfferOutlined';
-import BusinessOutlinedIcon from '@mui/icons-material/BusinessOutlined';
 import PhotoOutlined from '@mui/icons-material/PhotoOutlined';
 import { italia } from '@pagopa/mui-italia';
 import {

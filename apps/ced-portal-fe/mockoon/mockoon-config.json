@@ -181,6 +181,87 @@
       "responseMode": null,
       "streamingMode": null,
       "streamingInterval": 0
+    },
+    {
+      "uuid": "f1a2b3c4-d5e6-7890-abcd-ef0123456789",
+      "type": "http",
+      "documentation": "Elenco opportunità",
+      "method": "get",
+      "endpoint": "api/opportunities",
+      "responses": [
+        {
+          "uuid": "f1a2b3c4-d5e6-7890-abcd-ef0123456790",
+          "body": "[\n    {\n        \"id\": \"opp-001\",\n        \"name\": \"Accesso gratuito nei teatri comunali\",\n        \"organization_name\": \"Comune di Alessandria\",\n        \"created_at\": \"2026-03-12\",\n        \"state\": \"Da_gestire\"\n    },\n    {\n        \"id\": \"opp-002\",\n        \"name\": \"Biglietto gratuito nelle sale cinematografiche\",\n        \"organization_name\": \"Cineplex Moderno Alessandria\",\n        \"created_at\": \"2026-03-12\",\n        \"state\": \"Da_gestire\"\n    },\n    {\n        \"id\": \"opp-003\",\n        \"name\": \"Biglietto gratuito nelle sale cinematografiche\",\n        \"organization_name\": \"Cineplex Moderno Alessandria\",\n        \"created_at\": \"2026-03-12\",\n        \"state\": \"Da_gestire\"\n    },\n    {\n        \"id\": \"opp-004\",\n        \"name\": \"Biglietto gratuito nelle sale cinematografiche\",\n        \"organization_name\": \"Cineplex Moderno Alessandria\",\n        \"created_at\": \"2026-03-12\",\n        \"state\": \"Da_gestire\"\n    },\n    {\n        \"id\": \"opp-005\",\n        \"name\": \"Accesso gratuito nei cinema multisala\",\n        \"organization_name\": \"Comune di Cuneo\",\n        \"created_at\": \"2026-03-12\",\n        \"state\": \"In_attesa_di_modifiche\"\n    },\n    {\n        \"id\": \"opp-006\",\n        \"name\": \"Sconto trasporto pubblico locale\",\n        \"organization_name\": \"Comune di Torino\",\n        \"created_at\": \"2026-02-28\",\n        \"state\": \"Approvata\"\n    },\n    {\n        \"id\": \"opp-007\",\n        \"name\": \"Ingresso gratuito musei civici\",\n        \"organization_name\": \"Comune di Milano\",\n        \"created_at\": \"2026-02-15\",\n        \"state\": \"Approvata\"\n    },\n    {\n        \"id\": \"opp-008\",\n        \"name\": \"Abbonamento palestre comunali\",\n        \"organization_name\": \"Comune di Roma\",\n        \"created_at\": \"2026-01-20\",\n        \"state\": \"Non_attiva\"\n    }\n]",
+          "latency": 0,
+          "statusCode": 200,
+          "label": "Response with all statuses",
+          "headers": [],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": true,
+          "crudKey": "id",
+          "callbacks": []
+        },
+        {
+          "uuid": "f1a2b3c4-d5e6-7890-abcd-ef0123456791",
+          "body": "[]",
+          "latency": 0,
+          "statusCode": 200,
+          "label": "Empty response",
+          "headers": [],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": false,
+          "crudKey": "id",
+          "callbacks": []
+        }
+      ],
+      "responseMode": null,
+      "streamingMode": null,
+      "streamingInterval": 0
+    },
+    {
+      "uuid": "a2b3c4d5-e6f7-8901-bcde-f01234567890",
+      "type": "http",
+      "documentation": "Dettaglio opportunità",
+      "method": "get",
+      "endpoint": "api/opportunities/:id",
+      "responses": [
+        {
+          "uuid": "a2b3c4d5-e6f7-8901-bcde-f01234567891",
+          "body": "{\n    \"id\": \"{{urlParam 'id'}}\",\n    \"name\": \"Discount_Title\",\n    \"organization_name\": \"Comune di Alessandria\",\n    \"state\": \"Da_gestire\",\n    \"opportunity_type\": \"Sconto\",\n    \"discount_type\": \"Percentuale\",\n    \"discount_value\": 50,\n    \"description\": \"Consente l'accesso agevolato nei musei per i titolari della Carta Europea della Disabilità e un solo accompagnatore.\",\n    \"category\": \"Cultura e tempo libero\",\n    \"validity_start\": \"2026-03-01\",\n    \"validity_end\": \"2026-12-31\",\n    \"conditions\": \"L'accompagnatore ha diritto ad uno sconto se sulla Carta Europea della Disabilità è presente la \\\"A\\\" che indica il diritto di accompagnamento.\",\n    \"companion\": {\n        \"enabled\": true,\n        \"discount_type\": \"Importo fisso\",\n        \"discount_value\": 10\n    }\n}",
+          "latency": 0,
+          "statusCode": 200,
+          "label": "Opportunity detail",
+          "headers": [],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": true,
+          "crudKey": "id",
+          "callbacks": []
+        }
+      ],
+      "responseMode": null,
+      "streamingMode": null,
+      "streamingInterval": 0
     }
   ],
   "rootChildren": [
@@ -203,6 +284,14 @@
     {
       "type": "route",
       "uuid": "b1c2d3e4-f5a6-7890-bcde-f01234567890"
+    },
+    {
+      "type": "route",
+      "uuid": "f1a2b3c4-d5e6-7890-abcd-ef0123456789"
+    },
+    {
+      "type": "route",
+      "uuid": "a2b3c4d5-e6f7-8901-bcde-f01234567890"
     }
   ],
   "proxyMode": false,

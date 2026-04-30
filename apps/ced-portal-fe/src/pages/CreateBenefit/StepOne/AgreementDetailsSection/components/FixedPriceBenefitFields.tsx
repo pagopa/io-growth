@@ -11,7 +11,10 @@ import {
   selectFieldActiveAgreementLanguageForm,
 } from '../../../../../features/agreementDetailCreation/selectors';
 import { AgreementDetailsFieldKey } from '../../../../../features/agreementDetailCreation/types';
-import { getAgreementCopy } from '../../../../../constants';
+import {
+  fixedPriceBenefitTypeOptions,
+  getAgreementCopy,
+} from '../../../../../constants';
 
 export const FixedPriceBenefitFields = () => {
   const dispatch = useAppDispatch();
@@ -27,7 +30,7 @@ export const FixedPriceBenefitFields = () => {
 
   const isFixedPriceBenefit =
     useAppSelector(selectFieldActiveAgreementLanguageForm('benefitType')) ===
-    fixedPriceBenefitType;
+    'FIXED_PRICE';
 
   const discountType = useAppSelector(
     selectFieldActiveAgreementLanguageForm('benefitDiscountValueType'),
@@ -93,7 +96,7 @@ export const FixedPriceBenefitFields = () => {
 
   const discountIcon = useMemo(
     () =>
-      discountType === 'percentage' ? (
+      discountType === 'PERCENTAGE' ? (
         <PercentRoundedIcon sx={{ fontSize: 18 }} />
       ) : (
         <EuroRoundedIcon sx={{ fontSize: 18 }} />
@@ -113,16 +116,7 @@ export const FixedPriceBenefitFields = () => {
     <Stack spacing={1.25}>
       <AppRadioGroup
         value={discountType}
-        options={[
-          {
-            label: copy.detailsForm.discountTypeOptions.percentage,
-            value: 'percentage',
-          },
-          {
-            label: copy.detailsForm.discountTypeOptions.fixed,
-            value: 'fixed',
-          },
-        ]}
+        options={fixedPriceBenefitTypeOptions}
         onChange={(event) => handleBenefitTypeChange(event.target.value)}
       />
 

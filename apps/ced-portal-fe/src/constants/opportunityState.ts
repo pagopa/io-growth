@@ -1,16 +1,9 @@
 export const STATE_OPTIONS = [
-  'Da_gestire',
-  'In_attesa_di_modifiche',
-  'Approvata',
-  'Non_attiva',
+  { value: 'Da_gestire', label: 'Da gestire' },
+  { value: 'In_attesa_di_modifiche', label: 'In attesa di modifiche' },
+  { value: 'Approvata', label: 'Approvata' },
+  { value: 'Non_attiva', label: 'Non attiva' },
 ];
-
-export const STATE_LABELS: Record<string, string> = {
-  Da_gestire: 'Da gestire',
-  In_attesa_di_modifiche: 'In attesa di modifiche',
-  Approvata: 'Approvata',
-  Non_attiva: 'Non attiva',
-};
 
 export const STATE_COLORS: Record<
   string,

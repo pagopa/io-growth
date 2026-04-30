@@ -25,7 +25,7 @@ import { useNavigate } from 'react-router-dom';
 import type { Opportunity } from '../../../features/opportunities/types';
 import {
   STATE_COLORS,
-  STATE_LABELS,
+  STATE_OPTIONS,
 } from '../../../constants/opportunityState';
 
 type SortDirection = 'asc' | 'desc';
@@ -250,7 +250,10 @@ export const OpportunitiesTable = ({
               </TableCell>
               <TableCell>
                 <Chip
-                  label={STATE_LABELS[item.state] ?? item.state}
+                  label={
+                    STATE_OPTIONS.find((o) => o.value === item.state)?.label ??
+                    item.state
+                  }
                   color={STATE_COLORS[item.state] ?? 'default'}
                   size="small"
                 />

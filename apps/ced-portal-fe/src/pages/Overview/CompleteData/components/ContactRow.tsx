@@ -2,8 +2,7 @@ import CancelIcon from '@mui/icons-material/Cancel';
 import { Box, IconButton, Stack } from '@mui/material';
 import { AppSelect, AppTextField } from '../../../../components';
 import type { Contact } from '../types';
-
-const CONTACT_TYPE_OPTIONS = ['Sito web', 'Telefono'];
+import { CONTACT_TYPE_OPTIONS } from './constants';
 
 interface ContactRowProps {
   contact: Contact;

@@ -7,7 +7,7 @@ import {
 export const EMPTY_DETAILS: AgreementDetailsFields = {
   name: '',
   benefitType: '',
-  benefitDiscountValueType: 'fixed',
+  benefitDiscountValueType: 'FIXED',
   benefitDiscountValue: '',
   otherBenefitTypeDescription: '',
   description: '',
@@ -19,7 +19,7 @@ export const EMPTY_COMPANION: AgreementCompanionFields = {
   isCompanionBenefit: false,
   isSameConditionAsOwner: false,
   companionBenefitType: '',
-  companionDiscountValueType: 'fixed',
+  companionDiscountValueType: 'FIXED',
   companionDiscountValue: '',
   companionOtherBenefitTypeDescription: '',
 };

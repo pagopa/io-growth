@@ -1,10 +1,14 @@
 import MoreVertRoundedIcon from '@mui/icons-material/MoreVertRounded';
+import { format, parseISO } from 'date-fns';
 import { Chip } from '@mui/material';
 import type { Theme } from '@mui/material/styles';
 import type { ReactNode } from 'react';
 import type { Benefit } from '../../../features/benefits/types';
-import { benefitStateLabelMap } from './constants';
 import { getChipConfig } from './utils';
+import {
+  BenefitCategory,
+  BenefitStatus,
+} from '../../../features/benefitsFilters/types';
 
 export interface BenefitsTableColumn {
   id: string;
@@ -28,22 +32,25 @@ export const benefitsTableColumns: BenefitsTableColumn[] = [
     id: 'category',
     label: 'Categoria',
     sortable: true,
-    sortAccessor: (item) => item.category,
-    renderCell: (item) => item.category,
+    sortAccessor: (item) =>
+      BenefitCategory[item.category as keyof typeof BenefitCategory],
+    renderCell: (item) =>
+      BenefitCategory[item.category as keyof typeof BenefitCategory],
   },
   {
     id: 'createdAt',
     label: 'Creata il',
     sortable: true,
-    sortAccessor: (item) => item.created_by,
-    renderCell: (item) => item.created_by,
+    sortAccessor: (item) => parseISO(item.createdAt).getTime(),
+    renderCell: (item) =>
+      format(parseISO(item.createdAt), 'dd/MM/yyyy - HH:mm'),
   },
   {
     id: 'state',
     label: 'Stato',
     sortable: true,
     sortAccessor: (item) =>
-      benefitStateLabelMap[item.state]?.text ?? item.state,
+      BenefitStatus[item.state as keyof typeof BenefitStatus],
     renderCell: (item) => <Chip {...getChipConfig(item)} />,
   },
   {

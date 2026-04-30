@@ -7,7 +7,6 @@ import {
   Typography,
   useTheme,
 } from '@mui/material';
-import { useMemo } from 'react';
 import type { Benefit } from '../../../features/benefits/types';
 import { BenefitsTable } from './BenefitsTable';
 
@@ -19,13 +18,6 @@ interface BenefitsContentStateProps {
   onRetry: () => void;
 }
 
-const IN_MANAGEMENT_STATES = new Set([
-  'Revisione',
-  'Bozza',
-  'Modifiche_Richieste',
-]);
-const APPROVED_STATES = new Set(['Pubblicata', 'Pubblicazione_Programmata']);
-
 export function BenefitsContentState({
   isLoading,
   isError,
@@ -34,13 +26,7 @@ export function BenefitsContentState({
   onRetry,
 }: BenefitsContentStateProps) {
   const theme = useTheme();
-  const filteredItems = useMemo(() => {
-    if (activeTab === 0) {
-      return items.filter((item) => IN_MANAGEMENT_STATES.has(item.state));
-    }
-    return items.filter((item) => APPROVED_STATES.has(item.state));
-  }, [activeTab, items]);
-  const hasData = !isLoading && !isError && filteredItems.length > 0;
+  const hasData = !isLoading && !isError && items.length > 0;
 
   const renderContent = () => {
     if (isLoading)
@@ -72,9 +58,9 @@ export function BenefitsContentState({
           </Button>
         </Stack>
       );
-    if (filteredItems.length === 0)
+    if (items.length === 0)
       return (
-        <Stack spacing={1} alignItems="center" textAlign="center">
+        <Stack spacing={1} alignItems="center" textAlign="center" py={2}>
           <WarningAmberRoundedIcon
             sx={{ color: 'text.secondary', fontSize: 28 }}
           />
@@ -94,7 +80,7 @@ export function BenefitsContentState({
           </Typography>
         </Stack>
       );
-    return <BenefitsTable items={filteredItems} />;
+    return <BenefitsTable items={items} />;
   };
 
   return (
@@ -105,8 +91,6 @@ export function BenefitsContentState({
         borderRadius: 2.5,
         border: '8px solid',
         borderColor: theme.palette.divider,
-        bgcolor: 'common.white',
-        minHeight: 164,
         display: hasData ? 'block' : 'grid',
         placeItems: hasData ? 'normal' : 'center',
       }}

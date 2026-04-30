@@ -1,21 +1,16 @@
-export type BenefitState =
-  | 'Revisione'
-  | 'Bozza'
-  | 'Modifiche_Richieste'
-  | 'Pubblicata'
-  | 'Pubblicazione_Programmata';
+import { BenefitStatus } from '../benefitsFilters/types';
 
 export interface Benefit {
   name: string;
   category: string;
-  created_by: string;
-  state: BenefitState;
+  createdAt: string;
+  state: keyof typeof BenefitStatus;
 }
 
 export type BenefitsResponse = Benefit[];
 
 export interface SaveBenefitDraftResponse {
   id: string;
-  status: Extract<BenefitState, 'Bozza'>;
+  status: keyof typeof BenefitStatus;
   createdAt: string;
 }

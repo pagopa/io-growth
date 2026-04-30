@@ -96,11 +96,11 @@ paths:
           schema:
             type: string
             enum:
-              - Revisione
-              - Bozza
-              - Modifiche_Richieste
-              - Pubblicata
-              - Pubblicazione_Programmata
+              - UNDER_REVIEW
+              - DRAFT
+              - CHANGES_REQUESTED
+              - PUBLISHED
+              - SCHEDULED_PUBLICATION
       responses:
         '200':
           description: Lista agevolazioni
@@ -109,26 +109,46 @@ paths:
               schema:
                 $ref: '#/components/schemas/BenefitsResponse'
               example:
-                - name: Bonus Trasporti Regione
-                  category: Mobilita
-                  created_by: '31-03-2026'
-                  state: Revisione
-                - name: Voucher Cultura Giovani
-                  category: Istruzione
-                  created_by: '28-03-2026'
-                  state: Bozza
-                - name: Sostegno Affitto Famiglie
-                  category: Casa
-                  created_by: '26-03-2026'
-                  state: Modifiche_Richieste
-                - name: Bonus Energia PMI
-                  category: Imprese
-                  created_by: '22-03-2026'
-                  state: Pubblicata
-                - name: Incentivo Sport 2026
-                  category: Sport
-                  created_by: '18-03-2026'
-                  state: Pubblicazione_Programmata
+                - name: Test Revisione
+                  category: CULTURE_LEISURE
+                  createdAt: '2026-03-28T09:15:30Z'
+                  state: UNDER_REVIEW
+                - name: Test Bozza
+                  category: HEALTH_WELLNESS
+                  createdAt: '2026-03-29T11:45:00Z'
+                  state: DRAFT
+                - name: Test modifiche richieste
+                  category: EDUCATION
+                  createdAt: '2026-03-30T14:20:15Z'
+                  state: CHANGES_REQUESTED
+                - name: Test Pubblicata
+                  category: SPORT
+                  createdAt: '2026-03-31T08:30:00Z'
+                  state: PUBLISHED
+                - name: Test Pubblicazione Programmata
+                  category: HOME
+                  createdAt: '2026-03-31T10:05:45Z'
+                  state: SCHEDULED_PUBLICATION
+                - name: Test Pubblicazione Programmata - 2
+                  category: TELEPHONY_INTERNET
+                  createdAt: '2026-04-02T16:50:22Z'
+                  state: SCHEDULED_PUBLICATION
+                - name: Test Pubblicata - 2
+                  category: FINANCIAL_SERVICES
+                  createdAt: '2026-04-05T09:12:10Z'
+                  state: PUBLISHED
+                - name: Test Bozza - 2
+                  category: TRAVEL_TRANSPORT
+                  createdAt: '2026-04-10T15:35:00Z'
+                  state: DRAFT
+                - name: Test Bozza - 3
+                  category: SUSTAINABLE_MOBILITY
+                  createdAt: '2026-04-15T11:20:33Z'
+                  state: DRAFT
+                - name: Test Bozza - 4
+                  category: WORK_INTERNSHIPS
+                  createdAt: '2026-04-20T18:05:19Z'
+                  state: DRAFT
     post:
       tags:
         - Benefits
@@ -149,7 +169,7 @@ paths:
               example:
                 id: ben-001
                 name: Nuova agevolazione
-                status: draft
+                state: DRAFT
                 createdAt: '2026-03-26T10:00:00Z'
         '400':
           description: Payload non valido
@@ -226,30 +246,30 @@ components:
     BenefitState:
       type: string
       enum:
-        - Revisione
-        - Bozza
-        - Modifiche_Richieste
-        - Pubblicata
-        - Pubblicazione_Programmata
+        - UNDER_REVIEW
+        - DRAFT
+        - CHANGES_REQUESTED
+        - PUBLISHED
+        - SCHEDULED_PUBLICATION
     BenefitListItem:
       type: object
       required:
         - name
         - category
-        - created_by
+        - createdAt
         - state
       properties:
         name:
           type: string
-          example: Bonus Trasporti Regione
+          example: Test Revisione
         category:
           type: string
-          example: Mobilita
-        created_by:
+          example: CULTURE_LEISURE
+        createdAt:
           type: string
-          pattern: '^[0-9]{2}-[0-9]{2}-[0-9]{4}$'
-          description: Data nel formato dd-mm-yyyy
-          example: '31-03-2026'
+          format: date-time
+          description: Data e ora di creazione
+          example: '2026-03-28T09:15:30Z'
         state:
           $ref: '#/components/schemas/BenefitState'
     Benefit:
@@ -257,19 +277,15 @@ components:
       required:
         - id
         - name
-        - status
+        - state
         - createdAt
       properties:
         id:
           type: string
         name:
           type: string
-        status:
-          type: string
-          enum:
-            - draft
-            - active
-            - expired
+        state:
+          $ref: '#/components/schemas/BenefitState'
         createdAt:
           type: string
           format: date-time
@@ -280,25 +296,53 @@ components:
       properties:
         name:
           type: string
-        status:
-          type: string
-          enum:
-            - draft
-            - active
-            - expired
+        state:
+          $ref: '#/components/schemas/BenefitState'
     BenefitsResponse:
       type: array
       items:
         $ref: '#/components/schemas/BenefitListItem'
       example:
-        - name: Bonus Trasporti Regione
-          category: Mobilita
-          created_by: '31-03-2026'
-          state: Revisione
-        - name: Voucher Cultura Giovani
-          category: Istruzione
-          created_by: '28-03-2026'
-          state: Bozza
+        - name: Test Revisione
+          category: CULTURE_LEISURE
+          createdAt: '2026-03-28T09:15:30Z'
+          state: UNDER_REVIEW
+        - name: Test Bozza
+          category: HEALTH_WELLNESS
+          createdAt: '2026-03-29T11:45:00Z'
+          state: DRAFT
+        - name: Test modifiche richieste
+          category: EDUCATION
+          createdAt: '2026-03-30T14:20:15Z'
+          state: CHANGES_REQUESTED
+        - name: Test Pubblicata
+          category: SPORT
+          createdAt: '2026-03-31T08:30:00Z'
+          state: PUBLISHED
+        - name: Test Pubblicazione Programmata
+          category: HOME
+          createdAt: '2026-03-31T10:05:45Z'
+          state: SCHEDULED_PUBLICATION
+        - name: Test Pubblicazione Programmata - 2
+          category: TELEPHONY_INTERNET
+          createdAt: '2026-04-02T16:50:22Z'
+          state: SCHEDULED_PUBLICATION
+        - name: Test Pubblicata - 2
+          category: FINANCIAL_SERVICES
+          createdAt: '2026-04-05T09:12:10Z'
+          state: PUBLISHED
+        - name: Test Bozza - 2
+          category: TRAVEL_TRANSPORT
+          createdAt: '2026-04-10T15:35:00Z'
+          state: DRAFT
+        - name: Test Bozza - 3
+          category: SUSTAINABLE_MOBILITY
+          createdAt: '2026-04-15T11:20:33Z'
+          state: DRAFT
+        - name: Test Bozza - 4
+          category: WORK_INTERNSHIPS
+          createdAt: '2026-04-20T18:05:19Z'
+          state: DRAFT
     AccessPoint:
       type: object
       required:

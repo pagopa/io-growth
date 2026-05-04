@@ -87,4 +87,18 @@ describe("makeCreateOperatorProfileUseCase", () => {
 
     expect(result.isErr()).toBe(true);
   });
+
+  it("should propagate ConflictError from create when a concurrent profile is created", async () => {
+    const repoError = new ConflictError("Operator profile already exists");
+    const profileRepository: ProfileRepository = {
+      create: vi.fn().mockResolvedValue(err(repoError)),
+      getByOperatorId: vi.fn().mockResolvedValue(ok(undefined)),
+    };
+    const useCase = makeCreateOperatorProfileUseCase(profileRepository);
+
+    const result = await useCase(createInput);
+
+    expect(result.isErr()).toBe(true);
+    expect(result._unsafeUnwrapErr()).toBe(repoError);
+  });
 });

@@ -21,4 +21,15 @@ export const MODAL_CONTENT = {
       'Preferisci un formato orizzontale per una corretta visualizzazione',
     ],
   },
-} as const;
+};
+
+export const CONTACT_TYPE_OPTIONS = [
+  {
+    label: 'Sito web',
+    value: 'WEBSITE',
+  },
+  {
+    label: 'Telefono',
+    value: 'TELEPHONE',
+  },
+];

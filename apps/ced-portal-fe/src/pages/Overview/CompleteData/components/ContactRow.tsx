@@ -2,7 +2,7 @@ import CancelIcon from '@mui/icons-material/Cancel';
 import { Box, IconButton, Stack } from '@mui/material';
 import { AppSelect, AppTextField } from '../../../../components';
 import type { Contact } from '../types';
-import { CONTACT_TYPE_OPTIONS } from './constants';
+import { CONTACT_TYPE_OPTIONS } from './constants/constants';
 
 interface ContactRowProps {
   contact: Contact;
@@ -23,7 +23,7 @@ export const ContactRow = ({
   onRemove,
   onChange,
 }: ContactRowProps) => {
-  const isPhoneType = contact.type === 'Telefono';
+  const isPhoneType = contact.type === 'TELEPHONE';
 
   return (
     <Stack spacing={4}>
@@ -66,7 +66,7 @@ export const ContactRow = ({
             <AppSelect
               label="Tipo di contatto"
               options={CONTACT_TYPE_OPTIONS}
-              value={contact.type}
+              value={contact.type || 'WEBSITE'}
               onChange={(e) =>
                 onChange(index, 'type', e.target.value as string)
               }
@@ -78,8 +78,14 @@ export const ContactRow = ({
                 isPhoneType ? 'Inserisci numero di telefono' : 'Inserisci url'
               }
               type={isPhoneType ? 'tel' : 'url'}
-              value={contact.website}
-              onChange={(e) => onChange(index, 'website', e.target.value)}
+              value={isPhoneType ? contact.contact : contact.website}
+              onChange={(e) =>
+                onChange(
+                  index,
+                  isPhoneType ? 'contact' : 'website',
+                  e.target.value,
+                )
+              }
               sx={{ '& .MuiOutlinedInput-root': { borderRadius: '8px' } }}
             />
           </Box>

@@ -11,7 +11,7 @@ on:
 
 jobs:
   deploy_portal_be:
-    uses: pagopa/dx/.github/workflows/release-azure-containerapp-v1.yaml@main
+    uses: pagopa/dx/.github/workflows/release-azure-containerapp-v1.yaml@fixes/incremental-rollout
     name: Deploy Portal BE
     secrets: inherit
     with:

@@ -39,9 +39,9 @@ export const EntityDataSection = ({
   onCoverSelect,
   onInfoClick,
 }: EntityDataSectionProps) => {
-  const isWebsiteSede = sede === 'sito_web';
-  const locationFieldLabel = isWebsiteSede ? 'Url' : 'Indirizzo';
-  const locationFieldPlaceholder = isWebsiteSede
+  const isWebsite = sede === 'sito_web';
+  const locationFieldLabel = isWebsite ? 'Url' : 'Indirizzo';
+  const locationFieldPlaceholder = isWebsite
     ? 'Inserisci url'
     : "Inserisci l'indirizzo";
 

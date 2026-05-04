@@ -1,4 +1,6 @@
-export type BenefitDiscountValueType = 'percentage' | 'fixed';
+import { FixedPriceBenefitType } from '../../constants/formOptions/types';
+
+export type BenefitDiscountValueType = keyof typeof FixedPriceBenefitType;
 
 export interface AgreementLocalizedFormState {
   details: AgreementDetailsFields;

@@ -1,0 +1,391 @@
+openapi: 3.0.3
+info:
+  title: CED Portal Backend
+  version: 1.0.0
+  description: >-
+    Backend API for the CED Operator Portal. Operator referents access the
+    portal through Area Riservata to create the operator profile and manage the
+    public data, access points, benefits, and opportunities offered to
+    European Disability Card holders.
+servers:
+  - url: https://ced-portal-be-ca/api
+tags:
+  - name: Auth
+  - name: Profile
+paths:
+  /operator/profile:
+    get:
+      tags:
+        - Profile
+      summary: Get the authenticated operator profile
+      operationId: getOperatorProfile
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Operator profile
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OperatorProfile"
+              examples:
+                onlinePlace:
+                  summary: Operator with online place
+                  value:
+                    displayName: Operatore Demo
+                    place:
+                      type: online
+                      name: Sportello remoto
+                      website: https://example.org
+                      supportContacts:
+                        - type: email
+                          value: support@example.org
+                        - type: phone
+                          value: "+39 0000000000"
+                offlinePlace:
+                  summary: Operator with offline place
+                  value:
+                    displayName: Operatore Demo
+                    place:
+                      type: offline
+                      name: Sportello centrale
+                      address:
+                        street: Via Roma 1
+                        postalCode: "00100"
+                        city: Roma
+                        country: IT
+                      supportContacts:
+                        - type: website
+                          value: https://example.org/support
+        "401":
+          description: Invalid or missing JWT
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 401
+                message: Unauthorized
+        "404":
+          description: No data associated with the authenticated operator
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 404
+                message: Operator profile not found
+    post:
+      tags:
+        - Profile
+      summary: Create the authenticated operator profile
+      operationId: createOperatorProfile
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateOperatorProfileRequest"
+            examples:
+              onlinePlace:
+                summary: Creating an online place
+                value:
+                  displayName: Operatore Demo
+                  place:
+                    type: online
+                    name: Sportello remoto
+                    website: https://example.org
+                    supportContacts:
+                      - type: email
+                        value: support@example.org
+              offlinePlace:
+                summary: Creating an offline place
+                value:
+                  displayName: Operatore Demo
+                  place:
+                    type: offline
+                    name: Sportello centrale
+                    address:
+                      street: Via Roma 1
+                      postalCode: "00100"
+                      city: Roma
+                      country: IT
+                    supportContacts:
+                      - type: website
+                        value: https://example.org/support
+      responses:
+        "201":
+          description: Operator profile created successfully
+        "401":
+          description: Invalid or missing JWT
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 401
+                message: Unauthorized
+  /acs:
+    get:
+      tags:
+        - Auth
+      summary: Assertion Consumer Service callback
+      description: >-
+        Receives an authentication token from the identity provider,
+        validates it, creates a session, and redirects to the authorize
+        endpoint with a one-time session ID.
+      operationId: acs
+      security: []
+      parameters:
+        - name: token
+          in: query
+          required: true
+          schema:
+            type: string
+            minLength: 1
+      responses:
+        "302":
+          description: Redirect to the authorize endpoint
+          headers:
+            Location:
+              schema:
+                type: string
+                format: uri
+              description: "/api/authorize?id={sessionId}"
+        "400":
+          description: Invalid or missing token
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 400
+                message: Validation error
+  /authorize:
+    get:
+      tags:
+        - Auth
+      summary: Exchange a one-time session ID for session details
+      description: >-
+        Consumes the one-time session ID produced by the ACS endpoint
+        and returns the session token together with operator details.
+      operationId: authorize
+      security: []
+      parameters:
+        - name: id
+          in: query
+          required: true
+          schema:
+            type: string
+            minLength: 1
+      responses:
+        "200":
+          description: Session details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthorizeResponse"
+        "404":
+          description: Session not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 404
+                message: Session not found
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    CreateOperatorProfileRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - displayName
+        - place
+      properties:
+        displayName:
+          type: string
+        place:
+          $ref: "#/components/schemas/CreateOperatorPlace"
+    CreateOperatorPlace:
+      oneOf:
+        - $ref: "#/components/schemas/CreateOnlineOperatorPlace"
+        - $ref: "#/components/schemas/CreateOfflineOperatorPlace"
+      discriminator:
+        propertyName: type
+        mapping:
+          online: "#/components/schemas/CreateOnlineOperatorPlace"
+          offline: "#/components/schemas/CreateOfflineOperatorPlace"
+    CreateOfflineOperatorPlace:
+      type: object
+      additionalProperties: false
+      required:
+        - type
+        - name
+        - address
+        - supportContacts
+      properties:
+        type:
+          type: string
+          enum:
+            - offline
+        name:
+          type: string
+        address:
+          $ref: "#/components/schemas/Address"
+        supportContacts:
+          type: array
+          items:
+            $ref: "#/components/schemas/SupportContact"
+    CreateOnlineOperatorPlace:
+      type: object
+      additionalProperties: false
+      required:
+        - type
+        - name
+        - website
+        - supportContacts
+      properties:
+        type:
+          type: string
+          enum:
+            - online
+        name:
+          type: string
+        website:
+          type: string
+          format: uri
+        supportContacts:
+          type: array
+          items:
+            $ref: "#/components/schemas/SupportContact"
+    OperatorProfile:
+      type: object
+      additionalProperties: false
+      required:
+        - displayName
+        - place
+      properties:
+        displayName:
+          type: string
+        place:
+          $ref: "#/components/schemas/OperatorPlace"
+    OperatorPlace:
+      oneOf:
+        - $ref: "#/components/schemas/OnlineOperatorPlace"
+        - $ref: "#/components/schemas/OfflineOperatorPlace"
+      discriminator:
+        propertyName: type
+        mapping:
+          online: "#/components/schemas/OnlineOperatorPlace"
+          offline: "#/components/schemas/OfflineOperatorPlace"
+    OfflineOperatorPlace:
+      type: object
+      additionalProperties: false
+      required:
+        - type
+        - name
+        - address
+        - supportContacts
+      properties:
+        type:
+          type: string
+          enum:
+            - offline
+        name:
+          type: string
+        address:
+          $ref: "#/components/schemas/Address"
+        supportContacts:
+          type: array
+          items:
+            $ref: "#/components/schemas/SupportContact"
+    OnlineOperatorPlace:
+      type: object
+      additionalProperties: false
+      required:
+        - type
+        - name
+        - website
+        - supportContacts
+      properties:
+        type:
+          type: string
+          enum:
+            - online
+        name:
+          type: string
+        website:
+          type: string
+          format: uri
+        supportContacts:
+          type: array
+          items:
+            $ref: "#/components/schemas/SupportContact"
+    Address:
+      type: object
+      additionalProperties: false
+      required:
+        - street
+        - postalCode
+        - city
+        - country
+      properties:
+        street:
+          type: string
+        postalCode:
+          type: string
+        city:
+          type: string
+        country:
+          type: string
+    SupportContact:
+      type: object
+      additionalProperties: false
+      required:
+        - type
+        - value
+      properties:
+        type:
+          type: string
+          enum:
+            - email
+            - phone
+            - website
+        value:
+          type: string
+    ErrorResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - statusCode
+        - message
+      properties:
+        statusCode:
+          type: integer
+        message:
+          type: string
+    AuthorizeResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - first_name
+        - last_name
+        - operator_name
+        - session_token
+      properties:
+        first_name:
+          type: string
+        last_name:
+          type: string
+        operator_name:
+          type: string
+        session_token:
+          type: string

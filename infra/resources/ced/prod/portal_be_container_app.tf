@@ -15,6 +15,12 @@ module "portal_be_container_app" {
   container_app_environment_id = module.common_container_app_environment.id
   user_assigned_identity_id    = module.common_container_app_environment.user_assigned_identity.id
 
+  apim_platform = {
+    name                = module.ced_apim.name
+    resource_group_name = module.ced_apim.resource_group_name
+    principal_id        = module.ced_apim.principal_id
+  }
+
   target_port           = local.portal_be.target_port
   public_access_enabled = true
 

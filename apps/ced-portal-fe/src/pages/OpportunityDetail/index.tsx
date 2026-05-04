@@ -18,7 +18,7 @@ import { useToast } from '../../contexts';
 import { PublishModal } from '../../components/PublishModal';
 import { RequestChangesModal } from '../../components/RequestChangesModal';
 import { OpportunityDetailCard } from './components/OpportunityDetailCard';
-import { STATE_COLORS, STATE_LABELS } from '../../constants/opportunityState';
+import { STATE_COLORS, STATE_OPTIONS } from '../../constants/opportunityState';
 
 export default function OpportunityDetailPage() {
   const theme = useTheme();
@@ -123,7 +123,10 @@ export default function OpportunityDetailPage() {
             </Typography>
           </Box>
           <Chip
-            label={STATE_LABELS[detail.state] ?? detail.state}
+            label={
+              STATE_OPTIONS.find((o) => o.value === detail.state)?.label ??
+              detail.state
+            }
             color={STATE_COLORS[detail.state] ?? 'default'}
             size="small"
           />

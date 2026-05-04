@@ -9,9 +9,10 @@ import {
   TableRow,
   useTheme,
 } from '@mui/material';
-import { useCallback, useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import type { Benefit } from '../../../features/benefits/types';
 import { benefitsTableColumns } from './BenefitsTable.config';
+import { useTableSort } from '../../../hooks/useTableSort';
 
 interface BenefitsTableProps {
   items: Benefit[];
@@ -19,48 +20,12 @@ interface BenefitsTableProps {
 
 export const BenefitsTable = ({ items }: BenefitsTableProps) => {
   const theme = useTheme();
-  const [sortBy, setSortBy] = useState('');
-  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
-
-  const sortedItems = useMemo(() => {
-    const selectedColumn = benefitsTableColumns.find(
-      (col) => col.id === sortBy,
-    );
-    if (!selectedColumn?.sortAccessor) {
-      return items;
-    }
-
-    return [...items].sort((a, b) => {
-      const left = selectedColumn.sortAccessor!(a);
-      const right = selectedColumn.sortAccessor!(b);
-
-      const compareResult =
-        typeof left === 'number' && typeof right === 'number'
-          ? left - right
-          : String(left).localeCompare(String(right), 'it', {
-              sensitivity: 'base',
-            });
-
-      return sortDirection === 'asc' ? compareResult : -compareResult;
-    });
-  }, [items, sortBy, sortDirection]);
-
-  const handleSort = useCallback(
-    (columnId: string, isSortable?: boolean) => {
-      if (!isSortable) {
-        return;
-      }
-
-      if (sortBy === columnId) {
-        setSortDirection((current) => (current === 'asc' ? 'desc' : 'asc'));
-        return;
-      }
-
-      setSortBy(columnId);
-      setSortDirection('asc');
-    },
-    [sortBy],
-  );
+  const { sortedItems, sortBy, sortDirection, handleSort } = useTableSort({
+    items,
+    columns: benefitsTableColumns,
+    defaultSortBy: 'createdAt',
+    defaultSortDirection: 'desc',
+  });
 
   const renderTableHead = useMemo(
     () => (
@@ -120,7 +85,7 @@ export const BenefitsTable = ({ items }: BenefitsTableProps) => {
 
   const renderTableRow = (item: Benefit, index: number) => (
     <TableRow
-      key={`${item.name}-${item.created_by}`}
+      key={`${item.name}-${item.createdAt}`}
       sx={{
         bgcolor: theme.palette.background.paper,
         height: 48,

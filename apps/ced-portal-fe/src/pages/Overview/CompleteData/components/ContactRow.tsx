@@ -23,7 +23,20 @@ export const ContactRow = ({
   onRemove,
   onChange,
 }: ContactRowProps) => {
-  const isPhoneType = contact.type === 'TELEPHONE';
+  const contactInput =
+    contact.type === 'TELEPHONE'
+      ? {
+          field: 'contact' as const,
+          placeholder: 'Inserisci numero di telefono',
+          type: 'tel' as const,
+          value: contact.contact,
+        }
+      : {
+          field: 'website' as const,
+          placeholder: 'Inserisci url',
+          type: 'url' as const,
+          value: contact.website,
+        };
 
   return (
     <Stack spacing={4}>
@@ -74,17 +87,11 @@ export const ContactRow = ({
             />
 
             <AppTextField
-              placeholder={
-                isPhoneType ? 'Inserisci numero di telefono' : 'Inserisci url'
-              }
-              type={isPhoneType ? 'tel' : 'url'}
-              value={isPhoneType ? contact.contact : contact.website}
+              placeholder={contactInput.placeholder}
+              type={contactInput.type}
+              value={contactInput.value}
               onChange={(e) =>
-                onChange(
-                  index,
-                  isPhoneType ? 'contact' : 'website',
-                  e.target.value,
-                )
+                onChange(index, contactInput.field, e.target.value)
               }
               sx={{ '& .MuiOutlinedInput-root': { borderRadius: '8px' } }}
             />

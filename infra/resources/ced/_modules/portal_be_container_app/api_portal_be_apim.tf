@@ -71,7 +71,7 @@ resource "azurerm_api_management_named_value" "ced_portal_be_ca_url" {
   resource_group_name = azurerm_api_management_api.ced_portal_be_v1.resource_group_name
   display_name        = "ced-portal-be-ca-url"
   secret              = true
-  value               = "https://${module.container_app.url}"
+  value               = "https://${replace(module.container_app.url, "/--[^.]+/", "")}"
 }
 
 resource "azurerm_role_assignment" "apim_container_app_reader" {

@@ -13,7 +13,16 @@ export function useAuthorize() {
   const authorize = async () => {
     const response = await trigger().unwrap();
     window.localStorage.setItem('STORAGE_KEY', JSON.stringify(response));
-    dispatch(setCredentials(response));
+    dispatch(
+      setCredentials({
+        token: response.token,
+        user: {
+          ...response.user,
+          // TODO: This is a temporary fix until the backend provides the role in the session response
+          role: 'operator',
+        },
+      }),
+    );
     showToast('Session restored', 'success');
     return response;
   };

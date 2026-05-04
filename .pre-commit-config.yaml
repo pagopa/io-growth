@@ -1,4 +1,12 @@
 repos:
+  - repo: local
+    hooks:
+      - id: js_auto_fix
+        name: JS Auto Fix
+        language: system
+        entry: pnpm js:auto-fix
+        pass_filenames: false
+        stages: [pre-commit]
   - repo: https://github.com/pagopa/dx
     rev: pre_commit_scripts@0.1.0
     hooks:

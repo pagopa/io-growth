@@ -1,17 +1,24 @@
+import type { UserRole } from '../../core/auth/types';
+
 export const partyList = [
   {
     id: 'mario-rossi',
     name: 'Mario Rossi',
-    productRole: 'Operatore',
-    parentName: 'Comune di Ferrara',
+    productRole: 'Amministratore',
+    parentName: 'Dipartimento Politiche per la Disabilità',
   },
   {
     id: 'giuseppe-rossi',
     name: 'Giuseppe Rossi',
     productRole: 'Operatore',
-    parentName: 'Comune di Taranto',
+    parentName: 'Comune di Ferrara',
   },
 ];
+
+export const partyRoleMap: Record<string, UserRole> = {
+  'mario-rossi': 'admin',
+  'giuseppe-rossi': 'operator',
+};
 
 export const productsList = [
   {

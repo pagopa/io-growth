@@ -31,7 +31,9 @@ export const mountAcsHandler = (
     "/api/acs",
     createHttpHandler(useCase, createHttpRequestValidator(acsSchema), {
       redirect: true,
-      redirectUrlBuilder: ({ sessionId }) => `/api/authorize?id=${sessionId}`,
+      redirectUrlBuilder: ({ sessionId }) =>
+        // TODO: this should be replaced with a frontend url redirect after demo
+        `/api/ced-portal/v1/authorize?id=${sessionId}`,
     }),
   );
 };

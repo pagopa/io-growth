@@ -1,6 +1,6 @@
 import { Box, Button, Stack, Typography } from '@mui/material';
 import { AppModal } from '../../../../components';
-import { MODAL_CONTENT } from '../../constants';
+import { MODAL_CONTENT } from './constants';
 
 interface InfoModalProps {
   open: boolean;

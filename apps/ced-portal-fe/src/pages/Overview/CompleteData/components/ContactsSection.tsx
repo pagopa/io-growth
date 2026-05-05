@@ -29,7 +29,7 @@ export const ContactsSection = ({
           <ForumOutlinedIcon
             sx={{ color: 'common.decorativeIcon', fontSize: 20 }}
           />
-          <Typography fontWeight={700} fontSize={16} sx={{ lineHeight: 1.25 }}>
+          <Typography fontWeight={600} fontSize={16} sx={{ lineHeight: 1.25 }}>
             Contatti per l’assistenza
           </Typography>
         </Stack>

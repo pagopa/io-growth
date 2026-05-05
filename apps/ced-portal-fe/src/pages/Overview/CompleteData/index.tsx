@@ -11,7 +11,7 @@ const INITIAL_FORM_DATA: CompleteDataFormData = {
   name: '',
   sede: 'fisica',
   address: '',
-  contacts: [{ contact: '', type: 'Sito web', website: '' }],
+  contacts: [{ contact: '', type: 'WEBSITE', website: '' }],
   logoFile: null,
   coverFile: null,
 };
@@ -121,7 +121,7 @@ export default function OverviewCompleteDataPage() {
                       ...prev,
                       contacts: [
                         ...prev.contacts,
-                        { contact: '', type: 'Sito web', website: '' },
+                        { contact: '', type: 'WEBSITE', website: '' },
                       ],
                     }))
                   }
@@ -131,7 +131,7 @@ export default function OverviewCompleteDataPage() {
                       contacts:
                         prev.contacts.length > 1
                           ? prev.contacts.filter((_, i) => i !== index)
-                          : [{ contact: '', type: 'Sito web', website: '' }],
+                          : [{ contact: '', type: 'WEBSITE', website: '' }],
                     }))
                   }
                   onContactChange={(index, field, value) =>

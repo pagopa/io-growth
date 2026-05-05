@@ -17,11 +17,8 @@ export {
   type HttpHandlerOptions,
 } from "./httpHandlerBuilder.js";
 export {
-  createAuthenticatedInputValidator,
-  createSessionInputValidator,
-} from "./validator/authenticatedInputValidator.js";
-export {
   createHttpRequestValidator,
   emptyValidator,
   type HttpRequestPayload,
 } from "./validator/httpInputStandardSchemaValidator.js";
+export { withSession } from "./validator/withSession.js";

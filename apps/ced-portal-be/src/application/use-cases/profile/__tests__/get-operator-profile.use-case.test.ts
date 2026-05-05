@@ -1,4 +1,3 @@
-import { NotFoundError } from "@pagopa/io-core-domain/errors";
 import { err, ok } from "neverthrow";
 import { describe, expect, it, vi } from "vitest";
 
@@ -30,8 +29,7 @@ describe("makeGetOperatorProfileUseCase", () => {
 
     const result = await useCase({ operatorId: "operator-123" });
 
-    expect(result.isOk()).toBe(true);
-    expect(result._unsafeUnwrap()).toEqual(mockOperatorData);
+    expect(result).toEqual(ok(mockOperatorData));
     expect(profileRepository.getByOperatorId).toHaveBeenCalledWith(
       "operator-123",
     );
@@ -43,10 +41,13 @@ describe("makeGetOperatorProfileUseCase", () => {
 
     const result = await useCase({ operatorId: "operator-123" });
 
-    expect(result.isErr()).toBe(true);
-    expect(result._unsafeUnwrapErr()).toBeInstanceOf(NotFoundError);
-    expect(result._unsafeUnwrapErr().message).toBe(
-      "Unable to find Profile: not found",
+    expect(result).toEqual(
+      err(
+        expect.objectContaining({
+          kind: "NotFoundError",
+          message: "Unable to find Profile: not found",
+        }),
+      ),
     );
   });
 
@@ -60,6 +61,18 @@ describe("makeGetOperatorProfileUseCase", () => {
 
     const result = await useCase({ operatorId: "operator-123" });
 
-    expect(result.isErr()).toBe(true);
+    expect(result).toEqual(err(repoError));
+  });
+
+  it("should return ValidationError when operatorId is empty", async () => {
+    const profileRepository = createMockProfileRepository(undefined);
+    const useCase = makeGetOperatorProfileUseCase(profileRepository);
+
+    const result = await useCase({ operatorId: "" });
+
+    expect(result).toEqual(
+      err(expect.objectContaining({ kind: "ValidationError" })),
+    );
+    expect(profileRepository.getByOperatorId).not.toHaveBeenCalled();
   });
 });

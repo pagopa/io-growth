@@ -41,7 +41,7 @@ describe("makeCreateOperatorProfileUseCase", () => {
 
     const result = await useCase(createInput);
 
-    expect(result.isOk()).toBe(true);
+    expect(result).toEqual(ok(undefined));
     expect(profileRepository.getByOperatorId).toHaveBeenCalledWith(
       "operator-123",
     );
@@ -54,10 +54,13 @@ describe("makeCreateOperatorProfileUseCase", () => {
 
     const result = await useCase(createInput);
 
-    expect(result.isErr()).toBe(true);
-    expect(result._unsafeUnwrapErr()).toBeInstanceOf(ConflictError);
-    expect(result._unsafeUnwrapErr().message).toBe(
-      "Conflict: Operator profile already exists",
+    expect(result).toEqual(
+      err(
+        expect.objectContaining({
+          kind: "ConflictError",
+          message: "Conflict: Operator profile already exists",
+        }),
+      ),
     );
     expect(profileRepository.create).not.toHaveBeenCalled();
   });
@@ -72,7 +75,7 @@ describe("makeCreateOperatorProfileUseCase", () => {
 
     const result = await useCase(createInput);
 
-    expect(result.isErr()).toBe(true);
+    expect(result).toEqual(err(repoError));
   });
 
   it("should propagate repository errors from create", async () => {
@@ -85,7 +88,7 @@ describe("makeCreateOperatorProfileUseCase", () => {
 
     const result = await useCase(createInput);
 
-    expect(result.isErr()).toBe(true);
+    expect(result).toEqual(err(repoError));
   });
 
   it("should propagate ConflictError from create when a concurrent profile is created", async () => {
@@ -98,7 +101,43 @@ describe("makeCreateOperatorProfileUseCase", () => {
 
     const result = await useCase(createInput);
 
-    expect(result.isErr()).toBe(true);
-    expect(result._unsafeUnwrapErr()).toBe(repoError);
+    expect(result).toEqual(err(repoError));
+  });
+
+  it("should return ValidationError when operatorId is empty", async () => {
+    const profileRepository = createMockProfileRepository(undefined);
+    const useCase = makeCreateOperatorProfileUseCase(profileRepository);
+
+    const result = await useCase({ ...createInput, operatorId: "" });
+
+    expect(result).toEqual(
+      err(expect.objectContaining({ kind: "ValidationError" })),
+    );
+    expect(profileRepository.getByOperatorId).not.toHaveBeenCalled();
+  });
+
+  it("should return ValidationError when displayName is empty", async () => {
+    const profileRepository = createMockProfileRepository(undefined);
+    const useCase = makeCreateOperatorProfileUseCase(profileRepository);
+
+    const result = await useCase({ ...createInput, displayName: "" });
+
+    expect(result).toEqual(
+      err(expect.objectContaining({ kind: "ValidationError" })),
+    );
+  });
+
+  it("should return ValidationError when place has invalid type", async () => {
+    const profileRepository = createMockProfileRepository(undefined);
+    const useCase = makeCreateOperatorProfileUseCase(profileRepository);
+
+    const result = await useCase({
+      ...createInput,
+      place: { ...createInput.place, type: "invalid" as "online" },
+    });
+
+    expect(result).toEqual(
+      err(expect.objectContaining({ kind: "ValidationError" })),
+    );
   });
 });

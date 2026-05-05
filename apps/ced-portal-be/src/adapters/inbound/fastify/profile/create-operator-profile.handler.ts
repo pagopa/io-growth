@@ -1,19 +1,25 @@
 import type { FastifyInstance } from "fastify";
 
 import {
-  createAuthenticatedInputValidator,
   createHttpHandler,
+  createHttpRequestValidator,
+  withSession,
 } from "@pagopa/io-core-adapter-fastify";
+import { z as zod } from "zod";
 
 import type { CreateOperatorProfileUseCase } from "../../../../application/use-cases/profile/create-operator-profile.use-case.js";
 
 import { OperatorSessionSchema } from "../auth/session.js";
 import { CreateOperatorProfileBody } from "../contracts/profile/profile.js";
 
-const createOperatorProfileValidator = createAuthenticatedInputValidator(
+const createProfileHttpSchema = zod.object({
+  body: CreateOperatorProfileBody,
+});
+
+const createOperatorProfileValidator = withSession(
   OperatorSessionSchema,
-  CreateOperatorProfileBody,
-  (session, body) => ({
+  createHttpRequestValidator(createProfileHttpSchema),
+  (session, { body }) => ({
     displayName: body.displayName,
     operatorId: session.operatorId,
     place: body.place,

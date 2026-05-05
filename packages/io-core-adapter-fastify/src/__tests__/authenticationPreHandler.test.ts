@@ -126,8 +126,7 @@ describe("createAuthenticationPreHandler", () => {
     expect(resolver).toHaveBeenCalledWith("valid-token");
 
     const session = await getSessionFromRequest(request, MockSessionSchema);
-    expect(session.isOk()).toBe(true);
-    expect(session._unsafeUnwrap()).toEqual(mockSession);
+    expect(session).toEqual(ok(mockSession));
   });
 
   it("should correctly extract token after 'Bearer ' prefix", async () => {
@@ -149,8 +148,9 @@ describe("getSessionFromRequest", () => {
   it("should return ValidationError when session was not set", async () => {
     const request = { headers: {} } as FastifyRequest;
     const result = await getSessionFromRequest(request, MockSessionSchema);
-    expect(result.isErr()).toBe(true);
-    expect(result._unsafeUnwrapErr().kind).toBe("ValidationError");
+    expect(result).toEqual(
+      err(expect.objectContaining({ kind: "ValidationError" })),
+    );
   });
 
   it("should return ValidationError when session does not match schema", async () => {
@@ -164,8 +164,9 @@ describe("getSessionFromRequest", () => {
     await preHandler(request, reply);
 
     const result = await getSessionFromRequest(request, MockSessionSchema);
-    expect(result.isErr()).toBe(true);
-    expect(result._unsafeUnwrapErr().kind).toBe("ValidationError");
+    expect(result).toEqual(
+      err(expect.objectContaining({ kind: "ValidationError" })),
+    );
   });
 
   it("should extract only the fields defined in the schema", async () => {
@@ -184,7 +185,6 @@ describe("getSessionFromRequest", () => {
 
     const PartialSchema = z.object({ operatorId: z.string() });
     const result = await getSessionFromRequest(request, PartialSchema);
-    expect(result.isOk()).toBe(true);
-    expect(result._unsafeUnwrap()).toEqual({ operatorId: "op-1" });
+    expect(result).toEqual(ok({ operatorId: "op-1" }));
   });
 });

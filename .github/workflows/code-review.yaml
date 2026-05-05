@@ -11,7 +11,7 @@ on:
 
 jobs:
   js_code_review:
-    uses: pagopa/dx/.github/workflows/js_code_review.yaml@6e1ec37dc87bbf85d3c48a2af5047376650fc96f
+    uses: pagopa/dx/.github/workflows/js_code_review.yaml@af75138d40e08b98e63696e26ce545004a769565
     name: Code Review
     secrets: inherit
     permissions:

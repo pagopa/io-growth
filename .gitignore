@@ -314,6 +314,9 @@ terraform.rc
 # pnpm
 .pnpm-store
 
+# Orval generated contracts (auto-generated from OpenAPI spec)
+apps/ced-portal-be/src/adapters/inbound/fastify/contracts/
+
 infra/**/temp
 
 # Linux core dumps

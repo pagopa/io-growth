@@ -1,24 +1,37 @@
-import type { SupportContact } from "./support-contact.js";
+import { z } from "zod";
 
-export interface Address {
-  readonly city: string;
-  readonly country: string;
-  readonly postalCode: string;
-  readonly street: string;
-}
+import { SupportContactSchema } from "./support-contact.js";
 
-export interface OfflinePlace {
-  readonly address: Address;
-  readonly name: string;
-  readonly supportContacts: SupportContact[];
-  readonly type: "offline";
-}
+export const AddressSchema = z.object({
+  city: z.string().min(1),
+  country: z.string().min(1),
+  postalCode: z.string().min(1),
+  street: z.string().min(1),
+});
 
-export interface OnlinePlace {
-  readonly name: string;
-  readonly supportContacts: SupportContact[];
-  readonly type: "online";
-  readonly website: string;
-}
+export type Address = z.infer<typeof AddressSchema>;
 
-export type OperatorPlace = OfflinePlace | OnlinePlace;
+export const OfflinePlaceSchema = z.object({
+  address: AddressSchema,
+  name: z.string().min(1),
+  supportContacts: z.array(SupportContactSchema),
+  type: z.literal("offline"),
+});
+
+export type OfflinePlace = z.infer<typeof OfflinePlaceSchema>;
+
+export const OnlinePlaceSchema = z.object({
+  name: z.string().min(1),
+  supportContacts: z.array(SupportContactSchema),
+  type: z.literal("online"),
+  website: z.string().url(),
+});
+
+export type OnlinePlace = z.infer<typeof OnlinePlaceSchema>;
+
+export const OperatorPlaceSchema = z.discriminatedUnion("type", [
+  OfflinePlaceSchema,
+  OnlinePlaceSchema,
+]);
+
+export type OperatorPlace = z.infer<typeof OperatorPlaceSchema>;

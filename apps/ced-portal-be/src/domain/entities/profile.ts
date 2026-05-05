@@ -1,12 +1,18 @@
-import type { OperatorPlace } from "./place.js";
+import { z } from "zod";
 
-export interface CreateProfileInput {
-  readonly displayName: string;
-  readonly operatorId: string;
-  readonly place: OperatorPlace;
-}
+import { OperatorPlaceSchema } from "./place.js";
 
-export interface Profile {
-  readonly displayName: string;
-  readonly place: OperatorPlace;
-}
+export const CreateProfileInputSchema = z.object({
+  displayName: z.string().min(1),
+  operatorId: z.string().min(1),
+  place: OperatorPlaceSchema,
+});
+
+export type CreateProfileInput = z.infer<typeof CreateProfileInputSchema>;
+
+export const ProfileSchema = z.object({
+  displayName: z.string().min(1),
+  place: OperatorPlaceSchema,
+});
+
+export type Profile = z.infer<typeof ProfileSchema>;

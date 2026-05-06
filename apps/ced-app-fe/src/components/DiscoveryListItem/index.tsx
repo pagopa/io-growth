@@ -11,35 +11,34 @@ type DiscoveryListItemBaseProps = {
   sx?: SxProps<Theme>;
 };
 
-type DiscoveryListItemOpportunityProps = DiscoveryListItemBaseProps & {
-  variant?: 'opportunity';
-  eyebrow: string;
-  badgeLabel: string;
-  subtitle?: never;
+type VariantMap = {
+  opportunity: {
+    eyebrow: string;
+    badgeLabel: string;
+  };
+  simple: {
+    subtitle: string;
+  };
 };
 
-type DiscoveryListItemSimpleProps = DiscoveryListItemBaseProps & {
-  variant: 'simple';
-  subtitle: string;
-  eyebrow?: never;
-  badgeLabel?: never;
-};
+export type DiscoveryListItemProps = {
+  [K in keyof VariantMap]: DiscoveryListItemBaseProps & {
+    variant: K;
+  } & VariantMap[K];
+}[keyof VariantMap];
 
-export type DiscoveryListItemProps =
-  | DiscoveryListItemOpportunityProps
-  | DiscoveryListItemSimpleProps;
+type OpportunityProps = Extract<
+  DiscoveryListItemProps,
+  { variant: 'opportunity' }
+>;
+type SimpleProps = Extract<DiscoveryListItemProps, { variant: 'simple' }>;
 
 function OpportunityContent({
   eyebrow,
   title,
   badgeLabel,
   secondaryColor,
-}: Pick<
-  DiscoveryListItemOpportunityProps,
-  'eyebrow' | 'title' | 'badgeLabel'
-> & {
-  secondaryColor: string;
-}) {
+}: OpportunityProps & { secondaryColor: string }) {
   return (
     <Stack spacing={1} sx={{ minWidth: 0, flex: 1 }}>
       <Stack spacing={0.5} sx={{ minWidth: 0 }}>
@@ -95,9 +94,7 @@ function SimpleContent({
   title,
   subtitle,
   secondaryColor,
-}: Pick<DiscoveryListItemSimpleProps, 'title' | 'subtitle'> & {
-  secondaryColor: string;
-}) {
+}: SimpleProps & { secondaryColor: string }) {
   return (
     <Stack spacing={1} sx={{ minWidth: 0, flex: 1 }}>
       <Stack spacing={0.5} sx={{ minWidth: 0 }}>
@@ -160,18 +157,9 @@ export function DiscoveryListItem(props: DiscoveryListItemProps) {
     >
       <Stack direction="row" justifyContent="space-between" gap={1}>
         {props.variant === 'simple' ? (
-          <SimpleContent
-            title={props.title}
-            subtitle={props.subtitle}
-            secondaryColor={secondaryColor}
-          />
+          <SimpleContent {...props} secondaryColor={secondaryColor} />
         ) : (
-          <OpportunityContent
-            eyebrow={props.eyebrow}
-            title={props.title}
-            badgeLabel={props.badgeLabel}
-            secondaryColor={secondaryColor}
-          />
+          <OpportunityContent {...props} secondaryColor={secondaryColor} />
         )}
 
         <Box

@@ -57,6 +57,15 @@ export class PreconditionFailedError extends BaseError {
   }
 }
 
+export class UnauthorizedError extends BaseError {
+  override readonly kind = "UnauthorizedError" as const;
+  override tag = "unauthorized";
+
+  constructor(message = "Authentication required") {
+    super("Unauthorized: " + message);
+  }
+}
+
 export class ValidationError extends BaseError {
   override readonly kind = "ValidationError" as const;
   override tag = "validation-error";

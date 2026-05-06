@@ -1,0 +1,501 @@
+openapi: 3.0.3
+info:
+  title: CED Browser API
+  description: |
+    Public API for browsing and searching CED (Carta Europea della Disabilità) opportunities.
+    Citizens authenticated via IO App can consult and search opportunities available to them.
+
+    Only `published` opportunities within their valid date range (`date_from` ≤ today ≤ `date_to` or no expiry) are returned.
+  version: 1.0.0
+servers:
+  - url: https://api.io.pagopa.it/ced-browser/v1/api
+    description: Production endpoint
+
+tags:
+  - name: Access
+    description: Authentication flow via FIMS (OIDC). Obtain a session token before
+      calling protected endpoints.
+  - name: Opportunities
+    description: Browse and search CED opportunities (require session token)
+
+paths:
+  /fauth:
+    get:
+      tags:
+        - Access
+      summary: Initiate FIMS authentication
+      description: |
+        Starts the OIDC/FIMS authentication flow. Redirects the user-agent to the
+        identity provider. The `device` parameter is forwarded to the IdP for
+        device-specific flows.
+      operationId: fimsAuth
+      security: []
+      parameters:
+        - in: query
+          name: device
+          required: false
+          description: Device identifier forwarded to the identity provider.
+          schema:
+            type: string
+      responses:
+        "302":
+          description: Redirect to the OpenID Connect provider.
+        "500":
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+
+  /fcb:
+    get:
+      tags:
+        - Access
+      summary: FIMS callback
+      description: |
+        Callback endpoint called by the identity provider after authentication.
+        Validates the OIDC response, creates a session, and redirects the
+        frontend to `/authorize` with a short-lived `id` parameter.
+      operationId: fimsCallback
+      security: []
+      parameters:
+        - in: query
+          name: state
+          required: true
+          schema:
+            type: string
+        - in: query
+          name: code
+          required: true
+          schema:
+            type: string
+        - in: query
+          name: iss
+          required: false
+          schema:
+            type: string
+        - in: header
+          name: signature
+          required: false
+          schema:
+            type: string
+        - in: header
+          name: signature-input
+          required: false
+          schema:
+            type: string
+      responses:
+        "302":
+          description: Redirect to `/authorize` with the session `id` and `device` in the query parameters.
+        "401":
+          description: Unauthorized — invalid or expired OIDC response.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+        "500":
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+
+  /authorize:
+    get:
+      tags:
+        - Access
+      summary: Exchange session id for a session token
+      description: |
+        Called by the frontend after being redirected from `/fcb`. Exchanges the
+        short-lived `id` for a durable session token that must be used to
+        authenticate all subsequent requests to protected endpoints.
+      operationId: authorize
+      security: []
+      parameters:
+        - in: query
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Session token successfully issued.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SessionToken"
+        "401":
+          description: Unauthorized — invalid or expired session id.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+        "500":
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+
+  /opportunities:
+    get:
+      tags:
+        - Opportunities
+      summary: List and search CED opportunities
+      description: |
+        Returns a paginated list of published CED opportunities.
+        When `q` is provided, it is used to search and rank results. Search and ordering logic is managed by the backend.
+      operationId: listOpportunities
+      security:
+        - SessionAuth: []
+      parameters:
+        - name: q
+          in: query
+          description: |
+            Search query. Can include a place name, city, or free-text keywords.
+            The backend handles matching and result ordering.
+          required: false
+          schema:
+            type: string
+            minLength: 1
+            maxLength: 200
+            example: "palestra Roma"
+        - name: limit
+          in: query
+          description: Maximum number of results to return per page.
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 50
+            default: 20
+        - name: offset
+          in: query
+          description: Number of results to skip (zero-based). Used for pagination.
+          required: false
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+      responses:
+        "200":
+          description: Paginated list of matching opportunities.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OpportunitiesResponse"
+        "400":
+          description: Invalid query parameters.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+        "401":
+          description: Missing or invalid authentication token.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+        "500":
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+
+  /opportunities/{opportunityId}:
+    get:
+      tags:
+        - Opportunities
+      summary: Get a specific CED opportunity
+      description: |
+        Returns the full details of a single published CED opportunity, including all its venues.
+        Returns 404 if the opportunity does not exist, is not published, or is outside its valid date range.
+      operationId: getOpportunity
+      security:
+        - SessionAuth: []
+      parameters:
+        - name: opportunityId
+          in: path
+          required: true
+          description: Unique identifier of the opportunity.
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Opportunity details.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OpportunityDetail"
+        "401":
+          description: Missing or invalid authentication token.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+        "404":
+          description: Opportunity not found or not published.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+        "500":
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+
+components:
+  securitySchemes:
+    SessionAuth:
+      type: apiKey
+      in: header
+      name: token
+      description: |
+        Session token obtained from `GET /authorize` after completing the FIMS
+        authentication flow. Must be included in the `token` header for all
+        protected endpoints.
+
+  schemas:
+    # -------------------------------------------------------------------------
+    # Auth
+    # -------------------------------------------------------------------------
+    SessionToken:
+      type: object
+      required:
+        - token
+      properties:
+        token:
+          type: string
+          description: Opaque session token. Use as the value of the `token` header on
+            protected endpoints.
+
+    # -------------------------------------------------------------------------
+    # Pagination
+    # -------------------------------------------------------------------------
+    OpportunitiesResponse:
+      type: object
+      required:
+        - items
+        - total
+        - has_more
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/OpportunitySummary"
+          description: Opportunities for the current page.
+        total:
+          type: integer
+          minimum: 0
+          description: Total number of opportunities matching the query (before pagination).
+        has_more:
+          type: boolean
+          description: True if there are more results beyond the current page.
+
+    # -------------------------------------------------------------------------
+    # Opportunity
+    # -------------------------------------------------------------------------
+    OpportunitySummary:
+      type: object
+      description: |
+        Compact representation of a CED opportunity, including its venues.
+        Used in list responses.
+      required:
+        - id
+        - name
+        - description
+        - type
+        - category
+        - beneficiary_benefit_value
+        - beneficiary_benefit_type
+        - date_from
+        - venues
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique identifier of the opportunity.
+        name:
+          type: string
+          description: Display name of the opportunity.
+          example: "Sconto mensile palestra"
+        description:
+          type: string
+          description: Description of the opportunity.
+          example: "20% di sconto sulla quota mensile per portatori di disabilità."
+        type:
+          type: string
+          description: Type of the opportunity (e.g. discount, service).
+          example: "discount"
+        category:
+          type: string
+          description: Category the opportunity belongs to (e.g. sport, mobility).
+          example: "sport"
+        beneficiary_benefit_value:
+          type: integer
+          description: Numeric benefit value for the beneficiary.
+          example: 20
+        beneficiary_benefit_type:
+          type: string
+          enum:
+            - percentual
+            - absolute
+          description: |
+            How the benefit value is interpreted:
+            - `percentual` — a percentage discount (e.g. 20%)
+            - `absolute` — a fixed amount in euros (e.g. 50€)
+        caregiver_benefit_value:
+          type: integer
+          nullable: true
+          description: Numeric benefit value for the caregiver accompanying the
+            beneficiary, if applicable.
+          example: 10
+        caregiver_benefit_type:
+          type: string
+          nullable: true
+          enum:
+            - percentual
+            - absolute
+          description: How the caregiver benefit value is interpreted. Null when no
+            caregiver benefit applies.
+        date_from:
+          type: string
+          format: date
+          description: First date from which the opportunity is available (inclusive).
+          example: "2026-01-01"
+        date_to:
+          type: string
+          format: date
+          nullable: true
+          description: Last date until which the opportunity is available (inclusive).
+            Null means the opportunity has no expiry.
+          example: "2026-12-31"
+        url:
+          type: string
+          format: uri
+          nullable: true
+          description: URL for further information about the opportunity.
+          example: "https://example.com/offerta-ced"
+        venues:
+          type: array
+          description: Venues (physical or online) where the opportunity can be redeemed.
+          minItems: 1
+          items:
+            $ref: "#/components/schemas/Venue"
+
+    OpportunityDetail:
+      description: |
+        Full representation of a CED opportunity, including all fields and its venues.
+        Returned by the single-opportunity endpoint.
+      allOf:
+        - $ref: "#/components/schemas/OpportunitySummary"
+        - type: object
+          required:
+            - condition
+            - language
+          properties:
+            condition:
+              type: string
+              description: |
+                Eligibility conditions or restrictions that apply to access the opportunity.
+              example: "Riservato a titolari della Carta Europea della Disabilità con
+                invalidità ≥ 50%."
+            language:
+              type: string
+              enum:
+                - en
+                - fr
+                - de
+                - sl
+                - it
+              description: Language in which the opportunity content is authored.
+              example: "it"
+
+    # -------------------------------------------------------------------------
+    # Venue (Place)
+    # -------------------------------------------------------------------------
+    Venue:
+      type: object
+      description: |
+        A venue where an opportunity can be redeemed.
+        Offline venues include address fields; online venues include a URL.
+      required:
+        - id
+        - name
+        - type
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique identifier of the venue.
+        name:
+          type: string
+          description: Display name of the venue.
+          example: "Palestra FitLife Roma Centro"
+        type:
+          type: string
+          enum:
+            - online
+            - offline
+          description: Whether the venue is a physical location or an online service.
+        street:
+          type: string
+          nullable: true
+          description: Street address. Present for offline venues.
+          example: "Via del Corso, 10"
+        city:
+          type: string
+          nullable: true
+          description: City. Present for offline venues.
+          example: "Roma"
+        state:
+          type: string
+          nullable: true
+          description: State or province. Present for offline venues.
+          example: "Lazio"
+        postal_code:
+          type: string
+          nullable: true
+          description: Postal code. Present for offline venues.
+          example: "00186"
+        country:
+          type: string
+          nullable: true
+          description: ISO 3166-1 alpha-2 country code. Present for offline venues.
+          example: "IT"
+        url:
+          type: string
+          format: uri
+          nullable: true
+          description: URL to access the service. Present for online venues.
+          example: "https://example.com/ced-access"
+
+    # -------------------------------------------------------------------------
+    # Errors (RFC 7807 Problem Detail)
+    # -------------------------------------------------------------------------
+    ProblemDetail:
+      type: object
+      required:
+        - status
+        - title
+      properties:
+        status:
+          type: integer
+          description: HTTP status code.
+          example: 400
+        title:
+          type: string
+          description: Short, human-readable summary of the problem.
+          example: "Bad Request"
+        detail:
+          type: string
+          description: Human-readable explanation of the specific error.
+          example: "Query parameter 'limit' must be between 1 and 50."
+        instance:
+          type: string
+          format: uri
+          description: URI reference identifying the specific occurrence of the problem.

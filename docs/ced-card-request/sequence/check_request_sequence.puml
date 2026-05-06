@@ -7,7 +7,7 @@ box "INPS Services (PDND)" #LightBlue
   participant "MS INPS\n(GestioneDomandaCED)" as INPS
 end box
 
-title 1. Initialization and Decision Loop (CheckDomanda) - With Reconciliation
+title 1. Initialization and Decision Loop (CheckDomanda) - With Reconciliation (Updated DRAFT Logic)
 
 FE -> BFF: Request Current Step (codiceFiscale)
 
@@ -19,7 +19,7 @@ INPS --> BFF: esitoCheck, idLavorazione_INPS (X)
 
 alt INPS State READY FOR NEW DRAFT (esitoCheck = 10 or 50)
     alt Local Record R exists
-        note right of BFF: Inconsistency: INPS says no active draft (10/50), but local DB has stale record.
+        note right of BFF: INPS says no active draft (10/50). Local record must be deleted.
         BFF -> DB: DELETE Record R
         DB --> BFF: OK
     end
@@ -27,20 +27,23 @@ alt INPS State READY FOR NEW DRAFT (esitoCheck = 10 or 50)
 
 else INPS has active draft/processing (esitoCheck = 20, 30, 40)
     alt Local Record R exists and R.state = DRAFT (R.idLavorazione == NULL)
-        note right of BFF: Inconsistency detected: Local DRAFT creation failed last time. \nUser rule: Delete local DRAFT and force restart.
-        BFF -> DB: DELETE Record R
-        DB --> BFF: OK
-        BFF --> FE: Status: READY_FOR_NEW_DRAFT (FE must start NuovaDomandaInBozza again)
+        note right of BFF: Inconsistency detected: Local DRAFT creation failed last time. \nReconciliation: update with idLavorazione (X) from INPS.
 
-    else Local Record R exists but is in UPLOADING or is STALE (needs update)
+        BFF -> BFF: Determine correct state (20->READY_FOR_PHOTO_UPLOAD)
+        BFF -> DB: UPDATE R (idLavorazione=X, state=READY_FOR_PHOTO_UPLOAD, IK=R.idempotencyKey)
+        DB --> BFF: OK (Reconciliation Complete)
+        BFF --> FE: Status: READY_FOR_PHOTO_UPLOAD
+
+    else Local Record R exists but is in UPLOADING or is STALE (e.g., UPLOADING_PHOTO but esitoCheck=30)
         BFF -> BFF: Map esitoCheck (20->READY_FOR_PHOTO_UPLOAD; 30->READY_FOR_DOCUMENTS_UPLOAD; 40->ACQUIRED)
         BFF -> DB: UPDATE R (state, idLavorazione=X, IK=R.idempotencyKey)
         DB --> BFF: OK (Reconciliation Complete)
         BFF --> FE: Status: Current reconciled state
 
-    else Local Record R is NULL (Missing/Clean start, but INPS has state)
-        BFF -> BFF: Generate Idempotency Key (IK_NEW)
-        BFF -> DB: CREATE Record (partitionKey, idLavorazione=X, IK_NEW, state based on esitoCheck)
+    else Local Record R is NULL (Missing record, but INPS has state)
+        note right of BFF: Reconciliation: Create new local record, preserving INPS state.
+        BFF -> BFF: Generate Idempotency Key (IK_RECONCILE)
+        BFF -> DB: CREATE Record (partitionKey, idLavorazione=X, IK_RECONCILE, state based on esitoCheck)
         DB --> BFF: OK
         BFF --> FE: Status: Current reconciled state
 
@@ -51,4 +54,4 @@ else INPS has active draft/processing (esitoCheck = 20, 30, 40)
 else INPS Error (e.g., 700, 212)
     BFF --> FE: Error: Cannot proceed (Details: Error Code)
 end
-@enduml 
+@enduml

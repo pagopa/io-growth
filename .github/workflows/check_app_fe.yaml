@@ -1,4 +1,4 @@
-name: Check App FE - Prettier & ESLint
+name: Check App FE - TypeScript, Prettier & ESLint
 
 on:
   pull_request:

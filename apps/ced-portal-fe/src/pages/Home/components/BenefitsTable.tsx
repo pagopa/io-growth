@@ -64,10 +64,6 @@ export const BenefitsTable = ({ items }: BenefitsTableProps) => {
                   <SouthRoundedIcon
                     sx={{
                       fontSize: 18,
-                      backgroundColor:
-                        sortBy === column.id ? '#0b3ee326' : 'none',
-                      borderRadius: '50%',
-                      color: theme.palette.text.secondary,
                       transform:
                         sortBy === column.id && sortDirection === 'asc'
                           ? 'rotate(180deg)'

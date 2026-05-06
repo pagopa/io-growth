@@ -78,8 +78,8 @@ function OpportunityContent({
           borderRadius: '999px',
           px: 1,
           py: 0.75,
-          bgcolor: '#CBEFF4',
-          color: '#004E59',
+          bgcolor: '#DBF9FA',
+          color: '#003B3D',
           fontSize: 12,
           fontWeight: 600,
           lineHeight: 1,
@@ -148,8 +148,8 @@ export function DiscoveryListItem(props: DiscoveryListItemProps) {
           width: '100%',
           textAlign: 'left',
           display: 'block',
-          py: { xs: 3, md: 3.5 },
-          px: { xs: 2, md: 3 },
+          py: 3,
+          px: 1.5,
           bgcolor: 'common.neutralGray',
           '&:disabled': {
             opacity: 0.7,
@@ -158,7 +158,7 @@ export function DiscoveryListItem(props: DiscoveryListItemProps) {
         ...(Array.isArray(sx) ? sx : sx ? [sx] : []),
       ]}
     >
-      <Stack direction="row" justifyContent="space-between" gap={2}>
+      <Stack direction="row" justifyContent="space-between" gap={1}>
         {props.variant === 'simple' ? (
           <SimpleContent
             title={props.title}
@@ -182,7 +182,7 @@ export function DiscoveryListItem(props: DiscoveryListItemProps) {
             flexShrink: 0,
           }}
         >
-          <ChevronRightRoundedIcon sx={{ fontSize: { xs: 24, md: 28 } }} />
+          <ChevronRightRoundedIcon sx={{ fontSize: 24 }} />
         </Box>
       </Stack>
     </ButtonBase>

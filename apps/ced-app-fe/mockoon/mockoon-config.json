@@ -1,0 +1,357 @@
+{
+  "uuid": "89eb3964-861e-4565-ac11-dbe8931ec2dc",
+  "lastMigration": 33,
+  "name": "Ced",
+  "endpointPrefix": "",
+  "latency": 0,
+  "port": 3001,
+  "hostname": "",
+  "folders": [],
+  "routes": [
+    {
+      "uuid": "15ccebf6-2ca1-4eb5-b7d8-232e8d4e50db",
+      "type": "http",
+      "documentation": "Elenco agevolazioni",
+      "method": "get",
+      "endpoint": "api/benefits",
+      "responses": [
+        {
+          "uuid": "2b72d703-d310-45f6-8e17-365836adad2b",
+          "body": "[\n  {\n    \"name\": \"Test Revisione\",\n    \"category\": \"CULTURE_LEISURE\",\n    \"createdAt\": \"2026-03-28T09:15:30Z\",\n    \"state\": \"UNDER_REVIEW\"\n  },\n  {\n    \"name\": \"Test Bozza\",\n    \"category\": \"HEALTH_WELLNESS\",\n    \"createdAt\": \"2026-03-29T11:45:00Z\",\n    \"state\": \"DRAFT\"\n  },\n  {\n    \"name\": \"Test modifiche richieste\",\n    \"category\": \"EDUCATION\",\n    \"createdAt\": \"2026-03-30T14:20:15Z\",\n    \"state\": \"CHANGES_REQUESTED\"\n  },\n  {\n    \"name\": \"Test Pubblicata\",\n    \"category\": \"SPORT\",\n    \"createdAt\": \"2026-03-31T08:30:00Z\",\n    \"state\": \"PUBLISHED\"\n  },\n  {\n    \"name\": \"Test Pubblicazione Programmata\",\n    \"category\": \"HOME\",\n    \"createdAt\": \"2026-03-31T10:05:45Z\",\n    \"state\": \"SCHEDULED_PUBLICATION\"\n  },\n  {\n    \"name\": \"Test Pubblicazione Programmata - 2\",\n    \"category\": \"TELEPHONY_INTERNET\",\n    \"createdAt\": \"2026-04-02T16:50:22Z\",\n    \"state\": \"SCHEDULED_PUBLICATION\"\n  },\n  {\n    \"name\": \"Test Pubblicata - 2\",\n    \"category\": \"FINANCIAL_SERVICES\",\n    \"createdAt\": \"2026-04-05T09:12:10Z\",\n    \"state\": \"PUBLISHED\"\n  },\n  {\n    \"name\": \"Test Bozza - 2\",\n    \"category\": \"TRAVEL_TRANSPORT\",\n    \"createdAt\": \"2026-04-10T15:35:00Z\",\n    \"state\": \"DRAFT\"\n  },\n  {\n    \"name\": \"Test Bozza - 3\",\n    \"category\": \"SUSTAINABLE_MOBILITY\",\n    \"createdAt\": \"2026-04-15T11:20:33Z\",\n    \"state\": \"DRAFT\"\n  },\n  {\n    \"name\": \"Test Bozza - 4\",\n    \"category\": \"WORK_INTERNSHIPS\",\n    \"createdAt\": \"2026-04-20T18:05:19Z\",\n    \"state\": \"DRAFT\"\n  }\n]",
+          "latency": 0,
+          "statusCode": 200,
+          "label": "Response with all statuses",
+          "headers": [],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": true,
+          "crudKey": "id",
+          "callbacks": []
+        },
+        {
+          "uuid": "ff25f763-7669-43f0-b42c-c4fd1e40cadb",
+          "body": "[]",
+          "latency": 0,
+          "statusCode": 200,
+          "label": "Empty response",
+          "headers": [],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": false,
+          "crudKey": "id",
+          "callbacks": []
+        }
+      ],
+      "responseMode": null,
+      "streamingMode": null,
+      "streamingInterval": 0
+    },
+    {
+      "uuid": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+      "type": "http",
+      "documentation": "Ricerca indirizzi",
+      "method": "get",
+      "endpoint": "api/addresses/search",
+      "responses": [
+        {
+          "uuid": "a1b2c3d4-e5f6-7890-abcd-ef1234567891",
+          "body": "[\n    {\n        \"label\": \"Viale A. Ricci, 24\",\n        \"city\": \"Ferrara\",\n        \"postalCode\": \"44121\",\n        \"province\": \"FE\"\n    },\n    {\n        \"label\": \"Via Roma, 10\",\n        \"city\": \"Milano\",\n        \"postalCode\": \"20121\",\n        \"province\": \"MI\"\n    },\n    {\n        \"label\": \"Corso Vittorio Emanuele II, 5\",\n        \"city\": \"Roma\",\n        \"postalCode\": \"00186\",\n        \"province\": \"RM\"\n    },\n    {\n        \"label\": \"Via Garibaldi, 3\",\n        \"city\": \"Torino\",\n        \"postalCode\": \"10122\",\n        \"province\": \"TO\"\n    },\n    {\n        \"label\": \"Piazza Navona, 1\",\n        \"city\": \"Roma\",\n        \"postalCode\": \"00186\",\n        \"province\": \"RM\"\n    },\n    {\n        \"label\": \"Via Manzoni, 7\",\n        \"city\": \"Milano\",\n        \"postalCode\": \"20121\",\n        \"province\": \"MI\"\n    },\n    {\n        \"label\": \"Lungarno degli Archibusieri, 4\",\n        \"city\": \"Firenze\",\n        \"postalCode\": \"50122\",\n        \"province\": \"FI\"\n    },\n    {\n        \"label\": \"Via Toledo, 256\",\n        \"city\": \"Napoli\",\n        \"postalCode\": \"80132\",\n        \"province\": \"NA\"\n    },\n    {\n        \"label\": \"Via XX Settembre, 14\",\n        \"city\": \"Genova\",\n        \"postalCode\": \"16121\",\n        \"province\": \"GE\"\n    },\n    {\n        \"label\": \"Corso Buenos Aires, 33\",\n        \"city\": \"Milano\",\n        \"postalCode\": \"20124\",\n        \"province\": \"MI\"\n    }\n]",
+          "latency": 0,
+          "statusCode": 200,
+          "label": "Address suggestions",
+          "headers": [],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": true,
+          "crudKey": "id",
+          "callbacks": []
+        }
+      ],
+      "responseMode": null,
+      "streamingMode": null,
+      "streamingInterval": 0
+    },
+    {
+      "uuid": "d4e5f6a7-b8c9-0123-def0-234567890124",
+      "type": "crud",
+      "documentation": "Websites CRUD",
+      "method": "get",
+      "endpoint": "api/websites",
+      "responses": [
+        {
+          "uuid": "d4e5f6a7-b8c9-0123-def0-234567890125",
+          "body": "",
+          "latency": 0,
+          "statusCode": 200,
+          "label": "Websites data bucket",
+          "headers": [],
+          "bodyType": "DATABUCKET",
+          "filePath": "",
+          "databucketID": "websites",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": true,
+          "crudKey": "id",
+          "callbacks": []
+        }
+      ],
+      "responseMode": null,
+      "streamingMode": null,
+      "streamingInterval": 0
+    },
+    {
+      "uuid": "c3d4e5f6-a7b8-9012-cdef-123456789012",
+      "type": "crud",
+      "documentation": "Locations CRUD",
+      "method": "get",
+      "endpoint": "api/locations",
+      "responses": [
+        {
+          "uuid": "c3d4e5f6-a7b8-9012-cdef-123456789013",
+          "body": "",
+          "latency": 0,
+          "statusCode": 200,
+          "label": "Locations data bucket",
+          "headers": [],
+          "bodyType": "DATABUCKET",
+          "filePath": "",
+          "databucketID": "locations",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": true,
+          "crudKey": "id",
+          "callbacks": []
+        }
+      ],
+      "responseMode": null,
+      "streamingMode": null,
+      "streamingInterval": 0
+    },
+    {
+      "uuid": "b1c2d3e4-f5a6-7890-bcde-f01234567890",
+      "type": "http",
+      "documentation": "Salva agevolazione in bozza",
+      "method": "post",
+      "endpoint": "api/benefits/draft",
+      "responses": [
+        {
+          "uuid": "b1c2d3e4-f5a6-7890-bcde-f01234567891",
+          "body": "{\"id\": \"benefit-draft-001\", \"status\": \"Bozza\", \"createdAt\": \"2026-04-20T10:00:00Z\"}",
+          "latency": 500,
+          "statusCode": 201,
+          "label": "Draft saved successfully",
+          "headers": [],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": true,
+          "crudKey": "id",
+          "callbacks": []
+        }
+      ],
+      "responseMode": null,
+      "streamingMode": null,
+      "streamingInterval": 0
+    },
+    {
+      "uuid": "f1a2b3c4-d5e6-7890-abcd-ef0123456789",
+      "type": "http",
+      "documentation": "Elenco opportunità",
+      "method": "get",
+      "endpoint": "api/opportunities",
+      "responses": [
+        {
+          "uuid": "f1a2b3c4-d5e6-7890-abcd-ef0123456790",
+          "body": "[\n    {\n        \"id\": \"opp-001\",\n        \"name\": \"Accesso gratuito nei teatri comunali\",\n        \"organization_name\": \"Comune di Alessandria\",\n        \"created_at\": \"2026-03-12\",\n        \"state\": \"Da_gestire\"\n    },\n    {\n        \"id\": \"opp-002\",\n        \"name\": \"Biglietto gratuito nelle sale cinematografiche\",\n        \"organization_name\": \"Cineplex Moderno Alessandria\",\n        \"created_at\": \"2026-03-12\",\n        \"state\": \"Da_gestire\"\n    },\n    {\n        \"id\": \"opp-003\",\n        \"name\": \"Biglietto gratuito nelle sale cinematografiche\",\n        \"organization_name\": \"Cineplex Moderno Alessandria\",\n        \"created_at\": \"2026-03-12\",\n        \"state\": \"Da_gestire\"\n    },\n    {\n        \"id\": \"opp-004\",\n        \"name\": \"Biglietto gratuito nelle sale cinematografiche\",\n        \"organization_name\": \"Cineplex Moderno Alessandria\",\n        \"created_at\": \"2026-03-12\",\n        \"state\": \"Da_gestire\"\n    },\n    {\n        \"id\": \"opp-005\",\n        \"name\": \"Accesso gratuito nei cinema multisala\",\n        \"organization_name\": \"Comune di Cuneo\",\n        \"created_at\": \"2026-03-12\",\n        \"state\": \"In_attesa_di_modifiche\"\n    },\n    {\n        \"id\": \"opp-006\",\n        \"name\": \"Sconto trasporto pubblico locale\",\n        \"organization_name\": \"Comune di Torino\",\n        \"created_at\": \"2026-02-28\",\n        \"state\": \"Approvata\"\n    },\n    {\n        \"id\": \"opp-007\",\n        \"name\": \"Ingresso gratuito musei civici\",\n        \"organization_name\": \"Comune di Milano\",\n        \"created_at\": \"2026-02-15\",\n        \"state\": \"Approvata\"\n    },\n    {\n        \"id\": \"opp-008\",\n        \"name\": \"Abbonamento palestre comunali\",\n        \"organization_name\": \"Comune di Roma\",\n        \"created_at\": \"2026-01-20\",\n        \"state\": \"Non_attiva\"\n    }\n]",
+          "latency": 0,
+          "statusCode": 200,
+          "label": "Response with all statuses",
+          "headers": [],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": true,
+          "crudKey": "id",
+          "callbacks": []
+        },
+        {
+          "uuid": "f1a2b3c4-d5e6-7890-abcd-ef0123456791",
+          "body": "[]",
+          "latency": 0,
+          "statusCode": 200,
+          "label": "Empty response",
+          "headers": [],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": false,
+          "crudKey": "id",
+          "callbacks": []
+        }
+      ],
+      "responseMode": null,
+      "streamingMode": null,
+      "streamingInterval": 0
+    },
+    {
+      "uuid": "a2b3c4d5-e6f7-8901-bcde-f01234567890",
+      "type": "http",
+      "documentation": "Dettaglio opportunità",
+      "method": "get",
+      "endpoint": "api/opportunities/:id",
+      "responses": [
+        {
+          "uuid": "a2b3c4d5-e6f7-8901-bcde-f01234567891",
+          "body": "{\n    \"id\": \"{{urlParam 'id'}}\",\n    \"name\": \"Discount_Title\",\n    \"organization_name\": \"Comune di Alessandria\",\n    \"state\": \"Da_gestire\",\n    \"opportunity_type\": \"Sconto\",\n    \"discount_type\": \"Percentuale\",\n    \"discount_value\": 50,\n    \"description\": \"Consente l'accesso agevolato nei musei per i titolari della Carta Europea della Disabilità e un solo accompagnatore.\",\n    \"category\": \"Cultura e tempo libero\",\n    \"validity_start\": \"2026-03-01\",\n    \"validity_end\": \"2026-12-31\",\n    \"conditions\": \"L'accompagnatore ha diritto ad uno sconto se sulla Carta Europea della Disabilità è presente la \\\"A\\\" che indica il diritto di accompagnamento.\",\n    \"companion\": {\n        \"enabled\": true,\n        \"discount_type\": \"Importo fisso\",\n        \"discount_value\": 10\n    }\n}",
+          "latency": 0,
+          "statusCode": 200,
+          "label": "Opportunity detail",
+          "headers": [],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": true,
+          "crudKey": "id",
+          "callbacks": []
+        }
+      ],
+      "responseMode": null,
+      "streamingMode": null,
+      "streamingInterval": 0
+    }
+  ],
+  "rootChildren": [
+    {
+      "type": "route",
+      "uuid": "15ccebf6-2ca1-4eb5-b7d8-232e8d4e50db"
+    },
+    {
+      "type": "route",
+      "uuid": "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+    },
+    {
+      "type": "route",
+      "uuid": "d4e5f6a7-b8c9-0123-def0-234567890124"
+    },
+    {
+      "type": "route",
+      "uuid": "c3d4e5f6-a7b8-9012-cdef-123456789012"
+    },
+    {
+      "type": "route",
+      "uuid": "b1c2d3e4-f5a6-7890-bcde-f01234567890"
+    },
+    {
+      "type": "route",
+      "uuid": "f1a2b3c4-d5e6-7890-abcd-ef0123456789"
+    },
+    {
+      "type": "route",
+      "uuid": "a2b3c4d5-e6f7-8901-bcde-f01234567890"
+    }
+  ],
+  "proxyMode": false,
+  "proxyHost": "",
+  "proxyRemovePrefix": false,
+  "tlsOptions": {
+    "enabled": false,
+    "type": "CERT",
+    "pfxPath": "",
+    "certPath": "",
+    "keyPath": "",
+    "caPath": "",
+    "passphrase": ""
+  },
+  "cors": true,
+  "headers": [
+    {
+      "key": "Content-Type",
+      "value": "application/json"
+    },
+    {
+      "key": "Access-Control-Allow-Origin",
+      "value": "*"
+    },
+    {
+      "key": "Access-Control-Allow-Methods",
+      "value": "GET,POST,PUT,PATCH,DELETE,HEAD,OPTIONS"
+    },
+    {
+      "key": "Access-Control-Allow-Headers",
+      "value": "Content-Type, Origin, Accept, Authorization, Content-Length, X-Requested-With"
+    }
+  ],
+  "proxyReqHeaders": [
+    {
+      "key": "",
+      "value": ""
+    }
+  ],
+  "proxyResHeaders": [
+    {
+      "key": "",
+      "value": ""
+    }
+  ],
+  "data": [
+    {
+      "uuid": "sedi-bucket-0001-0000-0000-000000000001",
+      "id": "locations",
+      "name": "Locations",
+      "value": "[]",
+      "parsed": true
+    },
+    {
+      "uuid": "webs-bucket-0001-0000-0000-000000000001",
+      "id": "websites",
+      "name": "Websites",
+      "value": "[]",
+      "parsed": true
+    }
+  ],
+  "callbacks": []
+}

@@ -40,6 +40,51 @@ locals {
     readiness_probe_path = "/api/info/readiness"
   }
 
+
+  # Browser BE Container App configuration
+  browser_be = {
+    target_port = 8080
+
+    image = "ghcr.io/pagopa/io-growth/ced-browser-be:latest"
+
+    app_settings = {
+      PORT            = "8080"
+      POSTGRES_HOST   = "${module.postgresql.postgres.name}.postgres.database.azure.com"
+      POSTGRES_PORT   = "6432"
+      POSTGRES_DB     = azurerm_postgresql_flexible_server_database.ced_test.name
+      POSTGRES_SSL    = "true"
+      REDIS_HOST      = module.redis.hostname
+      REDIS_PORT      = tostring(module.redis.ssl_port)
+      REDIS_TLS       = "true"
+      AZURE_CLIENT_ID = module.common_container_app_environment.user_assigned_identity.client_id
+    }
+
+    startup_probe_path   = "/api/info/startup"
+    readiness_probe_path = "/api/info/readiness"
+  }
+
+  # Card Request BE Container App configuration
+  card_request_be = {
+    target_port = 8080
+
+    image = "ghcr.io/pagopa/io-growth/ced-card-request-be:latest"
+
+    app_settings = {
+      PORT            = "8080"
+      POSTGRES_HOST   = "${module.postgresql.postgres.name}.postgres.database.azure.com"
+      POSTGRES_PORT   = "6432"
+      POSTGRES_DB     = azurerm_postgresql_flexible_server_database.ced_test.name
+      POSTGRES_SSL    = "true"
+      REDIS_HOST      = module.redis.hostname
+      REDIS_PORT      = tostring(module.redis.ssl_port)
+      REDIS_TLS       = "true"
+      AZURE_CLIENT_ID = module.common_container_app_environment.user_assigned_identity.client_id
+    }
+
+    startup_probe_path   = "/api/info/startup"
+    readiness_probe_path = "/api/info/readiness"
+  }
+
   tags = {
     CostCenter     = "TS000 - Tecnologia e Servizi"
     CreatedBy      = "Terraform"

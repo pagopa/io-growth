@@ -1,0 +1,35 @@
+<policies>
+    <inbound>
+        <base />
+        <cors allow-credentials="true">
+            <allowed-origins>
+                <origin>https://browser.ced.pagopa.it</origin>
+                <origin>https://api.ced.pagopa.it</origin>
+            </allowed-origins>
+            <allowed-methods preflight-result-max-age="300">
+                <method>GET</method>
+                <method>POST</method>
+                <method>PUT</method>
+                <method>DELETE</method>
+                <method>OPTIONS</method>
+            </allowed-methods>
+            <allowed-headers>
+                <header>Content-Type</header>
+                <header>Accept</header>
+            </allowed-headers>
+            <expose-headers>
+                <header>*</header>
+            </expose-headers>
+        </cors>
+        <set-backend-service base-url="{{ced-browser-be-ca-url}}/api" />
+    </inbound>
+    <outbound>
+        <base />
+    </outbound>
+    <backend>
+        <base />
+    </backend>
+    <on-error>
+        <base />
+    </on-error>
+</policies>

@@ -1,0 +1,45 @@
+@startuml Citizen Access Sequence
+
+actor "Citizen (IO App)" as cit
+participant "CED Browser BE" as be
+participant "Redis" as rd
+box "FIMS / Identity Provider" #LightBlue
+  participant "FIMS IdP" as idp
+end box
+
+cit -> be: GET /api/fauth?device=...
+activate be
+be --> cit: 302 Redirect to FIMS IdP authorization URL
+deactivate be
+
+cit -> idp: Follows redirect (authorization request)
+idp -> cit: Authentication challenge (login/consent)
+cit -> idp: Authenticates
+
+idp -> be: GET /api/fcb?code=...&state=...&iss=...
+activate be
+be -> idp: Exchange code for identity token (OIDC token endpoint)
+idp --> be: Identity token (fiscal code, profile)
+
+be -> be: Validate token and extract identity
+be -> rd: Store identity keyed by session token\n(sessionToken → identity)
+rd --> be: OK
+be -> rd: Bind short-lived id to session token\n(shortLivedId → sessionToken)
+rd --> be: OK
+
+be -> cit: 302 Redirect to /api/authorize?id=<shortLivedId>
+deactivate be
+
+cit -> be: GET /api/authorize?id=<shortLivedId>
+activate be
+be -> rd: Resolve shortLivedId → sessionToken
+alt Short-lived id valid
+    be -> rd: Delete binding (shortLivedId → sessionToken)
+    rd --> be: OK
+    be --> cit: 200 { token: "<session_token>" }
+else Short-lived id invalid or expired
+    be --> cit: 401 Unauthorized
+end
+deactivate be
+
+@enduml

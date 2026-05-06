@@ -1,0 +1,29 @@
+@startuml Browse Opportunities Sequence
+
+actor "Citizen (IO App)" as cit
+participant "CED Browser BE" as be
+participant "Redis" as rd
+participant "PostgreSQL" as pg
+
+cit -> be: GET /api/opportunities?q=...&limit=...&offset=...
+note right of cit: token header: <session_token>
+activate be
+
+be -> rd: Validate session token
+alt Session token valid
+    rd --> be: Identity (fiscal code)
+
+    alt q parameter provided
+        be -> pg: Full-text search on OpportunityMaterializedView\n+ PlaceMaterializedView (search_vector)\nordered by relevance
+    else no q parameter
+        be -> pg: Fetch published opportunities\n(default order)
+    end
+
+    pg --> be: Matching opportunities with venues
+    be --> cit: 200 { items, total, has_more }
+else Session token invalid or missing
+    be --> cit: 401 Unauthorized
+end
+deactivate be
+
+@enduml

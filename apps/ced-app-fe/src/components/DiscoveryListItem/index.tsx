@@ -1,37 +1,15 @@
 import ChevronRightRoundedIcon from '@mui/icons-material/ChevronRightRounded';
 import { Box, ButtonBase, Stack, Typography, useTheme } from '@mui/material';
-import type { SxProps, Theme } from '@mui/material';
-
-export type DiscoveryListItemVariant = 'opportunity' | 'simple';
-
-type DiscoveryListItemBaseProps = {
-  title: string;
-  onClick?: () => void;
-  disabled?: boolean;
-  sx?: SxProps<Theme>;
-};
-
-type VariantMap = {
-  opportunity: {
-    eyebrow: string;
-    badgeLabel: string;
-  };
-  simple: {
-    subtitle: string;
-  };
-};
-
-export type DiscoveryListItemProps = {
-  [K in keyof VariantMap]: DiscoveryListItemBaseProps & {
-    variant: K;
-  } & VariantMap[K];
-}[keyof VariantMap];
-
-type OpportunityProps = Extract<
+import type {
   DiscoveryListItemProps,
-  { variant: 'opportunity' }
->;
-type SimpleProps = Extract<DiscoveryListItemProps, { variant: 'simple' }>;
+  OpportunityProps,
+  SimpleProps,
+} from './types.js';
+
+export type {
+  DiscoveryListItemProps,
+  DiscoveryListItemVariant,
+} from './types.js';
 
 function OpportunityContent({
   eyebrow,

@@ -322,3 +322,5 @@ infra/**/temp
 # Linux core dumps
 core
 core.*
+
+!**/apps/**/core/

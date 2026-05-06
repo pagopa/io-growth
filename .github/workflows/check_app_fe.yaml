@@ -37,7 +37,7 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Run TypeScript check
-        run: pnpm --filter ced-app-fe tsc --noEmit
+        run: pnpm --filter ced-app-fe exec tsc --noEmit
         continue-on-error: false
   prettier_and_eslint:
     runs-on: ubuntu-latest

@@ -4,3 +4,4 @@ export * from './DatePicker';
 export * from './Select';
 export * from './TextField';
 export * from './FormField';
+export * from './DiscoveryListItem';

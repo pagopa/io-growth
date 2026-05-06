@@ -39,6 +39,12 @@ export const EntityDataSection = ({
   onCoverSelect,
   onInfoClick,
 }: EntityDataSectionProps) => {
+  const isWebsite = sede === 'sito_web';
+  const locationFieldLabel = isWebsite ? 'Url' : 'Indirizzo';
+  const locationFieldPlaceholder = isWebsite
+    ? 'Inserisci url'
+    : "Inserisci l'indirizzo";
+
   return (
     <Paper
       variant="outlined"
@@ -49,7 +55,7 @@ export const EntityDataSection = ({
           <StorefrontOutlinedIcon
             sx={{ color: 'common.decorativeIcon', fontSize: 20 }}
           />
-          <Typography fontSize={16} fontWeight={700} sx={{ lineHeight: 1.25 }}>
+          <Typography fontSize={16} fontWeight={600} sx={{ lineHeight: 1.25 }}>
             Dati dell&apos;ente
           </Typography>
         </Stack>
@@ -83,8 +89,8 @@ export const EntityDataSection = ({
 
         <AppTextField
           required
-          label="Indirizzo"
-          placeholder="Inserisci l'indirizzo"
+          label={locationFieldLabel}
+          placeholder={locationFieldPlaceholder}
           value={address}
           onChange={(e) => onAddressChange(e.target.value)}
           sx={{

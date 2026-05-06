@@ -8,7 +8,7 @@ import { AgreementLocalizedFormState } from '../../../../../features/agreementDe
 import { FixedPriceFields } from './FixedPriceFields';
 import { ViewSameConditions } from './ViewSameConditions';
 import { CompanionFormField } from './CompanionFormField';
-import { getAgreementCopy } from '../../../../../constants';
+import { benefitTypeOptions, getAgreementCopy } from '../../../../../constants';
 
 type BenefitDetailsSectionProps = {
   handleFieldChange: (
@@ -30,8 +30,6 @@ export const BenefitDetailsSection = ({
   const activeLanguage = useAppSelector(selectActiveAgreementLanguage);
   const companionCopy =
     getAgreementCopy(activeLanguage).additionalSections.companion;
-
-  const benefitTypeOptions = Object.values(companionCopy.benefitTypeOptions);
 
   if (sameConditionAsOwner) {
     return <ViewSameConditions />;

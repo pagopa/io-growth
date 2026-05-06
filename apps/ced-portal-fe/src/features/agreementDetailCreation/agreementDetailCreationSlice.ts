@@ -43,7 +43,7 @@ const getLanguageFormState = (
 
 const resetCompanionData = (languageFormState: AgreementLocalizedFormState) => {
   languageFormState.companion.companionBenefitType = '';
-  languageFormState.companion.companionDiscountValueType = 'fixed';
+  languageFormState.companion.companionDiscountValueType = 'FIXED';
   languageFormState.companion.companionDiscountValue = '';
   languageFormState.companion.companionOtherBenefitTypeDescription = '';
 };
@@ -68,7 +68,7 @@ export const agreementDetailCreationSlice = createSlice({
       const languageFormState = getLanguageFormState(state, languageId);
       if (field === 'benefitDiscountValueType') {
         languageFormState.details.benefitDiscountValueType =
-          value === 'percentage' ? 'percentage' : 'fixed';
+          value === 'PERCENTAGE' ? 'PERCENTAGE' : 'FIXED';
         return;
       }
 

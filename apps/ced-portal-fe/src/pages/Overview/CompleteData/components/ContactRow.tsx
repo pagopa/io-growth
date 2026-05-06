@@ -2,8 +2,7 @@ import CancelIcon from '@mui/icons-material/Cancel';
 import { Box, IconButton, Stack } from '@mui/material';
 import { AppSelect, AppTextField } from '../../../../components';
 import type { Contact } from '../types';
-
-const CONTACT_TYPE_OPTIONS = ['Sito web', 'Telefono'];
+import { CONTACT_TYPE_OPTIONS } from './constants';
 
 interface ContactRowProps {
   contact: Contact;
@@ -24,7 +23,20 @@ export const ContactRow = ({
   onRemove,
   onChange,
 }: ContactRowProps) => {
-  const isPhoneType = contact.type === 'Telefono';
+  const contactInput =
+    contact.type === 'TELEPHONE'
+      ? {
+          field: 'contact' as const,
+          placeholder: 'Inserisci numero di telefono',
+          type: 'tel' as const,
+          value: contact.contact,
+        }
+      : {
+          field: 'website' as const,
+          placeholder: 'Inserisci url',
+          type: 'url' as const,
+          value: contact.website,
+        };
 
   return (
     <Stack spacing={4}>
@@ -67,7 +79,7 @@ export const ContactRow = ({
             <AppSelect
               label="Tipo di contatto"
               options={CONTACT_TYPE_OPTIONS}
-              value={contact.type}
+              value={contact.type || 'WEBSITE'}
               onChange={(e) =>
                 onChange(index, 'type', e.target.value as string)
               }
@@ -75,12 +87,12 @@ export const ContactRow = ({
             />
 
             <AppTextField
-              placeholder={
-                isPhoneType ? 'Inserisci numero di telefono' : 'Inserisci url'
+              placeholder={contactInput.placeholder}
+              type={contactInput.type}
+              value={contactInput.value}
+              onChange={(e) =>
+                onChange(index, contactInput.field, e.target.value)
               }
-              type={isPhoneType ? 'tel' : 'url'}
-              value={contact.website}
-              onChange={(e) => onChange(index, 'website', e.target.value)}
               sx={{ '& .MuiOutlinedInput-root': { borderRadius: '8px' } }}
             />
           </Box>

@@ -6,8 +6,6 @@ import { BenefitsFiltersBar } from './components/BenefitsFiltersBar';
 import { BenefitsTabs } from './components/BenefitsTabs';
 import { MainContentHeader } from './components/MainContentHeader';
 
-const statusOptions = ['Attiva', 'Bozza', 'Scaduta'];
-
 export const MainContent = () => {
   const theme = useTheme();
   const [activeTab, setActiveTab] = useState(0);
@@ -30,7 +28,7 @@ export const MainContent = () => {
     >
       <Stack spacing={3} sx={{ minHeight: '100%' }}>
         <MainContentHeader />
-        <BenefitsFiltersBar statusOptions={statusOptions} />
+        <BenefitsFiltersBar />
 
         <Box>
           <BenefitsTabs activeTab={activeTab} onChange={handleTabChange} />

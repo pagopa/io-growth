@@ -34,11 +34,6 @@ export interface AgreementDetailsFormCopy {
   nameHelperText: string;
   benefitTypeLabel: string;
   benefitTypePlaceholder: string;
-  benefitTypeOptions: Record<string, string>;
-  discountTypeOptions: {
-    percentage: string;
-    fixed: string;
-  };
   discountValueLabel: string;
   otherBenefitTypeLabel: string;
   descriptionLabel: string;
@@ -46,7 +41,6 @@ export interface AgreementDetailsFormCopy {
   descriptionHelperText: string;
   categoryLabel: string;
   categoryPlaceholder: string;
-  categoryOptions: string[];
   conditionsLabel: string;
   conditionsPlaceholder: string;
   conditionsHelperText: string;

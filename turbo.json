@@ -1,8 +1,12 @@
 {
   "$schema": "https://turbo.build/schema.json",
   "tasks": {
+    "generate": {
+      "inputs": ["openapi.yaml", "orval.config.ts"],
+      "outputs": ["src/adapters/inbound/fastify/contracts/**"]
+    },
     "build": {
-      "dependsOn": ["^build"],
+      "dependsOn": ["^build", "generate"],
       "inputs": ["src/**", "tsconfig.json", "package.json"],
       "outputs": ["dist/**"]
     },
@@ -15,7 +19,7 @@
       "cache": false
     },
     "run:dev": {
-      "dependsOn": ["^build"],
+      "dependsOn": ["^build", "generate"],
       "persistent": true,
       "cache": false
     },
@@ -27,7 +31,7 @@
         "!vitest.config.*"
       ],
       "outputs": [],
-      "dependsOn": ["^build", "^typecheck"]
+      "dependsOn": ["^build", "^typecheck", "generate"]
     },
     "lint": {
       "inputs": ["src/**/*.ts"]

@@ -1,9 +1,8 @@
-import type { ReactNode } from 'react';
-import MenuRoundedIcon from '@mui/icons-material/MenuRounded';
+import BusinessOutlinedIcon from '@mui/icons-material/BusinessOutlined';
 import DashboardOutlinedIcon from '@mui/icons-material/DashboardOutlined';
 import LocalOfferOutlinedIcon from '@mui/icons-material/LocalOfferOutlined';
+import MenuRoundedIcon from '@mui/icons-material/MenuRounded';
 import PhotoOutlined from '@mui/icons-material/PhotoOutlined';
-import { italia } from '@pagopa/mui-italia';
 import {
   Box,
   IconButton,
@@ -12,8 +11,12 @@ import {
   ListItemIcon,
   ListItemText,
 } from '@mui/material';
+import { italia } from '@pagopa/mui-italia';
+import type { ReactNode } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { APP_ROUTES } from '../../app/routeConfig';
+import { selectUserRole } from '../../core/auth/authSelectors';
+import { useAppSelector } from '../../hooks';
 
 interface NavItemProps {
   icon: ReactNode;
@@ -72,6 +75,8 @@ export function SideNavigation() {
   const isOverviewActive = pathname === APP_ROUTES.OVERVIEW;
   const isBenefitsActive = pathname === APP_ROUTES.HOME;
   const isOpportunitiesActive = pathname === APP_ROUTES.OPPORTUNITIES;
+  const role = useAppSelector(selectUserRole);
+  const isAdmin = role === 'admin';
 
   return (
     <Box
@@ -88,24 +93,32 @@ export function SideNavigation() {
       }}
     >
       <List disablePadding sx={{ py: 2.5 }}>
-        <NavItem
-          active={isOverviewActive}
-          icon={<DashboardOutlinedIcon />}
-          label="Panoramica"
-          onClick={() => navigate(APP_ROUTES.OVERVIEW)}
-        />
-        <NavItem
-          active={isBenefitsActive}
-          icon={<LocalOfferOutlinedIcon />}
-          label="Agevolazioni"
-          onClick={() => navigate(APP_ROUTES.HOME)}
-        />
-        <NavItem
-          active={isOpportunitiesActive}
-          icon={<PhotoOutlined />}
-          label="Opportunità"
-          onClick={() => navigate(APP_ROUTES.OPPORTUNITIES)}
-        />
+        {isAdmin ? (
+          <>
+            <NavItem icon={<BusinessOutlinedIcon />} label="Enti" />
+            <NavItem
+              active={isOpportunitiesActive}
+              icon={<PhotoOutlined />}
+              label="Opportunità"
+              onClick={() => navigate(APP_ROUTES.OPPORTUNITIES)}
+            />
+          </>
+        ) : (
+          <>
+            <NavItem
+              active={isOverviewActive}
+              icon={<DashboardOutlinedIcon />}
+              label="Panoramica"
+              onClick={() => navigate(APP_ROUTES.OVERVIEW)}
+            />
+            <NavItem
+              active={isBenefitsActive}
+              icon={<LocalOfferOutlinedIcon />}
+              label="Agevolazioni"
+              onClick={() => navigate(APP_ROUTES.HOME)}
+            />
+          </>
+        )}
       </List>
 
       <Box sx={{ p: 2 }}>

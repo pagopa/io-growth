@@ -93,3 +93,12 @@ variable "secrets" {
   description = "List of secrets to be created in the Container App and injected as environment variables in the container. The secret name will be used as environment variable name, while the value will be injected as environment variable value."
   default     = []
 }
+
+variable "apim_platform" {
+  type = object({
+    name                = string
+    resource_group_name = string
+    principal_id        = string
+  })
+  description = "The API Management instance to associate with the Container App. The principal_id is used to grant the APIM managed identity access to the Container App."
+}

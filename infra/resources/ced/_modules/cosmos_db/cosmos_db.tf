@@ -45,7 +45,6 @@ resource "azurerm_cosmosdb_sql_container" "card_requests" {
   database_name       = azurerm_cosmosdb_sql_database.ced_cosmos_db.name
   partition_key_paths = ["/id"]
   autoscale_settings {
-    // TODO: Increase RU before next registration phase
     max_throughput = 2000
   }
 }

@@ -233,6 +233,37 @@
       "streamingInterval": 0
     },
     {
+      "uuid": "e1f2a3b4-c5d6-7890-efab-cd1234567890",
+      "type": "http",
+      "documentation": "Dettaglio ente",
+      "method": "get",
+      "endpoint": "api/entities/:id",
+      "responses": [
+        {
+          "uuid": "e1f2a3b4-c5d6-7890-efab-cd1234567891",
+          "body": "{\n    \"id\": \"{{urlParam 'id'}}\",\n    \"name\": \"Comune di Alessandria\",\n    \"opportunities\": [\n        {\n            \"id\": \"opp-1\",\n            \"eyebrow\": \"Ovunque\",\n            \"title\": \"Saltafila negli uffici comunali\",\n            \"badgeLabel\": \"PRIORITÀ\"\n        },\n        {\n            \"id\": \"opp-2\",\n            \"eyebrow\": \"Museo della Gambarina\",\n            \"title\": \"Ingresso scontato alla mostra temporanea \\\"Impressionisti in Normandia\\\"\",\n            \"badgeLabel\": \"-50%\"\n        },\n        {\n            \"id\": \"opp-3\",\n            \"eyebrow\": \"Biblioteca civica \\\"Francesca Calvo\\\"\",\n            \"title\": \"Prestito prolungato (30 giorni) su tutti i libri, riviste, quotidiani, multimedia\",\n            \"badgeLabel\": \"-30%\"\n        },\n        {\n            \"id\": \"opp-4\",\n            \"eyebrow\": \"Piscina comunale\",\n            \"title\": \"Ingresso gratuito alla piscina olimpionica\",\n            \"badgeLabel\": \"GRATIS\"\n        },\n        {\n            \"id\": \"opp-5\",\n            \"eyebrow\": \"Teatro Municipale\",\n            \"title\": \"Biglietto ridotto per gli spettacoli della stagione 2026\",\n            \"badgeLabel\": \"-20%\"\n        },\n        {\n            \"id\": \"opp-6\",\n            \"eyebrow\": \"Mercato coperto\",\n            \"title\": \"Sconto sui prodotti a km zero ogni sabato mattina\",\n            \"badgeLabel\": \"-15%\"\n        },\n        {\n            \"id\": \"opp-7\",\n            \"eyebrow\": \"Ovunque\",\n            \"title\": \"Parcheggio gratuito nelle strisce blu il sabato\",\n            \"badgeLabel\": \"GRATIS\"\n        },\n        {\n            \"id\": \"opp-8\",\n            \"eyebrow\": \"Palazzo della Cultura\",\n            \"title\": \"Accesso gratuito alle mostre permanenti\",\n            \"badgeLabel\": \"GRATIS\"\n        },\n        {\n            \"id\": \"opp-9\",\n            \"eyebrow\": \"Trasporti pubblici\",\n            \"title\": \"Abbonamento mensile a tariffa agevolata\",\n            \"badgeLabel\": \"-40%\"\n        },\n        {\n            \"id\": \"opp-10\",\n            \"eyebrow\": \"Università del Piemonte\",\n            \"title\": \"Accesso scontato alla mensa universitaria\",\n            \"badgeLabel\": \"-25%\"\n        },\n        {\n            \"id\": \"opp-11\",\n            \"eyebrow\": \"Centro sportivo\",\n            \"title\": \"Lezioni di yoga gratuite nel parco ogni domenica\",\n            \"badgeLabel\": \"GRATIS\"\n        }\n    ],\n    \"accessPoints\": [\n        {\n            \"id\": \"ap-1\",\n            \"title\": \"Biblioteca civica \\\"Francesca Calvo\\\"\",\n            \"subtitle\": \"Piazza Vittorio Veneto, 1, 15121 Alessandria AL\"\n        },\n        {\n            \"id\": \"ap-2\",\n            \"title\": \"Museo della Gambarina\",\n            \"subtitle\": \"Piazza della Gambarina, 1, 15121 Alessandria AL\"\n        },\n        {\n            \"id\": \"ap-3\",\n            \"title\": \"Campo e pista di Atletica\",\n            \"subtitle\": \"Via Ennio Massobrio, 15121 Alessandria AL\"\n        },\n        {\n            \"id\": \"ap-4\",\n            \"title\": \"Stadio comunale \\\"Moccagatta\\\"\",\n            \"subtitle\": \"Spalto Rovereto, 17, 15121 Alessandria AL\"\n        },\n        {\n            \"id\": \"ap-5\",\n            \"title\": \"Piscina olimpionica\",\n            \"subtitle\": \"Via Moriondo, 10, 15121 Alessandria AL\"\n        },\n        {\n            \"id\": \"ap-6\",\n            \"title\": \"Teatro Municipale\",\n            \"subtitle\": \"Via dei Martiri della Libertà, 20, 15121 Alessandria AL\"\n        },\n        {\n            \"id\": \"ap-7\",\n            \"title\": \"Palazzo della Cultura\",\n            \"subtitle\": \"Via Parma, 35, 15121 Alessandria AL\"\n        },\n        {\n            \"id\": \"ap-8\",\n            \"title\": \"Mercato coperto\",\n            \"subtitle\": \"Piazza della Repubblica, 15121 Alessandria AL\"\n        },\n        {\n            \"id\": \"ap-9\",\n            \"title\": \"Centro sportivo Nord\",\n            \"subtitle\": \"Via Benedetto Croce, 5, 15121 Alessandria AL\"\n        },\n        {\n            \"id\": \"ap-10\",\n            \"title\": \"Sportello URP\",\n            \"subtitle\": \"Via dei Guasco, 1, 15121 Alessandria AL\"\n        },\n        {\n            \"id\": \"ap-11\",\n            \"title\": \"Anagrafe centrale\",\n            \"subtitle\": \"Piazza della Libertà, 1, 15121 Alessandria AL\"\n        }\n    ],\n    \"contacts\": {\n        \"phone\": \"0131.234266\",\n        \"website\": \"https://www.comune.alessandria.it\",\n        \"address\": \"Piazza della Libertà, 1, 15121 Alessandria AL\"\n    }\n}",
+          "latency": 0,
+          "statusCode": 200,
+          "label": "Entity detail",
+          "headers": [],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": true,
+          "crudKey": "id",
+          "callbacks": []
+        }
+      ],
+      "responseMode": null,
+      "streamingMode": null,
+      "streamingInterval": 0
+    },
+    {
       "uuid": "a2b3c4d5-e6f7-8901-bcde-f01234567890",
       "type": "http",
       "documentation": "Dettaglio opportunità",
@@ -288,6 +319,10 @@
     {
       "type": "route",
       "uuid": "f1a2b3c4-d5e6-7890-abcd-ef0123456789"
+    },
+    {
+      "type": "route",
+      "uuid": "e1f2a3b4-c5d6-7890-efab-cd1234567890"
     },
     {
       "type": "route",

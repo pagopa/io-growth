@@ -7,11 +7,11 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "preview": "vite preview",
-    "lint": "eslint .",
     "tsc": "tsc --noEmit",
-    "lint:fix": "eslint . --fix",
-    "format": "prettier --check .",
-    "format:fix": "prettier --write .",
+    "lint": "eslint . --fix",
+    "lint:check": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
     "mock:start": "npx @mockoon/cli start --data mockoon/mockoon-config.json"
   },
   "dependencies": {
@@ -58,6 +58,5 @@
     "vite-plugin-typescript": "^1.0.4",
     "vite-tsconfig-paths": "^5.0.1",
     "vitest": "^3.2.4"
-  },
-  "packageManager": "pnpm@10.24.0+sha512.01ff8ae71b4419903b65c60fb2dc9d34cf8bb6e06d03bde112ef38f7a34d6904c424ba66bea5cdcf12890230bf39f9580473140ed9c946fef328b6e5238a345a"
+  }
 }

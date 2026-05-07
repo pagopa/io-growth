@@ -1,13 +1,14 @@
 import { Suspense } from 'react';
 import { Route, Routes, Navigate } from 'react-router-dom';
 import { AppLayout } from '../layouts/AppLayout';
+import { ProtectedRoute } from '../core/auth/ProtectedRoute';
 import {
   APP_ROUTES,
+  EuropeanOpportunitiesPage,
   HomePage,
   NotFoundPage,
   UnauthorizedPage,
 } from './routeConfig';
-import { ProtectedRoute } from '../core/auth/ProtectedRoute';
 
 export function AppRoutes() {
   return (
@@ -15,6 +16,10 @@ export function AppRoutes() {
       <Routes>
         <Route element={<AppLayout />}>
           <Route index element={<HomePage />} />
+          <Route
+            path={APP_ROUTES.EUROPEAN_OPPORTUNITIES}
+            element={<EuropeanOpportunitiesPage />}
+          />
           <Route element={<ProtectedRoute />} />
         </Route>
         <Route path={APP_ROUTES.UNAUTHORIZED} element={<UnauthorizedPage />} />

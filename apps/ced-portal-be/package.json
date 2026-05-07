@@ -2,7 +2,6 @@
   "name": "ced-portal-be",
   "version": "0.0.4",
   "private": true,
-  "license": "MIT",
   "type": "module",
   "main": "dist/main.js",
   "files": [
@@ -15,6 +14,8 @@
     "typecheck": "tsc --noEmit",
     "lint": "pnpm lint:check --fix",
     "lint:check": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
     "start": "node dist/main.js",
     "migrate:dev": "tsx src/migrate.ts",
     "migrate:prod": "node dist/migrate.js",

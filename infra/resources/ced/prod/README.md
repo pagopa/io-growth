@@ -21,8 +21,13 @@
 |------|--------|---------|
 | <a name="module_application_gateway"></a> [application\_gateway](#module\_application\_gateway) | ../_modules/application_gateway | n/a |
 | <a name="module_azure_core_values"></a> [azure\_core\_values](#module\_azure\_core\_values) | pagopa-dx/azure-core-values-exporter/azurerm | ~> 0.0 |
+| <a name="module_browser_be_container_app"></a> [browser\_be\_container\_app](#module\_browser\_be\_container\_app) | ../_modules/browser_be_container_app | n/a |
+| <a name="module_browser_fe_static_web_app"></a> [browser\_fe\_static\_web\_app](#module\_browser\_fe\_static\_web\_app) | ../_modules/browser_fe_static_web_app | n/a |
+| <a name="module_card_request_be_container_app"></a> [card\_request\_be\_container\_app](#module\_card\_request\_be\_container\_app) | ../_modules/card_request_be_container_app | n/a |
+| <a name="module_card_request_fe_static_web_app"></a> [card\_request\_fe\_static\_web\_app](#module\_card\_request\_fe\_static\_web\_app) | ../_modules/card_request_fe_static_web_app | n/a |
 | <a name="module_ced_apim"></a> [ced\_apim](#module\_ced\_apim) | ../_modules/api_management | n/a |
 | <a name="module_common_container_app_environment"></a> [common\_container\_app\_environment](#module\_common\_container\_app\_environment) | ../_modules/common_container_app_environment | n/a |
+| <a name="module_cosmos_db"></a> [cosmos\_db](#module\_cosmos\_db) | ../_modules/cosmos_db | n/a |
 | <a name="module_dns"></a> [dns](#module\_dns) | ../_modules/dns | n/a |
 | <a name="module_portal_be_container_app"></a> [portal\_be\_container\_app](#module\_portal\_be\_container\_app) | ../_modules/portal_be_container_app | n/a |
 | <a name="module_portal_fe_static_web_app"></a> [portal\_fe\_static\_web\_app](#module\_portal\_fe\_static\_web\_app) | ../_modules/portal_fe_static_web_app | n/a |
@@ -38,7 +43,6 @@
 | [azurerm_postgresql_flexible_server_database.ced_prod](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/postgresql_flexible_server_database) | resource |
 | [azurerm_postgresql_flexible_server_database.ced_test](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/postgresql_flexible_server_database) | resource |
 | [azurerm_resource_group.data_rg](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/resource_group) | resource |
-| [azurerm_role_assignment.portal_be_kv_secrets_user](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/role_assignment) | resource |
 | [dx_available_subnet_cidr.cidr_23_apim](https://registry.terraform.io/providers/pagopa-dx/azure/latest/docs/resources/available_subnet_cidr) | resource |
 | [dx_available_subnet_cidr.cidr_23_cae](https://registry.terraform.io/providers/pagopa-dx/azure/latest/docs/resources/available_subnet_cidr) | resource |
 | [dx_available_subnet_cidr.cidr_24_agw](https://registry.terraform.io/providers/pagopa-dx/azure/latest/docs/resources/available_subnet_cidr) | resource |

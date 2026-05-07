@@ -22,13 +22,13 @@ variable "tags" {
 
 variable "custom_domain" {
   type        = string
-  description = "Custom domain hostname for the Static Web App (e.g. portal.ced.pagopa.it). Set to null to skip custom domain setup."
+  description = "Custom domain hostname for the Static Web App (e.g. card.ced.pagopa.it). Set to null to skip custom domain setup."
   default     = null
 }
 
 variable "dns_zone_name" {
   type        = string
-  description = "Name of the Azure DNS zone used to create the CNAME record for the custom domain."
+  description = "Name of the Azure DNS zone used to create the CNAME record for the custom domain (e.g. ced.pagopa.it)."
   default     = null
 }
 

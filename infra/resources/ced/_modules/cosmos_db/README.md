@@ -15,15 +15,14 @@ No requirements.
 
 | Name | Source | Version |
 |------|--------|---------|
-| <a name="module_cdc_cosmos_account"></a> [cdc\_cosmos\_account](#module\_cdc\_cosmos\_account) | pagopa-dx/azure-cosmos-account/azurerm | 0.2.0 |
+| <a name="module_ced_cosmos_account"></a> [ced\_cosmos\_account](#module\_ced\_cosmos\_account) | pagopa-dx/azure-cosmos-account/azurerm | 0.2.0 |
 
 ## Resources
 
 | Name | Type |
 |------|------|
 | [azurerm_cosmosdb_sql_container.card_requests](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/cosmosdb_sql_container) | resource |
-| [azurerm_cosmosdb_sql_container.requests-audit](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/cosmosdb_sql_container) | resource |
-| [azurerm_cosmosdb_sql_database.cdc_cosmos_db](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/cosmosdb_sql_database) | resource |
+| [azurerm_cosmosdb_sql_database.ced_cosmos_db](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/cosmosdb_sql_database) | resource |
 
 ## Inputs
 

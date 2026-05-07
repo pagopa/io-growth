@@ -20,10 +20,10 @@ resource "azurerm_api_management_product_policy" "ced-browser-be" {
 }
 
 resource "azurerm_api_management_api_version_set" "ced-browser-be" {
-  name                = "ced_portal_be_v1"
+  name                = "ced_browser_be_v1"
   api_management_name = azurerm_api_management_product.ced-browser-be.api_management_name
   resource_group_name = azurerm_api_management_product.ced-browser-be.resource_group_name
-  display_name        = "CED Portal BE APIs"
+  display_name        = "CED Browser BE APIs"
   versioning_scheme   = "Segment"
 }
 

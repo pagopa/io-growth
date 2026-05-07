@@ -11,7 +11,7 @@ module "role_assignments" {
       resource_group_name = var.key_vault_resource_group_name
       description         = "Allow container app environment to read configuration secrets"
       roles = {
-        secrets      = "reader"
+        secrets = "reader"
       }
     }
   ]

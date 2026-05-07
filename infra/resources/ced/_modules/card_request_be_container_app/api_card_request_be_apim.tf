@@ -20,7 +20,7 @@ resource "azurerm_api_management_product_policy" "ced-card-be" {
 }
 
 resource "azurerm_api_management_api_version_set" "ced-card-be" {
-  name                = "ced_portal_be_v1"
+  name                = "ced_card_be_v1"
   api_management_name = azurerm_api_management_product.ced-card-be.api_management_name
   resource_group_name = azurerm_api_management_product.ced-card-be.resource_group_name
   display_name        = "CED Card BE APIs"

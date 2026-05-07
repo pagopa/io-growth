@@ -21,7 +21,7 @@ module "browser_be_container_app" {
     principal_id        = module.ced_apim.principal_id
   }
 
-  target_port           = local.portal_be.target_port
+  target_port           = local.browser_be.target_port
   public_access_enabled = true
 
   secrets = [

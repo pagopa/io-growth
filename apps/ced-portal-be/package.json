@@ -13,7 +13,7 @@
     "build:watch": "tsc -w",
     "typecheck": "tsc --noEmit",
     "lint": "pnpm lint:check --fix",
-    "lint:check": "eslint .",    
+    "lint:check": "eslint .",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "start": "node dist/main.js",

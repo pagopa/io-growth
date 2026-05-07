@@ -3,6 +3,9 @@ import { Route, Routes, Navigate } from 'react-router-dom';
 import { AppLayout } from '../layouts/AppLayout';
 import {
   APP_ROUTES,
+  EntityAccessPointsPage,
+  EntityDetailPage,
+  EntityOpportunitiesPage,
   HomePage,
   NotFoundPage,
   UnauthorizedPage,
@@ -15,6 +18,18 @@ export function AppRoutes() {
       <Routes>
         <Route element={<AppLayout />}>
           <Route index element={<HomePage />} />
+          <Route
+            path={APP_ROUTES.ENTITY_DETAIL}
+            element={<EntityDetailPage />}
+          />
+          <Route
+            path={APP_ROUTES.ENTITY_OPPORTUNITIES}
+            element={<EntityOpportunitiesPage />}
+          />
+          <Route
+            path={APP_ROUTES.ENTITY_ACCESS_POINTS}
+            element={<EntityAccessPointsPage />}
+          />
           <Route element={<ProtectedRoute />} />
         </Route>
         <Route path={APP_ROUTES.UNAUTHORIZED} element={<UnauthorizedPage />} />

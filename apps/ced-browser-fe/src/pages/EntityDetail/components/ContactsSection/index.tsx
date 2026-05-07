@@ -1,4 +1,10 @@
-import { Call, Language, LocationOn } from '@mui/icons-material';
+import {
+  Call,
+  Language,
+  LocationOn,
+  MenuBook,
+  VerifiedUser,
+} from '@mui/icons-material';
 import { Box, ButtonBase, Divider, Stack, Typography } from '@mui/material';
 import type { EntityContacts } from '../../../../features/entities/types.js';
 import { SectionTitle } from '../SectionTitle/index.js';
@@ -36,7 +42,7 @@ function ContactRow({ icon, label, href }: ContactRowProps) {
         sx={{
           fontSize: 16,
           fontWeight: 600,
-          color: 'primary.main',
+          color: '#0B3EE3',
           textDecoration: 'underline',
         }}
       >
@@ -79,6 +85,16 @@ export function ContactsSection({ contacts }: { contacts: EntityContacts }) {
             href={googleMapsUrl}
           />
         )}
+        <ContactRow
+          icon={<VerifiedUser sx={{ fontSize: 20, color: '#BBC2D6' }} />}
+          label="Informativa sulla privacy"
+          href="https://www.google.com"
+        />
+        <ContactRow
+          icon={<MenuBook sx={{ fontSize: 20, color: '#BBC2D6' }} />}
+          label="Termini e condizioni d'uso"
+          href="https://www.google.com"
+        />
       </Stack>
     </Box>
   );

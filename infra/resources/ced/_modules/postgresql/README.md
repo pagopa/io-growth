@@ -12,7 +12,7 @@ No providers.
 ## Modules
 
 | Name | Source | Version |
-|------|--------|---------|
+| ---- | ------ | ------- |
 | <a name="module_postgres_server"></a> [postgres\_server](#module\_postgres\_server) | pagopa-dx/azure-postgres-server/azurerm | ~> 3.0 |
 
 ## Resources
@@ -22,7 +22,7 @@ No resources.
 ## Inputs
 
 | Name | Description | Type | Default | Required |
-|------|-------------|------|---------|:--------:|
+| ---- | ----------- | ---- | ------- | :------: |
 | <a name="input_admin_password"></a> [admin\_password](#input\_admin\_password) | The administrator password for the PostgreSQL Flexible Server. | `string` | n/a | yes |
 | <a name="input_admin_password_version"></a> [admin\_password\_version](#input\_admin\_password\_version) | Version counter for the administrator password. Increment on every rotation. | `number` | n/a | yes |
 | <a name="input_admin_username"></a> [admin\_username](#input\_admin\_username) | The administrator username for the PostgreSQL Flexible Server. | `string` | n/a | yes |
@@ -45,7 +45,7 @@ No resources.
 ## Outputs
 
 | Name | Description |
-|------|-------------|
+| ---- | ----------- |
 | <a name="output_admin_password_secret"></a> [admin\_password\_secret](#output\_admin\_password\_secret) | Details of the Key Vault secret storing the admin password. |
 | <a name="output_postgres"></a> [postgres](#output\_postgres) | Details of the PostgreSQL Flexible Server (name, ID, resource group name). |
 | <a name="output_postgres_replica"></a> [postgres\_replica](#output\_postgres\_replica) | Details of the PostgreSQL Flexible Server Replica. |

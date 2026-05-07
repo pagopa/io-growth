@@ -8,19 +8,19 @@ No requirements.
 ## Providers
 
 | Name | Version |
-|------|---------|
+| ---- | ------- |
 | <a name="provider_azurerm"></a> [azurerm](#provider\_azurerm) | n/a |
 
 ## Modules
 
 | Name | Source | Version |
-|------|--------|---------|
+| ---- | ------ | ------- |
 | <a name="module_agw_identity_roles"></a> [agw\_identity\_roles](#module\_agw\_identity\_roles) | pagopa-dx/azure-role-assignments/azurerm | ~> 1.0 |
 
 ## Resources
 
 | Name | Type |
-|------|------|
+| ---- | ---- |
 | [azurerm_application_gateway.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/application_gateway) | resource |
 | [azurerm_monitor_metric_alert.backend_pools_status](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/monitor_metric_alert) | resource |
 | [azurerm_monitor_metric_alert.compute_units_usage](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/monitor_metric_alert) | resource |
@@ -36,7 +36,7 @@ No requirements.
 ## Inputs
 
 | Name | Description | Type | Default | Required |
-|------|-------------|------|---------|:--------:|
+| ---- | ----------- | ---- | ------- | :------: |
 | <a name="input_alert_sensitivity"></a> [alert\_sensitivity](#input\_alert\_sensitivity) | Alert sensitivity level | `string` | `"Medium"` | no |
 | <a name="input_api_hostname"></a> [api\_hostname](#input\_api\_hostname) | Hostname exposed on the Application Gateway listener | `string` | n/a | yes |
 | <a name="input_apim_hostname"></a> [apim\_hostname](#input\_apim\_hostname) | APIM hostname | `string` | n/a | yes |
@@ -61,6 +61,6 @@ No requirements.
 ## Outputs
 
 | Name | Description |
-|------|-------------|
+| ---- | ----------- |
 | <a name="output_agw"></a> [agw](#output\_agw) | n/a |
 <!-- END_TF_DOCS -->

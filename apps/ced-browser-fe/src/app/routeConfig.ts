@@ -17,6 +17,7 @@ export const EntityOpportunitiesPage = lazy(
 );
 export const EntityAccessPointsPage = lazy(
   () => import('../pages/EntityAccessPoints'),
+);
 export const EuropeanOpportunitiesPage = lazy(
   () => import('../pages/EuropeanOpportunities'),
 );

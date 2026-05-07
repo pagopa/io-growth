@@ -51,13 +51,11 @@ export default function EntityAccessPointsPage() {
           sx={{
             display: 'inline-flex',
             alignItems: 'center',
+            justifyContent: 'center',
             gap: 0.5,
             color: 'text.primary',
-            fontFamily: 'Titillium Web, sans-serif',
             fontSize: 16,
-            fontWeight: 500,
-            lineHeight: '22px',
-            letterSpacing: 0,
+            fontWeight: 600,
             mb: 3,
           }}
         >

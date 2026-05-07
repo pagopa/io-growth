@@ -6,3 +6,4 @@ export * from './TextField';
 export * from './FormField';
 export * from './DiscoveryListItem';
 export * from './Swiper';
+export * from './Infobox';

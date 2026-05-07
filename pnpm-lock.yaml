@@ -51,7 +51,7 @@ importers:
         specifier: ^2.8.14
         version: 2.9.6
 
-  apps/ced-app-fe:
+  apps/ced-browser-fe:
     dependencies:
       '@emotion/react':
         specifier: ^11.14.0
@@ -180,8 +180,6 @@ importers:
       vitest:
         specifier: ^3.2.4
         version: 3.2.4(@types/node@22.19.17)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.3)
-
-  apps/ced-browser-fe: {}
 
   apps/ced-portal-be:
     dependencies:

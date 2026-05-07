@@ -28,7 +28,7 @@ module "role_assignments" {
     {
       account_name        = var.cosmos_db_account_name
       resource_group_name = var.cosmos_db_resource_group_name
-      role                = "owner"
+      role                = "writer"
       description         = "Allow container app environment to access Cosmos DB with Azure identity"
     }
   ]

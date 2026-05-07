@@ -1,4 +1,4 @@
-# portal_fe_static_web_app
+# card_request_fe_static_web_app
 
 <!-- BEGIN_TF_DOCS -->
 ## Requirements

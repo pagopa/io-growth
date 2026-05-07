@@ -5,10 +5,10 @@ import { ProtectedRoute } from '../core/auth/ProtectedRoute';
 import {
   APP_ROUTES,
   EuropeanOpportunitiesPage,
+  HomePage,
   NotFoundPage,
   UnauthorizedPage,
 } from './routeConfig';
-import HomePage from '../pages/Home';
 
 export function AppRoutes() {
   return (

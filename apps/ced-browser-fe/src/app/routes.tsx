@@ -1,6 +1,5 @@
 import { Suspense } from 'react';
-import { Navigate } from 'react-router-dom';
-import { Route, Routes } from 'react-router-dom';
+import { Route, Routes, Navigate } from 'react-router-dom';
 import { AppLayout } from '../layouts/AppLayout';
 import {
   APP_ROUTES,
@@ -16,7 +15,7 @@ export function AppRoutes() {
       <Routes>
         <Route element={<AppLayout />}>
           <Route index element={<HomePage />} />
-          <Route element={<ProtectedRoute />}></Route>
+          <Route element={<ProtectedRoute />} />
         </Route>
         <Route path={APP_ROUTES.UNAUTHORIZED} element={<UnauthorizedPage />} />
         <Route path={APP_ROUTES.NOT_FOUND} element={<NotFoundPage />} />

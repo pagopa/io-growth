@@ -20,6 +20,7 @@
     "build": "turbo run build",
     "typecheck": "turbo run typecheck",
     "version": "changeset version && pnpm install",
-    "release": "changeset tag"
+    "release": "changeset tag",
+    "ced-app-fe:dev": "pnpm --filter ced-app-fe dev"
   }
 }

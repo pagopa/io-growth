@@ -1,13 +1,10 @@
+import { AppProviders } from './app/providers';
+import { AppRoutes } from './app/routes';
+
 export default function App() {
   return (
-    <main
-      style={{
-        minHeight: '100dvh',
-        display: 'grid',
-        placeItems: 'center',
-      }}
-    >
-      <h1>Hello World</h1>
-    </main>
+    <AppProviders>
+      <AppRoutes />
+    </AppProviders>
   );
 }

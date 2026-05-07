@@ -7,14 +7,28 @@ import HomePage from '../pages/Home';
 
 export function AppRoutes() {
   return (
-    <Suspense fallback={<div style={{ padding: 24 }}>Loading...</div>}>
+    <Suspense
+      fallback={
+        <div
+          style={{
+            padding: 24,
+          }}
+        >
+          Loading...
+        </div>
+      }
+    >
       <Routes>
         <Route element={<AppLayout />}>
           <Route path={APP_ROUTES.HOME} element={<HomePage />} />
           <Route element={<ProtectedRoute />}>
             <Route
               path="/app"
-              element={<div style={{ padding: 24 }}>App area</div>}
+              element={
+                <div style={{ padding: 24, backgroundColor: '#FFF' }}>
+                  App area
+                </div>
+              }
             />
           </Route>
           <Route path={APP_ROUTES.NOT_FOUND} element={<NotFoundPage />} />

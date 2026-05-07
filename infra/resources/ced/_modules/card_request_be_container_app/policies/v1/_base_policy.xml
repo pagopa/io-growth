@@ -21,7 +21,7 @@
                 <header>*</header>
             </expose-headers>
         </cors>
-        <set-backend-service base-url="{{ced-card-be-ca-url}}/api" />
+        <set-backend-service backend-id="ced-card-backend" />
     </inbound>
     <outbound>
         <base />

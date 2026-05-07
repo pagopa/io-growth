@@ -23,3 +23,8 @@ variable "environment" {
     instance_number = string
   })
 }
+
+variable "secondary_location" {
+  type = string
+  description = "Secondary location for Cosmos DB account. It should be different from the primary location specified in environment.location variable."
+}

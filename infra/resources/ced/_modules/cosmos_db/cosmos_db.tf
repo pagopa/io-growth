@@ -16,7 +16,7 @@ module "ced_cosmos_account" {
 
   secondary_geo_locations = [
     {
-      location          = "spaincentral"
+      location          = var.secondary_location
       failover_priority = 1
       zone_redundant    = false
     }

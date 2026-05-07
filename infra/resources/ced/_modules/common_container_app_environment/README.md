@@ -25,6 +25,8 @@ No resources.
 | Name | Description | Type | Default | Required |
 | ---- | ----------- | ---- | ------- | :------: |
 | <a name="input_azure_subscription_id"></a> [azure\_subscription\_id](#input\_azure\_subscription\_id) | The ID of the Azure subscription where the resources will be deployed. | `string` | n/a | yes |
+| <a name="input_cosmos_db_account_name"></a> [cosmos\_db\_account\_name](#input\_cosmos\_db\_account\_name) | The name of the Cosmos DB account to which the container app environment will be granted access. | `string` | n/a | yes |
+| <a name="input_cosmos_db_resource_group_name"></a> [cosmos\_db\_resource\_group\_name](#input\_cosmos\_db\_resource\_group\_name) | The name of the resource group where the Cosmos DB account is located. | `string` | n/a | yes |
 | <a name="input_environment"></a> [environment](#input\_environment) | Values which are used to generate resource names and location short names. | <pre>object({<br/>    prefix          = string<br/>    env_short       = string<br/>    location        = string<br/>    domain          = optional(string)<br/>    app_name        = string<br/>    instance_number = string<br/>  })</pre> | n/a | yes |
 | <a name="input_key_vault_name"></a> [key\_vault\_name](#input\_key\_vault\_name) | The name of the Key Vault to which the container app environment will be granted access. | `string` | n/a | yes |
 | <a name="input_key_vault_resource_group_name"></a> [key\_vault\_resource\_group\_name](#input\_key\_vault\_resource\_group\_name) | The name of the resource group where the Key Vault is located. | `string` | n/a | yes |

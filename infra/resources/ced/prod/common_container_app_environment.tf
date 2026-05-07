@@ -35,5 +35,8 @@ module "common_container_app_environment" {
 
   redis_cache_id = module.redis.id
 
+  cosmos_db_account_name        = module.cosmos_db.cosmos_db.name
+  cosmos_db_resource_group_name = module.cosmos_db.cosmos_db.resource_group_name
+
   azure_subscription_id = data.azurerm_subscription.current.subscription_id
 }

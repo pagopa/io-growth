@@ -25,6 +25,6 @@ variable "environment" {
 }
 
 variable "secondary_location" {
-  type = string
+  type        = string
   description = "Secondary location for Cosmos DB account. It should be different from the primary location specified in environment.location variable."
 }

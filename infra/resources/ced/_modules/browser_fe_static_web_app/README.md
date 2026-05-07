@@ -1,4 +1,4 @@
-# portal_fe_static_web_app
+# browser_fe_static_web_app
 
 <!-- BEGIN_TF_DOCS -->
 ## Requirements

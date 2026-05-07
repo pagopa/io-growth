@@ -1,16 +1,17 @@
 import { Suspense } from 'react';
 import { Route, Routes, Navigate } from 'react-router-dom';
 import { AppLayout } from '../layouts/AppLayout';
+import { ProtectedRoute } from '../core/auth/ProtectedRoute';
 import {
   APP_ROUTES,
   EntityAccessPointsPage,
   EntityDetailPage,
   EntityOpportunitiesPage,
+  EuropeanOpportunitiesPage,
   HomePage,
   NotFoundPage,
   UnauthorizedPage,
 } from './routeConfig';
-import { ProtectedRoute } from '../core/auth/ProtectedRoute';
 
 export function AppRoutes() {
   return (
@@ -29,6 +30,10 @@ export function AppRoutes() {
           <Route
             path={APP_ROUTES.ENTITY_ACCESS_POINTS}
             element={<EntityAccessPointsPage />}
+          />
+          <Route
+          path={APP_ROUTES.EUROPEAN_OPPORTUNITIES}
+            element={<EuropeanOpportunitiesPage />}
           />
           <Route element={<ProtectedRoute />} />
         </Route>

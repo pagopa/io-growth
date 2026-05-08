@@ -3,17 +3,14 @@ import type {
   EntityOpportunity,
 } from '../../features/entities/types.js';
 
+type BaseItemsSectionProps<TVariant, TItems> = {
+  variant: TVariant;
+  entityId: string;
+  items: TItems[];
+  sectionLabel?: string;
+};
 export type ItemsSectionProps =
-  | {
-      variant: 'opportunity';
-      entityId: string;
-      items: EntityOpportunity[];
-      sectionLabel?: string;
+  | (BaseItemsSectionProps<'opportunity', EntityOpportunity> & {
       hideEyebrow?: boolean;
-    }
-  | {
-      variant: 'access-point';
-      entityId: string;
-      items: EntityAccessPoint[];
-      sectionLabel?: string;
-    };
+    })
+  | BaseItemsSectionProps<'access-point', EntityAccessPoint>;

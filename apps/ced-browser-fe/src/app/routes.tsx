@@ -4,6 +4,9 @@ import { AppLayout } from '../layouts/AppLayout';
 import { ProtectedRoute } from '../core/auth/ProtectedRoute';
 import {
   APP_ROUTES,
+  EntityAccessPointsPage,
+  EntityDetailPage,
+  EntityOpportunitiesPage,
   EuropeanOpportunitiesPage,
   HomePage,
   NotFoundPage,
@@ -16,6 +19,18 @@ export function AppRoutes() {
       <Routes>
         <Route element={<AppLayout />}>
           <Route index element={<HomePage />} />
+          <Route
+            path={APP_ROUTES.ENTITY_DETAIL}
+            element={<EntityDetailPage />}
+          />
+          <Route
+            path={APP_ROUTES.ENTITY_OPPORTUNITIES}
+            element={<EntityOpportunitiesPage />}
+          />
+          <Route
+            path={APP_ROUTES.ENTITY_ACCESS_POINTS}
+            element={<EntityAccessPointsPage />}
+          />
           <Route
             path={APP_ROUTES.EUROPEAN_OPPORTUNITIES}
             element={<EuropeanOpportunitiesPage />}

@@ -3,7 +3,7 @@
         <base />
         <cors allow-credentials="true">
             <allowed-origins>
-                <origin>https://portal.ced.pagopa.it</origin>
+                <origin>https://card.ced.pagopa.it</origin>
                 <origin>https://api.ced.pagopa.it</origin>
             </allowed-origins>
             <allowed-methods preflight-result-max-age="300">
@@ -21,7 +21,7 @@
                 <header>*</header>
             </expose-headers>
         </cors>
-        <set-backend-service backend-id="ced-portal-backend" />
+        <set-backend-service backend-id="ced-card-backend" />
     </inbound>
     <outbound>
         <base />

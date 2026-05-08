@@ -21,7 +21,7 @@ resource "azurerm_static_web_app" "this" {
   tags = var.tags
 }
 
-resource "azurerm_dns_cname_record" "portal" {
+resource "azurerm_dns_cname_record" "card" {
   count = var.custom_domain != null ? 1 : 0
 
   name                = trimsuffix(var.custom_domain, ".${var.dns_zone_name}")
@@ -31,12 +31,12 @@ resource "azurerm_dns_cname_record" "portal" {
   record              = azurerm_static_web_app.this.default_host_name
 }
 
-resource "azurerm_static_web_app_custom_domain" "portal" {
+resource "azurerm_static_web_app_custom_domain" "card" {
   count = var.custom_domain != null ? 1 : 0
 
   static_web_app_id = azurerm_static_web_app.this.id
   domain_name       = var.custom_domain
   validation_type   = "cname-delegation"
 
-  depends_on = [azurerm_dns_cname_record.portal]
+  depends_on = [azurerm_dns_cname_record.card]
 }

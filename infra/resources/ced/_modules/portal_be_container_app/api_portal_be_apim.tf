@@ -1,4 +1,4 @@
-resource "azurerm_api_management_product" "ced-portal-be" {
+resource "azurerm_api_management_product" "ced_portal_be" {
   product_id   = "io-ced-portal-be-public-api"
   display_name = "IO CED PORTAL BE PUBLIC API"
   description  = "Product for IO CED PORTAL BE"
@@ -11,31 +11,31 @@ resource "azurerm_api_management_product" "ced-portal-be" {
   approval_required     = false
 }
 
-resource "azurerm_api_management_product_policy" "ced-portal-be" {
-  product_id          = azurerm_api_management_product.ced-portal-be.product_id
-  api_management_name = azurerm_api_management_product.ced-portal-be.api_management_name
-  resource_group_name = azurerm_api_management_product.ced-portal-be.resource_group_name
+resource "azurerm_api_management_product_policy" "ced_portal_be" {
+  product_id          = azurerm_api_management_product.ced_portal_be.product_id
+  api_management_name = azurerm_api_management_product.ced_portal_be.api_management_name
+  resource_group_name = azurerm_api_management_product.ced_portal_be.resource_group_name
 
   xml_content = file("${path.module}/policies/_base_policy.xml")
 }
 
-resource "azurerm_api_management_api_version_set" "ced-portal-be" {
-  name                = "ced_portal_be_v1"
-  api_management_name = azurerm_api_management_product.ced-portal-be.api_management_name
-  resource_group_name = azurerm_api_management_product.ced-portal-be.resource_group_name
+resource "azurerm_api_management_api_version_set" "ced_portal_be" {
+  name                = "ced_portal_be"
+  api_management_name = azurerm_api_management_product.ced_portal_be.api_management_name
+  resource_group_name = azurerm_api_management_product.ced_portal_be.resource_group_name
   display_name        = "CED Portal BE APIs"
   versioning_scheme   = "Segment"
 }
 
 resource "azurerm_api_management_api" "ced_portal_be_v1" {
-  name = format("%s-%s-portal-be-public-api", var.environment.prefix, var.environment.env_short)
+  name = format("%s-%s-portal-be-public-api-v1", var.environment.prefix, var.environment.env_short)
 
   api_management_name = var.apim_platform.name
   resource_group_name = var.apim_platform.resource_group_name
 
   subscription_required = false
 
-  version_set_id = azurerm_api_management_api_version_set.ced-portal-be.id
+  version_set_id = azurerm_api_management_api_version_set.ced_portal_be.id
   version        = "v1"
   revision       = "1"
 
@@ -62,7 +62,7 @@ resource "azurerm_api_management_product_api" "ced_portal_be_v1" {
   api_name            = azurerm_api_management_api.ced_portal_be_v1.name
   api_management_name = azurerm_api_management_api.ced_portal_be_v1.api_management_name
   resource_group_name = azurerm_api_management_api.ced_portal_be_v1.resource_group_name
-  product_id          = azurerm_api_management_product.ced-portal-be.product_id
+  product_id          = azurerm_api_management_product.ced_portal_be.product_id
 }
 
 resource "azurerm_api_management_named_value" "ced_portal_be_ca_url" {
@@ -72,6 +72,14 @@ resource "azurerm_api_management_named_value" "ced_portal_be_ca_url" {
   display_name        = "ced-portal-be-ca-url"
   secret              = true
   value               = "https://${replace(module.container_app.url, "/--[^.]+/", "")}"
+}
+
+resource "azurerm_api_management_backend" "ced_portal_be" {
+  name                = "ced-portal-backend"
+  api_management_name = azurerm_api_management_api.ced_portal_be_v1.api_management_name
+  resource_group_name = azurerm_api_management_api.ced_portal_be_v1.resource_group_name
+  protocol            = "http"
+  url                 = "https://${replace(module.container_app.url, "/--[^.]+/", "/api")}"
 }
 
 resource "azurerm_role_assignment" "apim_container_app_reader" {

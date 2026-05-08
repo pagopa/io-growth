@@ -11,7 +11,7 @@ module "role_assignments" {
       resource_group_name = var.key_vault_resource_group_name
       description         = "Allow container app environment to read configuration secrets"
       roles = {
-        secrets      = "reader"
+        secrets = "reader"
       }
     }
   ]
@@ -21,6 +21,15 @@ module "role_assignments" {
       id          = var.redis_cache_id
       role        = "owner"
       description = "Allow container app environment to manage redis cache"
+    }
+  ]
+
+  cosmos = [
+    {
+      account_name        = var.cosmos_db_account_name
+      resource_group_name = var.cosmos_db_resource_group_name
+      role                = "writer"
+      description         = "Allow container app environment to access Cosmos DB with Azure identity"
     }
   ]
 }

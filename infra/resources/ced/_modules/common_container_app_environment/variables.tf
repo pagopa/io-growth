@@ -74,3 +74,13 @@ variable "azure_subscription_id" {
   type        = string
   description = "The ID of the Azure subscription where the resources will be deployed."
 }
+
+variable "cosmos_db_account_name" {
+  type        = string
+  description = "The name of the Cosmos DB account to which the container app environment will be granted access."
+}
+
+variable "cosmos_db_resource_group_name" {
+  type        = string
+  description = "The name of the resource group where the Cosmos DB account is located."
+}

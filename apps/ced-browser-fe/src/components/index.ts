@@ -6,3 +6,7 @@ export * from './TextField';
 export * from './FormField';
 export * from './DiscoveryListItem';
 export * from './QueryGuard';
+export * from './SectionTitle';
+export * from './ContactsSection';
+export * from './ItemsSection';
+export * from './ContactRow';

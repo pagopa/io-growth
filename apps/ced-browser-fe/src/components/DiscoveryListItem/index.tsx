@@ -20,17 +20,19 @@ function OpportunityContent({
   return (
     <Stack spacing={1} sx={{ minWidth: 0, flex: 1 }}>
       <Stack spacing={0.5} sx={{ minWidth: 0 }}>
-        <Typography
-          component="p"
-          sx={{
-            color: secondaryColor,
-            fontSize: 14,
-            lineHeight: 1.2,
-            wordBreak: 'break-word',
-          }}
-        >
-          {eyebrow}
-        </Typography>
+        {eyebrow && (
+          <Typography
+            component="p"
+            sx={{
+              color: secondaryColor,
+              fontSize: 14,
+              lineHeight: 1.2,
+              wordBreak: 'break-word',
+            }}
+          >
+            {eyebrow}
+          </Typography>
+        )}
 
         <Typography
           component="p"
@@ -123,7 +125,7 @@ export function DiscoveryListItem(props: DiscoveryListItemProps) {
           width: '100%',
           textAlign: 'left',
           display: 'block',
-          py: 3,
+          py: 2,
           px: 1.5,
           bgcolor: 'common.neutralGray',
           '&:disabled': {

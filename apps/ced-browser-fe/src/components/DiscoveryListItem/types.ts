@@ -11,7 +11,7 @@ type DiscoveryListItemBaseProps = {
 
 type VariantMap = {
   opportunity: {
-    eyebrow: string;
+    eyebrow?: string;
     badgeLabel: string;
   };
   simple: {

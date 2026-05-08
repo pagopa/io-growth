@@ -32,7 +32,7 @@ export function AppRoutes() {
             element={<EntityAccessPointsPage />}
           />
           <Route
-          path={APP_ROUTES.EUROPEAN_OPPORTUNITIES}
+            path={APP_ROUTES.EUROPEAN_OPPORTUNITIES}
             element={<EuropeanOpportunitiesPage />}
           />
           <Route element={<ProtectedRoute />} />

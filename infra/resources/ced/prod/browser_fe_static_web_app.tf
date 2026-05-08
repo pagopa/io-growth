@@ -4,7 +4,7 @@ module "browser_fe_static_web_app" {
   environment = {
     prefix          = local.prefix
     env_short       = local.env_short
-    location        = local.location
+    location        = local.static_apps_location
     domain          = local.domain
     app_name        = "browser-fe"
     instance_number = "01"

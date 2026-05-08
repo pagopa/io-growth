@@ -6,8 +6,9 @@ locals {
 
   project = "${local.prefix}-${local.env_short}-${local.location_short}"
 
-  location           = "italynorth"
-  secondary_location = "germanywestcentral"
+  location             = "italynorth"
+  secondary_location   = "germanywestcentral"
+  static_apps_location = "westeurope"
 
   core_state = {
     resource_group_name  = "ced-p-itn-tfstate-rg-01"

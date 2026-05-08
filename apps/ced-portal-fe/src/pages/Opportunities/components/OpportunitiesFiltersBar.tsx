@@ -37,18 +37,9 @@ export const OpportunitiesFiltersBar = ({
       label="Stato"
       placeholder="Stato"
       options={STATE_OPTIONS}
-      value={
-        filters.state
-          ? (STATE_OPTIONS.find((o) => o.value === filters.state)?.value ??
-            filters.state)
-          : ''
-      }
+      value={filters.state ?? ''}
       onChange={(e) => {
-        const label = e.target.value as string;
-        const key =
-          STATE_OPTIONS.find(({ label: oLabel }) => oLabel === label)?.value ??
-          '';
-        onChange({ state: key });
+        onChange({ state: e.target.value as string });
       }}
     />
 

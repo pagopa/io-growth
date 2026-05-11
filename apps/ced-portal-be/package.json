@@ -34,7 +34,7 @@
     "fastify": "catalog:",
     "jose": "^6.2.2",
     "neverthrow": "catalog:",
-    "zod": "^3.25.1"
+    "zod": "catalog:"
   },
   "devDependencies": {
     "@pagopa/eslint-config": "catalog:",

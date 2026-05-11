@@ -6,6 +6,7 @@ import {
   QueryGuard,
 } from '../../components/index.js';
 import { useGetEntityDetailQuery } from '../../features/entities/api.js';
+import { APP_ROUTES } from '../../app/routeConfig.js';
 
 export default function EntityAccessPointsPage() {
   const { id } = useParams<{ id: string }>();
@@ -30,14 +31,14 @@ export default function EntityAccessPointsPage() {
             title="Tutti i punti di accesso"
             subtitle={
               <Typography sx={{ fontSize: 16, color: 'text.secondary' }}>
-              di{' '}
-              <Box
-                component="span"
-                sx={{ fontWeight: 700, color: 'text.primary' }}
-              >
-                {resolvedData.name}
-              </Box>
-            </Typography>
+                di{' '}
+                <Box
+                  component="span"
+                  sx={{ fontWeight: 700, color: 'text.primary' }}
+                >
+                  {resolvedData.name}
+                </Box>
+              </Typography>
             }
           />
 
@@ -48,6 +49,14 @@ export default function EntityAccessPointsPage() {
                 variant="simple"
                 title={item.title}
                 subtitle={item.subtitle}
+                onClick={() =>
+                  navigate(
+                    APP_ROUTES.ENTITY_ACCESS_POINT_DETAIL.replace(
+                      ':id',
+                      id ?? '',
+                    ).replace(':accessPointId', item.id),
+                  )
+                }
                 sx={{ px: 0, bgcolor: 'background.paper' }}
               />
             ))}

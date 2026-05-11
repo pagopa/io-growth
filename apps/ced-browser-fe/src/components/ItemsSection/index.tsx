@@ -46,9 +46,17 @@ export function ItemsSection(props: ItemsSectionProps) {
           variant="simple"
           {...item}
           sx={{ px: 0, bgcolor: 'background.paper' }}
+          onClick={() =>
+            navigate(
+              APP_ROUTES.ENTITY_ACCESS_POINT_DETAIL.replace(
+                ':id',
+                entityId,
+              ).replace(':accessPointId', id),
+            )
+          }
         />
       ));
-  }, [variant, items, hideEyebrow]);
+  }, [variant, items, hideEyebrow, navigate, entityId]);
 
   if (items.length === 0) return null;
 

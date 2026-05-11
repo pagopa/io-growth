@@ -1,19 +1,23 @@
 import { Box, ButtonBase, Divider, Stack, Typography } from '@mui/material';
 import { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { APP_ROUTES } from '../../../../app/routeConfig.js';
-import { DiscoveryListItem } from '../../../../components/index.js';
+import { APP_ROUTES } from '../../app/routeConfig.js';
+import { DiscoveryListItem } from '../index.js';
 import { SectionTitle } from '../SectionTitle/index.js';
 import type { ItemsSectionProps } from './types.js';
 
 const ITEMS_LIMIT = 10;
 
 export function ItemsSection(props: ItemsSectionProps) {
-  const { variant, entityId, items } = props;
+  const { variant, entityId, items, sectionLabel } = props;
+  const hideEyebrow =
+    props.variant === 'opportunity' && (props.hideEyebrow ?? false);
   const navigate = useNavigate();
 
   const hasMore = items.length > ITEMS_LIMIT;
-  const label = variant === 'opportunity' ? 'Opportunità' : 'Punti di accesso';
+  const defaultLabel =
+    variant === 'opportunity' ? 'Opportunità' : 'Punti di accesso';
+  const label = sectionLabel ?? defaultLabel;
   const route =
     variant === 'opportunity'
       ? APP_ROUTES.ENTITY_OPPORTUNITIES
@@ -28,6 +32,7 @@ export function ItemsSection(props: ItemsSectionProps) {
             key={id}
             variant="opportunity"
             {...item}
+            eyebrow={hideEyebrow ? undefined : item.eyebrow}
             sx={{ px: 0, bgcolor: 'background.paper' }}
           />
         ));
@@ -43,7 +48,7 @@ export function ItemsSection(props: ItemsSectionProps) {
           sx={{ px: 0, bgcolor: 'background.paper' }}
         />
       ));
-  }, [variant, items]);
+  }, [variant, items, hideEyebrow]);
 
   if (items.length === 0) return null;
 
@@ -60,7 +65,7 @@ export function ItemsSection(props: ItemsSectionProps) {
                 sx={{
                   fontSize: 14,
                   fontWeight: 600,
-                  color: 'primary.main',
+                  color: '#0B3EE3',
                   mr: 1,
                   textTransform: 'uppercase',
                 }}

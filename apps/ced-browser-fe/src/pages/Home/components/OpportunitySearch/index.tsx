@@ -53,6 +53,7 @@ export function OpportunitySearch() {
         <SearchResults
           total={data.total}
           items={data.items}
+          query={debouncedQuery}
           onItemPress={(id) => navigate(`/enti/${id}`)}
         />
       );

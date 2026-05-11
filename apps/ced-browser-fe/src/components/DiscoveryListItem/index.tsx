@@ -1,5 +1,12 @@
 import ChevronRightRoundedIcon from '@mui/icons-material/ChevronRightRounded';
-import { Box, ButtonBase, Stack, Typography, useTheme } from '@mui/material';
+import {
+  Box,
+  ButtonBase,
+  Divider,
+  Stack,
+  Typography,
+  useTheme,
+} from '@mui/material';
 import type {
   DiscoveryListItemProps,
   OpportunityProps,
@@ -124,7 +131,6 @@ export function DiscoveryListItem(props: DiscoveryListItemProps) {
           textAlign: 'left',
           display: 'block',
           py: 3,
-          px: 1.5,
           bgcolor: 'common.neutralGray',
           '&:disabled': {
             opacity: 0.7,
@@ -133,7 +139,7 @@ export function DiscoveryListItem(props: DiscoveryListItemProps) {
         ...(Array.isArray(sx) ? sx : sx ? [sx] : []),
       ]}
     >
-      <Stack direction="row" justifyContent="space-between" gap={1}>
+      <Stack direction="row" justifyContent="space-between" gap={1} px={1.5}>
         {props.variant === 'simple' ? (
           <SimpleContent {...props} secondaryColor={secondaryColor} />
         ) : (
@@ -151,6 +157,7 @@ export function DiscoveryListItem(props: DiscoveryListItemProps) {
           <ChevronRightRoundedIcon sx={{ fontSize: 24 }} />
         </Box>
       </Stack>
+      {props.divider && <Divider sx={{ mt: 3 }} />}
     </ButtonBase>
   );
 }

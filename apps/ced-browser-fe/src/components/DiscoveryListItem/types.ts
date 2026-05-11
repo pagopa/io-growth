@@ -7,6 +7,7 @@ type DiscoveryListItemBaseProps = {
   onClick?: () => void;
   disabled?: boolean;
   sx?: SxProps<Theme>;
+  divider?: boolean;
 };
 
 type VariantMap = {

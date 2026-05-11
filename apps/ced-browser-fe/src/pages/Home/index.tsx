@@ -1,15 +1,16 @@
-import { Stack, Typography, Box } from '@mui/material';
+import { Stack, Typography, Box, Button } from '@mui/material';
 import { Carousel } from './components/Carousel';
 import { PARTNERS_CARDS_CONFIG, DISCOVERY_ITEMS_CONFIG } from './constants';
 import { AppTextField, DiscoveryListItem } from '../../components';
 import { InfoBox } from '../../components/Infobox';
 import { useNavigate } from 'react-router-dom';
 import { APP_ROUTES } from '../../app/routeConfig';
+import { theme } from '../../core/theme';
 
 export default function HomePage() {
   const navigate = useNavigate();
   return (
-    <Box
+    <Stack
       sx={{
         display: 'flex',
         flexDirection: 'column',
@@ -19,6 +20,7 @@ export default function HomePage() {
         overflowY: 'auto',
         overflowX: 'hidden',
         overscrollBehaviorY: 'contain',
+        backgroundColor: theme.palette.background.paper,
       }}
     >
       <Stack direction="column" gap={2} px={3} pt={3}>
@@ -29,23 +31,35 @@ export default function HomePage() {
       </Stack>
 
       <Stack direction="column" gap={2}>
-        <Typography
-          variant="caption"
-          sx={{
-            px: 3,
-            fontWeight: 700,
-            color: 'text.secondary',
-            textTransform: 'uppercase',
-          }}
+        <Stack
+          direction="row"
+          alignItems="center"
+          justifyContent="space-between"
         >
-          In primo piano
-        </Typography>
+          <Typography
+            variant="caption"
+            sx={{
+              px: 3,
+              fontWeight: 700,
+              color: 'text.secondary',
+              textTransform: 'uppercase',
+            }}
+          >
+            NUOVE OPPORTUNITÀ
+          </Typography>
+          <Button>Mostra tutti</Button>
+        </Stack>
         <Carousel list={PARTNERS_CARDS_CONFIG} />
       </Stack>
 
-      <Stack direction="column" gap={1} px={3}>
-        {DISCOVERY_ITEMS_CONFIG.map((item) => (
-          <DiscoveryListItem key={item.id} {...item} />
+      <Stack direction="column">
+        {DISCOVERY_ITEMS_CONFIG.map((item, index, list) => (
+          <DiscoveryListItem
+            key={item.id}
+            sx={{ backgroundColor: theme.palette.background.paper }}
+            divider={index < list.length - 1}
+            {...item}
+          />
         ))}
       </Stack>
 
@@ -59,6 +73,6 @@ export default function HomePage() {
       </Box>
 
       <Box sx={{ height: '40px', flexShrink: 0 }} />
-    </Box>
+    </Stack>
   );
 }

@@ -6,6 +6,7 @@ export const APP_ROUTES = {
   ENTITY_OPPORTUNITIES: '/enti/:id/opportunita',
   ENTITY_ACCESS_POINTS: '/enti/:id/punti-di-accesso',
   EUROPEAN_OPPORTUNITIES: '/european-opportunities',
+  OPPORTUNITIES_LIST: '/opportunities',
   NOT_FOUND: '/not-found',
   UNAUTHORIZED: '/unauthorized',
 } as const;
@@ -20,6 +21,9 @@ export const EntityAccessPointsPage = lazy(
 );
 export const EuropeanOpportunitiesPage = lazy(
   () => import('../pages/EuropeanOpportunities'),
+);
+export const OpportunitiesListPage = lazy(
+  () => import('../pages/OpportunitiesList'),
 );
 export const UnauthorizedPage = lazy(() => import('../pages/Unauthorized'));
 export const NotFoundPage = lazy(() => import('../pages/NotFound'));

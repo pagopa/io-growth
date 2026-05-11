@@ -23,7 +23,9 @@ export const Carousel = ({ list }: CarouselProps) => {
       const container = containerRef.current;
       if (!container) return;
 
-      const target = container.children[extendedIndex] as HTMLElement | undefined;
+      const target = container.children[extendedIndex] as
+        | HTMLElement
+        | undefined;
       if (!target) return;
 
       if (behavior === 'auto') {
@@ -79,7 +81,9 @@ export const Carousel = ({ list }: CarouselProps) => {
       const step = second.offsetLeft - first.offsetLeft;
       if (step <= 0) return;
 
-      const rawIndex = Math.round((container.scrollLeft - first.offsetLeft) / step);
+      const rawIndex = Math.round(
+        (container.scrollLeft - first.offsetLeft) / step,
+      );
       const extendedIndex = Math.max(
         0,
         Math.min(rawIndex, extendedList.length - 1),
@@ -176,10 +180,7 @@ export const Carousel = ({ list }: CarouselProps) => {
         mt={0.5}
         alignItems="center"
       >
-        <Button
-          onClick={() => onStep('prev')}
-          sx={{ minWidth: 0, p: 0.5 }}
-        >
+        <Button onClick={() => onStep('prev')} sx={{ minWidth: 0, p: 0.5 }}>
           <ChevronLeftRounded />
         </Button>
 
@@ -193,10 +194,7 @@ export const Carousel = ({ list }: CarouselProps) => {
           ))}
         </Stack>
 
-        <Button
-          onClick={() => onStep('next')}
-          sx={{ minWidth: 0, p: 0.5 }}
-        >
+        <Button onClick={() => onStep('next')} sx={{ minWidth: 0, p: 0.5 }}>
           <ChevronRightRounded />
         </Button>
       </Stack>

@@ -45,18 +45,10 @@ export function ItemsSection(props: ItemsSectionProps) {
           key={id}
           variant="simple"
           {...item}
-          onClick={() =>
-            navigate(
-              APP_ROUTES.ENTITY_ACCESS_POINT_DETAIL.replace(
-                ':id',
-                entityId,
-              ).replace(':accessPointId', id),
-            )
-          }
           sx={{ px: 0, bgcolor: 'background.paper' }}
         />
       ));
-  }, [variant, items, entityId, navigate, hideEyebrow]);
+  }, [variant, items, hideEyebrow]);
 
   if (items.length === 0) return null;
 
@@ -73,7 +65,7 @@ export function ItemsSection(props: ItemsSectionProps) {
                 sx={{
                   fontSize: 14,
                   fontWeight: 600,
-                  color: 'primary.main',
+                  color: '#0B3EE3',
                   mr: 1,
                   textTransform: 'uppercase',
                 }}

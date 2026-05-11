@@ -24,19 +24,24 @@ export const StyledDots = styled(Box)`
 export const CarouselContainer = styled(Stack)({
   width: '100%',
   overflow: 'hidden',
-  paddingBottom: 8,
+  gap: '8px',
 });
 
 export const ScrollArea = styled(Box)({
   display: 'flex',
   flexDirection: 'row',
   overflowX: 'auto',
+  overflowY: 'hidden',
   scrollSnapType: 'x mandatory',
   WebkitOverflowScrolling: 'touch',
   scrollBehavior: 'smooth',
   width: '100%',
   columnGap: '16px',
   scrollbarWidth: 'none',
+  justifyContent: 'center',
+  paddingLeft: 'calc(50% - 105px)',
+  paddingRight: 'calc(50% - 105px)',
+  height: 'fit-content',
   '&::-webkit-scrollbar': {
     display: 'none',
   },
@@ -44,6 +49,7 @@ export const ScrollArea = styled(Box)({
 
 export const SlideBox = styled(Box)({
   flexShrink: 0,
-  flex: '0 0 80%',
-  scrollSnapAlign: 'start',
+  flex: '0 0 210px',
+  scrollSnapAlign: 'center',
+  height: 'fit-content',
 });

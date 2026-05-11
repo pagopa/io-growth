@@ -11,63 +11,146 @@ type CarouselProps = {
 
 export const Carousel = ({ list }: CarouselProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
-
   const [activeIdx, setActiveIdx] = useState<number>(0);
+  const isScrollingRef = useRef(false);
+  const scrollEndTimeoutRef = useRef<number | null>(null);
+  const currentExtendedIndexRef = useRef(1);
 
-  useEffect(() => {
-    const container = containerRef.current;
-    if (!container) return;
+  const extendedList = [list[list.length - 1], ...list, list[0]];
 
-    const item = container.children[0] as HTMLElement;
-    if (item) {
-      item.scrollIntoView({
-        behavior: 'instant',
-        inline: 'start',
+  const scrollToExtendedIndex = useCallback(
+    (extendedIndex: number, behavior: ScrollBehavior) => {
+      const container = containerRef.current;
+      if (!container) return;
+
+      const target = container.children[extendedIndex] as HTMLElement | undefined;
+      if (!target) return;
+
+      if (behavior === 'auto') {
+        const prevBehavior = container.style.scrollBehavior;
+        container.style.scrollBehavior = 'auto';
+        target.scrollIntoView({
+          behavior: 'auto',
+          inline: 'center',
+          block: 'nearest',
+        });
+        requestAnimationFrame(() => {
+          container.style.scrollBehavior = prevBehavior;
+        });
+        return;
+      }
+
+      target.scrollIntoView({
+        behavior,
+        inline: 'center',
+        block: 'nearest',
       });
-    }
-  }, []);
+    },
+    [],
+  );
+
+  useEffect(() => {
+    scrollToExtendedIndex(1, 'auto');
+  }, [scrollToExtendedIndex]);
+
+  useEffect(() => {
+    const urls = Array.from(
+      new Set(list.flatMap((item) => [item.imageUrl, item.logoUrl])),
+    );
+
+    urls.forEach((url) => {
+      const img = new window.Image();
+      img.decoding = 'async';
+      img.src = url;
+    });
+  }, [list]);
 
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
-
-    let scrollTimeout: NodeJS.Timeout;
 
     const handleScroll = () => {
-      if (scrollTimeout) clearTimeout(scrollTimeout);
+      if (isScrollingRef.current) return;
 
-      scrollTimeout = setTimeout(() => {
-        const scrollLeft = container.scrollLeft;
-        const containerWidth = container.offsetWidth;
-        const isAtEnd =
-          scrollLeft + containerWidth >= container.scrollWidth - 10;
-        const visibleIndex = isAtEnd
+      const first = container.children[0] as HTMLElement | undefined;
+      const second = container.children[1] as HTMLElement | undefined;
+      if (!first || !second) return;
+
+      const step = second.offsetLeft - first.offsetLeft;
+      if (step <= 0) return;
+
+      const rawIndex = Math.round((container.scrollLeft - first.offsetLeft) / step);
+      const extendedIndex = Math.max(
+        0,
+        Math.min(rawIndex, extendedList.length - 1),
+      );
+      currentExtendedIndexRef.current = extendedIndex;
+      const mappedIndex =
+        extendedIndex === 0
           ? list.length - 1
-          : Math.round(scrollLeft / containerWidth);
+          : extendedIndex === extendedList.length - 1
+            ? 0
+            : extendedIndex - 1;
 
-        if (activeIdx !== visibleIndex) {
-          setActiveIdx(visibleIndex);
+      setActiveIdx((prev) => (prev === mappedIndex ? prev : mappedIndex));
+
+      if (scrollEndTimeoutRef.current) {
+        window.clearTimeout(scrollEndTimeoutRef.current);
+      }
+
+      scrollEndTimeoutRef.current = window.setTimeout(() => {
+        if (extendedIndex === 0) {
+          isScrollingRef.current = true;
+          scrollToExtendedIndex(list.length, 'auto');
+          isScrollingRef.current = false;
+          return;
         }
-      }, 0);
+
+        if (extendedIndex === extendedList.length - 1) {
+          isScrollingRef.current = true;
+          scrollToExtendedIndex(1, 'auto');
+          isScrollingRef.current = false;
+        }
+      }, 90);
     };
 
     container.addEventListener('scroll', handleScroll);
     return () => {
       container.removeEventListener('scroll', handleScroll);
-      clearTimeout(scrollTimeout);
+      if (scrollEndTimeoutRef.current) {
+        window.clearTimeout(scrollEndTimeoutRef.current);
+      }
     };
-  }, [list, activeIdx]);
+  }, [extendedList.length, list.length, scrollToExtendedIndex]);
 
   const onClickDots = useCallback(
     (index: number) => {
       const chosenIndex =
         index < 0 ? list.length - 1 : index >= list.length ? 0 : index;
 
-      const container = containerRef.current;
-      const item = container?.children[chosenIndex] as HTMLElement;
-      item?.scrollIntoView({ behavior: 'smooth', inline: 'start' });
+      scrollToExtendedIndex(chosenIndex + 1, 'smooth');
     },
-    [list.length],
+    [list.length, scrollToExtendedIndex],
+  );
+
+  const onStep = useCallback(
+    (direction: 'prev' | 'next') => {
+      if (direction === 'next') {
+        if (activeIdx === list.length - 1) {
+          scrollToExtendedIndex(list.length + 1, 'smooth');
+          return;
+        }
+        scrollToExtendedIndex(currentExtendedIndexRef.current + 1, 'smooth');
+        return;
+      }
+
+      if (activeIdx === 0) {
+        scrollToExtendedIndex(0, 'smooth');
+        return;
+      }
+      scrollToExtendedIndex(currentExtendedIndexRef.current - 1, 'smooth');
+    },
+    [activeIdx, list.length, scrollToExtendedIndex],
   );
 
   if (list.length === 1)
@@ -80,7 +163,7 @@ export const Carousel = ({ list }: CarouselProps) => {
   return (
     <CarouselContainer>
       <ScrollArea ref={containerRef}>
-        {list.map((item, idx) => (
+        {extendedList.map((item, idx) => (
           <SlideBox key={idx}>
             <PartnerCard {...item} />
           </SlideBox>
@@ -90,14 +173,17 @@ export const Carousel = ({ list }: CarouselProps) => {
       <Stack
         direction="row"
         justifyContent="space-between"
-        mt={2}
+        mt={0.5}
         alignItems="center"
       >
-        <Button onClick={() => onClickDots(activeIdx - 1)}>
+        <Button
+          onClick={() => onStep('prev')}
+          sx={{ minWidth: 0, p: 0.5 }}
+        >
           <ChevronLeftRounded />
         </Button>
 
-        <Stack direction="row" alignItems="center" spacing={1}>
+        <Stack direction="row" alignItems="center" spacing={0.5}>
           {list.map((_, idx) => (
             <StyledDots
               key={idx}
@@ -107,7 +193,10 @@ export const Carousel = ({ list }: CarouselProps) => {
           ))}
         </Stack>
 
-        <Button onClick={() => onClickDots(activeIdx + 1)}>
+        <Button
+          onClick={() => onStep('next')}
+          sx={{ minWidth: 0, p: 0.5 }}
+        >
           <ChevronRightRounded />
         </Button>
       </Stack>

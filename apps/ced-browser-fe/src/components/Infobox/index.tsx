@@ -36,7 +36,7 @@ export const InfoBox = ({
         <Box
           sx={{
             width: 4,
-            backgroundColor: theme.palette.primary.main,
+            backgroundColor: theme.palette.common.primaryButton,
             borderRadius: 4,
           }}
         />
@@ -87,6 +87,7 @@ export const InfoBox = ({
                     backgroundColor: 'transparent',
                     textDecoration: 'underline',
                   },
+                  color: theme.palette.common.primaryButton,
                 }}
               >
                 {linkText}

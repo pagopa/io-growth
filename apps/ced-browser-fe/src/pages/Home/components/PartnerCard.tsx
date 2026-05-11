@@ -18,22 +18,36 @@ export const PartnerCard = ({
     <Card
       onClick={onClick}
       sx={{
-        width: '90%',
+        width: 210,
+        height: 196,
         borderRadius: 4,
-        boxShadow: '0px 4px 20px rgba(0, 0, 0, 0.08)',
+        // boxShadow: '0px 4px 20px rgba(0, 0, 0, 0.08)',
         overflow: 'visible',
         position: 'relative',
+        border: '1px solid #E8EBF1',
       }}
     >
       <CardMedia
         component="img"
-        height="160"
+        height="130"
         image={imageUrl}
         alt={title}
+        loading="eager"
         sx={{ borderRadius: '16px 16px 0 0' }}
       />
 
-      <CardContent sx={{ pt: 4, px: 3, pb: 3, position: 'relative' }}>
+      <CardContent
+        sx={{
+          pt: 2,
+          px: 3,
+          pb: 2,
+          position: 'relative',
+          flexGrow: 1,
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'flex-start',
+        }}
+      >
         <Box
           sx={{
             position: 'absolute',
@@ -48,9 +62,10 @@ export const PartnerCard = ({
           <Avatar
             src={logoUrl}
             variant="rounded"
+            imgProps={{ loading: 'eager', decoding: 'async' }}
             sx={{
-              width: 64,
-              height: 64,
+              width: 44,
+              height: 44,
               bgcolor: 'white',
               '& img': { objectFit: 'contain', p: 1 },
             }}
@@ -58,13 +73,18 @@ export const PartnerCard = ({
         </Box>
 
         <Typography
-          variant="h6"
+          variant="body2"
           component="div"
           sx={{
             fontWeight: '700',
-            lineHeight: 1.2,
+            lineHeight: 1.3,
             color: 'text.primary',
-            mt: 2,
+            mt: 1,
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            display: '-webkit-box',
+            WebkitLineClamp: 2,
+            WebkitBoxOrient: 'vertical',
           }}
         >
           {title}

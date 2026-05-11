@@ -1,7 +1,8 @@
-import { Box, ButtonBase, Typography } from '@mui/material';
+import { Box, ButtonBase, Typography, useTheme } from '@mui/material';
 import { ContactRowProps } from './types';
 
 export function ContactRow({ icon, label, href }: ContactRowProps) {
+  const theme = useTheme();
   return (
     <ButtonBase
       component="a"
@@ -28,7 +29,7 @@ export function ContactRow({ icon, label, href }: ContactRowProps) {
         sx={{
           fontSize: 16,
           fontWeight: 600,
-          color: '#0B3EE3',
+          color: theme.palette.common.primaryButton,
           textDecoration: 'underline',
         }}
       >

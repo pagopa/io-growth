@@ -1,4 +1,4 @@
-import { Box, ButtonBase, Stack } from '@mui/material';
+import { Box, ButtonBase, Stack, useTheme } from '@mui/material';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ContactsSection } from '../../components/ContactsSection/index.js';
 import { ItemsSection } from '../../components/ItemsSection/index.js';
@@ -12,6 +12,7 @@ export default function AccessPointDetailPage() {
     accessPointId: string;
   }>();
   const navigate = useNavigate();
+  const theme = useTheme();
   const { data, isLoading, isError } = useGetAccessPointDetailQuery(
     { entityId: id ?? '', accessPointId: accessPointId ?? '' },
     { skip: !id || !accessPointId },
@@ -46,7 +47,7 @@ export default function AccessPointDetailPage() {
                 sx={{
                   fontSize: 16,
                   fontWeight: 600,
-                  color: '#0B3EE3',
+                  color: theme.palette.common.primaryButton,
                   textDecoration: 'underline',
                 }}
               >

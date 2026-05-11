@@ -1,7 +1,10 @@
 import { Box, ButtonBase, Divider, Stack, Typography } from '@mui/material';
 import { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { APP_ROUTES } from '../../app/routeConfig.js';
+import {
+  APP_ROUTES,
+  toEntityAccessPointDetailRoute,
+} from '../../app/routeConfig.js';
 import { DiscoveryListItem } from '../index.js';
 import { SectionTitle } from '../SectionTitle/index.js';
 import type { ItemsSectionProps } from './types.js';
@@ -46,14 +49,7 @@ export function ItemsSection(props: ItemsSectionProps) {
           variant="simple"
           {...item}
           sx={{ px: 0, bgcolor: 'background.paper' }}
-          onClick={() =>
-            navigate(
-              APP_ROUTES.ENTITY_ACCESS_POINT_DETAIL.replace(
-                ':id',
-                entityId,
-              ).replace(':accessPointId', id),
-            )
-          }
+          onClick={() => navigate(toEntityAccessPointDetailRoute(entityId, id))}
         />
       ));
   }, [variant, items, hideEyebrow, navigate, entityId]);

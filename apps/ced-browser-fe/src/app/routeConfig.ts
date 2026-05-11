@@ -1,4 +1,5 @@
 import { lazy } from 'react';
+import { generatePath } from 'react-router-dom';
 
 export const APP_ROUTES = {
   HOME: '/',
@@ -10,6 +11,15 @@ export const APP_ROUTES = {
   NOT_FOUND: '/not-found',
   UNAUTHORIZED: '/unauthorized',
 } as const;
+
+export const toEntityAccessPointDetailRoute = (
+  entityId: string,
+  accessPointId: string,
+) =>
+  generatePath(APP_ROUTES.ENTITY_ACCESS_POINT_DETAIL, {
+    id: entityId,
+    accessPointId,
+  });
 
 export const HomePage = lazy(() => import('../pages/Home'));
 export const EntityDetailPage = lazy(() => import('../pages/EntityDetail'));

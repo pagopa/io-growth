@@ -3,8 +3,11 @@ import { Carousel } from './components/Carousel';
 import { PARTNERS_CARDS_CONFIG, DISCOVERY_ITEMS_CONFIG } from './constants';
 import { AppTextField, DiscoveryListItem } from '../../components';
 import { InfoBox } from '../../components/Infobox';
+import { useNavigate } from 'react-router-dom';
+import { APP_ROUTES } from '../../app/routeConfig';
 
 export default function HomePage() {
+  const navigate = useNavigate();
   return (
     <Box
       sx={{
@@ -55,10 +58,10 @@ export default function HomePage() {
           title="Sai che la Carta vale anche in Europa?"
           description="Diversi Paesi dell'Unione Europea offrono opportunità a chi ha la Carta Europea della Disabilità"
           linkText="Scopri dove usarla"
+          onLinkClick={() => navigate(APP_ROUTES.EUROPEAN_OPPORTUNITIES)}
         />
       </Box>
 
-      {/* Spacer finale invisibile per garantire che lo scroll superi l'ultimo elemento */}
       <Box sx={{ height: '40px', flexShrink: 0 }} />
     </Box>
   );

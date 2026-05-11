@@ -32,7 +32,6 @@ export const InfoBox = ({
       }}
     >
       <Stack direction="row" spacing={2.5}>
-        {/* Barra di accento verticale */}
         <Box
           sx={{
             width: 4,
@@ -43,7 +42,6 @@ export const InfoBox = ({
 
         <Box sx={{ flex: 1 }}>
           <Stack spacing={2}>
-            {/* Header: Titolo e Illustrazione */}
             <Stack
               direction="row"
               justifyContent="space-between"
@@ -55,28 +53,15 @@ export const InfoBox = ({
                   fontWeight: 700,
                   lineHeight: 1.3,
                   color: 'text.primary',
-                  pr: 2, // Spazio per l'immagine
+                  pr: 2,
                 }}
               >
                 {title}
               </Typography>
 
-              {/* Illustrazione circolare */}
-              <IllusAlarmClock></IllusAlarmClock>
-              {/* <Box
-                component="img"
-                src={imageUrl}
-                alt=""
-                sx={{
-                  width: 80,
-                  height: 80,
-                  objectFit: 'contain',
-                  mt: -1,
-                }}
-              /> */}
+              <IllusAlarmClock />
             </Stack>
 
-            {/* Descrizione */}
             <Typography
               variant="body2"
               sx={{
@@ -88,7 +73,6 @@ export const InfoBox = ({
               {description}
             </Typography>
 
-            {/* Action Link */}
             <Box>
               <Button
                 variant="text"

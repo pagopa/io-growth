@@ -15,7 +15,17 @@ import {
 
 export function AppRoutes() {
   return (
-    <Suspense fallback={<div style={{ padding: 24 }}>Loading...</div>}>
+    <Suspense
+      fallback={
+        <div
+          style={{
+            padding: 24,
+          }}
+        >
+          Loading...
+        </div>
+      }
+    >
       <Routes>
         <Route element={<AppLayout />}>
           <Route index element={<HomePage />} />

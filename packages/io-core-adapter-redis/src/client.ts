@@ -1,24 +1,21 @@
 import { EntraIdCredentialsProviderFactory } from "@redis/entraid";
-import { createClient } from "redis";
+import { createCluster } from "redis";
 
 export interface EntraIdConfig {
   readonly clientId: string;
 }
+
+export type RedisClientInstance = ReturnType<typeof createCluster>;
 
 export type RedisClient = RedisClientInstance & {
   readonly closeConnection: () => Promise<void>;
 };
 
 export interface RedisClientConfig {
-  readonly database?: number;
   readonly entraId?: EntraIdConfig;
-  readonly host: string;
-  readonly password?: string;
-  readonly port: number;
+  readonly endpoint: string;
   readonly tls?: boolean;
 }
-
-export type RedisClientInstance = ReturnType<typeof createClient>;
 
 export interface RedisCommands {
   del(key: string): Promise<number>;
@@ -38,18 +35,21 @@ const buildEntraIdCredentialsProvider = (entraId: EntraIdConfig) =>
 export const createRedisClient = async (
   config: RedisClientConfig,
 ): Promise<RedisClient> => {
-  const client = createClient({
-    credentialsProvider: config.entraId
-      ? buildEntraIdCredentialsProvider(config.entraId)
-      : undefined,
-    database: config.database,
-    password: config.entraId ? undefined : config.password,
-    socket: {
-      host: config.host,
-      port: config.port,
-      reconnectStrategy: false,
-      ...(config.tls ? { tls: true as const } : {}),
+  const [host, portStr] = config.endpoint.split(":");
+  const port = Number(portStr);
+
+  const client = createCluster({
+    defaults: {
+      credentialsProvider: config.entraId
+        ? buildEntraIdCredentialsProvider(config.entraId)
+        : undefined,
+      socket: {
+        host,
+        port,
+        ...(config.tls ? { tls: true as const } : {}),
+      },
     },
+    rootNodes: [{ socket: { host, port } }],
   });
 
   await client.connect();

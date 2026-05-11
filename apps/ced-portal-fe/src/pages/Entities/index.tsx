@@ -122,7 +122,6 @@ export default function EntitiesPage() {
             items={paginatedItems}
             isLoading={isLoading}
             isError={isError}
-            onRetry={refetch}
             onRowOpen={handleOpenDetail}
           />
           <ResultsPagination

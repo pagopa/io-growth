@@ -1,3 +1,4 @@
+import CheckCircleRoundedIcon from '@mui/icons-material/CheckCircleRounded';
 import ChevronRightRoundedIcon from '@mui/icons-material/ChevronRightRounded';
 import WarningAmberRoundedIcon from '@mui/icons-material/WarningAmberRounded';
 import {
@@ -115,43 +116,27 @@ export const EntitiesTable = ({
     );
   }
 
-  if (isError) {
-    return (
-      <Paper
-        elevation={0}
-        sx={{ ...paperSx, display: 'grid', placeItems: 'center' }}
-      >
-        <Stack spacing={1.5} alignItems="center" textAlign="center">
-          <WarningAmberRoundedIcon
-            sx={{ color: 'text.secondary', fontSize: 28 }}
-          />
-          <Typography
-            sx={{ fontSize: 18, fontWeight: 700, color: 'text.secondary' }}
-          >
-            Errore durante il caricamento
-          </Typography>
-          <Button variant="text" onClick={onRetry}>
-            Riprova
-          </Button>
-        </Stack>
-      </Paper>
-    );
-  }
-
-  if (items.length === 0) {
+  if (isError || items.length === 0) {
     return (
       <Paper
         elevation={0}
         sx={{ ...paperSx, display: 'grid', placeItems: 'center' }}
       >
         <Stack spacing={1} alignItems="center" textAlign="center">
-          <WarningAmberRoundedIcon
-            sx={{ color: 'text.secondary', fontSize: 28 }}
+          <CheckCircleRoundedIcon
+            sx={{ color: theme.palette.common.decorativeIcon, fontSize: 24 }}
           />
           <Typography
             sx={{ fontSize: 18, fontWeight: 700, color: 'text.secondary' }}
           >
-            Non ci sono enti da mostrare
+            {activeTab === 0
+              ? 'Non ci sono nuove richieste'
+              : 'Non ci sono enti attivi'}
+          </Typography>
+          <Typography sx={{ color: 'text.secondary' }}>
+            {activeTab === 0
+              ? 'Qui vedrai le richieste di convenzionamento che gli enti ti inviano.'
+              : 'Qui vedrai gli enti convenzionati e potrai monitorare il loro stato.'}
           </Typography>
         </Stack>
       </Paper>

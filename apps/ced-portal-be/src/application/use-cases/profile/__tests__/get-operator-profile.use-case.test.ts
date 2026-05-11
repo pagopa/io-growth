@@ -7,12 +7,13 @@ import { makeGetOperatorProfileUseCase } from "../get-operator-profile.use-case.
 
 const mockOperatorData = {
   displayName: "Operatore Demo",
+  operatorId: "01JVMK3N8XQZP5T6G2WYHAB4CD",
   place: {
-    id: "8eec93a7-7850-4a6c-a3fd-1c5d6202b2e0",
+    id: "01JVMK3N8XQZP5T6G2WYHAB4CE",
     name: "Sportello remoto",
     supportContacts: [
       {
-        id: "36c92630-1836-4d2d-a3a2-3f50d8a9286f",
+        id: "01JVMK3N8XQZP5T6G2WYHAB4CF",
         type: "email" as const,
         value: "support@example.org",
       },
@@ -37,12 +38,12 @@ describe("makeGetOperatorProfileUseCase", () => {
     const useCase = makeGetOperatorProfileUseCase(profileRepository);
 
     const result = await useCase({
-      operatorId: "231b5e36-ec82-49f1-a889-3e49107304f1",
+      operatorId: "01JVMK3N8XQZP5T6G2WYHAB4CD",
     });
 
     expect(result).toEqual(ok(mockOperatorData));
     expect(profileRepository.getByOperatorId).toHaveBeenCalledWith(
-      "231b5e36-ec82-49f1-a889-3e49107304f1",
+      "01JVMK3N8XQZP5T6G2WYHAB4CD",
     );
   });
 
@@ -51,7 +52,7 @@ describe("makeGetOperatorProfileUseCase", () => {
     const useCase = makeGetOperatorProfileUseCase(profileRepository);
 
     const result = await useCase({
-      operatorId: "231b5e36-ec82-49f1-a889-3e49107304f1",
+      operatorId: "01JVMK3N8XQZP5T6G2WYHAB4CD",
     });
 
     expect(result).toEqual(
@@ -73,7 +74,7 @@ describe("makeGetOperatorProfileUseCase", () => {
     const useCase = makeGetOperatorProfileUseCase(profileRepository);
 
     const result = await useCase({
-      operatorId: "231b5e36-ec82-49f1-a889-3e49107304f1",
+      operatorId: "01JVMK3N8XQZP5T6G2WYHAB4CD",
     });
 
     expect(result).toEqual(err(repoError));

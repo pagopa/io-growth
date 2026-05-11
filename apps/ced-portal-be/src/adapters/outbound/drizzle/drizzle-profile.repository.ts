@@ -8,7 +8,7 @@ import { GenericError as GenericErrorClass } from "@pagopa/io-core-domain/errors
 import { asc, eq } from "drizzle-orm";
 import { err, ok } from "neverthrow";
 
-import type { NewProfile, Profile } from "../../../domain/entities/profile.js";
+import type { Profile } from "../../../domain/entities/profile.js";
 import type { ProfileRepository } from "../../../domain/ports/outbound/persistence/profile.repository.js";
 
 import { dbClient } from "./client.js";
@@ -22,20 +22,16 @@ export const createDrizzleProfileRepository = (
   db: DbClient,
 ): ProfileRepository => ({
   create: async (
-    input: NewProfile,
+    input: Profile,
   ): Promise<Result<void, ConflictError | GenericError>> => {
     try {
       await db.transaction(async (tx) => {
-        const createdPlaceId = await createPlaceInTransaction(
-          tx,
-          input.operatorId,
-          input.place,
-        );
+        await createPlaceInTransaction(tx, input.operatorId, input.place);
 
         await tx.insert(profile).values({
           displayName: input.displayName,
           operatorId: input.operatorId,
-          placeId: createdPlaceId,
+          placeId: input.place.id,
         });
       });
 

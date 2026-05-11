@@ -8,11 +8,11 @@ import { makeListOperatorPlacesUseCase } from "../list-operator-places.use-case.
 
 const mockPlaces = [
   {
-    id: "8eec93a7-7850-4a6c-a3fd-1c5d6202b2e0",
+    id: "01JVMK3N8XQZP5T6G2WYHAB4CE",
     name: "Sportello remoto",
     supportContacts: [
       {
-        id: "36c92630-1836-4d2d-a3a2-3f50d8a9286f",
+        id: "01JVMK3N8XQZP5T6G2WYHAB4CF",
         type: "email" as const,
         value: "support@example.org",
       },
@@ -36,12 +36,12 @@ describe("makeListOperatorPlacesUseCase", () => {
     const useCase = makeListOperatorPlacesUseCase(placeRepository);
 
     const result = await useCase({
-      operatorId: "231b5e36-ec82-49f1-a889-3e49107304f1",
+      operatorId: "01JVMK3N8XQZP5T6G2WYHAB4CD",
     });
 
     expect(result).toEqual(ok(mockPlaces));
     expect(placeRepository.listByOperatorId).toHaveBeenCalledWith(
-      "231b5e36-ec82-49f1-a889-3e49107304f1",
+      "01JVMK3N8XQZP5T6G2WYHAB4CD",
     );
   });
 
@@ -55,7 +55,7 @@ describe("makeListOperatorPlacesUseCase", () => {
     const useCase = makeListOperatorPlacesUseCase(placeRepository);
 
     const result = await useCase({
-      operatorId: "231b5e36-ec82-49f1-a889-3e49107304f1",
+      operatorId: "01JVMK3N8XQZP5T6G2WYHAB4CD",
     });
 
     expect(result).toEqual(err(repoError));

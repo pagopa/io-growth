@@ -7,7 +7,7 @@ import type { PlaceRepository } from "../../../../domain/ports/outbound/persiste
 import { makeCreateOperatorPlaceUseCase } from "../create-operator-place.use-case.js";
 
 const createInput = {
-  operatorId: "231b5e36-ec82-49f1-a889-3e49107304f1",
+  operatorId: "01JVMK3N8XQZP5T6G2WYHAB4CD",
   place: {
     name: "Sportello remoto",
     supportContacts: [{ type: "email" as const, value: "support@example.org" }],
@@ -32,7 +32,16 @@ describe("makeCreateOperatorPlaceUseCase", () => {
     const result = await useCase(createInput);
 
     expect(result).toEqual(ok(undefined));
-    expect(placeRepository.create).toHaveBeenCalledWith(createInput);
+    expect(placeRepository.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        operatorId: createInput.operatorId,
+        place: expect.objectContaining({
+          id: expect.stringMatching(/^[0-9A-HJKMNP-TV-Z]{26}$/),
+          name: createInput.place.name,
+          type: createInput.place.type,
+        }),
+      }),
+    );
   });
 
   it("should propagate repository errors", async () => {
@@ -54,6 +63,21 @@ describe("makeCreateOperatorPlaceUseCase", () => {
     const useCase = makeCreateOperatorPlaceUseCase(placeRepository);
 
     const result = await useCase({ ...createInput, operatorId: "" });
+
+    expect(result).toEqual(
+      err(expect.objectContaining({ kind: "ValidationError" })),
+    );
+    expect(placeRepository.create).not.toHaveBeenCalled();
+  });
+
+  it("should return ValidationError when operatorId is not a valid ULID", async () => {
+    const placeRepository = createMockPlaceRepository();
+    const useCase = makeCreateOperatorPlaceUseCase(placeRepository);
+
+    const result = await useCase({
+      ...createInput,
+      operatorId: "not-a-valid-ulid",
+    });
 
     expect(result).toEqual(
       err(expect.objectContaining({ kind: "ValidationError" })),

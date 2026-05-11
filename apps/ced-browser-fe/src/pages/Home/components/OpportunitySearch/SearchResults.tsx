@@ -1,25 +1,24 @@
 import type { ReactNode } from 'react';
+import { useMemo } from 'react';
 import { Box, Divider, Typography, useTheme } from '@mui/material';
 import { DiscoveryListItem } from '../../../../components/DiscoveryListItem';
 import type { EntitySearchItem } from '../../../../features/entities/types';
 
-function highlightText(text: string, query: string): ReactNode {
-  const q = query.trim();
-  if (!q) return text;
-  return text
-    .split(new RegExp(`(${q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi'))
-    .map((part, i) => {
-      if (i % 2 === 0) return part;
-      return (
-        <Box
-          key={i}
-          component="mark"
-          sx={{ bgcolor: '#AAEEEF', color: 'inherit' }}
-        >
-          {part}
-        </Box>
-      );
-    });
+function highlightText(text: string, regex: RegExp | null): ReactNode {
+  if (!regex) return text;
+  // split with a capturing group interleaves plain text (even) and matches (odd)
+  return text.split(regex).map((part, i) => {
+    if (i % 2 === 0) return part;
+    return (
+      <Box
+        key={i}
+        component="mark"
+        sx={{ bgcolor: '#AAEEEF', color: 'inherit' }}
+      >
+        {part}
+      </Box>
+    );
+  });
 }
 
 export function SearchResults({
@@ -34,6 +33,14 @@ export function SearchResults({
   onItemPress: (id: string) => void;
 }) {
   const theme = useTheme();
+  const highlightRegex = useMemo(() => {
+    const queryTrim = query.trim();
+    if (!queryTrim) return null;
+    return new RegExp(
+      `(${queryTrim.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`,
+      'gi',
+    );
+  }, [query]);
   return (
     <Box sx={{ mt: 3 }}>
       <Box
@@ -79,8 +86,8 @@ export function SearchResults({
           {i > 0 ? <Divider /> : null}
           <DiscoveryListItem
             variant="simple"
-            title={highlightText(item.name, query)}
-            subtitle={highlightText(item.address, query)}
+            title={highlightText(item.name, highlightRegex)}
+            subtitle={highlightText(item.address, highlightRegex)}
             onClick={() => onItemPress(item.id)}
             sx={{ bgcolor: 'white', px: 0 }}
           />

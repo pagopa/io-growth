@@ -36,9 +36,9 @@ export const ScrollArea = styled(Box)({
   scrollBehavior: 'smooth',
   width: '100%',
   columnGap: '16px',
-  scrollbarWidth: 'none', // Firefox
+  scrollbarWidth: 'none',
   '&::-webkit-scrollbar': {
-    display: 'none', // Chrome, Safari
+    display: 'none',
   },
 });
 

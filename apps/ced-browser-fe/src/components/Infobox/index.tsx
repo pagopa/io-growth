@@ -14,7 +14,6 @@ export const InfoBox = ({
   title,
   description,
   linkText,
-  // icon,
   onLinkClick,
 }: InfoBoxProps) => {
   const theme = useTheme();

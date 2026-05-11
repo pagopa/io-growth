@@ -14,7 +14,6 @@ export const Carousel = ({ list }: CarouselProps) => {
 
   const [activeIdx, setActiveIdx] = useState<number>(0);
 
-  // Effetto per lo scroll iniziale al montaggio
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;

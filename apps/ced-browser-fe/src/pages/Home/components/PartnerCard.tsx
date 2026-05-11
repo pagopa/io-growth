@@ -73,15 +73,3 @@ export const PartnerCard = ({
     </Card>
   );
 };
-
-// // --- ESEMPIO DI UTILIZZO ---
-// export const PartnerCardExample = () => {
-//   return (
-//     <PartnerCard
-//       title="Comune di Alessandria"
-//       imageUrl="https://picsum.photos/id/1018/600/400" // Placeholder foto comune
-//       logoUrl="https://upload.wikimedia.org/wikipedia/commons/d/d5/Alessandria-Stemma.png" // Placeholder stemma
-//       onClick={() => console.log('Card cliccata')}
-//     />
-//   );
-// };

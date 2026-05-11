@@ -31,5 +31,5 @@ export const ENTITY_STATE_COLORS: Record<
   Rifiutata: 'default',
   Attivo: 'success',
   Inattivo: 'warning',
-  Cessato: 'error',
+  Cessato: 'default',
 };

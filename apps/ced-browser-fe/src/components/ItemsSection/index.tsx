@@ -11,7 +11,7 @@ const ITEMS_LIMIT = 10;
 export function ItemsSection(props: ItemsSectionProps) {
   const { variant, entityId, items, sectionLabel } = props;
   const hideEyebrow =
-    props.variant === 'opportunity' ? (props.hideEyebrow ?? false) : false;
+    props.variant === 'opportunity' && (props.hideEyebrow ?? false);
   const navigate = useNavigate();
 
   const hasMore = items.length > ITEMS_LIMIT;

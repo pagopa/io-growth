@@ -1,68 +1,75 @@
-import { PartnerCard } from './PartnerCard';
-import { useRef, useState } from 'react';
-import { CarouselContainer, ScrollArea, SlideBox, StyledDots } from './styled';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Button, Stack } from '@mui/material';
 import { ChevronLeftRounded, ChevronRightRounded } from '@mui/icons-material';
+import { PartnerCard } from './PartnerCard';
+import { CarouselContainer, ScrollArea, SlideBox, StyledDots } from './styled';
 import { PartnerCardProps } from './types';
 
 type CarouselProps = {
   list: Array<PartnerCardProps>;
 };
+
 export const Carousel = ({ list }: CarouselProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
+
   const [activeIdx, setActiveIdx] = useState<number>(0);
 
-  const handleManualScroll = () => {
+  // Effetto per lo scroll iniziale al montaggio
+  useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
 
-    const center = container.scrollLeft + container.offsetWidth / 2;
-
-    const children = Array.from(container.children) as HTMLElement[];
-    let closestIdx = 0;
-    let minDistance = Infinity;
-
-    // Troviamo il figlio il cui centro è più vicino al centro del contenitore
-    children.forEach((child, idx) => {
-      const childCenter = child.offsetLeft + child.offsetWidth / 2;
-      const distance = Math.abs(center - childCenter);
-      if (distance < minDistance) {
-        minDistance = distance;
-        closestIdx = idx;
-      }
-    });
-
-    // Aggiorniamo lo stato solo se l'indice è effettivamente cambiato
-    if (closestIdx !== activeIdx) {
-      setActiveIdx(closestIdx);
+    const item = container.children[0] as HTMLElement;
+    if (item) {
+      item.scrollIntoView({
+        behavior: 'instant',
+        inline: 'start',
+      });
     }
-  };
+  }, []);
 
-  const scrollToItem = (index: number) => {
+  useEffect(() => {
     const container = containerRef.current;
-    setTimeout(() => {
-      const item = container?.children[index] as HTMLElement;
-      if (item) {
-        item.scrollIntoView({
-          behavior: 'smooth',
-          inline: 'center',
-          block: 'nearest',
-        });
-      }
-    }, 0);
-  };
+    if (!container) return;
 
-  const handleUpdate = (newIdx: number) => {
-    let targetIdx = newIdx;
-    if (newIdx < 0) {
-      targetIdx = list.length - 1;
-    } else if (newIdx >= list.length) {
-      targetIdx = 0;
-    }
+    let scrollTimeout: NodeJS.Timeout;
 
-    setActiveIdx(targetIdx);
-    scrollToItem(targetIdx);
-  };
+    const handleScroll = () => {
+      if (scrollTimeout) clearTimeout(scrollTimeout);
+
+      scrollTimeout = setTimeout(() => {
+        const scrollLeft = container.scrollLeft;
+        const containerWidth = container.offsetWidth;
+        const isAtEnd =
+          scrollLeft + containerWidth >= container.scrollWidth - 10;
+        const visibleIndex = isAtEnd
+          ? list.length - 1
+          : Math.round(scrollLeft / containerWidth);
+
+        if (activeIdx !== visibleIndex) {
+          setActiveIdx(visibleIndex);
+        }
+      }, 0);
+    };
+
+    container.addEventListener('scroll', handleScroll);
+    return () => {
+      container.removeEventListener('scroll', handleScroll);
+      clearTimeout(scrollTimeout);
+    };
+  }, [list, activeIdx]);
+
+  const onClickDots = useCallback(
+    (index: number) => {
+      const chosenIndex =
+        index < 0 ? list.length - 1 : index >= list.length ? 0 : index;
+
+      const container = containerRef.current;
+      const item = container?.children[chosenIndex] as HTMLElement;
+      item?.scrollIntoView({ behavior: 'smooth', inline: 'start' });
+    },
+    [list.length],
+  );
 
   if (list.length === 1)
     return (
@@ -73,8 +80,7 @@ export const Carousel = ({ list }: CarouselProps) => {
 
   return (
     <CarouselContainer>
-      {/* 2. Aggiungiamo onScroll alla ScrollArea */}
-      <ScrollArea ref={containerRef} onScroll={handleManualScroll}>
+      <ScrollArea ref={containerRef}>
         {list.map((item, idx) => (
           <SlideBox key={idx}>
             <PartnerCard {...item} />
@@ -88,7 +94,7 @@ export const Carousel = ({ list }: CarouselProps) => {
         mt={2}
         alignItems="center"
       >
-        <Button onClick={() => handleUpdate(activeIdx - 1)}>
+        <Button onClick={() => onClickDots(activeIdx - 1)}>
           <ChevronLeftRounded />
         </Button>
 
@@ -96,14 +102,13 @@ export const Carousel = ({ list }: CarouselProps) => {
           {list.map((_, idx) => (
             <StyledDots
               key={idx}
-              // Qui usiamo handleUpdate per mantenere lo scroll fluido al click
-              onClick={() => handleUpdate(idx)}
+              onClick={() => onClickDots(idx)}
               className={activeIdx === idx ? 'active' : 'inactive'}
             />
           ))}
         </Stack>
 
-        <Button onClick={() => handleUpdate(activeIdx + 1)}>
+        <Button onClick={() => onClickDots(activeIdx + 1)}>
           <ChevronRightRounded />
         </Button>
       </Stack>

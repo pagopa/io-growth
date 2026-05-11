@@ -1,13 +1,15 @@
 import { baseApi } from '../../core/api/baseApi.js';
-import type { EntitiesResponse } from './types.js';
+import type { EntityDetail, EntitiesResponse } from './types.js';
 
 export const entitiesApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     getEntities: builder.query<EntitiesResponse, void>({
       query: () => '/entities',
-      providesTags: ['Entities'],
+    }),
+    getEntityDetail: builder.query<EntityDetail, string>({
+      query: (id) => `/entities/${id}`,
     }),
   }),
 });
 
-export const { useGetEntitiesQuery } = entitiesApi;
+export const { useGetEntitiesQuery, useGetEntityDetailQuery } = entitiesApi;

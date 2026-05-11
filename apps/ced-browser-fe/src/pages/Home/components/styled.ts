@@ -52,4 +52,5 @@ export const SlideBox = styled(Box)({
   flex: '0 0 210px',
   scrollSnapAlign: 'center',
   height: 'fit-content',
+  marginBottom: 2,
 });

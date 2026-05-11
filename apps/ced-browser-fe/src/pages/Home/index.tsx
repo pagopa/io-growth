@@ -31,6 +31,21 @@ export default function HomePage() {
       </Stack>
 
       <Stack direction="column" gap={2}>
+        <Typography
+          variant="caption"
+          sx={{
+            px: 3,
+            fontWeight: 700,
+            color: 'text.secondary',
+            textTransform: 'uppercase',
+          }}
+        >
+          IN PRIMO PIANO
+        </Typography>
+        <Carousel list={PARTNERS_CARDS_CONFIG} />
+      </Stack>
+
+      <Stack direction="column">
         <Stack
           direction="row"
           alignItems="center"
@@ -47,12 +62,13 @@ export default function HomePage() {
           >
             NUOVE OPPORTUNITÀ
           </Typography>
-          <Button>Mostra tutti</Button>
+          <Button
+            variant="text"
+            sx={{ color: theme.palette.common.primaryButton }}
+          >
+            Mostra tutti
+          </Button>
         </Stack>
-        <Carousel list={PARTNERS_CARDS_CONFIG} />
-      </Stack>
-
-      <Stack direction="column">
         {DISCOVERY_ITEMS_CONFIG.map((item, index, list) => (
           <DiscoveryListItem
             key={item.id}

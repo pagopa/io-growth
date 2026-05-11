@@ -21,7 +21,6 @@ export const PartnerCard = ({
         width: 210,
         height: 196,
         borderRadius: 4,
-        // boxShadow: '0px 4px 20px rgba(0, 0, 0, 0.08)',
         overflow: 'visible',
         position: 'relative',
         border: '1px solid #E8EBF1',
@@ -29,7 +28,7 @@ export const PartnerCard = ({
     >
       <CardMedia
         component="img"
-        height="130"
+        height="115"
         image={imageUrl}
         alt={title}
         loading="eager"

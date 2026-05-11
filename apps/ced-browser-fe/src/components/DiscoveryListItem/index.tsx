@@ -141,7 +141,7 @@ export function DiscoveryListItem(props: DiscoveryListItemProps) {
         ...(Array.isArray(sx) ? sx : sx ? [sx] : []),
       ]}
     >
-      <Stack direction="row" justifyContent="space-between" gap={1} px={1.5}>
+      <Stack direction="row" justifyContent="space-between" gap={1} px={3}>
         {props.variant === 'simple' ? (
           <SimpleContent {...props} secondaryColor={secondaryColor} />
         ) : (

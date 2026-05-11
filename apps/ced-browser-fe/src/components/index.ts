@@ -8,3 +8,7 @@ export * from './DiscoveryListItem';
 export * from './Swiper';
 export * from './Infobox';
 export * from './QueryGuard';
+export * from './SectionTitle';
+export * from './ContactsSection';
+export * from './ItemsSection';
+export * from './ContactRow';

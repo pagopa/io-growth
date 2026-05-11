@@ -75,6 +75,7 @@ export function SideNavigation() {
   const isOverviewActive = pathname === APP_ROUTES.OVERVIEW;
   const isBenefitsActive = pathname === APP_ROUTES.HOME;
   const isOpportunitiesActive = pathname === APP_ROUTES.OPPORTUNITIES;
+  const isEntitiesActive = pathname === APP_ROUTES.ENTITIES;
   const role = useAppSelector(selectUserRole);
   const isAdmin = role === 'admin';
 
@@ -95,7 +96,12 @@ export function SideNavigation() {
       <List disablePadding sx={{ py: 2.5 }}>
         {isAdmin ? (
           <>
-            <NavItem icon={<BusinessOutlinedIcon />} label="Enti" />
+            <NavItem
+              active={isEntitiesActive}
+              icon={<BusinessOutlinedIcon />}
+              label="Enti"
+              onClick={() => navigate(APP_ROUTES.ENTITIES)}
+            />
             <NavItem
               active={isOpportunitiesActive}
               icon={<PhotoOutlined />}

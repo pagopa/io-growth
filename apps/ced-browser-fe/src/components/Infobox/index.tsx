@@ -1,0 +1,101 @@
+import { Paper, Typography, Button, Box, Stack } from '@mui/material';
+import { useTheme } from '@mui/material/styles';
+{
+  /* This Pictogram its a placeholder, pictogram used in figma its not exposed */
+}
+import { IllusAlarmClock } from '@pagopa/mui-italia';
+
+interface InfoBoxProps {
+  title: string;
+  description: string;
+  linkText: string;
+  onLinkClick?: () => void;
+}
+
+export const InfoBox = ({
+  title,
+  description,
+  linkText,
+  onLinkClick,
+}: InfoBoxProps) => {
+  const theme = useTheme();
+  return (
+    <Paper
+      variant="outlined"
+      sx={{
+        p: 3,
+        borderRadius: 2,
+        position: 'relative',
+        overflow: 'hidden',
+        borderColor: 'grey.200',
+        backgroundColor: 'background.paper',
+        maxWidth: 500,
+      }}
+    >
+      <Stack direction="row" spacing={2.5}>
+        <Box
+          sx={{
+            width: 4,
+            backgroundColor: theme.palette.common.primaryButton,
+            borderRadius: 4,
+          }}
+        />
+
+        <Box sx={{ flex: 1 }}>
+          <Stack spacing={2}>
+            <Stack
+              direction="row"
+              justifyContent="space-between"
+              alignItems="flex-start"
+            >
+              <Typography
+                variant="h6"
+                sx={{
+                  fontWeight: 700,
+                  lineHeight: 1.3,
+                  color: 'text.primary',
+                  pr: 2,
+                }}
+              >
+                {title}
+              </Typography>
+
+              <IllusAlarmClock />
+            </Stack>
+
+            <Typography
+              variant="body2"
+              sx={{
+                color: 'text.secondary',
+                lineHeight: 1.6,
+                fontSize: '1rem',
+              }}
+            >
+              {description}
+            </Typography>
+
+            <Box>
+              <Button
+                variant="text"
+                onClick={onLinkClick}
+                sx={{
+                  p: 0,
+                  textTransform: 'none',
+                  fontWeight: 700,
+                  fontSize: '1rem',
+                  '&:hover': {
+                    backgroundColor: 'transparent',
+                    textDecoration: 'underline',
+                  },
+                  color: theme.palette.common.primaryButton,
+                }}
+              >
+                {linkText}
+              </Button>
+            </Box>
+          </Stack>
+        </Box>
+      </Stack>
+    </Paper>
+  );
+};

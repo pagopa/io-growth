@@ -5,6 +5,8 @@ export * from './Select';
 export * from './TextField';
 export * from './FormField';
 export * from './DiscoveryListItem';
+export * from './Swiper';
+export * from './Infobox';
 export * from './QueryGuard';
 export * from './SectionTitle';
 export * from './ContactsSection';

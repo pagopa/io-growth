@@ -1,9 +1,17 @@
 import { Suspense } from 'react';
-import { Route, Routes } from 'react-router-dom';
+import { Route, Routes, Navigate } from 'react-router-dom';
 import { AppLayout } from '../layouts/AppLayout';
 import { ProtectedRoute } from '../core/auth/ProtectedRoute';
-import { APP_ROUTES, NotFoundPage, UnauthorizedPage } from './routeConfig';
-import HomePage from '../pages/Home';
+import {
+  APP_ROUTES,
+  EntityAccessPointsPage,
+  EntityDetailPage,
+  EntityOpportunitiesPage,
+  EuropeanOpportunitiesPage,
+  HomePage,
+  NotFoundPage,
+  UnauthorizedPage,
+} from './routeConfig';
 
 export function AppRoutes() {
   return (
@@ -20,27 +28,31 @@ export function AppRoutes() {
     >
       <Routes>
         <Route element={<AppLayout />}>
-          <Route path={APP_ROUTES.HOME} element={<HomePage />} />
-          <Route element={<ProtectedRoute />}>
-            <Route
-              path="/app"
-              element={
-                <div style={{ padding: 24, backgroundColor: '#FFF' }}>
-                  App area
-                </div>
-              }
-            />
-          </Route>
-          <Route path={APP_ROUTES.NOT_FOUND} element={<NotFoundPage />} />
+          <Route index element={<HomePage />} />
+          <Route
+            path={APP_ROUTES.ENTITY_DETAIL}
+            element={<EntityDetailPage />}
+          />
+          <Route
+            path={APP_ROUTES.ENTITY_OPPORTUNITIES}
+            element={<EntityOpportunitiesPage />}
+          />
+          <Route
+            path={APP_ROUTES.ENTITY_ACCESS_POINTS}
+            element={<EntityAccessPointsPage />}
+          />
+          <Route
+            path={APP_ROUTES.EUROPEAN_OPPORTUNITIES}
+            element={<EuropeanOpportunitiesPage />}
+          />
+          <Route element={<ProtectedRoute />} />
         </Route>
         <Route path={APP_ROUTES.UNAUTHORIZED} element={<UnauthorizedPage />} />
-        <Route element={<ProtectedRoute />}>
-          <Route
-            path="/app"
-            element={<div style={{ padding: 24 }}>App area</div>}
-          />
-        </Route>
         <Route path={APP_ROUTES.NOT_FOUND} element={<NotFoundPage />} />
+        <Route
+          path="*"
+          element={<Navigate replace to={APP_ROUTES.NOT_FOUND} />}
+        />
       </Routes>
     </Suspense>
   );

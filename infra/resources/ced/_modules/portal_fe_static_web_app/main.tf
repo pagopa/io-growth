@@ -14,7 +14,7 @@ resource "azurerm_static_web_app" "this" {
     resource_type = "static_web_app"
   }))
   resource_group_name = var.resource_group_name
-  location            = "westeurope"
+  location            = var.environment.location
   sku_size            = "Standard"
   sku_tier            = "Standard"
 

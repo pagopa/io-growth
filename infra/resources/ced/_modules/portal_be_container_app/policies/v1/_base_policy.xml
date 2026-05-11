@@ -21,7 +21,7 @@
                 <header>*</header>
             </expose-headers>
         </cors>
-        <set-backend-service base-url="{{ced-portal-be-ca-url}}/api" />
+        <set-backend-service backend-id="ced-portal-backend" />
     </inbound>
     <outbound>
         <base />

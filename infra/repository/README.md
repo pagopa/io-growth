@@ -9,9 +9,7 @@
 
 ## Providers
 
-| Name | Version |
-| ---- | ------- |
-| <a name="provider_github"></a> [github](#provider\_github) | 6.11.1 |
+No providers.
 
 ## Modules
 
@@ -21,13 +19,7 @@
 
 ## Resources
 
-| Name | Type |
-| ---- | ---- |
-| [github_actions_environment_secret.ced_postgres_db](https://registry.terraform.io/providers/integrations/github/latest/docs/resources/actions_environment_secret) | resource |
-| [github_actions_environment_secret.ced_postgres_host](https://registry.terraform.io/providers/integrations/github/latest/docs/resources/actions_environment_secret) | resource |
-| [github_actions_environment_secret.ced_postgres_password](https://registry.terraform.io/providers/integrations/github/latest/docs/resources/actions_environment_secret) | resource |
-| [github_actions_environment_secret.ced_postgres_port](https://registry.terraform.io/providers/integrations/github/latest/docs/resources/actions_environment_secret) | resource |
-| [github_actions_environment_secret.ced_postgres_user](https://registry.terraform.io/providers/integrations/github/latest/docs/resources/actions_environment_secret) | resource |
+No resources.
 
 ## Inputs
 

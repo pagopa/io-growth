@@ -3,7 +3,6 @@ import type { SxProps, Theme } from '@mui/material';
 export type DiscoveryListItemVariant = 'opportunity' | 'simple';
 
 type DiscoveryListItemBaseProps = {
-  id: string;
   title: string;
   onClick?: () => void;
   disabled?: boolean;

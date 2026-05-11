@@ -39,7 +39,9 @@ export const PARTNERS_CARDS_CONFIG = [
   },
 ];
 
-export const DISCOVERY_ITEMS_CONFIG: Array<DiscoveryListItemProps> = [
+export const DISCOVERY_ITEMS_CONFIG: Array<
+  DiscoveryListItemProps & { id: string }
+> = [
   {
     id: 'f47ac10b-58cc-4372-a567-0e02b2c3d479',
     variant: 'opportunity',

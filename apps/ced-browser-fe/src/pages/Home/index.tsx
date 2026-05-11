@@ -21,7 +21,6 @@ export default function HomePage() {
         overscrollBehaviorY: 'contain',
       }}
     >
-      {/* Contenuto Header */}
       <Stack direction="column" gap={2} px={3} pt={3}>
         <Typography variant="h4" sx={{ fontWeight: 700 }}>
           Scopri le opportunità
@@ -29,7 +28,6 @@ export default function HomePage() {
         <AppTextField placeholder="Cerca per città, struttura o ente" />
       </Stack>
 
-      {/* Sezione Carousel */}
       <Stack direction="column" gap={2}>
         <Typography
           variant="caption"
@@ -45,14 +43,12 @@ export default function HomePage() {
         <Carousel list={PARTNERS_CARDS_CONFIG} />
       </Stack>
 
-      {/* Discovery List */}
       <Stack direction="column" gap={1} px={3}>
         {DISCOVERY_ITEMS_CONFIG.map((item) => (
           <DiscoveryListItem key={item.id} {...item} />
         ))}
       </Stack>
 
-      {/* InfoBox - Aggiungiamo un Box di margine extra */}
       <Box px={3} sx={{ flexShrink: 0 }}>
         <InfoBox
           title="Sai che la Carta vale anche in Europa?"

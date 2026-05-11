@@ -1,6 +1,6 @@
 module "azure-PROD-CED_core" {
   source  = "pagopa-dx/azure-core-infra/azurerm"
-  version = "~> 4.0"
+  version = "~> 4.2"
 
   providers = {
     azurerm = azurerm.PROD-CED

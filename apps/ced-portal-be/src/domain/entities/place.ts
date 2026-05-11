@@ -1,37 +1,67 @@
 import { z } from "zod";
 
-import { SupportContactSchema } from "./support-contact.js";
+const newSupportContactSchema = z.object({
+  type: z.enum(["email", "phone", "website"]),
+  value: z.string().min(1),
+});
 
-export const AddressSchema = z.object({
+const supportContactSchema = newSupportContactSchema.extend({
+  id: z.uuid(),
+});
+
+const addressSchema = z.object({
   city: z.string().min(1),
   country: z.string().min(1),
   postalCode: z.string().min(1),
+  state: z.string().min(1),
   street: z.string().min(1),
 });
 
-export type Address = z.infer<typeof AddressSchema>;
+const websiteSchema = z.object({
+  url: z.url(),
+});
 
-export const OfflinePlaceSchema = z.object({
-  address: AddressSchema,
+const newPlaceBaseSchema = z.object({
   name: z.string().min(1),
-  supportContacts: z.array(SupportContactSchema),
+  supportContacts: z.array(newSupportContactSchema),
+});
+
+const placeBaseSchema = z.object({
+  id: z.uuid(),
+  name: z.string().min(1),
+  supportContacts: z.array(supportContactSchema),
+});
+
+const newOfflinePlaceSchema = newPlaceBaseSchema.extend({
+  address: addressSchema,
   type: z.literal("offline"),
 });
 
-export type OfflinePlace = z.infer<typeof OfflinePlaceSchema>;
-
-export const OnlinePlaceSchema = z.object({
-  name: z.string().min(1),
-  supportContacts: z.array(SupportContactSchema),
-  type: z.literal("online"),
-  website: z.string().url(),
+const offlinePlaceSchema = placeBaseSchema.extend({
+  address: addressSchema,
+  type: z.literal("offline"),
 });
 
-export type OnlinePlace = z.infer<typeof OnlinePlaceSchema>;
+const newOnlinePlaceSchema = newPlaceBaseSchema.extend({
+  type: z.literal("online"),
+  website: websiteSchema,
+});
 
-export const OperatorPlaceSchema = z.discriminatedUnion("type", [
-  OfflinePlaceSchema,
-  OnlinePlaceSchema,
+const onlinePlaceSchema = placeBaseSchema.extend({
+  type: z.literal("online"),
+  website: websiteSchema,
+});
+
+export const NewPlaceSchema = z.discriminatedUnion("type", [
+  newOfflinePlaceSchema,
+  newOnlinePlaceSchema,
 ]);
 
-export type OperatorPlace = z.infer<typeof OperatorPlaceSchema>;
+export type NewPlace = z.infer<typeof NewPlaceSchema>;
+
+export const PlaceSchema = z.discriminatedUnion("type", [
+  offlinePlaceSchema,
+  onlinePlaceSchema,
+]);
+
+export type Place = z.infer<typeof PlaceSchema>;

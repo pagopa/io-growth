@@ -1,18 +1,19 @@
 import { z } from "zod";
 
-import { OperatorPlaceSchema } from "./place.js";
+import { NewPlaceSchema, PlaceSchema } from "./place.js";
 
-export const CreateProfileInputSchema = z.object({
+export const NewProfileSchema = z.object({
   displayName: z.string().min(1),
-  operatorId: z.string().min(1),
-  place: OperatorPlaceSchema,
+  operatorId: z.uuid(),
+  place: NewPlaceSchema,
 });
 
-export type CreateProfileInput = z.infer<typeof CreateProfileInputSchema>;
+export type NewProfile = z.infer<typeof NewProfileSchema>;
 
 export const ProfileSchema = z.object({
   displayName: z.string().min(1),
-  place: OperatorPlaceSchema,
+  operatorId: z.uuid(),
+  place: PlaceSchema,
 });
 
 export type Profile = z.infer<typeof ProfileSchema>;

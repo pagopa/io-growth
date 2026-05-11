@@ -4,13 +4,17 @@ import Fastify from "fastify";
 import {
   mountAcsHandler,
   mountAuthorizeHandler,
+  mountCreateOperatorPlaceHandler,
   mountCreateOperatorProfileHandler,
+  mountGetOperatorPlaceHandler,
   mountGetOperatorProfileHandler,
   mountInfoReadinessHandler,
   mountInfoStartupHandler,
+  mountListOperatorPlacesHandler,
 } from "./adapters/inbound/fastify/index.js";
 import { dbClient } from "./adapters/outbound/drizzle/client.js";
 import { createDrizzleOperatorRepository } from "./adapters/outbound/drizzle/drizzle-operator.repository.js";
+import { createDrizzlePlaceRepository } from "./adapters/outbound/drizzle/drizzle-place.repository.js";
 import { createDrizzleProfileRepository } from "./adapters/outbound/drizzle/drizzle-profile.repository.js";
 import { createDrizzleHealthCheckRepository } from "./adapters/outbound/drizzle/health-check.repository.js";
 import { redisClient } from "./adapters/outbound/redis/client.js";
@@ -20,6 +24,9 @@ import { makeAcsUseCase } from "./application/use-cases/auth/acs.use-case.js";
 import { makeAuthorizeUseCase } from "./application/use-cases/auth/authorize.use-case.js";
 import { makeGetInfoReadinessUseCase } from "./application/use-cases/health/info-readiness.use-case.js";
 import { makeGetInfoStartupUseCase } from "./application/use-cases/health/info-startup.use-case.js";
+import { makeCreateOperatorPlaceUseCase } from "./application/use-cases/places/create-operator-place.use-case.js";
+import { makeGetOperatorPlaceUseCase } from "./application/use-cases/places/get-operator-place.use-case.js";
+import { makeListOperatorPlacesUseCase } from "./application/use-cases/places/list-operator-places.use-case.js";
 import { makeCreateOperatorProfileUseCase } from "./application/use-cases/profile/create-operator-profile.use-case.js";
 import { makeGetOperatorProfileUseCase } from "./application/use-cases/profile/get-operator-profile.use-case.js";
 
@@ -36,6 +43,7 @@ const redisHealthCheckRepository =
   createRedisHealthCheckRepository(redisClient);
 const sessionRepository = createRedisSessionRepository(redisClient);
 const operatorRepository = createDrizzleOperatorRepository(dbClient);
+const placeRepository = createDrizzlePlaceRepository(dbClient);
 const profileRepository = createDrizzleProfileRepository(dbClient);
 
 const app = Fastify();
@@ -67,6 +75,18 @@ app.register(async (app) => {
   mountCreateOperatorProfileHandler(
     app,
     makeCreateOperatorProfileUseCase(profileRepository),
+  );
+  mountListOperatorPlacesHandler(
+    app,
+    makeListOperatorPlacesUseCase(placeRepository),
+  );
+  mountCreateOperatorPlaceHandler(
+    app,
+    makeCreateOperatorPlaceUseCase(placeRepository),
+  );
+  mountGetOperatorPlaceHandler(
+    app,
+    makeGetOperatorPlaceUseCase(placeRepository),
   );
 });
 

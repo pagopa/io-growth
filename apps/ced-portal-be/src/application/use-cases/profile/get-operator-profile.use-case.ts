@@ -1,15 +1,20 @@
 import type { UseCase } from "@pagopa/io-core-domain";
-import type { GenericError } from "@pagopa/io-core-domain/errors";
+import type {
+  GenericError,
+  ValidationError,
+} from "@pagopa/io-core-domain/errors";
 
-import { NotFoundError, ValidationError } from "@pagopa/io-core-domain/errors";
+import { NotFoundError } from "@pagopa/io-core-domain/errors";
 import { err, ok, ResultAsync } from "neverthrow";
 import { z } from "zod";
 
 import type { Profile } from "../../../domain/entities/profile.js";
 import type { ProfileRepository } from "../../../domain/ports/outbound/persistence/profile.repository.js";
 
+import { validateUseCaseInput } from "../utils/validate-use-case-input.js";
+
 const GetOperatorProfileInputSchema = z.object({
-  operatorId: z.string().min(1),
+  operatorId: z.uuid(),
 });
 
 export type GetOperatorProfileInput = z.infer<
@@ -24,15 +29,11 @@ export type GetOperatorProfileUseCase = UseCase<
 
 export const makeGetOperatorProfileUseCase =
   (profileRepository: ProfileRepository): GetOperatorProfileUseCase =>
-  async (input) => {
-    const parsed = GetOperatorProfileInputSchema.safeParse(input);
-    if (!parsed.success) {
-      return err(new ValidationError(parsed.error.message));
-    }
-
-    return new ResultAsync(
-      profileRepository.getByOperatorId(parsed.data.operatorId),
-    ).andThen((data) =>
-      data ? ok(data) : err(new NotFoundError("Profile", "not found")),
+  async (input) =>
+    validateUseCaseInput(GetOperatorProfileInputSchema, input).andThen(
+      ({ operatorId }) =>
+        new ResultAsync(profileRepository.getByOperatorId(operatorId)).andThen(
+          (data) =>
+            data ? ok(data) : err(new NotFoundError("Profile", "not found")),
+        ),
     );
-  };

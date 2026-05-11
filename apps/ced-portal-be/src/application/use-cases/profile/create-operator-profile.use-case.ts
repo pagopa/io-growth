@@ -1,11 +1,16 @@
 import type { UseCase } from "@pagopa/io-core-domain";
-import type { GenericError } from "@pagopa/io-core-domain/errors";
+import type {
+  GenericError,
+  ValidationError,
+} from "@pagopa/io-core-domain/errors";
 
-import { ConflictError, ValidationError } from "@pagopa/io-core-domain/errors";
+import { ConflictError } from "@pagopa/io-core-domain/errors";
 import { err, ResultAsync } from "neverthrow";
 import { z } from "zod";
 
 import type { ProfileRepository } from "../../../domain/ports/outbound/persistence/profile.repository.js";
+
+import { validateUseCaseInput } from "../utils/validate-use-case-input.js";
 
 const CreateOperatorProfileSupportContactSchema = z.object({
   type: z.enum(["email", "phone", "website"]),
@@ -57,19 +62,14 @@ export type CreateOperatorProfileUseCase = UseCase<
 
 export const makeCreateOperatorProfileUseCase =
   (profileRepository: ProfileRepository): CreateOperatorProfileUseCase =>
-  async (input) => {
-    const parsed = CreateOperatorProfileInputSchema.safeParse(input);
-    if (!parsed.success) {
-      return err(new ValidationError(parsed.error.message));
-    }
-
-    const validatedInput = parsed.data;
-
-    return new ResultAsync(
-      profileRepository.getByOperatorId(validatedInput.operatorId),
-    ).andThen((existing) =>
-      existing
-        ? err(new ConflictError("Operator profile already exists"))
-        : new ResultAsync(profileRepository.create(validatedInput)),
+  async (input) =>
+    validateUseCaseInput(CreateOperatorProfileInputSchema, input).andThen(
+      (validatedInput) =>
+        new ResultAsync(
+          profileRepository.getByOperatorId(validatedInput.operatorId),
+        ).andThen((existing) =>
+          existing
+            ? err(new ConflictError("Operator profile already exists"))
+            : new ResultAsync(profileRepository.create(validatedInput)),
+        ),
     );
-  };

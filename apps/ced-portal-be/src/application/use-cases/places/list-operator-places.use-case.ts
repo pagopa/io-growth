@@ -1,12 +1,16 @@
 import type { UseCase } from "@pagopa/io-core-domain";
-import type { GenericError } from "@pagopa/io-core-domain/errors";
+import type {
+  GenericError,
+  ValidationError,
+} from "@pagopa/io-core-domain/errors";
 
-import { ValidationError } from "@pagopa/io-core-domain/errors";
-import { err } from "neverthrow";
+import { ResultAsync } from "neverthrow";
 import { z } from "zod";
 
 import type { Place } from "../../../domain/entities/place.js";
 import type { PlaceRepository } from "../../../domain/ports/outbound/persistence/place.repository.js";
+
+import { validateUseCaseInput } from "../utils/validate-use-case-input.js";
 
 const ListOperatorPlacesInputSchema = z.object({
   operatorId: z.uuid(),
@@ -24,11 +28,8 @@ export type ListOperatorPlacesUseCase = UseCase<
 
 export const makeListOperatorPlacesUseCase =
   (placeRepository: PlaceRepository): ListOperatorPlacesUseCase =>
-  async (input) => {
-    const parsed = ListOperatorPlacesInputSchema.safeParse(input);
-    if (!parsed.success) {
-      return err(new ValidationError(parsed.error.message));
-    }
-
-    return placeRepository.listByOperatorId(parsed.data.operatorId);
-  };
+  async (input) =>
+    validateUseCaseInput(ListOperatorPlacesInputSchema, input).andThen(
+      ({ operatorId }) =>
+        new ResultAsync(placeRepository.listByOperatorId(operatorId)),
+    );

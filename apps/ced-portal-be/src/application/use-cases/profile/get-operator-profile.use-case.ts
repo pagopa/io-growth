@@ -9,7 +9,7 @@ import type { Profile } from "../../../domain/entities/profile.js";
 import type { ProfileRepository } from "../../../domain/ports/outbound/persistence/profile.repository.js";
 
 const GetOperatorProfileInputSchema = z.object({
-  operatorId: z.string().min(1),
+  operatorId: z.uuid(),
 });
 
 export type GetOperatorProfileInput = z.infer<

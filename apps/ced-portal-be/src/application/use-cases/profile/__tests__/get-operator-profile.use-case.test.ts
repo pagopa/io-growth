@@ -8,10 +8,19 @@ import { makeGetOperatorProfileUseCase } from "../get-operator-profile.use-case.
 const mockOperatorData = {
   displayName: "Operatore Demo",
   place: {
+    id: "8eec93a7-7850-4a6c-a3fd-1c5d6202b2e0",
     name: "Sportello remoto",
-    supportContacts: [{ type: "email" as const, value: "support@example.org" }],
+    supportContacts: [
+      {
+        id: "36c92630-1836-4d2d-a3a2-3f50d8a9286f",
+        type: "email" as const,
+        value: "support@example.org",
+      },
+    ],
     type: "online" as const,
-    website: "https://example.org",
+    website: {
+      url: "https://example.org",
+    },
   },
 };
 
@@ -27,11 +36,13 @@ describe("makeGetOperatorProfileUseCase", () => {
     const profileRepository = createMockProfileRepository(mockOperatorData);
     const useCase = makeGetOperatorProfileUseCase(profileRepository);
 
-    const result = await useCase({ operatorId: "operator-123" });
+    const result = await useCase({
+      operatorId: "231b5e36-ec82-49f1-a889-3e49107304f1",
+    });
 
     expect(result).toEqual(ok(mockOperatorData));
     expect(profileRepository.getByOperatorId).toHaveBeenCalledWith(
-      "operator-123",
+      "231b5e36-ec82-49f1-a889-3e49107304f1",
     );
   });
 
@@ -39,7 +50,9 @@ describe("makeGetOperatorProfileUseCase", () => {
     const profileRepository = createMockProfileRepository(undefined);
     const useCase = makeGetOperatorProfileUseCase(profileRepository);
 
-    const result = await useCase({ operatorId: "operator-123" });
+    const result = await useCase({
+      operatorId: "231b5e36-ec82-49f1-a889-3e49107304f1",
+    });
 
     expect(result).toEqual(
       err(
@@ -59,7 +72,9 @@ describe("makeGetOperatorProfileUseCase", () => {
     };
     const useCase = makeGetOperatorProfileUseCase(profileRepository);
 
-    const result = await useCase({ operatorId: "operator-123" });
+    const result = await useCase({
+      operatorId: "231b5e36-ec82-49f1-a889-3e49107304f1",
+    });
 
     expect(result).toEqual(err(repoError));
   });

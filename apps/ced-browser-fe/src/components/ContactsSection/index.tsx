@@ -7,6 +7,7 @@ import {
 } from '@mui/icons-material';
 import { Box, Divider, Stack } from '@mui/material';
 import type { EntityContacts } from '../../features/entities/types.js';
+import { buildGoogleMapsUrl } from '../../utils/index.js';
 import { SectionTitle } from '../SectionTitle/index.js';
 import { ContactRow } from '../ContactRow/index.js';
 
@@ -19,9 +20,7 @@ export function ContactsSection({ contacts }: { contacts: EntityContacts }) {
     contacts.termsUrl;
   if (!hasAny) return null;
 
-  const googleMapsUrl = contacts.address
-    ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(contacts.address)}`
-    : undefined;
+  const googleMapsUrl = buildGoogleMapsUrl(contacts.address);
 
   return (
     <Box sx={{ bgcolor: 'background.paper' }}>

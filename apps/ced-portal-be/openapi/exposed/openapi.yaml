@@ -35,16 +35,16 @@ paths:
                   value:
                     displayName: Operatore Demo
                     place:
-                      id: 8eec93a7-7850-4a6c-a3fd-1c5d6202b2e0
+                      id: 01JVMK3N8XQZP5T6G2WYHAB4CD
                       type: online
                       name: Sportello remoto
                       website:
                         url: https://example.org
                       supportContacts:
-                        - id: 36c92630-1836-4d2d-a3a2-3f50d8a9286f
+                        - id: 01JVMK3N8XQZP5T6G2WYHAB4CE
                           type: email
                           value: support@example.org
-                        - id: 9f81a86d-0e89-4ddb-89cf-8daed0b417d8
+                        - id: 01JVMK3N8XQZP5T6G2WYHAB4CF
                           type: phone
                           value: "+39 0000000000"
                 offlinePlace:
@@ -52,7 +52,7 @@ paths:
                   value:
                     displayName: Operatore Demo
                     place:
-                      id: aed18ac5-9dfa-4542-b783-6e7ef2f2471f
+                      id: 01JVMK3N8XQZP5T6G2WYHAB4CG
                       type: offline
                       name: Sportello centrale
                       address:
@@ -62,7 +62,7 @@ paths:
                         postalCode: "00100"
                         country: IT
                       supportContacts:
-                        - id: 531b7aea-f7f8-4266-9b92-60ea7061745e
+                        - id: 01JVMK3N8XQZP5T6G2WYHAB4CH
                           type: website
                           value: https://example.org/support
         "401":
@@ -158,16 +158,16 @@ paths:
                 mixedPlaces:
                   summary: Online and offline places
                   value:
-                    - id: 8eec93a7-7850-4a6c-a3fd-1c5d6202b2e0
+                    - id: 01JVMK3N8XQZP5T6G2WYHAB4CD
                       type: online
                       name: Sportello remoto
                       website:
                         url: https://example.org
                       supportContacts:
-                        - id: 36c92630-1836-4d2d-a3a2-3f50d8a9286f
+                        - id: 01JVMK3N8XQZP5T6G2WYHAB4CE
                           type: email
                           value: support@example.org
-                    - id: aed18ac5-9dfa-4542-b783-6e7ef2f2471f
+                    - id: 01JVMK3N8XQZP5T6G2WYHAB4CG
                       type: offline
                       name: Sportello centrale
                       address:
@@ -177,7 +177,7 @@ paths:
                         postalCode: "00100"
                         country: IT
                       supportContacts:
-                        - id: 9f81a86d-0e89-4ddb-89cf-8daed0b417d8
+                        - id: 01JVMK3N8XQZP5T6G2WYHAB4CF
                           type: phone
                           value: "+39 0000000000"
         "401":
@@ -262,7 +262,7 @@ paths:
           required: true
           schema:
             type: string
-            format: uuid
+            pattern: "^[0-9A-HJKMNP-TV-Z]{26}$"
       responses:
         "200":
           description: Operator place
@@ -274,19 +274,19 @@ paths:
                 onlinePlace:
                   summary: Online place
                   value:
-                    id: 8eec93a7-7850-4a6c-a3fd-1c5d6202b2e0
+                    id: 01JVMK3N8XQZP5T6G2WYHAB4CD
                     type: online
                     name: Sportello remoto
                     website:
                       url: https://example.org
                     supportContacts:
-                      - id: 36c92630-1836-4d2d-a3a2-3f50d8a9286f
+                      - id: 01JVMK3N8XQZP5T6G2WYHAB4CE
                         type: email
                         value: support@example.org
                 offlinePlace:
                   summary: Offline place
                   value:
-                    id: aed18ac5-9dfa-4542-b783-6e7ef2f2471f
+                    id: 01JVMK3N8XQZP5T6G2WYHAB4CG
                     type: offline
                     name: Sportello centrale
                     address:
@@ -296,7 +296,7 @@ paths:
                       postalCode: "00100"
                       country: IT
                     supportContacts:
-                      - id: 531b7aea-f7f8-4266-9b92-60ea7061745e
+                      - id: 01JVMK3N8XQZP5T6G2WYHAB4CH
                         type: website
                         value: https://example.org/support
         "401":
@@ -463,7 +463,7 @@ components:
       properties:
         id:
           type: string
-          format: uuid
+          pattern: "^[0-9A-HJKMNP-TV-Z]{26}$"
         type:
           type: string
           enum:
@@ -560,7 +560,7 @@ components:
       properties:
         id:
           type: string
-          format: uuid
+          pattern: "^[0-9A-HJKMNP-TV-Z]{26}$"
         type:
           type: string
           enum:

@@ -8,23 +8,25 @@ import {
   Stack,
 } from '@mui/material';
 
-interface OpportunitiesPaginationProps {
+interface ResultsPaginationProps {
   totalItems: number;
   page: number;
   rowsPerPage: number;
   onPageChange: (page: number) => void;
   onRowsPerPageChange: (rowsPerPage: number) => void;
+  rowsPerPageOptions?: number[];
 }
 
-const ROWS_PER_PAGE_OPTIONS = [10, 25, 50, 100];
+const DEFAULT_ROWS_PER_PAGE_OPTIONS = [10, 25, 50, 100];
 
-export const OpportunitiesPagination = ({
+export const ResultsPagination = ({
   totalItems,
   page,
   rowsPerPage,
   onPageChange,
   onRowsPerPageChange,
-}: OpportunitiesPaginationProps) => {
+  rowsPerPageOptions = DEFAULT_ROWS_PER_PAGE_OPTIONS,
+}: ResultsPaginationProps) => {
   const totalPages = Math.max(1, Math.ceil(totalItems / rowsPerPage));
 
   return (
@@ -47,9 +49,9 @@ export const OpportunitiesPagination = ({
             }}
             sx={{ minWidth: 80, fontSize: 14 }}
           >
-            {ROWS_PER_PAGE_OPTIONS.map((opt) => (
-              <MenuItem key={opt} value={opt}>
-                {opt}
+            {rowsPerPageOptions.map((option) => (
+              <MenuItem key={option} value={option}>
+                {option}
               </MenuItem>
             ))}
           </Select>

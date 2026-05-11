@@ -1,22 +1,30 @@
 import FilterAltOutlined from '@mui/icons-material/FilterAltOutlined';
 import { Button, Stack } from '@mui/material';
-import { AppSelect, AppTextField } from '../../../components';
-import { STATE_OPTIONS } from '../../../constants';
-import type { OpportunityFilters } from '../../../features/opportunities/types';
+import { AppSelect } from '../Select';
+import { AppTextField } from '../TextField';
 
-interface OpportunitiesFiltersBarProps {
-  filters: OpportunityFilters;
-  onChange: (filters: Partial<OpportunityFilters>) => void;
-  onFilter: () => void;
-  onReset: () => void;
+export interface SearchStateFilters {
+  search: string;
+  state: string;
 }
 
-export const OpportunitiesFiltersBar = ({
+interface FiltersBarProps {
+  filters: SearchStateFilters;
+  onChange: (filters: Partial<SearchStateFilters>) => void;
+  onFilter: () => void;
+  onReset: () => void;
+  searchPlaceholder?: string;
+  stateOptions?: Array<{ value: string; label: string }>;
+}
+
+export const FiltersBar = ({
   filters,
   onChange,
   onFilter,
   onReset,
-}: OpportunitiesFiltersBarProps) => (
+  searchPlaceholder = 'Cerca per ente o opportunità',
+  stateOptions = [],
+}: FiltersBarProps) => (
   <Stack
     direction={{ xs: 'column', lg: 'row' }}
     spacing={2}
@@ -25,7 +33,7 @@ export const OpportunitiesFiltersBar = ({
   >
     <AppTextField
       fullWidth
-      placeholder="Cerca per ente o opportunità"
+      placeholder={searchPlaceholder}
       value={filters.search}
       onChange={(e) => onChange({ search: e.target.value })}
       sx={{ flex: 1, minWidth: 0 }}
@@ -36,11 +44,9 @@ export const OpportunitiesFiltersBar = ({
       sx={{ flex: 0.5 }}
       label="Stato"
       placeholder="Stato"
-      options={STATE_OPTIONS}
-      value={filters.state ?? ''}
-      onChange={(e) => {
-        onChange({ state: e.target.value as string });
-      }}
+      options={stateOptions}
+      value={filters.state}
+      onChange={(e) => onChange({ state: e.target.value as string })}
     />
 
     <Stack

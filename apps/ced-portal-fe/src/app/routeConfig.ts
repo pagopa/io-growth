@@ -12,6 +12,7 @@ export const APP_ROUTES = {
   OPPORTUNITIES: '/opportunita',
   OPPORTUNITY_DETAIL: '/opportunita/:id',
   ENTITIES: '/enti',
+  ENTITY_DETAIL: '/enti/:id',
 } as const;
 
 export const HomePage = lazy(() => import('../pages/Home'));
@@ -27,3 +28,4 @@ export const OpportunityDetailPage = lazy(
   () => import('../pages/OpportunityDetail'),
 );
 export const EntitiesPage = lazy(() => import('../pages/Entities'));
+export const EntityDetailPage = lazy(() => import('../pages/EntityDetail'));

@@ -1,3 +1,10 @@
+import { Box } from '@mui/material';
+import { OpportunitySearch } from './components/OpportunitySearch';
+
 export default function HomePage() {
-  return <div>Hello world</div>;
+  return (
+    <Box component="main">
+      <OpportunitySearch />
+    </Box>
+  );
 }

@@ -233,6 +233,37 @@
       "streamingInterval": 0
     },
     {
+      "uuid": "f2a3b4c5-d6e7-8901-cdef-012345678901",
+      "type": "http",
+      "documentation": "Ricerca enti",
+      "method": "get",
+      "endpoint": "api/entities/search",
+      "responses": [
+        {
+          "uuid": "f2a3b4c5-d6e7-8901-cdef-012345678902",
+          "body": "{\n  \"total\": 6,\n  \"items\": [\n    {\n      \"id\": \"entity-001\",\n      \"name\": \"Comune di Alessandria\",\n      \"address\": \"Piazza della Libertà, 1, 15121 Alessandria AL\"\n    },\n    {\n      \"id\": \"entity-002\",\n      \"name\": \"Teatro di Alessandria\",\n      \"address\": \"Piazza della Libertà, 1, 15121 Alessandria AL\"\n    },\n    {\n      \"id\": \"entity-003\",\n      \"name\": \"Giardino botanico \\\"Dina Bellotti\\\"\",\n      \"address\": \"Via Giulio Monteverde, 24, 15121 Alessandria AL\"\n    },\n    {\n      \"id\": \"entity-004\",\n      \"name\": \"Biblioteca civica \\\"Francesca Calvo\\\"\",\n      \"address\": \"Piazza Vittorio Veneto, 1, 15121 Alessandria AL\"\n    },\n    {\n      \"id\": \"entity-005\",\n      \"name\": \"Museo civico - Palazzo Cuttica\",\n      \"address\": \"Via Parma, 1, 15121 Alessandria AL\"\n    },\n    {\n      \"id\": \"entity-006\",\n      \"name\": \"Stadio comunale \\\"Moccagatta\\\"\",\n      \"address\": \"Spalto Rovereto, 17, 15121 Alessandria AL\"\n    }\n  ]\n}",
+          "latency": 300,
+          "statusCode": 200,
+          "label": "Search results",
+          "headers": [],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": true,
+          "crudKey": "id",
+          "callbacks": []
+        }
+      ],
+      "responseMode": null,
+      "streamingMode": null,
+      "streamingInterval": 0
+    },
+    {
       "uuid": "e1f2a3b4-c5d6-7890-efab-cd1234567890",
       "type": "http",
       "documentation": "Dettaglio ente",
@@ -319,6 +350,10 @@
     {
       "type": "route",
       "uuid": "f1a2b3c4-d5e6-7890-abcd-ef0123456789"
+    },
+    {
+      "type": "route",
+      "uuid": "f2a3b4c5-d6e7-8901-cdef-012345678901"
     },
     {
       "type": "route",

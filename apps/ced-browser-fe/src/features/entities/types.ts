@@ -24,3 +24,14 @@ export type EntityDetail = {
   accessPoints: EntityAccessPoint[];
   contacts: EntityContacts;
 };
+
+export type EntitySearchItem = {
+  id: string;
+  name: string;
+  address: string;
+};
+
+export type EntitySearchResponse = {
+  total: number;
+  items: EntitySearchItem[];
+};

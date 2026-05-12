@@ -8,6 +8,7 @@ export const entitiesApi = baseApi.injectEndpoints({
     }),
     getEntityDetail: builder.query<EntityDetail, string>({
       query: (id) => `/entities/${id}`,
+      providesTags: ['Entities'],
     }),
   }),
 });

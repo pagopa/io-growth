@@ -2,8 +2,8 @@ import { Box, Stack, Typography, useTheme } from '@mui/material';
 import type { SyntheticEvent } from 'react';
 import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FiltersBar, PageTabs, ResultsPagination } from '../../components';
 import { APP_ROUTES } from '../../app/routeConfig';
+import { FiltersBar, PageTabs, ResultsPagination } from '../../components';
 import { useEntitiesData } from '../../features/entities/hooks.js';
 import type {
   EntityFilters,
@@ -37,12 +37,14 @@ export default function EntitiesPage() {
   const [page, setPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(5);
 
-  const { requestItems, entityItems, isLoading, isError, refetch } =
+  const { requestItems, entityItems, isLoading, isError } =
     useEntitiesData(filters);
 
+  const isRequestsTab = activeTab === 0;
+
   const displayedItems = useMemo(
-    () => (activeTab === 0 ? requestItems : entityItems),
-    [activeTab, entityItems, requestItems],
+    () => (isRequestsTab ? requestItems : entityItems),
+    [isRequestsTab, entityItems, requestItems],
   );
 
   const paginatedItems = useMemo(() => {
@@ -50,8 +52,9 @@ export default function EntitiesPage() {
     return displayedItems.slice(start, start + rowsPerPage);
   }, [displayedItems, page, rowsPerPage]);
 
-  const stateOptions =
-    activeTab === 0 ? REQUEST_STATE_OPTIONS : ENTITY_STATE_OPTIONS;
+  const stateOptions = isRequestsTab
+    ? REQUEST_STATE_OPTIONS
+    : ENTITY_STATE_OPTIONS;
 
   const handleTabChange = (_event: SyntheticEvent, newValue: number) => {
     setActiveTab(newValue);

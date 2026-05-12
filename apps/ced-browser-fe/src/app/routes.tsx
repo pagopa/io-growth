@@ -4,18 +4,30 @@ import { AppLayout } from '../layouts/AppLayout';
 import { ProtectedRoute } from '../core/auth/ProtectedRoute';
 import {
   APP_ROUTES,
+  EntityAccessPointDetailPage,
   EntityAccessPointsPage,
   EntityDetailPage,
   EntityOpportunitiesPage,
   EuropeanOpportunitiesPage,
   HomePage,
   NotFoundPage,
+  OpportunitiesListPage,
   UnauthorizedPage,
 } from './routeConfig';
 
 export function AppRoutes() {
   return (
-    <Suspense fallback={<div style={{ padding: 24 }}>Loading...</div>}>
+    <Suspense
+      fallback={
+        <div
+          style={{
+            padding: 24,
+          }}
+        >
+          Loading...
+        </div>
+      }
+    >
       <Routes>
         <Route element={<AppLayout />}>
           <Route index element={<HomePage />} />
@@ -32,8 +44,16 @@ export function AppRoutes() {
             element={<EntityAccessPointsPage />}
           />
           <Route
+            path={APP_ROUTES.ENTITY_ACCESS_POINT_DETAIL}
+            element={<EntityAccessPointDetailPage />}
+          />
+          <Route
             path={APP_ROUTES.EUROPEAN_OPPORTUNITIES}
             element={<EuropeanOpportunitiesPage />}
+          />
+          <Route
+            path={APP_ROUTES.OPPORTUNITIES_LIST}
+            element={<OpportunitiesListPage />}
           />
           <Route element={<ProtectedRoute />} />
         </Route>

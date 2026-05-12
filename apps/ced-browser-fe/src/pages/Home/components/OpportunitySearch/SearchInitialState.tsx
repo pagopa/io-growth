@@ -5,7 +5,7 @@ export function SearchInitialState() {
   return (
     <Box
       sx={{
-        minHeight: 296,
+        mt: '100px',
         display: 'grid',
         placeItems: 'center',
       }}
@@ -41,6 +41,8 @@ export function SearchInitialState() {
             fontSize: 17,
             lineHeight: 1.35,
             fontWeight: 400,
+            maxWidth: 272,
+            mx: 'auto',
           }}
         >
           Prova a cercare una città, una struttura o un ente.

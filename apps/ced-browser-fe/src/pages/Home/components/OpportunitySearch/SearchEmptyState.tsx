@@ -5,40 +5,37 @@ export function SearchEmptyState() {
   return (
     <Box
       sx={{
-        minHeight: 296,
+        mt: '100px',
         display: 'grid',
         placeItems: 'center',
       }}
     >
       <Box sx={{ width: '100%', textAlign: 'center' }}>
-        <Box
-          sx={{
-            width: 48,
-            height: 48,
-            borderRadius: '50%',
-            backgroundColor: theme.palette.common.searchDecorativeBlue,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            mx: 'auto',
-            mb: 2.5,
-          }}
-        >
-          <Typography
-            sx={{
-              fontSize: 24,
-              fontWeight: 700,
-              color: '#0B3EE3',
-              lineHeight: 1,
-            }}
-          >
-            !
-          </Typography>
-        </Box>
+        <svg width="47" height="47" viewBox="0 0 47 47" fill="none">
+          <path
+            d="M23.3333 46.6667C36.22 46.6667 46.6667 36.22 46.6667 23.3333C46.6667 10.4467 36.22 0 23.3333 0C10.4467 0 0 10.4467 0 23.3333C0 36.22 10.4467 46.6667 23.3333 46.6667Z"
+            fill={theme.palette.common.searchDecorativeBlue}
+          />
+          <circle
+            cx="23.3335"
+            cy="30.8003"
+            r="1.86667"
+            fill={theme.palette.common.primaryButton}
+          />
+          <rect
+            x="21.4668"
+            y="14"
+            width="3.73333"
+            height="13.0667"
+            rx="1.86667"
+            fill={theme.palette.common.primaryButton}
+          />
+        </svg>
 
         <Typography
           component="h1"
           sx={{
+            mt: '28px',
             mb: 1.5,
             color: '#111827',
             fontSize: 26,
@@ -50,11 +47,11 @@ export function SearchEmptyState() {
         </Typography>
         <Typography
           sx={{
-            color: '#5F687A',
+            color: theme.palette.common.searchTextSecondary,
             fontSize: 17,
             lineHeight: 1.35,
             fontWeight: 400,
-            maxWidth: 220,
+            maxWidth: 272,
             mx: 'auto',
           }}
         >

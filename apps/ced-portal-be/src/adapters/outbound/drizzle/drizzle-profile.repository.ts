@@ -5,24 +5,16 @@ import type {
 import type { Result } from "neverthrow";
 
 import { GenericError as GenericErrorClass } from "@pagopa/io-core-domain/errors";
-import { eq } from "drizzle-orm";
+import { asc, eq } from "drizzle-orm";
 import { err, ok } from "neverthrow";
 
-import type { OperatorPlace } from "../../../domain/entities/place.js";
-import type {
-  CreateProfileInput,
-  Profile,
-} from "../../../domain/entities/profile.js";
+import type { NewProfile, Profile } from "../../../domain/entities/profile.js";
 import type { ProfileRepository } from "../../../domain/ports/outbound/persistence/profile.repository.js";
 
 import { dbClient } from "./client.js";
-import {
-  address,
-  place,
-  profile,
-  supportContact,
-  website,
-} from "./schema/tables.js";
+import { mapPlaceRow } from "./place-row.mapper.js";
+import { createPlaceInTransaction } from "./place.transaction.js";
+import { place, profile, supportContact } from "./schema/tables.js";
 
 type DbClient = typeof dbClient;
 
@@ -30,52 +22,20 @@ export const createDrizzleProfileRepository = (
   db: DbClient,
 ): ProfileRepository => ({
   create: async (
-    input: CreateProfileInput,
+    input: NewProfile,
   ): Promise<Result<void, ConflictError | GenericError>> => {
     try {
       await db.transaction(async (tx) => {
-        const [createdPlace] = await tx
-          .insert(place)
-          .values({
-            name: input.place.name,
-            operatorId: input.operatorId,
-            type: input.place.type,
-          })
-          .returning({ id: place.id });
-
-        if (input.place.type === "offline") {
-          await tx.insert(address).values({
-            city: input.place.address.city,
-            country: input.place.address.country,
-            placeId: createdPlace.id,
-            postalCode: input.place.address.postalCode,
-            // state is a DB-only column not exposed in the domain model
-            state: "",
-            street: input.place.address.street,
-          });
-        }
-
-        if (input.place.type === "online") {
-          await tx.insert(website).values({
-            placeId: createdPlace.id,
-            url: input.place.website,
-          });
-        }
-
-        if (input.place.supportContacts.length > 0) {
-          await tx.insert(supportContact).values(
-            input.place.supportContacts.map((sc) => ({
-              placeId: createdPlace.id,
-              type: sc.type,
-              value: sc.value,
-            })),
-          );
-        }
+        const createdPlaceId = await createPlaceInTransaction(
+          tx,
+          input.operatorId,
+          input.place,
+        );
 
         await tx.insert(profile).values({
           displayName: input.displayName,
           operatorId: input.operatorId,
-          placeId: createdPlace.id,
+          placeId: createdPlaceId,
         });
       });
 
@@ -93,32 +53,41 @@ export const createDrizzleProfileRepository = (
     operatorId: string,
   ): Promise<Result<Profile | undefined, GenericError>> => {
     try {
-      const profileRows = await db
-        .select({
-          displayName: profile.displayName,
-          placeId: profile.placeId,
-        })
-        .from(profile)
-        .where(eq(profile.operatorId, operatorId))
-        .limit(1);
+      const profileRow = await db.query.profile.findFirst({
+        columns: {
+          displayName: true,
+          operatorId: true,
+          placeId: true,
+        },
+        where: eq(profile.operatorId, operatorId),
+      });
 
-      if (profileRows.length === 0) {
+      if (!profileRow) {
         return ok(undefined);
       }
 
-      const profileRow = profileRows[0];
+      const placeRow = await db.query.place.findFirst({
+        columns: { id: true, name: true, type: true },
+        where: eq(place.id, profileRow.placeId),
+        with: {
+          address: {
+            columns: {
+              city: true,
+              country: true,
+              postalCode: true,
+              state: true,
+              street: true,
+            },
+          },
+          supportContacts: {
+            columns: { id: true, type: true, value: true },
+            orderBy: [asc(supportContact.createdAt), asc(supportContact.id)],
+          },
+          website: { columns: { url: true } },
+        },
+      });
 
-      const placeRows = await db
-        .select({
-          id: place.id,
-          name: place.name,
-          type: place.type,
-        })
-        .from(place)
-        .where(eq(place.id, profileRow.placeId))
-        .limit(1);
-
-      if (placeRows.length === 0) {
+      if (!placeRow) {
         return err(
           new GenericErrorClass(
             `Data integrity error: profile for operator ${operatorId} references a missing place`,
@@ -126,59 +95,15 @@ export const createDrizzleProfileRepository = (
         );
       }
 
-      const placeRow = placeRows[0];
-
-      const contacts = await db
-        .select({
-          type: supportContact.type,
-          value: supportContact.value,
-        })
-        .from(supportContact)
-        .where(eq(supportContact.placeId, placeRow.id));
-
-      let operatorPlace: OperatorPlace;
-
-      if (placeRow.type === "offline") {
-        const addressRows = await db
-          .select({
-            city: address.city,
-            country: address.country,
-            postalCode: address.postalCode,
-            street: address.street,
-          })
-          .from(address)
-          .where(eq(address.placeId, placeRow.id))
-          .limit(1);
-
-        operatorPlace = {
-          address: addressRows[0] ?? {
-            city: "",
-            country: "",
-            postalCode: "",
-            street: "",
-          },
-          name: placeRow.name,
-          supportContacts: contacts,
-          type: "offline",
-        };
-      } else {
-        const websiteRows = await db
-          .select({ url: website.url })
-          .from(website)
-          .where(eq(website.placeId, placeRow.id))
-          .limit(1);
-
-        operatorPlace = {
-          name: placeRow.name,
-          supportContacts: contacts,
-          type: "online",
-          website: websiteRows[0]?.url ?? "",
-        };
+      const mappedPlace = mapPlaceRow(placeRow);
+      if (mappedPlace.isErr()) {
+        return err(mappedPlace.error);
       }
 
       return ok({
         displayName: profileRow.displayName,
-        place: operatorPlace,
+        operatorId: profileRow.operatorId,
+        place: mappedPlace.value,
       });
     } catch (error) {
       return err(

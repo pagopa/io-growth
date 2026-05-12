@@ -1,5 +1,12 @@
 import ChevronRightRoundedIcon from '@mui/icons-material/ChevronRightRounded';
-import { Box, ButtonBase, Stack, Typography, useTheme } from '@mui/material';
+import {
+  Box,
+  ButtonBase,
+  Divider,
+  Stack,
+  Typography,
+  useTheme,
+} from '@mui/material';
 import type {
   DiscoveryListItemProps,
   OpportunityProps,
@@ -20,17 +27,19 @@ function OpportunityContent({
   return (
     <Stack spacing={1} sx={{ minWidth: 0, flex: 1 }}>
       <Stack spacing={0.5} sx={{ minWidth: 0 }}>
-        <Typography
-          component="p"
-          sx={{
-            color: secondaryColor,
-            fontSize: 14,
-            lineHeight: 1.2,
-            wordBreak: 'break-word',
-          }}
-        >
-          {eyebrow}
-        </Typography>
+        {eyebrow && (
+          <Typography
+            component="p"
+            sx={{
+              color: secondaryColor,
+              fontSize: 14,
+              lineHeight: 1.2,
+              wordBreak: 'break-word',
+            }}
+          >
+            {eyebrow}
+          </Typography>
+        )}
 
         <Typography
           component="p"
@@ -123,8 +132,7 @@ export function DiscoveryListItem(props: DiscoveryListItemProps) {
           width: '100%',
           textAlign: 'left',
           display: 'block',
-          py: 3,
-          px: 1.5,
+          py: 2,
           bgcolor: 'common.neutralGray',
           '&:disabled': {
             opacity: 0.7,
@@ -133,7 +141,7 @@ export function DiscoveryListItem(props: DiscoveryListItemProps) {
         ...(Array.isArray(sx) ? sx : sx ? [sx] : []),
       ]}
     >
-      <Stack direction="row" justifyContent="space-between" gap={1}>
+      <Stack direction="row" justifyContent="space-between" gap={1} px={3}>
         {props.variant === 'simple' ? (
           <SimpleContent {...props} secondaryColor={secondaryColor} />
         ) : (
@@ -151,6 +159,7 @@ export function DiscoveryListItem(props: DiscoveryListItemProps) {
           <ChevronRightRoundedIcon sx={{ fontSize: 24 }} />
         </Box>
       </Stack>
+      {props.divider && <Divider sx={{ mt: 3 }} />}
     </ButtonBase>
   );
 }

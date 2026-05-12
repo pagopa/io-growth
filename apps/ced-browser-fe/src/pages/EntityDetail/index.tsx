@@ -2,8 +2,8 @@ import { Box, ButtonBase, Stack, Typography } from '@mui/material';
 import { ArrowBack } from '@mui/icons-material';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useGetEntityDetailQuery } from '../../features/entities/api.js';
-import { ItemsSection } from './components/ItemsSection/index.js';
-import { ContactsSection } from './components/ContactsSection/index.js';
+import { ItemsSection } from '../../components/ItemsSection/index.js';
+import { ContactsSection } from '../../components/ContactsSection/index.js';
 import { QueryGuard } from '../../components/index.js';
 
 export default function EntityDetailPage() {

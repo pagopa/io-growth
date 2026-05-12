@@ -8,11 +8,12 @@ type DiscoveryListItemBaseProps = {
   onClick?: () => void;
   disabled?: boolean;
   sx?: SxProps<Theme>;
+  divider?: boolean;
 };
 
 type VariantMap = {
   opportunity: {
-    eyebrow: string;
+    eyebrow?: string;
     badgeLabel: string;
   };
   simple: {

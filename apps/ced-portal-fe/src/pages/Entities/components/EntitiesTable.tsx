@@ -248,7 +248,11 @@ export const EntitiesTable = ({
                 />
               </TableCell>
               <TableCell align="right">
-                <IconButton size="small" onClick={() => onRowOpen(item)}>
+                <IconButton
+                  aria-label="Apri dettaglio"
+                  size="small"
+                  onClick={() => onRowOpen(item)}
+                >
                   <ChevronRightRoundedIcon />
                 </IconButton>
               </TableCell>

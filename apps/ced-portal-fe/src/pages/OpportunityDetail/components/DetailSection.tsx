@@ -25,7 +25,7 @@ export const DetailSection = ({ fields }: Readonly<DetailSectionProps>) => (
         <Box sx={{ py: 2, px: 3 }}>
           <DetailField label={field.label} value={field.value} />
         </Box>
-        {index < fields.length - 1 && <Divider />}
+        {index < fields.length - 1 && <Divider sx={{ ml: 3, mr: 3 }} />}
       </Box>
     ))}
   </Box>

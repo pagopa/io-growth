@@ -14,7 +14,8 @@ export function AppLayout() {
   const showSideNavigation =
     pathname === APP_ROUTES.HOME ||
     pathname === APP_ROUTES.OVERVIEW ||
-    pathname === APP_ROUTES.OPPORTUNITIES;
+    pathname === APP_ROUTES.OPPORTUNITIES ||
+    pathname === APP_ROUTES.ENTITIES;
 
   return (
     <Box

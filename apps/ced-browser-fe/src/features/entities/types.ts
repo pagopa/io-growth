@@ -26,3 +26,13 @@ export type EntityDetail = {
   accessPoints: EntityAccessPoint[];
   contacts: EntityContacts;
 };
+
+export type AccessPointDetail = {
+  id: string;
+  title: string;
+  entityId: string;
+  entityName: string;
+  opportunities: EntityOpportunity[];
+  contacts: EntityContacts;
+  relatedAccessPoints: EntityAccessPoint[];
+};

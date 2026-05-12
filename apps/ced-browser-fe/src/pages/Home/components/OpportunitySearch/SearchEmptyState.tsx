@@ -37,7 +37,7 @@ export function SearchEmptyState() {
           sx={{
             mt: '28px',
             mb: 1.5,
-            color: '#111827',
+            color: theme.palette.common.searchText,
             fontSize: 26,
             lineHeight: 1.15,
             fontWeight: 700,

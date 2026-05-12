@@ -1,6 +1,7 @@
-import { Box, Divider, Skeleton, Typography } from '@mui/material';
+import { Box, Divider, Skeleton, Typography, useTheme } from '@mui/material';
 
 export function SearchResultsSkeleton() {
+  const theme = useTheme();
   return (
     <Box sx={{ mt: 3 }}>
       <Box
@@ -15,7 +16,7 @@ export function SearchResultsSkeleton() {
           sx={{
             fontSize: 14,
             fontWeight: 700,
-            color: '#555C70',
+            color: theme.palette.common.neutralDarkGray,
             letterSpacing: '0.08em',
           }}
         >

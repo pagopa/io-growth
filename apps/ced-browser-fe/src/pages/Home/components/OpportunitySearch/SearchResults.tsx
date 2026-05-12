@@ -55,7 +55,7 @@ export function SearchResults({
           sx={{
             fontSize: 14,
             fontWeight: 700,
-            color: '#555C70',
+            color: theme.palette.common.neutralDarkGray,
             letterSpacing: '0.08em',
           }}
         >
@@ -70,7 +70,7 @@ export function SearchResults({
             width: 24,
             height: 24,
             borderRadius: '100px',
-            backgroundColor: '#E7ECFC',
+            backgroundColor: theme.palette.common.searchDecorativeBlue,
             border: 'none',
             fontSize: 12,
             fontWeight: 600,

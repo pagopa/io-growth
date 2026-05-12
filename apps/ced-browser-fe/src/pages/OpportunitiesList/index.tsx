@@ -14,10 +14,7 @@ export default function OpportunitiesList() {
       DISCOVERY_ITEMS_CONFIG[DISCOVERY_ITEMS_CONFIG.length - 1],
     ) as typeof DISCOVERY_ITEMS_CONFIG),
   ];
-  console.log(
-    '🚀 ~ OpportunitiesList ~ mockOpportunities:',
-    mockOpportunities.length,
-  );
+
   return (
     <Box sx={{ bgcolor: 'background.paper' }}>
       <Box

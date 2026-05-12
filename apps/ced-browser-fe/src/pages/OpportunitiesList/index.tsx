@@ -4,6 +4,7 @@ import { theme } from '../../core/theme';
 import { DISCOVERY_ITEMS_CONFIG } from '../Home/constants';
 import { useNavigate } from 'react-router-dom';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import { toOpportunityDetailRoute } from '../../app/routeConfig';
 export default function OpportunitiesList() {
   const navigate = useNavigate();
 
@@ -46,6 +47,7 @@ export default function OpportunitiesList() {
           key={`${item.id}-${index}`}
           sx={{ backgroundColor: theme.palette.background.paper }}
           divider={index < list.length - 1}
+          onClick={() => navigate(toOpportunityDetailRoute(item.id))}
           {...item}
         />
       ))}

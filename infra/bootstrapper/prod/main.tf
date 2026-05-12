@@ -17,16 +17,13 @@ module "azure-PROD-CED_core_values" {
 
 module "azure-PROD-CED_bootstrap" {
   source  = "pagopa-dx/azure-github-environment-bootstrap/azurerm"
-  version = "~> 3.0"
+  version = "~> 4.0"
 
   providers = {
     azurerm = azurerm.PROD-CED
   }
 
   environment = merge(local.environment, local.azure_accounts.PROD-CED)
-
-  subscription_id = module.azure-PROD-CED_core_values.subscription_id
-  tenant_id       = module.azure-PROD-CED_core_values.tenant_id
 
   entraid_groups = {
     admins_object_id    = data.azuread_group.admins.object_id
@@ -58,14 +55,11 @@ module "azure-PROD-CED_bootstrap" {
     use_github_app = true
   }
 
-  apim_id = data.azurerm_api_management.ced_apim.id
-
   additional_resource_group_ids = [
     data.azurerm_resource_group.common.id,
     data.azurerm_resource_group.data_rg.id,
   ]
 
-  pep_vnet_id                        = module.azure-PROD-CED_core_values.common_vnet.id
   private_dns_zone_resource_group_id = module.azure-PROD-CED_core_values.network_resource_group_id
   opex_resource_group_id             = module.azure-PROD-CED_core_values.opex_resource_group_id
 

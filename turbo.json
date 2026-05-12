@@ -2,7 +2,7 @@
   "$schema": "https://turbo.build/schema.json",
   "tasks": {
     "generate": {
-      "inputs": ["openapi.yaml", "orval.config.ts"],
+      "inputs": ["openapi/**/*.yaml", "orval.config.ts"],
       "outputs": ["src/adapters/inbound/fastify/contracts/**"]
     },
     "build": {

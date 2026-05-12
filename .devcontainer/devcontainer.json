@@ -48,7 +48,8 @@
         "vitest.explorer",
         "redhat.vscode-yaml",
         "dbaeumer.vscode-eslint",
-        "github.copilot"
+        "github.copilot",
+        "42crunch.vscode-openapi"
       ]
     }
   }

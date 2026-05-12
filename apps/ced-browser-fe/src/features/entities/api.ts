@@ -1,5 +1,5 @@
 import { baseApi } from '../../core/api/baseApi.js';
-import {
+import type {
   EntityDetail,
   EntitySearchResponse,
   AccessPointDetail,

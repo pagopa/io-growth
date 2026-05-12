@@ -76,6 +76,7 @@ export default function HomePage() {
               <Button
                 variant="text"
                 sx={{ color: theme.palette.common.primaryButton }}
+                onClick={() => navigate(APP_ROUTES.OPPORTUNITIES_LIST)}
               >
                 Mostra tutti
               </Button>

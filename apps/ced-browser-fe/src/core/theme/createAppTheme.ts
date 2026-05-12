@@ -165,7 +165,6 @@ export const createAppTheme = () =>
               color: NEUTRAL_700,
               fontSize: 16,
               fontWeight: 600,
-              transform: 'translate(48px, 13px) scale(1)',
               '&.Mui-focused': {
                 color: PRIMARY_BUTTON_BACKGROUND,
               },
@@ -173,6 +172,10 @@ export const createAppTheme = () =>
                 transform: 'translate(14px, -9px) scale(0.75)',
               },
             },
+            '&.SearchTextField .MuiInputLabel-root:not(.MuiInputLabel-shrink)':
+              {
+              transform: 'translate(48px, 13px) scale(1)',
+              },
           },
         },
       },

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import {
   Box,
   Button,
@@ -8,45 +8,49 @@ import {
 } from '@mui/material';
 import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
 import SearchRoundedIcon from '@mui/icons-material/SearchRounded';
-import { useNavigate } from 'react-router-dom';
+import { generatePath, useNavigate } from 'react-router-dom';
 import { useSearchEntitiesQuery } from '../../../../features/entities/api';
 import { SearchEmptyState } from './SearchEmptyState';
 import { SearchInitialState } from './SearchInitialState';
 import { SearchResults } from './SearchResults';
 import { SearchResultsSkeleton } from './SearchResultsSkeleton';
 
+// Importa l'hook che abbiamo creato (aggiusta il path in base alla tua cartella)
+import { useDebounce } from '../../../../hooks/useDebounce';
+import { APP_ROUTES } from '../../../../app/routeConfig';
+
 type OpportunitySearchProps = {
   isSearchActive: boolean;
   setIsSearchActive: (value: boolean) => void;
 };
+
 export function OpportunitySearch({
   isSearchActive,
   setIsSearchActive,
 }: OpportunitySearchProps) {
   const navigate = useNavigate();
-  const [query, setQuery] = useState('');
-  const [debouncedQuery, setDebouncedQuery] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
 
-  useEffect(() => {
-    const timer = setTimeout(() => setDebouncedQuery(query), 500);
-    return () => clearTimeout(timer);
-  }, [query]);
+  const [query, setQuery] = useState('');
+  const debouncedQuery = useDebounce(query, 500);
 
+  // RTK Query partirà solo quando la query "ritardata" è lunga almeno 3 caratteri
   const { data, isFetching } = useSearchEntitiesQuery(debouncedQuery, {
     skip: debouncedQuery.length < 3,
   });
 
   const showClearButton = isSearchActive || query.length > 0;
-  const isLoading =
-    query.length >= 3 && (query !== debouncedQuery || isFetching);
+
+  // Logica di caricamento ottimizzata
+  const isDebouncing = query !== debouncedQuery;
+  const isLoading = query.length >= 3 && (isDebouncing || isFetching);
+
   const showResults =
     !isLoading && query.length >= 3 && data != null && data.items.length > 0;
   const showEmpty = !isLoading && query.length >= 3 && data?.items.length === 0;
 
   const handleCancel = () => {
-    setQuery('');
-    setDebouncedQuery('');
+    setQuery(''); // Basta svuotare solo la query principale
     setIsSearchActive(false);
     inputRef.current?.blur();
   };
@@ -59,7 +63,7 @@ export function OpportunitySearch({
           total={data.total}
           items={data.items}
           query={debouncedQuery}
-          onItemPress={(id) => navigate(`/enti/${id}`)}
+          onItemPress={(id) => generatePath(APP_ROUTES.ENTITY_DETAIL, { id })}
         />
       );
     if (showEmpty) return <SearchEmptyState />;
@@ -77,6 +81,7 @@ export function OpportunitySearch({
         }}
       >
         <TextField
+          className="SearchTextField"
           inputRef={inputRef}
           value={query}
           onChange={(event) => setQuery(event.target.value)}
@@ -111,8 +116,7 @@ export function OpportunitySearch({
                   size="small"
                   onMouseDown={(event) => event.preventDefault()}
                   onClick={() => {
-                    setQuery('');
-                    setDebouncedQuery('');
+                    setQuery(''); // Basta svuotare solo la query principale
                     inputRef.current?.focus();
                   }}
                 >

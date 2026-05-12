@@ -42,8 +42,7 @@ export function OpportunitySearch({
     query.length >= 3 && (query !== debouncedQuery || isFetching);
   const showResults =
     !isLoading && query.length >= 3 && data != null && data.items.length > 0;
-  const showEmpty =
-    !isLoading && query.length >= 3 && data != null && data.items.length === 0;
+  const showEmpty = !isLoading && query.length >= 3 && data?.items.length === 0;
 
   const handleCancel = () => {
     setQuery('');

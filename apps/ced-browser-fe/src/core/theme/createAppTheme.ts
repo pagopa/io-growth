@@ -174,7 +174,7 @@ export const createAppTheme = () =>
             },
             '&.SearchTextField .MuiInputLabel-root:not(.MuiInputLabel-shrink)':
               {
-              transform: 'translate(48px, 13px) scale(1)',
+                transform: 'translate(48px, 13px) scale(1)',
               },
           },
         },

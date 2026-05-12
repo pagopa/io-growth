@@ -28,6 +28,11 @@ export const toOpportunityDetailRoute = (opportunityId: string) =>
     id: opportunityId,
   });
 
+export const toEntityDetailRoute = (entityId: string) =>
+  generatePath(APP_ROUTES.ENTITY_DETAIL, {
+    id: entityId,
+  });
+
 export const HomePage = lazy(() => import('../pages/Home'));
 export const EntityDetailPage = lazy(() => import('../pages/EntityDetail'));
 export const EntityOpportunitiesPage = lazy(

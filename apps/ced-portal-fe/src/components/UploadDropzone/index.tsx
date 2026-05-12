@@ -89,6 +89,7 @@ export function UploadDropzone({
 
   const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0] ?? null;
+    if (file && !isAccepted(file)) return;
     onFileSelect(file);
   };
 

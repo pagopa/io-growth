@@ -14,7 +14,6 @@ const ERROR_ICON_BG = '#5D1313';
 const TOAST_ERROR_BG = ERROR_ICON_BG;
 const NEUTRAL_600 = '#636B82';
 const NEUTRAL_700 = '#4E5A70';
-const NEUTRAL_400 = '#A7B0C3';
 const NEUTRAL_450 = '#9EA8BC';
 const NEUTRAL_900 = '#111827';
 const NEUTRAL_500 = '#5F687A';
@@ -196,7 +195,7 @@ export const createAppTheme = () =>
         styleOverrides: {
           root: {
             '&.SearchInputIcon': {
-              color: NEUTRAL_400,
+              color: DECORATIVE_ICON,
               fontSize: 24,
             },
           },

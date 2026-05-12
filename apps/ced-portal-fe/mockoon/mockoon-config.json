@@ -233,6 +233,56 @@
       "streamingInterval": 0
     },
     {
+      "uuid": "e3f4a5b6-c7d8-9012-def0-123456789abc",
+      "type": "http",
+      "documentation": "Elenco enti",
+      "method": "get",
+      "endpoint": "api/entities",
+      "responses": [
+        {
+          "uuid": "e3f4a5b6-c7d8-9012-def0-123456789abd",
+          "body": "[\n    {\n        \"id\": \"req-001\",\n        \"tab\": \"requests\",\n        \"name\": \"Fondazione MAXXI\",\n        \"city\": \"Roma (RM)\",\n        \"created_at\": \"12/03/2026\",\n        \"state\": \"Da_gestire\"\n    },\n    {\n        \"id\": \"req-002\",\n        \"tab\": \"requests\",\n        \"name\": \"GAM - Galleria d'arte moderna\",\n        \"city\": \"Torino (TO)\",\n        \"created_at\": \"12/03/2026\",\n        \"state\": \"Da_gestire\"\n    },\n    {\n        \"id\": \"req-003\",\n        \"tab\": \"requests\",\n        \"name\": \"Ente_name\",\n        \"city\": \"City (Provincia)\",\n        \"created_at\": \"gg/mm/aaaa\",\n        \"state\": \"Rifiutata\"\n    },\n    {\n        \"id\": \"ent-001\",\n        \"tab\": \"entities\",\n        \"name\": \"Comune di Ipazia\",\n        \"city\": \"Ipazia (IP)\",\n        \"opportunities_count\": 0,\n        \"active_from\": \"05/03/2026\",\n        \"state\": \"Attivo\"\n    },\n    {\n        \"id\": \"ent-002\",\n        \"tab\": \"entities\",\n        \"name\": \"Comune di Milano\",\n        \"city\": \"Milano (MI)\",\n        \"opportunities_count\": 3,\n        \"active_from\": \"12/01/2026\",\n        \"state\": \"Attivo\"\n    },\n    {\n        \"id\": \"ent-003\",\n        \"tab\": \"entities\",\n        \"name\": \"Comune di Sondrio\",\n        \"city\": \"Sondrio (SO)\",\n        \"opportunities_count\": 0,\n        \"active_from\": \"12/01/2026\",\n        \"state\": \"Inattivo\"\n    },\n    {\n        \"id\": \"ent-004\",\n        \"tab\": \"entities\",\n        \"name\": \"Musei Civici Venezia\",\n        \"city\": \"Venezia (VE)\",\n        \"opportunities_count\": 6,\n        \"active_from\": \"12/01/2026\",\n        \"state\": \"Attivo\"\n    },\n    {\n        \"id\": \"ent-005\",\n        \"tab\": \"entities\",\n        \"name\": \"ATAC S.p.A.\",\n        \"city\": \"Roma (RM)\",\n        \"opportunities_count\": 1,\n        \"active_from\": \"12/01/2026\",\n        \"state\": \"Cessato\"\n    }\n]",
+          "latency": 0,
+          "statusCode": 200,
+          "label": "Response with all statuses",
+          "headers": [],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": true,
+          "crudKey": "id",
+          "callbacks": []
+        },
+        {
+          "uuid": "e3f4a5b6-c7d8-9012-def0-123456789abe",
+          "body": "[]",
+          "latency": 0,
+          "statusCode": 200,
+          "label": "Empty response",
+          "headers": [],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": false,
+          "crudKey": "id",
+          "callbacks": []
+        }
+      ],
+      "responseMode": null,
+      "streamingMode": null,
+      "streamingInterval": 0
+    },
+    {
       "uuid": "a2b3c4d5-e6f7-8901-bcde-f01234567890",
       "type": "http",
       "documentation": "Dettaglio opportunità",
@@ -245,6 +295,37 @@
           "latency": 0,
           "statusCode": 200,
           "label": "Opportunity detail",
+          "headers": [],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": true,
+          "crudKey": "id",
+          "callbacks": []
+        }
+      ],
+      "responseMode": null,
+      "streamingMode": null,
+      "streamingInterval": 0
+    },
+    {
+      "uuid": "b7c8d9e0-f1a2-3456-bcde-112233445566",
+      "type": "http",
+      "documentation": "Dettaglio ente",
+      "method": "get",
+      "endpoint": "api/entities/:id",
+      "responses": [
+        {
+          "uuid": "b7c8d9e0-f1a2-3456-bcde-112233445567",
+          "body": "{\n    \"id\": \"{{urlParam 'id'}}\",\n    \"name\": \"Ente_name\",\n    \"state\": \"Da_gestire\",\n    \"product\": \"Carta Europea della Disabilita\",\n    \"adherent_type\": \"Ente privato\",\n    \"business_name\": \"XXX\",\n    \"legal_headquarters\": \"XXX\",\n    \"cap\": \"XXX\",\n    \"pec_email\": \"xxx@pec.xxx.it\",\n    \"vat_number\": \"XXX\",\n    \"is_group_vat\": \"No\",\n    \"sdi_code\": \"XXX\",\n    \"business_registry_place\": \"XXX\",\n    \"rea\": \"XXX\",\n    \"public_email\": \"XXX\",\n    \"geographic\": {\n        \"competence_area\": \"Locale\",\n        \"areas\": [\n            \"Roma e provincia\",\n            \"Frosinone e provincia\",\n            \"Latina e provincia\",\n            \"Viterbo e provincia\",\n            \"Rieti e provincia\"\n        ]\n    },\n    \"legal_representative\": {\n        \"full_name\": \"Mario Rossi\",\n        \"email\": \"mario.rossi@dominio.com\",\n        \"phone\": \"XXXXXXXXXX\"\n    },\n    \"convention\": {\n        \"request_file\": {\n            \"name\": \"Richiesta_di_convenzionamento_CED.p7m\",\n            \"url\": \"/files/Richiesta_di_convenzionamento_CED.p7m\"\n        },\n        \"upload_hint\": \"Trascina qui la richiesta di convenzionamento controfirmata\",\n        \"upload_format_hint\": \"Dimensione massima 300 x 300px - Formato PDF\",\n        \"mandatory_hint\": \"Campo obbligatorio\"\n    }\n}",
+          "latency": 0,
+          "statusCode": 200,
+          "label": "Entity detail",
           "headers": [],
           "bodyType": "INLINE",
           "filePath": "",
@@ -291,7 +372,15 @@
     },
     {
       "type": "route",
+      "uuid": "e3f4a5b6-c7d8-9012-def0-123456789abc"
+    },
+    {
+      "type": "route",
       "uuid": "a2b3c4d5-e6f7-8901-bcde-f01234567890"
+    },
+    {
+      "type": "route",
+      "uuid": "b7c8d9e0-f1a2-3456-bcde-112233445566"
     }
   ],
   "proxyMode": false,

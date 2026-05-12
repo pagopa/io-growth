@@ -98,21 +98,23 @@ function SimpleContent({
           {title}
         </Typography>
 
-        <Typography
-          component="p"
-          sx={{
-            color: secondaryColor,
-            fontSize: 14,
-            lineHeight: 1.25,
-            overflow: 'hidden',
-            textOverflow: 'ellipsis',
-            display: '-webkit-box',
-            WebkitLineClamp: 2,
-            WebkitBoxOrient: 'vertical',
-          }}
-        >
-          {subtitle}
-        </Typography>
+        {subtitle && (
+          <Typography
+            component="p"
+            sx={{
+              color: secondaryColor,
+              fontSize: 14,
+              lineHeight: 1.25,
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              display: '-webkit-box',
+              WebkitLineClamp: 2,
+              WebkitBoxOrient: 'vertical',
+            }}
+          >
+            {subtitle}
+          </Typography>
+        )}
       </Stack>
     </Stack>
   );

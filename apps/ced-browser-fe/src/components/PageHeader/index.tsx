@@ -4,7 +4,7 @@ import type { ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 type PageHeaderProps = {
-  title: string;
+  title?: string;
   subtitle?: ReactNode;
   onBack?: () => void;
 };
@@ -31,19 +31,21 @@ export function PageHeader({ title, subtitle, onBack }: PageHeaderProps) {
         Indietro
       </ButtonBase>
 
-      <Typography
-        component="h1"
-        sx={{
-          fontSize: 28,
-          fontWeight: 700,
-          lineHeight: 1.2,
-          color: 'text.primary',
-        }}
-      >
-        {title}
-      </Typography>
+      {title && (
+        <Typography
+          component="h1"
+          sx={{
+            fontSize: 28,
+            fontWeight: 700,
+            lineHeight: 1.2,
+            color: 'text.primary',
+          }}
+        >
+          {title}
+        </Typography>
+      )}
 
-      {subtitle && <Box sx={{ mt: 0.5 }}>{subtitle}</Box>}
+      {subtitle && <Box sx={{ mt: title ? 0.5 : 0 }}>{subtitle}</Box>}
     </Box>
   );
 }

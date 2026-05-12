@@ -12,13 +12,13 @@ const ALERT_ERROR_BORDER = '#FF6666';
 const ALERT_SUCCESS_BORDER = '#89D188';
 const ERROR_ICON_BG = '#5D1313';
 const TOAST_ERROR_BG = ERROR_ICON_BG;
-const SEARCH_INPUT_BORDER = '#8D95A8';
-const SEARCH_INPUT_LABEL = '#4E5A70';
-const SEARCH_INPUT_ICON = '#A7B0C3';
-const SEARCH_CLEAR_BUTTON_HOVER_BG = '#9EA8BC';
-const SEARCH_TEXT = '#111827';
-const SEARCH_TEXT_SECONDARY = '#5F687A';
-const SEARCH_DECORATIVE_BLUE = '#CED8F9';
+const NEUTRAL_600 = '#636B82';
+const NEUTRAL_700 = '#4E5A70';
+const NEUTRAL_400 = '#A7B0C3';
+const NEUTRAL_450 = '#9EA8BC';
+const NEUTRAL_900 = '#111827';
+const NEUTRAL_500 = '#5F687A';
+const DECORATIVE_BLUE = '#CED8F9';
 
 declare module '@mui/material/styles' {
   interface CommonColors {
@@ -32,9 +32,9 @@ declare module '@mui/material/styles' {
     alertErrorBorder: string;
     alertSuccessBorder: string;
     toastError: string;
-    searchDecorativeBlue: string;
-    searchText: string;
-    searchTextSecondary: string;
+    decorativeBlue: string;
+    neutral900: string;
+    neutral500: string;
   }
 }
 
@@ -58,9 +58,9 @@ export const createAppTheme = () =>
         alertSuccessBorder: ALERT_SUCCESS_BORDER,
         neutralDarkGray: APP_NEUTRAL_DARK_GRAY,
         toastError: TOAST_ERROR_BG,
-        searchDecorativeBlue: SEARCH_DECORATIVE_BLUE,
-        searchText: SEARCH_TEXT,
-        searchTextSecondary: SEARCH_TEXT_SECONDARY,
+        decorativeBlue: DECORATIVE_BLUE,
+        neutral900: NEUTRAL_900,
+        neutral500: NEUTRAL_500,
       },
     },
     components: {
@@ -140,11 +140,11 @@ export const createAppTheme = () =>
               borderRadius: '8px',
               backgroundColor: muiItaliaTheme.palette.common.white,
               '& fieldset': {
-                borderColor: SEARCH_INPUT_BORDER,
+                borderColor: NEUTRAL_600,
                 borderWidth: 1,
               },
               '&:hover fieldset': {
-                borderColor: SEARCH_INPUT_BORDER,
+                borderColor: NEUTRAL_600,
               },
               '&.Mui-focused fieldset': {
                 borderColor: PRIMARY_BUTTON_BACKGROUND,
@@ -163,7 +163,7 @@ export const createAppTheme = () =>
               fontWeight: 600,
             },
             '& .MuiInputLabel-root': {
-              color: SEARCH_INPUT_LABEL,
+              color: NEUTRAL_700,
               fontSize: 16,
               fontWeight: 600,
               transform: 'translate(48px, 13px) scale(1)',
@@ -186,7 +186,7 @@ export const createAppTheme = () =>
               backgroundColor: DECORATIVE_ICON,
               color: muiItaliaTheme.palette.common.white,
               '&:hover': {
-                backgroundColor: SEARCH_CLEAR_BUTTON_HOVER_BG,
+                backgroundColor: NEUTRAL_450,
               },
             },
           },
@@ -196,7 +196,7 @@ export const createAppTheme = () =>
         styleOverrides: {
           root: {
             '&.SearchInputIcon': {
-              color: SEARCH_INPUT_ICON,
+              color: NEUTRAL_400,
               fontSize: 24,
             },
           },
@@ -369,7 +369,7 @@ export const createAppTheme = () =>
             '& .MuiStepIcon-text': {
               fontSize: '12px',
               fontWeight: 700,
-              fill: '#636B82',
+              fill: NEUTRAL_600,
             },
             '& .Mui-active .MuiStepIcon-text, & .Mui-completed .MuiStepIcon-text':
               {

@@ -70,7 +70,7 @@ export function SearchResults({
             width: 24,
             height: 24,
             borderRadius: '100px',
-            backgroundColor: theme.palette.common.searchDecorativeBlue,
+            backgroundColor: theme.palette.common.decorativeBlue,
             border: 'none',
             fontSize: 12,
             fontWeight: 600,

@@ -14,7 +14,7 @@ export function SearchEmptyState() {
         <svg width="47" height="47" viewBox="0 0 47 47" fill="none">
           <path
             d="M23.3333 46.6667C36.22 46.6667 46.6667 36.22 46.6667 23.3333C46.6667 10.4467 36.22 0 23.3333 0C10.4467 0 0 10.4467 0 23.3333C0 36.22 10.4467 46.6667 23.3333 46.6667Z"
-            fill={theme.palette.common.searchDecorativeBlue}
+            fill={theme.palette.common.decorativeBlue}
           />
           <circle
             cx="23.3335"
@@ -37,7 +37,7 @@ export function SearchEmptyState() {
           sx={{
             mt: '28px',
             mb: 1.5,
-            color: theme.palette.common.searchText,
+            color: theme.palette.common.neutral900,
             fontSize: 26,
             lineHeight: 1.15,
             fontWeight: 700,
@@ -47,7 +47,7 @@ export function SearchEmptyState() {
         </Typography>
         <Typography
           sx={{
-            color: theme.palette.common.searchTextSecondary,
+            color: theme.palette.common.neutral500,
             fontSize: 17,
             lineHeight: 1.35,
             fontWeight: 400,

@@ -13,6 +13,7 @@ import {
   OpportunityDetailPage,
   UnauthorizedPage,
   EntitiesPage,
+  EntityDetailPage,
 } from './routeConfig';
 
 export function AppRoutes() {
@@ -39,6 +40,10 @@ export function AppRoutes() {
             element={<OpportunityDetailPage />}
           />
           <Route path={APP_ROUTES.ENTITIES} element={<EntitiesPage />} />
+          <Route
+            path={APP_ROUTES.ENTITY_DETAIL}
+            element={<EntityDetailPage />}
+          />
           <Route element={<ProtectedRoute />}>
             <Route
               path="/app"

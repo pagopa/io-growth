@@ -1,9 +1,14 @@
 import { Box, Stack, Typography, useTheme } from '@mui/material';
 import type { SyntheticEvent } from 'react';
 import { useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { APP_ROUTES } from '../../app/routeConfig';
 import { FiltersBar, PageTabs, ResultsPagination } from '../../components';
 import { useEntitiesData } from '../../features/entities/hooks.js';
-import type { EntityFilters } from '../../features/entities/types.js';
+import type {
+  EntityFilters,
+  EntityItem,
+} from '../../features/entities/types.js';
 import { EntitiesTable } from './components/EntitiesTable.js';
 
 const INITIAL_FILTERS: EntityFilters = {
@@ -24,6 +29,7 @@ const ENTITY_STATE_OPTIONS = [
 
 export default function EntitiesPage() {
   const theme = useTheme();
+  const navigate = useNavigate();
   const [filters, setFilters] = useState<EntityFilters>(INITIAL_FILTERS);
   const [draftFilters, setDraftFilters] =
     useState<EntityFilters>(INITIAL_FILTERS);
@@ -72,6 +78,10 @@ export default function EntitiesPage() {
     setPage(1);
   };
 
+  const handleOpenDetail = (item: EntityItem) => {
+    navigate(`${APP_ROUTES.ENTITIES}/${item.id}`);
+  };
+
   return (
     <Box
       sx={{
@@ -115,6 +125,7 @@ export default function EntitiesPage() {
             items={paginatedItems}
             isLoading={isLoading}
             isError={isError}
+            onRowOpen={handleOpenDetail}
           />
           <ResultsPagination
             totalItems={displayedItems.length}

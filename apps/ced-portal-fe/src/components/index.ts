@@ -18,3 +18,4 @@ export * from './FormField';
 export * from './RadioGroup';
 export * from './SectionCard';
 export * from './UploadDropzone';
+export * from './DownloadItem';

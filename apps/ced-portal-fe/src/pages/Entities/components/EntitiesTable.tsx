@@ -34,6 +34,7 @@ interface EntitiesTableProps {
   items: EntityItem[];
   isLoading: boolean;
   isError: boolean;
+  onRowOpen: (item: EntityItem) => void;
 }
 
 const isRequestItem = (item: EntityItem): item is EntityRequestItem =>
@@ -47,6 +48,7 @@ export const EntitiesTable = ({
   items,
   isLoading,
   isError,
+  onRowOpen,
 }: EntitiesTableProps) => {
   const theme = useTheme();
 
@@ -224,7 +226,7 @@ export const EntitiesTable = ({
         </TableHead>
         <TableBody>
           {sortedItems.map((item) => (
-            <TableRow key={item.id} hover>
+            <TableRow key={item.id}>
               <TableCell>{item.name}</TableCell>
               <TableCell>{item.city}</TableCell>
               {isRequestItem(item) ? (
@@ -246,7 +248,11 @@ export const EntitiesTable = ({
                 />
               </TableCell>
               <TableCell align="right">
-                <IconButton size="small">
+                <IconButton
+                  aria-label="Apri dettaglio"
+                  size="small"
+                  onClick={() => onRowOpen(item)}
+                >
                   <ChevronRightRoundedIcon />
                 </IconButton>
               </TableCell>

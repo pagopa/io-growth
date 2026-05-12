@@ -1,7 +1,17 @@
-import { Box, ButtonBase, Divider, Stack, Typography } from '@mui/material';
+import {
+  Box,
+  ButtonBase,
+  Divider,
+  Stack,
+  Typography,
+  useTheme,
+} from '@mui/material';
 import { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { APP_ROUTES } from '../../app/routeConfig.js';
+import {
+  APP_ROUTES,
+  toEntityAccessPointDetailRoute,
+} from '../../app/routeConfig.js';
 import { DiscoveryListItem } from '../index.js';
 import { SectionTitle } from '../SectionTitle/index.js';
 import type { ItemsSectionProps } from './types.js';
@@ -13,6 +23,7 @@ export function ItemsSection(props: ItemsSectionProps) {
   const hideEyebrow =
     props.variant === 'opportunity' && (props.hideEyebrow ?? false);
   const navigate = useNavigate();
+  const theme = useTheme();
 
   const hasMore = items.length > ITEMS_LIMIT;
   const defaultLabel =
@@ -46,9 +57,10 @@ export function ItemsSection(props: ItemsSectionProps) {
           variant="simple"
           {...item}
           sx={{ px: 0, bgcolor: 'background.paper' }}
+          onClick={() => navigate(toEntityAccessPointDetailRoute(entityId, id))}
         />
       ));
-  }, [variant, items, hideEyebrow]);
+  }, [variant, items, hideEyebrow, navigate, entityId]);
 
   if (items.length === 0) return null;
 
@@ -65,7 +77,7 @@ export function ItemsSection(props: ItemsSectionProps) {
                 sx={{
                   fontSize: 14,
                   fontWeight: 600,
-                  color: '#0B3EE3',
+                  color: theme.palette.common.primaryButton,
                   mr: 1,
                   textTransform: 'uppercase',
                 }}

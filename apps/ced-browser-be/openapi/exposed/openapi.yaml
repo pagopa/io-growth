@@ -13,7 +13,8 @@ servers:
 
 tags:
   - name: Access
-    description: Authentication flow via FIMS (OIDC). Obtain a session token before
+    description:
+      Authentication flow via FIMS (OIDC). Obtain a session token before
       calling protected endpoints.
   - name: Opportunities
     description: Browse and search CED opportunities (require session token)
@@ -126,6 +127,39 @@ paths:
                 $ref: "#/components/schemas/SessionToken"
         "401":
           description: Unauthorized — invalid or expired session id.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+        "500":
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+
+  /test-session:
+    get:
+      tags:
+        - Access
+      summary: Create a test session (test users only)
+      description: |
+        Creates a FIMS session directly for a test user, bypassing the full OIDC
+        flow. The `fiscalCode` is hashed and matched against the server-side
+        `TEST_USERS` allowlist. Returns 403 if the fiscal code is not authorised.
+      operationId: createTestSession
+      security: []
+      parameters:
+        - in: query
+          name: fiscalCode
+          required: true
+          schema:
+            type: string
+      responses:
+        "302":
+          description: Redirect to `/authorize?id=…` with the test session.
+        "403":
+          description: Forbidden — fiscal code is not in the test users list.
           content:
             application/json:
               schema:
@@ -270,7 +304,8 @@ components:
       properties:
         token:
           type: string
-          description: Opaque session token. Use as the value of the `token` header on
+          description:
+            Opaque session token. Use as the value of the `token` header on
             protected endpoints.
 
     # -------------------------------------------------------------------------
@@ -360,7 +395,8 @@ components:
           enum:
             - percentual
             - absolute
-          description: How the caregiver benefit value is interpreted. Null when no
+          description:
+            How the caregiver benefit value is interpreted. Null when no
             caregiver benefit applies.
         date_from:
           type: string
@@ -371,7 +407,8 @@ components:
           type: string
           format: date
           nullable: true
-          description: Last date until which the opportunity is available (inclusive).
+          description:
+            Last date until which the opportunity is available (inclusive).
             Null means the opportunity has no expiry.
           example: "2026-12-31"
         url:
@@ -402,7 +439,8 @@ components:
               type: string
               description: |
                 Eligibility conditions or restrictions that apply to access the opportunity.
-              example: "Riservato a titolari della Carta Europea della Disabilità con
+              example:
+                "Riservato a titolari della Carta Europea della Disabilità con
                 invalidità ≥ 50%."
             language:
               type: string

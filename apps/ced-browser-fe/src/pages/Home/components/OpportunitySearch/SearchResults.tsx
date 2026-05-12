@@ -53,7 +53,7 @@ export function SearchResults({
       >
         <Typography
           sx={{
-            fontSize: 12,
+            fontSize: 14,
             fontWeight: 700,
             color: '#555C70',
             letterSpacing: '0.08em',

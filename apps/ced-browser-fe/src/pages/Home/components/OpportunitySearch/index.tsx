@@ -78,7 +78,6 @@ export function OpportunitySearch({
         }}
       >
         <TextField
-          className="SearchTextField"
           inputRef={inputRef}
           value={query}
           onChange={(event) => setQuery(event.target.value)}

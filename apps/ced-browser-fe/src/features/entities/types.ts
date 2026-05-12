@@ -37,3 +37,13 @@ export type EntitySearchResponse = {
   total: number;
   items: EntitySearchItem[];
 };
+
+export type AccessPointDetail = {
+  id: string;
+  title: string;
+  entityId: string;
+  entityName: string;
+  opportunities: EntityOpportunity[];
+  contacts: EntityContacts;
+  relatedAccessPoints: EntityAccessPoint[];
+};

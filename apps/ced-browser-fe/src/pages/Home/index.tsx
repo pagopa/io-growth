@@ -6,9 +6,25 @@ import { InfoBox } from '../../components/Infobox';
 import { useNavigate } from 'react-router-dom';
 import { APP_ROUTES } from '../../app/routeConfig';
 import { theme } from '../../core/theme';
+import { useState } from 'react';
+import { OpportunitySearch } from './components/OpportunitySearch';
 
 export default function HomePage() {
   const navigate = useNavigate();
+  const [isSearchActive, setIsSearchActive] = useState(false);
+
+  if (isSearchActive)
+    return (
+      <Stack direction="column" gap={2} px={3} pt={3}>
+        <Typography variant="h4" sx={{ fontWeight: 700 }}>
+          Scopri le opportunità
+        </Typography>
+        <OpportunitySearch
+          isSearchActive={isSearchActive}
+          setIsSearchActive={setIsSearchActive}
+        />
+      </Stack>
+    );
   return (
     <Stack
       sx={{
@@ -27,7 +43,10 @@ export default function HomePage() {
         <Typography variant="h4" sx={{ fontWeight: 700 }}>
           Scopri le opportunità
         </Typography>
-        <AppTextField placeholder="Cerca per città, struttura o ente" />
+        <OpportunitySearch
+          isSearchActive={isSearchActive}
+          setIsSearchActive={setIsSearchActive}
+        />
       </Stack>
 
       <Stack direction="column" gap={2}>

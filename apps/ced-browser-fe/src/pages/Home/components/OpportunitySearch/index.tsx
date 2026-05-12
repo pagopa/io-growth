@@ -15,11 +15,17 @@ import { SearchInitialState } from './SearchInitialState';
 import { SearchResults } from './SearchResults';
 import { SearchResultsSkeleton } from './SearchResultsSkeleton';
 
-export function OpportunitySearch() {
+type OpportunitySearchProps = {
+  isSearchActive: boolean;
+  setIsSearchActive: (value: boolean) => void;
+};
+export function OpportunitySearch({
+  isSearchActive,
+  setIsSearchActive,
+}: OpportunitySearchProps) {
   const navigate = useNavigate();
   const [query, setQuery] = useState('');
   const [debouncedQuery, setDebouncedQuery] = useState('');
-  const [isSearchActive, setIsSearchActive] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -63,7 +69,7 @@ export function OpportunitySearch() {
   };
 
   return (
-    <Box sx={{ p: 3 }}>
+    <Box>
       <Box
         component="header"
         sx={{

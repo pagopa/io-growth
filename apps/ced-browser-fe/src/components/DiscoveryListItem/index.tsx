@@ -18,12 +18,10 @@ export type {
   DiscoveryListItemVariant,
 } from './types.js';
 
-function OpportunityContent({
-  eyebrow,
-  title,
-  badgeLabel,
-  secondaryColor,
-}: OpportunityProps & { secondaryColor: string }) {
+function OpportunityContent({ eyebrow, title, badgeLabel }: OpportunityProps) {
+  const theme = useTheme();
+  const secondaryColor = theme.palette.text.secondary;
+  const { badgeBg, badgeText } = theme.palette.common;
   return (
     <Stack spacing={1} sx={{ minWidth: 0, flex: 1 }}>
       <Stack spacing={0.5} sx={{ minWidth: 0 }}>
@@ -64,8 +62,8 @@ function OpportunityContent({
           borderRadius: '999px',
           px: 1,
           py: 0.75,
-          bgcolor: '#DBF9FA',
-          color: '#003B3D',
+          bgcolor: badgeBg,
+          color: badgeText,
           fontSize: 12,
           fontWeight: 600,
           lineHeight: 1,
@@ -77,11 +75,9 @@ function OpportunityContent({
   );
 }
 
-function SimpleContent({
-  title,
-  subtitle,
-  secondaryColor,
-}: SimpleProps & { secondaryColor: string }) {
+function SimpleContent({ title, subtitle }: SimpleProps) {
+  const theme = useTheme();
+  const secondaryColor = theme.palette.text.secondary;
   return (
     <Stack spacing={1} sx={{ minWidth: 0, flex: 1 }}>
       <Stack spacing={0.5} sx={{ minWidth: 0 }}>
@@ -122,8 +118,6 @@ function SimpleContent({
 
 export function DiscoveryListItem(props: DiscoveryListItemProps) {
   const { onClick, disabled = false, sx } = props;
-  const theme = useTheme();
-  const secondaryColor = theme.palette.text.secondary;
 
   return (
     <ButtonBase
@@ -145,9 +139,9 @@ export function DiscoveryListItem(props: DiscoveryListItemProps) {
     >
       <Stack direction="row" justifyContent="space-between" gap={1} px={3}>
         {props.variant === 'simple' ? (
-          <SimpleContent {...props} secondaryColor={secondaryColor} />
+          <SimpleContent {...props} />
         ) : (
-          <OpportunityContent {...props} secondaryColor={secondaryColor} />
+          <OpportunityContent {...props} />
         )}
 
         <Box

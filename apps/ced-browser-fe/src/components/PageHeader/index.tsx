@@ -13,7 +13,7 @@ export function PageHeader({ title, subtitle, onBack }: PageHeaderProps) {
   const navigate = useNavigate();
 
   return (
-    <Box sx={{ px: 2, pt: 3, pb: 2 }}>
+    <Box sx={{ px: 3, pt: 3, pb: 2 }}>
       <ButtonBase
         onClick={onBack ?? (() => navigate(-1))}
         sx={{

@@ -25,7 +25,7 @@ export default function EntityDetailPage() {
         >
           <PageHeader title={resolvedData.name} />
 
-          <Stack spacing={2} sx={{ mt: 2, mb: 4, px: 2 }}>
+          <Stack spacing={2} sx={{ mt: 2, mb: 4 }}>
             <ItemsSection
               variant="opportunity"
               entityId={id ?? ''}

@@ -16,7 +16,7 @@ export function ContactRow({ icon, label, href }: ContactRowProps) {
         alignItems: 'center',
         justifyContent: 'flex-start',
         gap: 1.5,
-        px: 0,
+        px: 3,
         py: 2,
         color: 'primary.main',
       }}

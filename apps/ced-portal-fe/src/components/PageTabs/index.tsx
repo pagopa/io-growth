@@ -1,17 +1,19 @@
 import { Tab, Tabs, Typography, useTheme } from '@mui/material';
 import type { SyntheticEvent } from 'react';
 
-interface OpportunitiesTabsProps {
+interface PageTabsProps {
   activeTab: number;
   onChange: (event: SyntheticEvent, newValue: number) => void;
+  tabLabels?: string[];
 }
 
-const TAB_LABELS = ['Nuove', 'Approvate', 'Non attive'];
+const DEFAULT_TAB_LABELS = ['Nuove', 'Approvate', 'Non attive'];
 
-export const OpportunitiesTabs = ({
+export const PageTabs = ({
   activeTab,
   onChange,
-}: OpportunitiesTabsProps) => {
+  tabLabels = DEFAULT_TAB_LABELS,
+}: PageTabsProps) => {
   const theme = useTheme();
 
   return (
@@ -21,7 +23,7 @@ export const OpportunitiesTabs = ({
       variant="fullWidth"
       sx={{ width: '100%' }}
     >
-      {TAB_LABELS.map((label, index) => (
+      {tabLabels.map((label, index) => (
         <Tab
           key={label}
           label={

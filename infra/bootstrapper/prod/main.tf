@@ -42,8 +42,7 @@ module "azure-PROD-CED_bootstrap" {
   }
 
   github_private_runner = {
-    container_app_environment_id       = module.azure-PROD-CED_core_values.github_runner.environment_id
-    container_app_environment_location = local.azure_accounts.PROD-CED.location
+    container_app_environment_id = module.azure-PROD-CED_core_values.github_runner.environment_id
     labels = [
       "prod"
     ]

@@ -14,16 +14,19 @@ import {
   Typography,
   useTheme,
 } from '@mui/material';
-import type { ReactNode } from 'react';
+import { useState, type ReactNode } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { APP_ROUTES } from '../../app/routeConfig';
-import { DownloadItem, UploadDropzone } from '../../components';
+import { DownloadItem, UploadDropzone, UploadState } from '../../components';
 import {
   ENTITY_STATE_COLORS,
   ENTITY_STATE_OPTIONS,
 } from '../../constants/opportunityState';
+import { useToast } from '../../contexts';
 import { useGetEntityDetailQuery } from '../../features/entities/api';
 import { DetailSection } from '../OpportunityDetail/components/DetailSection';
+import { PublishEntityModal } from './components/PublishEntityModal';
+import { RejectEntityModal } from './components/RejectEntityModal';
 
 type SectionCardProps = {
   title: string;
@@ -54,6 +57,23 @@ export default function EntityDetailPage() {
     isError,
     refetch,
   } = useGetEntityDetailQuery(id ?? '');
+
+  const { showToast } = useToast();
+
+  const [uploadState, setUploadState] = useState<UploadState>('idle');
+  const [uploadedFile, setUploadedFile] = useState<string | null>(null);
+  const [openPublishModal, setOpenPublishModal] = useState(false);
+  const [openRejectModal, setOpenRejectModal] = useState(false);
+  const handlePublish = () => {
+    if (!uploadedFile) {
+      showToast(
+        'Carica la richiesta di convenzionamento controfirmata prima di approvare',
+        'error',
+      );
+      return;
+    }
+    setOpenPublishModal(true);
+  };
 
   const entityFields = detail
     ? [
@@ -249,11 +269,37 @@ export default function EntityDetailPage() {
           <Divider sx={{ ml: 3, mr: 3 }} />
           <Box sx={{ py: 2, px: 3 }}>
             <UploadDropzone
-              onFileSelect={() => {}}
-              subtitle="Dimensione massima 300 x 300px - Formato PDF"
               title="Trascina qui la richiesta di convenzionamento controfirmata"
+              subtitle="Dimensione massima 300 x 300px - Formato PDF"
+              onFileSelect={(file) => {
+                if (file) {
+                  setUploadState('loading');
+                  // Simulate upload...
+                  setTimeout(() => {
+                    setUploadedFile(file.name);
+                    setUploadState('success');
+                  }, 2000);
+                }
+              }}
+              isLoading={uploadState === 'loading'}
+              isError={uploadState === 'error'}
+              isSuccess={uploadState === 'success'}
+              uploadedFileName={uploadedFile || undefined}
+              uploadedFileLabel="Richiesta di convenzionamento controfirmata"
+              onRetry={() => setUploadState('idle')}
+              onDelete={() => {
+                setUploadedFile(null);
+                setUploadState('idle');
+              }}
+              onCancel={() => setUploadState('idle')}
               acceptedTypes={['application/pdf']}
             />
+            <Typography
+              variant="body2"
+              sx={{ mt: 3, mb: 3, fontWeight: 600, color: 'error.dark' }}
+            >
+              * Campo obbligatorio
+            </Typography>
           </Box>
         </SectionCard>
         <Stack
@@ -266,12 +312,36 @@ export default function EntityDetailPage() {
             variant="outlined"
             color="error"
             sx={{ borderRadius: 2, px: 3 }}
+            onClick={() => setOpenRejectModal(true)}
           >
             Rifiuta
           </Button>
-          <Button variant="contained" sx={{ borderRadius: 2, px: 4 }}>
+          <Button
+            variant="contained"
+            sx={{ borderRadius: 2, px: 4 }}
+            onClick={handlePublish}
+          >
             Approva
           </Button>
+
+          <RejectEntityModal
+            open={openRejectModal}
+            onClose={() => setOpenRejectModal(false)}
+            onConfirm={() => {
+              setOpenRejectModal(false);
+              navigate(APP_ROUTES.ENTITIES);
+              showToast('Fatto', 'success');
+            }}
+            detail={detail}
+          />
+          <PublishEntityModal
+            open={openPublishModal}
+            onClose={() => setOpenPublishModal(false)}
+            onPublish={() => {
+              navigate(APP_ROUTES.ENTITIES);
+              showToast('Ente pubblicato con successo', 'success');
+            }}
+          />
         </Stack>
       </Stack>
     </Box>

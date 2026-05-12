@@ -8,7 +8,7 @@ import {
 } from '@mui/material';
 import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
 import SearchRoundedIcon from '@mui/icons-material/SearchRounded';
-import { generatePath, useNavigate } from 'react-router-dom';
+import { generatePath } from 'react-router-dom';
 import { useSearchEntitiesQuery } from '../../../../features/entities/api';
 import { SearchEmptyState } from './SearchEmptyState';
 import { SearchInitialState } from './SearchInitialState';
@@ -28,7 +28,6 @@ export function OpportunitySearch({
   isSearchActive,
   setIsSearchActive,
 }: OpportunitySearchProps) {
-  const navigate = useNavigate();
   const inputRef = useRef<HTMLInputElement>(null);
 
   const [query, setQuery] = useState('');

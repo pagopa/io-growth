@@ -7,6 +7,8 @@ export type UploadDropzoneProps = {
   title: string;
   subtitle: string;
   onFileSelect: (file: File | null) => void;
+  /** Accepted file types, e.g. ['application/pdf'] or ['.pdf', '.p7m'] */
+  acceptedTypes?: string[];
 };
 
 const MAX_FILE_NAME_LENGTH = 50;
@@ -32,14 +34,25 @@ export function UploadDropzone({
   title,
   subtitle,
   onFileSelect,
+  acceptedTypes,
 }: UploadDropzoneProps) {
   const handleDragOver = (event: DragEvent<HTMLLabelElement>) => {
     event.preventDefault();
   };
 
+  const isAccepted = (file: File): boolean => {
+    if (!acceptedTypes || acceptedTypes.length === 0) return true;
+    return acceptedTypes.some((type) =>
+      type.startsWith('.')
+        ? file.name.toLowerCase().endsWith(type.toLowerCase())
+        : file.type === type,
+    );
+  };
+
   const handleDrop = (event: DragEvent<HTMLLabelElement>) => {
     event.preventDefault();
     const file = event.dataTransfer.files?.[0] ?? null;
+    if (file && !isAccepted(file)) return;
     onFileSelect(file);
   };
 
@@ -112,6 +125,7 @@ export function UploadDropzone({
         component="input"
         type="file"
         onChange={handleChange}
+        accept={acceptedTypes?.join(',')}
         sx={{ display: 'none' }}
       />
     </Box>

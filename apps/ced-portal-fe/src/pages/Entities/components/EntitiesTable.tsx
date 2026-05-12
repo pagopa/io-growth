@@ -1,8 +1,8 @@
 import CheckCircleRoundedIcon from '@mui/icons-material/CheckCircleRounded';
 import ChevronRightRoundedIcon from '@mui/icons-material/ChevronRightRounded';
-import WarningAmberRoundedIcon from '@mui/icons-material/WarningAmberRounded';
 import {
   Chip,
+  CircularProgress,
   IconButton,
   Paper,
   Stack,
@@ -14,8 +14,6 @@ import {
   TableRow,
   TableSortLabel,
   Typography,
-  Button,
-  CircularProgress,
   useTheme,
 } from '@mui/material';
 import { useCallback, useMemo, useState } from 'react';
@@ -36,7 +34,6 @@ interface EntitiesTableProps {
   items: EntityItem[];
   isLoading: boolean;
   isError: boolean;
-  onRetry: () => void;
 }
 
 const isRequestItem = (item: EntityItem): item is EntityRequestItem =>
@@ -50,7 +47,6 @@ export const EntitiesTable = ({
   items,
   isLoading,
   isError,
-  onRetry,
 }: EntitiesTableProps) => {
   const theme = useTheme();
 

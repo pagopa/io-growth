@@ -9,7 +9,7 @@ import {
 } from "@pagopa/io-core-adapter-fims";
 import { createResilientRedisClient } from "@pagopa/io-core-adapter-redis";
 
-import { createRedisSessionStore } from "./adapters/outbound/redis/session-store.redis.js";
+import { createRedisSessionRepository } from "./adapters/outbound/redis/redis-session.repository.js";
 import { parseConfig } from "./config.js";
 
 const config = parseConfig();
@@ -21,7 +21,7 @@ const redisClient = await createResilientRedisClient({
   tls: config.REDIS_TLS,
 });
 
-const sessionStore = createRedisSessionStore(redisClient);
+const sessionStore = createRedisSessionRepository(redisClient);
 
 const containerClient = new BlobServiceClient(
   config.FIMS_AUDIT_BLOB_URI,

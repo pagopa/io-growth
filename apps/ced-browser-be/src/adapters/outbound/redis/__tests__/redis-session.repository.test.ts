@@ -10,7 +10,7 @@ vi.mock("@pagopa/io-core-adapter-redis", () => ({
 
 import { del, get, setEx } from "@pagopa/io-core-adapter-redis";
 
-import { createRedisSessionStore } from "../session-store.redis.js";
+import { createRedisSessionRepository } from "../redis-session.repository.js";
 
 const mockGet = vi.mocked(get);
 const mockSetEx = vi.mocked(setEx);
@@ -25,10 +25,10 @@ const SESSION = {
   givenName: "Mario",
 };
 
-describe("createRedisSessionStore (browser — key prefix 'browser:')", () => {
+describe("createRedisSessionRepository (browser — key prefix 'browser:')", () => {
   it("storeSession prefixes key with 'browser:session:'", async () => {
     mockSetEx.mockResolvedValue(ok(undefined));
-    const store = createRedisSessionStore(fakeClient);
+    const store = createRedisSessionRepository(fakeClient);
     await store.storeSession("token-abc", SESSION, 1800);
     expect(mockSetEx).toHaveBeenCalledWith(
       fakeClient,
@@ -40,7 +40,7 @@ describe("createRedisSessionStore (browser — key prefix 'browser:')", () => {
 
   it("getSession prefixes key with 'browser:session:'", async () => {
     mockGet.mockResolvedValue(ok(SESSION));
-    const store = createRedisSessionStore(fakeClient);
+    const store = createRedisSessionRepository(fakeClient);
     const result = await store.getSession("token-abc");
     expect(mockGet).toHaveBeenCalledWith(
       fakeClient,
@@ -51,7 +51,7 @@ describe("createRedisSessionStore (browser — key prefix 'browser:')", () => {
 
   it("storeTemporary prefixes key with 'browser:'", async () => {
     mockSetEx.mockResolvedValue(ok(undefined));
-    const store = createRedisSessionStore(fakeClient);
+    const store = createRedisSessionRepository(fakeClient);
     await store.storeTemporary("nonce:state-hex", "nonce-value", 60);
     expect(mockSetEx).toHaveBeenCalledWith(
       fakeClient,
@@ -63,7 +63,7 @@ describe("createRedisSessionStore (browser — key prefix 'browser:')", () => {
 
   it("getTemporary prefixes key with 'browser:'", async () => {
     mockGet.mockResolvedValue(ok("nonce-value"));
-    const store = createRedisSessionStore(fakeClient);
+    const store = createRedisSessionRepository(fakeClient);
     const result = await store.getTemporary("nonce:state-hex");
     expect(mockGet).toHaveBeenCalledWith(fakeClient, "browser:nonce:state-hex");
     expect(result._unsafeUnwrap()).toBe("nonce-value");
@@ -71,14 +71,14 @@ describe("createRedisSessionStore (browser — key prefix 'browser:')", () => {
 
   it("deleteTemporary prefixes key with 'browser:'", async () => {
     mockDel.mockResolvedValue(ok(undefined));
-    const store = createRedisSessionStore(fakeClient);
+    const store = createRedisSessionRepository(fakeClient);
     await store.deleteTemporary("nonce:state-hex");
     expect(mockDel).toHaveBeenCalledWith(fakeClient, "browser:nonce:state-hex");
   });
 
   it("getSession propagates errors from redis", async () => {
     mockGet.mockResolvedValue(err(new GenericError("redis down")));
-    const store = createRedisSessionStore(fakeClient);
+    const store = createRedisSessionRepository(fakeClient);
     const result = await store.getSession("token-abc");
     expect(result.isErr()).toBe(true);
   });

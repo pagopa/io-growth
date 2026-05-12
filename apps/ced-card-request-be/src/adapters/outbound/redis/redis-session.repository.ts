@@ -17,7 +17,7 @@ const KEY_PREFIX = "card:";
  * All keys are namespaced with "card:" to avoid collisions with
  * ced-portal-be and ced-browser-be that share the same Redis instance.
  */
-export const createRedisSessionStore = (
+export const createRedisSessionRepository = (
   client: RedisCommands,
 ): FimsSessionStore => ({
   deleteTemporary: (key) => del(client, `${KEY_PREFIX}${key}`),

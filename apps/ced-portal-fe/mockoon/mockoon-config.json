@@ -312,6 +312,37 @@
       "responseMode": null,
       "streamingMode": null,
       "streamingInterval": 0
+    },
+    {
+      "uuid": "b7c8d9e0-f1a2-3456-bcde-112233445566",
+      "type": "http",
+      "documentation": "Dettaglio ente",
+      "method": "get",
+      "endpoint": "api/entities/:id",
+      "responses": [
+        {
+          "uuid": "b7c8d9e0-f1a2-3456-bcde-112233445567",
+          "body": "{\n    \"id\": \"{{urlParam 'id'}}\",\n    \"name\": \"Ente_name\",\n    \"state\": \"Da_gestire\",\n    \"product\": \"Carta Europea della Disabilita\",\n    \"adherent_type\": \"Ente privato\",\n    \"business_name\": \"XXX\",\n    \"legal_headquarters\": \"XXX\",\n    \"cap\": \"XXX\",\n    \"pec_email\": \"xxx@pec.xxx.it\",\n    \"vat_number\": \"XXX\",\n    \"is_group_vat\": \"No\",\n    \"sdi_code\": \"XXX\",\n    \"business_registry_place\": \"XXX\",\n    \"rea\": \"XXX\",\n    \"public_email\": \"XXX\",\n    \"geographic\": {\n        \"competence_area\": \"Locale\",\n        \"areas\": [\n            \"Roma e provincia\",\n            \"Frosinone e provincia\",\n            \"Latina e provincia\",\n            \"Viterbo e provincia\",\n            \"Rieti e provincia\"\n        ]\n    },\n    \"legal_representative\": {\n        \"full_name\": \"Mario Rossi\",\n        \"email\": \"mario.rossi@dominio.com\",\n        \"phone\": \"XXXXXXXXXX\"\n    },\n    \"convention\": {\n        \"request_file\": {\n            \"name\": \"Richiesta_di_convenzionamento_CED.p7m\",\n            \"url\": \"/files/Richiesta_di_convenzionamento_CED.p7m\"\n        },\n        \"upload_hint\": \"Trascina qui la richiesta di convenzionamento controfirmata\",\n        \"upload_format_hint\": \"Dimensione massima 300 x 300px - Formato PDF\",\n        \"mandatory_hint\": \"Campo obbligatorio\"\n    }\n}",
+          "latency": 0,
+          "statusCode": 200,
+          "label": "Entity detail",
+          "headers": [],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": true,
+          "crudKey": "id",
+          "callbacks": []
+        }
+      ],
+      "responseMode": null,
+      "streamingMode": null,
+      "streamingInterval": 0
     }
   ],
   "rootChildren": [
@@ -346,6 +377,10 @@
     {
       "type": "route",
       "uuid": "a2b3c4d5-e6f7-8901-bcde-f01234567890"
+    },
+    {
+      "type": "route",
+      "uuid": "b7c8d9e0-f1a2-3456-bcde-112233445566"
     }
   ],
   "proxyMode": false,

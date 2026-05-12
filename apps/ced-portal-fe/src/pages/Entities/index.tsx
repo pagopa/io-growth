@@ -31,12 +31,14 @@ export default function EntitiesPage() {
   const [page, setPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(5);
 
-  const { requestItems, entityItems, isLoading, isError, refetch } =
+  const { requestItems, entityItems, isLoading, isError } =
     useEntitiesData(filters);
 
+  const isRequestsTab = activeTab === 0;
+
   const displayedItems = useMemo(
-    () => (activeTab === 0 ? requestItems : entityItems),
-    [activeTab, entityItems, requestItems],
+    () => (isRequestsTab ? requestItems : entityItems),
+    [isRequestsTab, entityItems, requestItems],
   );
 
   const paginatedItems = useMemo(() => {
@@ -44,8 +46,9 @@ export default function EntitiesPage() {
     return displayedItems.slice(start, start + rowsPerPage);
   }, [displayedItems, page, rowsPerPage]);
 
-  const stateOptions =
-    activeTab === 0 ? REQUEST_STATE_OPTIONS : ENTITY_STATE_OPTIONS;
+  const stateOptions = isRequestsTab
+    ? REQUEST_STATE_OPTIONS
+    : ENTITY_STATE_OPTIONS;
 
   const handleTabChange = (_event: SyntheticEvent, newValue: number) => {
     setActiveTab(newValue);
@@ -112,7 +115,6 @@ export default function EntitiesPage() {
             items={paginatedItems}
             isLoading={isLoading}
             isError={isError}
-            onRetry={refetch}
           />
           <ResultsPagination
             totalItems={displayedItems.length}

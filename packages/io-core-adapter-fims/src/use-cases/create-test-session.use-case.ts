@@ -19,7 +19,7 @@ export type CreateTestSession = UseCase<
   BaseError
 >;
 
-export const createCreateTestSession = (
+export const createTestSession = (
   sessionStore: FimsSessionStore,
   config: FimsAuthFlowConfig,
 ): CreateTestSession => {

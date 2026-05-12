@@ -26,7 +26,7 @@ export interface OidcClient {
   ) => Promise<Result<string, GenericError>>;
 }
 
-// Singleton client cache keyed by issuerUrl+clientId to survive restarts of the flow
+// Singleton client cache keyed by issuerUrl+clientId to avoid repeated OIDC discovery within the same process
 const clientCache = new Map<
   string,
   InstanceType<Awaited<ReturnType<typeof Issuer.discover>>["Client"]>

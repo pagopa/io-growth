@@ -41,7 +41,7 @@ export const buildSessionAndRedirect = async (
   const deviceResult = await sessionStore.getTemporary(`device:${state}`);
   const device =
     deviceResult.isOk() && deviceResult.value
-      ? `&device=${deviceResult.value}`
+      ? `&device=${encodeURIComponent(deviceResult.value)}`
       : "";
 
   return ok(`${config.baseUrl}/authorize?id=${sessionId}${device}`);

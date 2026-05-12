@@ -8,7 +8,7 @@ import { describe, expect, it, vi } from "vitest";
 import type { FimsSessionStore } from "../../domain/ports.js";
 import type { FimsAuthFlowConfig, FimsSession } from "../../domain/types.js";
 
-import { createCreateTestSession } from "../create-test-session.use-case.js";
+import { createTestSession } from "../create-test-session.use-case.js";
 import { hashFiscalCode } from "../test-users.js";
 
 const TEST_FISCAL_CODE = "RSSMRA80A01H501U";
@@ -42,13 +42,10 @@ const makeMockSessionStore = (): FimsSessionStore => ({
   ),
 });
 
-describe("createCreateTestSession", () => {
+describe("createTestSession", () => {
   it("returns ForbiddenError for non-test users", async () => {
-    const createTestSession = createCreateTestSession(
-      makeMockSessionStore(),
-      CONFIG,
-    );
-    const result = await createTestSession({
+    const useCase = createTestSession(makeMockSessionStore(), CONFIG);
+    const result = await useCase({
       familyName: "Bianchi",
       fiscalCode: "UNKNOWN_FISCAL_CODE",
       givenName: "Luigi",
@@ -62,8 +59,8 @@ describe("createCreateTestSession", () => {
     const sessionStore = makeMockSessionStore();
     vi.mocked(sessionStore.getTemporary).mockResolvedValue(ok(null));
 
-    const createTestSession = createCreateTestSession(sessionStore, CONFIG);
-    const result = await createTestSession({
+    const useCase = createTestSession(sessionStore, CONFIG);
+    const result = await useCase({
       familyName: "Rossi",
       fiscalCode: TEST_FISCAL_CODE,
       givenName: "Mario",

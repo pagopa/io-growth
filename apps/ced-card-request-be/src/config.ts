@@ -3,6 +3,7 @@ import { z } from "zod";
 
 const configSchema = fimsConfigSchema.merge(
   z.object({
+    COSMOS_ENDPOINT: z.string().url(),
     HOST: z.string().default("0.0.0.0"),
     PORT: z.coerce.number().int().min(1).max(65535).default(8080),
     REDIS_HOST: z.string().min(1),

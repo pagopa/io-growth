@@ -6,7 +6,7 @@ import type { ExchangeSessionId } from "./exchange-session-id.use-case.js";
 import type { HandleCallback } from "./handle-callback.use-case.js";
 import type { InitiateAuth } from "./initiate-auth.use-case.js";
 
-import { createCreateTestSession } from "./create-test-session.use-case.js";
+import { createTestSession } from "./create-test-session.use-case.js";
 import { createExchangeSessionId } from "./exchange-session-id.use-case.js";
 import { createHandleCallback } from "./handle-callback.use-case.js";
 import { createInitiateAuth } from "./initiate-auth.use-case.js";
@@ -24,7 +24,7 @@ export const createFimsAuthFlow = (
   auditLogger: AuditLogger,
   config: FimsAuthFlowConfig,
 ): FimsAuthFlow => ({
-  createTestSession: createCreateTestSession(sessionStore, config),
+  createTestSession: createTestSession(sessionStore, config),
   exchangeSessionId: createExchangeSessionId(sessionStore),
   handleCallback: createHandleCallback(
     oidcClient,

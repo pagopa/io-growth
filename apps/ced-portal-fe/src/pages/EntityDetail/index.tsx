@@ -17,6 +17,7 @@ import {
 import type { ReactNode } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { APP_ROUTES } from '../../app/routeConfig';
+import { DownloadItem, UploadDropzone } from '../../components';
 import {
   ENTITY_STATE_COLORS,
   ENTITY_STATE_OPTIONS,
@@ -32,13 +33,13 @@ type SectionCardProps = {
 const SectionCard = ({ title, children }: SectionCardProps) => {
   return (
     <Accordion defaultExpanded elevation={0} sx={{ borderRadius: 2 }}>
-      <AccordionSummary expandIcon={<ExpandMoreIcon />} sx={{ px: 3, py: 1 }}>
+      <AccordionSummary
+        expandIcon={<ExpandMoreIcon color="primary" />}
+        sx={{ px: 3, py: 1 }}
+      >
         <Typography sx={{ fontWeight: 700, fontSize: 18 }}>{title}</Typography>
       </AccordionSummary>
-      <AccordionDetails sx={{ p: 0 }}>
-        <Divider />
-        {children}
-      </AccordionDetails>
+      <AccordionDetails sx={{ p: 0 }}>{children}</AccordionDetails>
     </Accordion>
   );
 };
@@ -106,27 +107,6 @@ export default function EntityDetailPage() {
         {
           label: 'Numero di telefono',
           value: detail.legal_representative.phone,
-        },
-      ]
-    : [];
-
-  const conventionFields = detail
-    ? [
-        {
-          label: 'Richiesta di convenzionamento',
-          value: detail.convention.request_file.name,
-        },
-        {
-          label: 'Caricamento controfirma',
-          value: detail.convention.upload_hint,
-        },
-        {
-          label: 'Formato',
-          value: detail.convention.upload_format_hint,
-        },
-        {
-          label: 'Obbligatorieta',
-          value: detail.convention.mandatory_hint,
         },
       ]
     : [];
@@ -237,9 +217,8 @@ export default function EntityDetailPage() {
           />
         </Stack>
 
-        <SectionCard title="Dati ente">
+        <SectionCard title="Dati dell'ente">
           <DetailSection fields={entityFields} />
-          <Divider />
           <Box sx={{ py: 2, px: 3 }}>
             <Typography
               sx={{
@@ -252,7 +231,6 @@ export default function EntityDetailPage() {
               AREA GEOGRAFICA
             </Typography>
           </Box>
-          <Divider />
           <DetailSection fields={geographicFields} />
         </SectionCard>
 
@@ -260,12 +238,29 @@ export default function EntityDetailPage() {
           <DetailSection fields={legalRepresentativeFields} />
         </SectionCard>
 
-        <SectionCard title="Convenzione">{/* TODO */}</SectionCard>
+        <SectionCard title="Convenzione">
+          <Box sx={{ py: 2, px: 3 }}>
+            <DownloadItem
+              label="Richiesta di convenzionamento"
+              fileName={detail.convention.request_file.name}
+              downloadUrl={detail.convention.request_file.url}
+            />
+          </Box>
+          <Divider sx={{ ml: 3, mr: 3 }} />
+          <Box sx={{ py: 2, px: 3 }}>
+            <UploadDropzone
+              onFileSelect={() => {}}
+              subtitle="Dimensione massima 300 x 300px - Formato PDF"
+              title="Trascina qui la richiesta di convenzionamento controfirmata"
+              acceptedTypes={['application/pdf']}
+            />
+          </Box>
+        </SectionCard>
         <Stack
           direction="row"
           spacing={2}
           justifyContent="flex-end"
-          sx={{ pb: 4 }}
+          sx={{ pt: 2 }}
         >
           <Button
             variant="outlined"

@@ -14,7 +14,7 @@ import type { ProfileRepository } from "../../../domain/ports/outbound/persisten
 import { validateUseCaseInput } from "../utils/validate-use-case-input.js";
 
 const GetOperatorProfileInputSchema = z.object({
-  operatorId: z.uuid(),
+  operatorId: z.ulid(),
 });
 
 export type GetOperatorProfileInput = z.infer<

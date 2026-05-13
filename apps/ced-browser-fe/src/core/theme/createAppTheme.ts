@@ -19,6 +19,8 @@ const NEUTRAL_900 = '#111827';
 const NEUTRAL_500 = '#5F687A';
 const DECORATIVE_BLUE = '#CED8F9';
 const DECORATIVE_CYAN = '#AAEEEF';
+const BADGE_BG = '#DBF9FA';
+const BADGE_TEXT = '#003B3D';
 
 declare module '@mui/material/styles' {
   interface CommonColors {
@@ -36,6 +38,8 @@ declare module '@mui/material/styles' {
     decorativeCyan: string;
     neutral900: string;
     neutral500: string;
+    badgeBg: string;
+    badgeText: string;
   }
 }
 
@@ -63,6 +67,8 @@ export const createAppTheme = () =>
         decorativeCyan: DECORATIVE_CYAN,
         neutral900: NEUTRAL_900,
         neutral500: NEUTRAL_500,
+        badgeBg: BADGE_BG,
+        badgeText: BADGE_TEXT,
       },
     },
     components: {

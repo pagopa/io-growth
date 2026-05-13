@@ -17,7 +17,7 @@ type VariantMap = {
     badgeLabel: string;
   };
   simple: {
-    subtitle: ReactNode;
+    subtitle?: ReactNode;
   };
 };
 

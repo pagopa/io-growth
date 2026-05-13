@@ -3,6 +3,7 @@ import type {
   EntityDetail,
   EntitySearchResponse,
   AccessPointDetail,
+  OpportunityDetail,
 } from './types.js';
 
 export const entitiesApi = baseApi.injectEndpoints({
@@ -25,6 +26,10 @@ export const entitiesApi = baseApi.injectEndpoints({
         { type: 'Entities', id: `${entityId}-ap-${accessPointId}` },
       ],
     }),
+    getOpportunityDetail: builder.query<OpportunityDetail, string>({
+      query: (id) => `/opportunities/${id}`,
+      providesTags: (_result, _error, id) => [{ type: 'Opportunities', id }],
+    }),
   }),
 });
 
@@ -32,4 +37,5 @@ export const {
   useGetEntityDetailQuery,
   useSearchEntitiesQuery,
   useGetAccessPointDetailQuery,
+  useGetOpportunityDetailQuery,
 } = entitiesApi;

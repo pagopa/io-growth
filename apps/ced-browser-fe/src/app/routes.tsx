@@ -12,6 +12,7 @@ import {
   HomePage,
   NotFoundPage,
   OpportunitiesListPage,
+  OpportunityDetailPage,
   UnauthorizedPage,
 } from './routeConfig';
 
@@ -46,6 +47,10 @@ export function AppRoutes() {
           <Route
             path={APP_ROUTES.ENTITY_ACCESS_POINT_DETAIL}
             element={<EntityAccessPointDetailPage />}
+          />
+          <Route
+            path={APP_ROUTES.OPPORTUNITY_DETAIL}
+            element={<OpportunityDetailPage />}
           />
           <Route
             path={APP_ROUTES.EUROPEAN_OPPORTUNITIES}

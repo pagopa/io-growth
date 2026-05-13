@@ -30,8 +30,7 @@ const FCB_URL = "https://example.com/fcb";
 
 const SAMPLE_HEADERS = {
   signature: "sig1=:abc:",
-  "signature-input":
-    `sig1=("@method" "@target-uri");nonce="test-state-hex";keyid="${ASSERTION_REF}"`,
+  "signature-input": `sig1=("@method" "@target-uri");nonce="test-state-hex";keyid="${ASSERTION_REF}"`,
 };
 
 describe("verifyHttpSignature", () => {

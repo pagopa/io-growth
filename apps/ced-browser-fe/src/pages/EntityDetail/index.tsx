@@ -1,3 +1,4 @@
+import { AccountBalanceOutlined } from '@mui/icons-material';
 import { Box, Stack } from '@mui/material';
 import { useParams } from 'react-router-dom';
 import { useGetEntityDetailQuery } from '../../features/entities/api.js';
@@ -23,7 +24,30 @@ export default function EntityDetailPage() {
             bgcolor: 'background.paper',
           }}
         >
-          <PageHeader title={resolvedData.name} />
+          <PageHeader
+            title={resolvedData.name}
+            leadingContent={
+              resolvedData.accessPoints.length === 0 ? (
+                <Box
+                  sx={{
+                    width: 96,
+                    height: 96,
+                    borderRadius: 2,
+                    border: '1px solid',
+                    borderColor: 'divider',
+                    bgcolor: 'common.neutralGray',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
+                >
+                  <AccountBalanceOutlined
+                    sx={{ fontSize: 42, color: '#BBC2D6' }}
+                  />
+                </Box>
+              ) : undefined
+            }
+          />
 
           <Stack spacing={2} sx={{ mt: 2, mb: 4 }}>
             <ItemsSection

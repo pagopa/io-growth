@@ -51,7 +51,7 @@ export const createDrizzleOperatorRepository = (
               externalId: result[0].externalId,
               id: result[0].id,
               name: result[0].name,
-              status: result[0].status as "active",
+              status: result[0].status,
             }
           : undefined,
       );

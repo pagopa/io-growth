@@ -147,7 +147,7 @@ paths:
                 $ref: "#/components/schemas/ErrorResponse"
 
   /test-session:
-    get:
+    post:
       tags:
         - Access
       summary: Create a test session (test users only)
@@ -157,22 +157,23 @@ paths:
         `TEST_USERS` allowlist. Returns 403 if the fiscal code is not authorised.
       operationId: createTestSession
       security: []
-      parameters:
-        - in: query
-          name: fiscalCode
-          required: true
-          schema:
-            type: string
-        - in: query
-          name: familyName
-          required: true
-          schema:
-            type: string
-        - in: query
-          name: givenName
-          required: true
-          schema:
-            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - fiscalCode
+                - familyName
+                - givenName
+              properties:
+                fiscalCode:
+                  type: string
+                familyName:
+                  type: string
+                givenName:
+                  type: string
       responses:
         "302":
           description: Redirect to `/authorize?id=…` with the test session.

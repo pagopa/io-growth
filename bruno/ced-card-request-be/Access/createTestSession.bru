@@ -1,0 +1,20 @@
+meta {
+  name: Create a test session (test users only)
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{baseUrl}}/test-session
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "fiscalCode": "",
+    "familyName": "",
+    "givenName": ""
+  }
+}
+

@@ -18,7 +18,7 @@ import type { FimsAuthFlow } from "../use-cases/fims-auth-flow.js";
  * - `GET /fauth`         — Redirect to FIMS OIDC provider
  * - `GET /fcb`           — FIMS callback: create session, redirect to /authorize
  * - `GET /authorize`     — Exchange one-time session ID for durable token
- * - `GET /test-session`  — Create a session for test users (guarded by TEST_USERS)
+ * - `POST /test-session` — Create a session for test users (guarded by TEST_USERS)
  *
  * Callers only need to call `.listen()` on the returned instance.
  * Fastify is a direct dependency of this package so apps do not need to install it.
@@ -131,15 +131,15 @@ export const createFimsApp = (
   );
 
   // -----------------------------------------------------------------------
-  // GET /test-session — create session for test users (public but guarded)
+  // POST /test-session — create session for test users (public but guarded)
   // -----------------------------------------------------------------------
-  fastify.get<{
-    Querystring: { familyName: string; fiscalCode: string; givenName: string };
+  fastify.post<{
+    Body: { familyName: string; fiscalCode: string; givenName: string };
   }>(
     "/test-session",
     async (
       request: FastifyRequest<{
-        Querystring: {
+        Body: {
           familyName: string;
           fiscalCode: string;
           givenName: string;
@@ -153,7 +153,7 @@ export const createFimsApp = (
           fiscalCode: z.string().min(1),
           givenName: z.string().min(1),
         })
-        .safeParse(request.query);
+        .safeParse(request.body);
       if (!queryResult.success) {
         return sendErrorResponse(
           reply,

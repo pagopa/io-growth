@@ -15,7 +15,7 @@
     "lint": "pnpm lint:check --fix",
     "lint:check": "eslint .",
     "start": "node dist/main.js",
-    "run:dev": "tsx --watch src/main.ts",
+    "run:dev": "tsx --env-file=.env --watch src/main.ts",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage"
   },

@@ -7,6 +7,7 @@ export const APP_ROUTES = {
   ENTITY_OPPORTUNITIES: '/enti/:id/opportunita',
   ENTITY_ACCESS_POINTS: '/enti/:id/punti-di-accesso',
   ENTITY_ACCESS_POINT_DETAIL: '/enti/:id/punti-di-accesso/:accessPointId',
+  OPPORTUNITY_DETAIL: '/opportunita/:id',
   EUROPEAN_OPPORTUNITIES: '/european-opportunities',
   OPPORTUNITIES_LIST: '/opportunities',
   NOT_FOUND: '/not-found',
@@ -22,6 +23,16 @@ export const toEntityAccessPointDetailRoute = (
     accessPointId,
   });
 
+export const toOpportunityDetailRoute = (opportunityId: string) =>
+  generatePath(APP_ROUTES.OPPORTUNITY_DETAIL, {
+    id: opportunityId,
+  });
+
+export const toEntityDetailRoute = (entityId: string) =>
+  generatePath(APP_ROUTES.ENTITY_DETAIL, {
+    id: entityId,
+  });
+
 export const HomePage = lazy(() => import('../pages/Home'));
 export const EntityDetailPage = lazy(() => import('../pages/EntityDetail'));
 export const EntityOpportunitiesPage = lazy(
@@ -32,6 +43,9 @@ export const EntityAccessPointsPage = lazy(
 );
 export const EntityAccessPointDetailPage = lazy(
   () => import('../pages/AccessPointDetail'),
+);
+export const OpportunityDetailPage = lazy(
+  () => import('../pages/OpportunityDetail'),
 );
 export const EuropeanOpportunitiesPage = lazy(
   () => import('../pages/EuropeanOpportunities'),

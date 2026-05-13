@@ -4,7 +4,11 @@ import { PARTNERS_CARDS_CONFIG, DISCOVERY_ITEMS_CONFIG } from './constants';
 import { AppTextField, DiscoveryListItem } from '../../components';
 import { InfoBox } from '../../components/Infobox';
 import { useNavigate } from 'react-router-dom';
-import { APP_ROUTES } from '../../app/routeConfig';
+import {
+  APP_ROUTES,
+  toEntityDetailRoute,
+  toOpportunityDetailRoute,
+} from '../../app/routeConfig';
 import { theme } from '../../core/theme';
 
 export default function HomePage() {
@@ -42,7 +46,12 @@ export default function HomePage() {
         >
           IN PRIMO PIANO
         </Typography>
-        <Carousel list={PARTNERS_CARDS_CONFIG} />
+        <Carousel
+          list={PARTNERS_CARDS_CONFIG.map((partner) => ({
+            ...partner,
+            onClick: () => navigate(toEntityDetailRoute(partner.entityId)),
+          }))}
+        />
       </Stack>
 
       <Stack direction="column">
@@ -75,6 +84,7 @@ export default function HomePage() {
             key={item.id}
             sx={{ backgroundColor: theme.palette.background.paper }}
             divider={index < list.length - 1}
+            onClick={() => navigate(toOpportunityDetailRoute(item.id))}
             {...item}
           />
         ))}

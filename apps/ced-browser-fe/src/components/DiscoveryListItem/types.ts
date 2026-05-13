@@ -16,7 +16,7 @@ type VariantMap = {
     badgeLabel: string;
   };
   simple: {
-    subtitle: string;
+    subtitle?: string;
   };
 };
 

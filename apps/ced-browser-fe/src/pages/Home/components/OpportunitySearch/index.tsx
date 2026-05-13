@@ -33,23 +33,22 @@ export function OpportunitySearch({
   const [query, setQuery] = useState('');
   const debouncedQuery = useDebounce(query, 500);
 
-  // RTK Query partirà solo quando la query "ritardata" è lunga almeno 3 caratteri
+  const hasMinQueryLength = query.length >= 3;
+  const isDebouncing = query !== debouncedQuery;
+
   const { data, isFetching } = useSearchEntitiesQuery(debouncedQuery, {
-    skip: debouncedQuery.length < 3,
+    skip: !hasMinQueryLength,
   });
 
+  const isLoading = hasMinQueryLength && (isDebouncing || isFetching);
+  const hasResults = !!data?.items.length;
+
+  const showResults = !isLoading && hasResults;
+  const showEmpty = !isLoading && !hasResults;
   const showClearButton = isSearchActive || query.length > 0;
 
-  // Logica di caricamento ottimizzata
-  const isDebouncing = query !== debouncedQuery;
-  const isLoading = query.length >= 3 && (isDebouncing || isFetching);
-
-  const showResults =
-    !isLoading && query.length >= 3 && data != null && data.items.length > 0;
-  const showEmpty = !isLoading && query.length >= 3 && data?.items.length === 0;
-
   const handleCancel = () => {
-    setQuery(''); // Basta svuotare solo la query principale
+    setQuery('');
     setIsSearchActive(false);
     inputRef.current?.blur();
   };

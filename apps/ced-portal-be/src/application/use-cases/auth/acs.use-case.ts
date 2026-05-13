@@ -5,6 +5,7 @@ import { ValidationError } from "@pagopa/io-core-domain/errors";
 import { decodeJwt } from "jose";
 import { err, okAsync, ResultAsync } from "neverthrow";
 import { randomBytes } from "node:crypto";
+import { ulid } from "ulid";
 import { z } from "zod";
 
 import type { OperatorRepository } from "../../../domain/ports/outbound/persistence/operator.repository.js";
@@ -57,6 +58,7 @@ export const makeAcsUseCase =
           : new ResultAsync(
               operatorRepository.create({
                 externalId: organization.id,
+                id: ulid(),
                 name: organization.name,
                 status: "active",
               }),

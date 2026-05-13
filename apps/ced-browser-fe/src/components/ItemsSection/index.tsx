@@ -11,6 +11,7 @@ import { useNavigate } from 'react-router-dom';
 import {
   APP_ROUTES,
   toEntityAccessPointDetailRoute,
+  toOpportunityDetailRoute,
 } from '../../app/routeConfig.js';
 import { DiscoveryListItem } from '../index.js';
 import { SectionTitle } from '../SectionTitle/index.js';
@@ -45,6 +46,7 @@ export function ItemsSection(props: ItemsSectionProps) {
             {...item}
             eyebrow={hideEyebrow ? undefined : item.eyebrow}
             sx={{ px: 0, bgcolor: 'background.paper' }}
+            onClick={() => navigate(toOpportunityDetailRoute(id))}
           />
         ));
     }

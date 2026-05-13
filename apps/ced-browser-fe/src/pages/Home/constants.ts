@@ -3,39 +3,39 @@ import { DiscoveryListItemProps } from '../../components';
 /// mock
 export const PARTNERS_CARDS_CONFIG = [
   {
+    entityId: 'comune-di-alessandria',
     title: 'Comune di Alessandria',
     imageUrl: 'https://picsum.photos/id/1018/600/400',
     logoUrl:
       'https://upload.wikimedia.org/wikipedia/commons/d/d5/Alessandria-Stemma.png', // Placeholder stemma
-    onClick: () => console.log('Card cliccata'),
   },
   {
+    entityId: 'comune-di-cagliari',
     title: 'Comune di Cagliari',
     imageUrl: 'https://picsum.photos/id/1018/600/400',
     logoUrl:
       'https://upload.wikimedia.org/wikipedia/commons/d/d5/Alessandria-Stemma.png', // Placeholder stemma
-    onClick: () => console.log('Card cliccata'),
   },
   {
+    entityId: 'comune-di-agrigento',
     title: 'Comune di Agrigento',
     imageUrl: 'https://picsum.photos/id/1018/600/400',
     logoUrl:
       'https://upload.wikimedia.org/wikipedia/commons/d/d5/Alessandria-Stemma.png', // Placeholder stemma
-    onClick: () => console.log('Card cliccata'),
   },
   {
+    entityId: 'comune-di-milano',
     title: 'Comune di Milano',
     imageUrl: 'https://picsum.photos/id/1018/600/400',
     logoUrl:
       'https://upload.wikimedia.org/wikipedia/commons/d/d5/Alessandria-Stemma.png', // Placeholder stemma
-    onClick: () => console.log('Card cliccata'),
   },
   {
+    entityId: 'trenitalia',
     title: 'Trenitalia',
     imageUrl: 'https://picsum.photos/id/1018/600/400',
     logoUrl:
       'https://upload.wikimedia.org/wikipedia/commons/d/d5/Alessandria-Stemma.png', // Placeholder stemma
-    onClick: () => console.log('Card cliccata'),
   },
 ];
 

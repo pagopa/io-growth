@@ -93,11 +93,8 @@ export default function OpportunityDetailPage() {
             <Box
               component="h1"
               sx={{
-                color: '#1D212F',
-                fontSize: 48,
                 lineHeight: 1.2,
                 fontWeight: 700,
-                letterSpacing: '-0.01em',
                 mb: 2,
               }}
             >

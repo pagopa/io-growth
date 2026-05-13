@@ -210,8 +210,6 @@ export default function OpportunityDetailPage() {
                     </Box>
                   </Box>
                 </Box>
-
-                <Divider />
               </>
             )}
 

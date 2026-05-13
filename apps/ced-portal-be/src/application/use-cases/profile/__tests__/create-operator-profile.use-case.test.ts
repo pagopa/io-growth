@@ -2,68 +2,48 @@ import { ConflictError } from "@pagopa/io-core-domain/errors";
 import { err, ok } from "neverthrow";
 import { describe, expect, it, vi } from "vitest";
 
-import type { ProfileRepository } from "../../../../domain/ports/outbound/persistence/profile.repository.js";
-
 import { makeCreateOperatorProfileUseCase } from "../create-operator-profile.use-case.js";
-
-const mockOperatorData = {
-  displayName: "Operatore Demo",
-  place: {
-    id: "8eec93a7-7850-4a6c-a3fd-1c5d6202b2e0",
-    name: "Sportello remoto",
-    supportContacts: [
-      {
-        id: "36c92630-1836-4d2d-a3a2-3f50d8a9286f",
-        type: "email" as const,
-        value: "support@example.org",
-      },
-    ],
-    type: "online" as const,
-    website: {
-      url: "https://example.org",
-    },
-  },
-};
-
-const createInput = {
-  displayName: "Operatore Demo",
-  operatorId: "231b5e36-ec82-49f1-a889-3e49107304f1",
-  place: {
-    name: "Sportello remoto",
-    supportContacts: [{ type: "email" as const, value: "support@example.org" }],
-    type: "online" as const,
-    website: {
-      url: "https://example.org",
-    },
-  },
-};
-
-const createMockProfileRepository = (
-  existing?: typeof mockOperatorData,
-): ProfileRepository => ({
-  create: vi.fn().mockResolvedValue(ok(undefined)),
-  getByOperatorId: vi.fn().mockResolvedValue(ok(existing)),
-});
+import {
+  createMockProfileRepository,
+  MOCK_OPERATOR_ID,
+  mockCreateProfileInput,
+  mockProfile,
+} from "./mocks.js";
 
 describe("makeCreateOperatorProfileUseCase", () => {
   it("should create operator profile when no profile exists", async () => {
-    const profileRepository = createMockProfileRepository(undefined);
+    const profileRepository = createMockProfileRepository({
+      create: vi.fn().mockResolvedValue(ok(undefined)),
+      getByOperatorId: vi.fn().mockResolvedValue(ok(undefined)),
+    });
     const useCase = makeCreateOperatorProfileUseCase(profileRepository);
 
-    const result = await useCase(createInput);
+    const result = await useCase(mockCreateProfileInput);
 
     expect(result).toEqual(ok(undefined));
     expect(profileRepository.getByOperatorId).toHaveBeenCalledWith(
-      "231b5e36-ec82-49f1-a889-3e49107304f1",
+      MOCK_OPERATOR_ID,
     );
-    expect(profileRepository.create).toHaveBeenCalledWith(createInput);
+    expect(profileRepository.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        displayName: mockCreateProfileInput.displayName,
+        operatorId: mockCreateProfileInput.operatorId,
+        place: expect.objectContaining({
+          id: expect.stringMatching(/^[0-9A-HJKMNP-TV-Z]{26}$/),
+          name: mockCreateProfileInput.place.name,
+          type: mockCreateProfileInput.place.type,
+        }),
+      }),
+    );
   });
 
   it("should return ConflictError when profile already exists", async () => {
-    const profileRepository = createMockProfileRepository(mockOperatorData);
+    const profileRepository = createMockProfileRepository({
+      getByOperatorId: vi.fn().mockResolvedValue(ok(mockProfile)),
+    });
     const useCase = makeCreateOperatorProfileUseCase(profileRepository);
 
-    const result = await useCase(createInput);
+    const result = await useCase(mockCreateProfileInput);
 
     expect(result).toEqual(
       err(
@@ -78,48 +58,47 @@ describe("makeCreateOperatorProfileUseCase", () => {
 
   it("should propagate repository errors from getByOperatorId", async () => {
     const repoError = new Error("DB connection failed");
-    const profileRepository: ProfileRepository = {
-      create: vi.fn(),
+    const profileRepository = createMockProfileRepository({
       getByOperatorId: vi.fn().mockResolvedValue(err(repoError)),
-    };
+    });
     const useCase = makeCreateOperatorProfileUseCase(profileRepository);
 
-    const result = await useCase(createInput);
+    const result = await useCase(mockCreateProfileInput);
 
     expect(result).toEqual(err(repoError));
   });
 
   it("should propagate repository errors from create", async () => {
     const repoError = new Error("DB write failed");
-    const profileRepository: ProfileRepository = {
+    const profileRepository = createMockProfileRepository({
       create: vi.fn().mockResolvedValue(err(repoError)),
       getByOperatorId: vi.fn().mockResolvedValue(ok(undefined)),
-    };
+    });
     const useCase = makeCreateOperatorProfileUseCase(profileRepository);
 
-    const result = await useCase(createInput);
+    const result = await useCase(mockCreateProfileInput);
 
     expect(result).toEqual(err(repoError));
   });
 
   it("should propagate ConflictError from create when a concurrent profile is created", async () => {
     const repoError = new ConflictError("Operator profile already exists");
-    const profileRepository: ProfileRepository = {
+    const profileRepository = createMockProfileRepository({
       create: vi.fn().mockResolvedValue(err(repoError)),
       getByOperatorId: vi.fn().mockResolvedValue(ok(undefined)),
-    };
+    });
     const useCase = makeCreateOperatorProfileUseCase(profileRepository);
 
-    const result = await useCase(createInput);
+    const result = await useCase(mockCreateProfileInput);
 
     expect(result).toEqual(err(repoError));
   });
 
   it("should return ValidationError when operatorId is empty", async () => {
-    const profileRepository = createMockProfileRepository(undefined);
+    const profileRepository = createMockProfileRepository();
     const useCase = makeCreateOperatorProfileUseCase(profileRepository);
 
-    const result = await useCase({ ...createInput, operatorId: "" });
+    const result = await useCase({ ...mockCreateProfileInput, operatorId: "" });
 
     expect(result).toEqual(
       err(expect.objectContaining({ kind: "ValidationError" })),
@@ -128,10 +107,13 @@ describe("makeCreateOperatorProfileUseCase", () => {
   });
 
   it("should return ValidationError when displayName is empty", async () => {
-    const profileRepository = createMockProfileRepository(undefined);
+    const profileRepository = createMockProfileRepository();
     const useCase = makeCreateOperatorProfileUseCase(profileRepository);
 
-    const result = await useCase({ ...createInput, displayName: "" });
+    const result = await useCase({
+      ...mockCreateProfileInput,
+      displayName: "",
+    });
 
     expect(result).toEqual(
       err(expect.objectContaining({ kind: "ValidationError" })),
@@ -139,12 +121,12 @@ describe("makeCreateOperatorProfileUseCase", () => {
   });
 
   it("should return ValidationError when place has invalid type", async () => {
-    const profileRepository = createMockProfileRepository(undefined);
+    const profileRepository = createMockProfileRepository();
     const useCase = makeCreateOperatorProfileUseCase(profileRepository);
 
     const result = await useCase({
-      ...createInput,
-      place: { ...createInput.place, type: "invalid" as "online" },
+      ...mockCreateProfileInput,
+      place: { ...mockCreateProfileInput.place, type: "invalid" as "online" },
     });
 
     expect(result).toEqual(

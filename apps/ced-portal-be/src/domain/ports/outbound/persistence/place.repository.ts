@@ -1,11 +1,11 @@
 import type { GenericError } from "@pagopa/io-core-domain/errors";
 import type { Result } from "neverthrow";
 
-import type { NewPlace, Place } from "../../../entities/place.js";
+import type { Place } from "../../../entities/place.js";
 
 export interface CreatePlaceInput {
   operatorId: string;
-  place: NewPlace;
+  place: Place;
 }
 
 export interface GetPlaceByIdInput {

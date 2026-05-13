@@ -1,10 +1,10 @@
-export interface CreateOperatorInput {
-  readonly externalId: string;
-  readonly name: string;
-  readonly status: "active";
-}
+import { z } from "zod";
 
-export interface Operator {
-  readonly id: string;
-  readonly name: string;
-}
+export const OperatorSchema = z.object({
+  externalId: z.uuid(),
+  id: z.ulid(),
+  name: z.string().min(1),
+  status: z.enum(["active", "suspended", "revoked"]),
+});
+
+export type Operator = z.infer<typeof OperatorSchema>;

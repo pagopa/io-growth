@@ -65,9 +65,13 @@ const VALID_USER = {
   public_key: PUBLIC_KEY_B64,
 };
 
+const STATE = "state-hex";
+const FCB_URL = "https://example.com/fcb";
+const IDP_URL = "https://idp.example.com";
+
 const LOLLIPOP_HEADERS = {
   signature: "sig1=:abc:",
-  "signature-input": 'sig1=();nonce="state-hex";keyid="sha256-abc123"',
+  "signature-input": `sig1=();nonce="${STATE}";keyid="${VALID_USER.assertion_ref}"`,
 };
 
 const MOCK_DOC = {} as Document;
@@ -78,8 +82,8 @@ const setupHappyPath = (): void => {
   mockParseAssertionXml.mockReturnValue(ok(MOCK_DOC));
   mockGetAlgoFromAssertionRef.mockReturnValue("sha256");
   mockCalculateThumbprint.mockResolvedValue(ok("abc123"));
-  mockGetInResponseToFromAssertion.mockReturnValue("sha256-abc123");
-  mockGetFiscalCodeFromAssertion.mockReturnValue("RSSMRA80A01H501T");
+  mockGetInResponseToFromAssertion.mockReturnValue(VALID_USER.assertion_ref);
+  mockGetFiscalCodeFromAssertion.mockReturnValue(VALID_USER.fiscal_code);
   mockGetIssueInstantFromAssertion.mockReturnValue(FUTURE_DATE);
   mockVerifyHttpSignature.mockResolvedValue(ok(true));
   mockVerifyStateInSignature.mockReturnValue(ok(true));
@@ -91,9 +95,9 @@ describe("verifyLollipop", () => {
     const result = await verifyLollipop(
       VALID_USER,
       LOLLIPOP_HEADERS,
-      "state-hex",
-      "https://example.com/fcb",
-      "https://idp.example.com",
+      STATE,
+      FCB_URL,
+      IDP_URL,
     );
     expect(result.isOk()).toBe(true);
   });
@@ -106,9 +110,9 @@ describe("verifyLollipop", () => {
     const result = await verifyLollipop(
       VALID_USER,
       LOLLIPOP_HEADERS,
-      "state-hex",
-      "https://example.com/fcb",
-      "https://idp.example.com",
+      STATE,
+      FCB_URL,
+      IDP_URL,
     );
     expect(result.isErr()).toBe(true);
   });
@@ -119,9 +123,9 @@ describe("verifyLollipop", () => {
     const result = await verifyLollipop(
       badUser,
       LOLLIPOP_HEADERS,
-      "state-hex",
-      "https://example.com/fcb",
-      "https://idp.example.com",
+      STATE,
+      FCB_URL,
+      IDP_URL,
     );
     expect(result.isErr()).toBe(true);
   });
@@ -134,9 +138,9 @@ describe("verifyLollipop", () => {
     const result = await verifyLollipop(
       VALID_USER,
       LOLLIPOP_HEADERS,
-      "state-hex",
-      "https://example.com/fcb",
-      "https://idp.example.com",
+      STATE,
+      FCB_URL,
+      IDP_URL,
     );
     expect(result.isErr()).toBe(true);
   });
@@ -147,9 +151,9 @@ describe("verifyLollipop", () => {
     const result = await verifyLollipop(
       VALID_USER,
       LOLLIPOP_HEADERS,
-      "state-hex",
-      "https://example.com/fcb",
-      "https://idp.example.com",
+      STATE,
+      FCB_URL,
+      IDP_URL,
     );
     expect(result.isErr()).toBe(true);
   });
@@ -160,9 +164,9 @@ describe("verifyLollipop", () => {
     const result = await verifyLollipop(
       VALID_USER,
       LOLLIPOP_HEADERS,
-      "state-hex",
-      "https://example.com/fcb",
-      "https://idp.example.com",
+      STATE,
+      FCB_URL,
+      IDP_URL,
     );
     expect(result.isErr()).toBe(true);
   });
@@ -173,9 +177,9 @@ describe("verifyLollipop", () => {
     const result = await verifyLollipop(
       VALID_USER,
       LOLLIPOP_HEADERS,
-      "state-hex",
-      "https://example.com/fcb",
-      "https://idp.example.com",
+      STATE,
+      FCB_URL,
+      IDP_URL,
     );
     expect(result.isErr()).toBe(true);
   });
@@ -188,9 +192,9 @@ describe("verifyLollipop", () => {
     const result = await verifyLollipop(
       VALID_USER,
       LOLLIPOP_HEADERS,
-      "state-hex",
-      "https://example.com/fcb",
-      "https://idp.example.com",
+      STATE,
+      FCB_URL,
+      IDP_URL,
     );
     expect(result.isErr()).toBe(true);
   });
@@ -203,9 +207,9 @@ describe("verifyLollipop", () => {
     const result = await verifyLollipop(
       VALID_USER,
       LOLLIPOP_HEADERS,
-      "state-hex",
-      "https://example.com/fcb",
-      "https://idp.example.com",
+      STATE,
+      FCB_URL,
+      IDP_URL,
     );
     expect(result.isErr()).toBe(true);
   });
@@ -218,9 +222,9 @@ describe("verifyLollipop", () => {
     const result = await verifyLollipop(
       VALID_USER,
       LOLLIPOP_HEADERS,
-      "state-hex",
-      "https://example.com/fcb",
-      "https://idp.example.com",
+      STATE,
+      FCB_URL,
+      IDP_URL,
     );
     expect(result.isErr()).toBe(true);
   });

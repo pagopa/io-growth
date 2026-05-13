@@ -25,10 +25,13 @@ const SAMPLE_JWK: JWK = {
   y: "x_FEzRu9m36HLN_tue659LNpXW6pCyStikYjKIWI5a0",
 };
 
+const ASSERTION_REF = "sha256-abc123";
+const FCB_URL = "https://example.com/fcb";
+
 const SAMPLE_HEADERS = {
   signature: "sig1=:abc:",
   "signature-input":
-    'sig1=("@method" "@target-uri");nonce="test-state-hex";keyid="sha256-abc123"',
+    `sig1=("@method" "@target-uri");nonce="test-state-hex";keyid="${ASSERTION_REF}"`,
 };
 
 describe("verifyHttpSignature", () => {
@@ -39,9 +42,9 @@ describe("verifyHttpSignature", () => {
     } as never);
 
     const result = await verifyHttpSignature(
-      "sha256-abc123",
+      ASSERTION_REF,
       SAMPLE_HEADERS,
-      "https://example.com/fcb",
+      FCB_URL,
       SAMPLE_JWK,
     );
 
@@ -55,9 +58,9 @@ describe("verifyHttpSignature", () => {
     } as never);
 
     const result = await verifyHttpSignature(
-      "sha256-abc123",
+      ASSERTION_REF,
       SAMPLE_HEADERS,
-      "https://example.com/fcb",
+      FCB_URL,
       SAMPLE_JWK,
     );
 
@@ -72,9 +75,9 @@ describe("verifyHttpSignature", () => {
     } as never);
 
     const result = await verifyHttpSignature(
-      "sha256-abc123",
+      ASSERTION_REF,
       SAMPLE_HEADERS,
-      "https://example.com/fcb",
+      FCB_URL,
       SAMPLE_JWK,
     );
 

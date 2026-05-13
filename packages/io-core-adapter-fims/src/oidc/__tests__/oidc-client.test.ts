@@ -43,6 +43,8 @@ const OIDC_CONFIG = {
   scope: "openid profile",
 };
 
+const MOCK_TOKEN_RESPONSE = { access_token: "tok" };
+
 const VALID_USERINFO = {
   assertion: "<saml/>",
   assertion_ref: "sha256-abc123def",
@@ -54,7 +56,7 @@ const VALID_USERINFO = {
 
 describe("createOidcClient.exchangeCode", () => {
   it("returns ok(FimsUser) when userinfo is valid", async () => {
-    mockClient.callback.mockResolvedValue({ access_token: "tok" });
+    mockClient.callback.mockResolvedValue(MOCK_TOKEN_RESPONSE);
     mockClient.userinfo.mockResolvedValue(VALID_USERINFO);
 
     const client = createOidcClient(OIDC_CONFIG);
@@ -62,7 +64,7 @@ describe("createOidcClient.exchangeCode", () => {
       "code",
       "state",
       "nonce",
-      "https://fims.example.com",
+      OIDC_CONFIG.issuerUrl,
     );
 
     expect(result.isOk()).toBe(true);
@@ -70,7 +72,7 @@ describe("createOidcClient.exchangeCode", () => {
   });
 
   it("returns UnauthorizedError when assertion_ref format is invalid", async () => {
-    mockClient.callback.mockResolvedValue({ access_token: "tok" });
+    mockClient.callback.mockResolvedValue(MOCK_TOKEN_RESPONSE);
     mockClient.userinfo.mockResolvedValue({
       ...VALID_USERINFO,
       assertion_ref: "invalid-format",
@@ -81,7 +83,7 @@ describe("createOidcClient.exchangeCode", () => {
       "code",
       "state",
       "nonce",
-      "https://fims.example.com",
+      OIDC_CONFIG.issuerUrl,
     );
 
     expect(result.isErr()).toBe(true);
@@ -89,7 +91,7 @@ describe("createOidcClient.exchangeCode", () => {
   });
 
   it("returns UnauthorizedError when fiscal_code format is invalid", async () => {
-    mockClient.callback.mockResolvedValue({ access_token: "tok" });
+    mockClient.callback.mockResolvedValue(MOCK_TOKEN_RESPONSE);
     mockClient.userinfo.mockResolvedValue({
       ...VALID_USERINFO,
       fiscal_code: "TOOSHORT",
@@ -100,7 +102,7 @@ describe("createOidcClient.exchangeCode", () => {
       "code",
       "state",
       "nonce",
-      "https://fims.example.com",
+      OIDC_CONFIG.issuerUrl,
     );
 
     expect(result.isErr()).toBe(true);
@@ -108,7 +110,7 @@ describe("createOidcClient.exchangeCode", () => {
   });
 
   it("returns UnauthorizedError when required string fields are missing", async () => {
-    mockClient.callback.mockResolvedValue({ access_token: "tok" });
+    mockClient.callback.mockResolvedValue(MOCK_TOKEN_RESPONSE);
     mockClient.userinfo.mockResolvedValue({
       assertion_ref: "sha256-abc",
       fiscal_code: "RSSMRA80A01H501T",
@@ -120,7 +122,7 @@ describe("createOidcClient.exchangeCode", () => {
       "code",
       "state",
       "nonce",
-      "https://fims.example.com",
+      OIDC_CONFIG.issuerUrl,
     );
 
     expect(result.isErr()).toBe(true);
@@ -135,7 +137,7 @@ describe("createOidcClient.exchangeCode", () => {
       "code",
       "state",
       "nonce",
-      "https://fims.example.com",
+      OIDC_CONFIG.issuerUrl,
     );
 
     expect(result.isErr()).toBe(true);

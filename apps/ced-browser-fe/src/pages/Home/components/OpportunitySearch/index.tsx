@@ -14,8 +14,6 @@ import { SearchEmptyState } from './SearchEmptyState';
 import { SearchInitialState } from './SearchInitialState';
 import { SearchResults } from './SearchResults';
 import { SearchResultsSkeleton } from './SearchResultsSkeleton';
-
-// Importa l'hook che abbiamo creato (aggiusta il path in base alla tua cartella)
 import { useDebounce } from '../../../../hooks/useDebounce';
 import { APP_ROUTES } from '../../../../app/routeConfig';
 
@@ -114,7 +112,7 @@ export function OpportunitySearch({
                   size="small"
                   onMouseDown={(event) => event.preventDefault()}
                   onClick={() => {
-                    setQuery(''); // Basta svuotare solo la query principale
+                    setQuery(''); // Only reset the main query.
                     inputRef.current?.focus();
                   }}
                 >

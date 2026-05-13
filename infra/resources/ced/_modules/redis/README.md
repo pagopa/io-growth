@@ -1,6 +1,12 @@
 # redis
 
-<!-- BEGIN_TF_DOCS -->
+> **Deprecated**: This local module is superseded by the DX module
+> [`pagopa-dx/azure-managed-redis/azurerm`](https://registry.terraform.io/modules/pagopa-dx/azure-managed-redis/azurerm/latest).
+> The new module is already in use via `module "redis_dx"` in `prod/redis.tf`.
+> This local module and its `module "redis"` call site will be removed in a follow-up PR
+> once the new instance has been validated.
+
+
 ## Requirements
 
 No requirements.

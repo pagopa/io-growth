@@ -27,9 +27,7 @@ export const operator = pgTable("operator", {
     .notNull()
     .defaultNow(),
   externalId: uuid("external_id").notNull(),
-  id: text()
-    .primaryKey()
-    .$defaultFn(() => ulid()),
+  id: text().primaryKey(),
   name: text().notNull(),
   status: operatorStatusEnum().notNull(),
   updatedAt: timestamp("updated_at", { withTimezone: true })
@@ -41,9 +39,7 @@ export const place = pgTable("place", {
   createdAt: timestamp("created_at", { withTimezone: true })
     .notNull()
     .defaultNow(),
-  id: text()
-    .primaryKey()
-    .$defaultFn(() => ulid()),
+  id: text().primaryKey(),
   name: text().notNull(),
   operatorId: text("operator_id")
     .notNull()
@@ -116,9 +112,7 @@ export const supportContact = pgTable("support_contact", {
   createdAt: timestamp("created_at", { withTimezone: true })
     .notNull()
     .defaultNow(),
-  id: text()
-    .primaryKey()
-    .$defaultFn(() => ulid()),
+  id: text().primaryKey(),
   placeId: text("place_id")
     .notNull()
     .references(() => place.id),

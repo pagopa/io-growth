@@ -18,6 +18,7 @@ const NEUTRAL_450 = '#9EA8BC';
 const NEUTRAL_900 = '#111827';
 const NEUTRAL_500 = '#5F687A';
 const DECORATIVE_BLUE = '#CED8F9';
+const DECORATIVE_CYAN = '#AAEEEF';
 
 declare module '@mui/material/styles' {
   interface CommonColors {
@@ -32,6 +33,7 @@ declare module '@mui/material/styles' {
     alertSuccessBorder: string;
     toastError: string;
     decorativeBlue: string;
+    decorativeCyan: string;
     neutral900: string;
     neutral500: string;
   }
@@ -58,6 +60,7 @@ export const createAppTheme = () =>
         neutralDarkGray: APP_NEUTRAL_DARK_GRAY,
         toastError: TOAST_ERROR_BG,
         decorativeBlue: DECORATIVE_BLUE,
+        decorativeCyan: DECORATIVE_CYAN,
         neutral900: NEUTRAL_900,
         neutral500: NEUTRAL_500,
       },

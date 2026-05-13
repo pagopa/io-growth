@@ -13,7 +13,7 @@ function highlightText(text: string, regex: RegExp | null): ReactNode {
       <Box
         key={i}
         component="mark"
-        sx={{ bgcolor: '#AAEEEF', color: 'inherit' }}
+        sx={{ bgcolor: 'common.decorativeCyan', color: 'inherit' }}
       >
         {part}
       </Box>

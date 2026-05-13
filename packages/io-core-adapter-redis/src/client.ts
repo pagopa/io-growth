@@ -5,17 +5,17 @@ export interface EntraIdConfig {
   readonly clientId: string;
 }
 
-export type RedisClientInstance = ReturnType<typeof createCluster>;
-
 export type RedisClient = RedisClientInstance & {
   readonly closeConnection: () => Promise<void>;
 };
 
 export interface RedisClientConfig {
-  readonly entraId?: EntraIdConfig;
   readonly endpoint: string;
+  readonly entraId?: EntraIdConfig;
   readonly tls?: boolean;
 }
+
+export type RedisClientInstance = ReturnType<typeof createCluster>;
 
 export interface RedisCommands {
   del(key: string): Promise<number>;

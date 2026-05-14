@@ -55,6 +55,7 @@ export const ContactRow = memo(
           }}
         >
           <AppSelect
+            required={!canRemove}
             label="Tipo di contatto"
             options={CONTACT_TYPE_OPTIONS}
             value={contact.type || ''}

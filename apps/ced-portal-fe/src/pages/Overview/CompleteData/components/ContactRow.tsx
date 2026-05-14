@@ -9,8 +9,6 @@ interface ContactRowProps {
   contact: Contact;
   index: number;
   canRemove: boolean;
-  showPhoneField?: boolean;
-  showDetails?: boolean;
   onRemove: (index: number) => void;
   onChange: (index: number, field: keyof Contact, value: string) => void;
   typeError?: string;

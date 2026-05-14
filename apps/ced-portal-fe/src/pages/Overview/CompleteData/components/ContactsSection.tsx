@@ -17,8 +17,6 @@ export const ContactsSection = ({
   onRemoveContact,
   onContactChange,
 }: ContactsSectionProps) => {
-  const [primaryContact, ...additionalContacts] = contacts;
-
   return (
     <Paper
       variant="outlined"
@@ -34,27 +32,12 @@ export const ContactsSection = ({
           </Typography>
         </Stack>
 
-        {primaryContact && (
+        {contacts.map((contact, i) => (
           <ContactRow
-            key={0}
-            contact={primaryContact}
-            index={0}
-            canRemove={false}
-            showPhoneField
-            showDetails={false}
-            onRemove={onRemoveContact}
-            onChange={onContactChange}
-          />
-        )}
-
-        {additionalContacts.map((contact, i) => (
-          <ContactRow
-            key={i + 1}
+            key={i}
             contact={contact}
-            index={i + 1}
-            canRemove
-            showPhoneField={false}
-            showDetails
+            index={i}
+            canRemove={i !== 0}
             onRemove={onRemoveContact}
             onChange={onContactChange}
           />

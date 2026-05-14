@@ -6,12 +6,13 @@ import { ContactsSection } from './components/ContactsSection';
 import { EntityDataSection } from './components/EntityDataSection';
 import { InfoModal } from './components/InfoModal';
 import type { CompleteDataFormData } from './types';
+import { TermsAndPrivacySection } from './components/TermsAndPrivacySection';
 
 const INITIAL_FORM_DATA: CompleteDataFormData = {
   name: '',
   sede: 'fisica',
   address: '',
-  contacts: [{ contact: '', type: 'WEBSITE', website: '' }],
+  contacts: [{ contact: '', type: '', website: '' }],
   logoFile: null,
   coverFile: null,
 };
@@ -121,7 +122,7 @@ export default function OverviewCompleteDataPage() {
                       ...prev,
                       contacts: [
                         ...prev.contacts,
-                        { contact: '', type: 'WEBSITE', website: '' },
+                        { contact: '', type: '', website: '' },
                       ],
                     }))
                   }
@@ -131,7 +132,7 @@ export default function OverviewCompleteDataPage() {
                       contacts:
                         prev.contacts.length > 1
                           ? prev.contacts.filter((_, i) => i !== index)
-                          : [{ contact: '', type: 'WEBSITE', website: '' }],
+                          : [{ contact: '', type: '', website: '' }],
                     }))
                   }
                   onContactChange={(index, field, value) =>

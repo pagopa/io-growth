@@ -1,11 +1,20 @@
 import { baseApi } from '../../core/api/baseApi.js';
-import { AccessPointDetail, EntityDetail, OpportunityDetail } from './types.js';
+import type {
+  EntityDetail,
+  EntitySearchResponse,
+  AccessPointDetail,
+  OpportunityDetail,
+} from './types.js';
 
 export const entitiesApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     getEntityDetail: builder.query<EntityDetail, string>({
       query: (id) => `/entities/${id}`,
       providesTags: (_result, _error, id) => [{ type: 'Entities', id }],
+    }),
+    searchEntities: builder.query<EntitySearchResponse, string>({
+      query: (q) => `/entities/search?q=${encodeURIComponent(q)}`,
+      providesTags: ['Entities'],
     }),
     getAccessPointDetail: builder.query<
       AccessPointDetail,
@@ -26,6 +35,7 @@ export const entitiesApi = baseApi.injectEndpoints({
 
 export const {
   useGetEntityDetailQuery,
+  useSearchEntitiesQuery,
   useGetAccessPointDetailQuery,
   useGetOpportunityDetailQuery,
 } = entitiesApi;

@@ -5,68 +5,35 @@ import { useNavigate } from 'react-router-dom';
 import { ContactsSection } from './components/ContactsSection';
 import { EntityDataSection } from './components/EntityDataSection';
 import { InfoModal } from './components/InfoModal';
-import type { CompleteDataFormData, Contact } from './types';
 import { TermsAndPrivacySection } from './components/TermsAndPrivacySection';
-
-const createEmptyContact = (): Contact => ({
-  contact: '',
-  type: '',
-  website: '',
-});
-
-const INITIAL_FORM_DATA: CompleteDataFormData = {
-  name: '',
-  sede: 'fisica',
-  address: '',
-  contacts: [createEmptyContact()],
-  logoFile: null,
-  coverFile: null,
-};
+import { useCompleteDataForm } from './hooks/useCompleteDataForm';
 
 export default function OverviewCompleteDataPage() {
   const navigate = useNavigate();
   const [infoModalType, setInfoModalType] = useState<'logo' | 'cover' | null>(
     null,
   );
-  const [formData, setFormData] =
-    useState<CompleteDataFormData>(INITIAL_FORM_DATA);
-
-  const updateField = <K extends keyof CompleteDataFormData>(
-    field: K,
-    value: CompleteDataFormData[K],
-  ) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
-  };
-
-  const handleAddContact = () => {
-    setFormData((prev) => ({
-      ...prev,
-      contacts: [...prev.contacts, createEmptyContact()],
-    }));
-  };
-
-  const handleRemoveContact = (index: number) => {
-    setFormData((prev) => ({
-      ...prev,
-      contacts:
-        prev.contacts.length > 1
-          ? prev.contacts.filter((_, i) => i !== index)
-          : [createEmptyContact()],
-    }));
-  };
-
-  const handleContactChange = (
-    index: number,
-    field: keyof Contact,
-    value: string,
-  ) => {
-    setFormData((prev) => ({
-      ...prev,
-      contacts: prev.contacts.map((contact, i) =>
-        i === index ? { ...contact, [field]: value } : contact,
-      ),
-    }));
-  };
+  const {
+    formData,
+    nameError,
+    addressError,
+    visibleFirstContactTypeError,
+    visibleFirstContactValueError,
+    handleNameChange,
+    handleSedeChange,
+    handleAddressChange,
+    handleLogoSelect,
+    handleCoverSelect,
+    handleAddContact,
+    handleRemoveContact,
+    handleContactChange,
+    handleContinueClick,
+  } = useCompleteDataForm({
+    onValidSubmit: (validatedFormData) => {
+      // TODO: Handle form submission
+      console.log('Form submitted:', validatedFormData);
+    },
+  });
 
   return (
     <Box
@@ -140,16 +107,20 @@ export default function OverviewCompleteDataPage() {
                   address={formData.address}
                   logoFile={formData.logoFile}
                   coverFile={formData.coverFile}
-                  onNameChange={(value) => updateField('name', value)}
-                  onSedeChange={(value) => updateField('sede', value)}
-                  onAddressChange={(value) => updateField('address', value)}
-                  onLogoSelect={(file) => updateField('logoFile', file)}
-                  onCoverSelect={(file) => updateField('coverFile', file)}
+                  nameError={nameError}
+                  addressError={addressError}
+                  onNameChange={handleNameChange}
+                  onSedeChange={handleSedeChange}
+                  onAddressChange={handleAddressChange}
+                  onLogoSelect={handleLogoSelect}
+                  onCoverSelect={handleCoverSelect}
                   onInfoClick={setInfoModalType}
                 />
 
                 <ContactsSection
                   contacts={formData.contacts}
+                  firstContactTypeError={visibleFirstContactTypeError}
+                  firstContactValueError={visibleFirstContactValueError}
                   onAddContact={handleAddContact}
                   onRemoveContact={handleRemoveContact}
                   onContactChange={handleContactChange}
@@ -165,10 +136,7 @@ export default function OverviewCompleteDataPage() {
               <Button
                 variant="contained"
                 size="large"
-                onClick={() => {
-                  console.log('Form submitted:', formData);
-                  // TODO: Handle form submission
-                }}
+                onClick={handleContinueClick}
                 sx={{ borderRadius: 2, px: 4, fontWeight: 700 }}
               >
                 Continua

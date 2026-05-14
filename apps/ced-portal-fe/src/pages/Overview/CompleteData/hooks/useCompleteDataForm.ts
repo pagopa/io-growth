@@ -23,6 +23,8 @@ const INITIAL_FORM_DATA: CompleteDataFormData = {
   contacts: [createEmptyContact()],
   logoFile: null,
   coverFile: null,
+  privacyUrl: '',
+  termsUrl: '',
 };
 
 type UseCompleteDataFormParams = {
@@ -47,6 +49,8 @@ export type UseCompleteDataFormResult = {
     field: keyof Contact,
     value: string,
   ) => void;
+  handlePrivacyUrlChange: (value: string) => void;
+  handleTermsUrlChange: (value: string) => void;
   handleContinueClick: () => void;
 };
 
@@ -162,6 +166,16 @@ export const useCompleteDataForm = ({
     [updateField],
   );
 
+  const handlePrivacyUrlChange = useCallback(
+    (value: string) => updateField('privacyUrl', value),
+    [updateField],
+  );
+
+  const handleTermsUrlChange = useCallback(
+    (value: string) => updateField('termsUrl', value),
+    [updateField],
+  );
+
   const visibleFirstContactTypeError = isSubmitted
     ? errors.firstContactType
     : '';
@@ -180,6 +194,8 @@ export const useCompleteDataForm = ({
     handleAddressChange,
     handleLogoSelect,
     handleCoverSelect,
+    handlePrivacyUrlChange,
+    handleTermsUrlChange,
     handleAddContact,
     handleRemoveContact,
     handleContactChange,

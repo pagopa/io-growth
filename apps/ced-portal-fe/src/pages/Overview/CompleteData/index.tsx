@@ -24,6 +24,8 @@ export default function OverviewCompleteDataPage() {
     handleAddressChange,
     handleLogoSelect,
     handleCoverSelect,
+    handlePrivacyUrlChange,
+    handleTermsUrlChange,
     handleAddContact,
     handleRemoveContact,
     handleContactChange,
@@ -127,7 +129,12 @@ export default function OverviewCompleteDataPage() {
                 />
 
                 {/* Terms and privacy section */}
-                <TermsAndPrivacySection />
+                <TermsAndPrivacySection
+                  privacyUrl={formData.privacyUrl}
+                  termsUrl={formData.termsUrl}
+                  onPrivacyUrlChange={handlePrivacyUrlChange}
+                  onTermsUrlChange={handleTermsUrlChange}
+                />
               </Stack>
             </Paper>
 

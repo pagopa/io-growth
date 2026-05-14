@@ -58,7 +58,7 @@ export default function OverviewCompleteDataPage() {
           </Button>
 
           <Stack spacing={3}>
-            {/* Intestazione pagina */}
+            {/* Page header */}
             <Box>
               <Stack spacing={1}>
                 <Typography variant="h4" sx={{ fontSize: 32, fontWeight: 700 }}>
@@ -126,12 +126,12 @@ export default function OverviewCompleteDataPage() {
                   onContactChange={handleContactChange}
                 />
 
-                {/* Sezione Termini e Privacy */}
+                {/* Terms and privacy section */}
                 <TermsAndPrivacySection />
               </Stack>
             </Paper>
 
-            {/* Footer con tasto Continua */}
+            {/* Footer with continue button */}
             <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
               <Button
                 variant="contained"

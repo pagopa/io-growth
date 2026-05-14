@@ -1,11 +1,11 @@
 {
   "uuid": "89eb3964-861e-4565-ac11-dbe8931ec2dc",
   "lastMigration": 33,
-  "name": "Ced",
+  "name": "Ced - Browser",
   "endpointPrefix": "",
   "latency": 0,
   "port": 3001,
-  "hostname": "",
+  "hostname": "0.0.0.0",
   "folders": [],
   "routes": [
     {
@@ -244,7 +244,7 @@
       "responses": [
         {
           "uuid": "3f7248b9-c9f6-4802-9488-0bc3f2e8b50d",
-          "body": "{\"id\": \"{{urlParam 'accessPointId'}}\", \"title\": \"Museo della Gambarina\", \"entityId\": \"{{urlParam 'entityId'}}\", \"entityName\": \"Comune di Alessandria\", \"opportunities\": [{\"id\": \"opp-2\", \"eyebrow\": \"Museo della Gambarina\", \"title\": \"Ingresso scontato alla mostra temporanea \\\"Impressionisti in Normandia\\\"\", \"badgeLabel\": \"-50%\"}], \"contacts\": {\"phone\": \"0131.234266\", \"website\": \"https://www.comune.alessandria.it\", \"address\": \"Piazza della Gambarina, 1, 15121 Alessandria AL\"}, \"relatedAccessPoints\": [{\"id\": \"ap-1\", \"title\": \"Biblioteca civica \\\"Francesca Calvo\\\"\", \"subtitle\": \"Piazza Vittorio Veneto, 1, 15121 Alessandria AL\"}, {\"id\": \"ap-3\", \"title\": \"Campo e pista di Atletica\", \"subtitle\": \"Via Ennio Massobrio, 15121 Alessandria AL\"}, {\"id\": \"ap-4\", \"title\": \"Stadio comunale \\\"Moccagatta\\\"\", \"subtitle\": \"Spalto Rovereto, 17, 15121 Alessandria AL\"}]}",
+          "body": "{\n  \"id\": \"{{urlParam 'accessPointId'}}\",\n  \"title\": \"Museo della Gambarina\",\n  \"entityId\": \"{{urlParam 'entityId'}}\",\n  \"entityName\": \"Comune di Alessandria\",\n  \"opportunities\": [\n    {\n      \"id\": \"opp-2\",\n      \"eyebrow\": \"Museo della Gambarina\",\n      \"title\": \"Ingresso scontato alla mostra temporanea \\\"Impressionisti in Normandia\\\"\",\n      \"badgeLabel\": \"-50%\"\n    }\n  ],\n  \"contacts\": {\n    \"phone\": \"0131.234266\",\n    \"website\": \"https://www.comune.alessandria.it\",\n    \"address\": \"Piazza della Gambarina, 1, 15121 Alessandria AL\"\n  },\n  \"relatedAccessPoints\": [\n    {\n      \"id\": \"ap-1\",\n      \"title\": \"Biblioteca civica \\\"Francesca Calvo\\\"\",\n      \"subtitle\": \"Piazza Vittorio Veneto, 1, 15121 Alessandria AL\"\n    },\n    {\n      \"id\": \"ap-3\",\n      \"title\": \"Campo e pista di Atletica\",\n      \"subtitle\": \"Via Ennio Massobrio, 15121 Alessandria AL\"\n    },\n    {\n      \"id\": \"ap-4\",\n      \"title\": \"Stadio comunale \\\"Moccagatta\\\"\",\n      \"subtitle\": \"Spalto Rovereto, 17, 15121 Alessandria AL\"\n    }\n  ]\n}",
           "latency": 0,
           "statusCode": 200,
           "label": "Access point detail",
@@ -262,6 +262,37 @@
           "callbacks": []
         }
       ]
+    },
+    {
+      "uuid": "f2a3b4c5-d6e7-8901-cdef-012345678901",
+      "type": "http",
+      "documentation": "Ricerca enti",
+      "method": "get",
+      "endpoint": "api/entities/search",
+      "responses": [
+        {
+          "uuid": "f2a3b4c5-d6e7-8901-cdef-012345678902",
+          "body": "{\n  \"total\": 6,\n  \"items\": [\n    {\n      \"id\": \"entity-001\",\n      \"name\": \"Comune di Alessandria\",\n      \"address\": \"Piazza della Libertà, 1, 15121 Alessandria AL\"\n    },\n    {\n      \"id\": \"entity-002\",\n      \"name\": \"Teatro di Alessandria\",\n      \"address\": \"Piazza della Libertà, 1, 15121 Alessandria AL\"\n    },\n    {\n      \"id\": \"entity-003\",\n      \"name\": \"Giardino botanico \\\"Dina Bellotti\\\"\",\n      \"address\": \"Via Giulio Monteverde, 24, 15121 Alessandria AL\"\n    },\n    {\n      \"id\": \"entity-004\",\n      \"name\": \"Biblioteca civica \\\"Francesca Calvo\\\"\",\n      \"address\": \"Piazza Vittorio Veneto, 1, 15121 Alessandria AL\"\n    },\n    {\n      \"id\": \"entity-005\",\n      \"name\": \"Museo civico - Palazzo Cuttica\",\n      \"address\": \"Via Parma, 1, 15121 Alessandria AL\"\n    },\n    {\n      \"id\": \"entity-006\",\n      \"name\": \"Stadio comunale \\\"Moccagatta\\\"\",\n      \"address\": \"Spalto Rovereto, 17, 15121 Alessandria AL\"\n    }\n  ]\n}",
+          "latency": 300,
+          "statusCode": 200,
+          "label": "Search results",
+          "headers": [],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": true,
+          "crudKey": "id",
+          "callbacks": []
+        }
+      ],
+      "responseMode": null,
+      "streamingMode": null,
+      "streamingInterval": 0
     },
     {
       "uuid": "e1f2a3b4-c5d6-7890-efab-cd1234567890",
@@ -353,11 +384,19 @@
     },
     {
       "type": "route",
+      "uuid": "f2a3b4c5-d6e7-8901-cdef-012345678901"
+    },
+    {
+      "type": "route",
       "uuid": "e1f2a3b4-c5d6-7890-efab-cd1234567890"
     },
     {
       "type": "route",
       "uuid": "a2b3c4d5-e6f7-8901-bcde-f01234567890"
+    },
+    {
+      "type": "route",
+      "uuid": "c39f4818-f95f-4a2f-b59b-535d1f63caca"
     }
   ],
   "proxyMode": false,
@@ -405,18 +444,18 @@
   ],
   "data": [
     {
-      "uuid": "sedi-bucket-0001-0000-0000-000000000001",
+      "uuid": "53e2ee36-ca78-47c8-9a0f-c7c29baaec15",
       "id": "locations",
       "name": "Locations",
       "value": "[]",
-      "parsed": true
+      "documentation": ""
     },
     {
-      "uuid": "webs-bucket-0001-0000-0000-000000000001",
+      "uuid": "f3852167-23ab-4c25-a844-368591425ef8",
       "id": "websites",
       "name": "Websites",
       "value": "[]",
-      "parsed": true
+      "documentation": ""
     }
   ],
   "callbacks": []

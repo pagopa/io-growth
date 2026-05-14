@@ -37,6 +37,7 @@ export const ContactRow = memo(
         {canRemove && (
           <IconButton
             onClick={() => onRemove(index)}
+            aria-label={`Remove contact ${index + 1}`}
             sx={{ color: '#D13333', p: 0 }}
           >
             <CancelIcon />

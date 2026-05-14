@@ -143,6 +143,9 @@ export default function OverviewCompleteDataPage() {
                     }))
                   }
                 />
+
+                {/* Sezione Termini e Privacy */}
+                <TermsAndPrivacySection />
               </Stack>
             </Paper>
 

@@ -1,6 +1,7 @@
 import type { ChangeEvent } from 'react';
-import { Paper, Stack, Typography, TextField } from '@mui/material';
+import { Paper, Stack, Typography } from '@mui/material';
 import { PrivacyTipOutlined } from '@mui/icons-material';
+import { AppTextField } from '../../../../components';
 
 type TermsAndPrivacySectionProps = {
   privacyUrl: string;
@@ -35,7 +36,7 @@ export const TermsAndPrivacySection = ({
             Termini e Privacy
           </Typography>
         </Stack>
-        <TextField
+        <AppTextField
           fullWidth
           label="Inserisci il link all’Informativa sulla privacy dell’ente relativa all’opportunità"
           placeholder="Inserisci il link all’Informativa sulla privacy dell’ente relativa all’opportunità"
@@ -43,7 +44,7 @@ export const TermsAndPrivacySection = ({
           onChange={handlePrivacyUrlChange}
           sx={{ '& .MuiOutlinedInput-root': { borderRadius: '8px' } }}
         />
-        <TextField
+        <AppTextField
           fullWidth
           label="Inserisci il link ai Termini e condizioni d’uso applicabili all’opportunità"
           placeholder="Inserisci il link ai Termini e condizioni d’uso applicabili all’opportunità"

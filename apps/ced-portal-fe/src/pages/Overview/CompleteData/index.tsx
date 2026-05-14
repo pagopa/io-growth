@@ -5,14 +5,20 @@ import { useNavigate } from 'react-router-dom';
 import { ContactsSection } from './components/ContactsSection';
 import { EntityDataSection } from './components/EntityDataSection';
 import { InfoModal } from './components/InfoModal';
-import type { CompleteDataFormData } from './types';
+import type { CompleteDataFormData, Contact } from './types';
 import { TermsAndPrivacySection } from './components/TermsAndPrivacySection';
+
+const createEmptyContact = (): Contact => ({
+  contact: '',
+  type: '',
+  website: '',
+});
 
 const INITIAL_FORM_DATA: CompleteDataFormData = {
   name: '',
   sede: 'fisica',
   address: '',
-  contacts: [{ contact: '', type: '', website: '' }],
+  contacts: [createEmptyContact()],
   logoFile: null,
   coverFile: null,
 };
@@ -24,6 +30,43 @@ export default function OverviewCompleteDataPage() {
   );
   const [formData, setFormData] =
     useState<CompleteDataFormData>(INITIAL_FORM_DATA);
+
+  const updateField = <K extends keyof CompleteDataFormData>(
+    field: K,
+    value: CompleteDataFormData[K],
+  ) => {
+    setFormData((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const handleAddContact = () => {
+    setFormData((prev) => ({
+      ...prev,
+      contacts: [...prev.contacts, createEmptyContact()],
+    }));
+  };
+
+  const handleRemoveContact = (index: number) => {
+    setFormData((prev) => ({
+      ...prev,
+      contacts:
+        prev.contacts.length > 1
+          ? prev.contacts.filter((_, i) => i !== index)
+          : [createEmptyContact()],
+    }));
+  };
+
+  const handleContactChange = (
+    index: number,
+    field: keyof Contact,
+    value: string,
+  ) => {
+    setFormData((prev) => ({
+      ...prev,
+      contacts: prev.contacts.map((contact, i) =>
+        i === index ? { ...contact, [field]: value } : contact,
+      ),
+    }));
+  };
 
   return (
     <Box
@@ -97,52 +140,19 @@ export default function OverviewCompleteDataPage() {
                   address={formData.address}
                   logoFile={formData.logoFile}
                   coverFile={formData.coverFile}
-                  onNameChange={(value) =>
-                    setFormData((prev) => ({ ...prev, name: value }))
-                  }
-                  onSedeChange={(value) =>
-                    setFormData((prev) => ({ ...prev, sede: value }))
-                  }
-                  onAddressChange={(value) =>
-                    setFormData((prev) => ({ ...prev, address: value }))
-                  }
-                  onLogoSelect={(file) =>
-                    setFormData((prev) => ({ ...prev, logoFile: file }))
-                  }
-                  onCoverSelect={(file) =>
-                    setFormData((prev) => ({ ...prev, coverFile: file }))
-                  }
+                  onNameChange={(value) => updateField('name', value)}
+                  onSedeChange={(value) => updateField('sede', value)}
+                  onAddressChange={(value) => updateField('address', value)}
+                  onLogoSelect={(file) => updateField('logoFile', file)}
+                  onCoverSelect={(file) => updateField('coverFile', file)}
                   onInfoClick={setInfoModalType}
                 />
 
                 <ContactsSection
                   contacts={formData.contacts}
-                  onAddContact={() =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      contacts: [
-                        ...prev.contacts,
-                        { contact: '', type: '', website: '' },
-                      ],
-                    }))
-                  }
-                  onRemoveContact={(index) =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      contacts:
-                        prev.contacts.length > 1
-                          ? prev.contacts.filter((_, i) => i !== index)
-                          : [{ contact: '', type: '', website: '' }],
-                    }))
-                  }
-                  onContactChange={(index, field, value) =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      contacts: prev.contacts.map((contact, i) =>
-                        i === index ? { ...contact, [field]: value } : contact,
-                      ),
-                    }))
-                  }
+                  onAddContact={handleAddContact}
+                  onRemoveContact={handleRemoveContact}
+                  onContactChange={handleContactChange}
                 />
 
                 {/* Sezione Termini e Privacy */}

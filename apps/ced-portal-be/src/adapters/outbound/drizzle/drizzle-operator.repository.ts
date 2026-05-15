@@ -63,4 +63,34 @@ export const createDrizzleOperatorRepository = (
       );
     }
   },
+  getById: async (
+    id: string,
+  ): Promise<Result<Operator | undefined, BaseError>> => {
+    try {
+      const result = await db
+        .select({
+          externalId: operator.externalId,
+          id: operator.id,
+          name: operator.name,
+          status: operator.status,
+        })
+        .from(operator)
+        .where(eq(operator.id, id))
+        .limit(1);
+      return ok(
+        result[0]
+          ? {
+              externalId: result[0].externalId,
+              id: result[0].id,
+              name: result[0].name,
+              status: result[0].status,
+            }
+          : undefined,
+      );
+    } catch (error) {
+      return err(
+        new GenericError(`Failed to get operator by id: ${String(error)}`),
+      );
+    }
+  },
 });

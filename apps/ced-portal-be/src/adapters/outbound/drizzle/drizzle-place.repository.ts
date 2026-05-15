@@ -1,7 +1,7 @@
 import type { Result } from "neverthrow";
 
 import { GenericError } from "@pagopa/io-core-domain/errors";
-import { and, asc, eq } from "drizzle-orm";
+import { and, asc, eq, inArray } from "drizzle-orm";
 import { err, ok } from "neverthrow";
 
 import type { Place } from "../../../domain/entities/place.js";
@@ -66,6 +66,28 @@ export const createDrizzlePlaceRepository = (
     } catch (error) {
       return err(
         new GenericError(`Failed to get operator place: ${String(error)}`),
+      );
+    }
+  },
+
+  getIdsByOperator: async (input): Promise<Result<string[], GenericError>> => {
+    try {
+      const rows = await db
+        .select({ id: place.id })
+        .from(place)
+        .where(
+          and(
+            inArray(place.id, [...input.placeIds]),
+            eq(place.operatorId, input.operatorId),
+          ),
+        );
+
+      return ok(rows.map((row) => row.id));
+    } catch (error) {
+      return err(
+        new GenericError(
+          `Failed to get place ids by operator: ${String(error)}`,
+        ),
       );
     }
   },

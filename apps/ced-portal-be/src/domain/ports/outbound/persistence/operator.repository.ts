@@ -8,4 +8,7 @@ export interface OperatorRepository {
   readonly getByExternalId: (
     externalId: string,
   ) => Promise<Result<Operator | undefined, BaseError>>;
+  readonly getById: (
+    id: string,
+  ) => Promise<Result<Operator | undefined, BaseError>>;
 }

@@ -31,8 +31,7 @@ locals {
       POSTGRES_PORT   = "6432"
       POSTGRES_DB     = azurerm_postgresql_flexible_server_database.ced_test.name
       POSTGRES_SSL    = "true"
-      REDIS_HOST      = module.redis.hostname
-      REDIS_PORT      = tostring(module.redis.ssl_port)
+      REDIS_ENDPOINT  = module.redis_dx.endpoint
       REDIS_TLS       = "true"
       AZURE_CLIENT_ID = module.common_container_app_environment.user_assigned_identity.client_id
     }
@@ -54,8 +53,7 @@ locals {
       POSTGRES_PORT   = "6432"
       POSTGRES_DB     = azurerm_postgresql_flexible_server_database.ced_test.name
       POSTGRES_SSL    = "true"
-      REDIS_HOST      = module.redis.hostname
-      REDIS_PORT      = tostring(module.redis.ssl_port)
+      REDIS_ENDPOINT  = module.redis_dx.endpoint
       REDIS_TLS       = "true"
       AZURE_CLIENT_ID = module.common_container_app_environment.user_assigned_identity.client_id
 
@@ -79,8 +77,11 @@ locals {
 
     app_settings = {
       PORT            = "8080"
-      REDIS_HOST      = module.redis.hostname
-      REDIS_PORT      = tostring(module.redis.ssl_port)
+      POSTGRES_HOST   = "${module.postgresql.postgres.name}.postgres.database.azure.com"
+      POSTGRES_PORT   = "6432"
+      POSTGRES_DB     = azurerm_postgresql_flexible_server_database.ced_test.name
+      POSTGRES_SSL    = "true"
+      REDIS_ENDPOINT  = module.redis_dx.endpoint
       REDIS_TLS       = "true"
       AZURE_CLIENT_ID = module.common_container_app_environment.user_assigned_identity.client_id
 

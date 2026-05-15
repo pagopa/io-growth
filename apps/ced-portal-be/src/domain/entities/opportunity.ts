@@ -63,7 +63,7 @@ export const OpportunitySchema = z.object({
     "suspended",
     "deleted",
   ]),
-  url: z.string().url().optional(),
+  url: z.url().optional(),
 });
 
 export type Opportunity = z.infer<typeof OpportunitySchema>;
@@ -132,7 +132,7 @@ export const OpportunityDetailSchema = z.object({
     "deleted",
   ]),
   updatedAt: z.string(),
-  url: z.string().url().nullable(),
+  url: z.url().nullable(),
 });
 
 export type OpportunityDetail = z.infer<typeof OpportunityDetailSchema>;

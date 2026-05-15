@@ -95,13 +95,31 @@ export const mapOpportunityDetailRow = (
     );
   }
 
+  const caregiverBenefit = row.caregiverBenefit
+    ? mapBenefitRow(row.caregiverBenefit)
+    : null;
+
+  if (row.caregiverBenefit && !caregiverBenefit) {
+    return err(
+      new GenericError(
+        `Data integrity error: opportunity ${row.id} has invalid caregiver benefit`,
+      ),
+    );
+  }
+
+  if (!row.category) {
+    return err(
+      new GenericError(
+        `Data integrity error: opportunity ${row.id} references a missing category`,
+      ),
+    );
+  }
+
   return ok({
     beneficiaryBenefit,
-    caregiverBenefit: row.caregiverBenefit
-      ? mapBenefitRow(row.caregiverBenefit)
-      : null,
+    caregiverBenefit,
     categoryId: row.categoryId,
-    categoryTitle: row.category?.title ?? "",
+    categoryTitle: row.category.title,
     createdAt: row.createdAt.toISOString(),
     dateFrom: row.dateFrom,
     dateTo: row.dateTo,

@@ -27,7 +27,7 @@ export const createFimsAuthFlow = (
   lollipopVerifier: LollipopVerifier,
   config: FimsAuthFlowConfig,
 ): FimsAuthFlow => ({
-  createTestSession: createTestSession(sessionStore, config),
+  createTestSession: createTestSession(sessionStore, auditLogger, config),
   exchangeSessionId: createExchangeSessionId(sessionStore),
   handleCallback: createHandleCallback(
     oidcClient,

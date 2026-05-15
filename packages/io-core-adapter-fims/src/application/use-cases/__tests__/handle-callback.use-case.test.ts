@@ -57,6 +57,7 @@ const makeMockOidcClient = (): OidcClient => ({
 const makeMockAuditLogger = (): AuditLogger => ({
   logFimsExchange: vi.fn(() => Promise.resolve(ok(undefined))),
   logLollipopVerification: vi.fn(() => Promise.resolve(ok(undefined))),
+  logTestSession: vi.fn(() => Promise.resolve(ok(undefined))),
 });
 
 const makeMockLollipopVerifier = (): LollipopVerifier => ({

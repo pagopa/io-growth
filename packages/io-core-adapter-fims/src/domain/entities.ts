@@ -63,3 +63,7 @@ export interface OidcConfig {
   readonly redirectUri: string;
   readonly scope: string;
 }
+
+export interface TestSessionAudit {
+  readonly fiscalCode: string;
+}

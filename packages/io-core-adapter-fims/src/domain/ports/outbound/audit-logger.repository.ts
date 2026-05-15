@@ -1,7 +1,11 @@
 import type { BaseError } from "@pagopa/io-core-domain/errors";
 import type { Result } from "neverthrow";
 
-import type { FimsExchangeAudit, LollipopAudit } from "../../entities.js";
+import type {
+  FimsExchangeAudit,
+  LollipopAudit,
+  TestSessionAudit,
+} from "../../entities.js";
 
 /**
  * Audit logging port for FIMS and lollipop events.
@@ -13,5 +17,8 @@ export interface AuditLogger {
   ) => Promise<Result<void, BaseError>>;
   readonly logLollipopVerification: (
     data: LollipopAudit,
+  ) => Promise<Result<void, BaseError>>;
+  readonly logTestSession: (
+    data: TestSessionAudit,
   ) => Promise<Result<void, BaseError>>;
 }

@@ -9,6 +9,7 @@ import { randomBytes } from "node:crypto";
 import type {
   FimsExchangeAudit,
   LollipopAudit,
+  TestSessionAudit,
 } from "../../../domain/entities.js";
 import type { AuditLogger } from "../../../domain/ports/outbound/audit-logger.repository.js";
 
@@ -16,6 +17,7 @@ import { hashFiscalCode } from "../../../application/use-cases/test-users.js";
 
 const OPERATION_FIMS = "fims";
 const OPERATION_LOLLIPOP = "lollipop";
+const OPERATION_TEST_SESSION = "test-session";
 
 /**
  * Generate a unique blob name for an audit log entry.
@@ -113,6 +115,26 @@ export const createBlobAuditLogger = (
       containerClient,
       data.fiscalCode,
       OPERATION_LOLLIPOP,
+      content,
+      tags,
+    );
+  },
+
+  logTestSession: (
+    data: TestSessionAudit,
+  ): Promise<Result<void, BaseError>> => {
+    const content = JSON.stringify({
+      fiscalCode: data.fiscalCode,
+    });
+    const tags = {
+      DateTime: new Date().toISOString(),
+      FiscalCode: data.fiscalCode,
+      Type: OPERATION_TEST_SESSION,
+    };
+    return uploadAuditBlob(
+      containerClient,
+      data.fiscalCode,
+      OPERATION_TEST_SESSION,
       content,
       tags,
     );

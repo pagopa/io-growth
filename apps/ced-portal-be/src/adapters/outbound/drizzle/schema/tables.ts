@@ -11,6 +11,7 @@ import {
 import { ulid } from "ulid";
 
 import {
+  benefitDiscountTypeEnum,
   benefitTypeEnum,
   changeAuditChangeTypeEnum,
   changeAuditEntityTypeEnum,
@@ -123,7 +124,18 @@ export const supportContact = pgTable("support_contact", {
   value: text().notNull(),
 });
 
+export const opportunityCategory = pgTable("opportunity_category", {
+  description: text().notNull(),
+  id: text()
+    .primaryKey()
+    .$defaultFn(() => ulid()),
+  title: text().notNull(),
+});
+
 export const opportunity = pgTable("opportunity", {
+  categoryId: text("category_id")
+    .notNull()
+    .references(() => opportunityCategory.id),
   createdAt: timestamp("created_at", { withTimezone: true })
     .notNull()
     .defaultNow(),
@@ -159,6 +171,8 @@ export const beneficiaryBenefit = pgTable("beneficiary_benefit", {
   createdAt: timestamp("created_at", { withTimezone: true })
     .notNull()
     .defaultNow(),
+  description: text(),
+  discountType: benefitDiscountTypeEnum("discount_type"),
   id: text()
     .primaryKey()
     .$defaultFn(() => ulid()),
@@ -170,13 +184,15 @@ export const beneficiaryBenefit = pgTable("beneficiary_benefit", {
   updatedAt: timestamp("updated_at", { withTimezone: true })
     .notNull()
     .defaultNow(),
-  value: integer().notNull(),
+  value: integer(),
 });
 
 export const caregiverBenefit = pgTable("caregiver_benefit", {
   createdAt: timestamp("created_at", { withTimezone: true })
     .notNull()
     .defaultNow(),
+  description: text(),
+  discountType: benefitDiscountTypeEnum("discount_type"),
   id: text()
     .primaryKey()
     .$defaultFn(() => ulid()),
@@ -188,7 +204,7 @@ export const caregiverBenefit = pgTable("caregiver_benefit", {
   updatedAt: timestamp("updated_at", { withTimezone: true })
     .notNull()
     .defaultNow(),
-  value: integer().notNull(),
+  value: integer(),
 });
 
 export const localizedMetadata = pgTable("localized_metadata", {

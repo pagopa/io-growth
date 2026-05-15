@@ -37,13 +37,23 @@ const LocalizedMetadataInputSchema = z.object({
   value: z.string().min(1),
 });
 
+const LocalizedMetadataListInputSchema = z
+  .array(LocalizedMetadataInputSchema)
+  .min(1)
+  .refine(
+    (metadata) => metadata.some((e) => e.key === "name" && e.language === "it"),
+    {
+      message: "localizedMetadata must contain at least one Italian name entry",
+    },
+  );
+
 const CreateOperatorOpportunityInputSchema = z.object({
   beneficiaryBenefit: BenefitInputSchema,
   caregiverBenefit: BenefitInputSchema.optional(),
   categoryId: z.ulid(),
   dateFrom: z.iso.date(),
   dateTo: z.iso.date().optional(),
-  localizedMetadata: z.array(LocalizedMetadataInputSchema).min(1),
+  localizedMetadata: LocalizedMetadataListInputSchema,
   operatorId: z.ulid(),
   placeIds: z.array(z.ulid()).min(1),
   url: z.url().optional(),

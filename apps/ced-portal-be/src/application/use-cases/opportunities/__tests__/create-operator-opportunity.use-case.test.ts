@@ -285,6 +285,27 @@ describe("makeCreateOperatorOpportunityUseCase - validation", () => {
     expect(deps.opportunityRepository.create).not.toHaveBeenCalled();
   });
 
+  it("should return ValidationError when localizedMetadata has no Italian name entry", async () => {
+    const deps = makeDeps();
+    const useCase = makeCreateOperatorOpportunityUseCase(deps);
+
+    const result = await useCase({
+      ...mockCreateOpportunityInput,
+      localizedMetadata: [
+        {
+          key: "name",
+          language: "en",
+          value: "20% discount",
+        },
+      ],
+    });
+
+    expect(result).toEqual(
+      err(expect.objectContaining({ kind: "ValidationError" })),
+    );
+    expect(deps.opportunityRepository.create).not.toHaveBeenCalled();
+  });
+
   it("should return ValidationError when benefit type is invalid", async () => {
     const deps = makeDeps();
     const useCase = makeCreateOperatorOpportunityUseCase(deps);

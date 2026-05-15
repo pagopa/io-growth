@@ -46,7 +46,7 @@ describe("createRedisSessionRepository (browser — key prefix 'browser:')", () 
       fakeClient,
       "browser:session:token-abc",
     );
-    expect(result._unsafeUnwrap()).toEqual(SESSION);
+    expect(result).toEqual(ok(SESSION));
   });
 
   it("storeTemporary prefixes key with 'browser:'", async () => {
@@ -66,7 +66,7 @@ describe("createRedisSessionRepository (browser — key prefix 'browser:')", () 
     const store = createRedisSessionRepository(fakeClient);
     const result = await store.getTemporary("nonce:state-hex");
     expect(mockGet).toHaveBeenCalledWith(fakeClient, "browser:nonce:state-hex");
-    expect(result._unsafeUnwrap()).toBe("nonce-value");
+    expect(result).toEqual(ok("nonce-value"));
   });
 
   it("deleteTemporary prefixes key with 'browser:'", async () => {

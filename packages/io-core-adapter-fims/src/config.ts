@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-import type { FimsAuthFlowConfig, OidcConfig } from "./domain/types.js";
+import type { FimsAuthFlowConfig, OidcConfig } from "./domain/entities.js";
 
 /**
  * Shared Zod schema for all FIMS-related environment variables.

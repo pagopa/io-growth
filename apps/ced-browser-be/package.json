@@ -25,6 +25,7 @@
     "@pagopa/io-core-adapter-fims": "workspace:^",
     "@pagopa/io-core-adapter-redis": "workspace:^",
     "@pagopa/io-core-domain": "workspace:^",
+    "fastify": "catalog:",
     "neverthrow": "catalog:",
     "zod": "catalog:"
   },

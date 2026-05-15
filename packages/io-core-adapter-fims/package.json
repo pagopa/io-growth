@@ -32,7 +32,7 @@
     "openid-client": "^5.7.0",
     "xml-crypto": "^3.2.0",
     "xpath": "^0.0.34",
-    "zod": "^3.25.1"
+    "zod": "catalog:"
   },
   "peerDependencies": {},
   "devDependencies": {

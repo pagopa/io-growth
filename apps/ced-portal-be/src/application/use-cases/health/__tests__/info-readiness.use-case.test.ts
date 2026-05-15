@@ -31,13 +31,14 @@ describe("makeGetInfoReadinessUseCase", () => {
     });
 
     const result = await useCase({});
-    const value = result._unsafeUnwrap();
 
-    expect(value).toEqual({
-      name: packageInfo.name,
-      ok: true,
-      version: packageInfo.version,
-    });
+    expect(result).toEqual(
+      ok({
+        name: packageInfo.name,
+        ok: true,
+        version: packageInfo.version,
+      }),
+    );
     expect(
       persistenceHealthCheckRepository.checkConnection,
     ).toHaveBeenCalledOnce();
@@ -59,9 +60,10 @@ describe("makeGetInfoReadinessUseCase", () => {
     });
 
     const result = await useCase({});
-    const error = result._unsafeUnwrapErr();
 
-    expect(error.kind).toBe("GenericError");
+    expect(result).toEqual(
+      err(expect.objectContaining({ kind: "GenericError" })),
+    );
     expect(
       persistenceHealthCheckRepository.checkConnection,
     ).toHaveBeenCalledOnce();
@@ -83,9 +85,10 @@ describe("makeGetInfoReadinessUseCase", () => {
     });
 
     const result = await useCase({});
-    const error = result._unsafeUnwrapErr();
 
-    expect(error.kind).toBe("GenericError");
+    expect(result).toEqual(
+      err(expect.objectContaining({ kind: "GenericError" })),
+    );
     expect(
       persistenceHealthCheckRepository.checkConnection,
     ).toHaveBeenCalledOnce();

@@ -43,7 +43,7 @@ describe("createRedisSessionRepository (card — key prefix 'card:')", () => {
     const store = createRedisSessionRepository(fakeClient);
     const result = await store.getSession("token-abc");
     expect(mockGet).toHaveBeenCalledWith(fakeClient, "card:session:token-abc");
-    expect(result._unsafeUnwrap()).toEqual(SESSION);
+    expect(result).toEqual(ok(SESSION));
   });
 
   it("storeTemporary prefixes key with 'card:'", async () => {
@@ -63,7 +63,7 @@ describe("createRedisSessionRepository (card — key prefix 'card:')", () => {
     const store = createRedisSessionRepository(fakeClient);
     const result = await store.getTemporary("nonce:state-hex");
     expect(mockGet).toHaveBeenCalledWith(fakeClient, "card:nonce:state-hex");
-    expect(result._unsafeUnwrap()).toBe("nonce-value");
+    expect(result).toEqual(ok("nonce-value"));
   });
 
   it("deleteTemporary prefixes key with 'card:'", async () => {

@@ -3,11 +3,13 @@ import { BlobServiceClient } from "@azure/storage-blob";
 import {
   buildFimsConfig,
   createBlobAuditLogger,
-  createFimsApp,
   createFimsAuthFlow,
+  createLollipopVerifier,
   createOidcClient,
+  mountFimsHandlers,
 } from "@pagopa/io-core-adapter-fims";
 import { createResilientRedisClient } from "@pagopa/io-core-adapter-redis";
+import Fastify from "fastify";
 
 import { createRedisSessionRepository } from "./adapters/outbound/redis/redis-session.repository.js";
 import { parseConfig } from "./config.js";
@@ -31,14 +33,18 @@ const auditLogger = createBlobAuditLogger(containerClient);
 
 const { fimsFlowConfig, oidcConfig } = buildFimsConfig(config);
 const oidcClient = createOidcClient(oidcConfig);
+const lollipopVerifier = createLollipopVerifier();
 const fimsAuthFlow = createFimsAuthFlow(
   oidcClient,
   sessionStore,
   auditLogger,
+  lollipopVerifier,
   fimsFlowConfig,
 );
 
-const app = createFimsApp(fimsAuthFlow, { logger: true });
+const app = Fastify({ logger: true });
+
+mountFimsHandlers(app, fimsAuthFlow);
 
 app.addHook("onClose", async () => {
   await redisClient.closeConnection();

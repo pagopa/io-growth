@@ -17,9 +17,10 @@ import { parseConfig } from "./config.js";
 const config = parseConfig();
 
 const redisClient = await createResilientRedisClient({
-  host: config.REDIS_HOST,
-  password: config.REDIS_PASSWORD,
-  port: config.REDIS_PORT,
+  endpoint: config.REDIS_ENDPOINT,
+  entraId: process.env.AZURE_CLIENT_ID
+    ? { clientId: process.env.AZURE_CLIENT_ID }
+    : undefined,
   tls: config.REDIS_TLS,
 });
 

@@ -3,6 +3,7 @@ import { z } from "zod";
 
 const configSchema = fimsConfigSchema.merge(
   z.object({
+    AZURE_CLIENT_ID: z.string().optional(),
     HOST: z.string().default("0.0.0.0"),
     PORT: z.coerce.number().int().min(1).max(65535).default(8080),
     POSTGRES_DB: z.string().min(1),
@@ -14,9 +15,7 @@ const configSchema = fimsConfigSchema.merge(
       .optional()
       .transform((v) => v === "true"),
     POSTGRES_USER: z.string().min(1),
-    REDIS_HOST: z.string().min(1),
-    REDIS_PASSWORD: z.string().optional(),
-    REDIS_PORT: z.coerce.number().int().min(1).max(65535).default(6379),
+    REDIS_ENDPOINT: z.string().min(1),
     REDIS_TLS: z
       .string()
       .optional()

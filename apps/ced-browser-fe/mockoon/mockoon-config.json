@@ -1,11 +1,11 @@
 {
   "uuid": "89eb3964-861e-4565-ac11-dbe8931ec2dc",
   "lastMigration": 33,
-  "name": "Ced",
+  "name": "Ced - Browser",
   "endpointPrefix": "",
   "latency": 0,
   "port": 3001,
-  "hostname": "",
+  "hostname": "0.0.0.0",
   "folders": [],
   "routes": [
     {
@@ -244,7 +244,7 @@
       "responses": [
         {
           "uuid": "3f7248b9-c9f6-4802-9488-0bc3f2e8b50d",
-          "body": "{\"id\": \"{{urlParam 'accessPointId'}}\", \"title\": \"Museo della Gambarina\", \"entityId\": \"{{urlParam 'entityId'}}\", \"entityName\": \"Comune di Alessandria\", \"opportunities\": [{\"id\": \"opp-2\", \"eyebrow\": \"Museo della Gambarina\", \"title\": \"Ingresso scontato alla mostra temporanea \\\"Impressionisti in Normandia\\\"\", \"badgeLabel\": \"-50%\"}], \"contacts\": {\"phone\": \"0131.234266\", \"website\": \"https://www.comune.alessandria.it\", \"address\": \"Piazza della Gambarina, 1, 15121 Alessandria AL\"}, \"relatedAccessPoints\": [{\"id\": \"ap-1\", \"title\": \"Biblioteca civica \\\"Francesca Calvo\\\"\", \"subtitle\": \"Piazza Vittorio Veneto, 1, 15121 Alessandria AL\"}, {\"id\": \"ap-3\", \"title\": \"Campo e pista di Atletica\", \"subtitle\": \"Via Ennio Massobrio, 15121 Alessandria AL\"}, {\"id\": \"ap-4\", \"title\": \"Stadio comunale \\\"Moccagatta\\\"\", \"subtitle\": \"Spalto Rovereto, 17, 15121 Alessandria AL\"}]}",
+          "body": "{\n  \"id\": \"{{urlParam 'accessPointId'}}\",\n  \"title\": \"Museo della Gambarina\",\n  \"entityId\": \"{{urlParam 'entityId'}}\",\n  \"entityName\": \"Comune di Alessandria\",\n  \"opportunities\": [\n    {\n      \"id\": \"opp-2\",\n      \"eyebrow\": \"Museo della Gambarina\",\n      \"title\": \"Ingresso scontato alla mostra temporanea \\\"Impressionisti in Normandia\\\"\",\n      \"badgeLabel\": \"-50%\"\n    }\n  ],\n  \"contacts\": {\n    \"phone\": \"0131.234266\",\n    \"website\": \"https://www.comune.alessandria.it\",\n    \"address\": \"Piazza della Gambarina, 1, 15121 Alessandria AL\"\n  },\n  \"relatedAccessPoints\": [\n    {\n      \"id\": \"ap-1\",\n      \"title\": \"Biblioteca civica \\\"Francesca Calvo\\\"\",\n      \"subtitle\": \"Piazza Vittorio Veneto, 1, 15121 Alessandria AL\"\n    },\n    {\n      \"id\": \"ap-3\",\n      \"title\": \"Campo e pista di Atletica\",\n      \"subtitle\": \"Via Ennio Massobrio, 15121 Alessandria AL\"\n    },\n    {\n      \"id\": \"ap-4\",\n      \"title\": \"Stadio comunale \\\"Moccagatta\\\"\",\n      \"subtitle\": \"Spalto Rovereto, 17, 15121 Alessandria AL\"\n    }\n  ]\n}",
           "latency": 0,
           "statusCode": 200,
           "label": "Access point detail",
@@ -262,6 +262,130 @@
           "callbacks": []
         }
       ]
+    },
+    {
+      "uuid": "9a7d4f41-2de3-4f72-a832-43c8a0d8d1aa",
+      "type": "http",
+      "documentation": "Dettaglio ente - meno di 10 opportunita e punti di accesso",
+      "method": "get",
+      "endpoint": "api/entities/demo-under-10",
+      "responses": [
+        {
+          "uuid": "1d0d5b4c-5462-4b49-aeca-2c7f08ad3a39",
+          "body": "{\n    \"id\": \"demo-under-10\",\n    \"name\": \"Comune di Bologna\",\n    \"opportunities\": [\n        {\n            \"id\": \"opp-u1\",\n            \"eyebrow\": \"Ovunque\",\n            \"title\": \"Sconto sui servizi anagrafici digitali\",\n            \"badgeLabel\": \"-20%\"\n        },\n        {\n            \"id\": \"opp-u2\",\n            \"eyebrow\": \"Biblioteca Salaborsa\",\n            \"title\": \"Prestito esteso per utenti CED\",\n            \"badgeLabel\": \"GRATIS\"\n        },\n        {\n            \"id\": \"opp-u3\",\n            \"eyebrow\": \"Museo Civico\",\n            \"title\": \"Ingresso ridotto alle mostre temporanee\",\n            \"badgeLabel\": \"-30%\"\n        },\n        {\n            \"id\": \"opp-u4\",\n            \"eyebrow\": \"Ovunque\",\n            \"title\": \"Accesso prioritario agli sportelli comunali\",\n            \"badgeLabel\": \"PRIORITA\"\n        },\n        {\n            \"id\": \"opp-u5\",\n            \"eyebrow\": \"Piscina Sterlino\",\n            \"title\": \"Ingresso agevolato nei giorni feriali\",\n            \"badgeLabel\": \"-15%\"\n        },\n        {\n            \"id\": \"opp-u6\",\n            \"eyebrow\": \"Teatro Comunale\",\n            \"title\": \"Biglietti ridotti per la stagione lirica\",\n            \"badgeLabel\": \"-25%\"\n        }\n    ],\n    \"accessPoints\": [\n        {\n            \"id\": \"ap-u1\",\n            \"title\": \"URP Palazzo d'Accursio\",\n            \"subtitle\": \"Piazza Maggiore, 6, 40124 Bologna BO\"\n        },\n        {\n            \"id\": \"ap-u2\",\n            \"title\": \"Biblioteca Salaborsa\",\n            \"subtitle\": \"Piazza del Nettuno, 3, 40124 Bologna BO\"\n        },\n        {\n            \"id\": \"ap-u3\",\n            \"title\": \"Sportello Quartiere Santo Stefano\",\n            \"subtitle\": \"Via Santo Stefano, 119, 40125 Bologna BO\"\n        },\n        {\n            \"id\": \"ap-u4\",\n            \"title\": \"Museo Civico Archeologico\",\n            \"subtitle\": \"Via dell'Archiginnasio, 2, 40124 Bologna BO\"\n        },\n        {\n            \"id\": \"ap-u5\",\n            \"title\": \"Piscina Sterlino\",\n            \"subtitle\": \"Via Murri, 113, 40137 Bologna BO\"\n        },\n        {\n            \"id\": \"ap-u6\",\n            \"title\": \"Teatro Comunale\",\n            \"subtitle\": \"Largo Respighi, 1, 40126 Bologna BO\"\n        }\n    ],\n    \"contacts\": {\n        \"phone\": \"051.2193111\",\n        \"website\": \"https://www.comune.bologna.it\",\n        \"address\": \"Piazza Maggiore, 6, 40124 Bologna BO\",\n        \"privacyUrl\": \"https://www.comune.bologna.it/privacy\",\n        \"termsUrl\": \"https://www.comune.bologna.it/termini\"\n    }\n}",
+          "latency": 0,
+          "statusCode": 200,
+          "label": "Entity detail - under 10",
+          "headers": [],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": true,
+          "crudKey": "id",
+          "callbacks": []
+        }
+      ],
+      "responseMode": null,
+      "streamingMode": null,
+      "streamingInterval": 0
+    },
+    {
+      "uuid": "b86cc73a-c662-49f2-a7e6-10a7c013ea5f",
+      "type": "http",
+      "documentation": "Dettaglio ente - oltre 10 opportunita e punti di accesso",
+      "method": "get",
+      "endpoint": "api/entities/demo-over-10",
+      "responses": [
+        {
+          "uuid": "0b4e6185-f996-4f88-b1d9-0ea3e5fcb09a",
+          "body": "{\n    \"id\": \"demo-over-10\",\n    \"name\": \"Comune di Alessandria\",\n    \"opportunities\": [\n        {\n            \"id\": \"opp-1\",\n            \"eyebrow\": \"Ovunque\",\n            \"title\": \"Saltafila negli uffici comunali\",\n            \"badgeLabel\": \"PRIORITA\"\n        },\n        {\n            \"id\": \"opp-2\",\n            \"eyebrow\": \"Museo della Gambarina\",\n            \"title\": \"Ingresso scontato alla mostra temporanea Impressionisti in Normandia\",\n            \"badgeLabel\": \"-50%\"\n        },\n        {\n            \"id\": \"opp-3\",\n            \"eyebrow\": \"Biblioteca civica Francesca Calvo\",\n            \"title\": \"Prestito prolungato su libri e multimedia\",\n            \"badgeLabel\": \"-30%\"\n        },\n        {\n            \"id\": \"opp-4\",\n            \"eyebrow\": \"Piscina comunale\",\n            \"title\": \"Ingresso gratuito alla piscina olimpionica\",\n            \"badgeLabel\": \"GRATIS\"\n        },\n        {\n            \"id\": \"opp-5\",\n            \"eyebrow\": \"Teatro Municipale\",\n            \"title\": \"Biglietto ridotto per gli spettacoli della stagione\",\n            \"badgeLabel\": \"-20%\"\n        },\n        {\n            \"id\": \"opp-6\",\n            \"eyebrow\": \"Mercato coperto\",\n            \"title\": \"Sconto sui prodotti a km zero\",\n            \"badgeLabel\": \"-15%\"\n        },\n        {\n            \"id\": \"opp-7\",\n            \"eyebrow\": \"Ovunque\",\n            \"title\": \"Parcheggio gratuito nelle strisce blu il sabato\",\n            \"badgeLabel\": \"GRATIS\"\n        },\n        {\n            \"id\": \"opp-8\",\n            \"eyebrow\": \"Palazzo della Cultura\",\n            \"title\": \"Accesso gratuito alle mostre permanenti\",\n            \"badgeLabel\": \"GRATIS\"\n        },\n        {\n            \"id\": \"opp-9\",\n            \"eyebrow\": \"Trasporti pubblici\",\n            \"title\": \"Abbonamento mensile a tariffa agevolata\",\n            \"badgeLabel\": \"-40%\"\n        },\n        {\n            \"id\": \"opp-10\",\n            \"eyebrow\": \"Universita del Piemonte\",\n            \"title\": \"Accesso scontato alla mensa universitaria\",\n            \"badgeLabel\": \"-25%\"\n        },\n        {\n            \"id\": \"opp-11\",\n            \"eyebrow\": \"Centro sportivo\",\n            \"title\": \"Lezioni di yoga gratuite nel parco ogni domenica\",\n            \"badgeLabel\": \"GRATIS\"\n        }\n    ],\n    \"accessPoints\": [\n        {\n            \"id\": \"ap-1\",\n            \"title\": \"Biblioteca civica Francesca Calvo\",\n            \"subtitle\": \"Piazza Vittorio Veneto, 1, 15121 Alessandria AL\"\n        },\n        {\n            \"id\": \"ap-2\",\n            \"title\": \"Museo della Gambarina\",\n            \"subtitle\": \"Piazza della Gambarina, 1, 15121 Alessandria AL\"\n        },\n        {\n            \"id\": \"ap-3\",\n            \"title\": \"Campo e pista di Atletica\",\n            \"subtitle\": \"Via Ennio Massobrio, 15121 Alessandria AL\"\n        },\n        {\n            \"id\": \"ap-4\",\n            \"title\": \"Stadio comunale Moccagatta\",\n            \"subtitle\": \"Spalto Rovereto, 17, 15121 Alessandria AL\"\n        },\n        {\n            \"id\": \"ap-5\",\n            \"title\": \"Piscina olimpionica\",\n            \"subtitle\": \"Via Moriondo, 10, 15121 Alessandria AL\"\n        },\n        {\n            \"id\": \"ap-6\",\n            \"title\": \"Teatro Municipale\",\n            \"subtitle\": \"Via dei Martiri della Liberta, 20, 15121 Alessandria AL\"\n        },\n        {\n            \"id\": \"ap-7\",\n            \"title\": \"Palazzo della Cultura\",\n            \"subtitle\": \"Via Parma, 35, 15121 Alessandria AL\"\n        },\n        {\n            \"id\": \"ap-8\",\n            \"title\": \"Mercato coperto\",\n            \"subtitle\": \"Piazza della Repubblica, 15121 Alessandria AL\"\n        },\n        {\n            \"id\": \"ap-9\",\n            \"title\": \"Centro sportivo Nord\",\n            \"subtitle\": \"Via Benedetto Croce, 5, 15121 Alessandria AL\"\n        },\n        {\n            \"id\": \"ap-10\",\n            \"title\": \"Sportello URP\",\n            \"subtitle\": \"Via dei Guasco, 1, 15121 Alessandria AL\"\n        },\n        {\n            \"id\": \"ap-11\",\n            \"title\": \"Anagrafe centrale\",\n            \"subtitle\": \"Piazza della Liberta, 1, 15121 Alessandria AL\"\n        }\n    ],\n    \"contacts\": {\n        \"phone\": \"0131.234266\",\n        \"website\": \"https://www.comune.alessandria.it\",\n        \"address\": \"Piazza della Liberta, 1, 15121 Alessandria AL\",\n        \"privacyUrl\": \"https://www.google.com\",\n        \"termsUrl\": \"https://www.google.com\"\n    }\n}",
+          "latency": 0,
+          "statusCode": 200,
+          "label": "Entity detail - over 10",
+          "headers": [],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": true,
+          "crudKey": "id",
+          "callbacks": []
+        }
+      ],
+      "responseMode": null,
+      "streamingMode": null,
+      "streamingInterval": 0
+    },
+    {
+      "uuid": "9be17871-8fe0-4c36-bd9f-847fbaf6e15c",
+      "type": "http",
+      "documentation": "Dettaglio ente - senza punti di accesso",
+      "method": "get",
+      "endpoint": "api/entities/demo-no-access-points",
+      "responses": [
+        {
+          "uuid": "9f5086f0-2bbd-43c1-a35a-1634dbcd84fb",
+          "body": "{\n    \"id\": \"demo-no-access-points\",\n    \"name\": \"Flixbus\",\n    \"opportunities\": [\n        {\n            \"id\": \"opp-n1\",\n            \"eyebrow\": \"Ovunque\",\n            \"title\": \"Prezzo agevolato su tutte le tratte\",\n            \"badgeLabel\": \"-30%\"\n        },\n        {\n            \"id\": \"opp-n2\",\n            \"eyebrow\": \"Ovunque\",\n            \"title\": \"Assistenza gratuita durante l'imbarco\",\n            \"badgeLabel\": \"GRATIS\"\n        }\n    ],\n    \"accessPoints\": [],\n    \"contacts\": {\n        \"phone\": \"0131.234266\",\n        \"website\": \"https://www.flixbus.it\",\n        \"privacyUrl\": \"https://www.flixbus.it/informativa-sulla-privacy\",\n        \"termsUrl\": \"https://www.flixbus.it/condizioni-generali\"\n    }\n}",
+          "latency": 0,
+          "statusCode": 200,
+          "label": "Entity detail - no access points",
+          "headers": [],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": true,
+          "crudKey": "id",
+          "callbacks": []
+        }
+      ],
+      "responseMode": null,
+      "streamingMode": null,
+      "streamingInterval": 0
+    },
+    {
+      "uuid": "f2a3b4c5-d6e7-8901-cdef-012345678901",
+      "type": "http",
+      "documentation": "Ricerca enti",
+      "method": "get",
+      "endpoint": "api/entities/search",
+      "responses": [
+        {
+          "uuid": "f2a3b4c5-d6e7-8901-cdef-012345678902",
+          "body": "{\n  \"total\": 6,\n  \"items\": [\n    {\n      \"id\": \"entity-001\",\n      \"name\": \"Comune di Alessandria\",\n      \"address\": \"Piazza della Libertà, 1, 15121 Alessandria AL\"\n    },\n    {\n      \"id\": \"entity-002\",\n      \"name\": \"Teatro di Alessandria\",\n      \"address\": \"Piazza della Libertà, 1, 15121 Alessandria AL\"\n    },\n    {\n      \"id\": \"entity-003\",\n      \"name\": \"Giardino botanico \\\"Dina Bellotti\\\"\",\n      \"address\": \"Via Giulio Monteverde, 24, 15121 Alessandria AL\"\n    },\n    {\n      \"id\": \"entity-004\",\n      \"name\": \"Biblioteca civica \\\"Francesca Calvo\\\"\",\n      \"address\": \"Piazza Vittorio Veneto, 1, 15121 Alessandria AL\"\n    },\n    {\n      \"id\": \"entity-005\",\n      \"name\": \"Museo civico - Palazzo Cuttica\",\n      \"address\": \"Via Parma, 1, 15121 Alessandria AL\"\n    },\n    {\n      \"id\": \"entity-006\",\n      \"name\": \"Stadio comunale \\\"Moccagatta\\\"\",\n      \"address\": \"Spalto Rovereto, 17, 15121 Alessandria AL\"\n    }\n  ]\n}",
+          "latency": 300,
+          "statusCode": 200,
+          "label": "Search results",
+          "headers": [],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": true,
+          "crudKey": "id",
+          "callbacks": []
+        }
+      ],
+      "responseMode": null,
+      "streamingMode": null,
+      "streamingInterval": 0
     },
     {
       "uuid": "e1f2a3b4-c5d6-7890-efab-cd1234567890",
@@ -324,6 +448,37 @@
       "responseMode": null,
       "streamingMode": null,
       "streamingInterval": 0
+    },
+    {
+      "uuid": "f2a3b4c5-d6e7-8901-cdef-012345678901",
+      "type": "http",
+      "documentation": "Ricerca enti",
+      "method": "get",
+      "endpoint": "api/entities/search",
+      "responses": [
+        {
+          "uuid": "f2a3b4c5-d6e7-8901-cdef-012345678902",
+          "body": "{\n  \"total\": 6,\n  \"items\": [\n    {\n      \"id\": \"entity-001\",\n      \"name\": \"Comune di Alessandria\",\n      \"address\": \"Piazza della Libertà, 1, 15121 Alessandria AL\"\n    },\n    {\n      \"id\": \"entity-002\",\n      \"name\": \"Teatro di Alessandria\",\n      \"address\": \"Piazza della Libertà, 1, 15121 Alessandria AL\"\n    },\n    {\n      \"id\": \"entity-003\",\n      \"name\": \"Giardino botanico \\\"Dina Bellotti\\\"\",\n      \"address\": \"Via Giulio Monteverde, 24, 15121 Alessandria AL\"\n    },\n    {\n      \"id\": \"entity-004\",\n      \"name\": \"Biblioteca civica \\\"Francesca Calvo\\\"\",\n      \"address\": \"Piazza Vittorio Veneto, 1, 15121 Alessandria AL\"\n    },\n    {\n      \"id\": \"entity-005\",\n      \"name\": \"Museo civico - Palazzo Cuttica\",\n      \"address\": \"Via Parma, 1, 15121 Alessandria AL\"\n    },\n    {\n      \"id\": \"entity-006\",\n      \"name\": \"Stadio comunale \\\"Moccagatta\\\"\",\n      \"address\": \"Spalto Rovereto, 17, 15121 Alessandria AL\"\n    }\n  ]\n}",
+          "latency": 300,
+          "statusCode": 200,
+          "label": "Search results",
+          "headers": [],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": true,
+          "crudKey": "id",
+          "callbacks": []
+        }
+      ],
+      "responseMode": null,
+      "streamingMode": null,
+      "streamingInterval": 0
     }
   ],
   "rootChildren": [
@@ -353,11 +508,31 @@
     },
     {
       "type": "route",
+      "uuid": "9a7d4f41-2de3-4f72-a832-43c8a0d8d1aa"
+    },
+    {
+      "type": "route",
+      "uuid": "b86cc73a-c662-49f2-a7e6-10a7c013ea5f"
+    },
+    {
+      "type": "route",
+      "uuid": "9be17871-8fe0-4c36-bd9f-847fbaf6e15c"
+    },
+    {
+      "type": "route",
+      "uuid": "f2a3b4c5-d6e7-8901-cdef-012345678901"
+    },
+    {
+      "type": "route",
       "uuid": "e1f2a3b4-c5d6-7890-efab-cd1234567890"
     },
     {
       "type": "route",
       "uuid": "a2b3c4d5-e6f7-8901-bcde-f01234567890"
+    },
+    {
+      "type": "route",
+      "uuid": "c39f4818-f95f-4a2f-b59b-535d1f63caca"
     }
   ],
   "proxyMode": false,
@@ -405,18 +580,18 @@
   ],
   "data": [
     {
-      "uuid": "sedi-bucket-0001-0000-0000-000000000001",
+      "uuid": "53e2ee36-ca78-47c8-9a0f-c7c29baaec15",
       "id": "locations",
       "name": "Locations",
       "value": "[]",
-      "parsed": true
+      "documentation": ""
     },
     {
-      "uuid": "webs-bucket-0001-0000-0000-000000000001",
+      "uuid": "f3852167-23ab-4c25-a844-368591425ef8",
       "id": "websites",
       "name": "Websites",
       "value": "[]",
-      "parsed": true
+      "documentation": ""
     }
   ],
   "callbacks": []

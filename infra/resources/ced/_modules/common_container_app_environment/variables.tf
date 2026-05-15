@@ -70,6 +70,11 @@ variable "redis_cache_id" {
   description = "The ID of the Redis cache to which the container app environment will be granted access."
 }
 
+variable "redis_id" {
+  type        = string
+  description = "The ID of the DX Redis cache to which the container app environment will be granted access."
+}
+
 variable "azure_subscription_id" {
   type        = string
   description = "The ID of the Azure subscription where the resources will be deployed."

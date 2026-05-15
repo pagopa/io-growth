@@ -6,10 +6,16 @@ import { useNavigate } from 'react-router-dom';
 type PageHeaderProps = {
   title?: string;
   subtitle?: ReactNode;
+  leadingContent?: ReactNode;
   onBack?: () => void;
 };
 
-export function PageHeader({ title, subtitle, onBack }: PageHeaderProps) {
+export function PageHeader({
+  title,
+  subtitle,
+  leadingContent,
+  onBack,
+}: PageHeaderProps) {
   const navigate = useNavigate();
 
   return (
@@ -30,6 +36,8 @@ export function PageHeader({ title, subtitle, onBack }: PageHeaderProps) {
         <ArrowBack sx={{ fontSize: 20 }} />
         Indietro
       </ButtonBase>
+
+      {leadingContent && <Box sx={{ mb: 3 }}>{leadingContent}</Box>}
 
       {title && (
         <Typography

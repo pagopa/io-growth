@@ -12,6 +12,13 @@ const ALERT_ERROR_BORDER = '#FF6666';
 const ALERT_SUCCESS_BORDER = '#89D188';
 const ERROR_ICON_BG = '#5D1313';
 const TOAST_ERROR_BG = ERROR_ICON_BG;
+const NEUTRAL_600 = '#636B82';
+const NEUTRAL_700 = '#4E5A70';
+const NEUTRAL_450 = '#9EA8BC';
+const NEUTRAL_900 = '#111827';
+const NEUTRAL_500 = '#5F687A';
+const DECORATIVE_BLUE = '#CED8F9';
+const DECORATIVE_CYAN = '#AAEEEF';
 const BADGE_BG = '#DBF9FA';
 const BADGE_TEXT = '#003B3D';
 
@@ -27,6 +34,10 @@ declare module '@mui/material/styles' {
     alertErrorBorder: string;
     alertSuccessBorder: string;
     toastError: string;
+    decorativeBlue: string;
+    decorativeCyan: string;
+    neutral900: string;
+    neutral500: string;
     badgeBg: string;
     badgeText: string;
   }
@@ -52,6 +63,10 @@ export const createAppTheme = () =>
         alertSuccessBorder: ALERT_SUCCESS_BORDER,
         neutralDarkGray: APP_NEUTRAL_DARK_GRAY,
         toastError: TOAST_ERROR_BG,
+        decorativeBlue: DECORATIVE_BLUE,
+        decorativeCyan: DECORATIVE_CYAN,
+        neutral900: NEUTRAL_900,
+        neutral500: NEUTRAL_500,
         badgeBg: BADGE_BG,
         badgeText: BADGE_TEXT,
       },
@@ -83,6 +98,18 @@ export const createAppTheme = () =>
       },
       MuiButton: {
         styleOverrides: {
+          root: {
+            '&.SearchCancelButton': {
+              height: 48,
+              minWidth: 84,
+              paddingLeft: 0,
+              paddingRight: 0,
+              color: PRIMARY_BUTTON_BACKGROUND,
+              fontSize: 16,
+              fontWeight: 600,
+              textTransform: 'none',
+            },
+          },
           containedPrimary: {
             backgroundColor: PRIMARY_BUTTON_BACKGROUND,
             '&:hover': {
@@ -116,11 +143,72 @@ export const createAppTheme = () =>
           root: {
             backgroundColor: muiItaliaTheme.palette.common.white,
             '& .MuiOutlinedInput-root': {
-              borderRadius: 2,
-              minHeight: 56,
+              height: 48,
+              minHeight: 48,
+              borderRadius: '8px',
+              backgroundColor: muiItaliaTheme.palette.common.white,
+              '& fieldset': {
+                borderColor: NEUTRAL_600,
+                borderWidth: 1,
+              },
+              '&:hover fieldset': {
+                borderColor: NEUTRAL_600,
+              },
+              '&.Mui-focused fieldset': {
+                borderColor: PRIMARY_BUTTON_BACKGROUND,
+                borderWidth: 2,
+              },
             },
             '& .MuiFormLabel-asterisk': {
               color: '#e53935',
+            },
+            '& .MuiInputBase-input': {
+              height: 48,
+              paddingTop: 0,
+              paddingBottom: 0,
+              color: NEUTRAL_BLACK,
+              fontSize: 16,
+              fontWeight: 600,
+            },
+            '& .MuiInputLabel-root': {
+              color: NEUTRAL_700,
+              fontSize: 16,
+              fontWeight: 600,
+              '&.Mui-focused': {
+                color: PRIMARY_BUTTON_BACKGROUND,
+              },
+              '&.MuiInputLabel-shrink': {
+                transform: 'translate(14px, -9px) scale(0.75)',
+              },
+            },
+            '&.SearchTextField .MuiInputLabel-root:not(.MuiInputLabel-shrink)':
+              {
+                transform: 'translate(48px, 13px) scale(1)',
+              },
+          },
+        },
+      },
+      MuiIconButton: {
+        styleOverrides: {
+          root: {
+            '&.SearchClearButton': {
+              width: 22,
+              height: 22,
+              backgroundColor: DECORATIVE_ICON,
+              color: muiItaliaTheme.palette.common.white,
+              '&:hover': {
+                backgroundColor: NEUTRAL_450,
+              },
+            },
+          },
+        },
+      },
+      MuiSvgIcon: {
+        styleOverrides: {
+          root: {
+            '&.SearchInputIcon': {
+              color: DECORATIVE_ICON,
+              fontSize: 24,
             },
           },
         },
@@ -292,7 +380,7 @@ export const createAppTheme = () =>
             '& .MuiStepIcon-text': {
               fontSize: '12px',
               fontWeight: 700,
-              fill: '#636B82',
+              fill: NEUTRAL_600,
             },
             '& .Mui-active .MuiStepIcon-text, & .Mui-completed .MuiStepIcon-text':
               {

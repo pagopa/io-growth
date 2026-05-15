@@ -12,7 +12,9 @@ export { mountListOperatorOpportunitiesHandler } from "./opportunities/list-oper
 export { mountListOpportunityCategoriesHandler } from "./opportunities/list-opportunity-categories.handler.js";
 export { mountOperatorRequestOpportunityTestHandler } from "./opportunities/operator-request-opportunity-test.handler.js";
 export { mountCreateOperatorPlaceHandler } from "./places/create-operator-place.handler.js";
+export { mountDeleteOperatorPlaceHandler } from "./places/delete-operator-place.handler.js";
 export { mountGetOperatorPlaceHandler } from "./places/get-operator-place.handler.js";
 export { mountListOperatorPlacesHandler } from "./places/list-operator-places.handler.js";
+export { mountUpdateOperatorPlaceHandler } from "./places/update-operator-place.handler.js";
 export { mountCreateOperatorProfileHandler } from "./profile/create-operator-profile.handler.js";
 export { mountGetOperatorProfileHandler } from "./profile/get-operator-profile.handler.js";

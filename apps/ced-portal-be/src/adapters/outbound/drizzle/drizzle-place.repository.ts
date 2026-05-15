@@ -2,16 +2,25 @@ import type { TypedDbClient } from "@pagopa/io-core-adapter-drizzle";
 import type { Result } from "neverthrow";
 
 import { GenericError } from "@pagopa/io-core-domain/errors";
-import { and, asc, eq, inArray } from "drizzle-orm";
+import { and, asc, count, eq, inArray } from "drizzle-orm";
 import { err, ok } from "neverthrow";
 
 import type { Place } from "../../../domain/entities/place.js";
 import type { PlaceRepository } from "../../../domain/ports/outbound/persistence/place.repository.js";
 
 import { mapPlaceRow, mapPlaceRows } from "./place-row.mapper.js";
-import { createPlaceInTransaction } from "./place.transaction.js";
+import {
+  createPlaceInTransaction,
+  doPlaceDelete,
+  doPlaceUpdate,
+} from "./place.transaction.js";
 import * as schema from "./schema/index.js";
-import { place, supportContact } from "./schema/tables.js";
+import {
+  opportunityPlace,
+  place,
+  profile,
+  supportContact,
+} from "./schema/tables.js";
 
 export const createDrizzlePlaceRepository = (
   db: TypedDbClient<typeof schema>,
@@ -31,6 +40,36 @@ export const createDrizzlePlaceRepository = (
     } catch (error) {
       return err(
         new GenericError(`Failed to create operator place: ${String(error)}`),
+      );
+    }
+  },
+
+  delete: async (input): Promise<Result<void, GenericError>> => {
+    try {
+      await db.transaction((tx) => doPlaceDelete(tx, input));
+      return ok(undefined);
+    } catch (error) {
+      return err(
+        new GenericError(`Failed to delete operator place: ${String(error)}`),
+      );
+    }
+  },
+
+  existsById: async (input): Promise<Result<boolean, GenericError>> => {
+    try {
+      const rows = await db
+        .select({ count: count() })
+        .from(place)
+        .where(
+          and(
+            eq(place.id, input.placeId),
+            eq(place.operatorId, input.operatorId),
+          ),
+        );
+      return ok((rows[0]?.count ?? 0) > 0);
+    } catch (error) {
+      return err(
+        new GenericError(`Failed to check place existence: ${String(error)}`),
       );
     }
   },
@@ -96,6 +135,41 @@ export const createDrizzlePlaceRepository = (
     }
   },
 
+  hasOpportunityLinks: async (
+    placeId: string,
+  ): Promise<Result<boolean, GenericError>> => {
+    try {
+      const rows = await db
+        .select({ count: count() })
+        .from(opportunityPlace)
+        .where(eq(opportunityPlace.placeId, placeId));
+      return ok((rows[0]?.count ?? 0) > 0);
+    } catch (error) {
+      return err(
+        new GenericError(`Failed to check opportunity links: ${String(error)}`),
+      );
+    }
+  },
+
+  hasProfile: async (input): Promise<Result<boolean, GenericError>> => {
+    try {
+      const rows = await db
+        .select({ count: count() })
+        .from(profile)
+        .where(
+          and(
+            eq(profile.placeId, input.placeId),
+            eq(profile.operatorId, input.operatorId),
+          ),
+        );
+      return ok((rows[0]?.count ?? 0) > 0);
+    } catch (error) {
+      return err(
+        new GenericError(`Failed to check place profile: ${String(error)}`),
+      );
+    }
+  },
+
   listByOperatorId: async (
     operatorId: string,
   ): Promise<Result<Place[], GenericError>> => {
@@ -129,6 +203,17 @@ export const createDrizzlePlaceRepository = (
     } catch (error) {
       return err(
         new GenericError(`Failed to list operator places: ${String(error)}`),
+      );
+    }
+  },
+
+  update: async (input): Promise<Result<void, GenericError>> => {
+    try {
+      await db.transaction((tx) => doPlaceUpdate(tx, input));
+      return ok(undefined);
+    } catch (error) {
+      return err(
+        new GenericError(`Failed to update operator place: ${String(error)}`),
       );
     }
   },

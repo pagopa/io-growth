@@ -16,6 +16,7 @@ import {
   mountCreateOperatorOpportunityHandler,
   mountCreateOperatorPlaceHandler,
   mountCreateOperatorProfileHandler,
+  mountDeleteOperatorPlaceHandler,
   mountGetContractSignedHandler,
   mountGetOnboardingHandler,
   mountGetOperatorOpportunityHandler,
@@ -28,6 +29,7 @@ import {
   mountListOpportunityCategoriesHandler,
   mountListPendingOnboardingsHandler,
   mountOperatorRequestOpportunityTestHandler,
+  mountUpdateOperatorPlaceHandler,
 } from "./adapters/inbound/fastify/index.js";
 import { createArOnboardingRepository } from "./adapters/outbound/ar/ar-onboarding.repository.js";
 import { createDrizzleOperatorRepository } from "./adapters/outbound/drizzle/drizzle-operator.repository.js";
@@ -53,8 +55,10 @@ import { makeListOperatorOpportunitiesUseCase } from "./application/use-cases/op
 import { makeListOpportunityCategoriesUseCase } from "./application/use-cases/opportunities/list-opportunity-categories.use-case.js";
 import { makeOperatorRequestOpportunityTestUseCase } from "./application/use-cases/opportunities/operator-request-opportunity-test.use-case.js";
 import { makeCreateOperatorPlaceUseCase } from "./application/use-cases/places/create-operator-place.use-case.js";
+import { makeDeleteOperatorPlaceUseCase } from "./application/use-cases/places/delete-operator-place.use-case.js";
 import { makeGetOperatorPlaceUseCase } from "./application/use-cases/places/get-operator-place.use-case.js";
 import { makeListOperatorPlacesUseCase } from "./application/use-cases/places/list-operator-places.use-case.js";
+import { makeUpdateOperatorPlaceUseCase } from "./application/use-cases/places/update-operator-place.use-case.js";
 import { makeCreateOperatorProfileUseCase } from "./application/use-cases/profile/create-operator-profile.use-case.js";
 import { makeGetOperatorProfileUseCase } from "./application/use-cases/profile/get-operator-profile.use-case.js";
 import { parseConfig } from "./config.js";
@@ -146,6 +150,14 @@ app.register(async (app) => {
   mountGetOperatorPlaceHandler(
     app,
     makeGetOperatorPlaceUseCase(placeRepository),
+  );
+  mountUpdateOperatorPlaceHandler(
+    app,
+    makeUpdateOperatorPlaceUseCase(placeRepository),
+  );
+  mountDeleteOperatorPlaceHandler(
+    app,
+    makeDeleteOperatorPlaceUseCase(placeRepository),
   );
   mountCreateOperatorOpportunityHandler(
     app,

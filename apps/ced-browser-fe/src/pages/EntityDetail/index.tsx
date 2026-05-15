@@ -4,6 +4,7 @@ import { useGetEntityDetailQuery } from '../../features/entities/api.js';
 import { ItemsSection } from '../../components/ItemsSection/index.js';
 import { ContactsSection } from '../../components/ContactsSection/index.js';
 import { PageHeader, QueryGuard } from '../../components/index.js';
+import { EntityPlaceholderIcon } from './components/EntityPlaceholderIcon/index.js';
 
 export default function EntityDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -19,11 +20,17 @@ export default function EntityDetailPage() {
       {(resolvedData) => (
         <Box
           sx={{
-            pb: 'calc(48px + env(safe-area-inset-bottom, 0px))',
             bgcolor: 'background.paper',
           }}
         >
-          <PageHeader title={resolvedData.name} />
+          <PageHeader
+            title={resolvedData.name}
+            leadingContent={
+              resolvedData.accessPoints.length === 0 ? (
+                <EntityPlaceholderIcon />
+              ) : undefined
+            }
+          />
 
           <Stack spacing={2} sx={{ mt: 2, mb: 4 }}>
             <ItemsSection

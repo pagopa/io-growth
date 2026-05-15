@@ -16,8 +16,7 @@ services:
       AZURITE_BLOB_PORT: "10000"
       AZURITE_QUEUE_PORT: "10001"
       AZURITE_TABLE_PORT: "10002"
-      REDIS_HOST: redis
-      REDIS_PORT: "6379"
+      REDIS_ENDPOINT: "redis:6379"
 
   postgres:
     image: postgres:16.13@sha256:760ea41aae126965bedd587d35a23de37447bb13a6ac4444bef6ff73b8b72234
@@ -45,12 +44,71 @@ services:
   redis:
     image: redis:7@sha256:a5995dfdf108997f8a7c9587f54fad5e94ed5848de5236a6b28119e99efd67e0
     restart: unless-stopped
+    command: >
+      redis-server --port 6379 --cluster-enabled yes
+      --cluster-config-file /data/nodes.conf --cluster-node-timeout 5000
+      --appendonly yes --cluster-announce-hostname redis --cluster-announce-port 6379
     ports:
       - "6379:6379"
     volumes:
-      - redis-data:/data
+      - redis-1-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "-p", "6379", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  redis-2:
+    image: redis:7@sha256:a5995dfdf108997f8a7c9587f54fad5e94ed5848de5236a6b28119e99efd67e0
+    restart: unless-stopped
+    command: >
+      redis-server --port 6380 --cluster-enabled yes
+      --cluster-config-file /data/nodes.conf --cluster-node-timeout 5000
+      --appendonly yes --cluster-announce-hostname redis-2 --cluster-announce-port 6380
+    ports:
+      - "6380:6380"
+    volumes:
+      - redis-2-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "-p", "6380", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  redis-3:
+    image: redis:7@sha256:a5995dfdf108997f8a7c9587f54fad5e94ed5848de5236a6b28119e99efd67e0
+    restart: unless-stopped
+    command: >
+      redis-server --port 6381 --cluster-enabled yes
+      --cluster-config-file /data/nodes.conf --cluster-node-timeout 5000
+      --appendonly yes --cluster-announce-hostname redis-3 --cluster-announce-port 6381
+    ports:
+      - "6381:6381"
+    volumes:
+      - redis-3-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "-p", "6381", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  redis-cluster-setup:
+    image: redis:7@sha256:a5995dfdf108997f8a7c9587f54fad5e94ed5848de5236a6b28119e99efd67e0
+    restart: "no"
+    depends_on:
+      redis:
+        condition: service_healthy
+      redis-2:
+        condition: service_healthy
+      redis-3:
+        condition: service_healthy
+    command: >
+      redis-cli --cluster create redis:6379 redis-2:6380 redis-3:6381
+      --cluster-replicas 0 --cluster-yes
 
 volumes:
   postgres-data:
   azurite-data:
-  redis-data:
+  redis-1-data:
+  redis-2-data:
+  redis-3-data:

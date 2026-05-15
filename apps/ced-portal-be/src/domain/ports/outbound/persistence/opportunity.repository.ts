@@ -24,7 +24,7 @@ export interface ListOpportunitiesInput {
   search?: string;
   sortBy: "createdAt" | "updatedAt";
   sortOrder: "asc" | "desc";
-  status?: string;
+  status?: OpportunitySummary["status"];
 }
 
 export interface OpportunityRepository {

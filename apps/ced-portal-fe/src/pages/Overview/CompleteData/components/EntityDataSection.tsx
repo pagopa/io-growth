@@ -24,6 +24,8 @@ interface EntityDataSectionProps {
   onLogoSelect: (file: File | null) => void;
   onCoverSelect: (file: File | null) => void;
   onInfoClick: (type: 'logo' | 'cover') => void;
+  nameError?: string;
+  addressError?: string;
 }
 
 export const EntityDataSection = ({
@@ -38,6 +40,8 @@ export const EntityDataSection = ({
   onLogoSelect,
   onCoverSelect,
   onInfoClick,
+  nameError,
+  addressError,
 }: EntityDataSectionProps) => {
   const isWebsite = sede === 'sito_web';
   const locationFieldLabel = isWebsite ? 'Url' : 'Indirizzo';
@@ -65,6 +69,8 @@ export const EntityDataSection = ({
           label="Nome visibile su IO"
           placeholder="Inserisci il nome visibile su IO"
           value={name}
+          error={Boolean(nameError)}
+          helperText={nameError}
           onChange={(e) => onNameChange(e.target.value)}
           sx={{
             '& .MuiOutlinedInput-root': { borderRadius: '8px' },
@@ -92,6 +98,8 @@ export const EntityDataSection = ({
           label={locationFieldLabel}
           placeholder={locationFieldPlaceholder}
           value={address}
+          error={Boolean(addressError)}
+          helperText={addressError}
           onChange={(e) => onAddressChange(e.target.value)}
           sx={{
             '& .MuiOutlinedInput-root': { borderRadius: '8px' },

@@ -46,12 +46,10 @@ services:
     restart: unless-stopped
     command: >
       redis-server --port 6379 --cluster-enabled yes
-      --cluster-config-file /data/nodes.conf --cluster-node-timeout 5000
-      --appendonly yes --cluster-announce-hostname redis --cluster-announce-port 6379
+      --cluster-config-file /tmp/nodes.conf --cluster-node-timeout 5000
+      --cluster-announce-hostname redis --cluster-announce-port 6379
     ports:
       - "6379:6379"
-    volumes:
-      - redis-1-data:/data
     healthcheck:
       test: ["CMD", "redis-cli", "-p", "6379", "ping"]
       interval: 5s
@@ -63,12 +61,10 @@ services:
     restart: unless-stopped
     command: >
       redis-server --port 6380 --cluster-enabled yes
-      --cluster-config-file /data/nodes.conf --cluster-node-timeout 5000
-      --appendonly yes --cluster-announce-hostname redis-2 --cluster-announce-port 6380
+      --cluster-config-file /tmp/nodes.conf --cluster-node-timeout 5000
+      --cluster-announce-hostname redis-2 --cluster-announce-port 6380
     ports:
       - "6380:6380"
-    volumes:
-      - redis-2-data:/data
     healthcheck:
       test: ["CMD", "redis-cli", "-p", "6380", "ping"]
       interval: 5s
@@ -80,12 +76,10 @@ services:
     restart: unless-stopped
     command: >
       redis-server --port 6381 --cluster-enabled yes
-      --cluster-config-file /data/nodes.conf --cluster-node-timeout 5000
-      --appendonly yes --cluster-announce-hostname redis-3 --cluster-announce-port 6381
+      --cluster-config-file /tmp/nodes.conf --cluster-node-timeout 5000
+      --cluster-announce-hostname redis-3 --cluster-announce-port 6381
     ports:
       - "6381:6381"
-    volumes:
-      - redis-3-data:/data
     healthcheck:
       test: ["CMD", "redis-cli", "-p", "6381", "ping"]
       interval: 5s
@@ -109,6 +103,3 @@ services:
 volumes:
   postgres-data:
   azurite-data:
-  redis-1-data:
-  redis-2-data:
-  redis-3-data:

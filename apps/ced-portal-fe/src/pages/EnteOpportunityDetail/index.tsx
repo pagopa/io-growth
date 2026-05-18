@@ -20,6 +20,8 @@ import { RequestChangesModal } from '../../components/RequestChangesModal';
 import { OpportunityDetailCard } from './components/OpportunityDetailCard';
 import { getChipConfig } from '../Home/components/utils';
 import { OpportunitiesCtas } from './components/OpportunitiesCtas/OpportunitiesCtas';
+import { OpportunityPlaces } from './components/OpportunityPlaces';
+import { OpportunitySites } from './components/OpportunitySites';
 
 export default function OpportunityDetailPage() {
   const theme = useTheme();
@@ -136,6 +138,10 @@ export default function OpportunityDetailPage() {
         </Stack>
 
         <OpportunityDetailCard detail={detail} />
+
+        <OpportunityPlaces detail={detail} />
+
+        <OpportunitySites detail={detail} />
 
         <OpportunitiesCtas status={detail.publication_status} id={detail.id} />
       </Stack>

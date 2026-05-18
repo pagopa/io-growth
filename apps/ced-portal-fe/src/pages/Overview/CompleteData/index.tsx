@@ -5,24 +5,37 @@ import { useNavigate } from 'react-router-dom';
 import { ContactsSection } from './components/ContactsSection';
 import { EntityDataSection } from './components/EntityDataSection';
 import { InfoModal } from './components/InfoModal';
-import type { CompleteDataFormData } from './types';
-
-const INITIAL_FORM_DATA: CompleteDataFormData = {
-  name: '',
-  sede: 'fisica',
-  address: '',
-  contacts: [{ contact: '', type: 'WEBSITE', website: '' }],
-  logoFile: null,
-  coverFile: null,
-};
+import { TermsAndPrivacySection } from './components/TermsAndPrivacySection';
+import { useCompleteDataForm } from './hooks/useCompleteDataForm';
 
 export default function OverviewCompleteDataPage() {
   const navigate = useNavigate();
   const [infoModalType, setInfoModalType] = useState<'logo' | 'cover' | null>(
     null,
   );
-  const [formData, setFormData] =
-    useState<CompleteDataFormData>(INITIAL_FORM_DATA);
+  const {
+    formData,
+    nameError,
+    addressError,
+    visibleFirstContactTypeError,
+    visibleFirstContactValueError,
+    handleNameChange,
+    handleSedeChange,
+    handleAddressChange,
+    handleLogoSelect,
+    handleCoverSelect,
+    handlePrivacyUrlChange,
+    handleTermsUrlChange,
+    handleAddContact,
+    handleRemoveContact,
+    handleContactChange,
+    handleContinueClick,
+  } = useCompleteDataForm({
+    onValidSubmit: (validatedFormData) => {
+      // TODO: Handle form submission
+      console.log('Form submitted:', validatedFormData);
+    },
+  });
 
   return (
     <Box
@@ -47,7 +60,7 @@ export default function OverviewCompleteDataPage() {
           </Button>
 
           <Stack spacing={3}>
-            {/* Intestazione pagina */}
+            {/* Page header */}
             <Box>
               <Stack spacing={1}>
                 <Typography variant="h4" sx={{ fontSize: 32, fontWeight: 700 }}>
@@ -96,65 +109,41 @@ export default function OverviewCompleteDataPage() {
                   address={formData.address}
                   logoFile={formData.logoFile}
                   coverFile={formData.coverFile}
-                  onNameChange={(value) =>
-                    setFormData((prev) => ({ ...prev, name: value }))
-                  }
-                  onSedeChange={(value) =>
-                    setFormData((prev) => ({ ...prev, sede: value }))
-                  }
-                  onAddressChange={(value) =>
-                    setFormData((prev) => ({ ...prev, address: value }))
-                  }
-                  onLogoSelect={(file) =>
-                    setFormData((prev) => ({ ...prev, logoFile: file }))
-                  }
-                  onCoverSelect={(file) =>
-                    setFormData((prev) => ({ ...prev, coverFile: file }))
-                  }
+                  nameError={nameError}
+                  addressError={addressError}
+                  onNameChange={handleNameChange}
+                  onSedeChange={handleSedeChange}
+                  onAddressChange={handleAddressChange}
+                  onLogoSelect={handleLogoSelect}
+                  onCoverSelect={handleCoverSelect}
                   onInfoClick={setInfoModalType}
                 />
 
                 <ContactsSection
                   contacts={formData.contacts}
-                  onAddContact={() =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      contacts: [
-                        ...prev.contacts,
-                        { contact: '', type: 'WEBSITE', website: '' },
-                      ],
-                    }))
-                  }
-                  onRemoveContact={(index) =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      contacts:
-                        prev.contacts.length > 1
-                          ? prev.contacts.filter((_, i) => i !== index)
-                          : [{ contact: '', type: 'WEBSITE', website: '' }],
-                    }))
-                  }
-                  onContactChange={(index, field, value) =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      contacts: prev.contacts.map((contact, i) =>
-                        i === index ? { ...contact, [field]: value } : contact,
-                      ),
-                    }))
-                  }
+                  firstContactTypeError={visibleFirstContactTypeError}
+                  firstContactValueError={visibleFirstContactValueError}
+                  onAddContact={handleAddContact}
+                  onRemoveContact={handleRemoveContact}
+                  onContactChange={handleContactChange}
+                />
+
+                {/* Terms and privacy section */}
+                <TermsAndPrivacySection
+                  privacyUrl={formData.privacyUrl}
+                  termsUrl={formData.termsUrl}
+                  onPrivacyUrlChange={handlePrivacyUrlChange}
+                  onTermsUrlChange={handleTermsUrlChange}
                 />
               </Stack>
             </Paper>
 
-            {/* Footer con tasto Continua */}
+            {/* Footer with continue button */}
             <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
               <Button
                 variant="contained"
                 size="large"
-                onClick={() => {
-                  console.log('Form submitted:', formData);
-                  // TODO: Handle form submission
-                }}
+                onClick={handleContinueClick}
                 sx={{ borderRadius: 2, px: 4, fontWeight: 700 }}
               >
                 Continua

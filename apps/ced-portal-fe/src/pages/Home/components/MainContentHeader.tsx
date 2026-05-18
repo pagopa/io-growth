@@ -18,10 +18,10 @@ export function MainContentHeader() {
           variant="h2"
           sx={{ fontSize: { xs: 36, md: 44 }, fontWeight: 700 }}
         >
-          Agevolazioni
+          Opportunità
         </Typography>
         <Typography sx={{ mt: 0.5, color: 'text.secondary', fontSize: 18 }}>
-          Crea e gestisci le tue agevolazioni.
+          Crea e gestisci le tue opportunità.
         </Typography>
       </Box>
 
@@ -39,7 +39,7 @@ export function MainContentHeader() {
           alignSelf: { xs: 'stretch', md: 'auto' },
         }}
       >
-        Crea agevolazione
+        Crea opportunità
       </Button>
     </Stack>
   );

@@ -29,7 +29,7 @@ interface StepConfig {
 }
 
 const STEPS: StepConfig[] = [
-  { label: 'Dettagli agevolazione', component: StepOne },
+  { label: 'Dettagli opportunità', component: StepOne },
   { label: 'Indica i punti di accesso', component: StepTwo },
 ];
 
@@ -146,10 +146,10 @@ export default function CreateBenefitPage() {
             Esci
           </Button>
           <Typography variant="h6" fontWeight={700} gutterBottom>
-            Crea agevolazione
+            Crea opportunità
           </Typography>
           <Typography variant="body1" color="text.secondary" gutterBottom>
-            Compila i campi per aggiungere un&apos;agevolazione e inviala in
+            Compila i campi per aggiungere un&apos;opportunità e inviala in
             revisione. Una volta approvata, sarà pubblicata su IO.
           </Typography>
           <Typography
@@ -177,7 +177,7 @@ export default function CreateBenefitPage() {
         open={submitReviewOpen}
         onClose={() => setSubmitReviewOpen(false)}
         title="Invia in revisione"
-        description="Il Dipartimento effettuerà la revisione della tua agevolazione. Il processo potrebbe richiedere diverso tempo. Se approvata, sarà pubblicata su IO a partire dalla data di inizio validità che hai scelto."
+        description="Il Dipartimento effettuerà la revisione della tua opportunità. Il processo potrebbe richiedere diverso tempo. Se approvata, sarà pubblicata su IO a partire dalla data di inizio validità che hai scelto."
       >
         <Button
           variant="contained"

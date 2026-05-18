@@ -34,7 +34,7 @@ export function BenefitsContentState({
         <Stack spacing={1} alignItems="center" textAlign="center">
           <CircularProgress size={28} />
           <Typography sx={{ fontSize: 16, color: 'text.secondary' }}>
-            Caricamento agevolazioni...
+            Caricamento opportunità...
           </Typography>
         </Stack>
       );
@@ -75,8 +75,8 @@ export function BenefitsContentState({
           </Typography>
           <Typography sx={{ fontSize: 16, color: 'text.secondary' }}>
             {activeTab === 0
-              ? 'Qui vedrai le agevolazioni in gestione.'
-              : 'Qui vedrai le agevolazioni approvate.'}
+              ? 'Qui vedrai le opportunità in gestione.'
+              : 'Qui vedrai le opportunità approvate.'}
           </Typography>
         </Stack>
       );

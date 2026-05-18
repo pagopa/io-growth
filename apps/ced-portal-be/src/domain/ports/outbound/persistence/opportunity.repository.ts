@@ -37,9 +37,18 @@ export interface OpportunityRepository {
   readonly list: (
     input: ListOpportunitiesInput,
   ) => Promise<Result<PaginatedOpportunities, GenericError>>;
+  readonly updateStatus: (
+    input: UpdateOpportunityStatusInput,
+  ) => Promise<Result<void, GenericError>>;
 }
 
 export interface PaginatedOpportunities {
   items: OpportunitySummary[];
   total: number;
+}
+
+export interface UpdateOpportunityStatusInput {
+  operatorId: string;
+  opportunityId: string;
+  status: Opportunity["status"];
 }

@@ -40,5 +40,6 @@ export const createMockOpportunityRepository = (
   create: vi.fn(),
   getById: vi.fn(),
   list: vi.fn(),
+  updateStatus: vi.fn(),
   ...overrides,
 });

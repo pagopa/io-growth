@@ -359,6 +359,51 @@ paths:
               example:
                 statusCode: 404
                 message: Opportunity not found
+  /operator/opportunities/{opportunityId}/request-approval:
+    patch:
+      tags:
+        - Opportunities
+      summary: Request approval for a draft opportunity
+      operationId: requestApprovalOperatorOpportunity
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: opportunityId
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: "^[0-9A-HJKMNP-TV-Z]{26}$"
+      responses:
+        "204":
+          description: Approval requested successfully
+        "401":
+          description: Invalid or missing JWT
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 401
+                message: Unauthorized
+        "404":
+          description: Opportunity not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 404
+                message: Opportunity not found
+        "412":
+          description: Opportunity is not in draft status
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 412
+                message: Opportunity is not in draft status
   /operator/opportunities:
     get:
       tags:
@@ -390,6 +435,7 @@ paths:
             type: string
             enum:
               - draft
+              - approval_pending
               - test_pending
               - test_passed
               - published
@@ -950,6 +996,7 @@ components:
           type: string
           enum:
             - draft
+            - approval_pending
             - test_pending
             - test_passed
             - published
@@ -988,6 +1035,7 @@ components:
           type: string
           enum:
             - draft
+            - approval_pending
             - test_pending
             - test_passed
             - published

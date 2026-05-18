@@ -33,6 +33,7 @@ No resources.
 | <a name="input_log_analytics_workspace_id"></a> [log\_analytics\_workspace\_id](#input\_log\_analytics\_workspace\_id) | The ID of the Log Analytics workspace to use for the container app environment. | `string` | n/a | yes |
 | <a name="input_public_network_access_enabled"></a> [public\_network\_access\_enabled](#input\_public\_network\_access\_enabled) | If true, the Container App Environment exposes a public endpoint. If false (default), ingress is restricted to the VNet. | `bool` | `false` | no |
 | <a name="input_redis_cache_id"></a> [redis\_cache\_id](#input\_redis\_cache\_id) | The ID of the Redis cache to which the container app environment will be granted access. | `string` | n/a | yes |
+| <a name="input_redis_id"></a> [redis\_id](#input\_redis\_id) | The ID of the DX Redis cache to which the container app environment will be granted access. | `string` | n/a | yes |
 | <a name="input_resource_group_name"></a> [resource\_group\_name](#input\_resource\_group\_name) | The name of the Azure Resource Group where the resources will be deployed. | `string` | n/a | yes |
 | <a name="input_subnet_cidr"></a> [subnet\_cidr](#input\_subnet\_cidr) | The CIDR block for the subnet used for Container App Environment connectivity. | `string` | `null` | no |
 | <a name="input_subnet_pep_id"></a> [subnet\_pep\_id](#input\_subnet\_pep\_id) | The ID of the subnet designated for hosting private endpoints. Required when public\_network\_access\_enabled is false. | `string` | `null` | no |

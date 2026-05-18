@@ -34,6 +34,7 @@
 | <a name="module_postgresql"></a> [postgresql](#module\_postgresql) | ../_modules/postgresql | n/a |
 | <a name="module_redis"></a> [redis](#module\_redis) | ../_modules/redis | n/a |
 | <a name="module_redis_dx"></a> [redis\_dx](#module\_redis\_dx) | ../_modules/managed_redis | n/a |
+| <a name="module_storage_audit"></a> [storage\_audit](#module\_storage\_audit) | ../_modules/storage_audit | n/a |
 
 ## Resources
 
@@ -54,6 +55,7 @@
 | [azurerm_key_vault_secret.action_group_email](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/key_vault_secret) | data source |
 | [azurerm_key_vault_secret.action_group_slack](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/key_vault_secret) | data source |
 | [azurerm_private_dns_zone.managed_redis](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/private_dns_zone) | data source |
+| [azurerm_private_dns_zone.privatelink_blob_core_windows_net](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/private_dns_zone) | data source |
 | [azurerm_resource_group.resource_rg](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/resource_group) | data source |
 | [azurerm_subscription.current](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/subscription) | data source |
 

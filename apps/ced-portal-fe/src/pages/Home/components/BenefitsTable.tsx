@@ -9,10 +9,11 @@ import {
   TableRow,
   useTheme,
 } from '@mui/material';
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import type { Benefit } from '../../../features/benefits/types';
 import { benefitsTableColumns } from './BenefitsTable.config';
 import { useTableSort } from '../../../hooks/useTableSort';
+import { ActionsMenu } from './ActionsMenu';
 
 interface BenefitsTableProps {
   items: Benefit[];
@@ -20,12 +21,28 @@ interface BenefitsTableProps {
 
 export const BenefitsTable = ({ items }: BenefitsTableProps) => {
   const theme = useTheme();
+  const [menuAnchor, setMenuAnchor] = useState<null | HTMLElement>(null);
+  const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
   const { sortedItems, sortBy, sortDirection, handleSort } = useTableSort({
     items,
     columns: benefitsTableColumns,
     defaultSortBy: 'createdAt',
     defaultSortDirection: 'desc',
   });
+  console.log('🚀 ~ BenefitsTable ~ sortedItems:', sortedItems);
+
+  const handleMenuOpen = (
+    event: React.MouseEvent<HTMLElement>,
+    itemId: string,
+  ) => {
+    setSelectedItemId(itemId);
+    setMenuAnchor(event.currentTarget);
+  };
+
+  const handleMenuClose = () => {
+    setMenuAnchor(null);
+    // setSelectedItemId(null);
+  };
 
   const renderTableHead = useMemo(
     () => (
@@ -104,7 +121,7 @@ export const BenefitsTable = ({ items }: BenefitsTableProps) => {
     >
       {benefitsTableColumns.map((column) => (
         <TableCell key={column.id} align={column.align} width={column.width}>
-          {column.renderCell(item, theme)}
+          {column.renderCell(item, theme, handleMenuOpen)}
         </TableCell>
       ))}
     </TableRow>
@@ -127,6 +144,16 @@ export const BenefitsTable = ({ items }: BenefitsTableProps) => {
           {sortedItems.map((item, index) => renderTableRow(item, index))}
         </TableBody>
       </Table>
+      <ActionsMenu
+        anchor={menuAnchor}
+        selectedItemId={selectedItemId}
+        handleMenuClose={handleMenuClose}
+        // onView={onView}
+        // onDuplicate={onDuplicate}
+        // onEdit={onEdit}
+        // onSuspend={onSuspend}
+        // onDelete={onDelete}
+      />
     </TableContainer>
   );
 };

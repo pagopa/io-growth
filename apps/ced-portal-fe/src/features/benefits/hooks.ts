@@ -7,43 +7,59 @@ import {
   selectBenefitNameFilter,
   selectBenefitStatusFilter,
 } from '../benefitsFilters/selectors';
-import { BenefitStatus } from '../benefitsFilters/types';
+import { PublicationStatus } from '../benefitsFilters/types';
 
-const IN_MANAGEMENT_STATES: Set<keyof typeof BenefitStatus> = new Set([
+const IN_MANAGEMENT_STATES: Set<keyof typeof PublicationStatus> = new Set([
   'DRAFT',
   'UNDER_REVIEW',
   'CHANGES_REQUESTED',
 ]);
-const APPROVED_STATES: Set<keyof typeof BenefitStatus> = new Set([
+const APPROVED_STATES: Set<keyof typeof PublicationStatus> = new Set([
   'PUBLISHED',
   'SCHEDULED_PUBLICATION',
 ]);
 
 const getFilteredItems = (
   items: BenefitsResponse,
-  targetStates: Set<keyof typeof BenefitStatus>,
+  targetStates: Set<keyof typeof PublicationStatus>,
   filters: {
     nameFilter: ReturnType<typeof selectBenefitNameFilter>;
     categoryFilter: ReturnType<typeof selectBenefitCategoryFilter>;
     statusFilter: ReturnType<typeof selectBenefitStatusFilter>;
   },
 ) => {
+  console.log(items, 'getFilteredItems >>>>>>');
   const { nameFilter, categoryFilter, statusFilter } = filters;
 
-  return items.filter(({ state, name, category }) => {
-    if (!targetStates.has(state)) {
-      return false;
-    }
+  const filtered = items.filter(
+    ({ publication_status, name, category, ...rest }) => {
+      console.log(
+        {
+          item: { publication_status, name, category, ...rest },
+          targetStates,
+          check: !targetStates.has(publication_status),
+        },
+        'getFilteredItems >>>>>>',
+      );
 
-    const matchesName =
-      !nameFilter || name.toLowerCase().includes(nameFilter.toLowerCase());
+      if (!targetStates.has(publication_status)) {
+        return false;
+      }
 
-    const matchesCategory = !categoryFilter || category === categoryFilter;
+      const matchesName =
+        !nameFilter || name.toLowerCase().includes(nameFilter.toLowerCase());
 
-    const matchesStatus = !statusFilter || state === statusFilter;
+      const matchesCategory = !categoryFilter || category === categoryFilter;
 
-    return matchesName && matchesCategory && matchesStatus;
-  });
+      const matchesStatus =
+        !statusFilter || publication_status === statusFilter;
+
+      return matchesName && matchesCategory && matchesStatus;
+    },
+  );
+  console.log(filtered, 'getFilteredItems >>>>>> filtered');
+
+  return filtered;
 };
 
 export const useBenefitsData = () => {
@@ -54,6 +70,7 @@ export const useBenefitsData = () => {
   const categoryFilter = useAppSelector(selectBenefitCategoryFilter);
 
   const items = useMemo(() => query.data ?? [], [query.data]);
+  console.log('🚀 ~ useBenefitsData ~ items:', items);
 
   const inManagementItems = useMemo(
     () =>
@@ -85,5 +102,5 @@ export const useBenefitsData = () => {
 };
 
 export const formatBenefitRow = (item: Benefit) => {
-  return `${item.name} · ${item.category} · ${item.createdAt} · ${item.state}`;
+  return `${item.name} · ${item.category} · ${item.createdAt} · ${item.publication_status}`;
 };

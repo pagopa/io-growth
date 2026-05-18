@@ -3,10 +3,14 @@ import type { Benefit } from '../../../features/benefits/types';
 import { benefitStateLabelMap } from './constants';
 
 export const getChipConfig = (item: Benefit): ChipProps => {
-  const chipColor = benefitStateLabelMap[item.state]?.color ?? 'default';
-  return {
-    size: 'small',
-    label: benefitStateLabelMap[item.state]?.text ?? item.state,
+  console.log('🚀 ~ getChipConfig ~ item:', item);
+  const chipColor =
+    benefitStateLabelMap[item.publication_status]?.color ?? 'default';
+  const a = {
+    size: 'small' as any,
+    label:
+      benefitStateLabelMap[item.publication_status]?.text ??
+      item.publication_status,
     color: chipColor,
     sx: {
       fontSize: 12,
@@ -17,4 +21,6 @@ export const getChipConfig = (item: Benefit): ChipProps => {
       },
     },
   };
+  console.log(a, 'getChipConfig ahisdhaishdiahi');
+  return a;
 };

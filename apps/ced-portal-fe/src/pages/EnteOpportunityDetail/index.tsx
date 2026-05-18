@@ -1,5 +1,5 @@
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
+
 import {
   Box,
   Button,
@@ -18,7 +18,8 @@ import { useToast } from '../../contexts';
 import { PublishModal } from '../../components/PublishModal';
 import { RequestChangesModal } from '../../components/RequestChangesModal';
 import { OpportunityDetailCard } from './components/OpportunityDetailCard';
-import { STATE_COLORS, STATE_OPTIONS } from '../../constants/opportunityState';
+import { getChipConfig } from '../Home/components/utils';
+import { OpportunitiesCtas } from './components/OpportunitiesCtas/OpportunitiesCtas';
 
 export default function OpportunityDetailPage() {
   const theme = useTheme();
@@ -99,7 +100,7 @@ export default function OpportunityDetailPage() {
       <Stack spacing={3} sx={{ maxWidth: 800, mx: 'auto' }}>
         <Button
           startIcon={<ArrowBackIcon />}
-          onClick={() => navigate(APP_ROUTES.OPPORTUNITIES)}
+          onClick={() => navigate(-1)}
           sx={{ alignSelf: 'flex-start', fontWeight: 600, pl: 0 }}
         >
           Indietro
@@ -111,52 +112,32 @@ export default function OpportunityDetailPage() {
           alignItems="flex-start"
         >
           <Box>
-            <Typography
-              variant="h4"
-              sx={{ fontWeight: 700, fontSize: { xs: 28, md: 36 } }}
-            >
-              {detail.name}
-            </Typography>
+            <Stack direction="row" alignItems="center">
+              <Typography
+                variant="h4"
+                sx={{ fontWeight: 700, fontSize: { xs: 28, md: 36 } }}
+              >
+                {detail.name}
+              </Typography>
+              <Chip
+                {...getChipConfig(detail)}
+                sx={{
+                  flexShrink: 0,
+                  '& .MuiChip-label': {
+                    whiteSpace: 'nowrap',
+                  },
+                }}
+              />
+            </Stack>
             <Typography sx={{ mt: 0.5, color: 'text.secondary', fontSize: 16 }}>
-              Ecco i dettagli dell&apos;opportunità proposta da{' '}
-              {detail.organization_name}
+              Ecco i dettagli dell&apos;opportunità che hai creato
             </Typography>
           </Box>
-          <Chip
-            label={
-              STATE_OPTIONS.find((o) => o.value === detail.approval_status)
-                ?.label ?? detail.approval_status
-            }
-            color={STATE_COLORS[detail.approval_status] ?? 'default'}
-            size="small"
-          />
         </Stack>
 
         <OpportunityDetailCard detail={detail} />
 
-        <Stack
-          direction="row"
-          spacing={2}
-          justifyContent="center"
-          sx={{ pt: 2, pb: 4 }}
-        >
-          <Button
-            variant="outlined"
-            startIcon={<EditOutlinedIcon />}
-            onClick={() => setRequestChangesOpen(true)}
-            sx={{ fontWeight: 700, borderRadius: 2, px: 3 }}
-          >
-            Richiedi modifiche
-          </Button>
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={() => setPublishModalOpen(true)}
-            sx={{ fontWeight: 700, borderRadius: 2, px: 4 }}
-          >
-            Pubblica
-          </Button>
-        </Stack>
+        <OpportunitiesCtas status={detail.publication_status} id={detail.id} />
       </Stack>
 
       <PublishModal

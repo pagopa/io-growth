@@ -1,8 +1,8 @@
 import { ChipColors } from '@pagopa/mui-italia';
-import { BenefitStatus } from '../../../features/benefitsFilters/types';
+import { PublicationStatus } from '../../../features/benefitsFilters/types';
 
 export const benefitStateLabelMap: Record<
-  keyof typeof BenefitStatus,
+  keyof typeof PublicationStatus,
   { text: string; color: ChipColors }
 > = {
   SCHEDULED_PUBLICATION: {

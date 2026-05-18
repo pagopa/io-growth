@@ -11,6 +11,8 @@ export const APP_ROUTES = {
   ACCESS_POINTS: '/punti-di-accesso',
   OPPORTUNITIES: '/opportunita',
   OPPORTUNITY_DETAIL: '/opportunita/:id',
+  // Provvisorio
+  ENTE_OPPORTUNITY_DETAIL: '/ente-opportunita/:id',
   ENTITIES: '/enti',
   ENTITY_DETAIL: '/enti/:id',
 } as const;
@@ -26,6 +28,10 @@ export const CreateBenefitPage = lazy(() => import('../pages/CreateBenefit'));
 export const OpportunitiesPage = lazy(() => import('../pages/Opportunities'));
 export const OpportunityDetailPage = lazy(
   () => import('../pages/OpportunityDetail'),
+);
+// Provvisorio
+export const EnteOpportunityDetailPage = lazy(
+  () => import('../pages/EnteOpportunityDetail'),
 );
 export const EntitiesPage = lazy(() => import('../pages/Entities'));
 export const EntityDetailPage = lazy(() => import('../pages/EntityDetail'));

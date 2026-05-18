@@ -251,10 +251,10 @@ export const OpportunitiesTable = ({
               <TableCell>
                 <Chip
                   label={
-                    STATE_OPTIONS.find((o) => o.value === item.state)?.label ??
-                    item.state
+                    STATE_OPTIONS.find((o) => o.value === item.approval_status)
+                      ?.label ?? item.approval_status
                   }
-                  color={STATE_COLORS[item.state] ?? 'default'}
+                  color={STATE_COLORS[item.approval_status] ?? 'default'}
                   size="small"
                 />
               </TableCell>

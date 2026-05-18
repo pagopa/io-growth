@@ -57,6 +57,7 @@ export const OpportunitySchema = z.object({
   placeIds: z.array(z.ulid()).min(1),
   status: z.enum([
     "draft",
+    "approval_pending",
     "test_pending",
     "test_passed",
     "published",
@@ -96,6 +97,7 @@ export const OpportunitySummarySchema = z.object({
   name: z.string(),
   status: z.enum([
     "draft",
+    "approval_pending",
     "test_pending",
     "test_passed",
     "published",
@@ -125,6 +127,7 @@ export const OpportunityDetailSchema = z.object({
   placeIds: z.array(z.ulid()),
   status: z.enum([
     "draft",
+    "approval_pending",
     "test_pending",
     "test_passed",
     "published",

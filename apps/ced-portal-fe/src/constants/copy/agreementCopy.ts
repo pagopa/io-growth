@@ -60,31 +60,30 @@ export interface AgreementCopy {
 export const AGREEMENT_COPY_CONFIG: Record<string, AgreementCopy> = {
   it: {
     detailsForm: {
-      sectionTitle: "Dettagli dell'agevolazione",
+      sectionTitle: "Dettagli dell'opportunità",
       sectionDescription:
-        "Inserisci i dettagli dell'agevolazione che vuoi attivare. Se vuoi, puoi anche aggiungere le traduzioni in altre lingue.",
+        "Inserisci i dettagli dell'opportunità che vuoi attivare. Se vuoi, puoi anche aggiungere le traduzioni in altre lingue.",
       nameLabel: 'Nome',
-      namePlaceholder: "Digita il nome dell'agevolazione",
+      namePlaceholder: "Digita il nome dell'opportunità",
       nameHelperText: 'Inserisci un testo di max 50 caratteri',
-      benefitTypeLabel: 'Tipo di agevolazione',
+      benefitTypeLabel: 'Tipo di opportunità',
       benefitTypePlaceholder: 'Seleziona una tipologia',
       discountValueLabel: 'Importo dello sconto',
       discountValueError: 'Inserisci un valore compreso tra 10 e 100',
-      otherBenefitTypeLabel: 'Scrivi il tipo di agevolazione che vuoi offrire',
+      otherBenefitTypeLabel: 'Scrivi il tipo di opportunità che vuoi offrire',
       descriptionLabel: 'Descrizione',
-      descriptionPlaceholder: "Descrivi brevemente l'agevolazione",
+      descriptionPlaceholder: "Descrivi brevemente l'opportunità",
       descriptionHelperText: 'Inserisci un testo di max 250 caratteri',
       categoryLabel: 'Categoria',
       categoryPlaceholder: 'Seleziona una categoria',
       conditionsLabel: 'Condizioni',
-      conditionsPlaceholder:
-        "Specifica eventuali limitazioni dell'agevolazione",
+      conditionsPlaceholder: "Specifica eventuali limitazioni dell'opportunità",
       conditionsHelperText: 'Inserisci un testo di max 200 caratteri',
     },
     additionalSections: {
       companion: {
-        title: 'Agevolazione per accompagnatore',
-        toggleAriaLabel: 'Attiva agevolazione per accompagnatore',
+        title: 'opportunità per accompagnatore',
+        toggleAriaLabel: 'Attiva opportunità per accompagnatore',
         sameConditionLabel: 'Stessa condizione del titolare',
         benefitTypePlaceholder: 'Seleziona una tipologia',
         benefitTypeOptions: {
@@ -98,8 +97,7 @@ export const AGREEMENT_COPY_CONFIG: Record<string, AgreementCopy> = {
           fixed: 'Importo fisso',
         },
         discountValueLabel: 'Importo dello sconto',
-        otherBenefitTypeLabel:
-          'Scrivi il tipo di agevolazione che vuoi offrire',
+        otherBenefitTypeLabel: 'Scrivi il tipo di opportunità che vuoi offrire',
       },
       validity: {
         title: 'Periodo di validita',
@@ -110,9 +108,9 @@ export const AGREEMENT_COPY_CONFIG: Record<string, AgreementCopy> = {
         dateHelperText: 'Indica gg/mm/aaaa',
       },
       link: {
-        title: "Link dell'agevolazione",
+        title: "Link dell'opportunità",
         benefitUrlLabel:
-          "Inserisci l'URL del sito dove e visibile l'agevolazione",
+          "Inserisci l'URL del sito dove e visibile l'opportunità",
       },
     },
   },

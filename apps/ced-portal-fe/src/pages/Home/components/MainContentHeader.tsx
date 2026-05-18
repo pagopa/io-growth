@@ -39,7 +39,7 @@ export function MainContentHeader() {
           alignSelf: { xs: 'stretch', md: 'auto' },
         }}
       >
-        Crea agevolazione
+        Crea opportunità
       </Button>
     </Stack>
   );

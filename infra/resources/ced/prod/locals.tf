@@ -56,6 +56,13 @@ locals {
       REDIS_ENDPOINT  = module.redis_dx.endpoint
       REDIS_TLS       = "true"
       AZURE_CLIENT_ID = module.common_container_app_environment.user_assigned_identity.client_id
+
+      # FIMS SSO settings
+      BASE_URL             = "https://browser.ced.pagopa.it"
+      FIMS_AUDIT_CONTAINER = "fims-audit-browser"
+      FIMS_REDIRECT_URL    = "${module.ced_apim.gateway_url}/browser/fcb"
+      FIMS_SCOPE           = "openid profile fiscal_code"
+      TEST_USERS           = "6960f673e4bf8cc073a32b3b4579bfdb97b50b8df29964bdea6fcd1576d16f82"
     }
 
     startup_probe_path   = "/api/info/startup"
@@ -77,6 +84,16 @@ locals {
       REDIS_ENDPOINT  = module.redis_dx.endpoint
       REDIS_TLS       = "true"
       AZURE_CLIENT_ID = module.common_container_app_environment.user_assigned_identity.client_id
+
+      # CosmosDB — accessed via RBAC (managed identity)
+      COSMOS_ENDPOINT = module.cosmos_db.cosmos_db.endpoint
+
+      # FIMS SSO settings
+      BASE_URL             = "https://card.ced.pagopa.it"
+      FIMS_AUDIT_CONTAINER = "fims-audit-card-request"
+      FIMS_REDIRECT_URL    = "${module.ced_apim.gateway_url}/card-request/fcb"
+      FIMS_SCOPE           = "openid profile fiscal_code"
+      TEST_USERS           = "6960f673e4bf8cc073a32b3b4579bfdb97b50b8df29964bdea6fcd1576d16f82"
     }
 
     startup_probe_path   = "/api/info/startup"

@@ -1,6 +1,6 @@
 {
   "name": "@pagopa/io-core-adapter-fastify",
-  "version": "0.0.2",  
+  "version": "0.0.2",
   "type": "module",
   "exports": {
     ".": {
@@ -35,6 +35,6 @@
     "prettier": "catalog:",
     "typescript": "catalog:",
     "vitest": "catalog:",
-    "zod": "^3.25.1"
+    "zod": "catalog:"
   }
 }

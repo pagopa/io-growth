@@ -1,0 +1,31 @@
+meta {
+  name: Submits data for a new application draft (NuovaDomandaInBozza)
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/request
+  body: json
+  auth: none
+}
+
+headers {
+  Authorization: Bearer {{sessionToken}}
+}
+
+body:json {
+{
+  "informativaPrivacy": true,
+  "nome": "string",
+  "cognome": "string",
+  "sesso": "M",
+  "statoNascita": "string",
+  "dataNascita": "2026-01-01T00:00:00Z",
+  "idCittadinanza": 0,
+  "siglaProvinciaRec": "string",
+  "descrizioneComuneRec": "string",
+  "capRec": "string",
+  "indirizzoRec": "string"
+}
+}

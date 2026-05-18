@@ -1,0 +1,25 @@
+name: Deploy CED Portal BE to Azure Container App
+
+permissions:
+  contents: read
+  attestations: write
+  packages: write
+  id-token: write
+
+on:
+  workflow_dispatch: {}
+
+jobs:
+  deploy_ced_portal_be:
+    uses: pagopa/dx/.github/workflows/release-azure-containerapp-v1.yaml@main
+    name: Deploy CED Portal BE
+    secrets: inherit
+    with:
+      # The dockerfile_context and dockerfile_path are not specified because the defaults are './' and './Dockerfile' respectively.
+      container_app: ced-p-itn-portal-be-ca-01
+      resource_group_name: ced-p-itn-rg-01
+      environment: app-prod
+      docker_image_description: "CED Portal Backend - Backend service for the
+        operator's CED portal to manage opportunities"
+      docker_image_name: pagopa/ced-portal-be
+      build_args: "APP_NAME=ced-portal-be"

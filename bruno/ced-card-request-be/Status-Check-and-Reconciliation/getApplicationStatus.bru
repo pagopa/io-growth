@@ -1,0 +1,15 @@
+meta {
+  name: Retrieves the current application state (and initiates reconciliation)
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/status
+  body: none
+  auth: none
+}
+
+headers {
+  Authorization: Bearer {{sessionToken}}
+}

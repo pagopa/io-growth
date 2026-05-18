@@ -11,7 +11,7 @@
     {
       "uuid": "15ccebf6-2ca1-4eb5-b7d8-232e8d4e50db",
       "type": "http",
-      "documentation": "Elenco agevolazioni",
+      "documentation": "Elenco opportunità",
       "method": "get",
       "endpoint": "api/benefits",
       "responses": [
@@ -154,7 +154,7 @@
     {
       "uuid": "b1c2d3e4-f5a6-7890-bcde-f01234567890",
       "type": "http",
-      "documentation": "Salva agevolazione in bozza",
+      "documentation": "Salva opportunità in bozza",
       "method": "post",
       "endpoint": "api/benefits/draft",
       "responses": [

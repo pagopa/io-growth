@@ -57,9 +57,21 @@ module "browser_be_container_app" {
 
   container_app_templates = [
     {
-      image = "docker.io/traefik/whoami:latest"
+      image        = local.browser_be.image
+      app_settings = local.browser_be.app_settings
+
       liveness_probe = {
-        path      = "/health"
+        path      = local.browser_be.startup_probe_path
+        transport = "HTTP"
+      }
+
+      readiness_probe = {
+        path      = local.browser_be.readiness_probe_path
+        transport = "HTTP"
+      }
+
+      startup_probe = {
+        path      = local.browser_be.startup_probe_path
         transport = "HTTP"
       }
     }

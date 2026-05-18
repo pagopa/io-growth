@@ -11,7 +11,14 @@ import {
 import { createResilientRedisClient } from "@pagopa/io-core-adapter-redis";
 import Fastify from "fastify";
 
+import {
+  mountInfoReadinessHandler,
+  mountInfoStartupHandler,
+} from "./adapters/inbound/fastify/index.js";
+import { createRedisHealthCheckRepository } from "./adapters/outbound/redis/redis-health-check.repository.js";
 import { createRedisSessionRepository } from "./adapters/outbound/redis/redis-session.repository.js";
+import { makeGetInfoReadinessUseCase } from "./application/use-cases/health/info-readiness.use-case.js";
+import { makeGetInfoStartupUseCase } from "./application/use-cases/health/info-startup.use-case.js";
 import { parseConfig } from "./config.js";
 
 const config = parseConfig();
@@ -24,6 +31,8 @@ const redisClient = await createResilientRedisClient({
   tls: config.REDIS_TLS,
 });
 
+const redisHealthCheckRepository =
+  createRedisHealthCheckRepository(redisClient);
 const sessionStore = createRedisSessionRepository(redisClient);
 
 const containerClient = new BlobServiceClient(
@@ -44,6 +53,15 @@ const fimsAuthFlow = createFimsAuthFlow(
 );
 
 const app = Fastify({ logger: true });
+
+// Inbound adapters — public routes
+mountInfoStartupHandler(app, makeGetInfoStartupUseCase);
+mountInfoReadinessHandler(
+  app,
+  makeGetInfoReadinessUseCase({
+    sessionStoreHealthCheckRepository: redisHealthCheckRepository,
+  }),
+);
 
 mountFimsHandlers(app, fimsAuthFlow);
 

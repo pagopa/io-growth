@@ -1,0 +1,23 @@
+meta {
+  name: Uploads the passport photo (FornisciFoto)
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/image
+  body: json
+  auth: none
+}
+
+headers {
+  Authorization: Bearer {{sessionToken}}
+}
+
+body:json {
+{
+  "idLavorazione": "string",
+  "fotoCED": "string",
+  "informativaFoto": true
+}
+}

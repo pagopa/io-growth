@@ -1,0 +1,21 @@
+meta {
+  name: Exchange session id for a session token
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{baseUrl}}/authorize
+  body: none
+  auth: none
+}
+
+params:query {
+  id: 
+}
+
+script:post-response {
+  if (res.status === 200) {
+    bru.setVar("sessionToken", res.body.token);
+  }
+}

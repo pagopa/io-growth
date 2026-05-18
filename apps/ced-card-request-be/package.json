@@ -1,0 +1,42 @@
+{
+  "name": "ced-card-request-be",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "main": "dist/main.js",
+  "files": [
+    "dist/*"
+  ],
+  "scripts": {
+    "clean": "rm -rf dist",
+    "build": "tsc",
+    "build:watch": "tsc -w",
+    "typecheck": "tsc --noEmit",
+    "lint": "pnpm lint:check --fix",
+    "lint:check": "eslint .",
+    "start": "node dist/main.js",
+    "run:dev": "tsx --env-file=.env --watch src/main.ts",
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage"
+  },
+  "dependencies": {
+    "@azure/identity": "^4.13.1",
+    "@azure/storage-blob": "^12.31.0",
+    "@pagopa/io-core-adapter-fims": "workspace:^",
+    "@pagopa/io-core-adapter-redis": "workspace:^",
+    "@pagopa/io-core-domain": "workspace:^",
+    "fastify": "catalog:",
+    "neverthrow": "catalog:",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@pagopa/eslint-config": "catalog:",
+    "@tsconfig/node22": "catalog:",
+    "@types/node": "catalog:",
+    "@vitest/coverage-v8": "catalog:",
+    "eslint": "catalog:",
+    "tsx": "^4.19.4",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
+  }
+}

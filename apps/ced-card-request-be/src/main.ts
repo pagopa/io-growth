@@ -1,3 +1,4 @@
+import { CosmosClient } from "@azure/cosmos";
 import { DefaultAzureCredential } from "@azure/identity";
 import { BlobServiceClient } from "@azure/storage-blob";
 import {
@@ -11,10 +12,23 @@ import {
 import { createResilientRedisClient } from "@pagopa/io-core-adapter-redis";
 import Fastify from "fastify";
 
+import {
+  mountInfoReadinessHandler,
+  mountInfoStartupHandler,
+} from "./adapters/inbound/fastify/index.js";
+import { createCosmosHealthCheckRepository } from "./adapters/outbound/cosmos/cosmos-health-check.repository.js";
+import { createRedisHealthCheckRepository } from "./adapters/outbound/redis/redis-health-check.repository.js";
 import { createRedisSessionRepository } from "./adapters/outbound/redis/redis-session.repository.js";
+import { makeGetInfoReadinessUseCase } from "./application/use-cases/health/info-readiness.use-case.js";
+import { makeGetInfoStartupUseCase } from "./application/use-cases/health/info-startup.use-case.js";
 import { parseConfig } from "./config.js";
 
 const config = parseConfig();
+
+const cosmosClient = new CosmosClient({
+  aadCredentials: new DefaultAzureCredential(),
+  endpoint: config.COSMOS_ENDPOINT,
+});
 
 const redisClient = await createResilientRedisClient({
   endpoint: config.REDIS_ENDPOINT,
@@ -24,6 +38,10 @@ const redisClient = await createResilientRedisClient({
   tls: config.REDIS_TLS,
 });
 
+const redisHealthCheckRepository =
+  createRedisHealthCheckRepository(redisClient);
+const cosmosHealthCheckRepository =
+  createCosmosHealthCheckRepository(cosmosClient);
 const sessionStore = createRedisSessionRepository(redisClient);
 
 const containerClient = new BlobServiceClient(
@@ -44,6 +62,16 @@ const fimsAuthFlow = createFimsAuthFlow(
 );
 
 const app = Fastify({ logger: true });
+
+// Inbound adapters — public routes
+mountInfoStartupHandler(app, makeGetInfoStartupUseCase);
+mountInfoReadinessHandler(
+  app,
+  makeGetInfoReadinessUseCase({
+    persistenceHealthCheckRepository: cosmosHealthCheckRepository,
+    sessionStoreHealthCheckRepository: redisHealthCheckRepository,
+  }),
+);
 
 mountFimsHandlers(app, fimsAuthFlow);
 

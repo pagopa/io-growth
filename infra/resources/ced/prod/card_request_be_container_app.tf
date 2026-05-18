@@ -49,9 +49,21 @@ module "card_request_be_container_app" {
 
   container_app_templates = [
     {
-      image = "docker.io/traefik/whoami:latest"
+      image        = local.card_request_be.image
+      app_settings = local.card_request_be.app_settings
+
       liveness_probe = {
-        path      = "/health"
+        path      = local.card_request_be.startup_probe_path
+        transport = "HTTP"
+      }
+
+      readiness_probe = {
+        path      = local.card_request_be.readiness_probe_path
+        transport = "HTTP"
+      }
+
+      startup_probe = {
+        path      = local.card_request_be.startup_probe_path
         transport = "HTTP"
       }
     }

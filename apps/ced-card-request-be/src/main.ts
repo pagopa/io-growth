@@ -32,8 +32,8 @@ const cosmosClient = new CosmosClient({
 
 const redisClient = await createResilientRedisClient({
   endpoint: config.REDIS_ENDPOINT,
-  entraId: process.env.AZURE_CLIENT_ID
-    ? { clientId: process.env.AZURE_CLIENT_ID }
+  entraId: config.AZURE_CLIENT_ID
+    ? { clientId: config.AZURE_CLIENT_ID }
     : undefined,
   tls: config.REDIS_TLS,
 });

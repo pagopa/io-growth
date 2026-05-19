@@ -2,16 +2,20 @@ import { runAllMigrations } from "@pagopa/io-core-adapter-drizzle";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
+import { parseConfig } from "./config.js";
+
 const __dirname = dirname(fileURLToPath(import.meta.url));
+
+const appConfig = parseConfig();
 
 const config = {
   connection: {
-    database: process.env.POSTGRES_DB ?? "postgres",
-    host: process.env.POSTGRES_HOST ?? "localhost",
-    password: process.env.POSTGRES_PASSWORD,
-    port: Number(process.env.POSTGRES_PORT ?? "5432"),
-    ssl: process.env.POSTGRES_SSL === "true",
-    user: process.env.POSTGRES_USER ?? "postgres",
+    database: appConfig.POSTGRES_DB,
+    host: appConfig.POSTGRES_HOST,
+    password: appConfig.POSTGRES_PASSWORD,
+    port: appConfig.POSTGRES_PORT,
+    ssl: appConfig.POSTGRES_SSL,
+    user: appConfig.POSTGRES_USER,
   },
   migrationsFolder: resolve(__dirname, "../drizzle/migrations"),
   recurrentFolder: resolve(__dirname, "../drizzle/recurrent"),

@@ -24,9 +24,9 @@ import { parseConfig } from "./config.js";
 const config = parseConfig();
 
 const redisClient = await createResilientRedisClient({
-  endpoint: process.env.REDIS_ENDPOINT ?? "localhost:6379",
-  entraId: process.env.AZURE_CLIENT_ID
-    ? { clientId: process.env.AZURE_CLIENT_ID }
+  endpoint: config.REDIS_ENDPOINT ?? "localhost:6379",
+  entraId: config.AZURE_CLIENT_ID
+    ? { clientId: config.AZURE_CLIENT_ID }
     : undefined,
   tls: config.REDIS_TLS,
 });

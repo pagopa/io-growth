@@ -6,11 +6,9 @@ import { err, ok } from "neverthrow";
 
 import type { OpportunityCategory } from "../../../domain/entities/opportunity-category.js";
 import type { OpportunityCategoryRepository } from "../../../domain/ports/outbound/persistence/opportunity-category.repository.js";
+import type { DbClient } from "./client.js";
 
-import { dbClient } from "./client.js";
 import { opportunityCategory } from "./schema/tables.js";
-
-type DbClient = typeof dbClient;
 
 export const createDrizzleOpportunityCategoryRepository = (
   db: DbClient,

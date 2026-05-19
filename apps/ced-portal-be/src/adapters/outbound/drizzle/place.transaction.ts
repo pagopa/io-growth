@@ -1,9 +1,7 @@
 import type { Place } from "../../../domain/entities/place.js";
+import type { DbClient } from "./client.js";
 
-import { dbClient } from "./client.js";
 import { address, place, supportContact, website } from "./schema/tables.js";
-
-type DbClient = typeof dbClient;
 type TransactionClient = Parameters<Parameters<DbClient["transaction"]>[0]>[0];
 
 /**

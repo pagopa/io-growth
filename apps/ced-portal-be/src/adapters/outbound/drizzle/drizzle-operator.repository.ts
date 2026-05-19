@@ -7,11 +7,9 @@ import { err, ok } from "neverthrow";
 
 import type { Operator } from "../../../domain/entities/operator.js";
 import type { OperatorRepository } from "../../../domain/ports/outbound/persistence/operator.repository.js";
+import type { DbClient } from "./client.js";
 
-import { dbClient } from "./client.js";
 import { operator } from "./schema/tables.js";
-
-type DbClient = typeof dbClient;
 
 export const createDrizzleOperatorRepository = (
   db: DbClient,

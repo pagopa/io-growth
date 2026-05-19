@@ -2,8 +2,8 @@ import type {
   Benefit,
   Opportunity,
 } from "../../../domain/entities/opportunity.js";
+import type { DbClient } from "./client.js";
 
-import { dbClient } from "./client.js";
 import {
   beneficiaryBenefit,
   caregiverBenefit,
@@ -11,8 +11,6 @@ import {
   opportunity,
   opportunityPlace,
 } from "./schema/tables.js";
-
-type DbClient = typeof dbClient;
 type TransactionClient = Parameters<Parameters<DbClient["transaction"]>[0]>[0];
 
 const mapBenefitToRow = (benefit: Benefit, opportunityId: string) => {

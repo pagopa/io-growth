@@ -6,13 +6,11 @@ import { err, ok } from "neverthrow";
 
 import type { Profile } from "../../../domain/entities/profile.js";
 import type { ProfileRepository } from "../../../domain/ports/outbound/persistence/profile.repository.js";
+import type { DbClient } from "./client.js";
 
-import { dbClient } from "./client.js";
 import { mapPlaceRow } from "./place-row.mapper.js";
 import { createPlaceInTransaction } from "./place.transaction.js";
 import { place, profile, supportContact } from "./schema/tables.js";
-
-type DbClient = typeof dbClient;
 
 export const createDrizzleProfileRepository = (
   db: DbClient,

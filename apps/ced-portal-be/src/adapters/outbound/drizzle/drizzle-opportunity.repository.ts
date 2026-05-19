@@ -10,8 +10,8 @@ import type {
   OpportunityRepository,
   PaginatedOpportunities,
 } from "../../../domain/ports/outbound/persistence/opportunity.repository.js";
+import type { DbClient } from "./client.js";
 
-import { dbClient } from "./client.js";
 import {
   mapOpportunityDetailRow,
   mapOpportunitySummaryRow,
@@ -22,8 +22,6 @@ import {
   opportunity,
   opportunityCategory,
 } from "./schema/tables.js";
-
-type DbClient = typeof dbClient;
 
 const escapeIlikePattern = (value: string): string =>
   value.replace(/\\/g, "\\\\").replace(/%/g, "\\%").replace(/_/g, "\\_");

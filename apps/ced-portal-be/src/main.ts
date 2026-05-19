@@ -1,4 +1,6 @@
+import { createTypedDbClient } from "@pagopa/io-core-adapter-drizzle";
 import { createAuthenticationPreHandler } from "@pagopa/io-core-adapter-fastify";
+import { createResilientRedisClient } from "@pagopa/io-core-adapter-redis";
 import Fastify from "fastify";
 
 import {
@@ -16,14 +18,13 @@ import {
   mountListOperatorPlacesHandler,
   mountListOpportunityCategoriesHandler,
 } from "./adapters/inbound/fastify/index.js";
-import { dbClient } from "./adapters/outbound/drizzle/client.js";
 import { createDrizzleOperatorRepository } from "./adapters/outbound/drizzle/drizzle-operator.repository.js";
 import { createDrizzleOpportunityCategoryRepository } from "./adapters/outbound/drizzle/drizzle-opportunity-category.repository.js";
 import { createDrizzleOpportunityRepository } from "./adapters/outbound/drizzle/drizzle-opportunity.repository.js";
 import { createDrizzlePlaceRepository } from "./adapters/outbound/drizzle/drizzle-place.repository.js";
 import { createDrizzleProfileRepository } from "./adapters/outbound/drizzle/drizzle-profile.repository.js";
 import { createDrizzleHealthCheckRepository } from "./adapters/outbound/drizzle/health-check.repository.js";
-import { redisClient } from "./adapters/outbound/redis/client.js";
+import * as schema from "./adapters/outbound/drizzle/schema/index.js";
 import { createRedisHealthCheckRepository } from "./adapters/outbound/redis/redis-health-check.repository.js";
 import { createRedisSessionRepository } from "./adapters/outbound/redis/redis-session.repository.js";
 import { makeAcsUseCase } from "./application/use-cases/auth/acs.use-case.js";
@@ -39,14 +40,29 @@ import { makeGetOperatorPlaceUseCase } from "./application/use-cases/places/get-
 import { makeListOperatorPlacesUseCase } from "./application/use-cases/places/list-operator-places.use-case.js";
 import { makeCreateOperatorProfileUseCase } from "./application/use-cases/profile/create-operator-profile.use-case.js";
 import { makeGetOperatorProfileUseCase } from "./application/use-cases/profile/get-operator-profile.use-case.js";
+import { parseConfig } from "./config.js";
 
-const host = process.env.HOST ?? "0.0.0.0";
-const portValue = process.env.PORT;
-const port = portValue ? Number.parseInt(portValue, 10) : 8080;
+const config = parseConfig();
+const dbClient = createTypedDbClient(
+  {
+    database: config.POSTGRES_DB,
+    host: config.POSTGRES_HOST,
+    max: config.POSTGRES_MAX_CONNECTIONS,
+    password: config.POSTGRES_PASSWORD,
+    port: config.POSTGRES_PORT,
+    ssl: config.POSTGRES_SSL,
+    user: config.POSTGRES_USER,
+  },
+  schema,
+);
 
-if (Number.isNaN(port)) {
-  throw new Error("PORT environment variable must be a valid integer");
-}
+const redisClient = await createResilientRedisClient({
+  endpoint: config.REDIS_ENDPOINT,
+  entraId: config.AZURE_CLIENT_ID
+    ? { clientId: config.AZURE_CLIENT_ID }
+    : undefined,
+  tls: config.REDIS_TLS,
+});
 
 const dbHealthCheckRepository = createDrizzleHealthCheckRepository(dbClient);
 const redisHealthCheckRepository =
@@ -129,6 +145,6 @@ app.addHook("onClose", async () => {
   await dbClient.closeConnection();
 });
 
-await app.listen({ host, port });
+await app.listen({ host: config.HOST, port: config.PORT });
 
-console.log(`Server listening on http://${host}:${port}`);
+console.log(`Server listening on http://${config.HOST}:${config.PORT}`);

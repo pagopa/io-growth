@@ -6,13 +6,11 @@ import { err, ok } from "neverthrow";
 
 import type { Place } from "../../../domain/entities/place.js";
 import type { PlaceRepository } from "../../../domain/ports/outbound/persistence/place.repository.js";
+import type { DbClient } from "./client.js";
 
-import { dbClient } from "./client.js";
 import { mapPlaceRow, mapPlaceRows } from "./place-row.mapper.js";
 import { createPlaceInTransaction } from "./place.transaction.js";
 import { place, supportContact } from "./schema/tables.js";
-
-type DbClient = typeof dbClient;
 
 export const createDrizzlePlaceRepository = (
   db: DbClient,

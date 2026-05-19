@@ -1,5 +1,11 @@
 # @pagopa/io-core-adapter-redis
 
+## 0.0.5
+
+### Patch Changes
+
+- 27672b8: fixed connection
+
 ## 0.0.4
 
 ### Patch Changes

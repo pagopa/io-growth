@@ -28,36 +28,22 @@ const getFilteredItems = (
     statusFilter: ReturnType<typeof selectBenefitStatusFilter>;
   },
 ) => {
-  console.log(items, 'getFilteredItems >>>>>>');
   const { nameFilter, categoryFilter, statusFilter } = filters;
 
-  const filtered = items.filter(
-    ({ publication_status, name, category, ...rest }) => {
-      console.log(
-        {
-          item: { publication_status, name, category, ...rest },
-          targetStates,
-          check: !targetStates.has(publication_status),
-        },
-        'getFilteredItems >>>>>>',
-      );
+  const filtered = items.filter(({ publication_status, name, category }) => {
+    if (!targetStates.has(publication_status)) {
+      return false;
+    }
 
-      if (!targetStates.has(publication_status)) {
-        return false;
-      }
+    const matchesName =
+      !nameFilter || name.toLowerCase().includes(nameFilter.toLowerCase());
 
-      const matchesName =
-        !nameFilter || name.toLowerCase().includes(nameFilter.toLowerCase());
+    const matchesCategory = !categoryFilter || category === categoryFilter;
 
-      const matchesCategory = !categoryFilter || category === categoryFilter;
+    const matchesStatus = !statusFilter || publication_status === statusFilter;
 
-      const matchesStatus =
-        !statusFilter || publication_status === statusFilter;
-
-      return matchesName && matchesCategory && matchesStatus;
-    },
-  );
-  console.log(filtered, 'getFilteredItems >>>>>> filtered');
+    return matchesName && matchesCategory && matchesStatus;
+  });
 
   return filtered;
 };
@@ -70,7 +56,6 @@ export const useBenefitsData = () => {
   const categoryFilter = useAppSelector(selectBenefitCategoryFilter);
 
   const items = useMemo(() => query.data ?? [], [query.data]);
-  console.log('🚀 ~ useBenefitsData ~ items:', items);
 
   const inManagementItems = useMemo(
     () =>

@@ -12,6 +12,7 @@ const MODIFY_CTA: OpportunitiesCtaItem = {
 
 const DELETE_CTA: OpportunitiesCtaItem = {
   label: 'Elimina',
+  color: 'error',
   variant: 'text',
   actionId: 'DELETE',
   startIcon: <DeleteIcon />,
@@ -21,8 +22,7 @@ export const CTAS_BY_STATUS: Partial<
   Record<OpportunityDetail['publication_status'], OpportunitiesCtasLayout>
 > = {
   DRAFT: {
-    leftCtas: [DELETE_CTA],
-    rightCtas: [MODIFY_CTA],
+    ctas: [DELETE_CTA, MODIFY_CTA],
   },
   CHANGES_REQUESTED: {
     ctas: [MODIFY_CTA],

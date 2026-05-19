@@ -13,4 +13,6 @@ export const benefitStateLabelMap: Record<
   UNDER_REVIEW: { text: 'In revisione', color: 'primary' },
   DRAFT: { text: 'In bozza', color: 'default' },
   CHANGES_REQUESTED: { text: 'Modifiche richieste', color: 'warning' },
+  DELETED: { text: 'Eliminata', color: 'error' },
+  SUSPENDED: { text: 'Sospesa', color: 'default' },
 };

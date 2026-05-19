@@ -1,5 +1,4 @@
 import CancelRounded from '@mui/icons-material/CancelRounded';
-
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import Place from '@mui/icons-material/Place';
 
@@ -29,10 +28,12 @@ const PLACES = [
 
 interface OpportunityPlacesProps {
   detail: OpportunityDetail;
+  hideDelete?: boolean;
 }
 
 export const OpportunityPlaces = ({
   detail,
+  hideDelete,
 }: Readonly<OpportunityPlacesProps>) => {
   const {} = detail;
   return (
@@ -50,7 +51,9 @@ export const OpportunityPlaces = ({
               <TableRow>
                 <TableCell sx={{ width: '30%' }}>Nome</TableCell>
                 <TableCell sx={{ width: '50%' }}>Indirizzo</TableCell>
-                <TableCell sx={{ width: '20%', textAlign: 'right' }} />
+                {!hideDelete && (
+                  <TableCell sx={{ width: '20%', textAlign: 'right' }} />
+                )}
               </TableRow>
             </TableHead>
             <TableBody>
@@ -58,17 +61,23 @@ export const OpportunityPlaces = ({
                 <TableRow key={name} hover>
                   <TableCell>{name}</TableCell>
                   <TableCell>{address}</TableCell>
-                  <TableCell sx={{ textAlign: 'right' }}>
-                    <IconButton
-                      size="small"
-                      sx={{ color: theme.palette.error.dark }}
-                    >
-                      <Typography variant="button" sx={{ color: 'inherit' }}>
-                        Rimuovi
-                      </Typography>
-                      <CancelRounded />
-                    </IconButton>
-                  </TableCell>
+                  {!hideDelete && (
+                    <TableCell sx={{ textAlign: 'right' }}>
+                      <IconButton
+                        size="small"
+                        sx={{
+                          color: theme.palette.error.dark,
+                          borderRadius: 0,
+                        }}
+                        onClick={() => console.info('remove button clicked')}
+                      >
+                        <Typography variant="button" sx={{ color: 'inherit' }}>
+                          Rimuovi
+                        </Typography>
+                        <CancelRounded />
+                      </IconButton>
+                    </TableCell>
+                  )}
                 </TableRow>
               ))}
             </TableBody>

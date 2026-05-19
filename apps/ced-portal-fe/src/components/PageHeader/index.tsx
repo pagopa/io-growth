@@ -15,7 +15,6 @@ export const PageHeader = () => {
   const user = useAppSelector(selectUser);
   const handlePartyChange = useCallback(
     (party: { id: string; name: string }) => {
-      console.log(party, 'aioshdiahsidhiahsdiahi');
       const role = partyRoleMap[party.id] ?? 'operator';
       const isAdmin = role === 'admin';
       dispatch(

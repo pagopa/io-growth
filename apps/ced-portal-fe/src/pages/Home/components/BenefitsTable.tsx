@@ -29,7 +29,6 @@ export const BenefitsTable = ({ items }: BenefitsTableProps) => {
     defaultSortBy: 'createdAt',
     defaultSortDirection: 'desc',
   });
-  console.log('🚀 ~ BenefitsTable ~ sortedItems:', sortedItems);
 
   const handleMenuOpen = (
     event: React.MouseEvent<HTMLElement>,

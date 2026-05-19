@@ -23,7 +23,6 @@ export const ActionsMenu = ({
   };
 
   const onView = (id: string) => {
-    console.log('🚀 ~ onView ~ id:', id);
     navigate(generatePath(APP_ROUTES.ENTE_OPPORTUNITY_DETAIL, { id }));
   };
 

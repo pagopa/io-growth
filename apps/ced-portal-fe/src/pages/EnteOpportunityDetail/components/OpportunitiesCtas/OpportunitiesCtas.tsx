@@ -35,7 +35,12 @@ export const OpportunitiesCtas = ({ status, id }: OpportunitiesCtasProps) => {
 
   if (!hasSplitLayout) {
     return (
-      <Stack direction="row" spacing={2} sx={{ pt: 2, pb: 4 }}>
+      <Stack
+        direction="row"
+        spacing={2}
+        justifyContent="flex-end"
+        sx={{ pt: 2, pb: 4 }}
+      >
         {ctas?.map((cta) => renderCta(cta))}
       </Stack>
     );

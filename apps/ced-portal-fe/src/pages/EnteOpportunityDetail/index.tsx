@@ -1,10 +1,10 @@
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-
 import {
   Box,
   Button,
   Chip,
   CircularProgress,
+  Paper,
   Stack,
   Typography,
   useTheme,
@@ -22,6 +22,7 @@ import { getChipConfig } from '../Home/components/utils';
 import { OpportunitiesCtas } from './components/OpportunitiesCtas/OpportunitiesCtas';
 import { OpportunityPlaces } from './components/OpportunityPlaces';
 import { OpportunitySites } from './components/OpportunitySites';
+import { OpportunityAlert } from './components/OpportunityAlert/OpportunityAlert';
 
 export default function OpportunityDetailPage() {
   const theme = useTheme();
@@ -137,11 +138,36 @@ export default function OpportunityDetailPage() {
           </Box>
         </Stack>
 
+        <OpportunityAlert status={detail.publication_status} />
+
         <OpportunityDetailCard detail={detail} />
 
-        <OpportunityPlaces detail={detail} />
+        <OpportunityPlaces
+          detail={detail}
+          // hideDelete={detail.places.length === 1 || detail.status === PublicationStatus.DELETED}
+        />
 
-        <OpportunitySites detail={detail} />
+        <OpportunitySites
+          detail={detail}
+          // hideDelete={detail.websites.length === 1 || detail.status === PublicationStatus.DELETED}
+        />
+
+        <Stack
+          component={Paper}
+          p={3}
+          borderRadius={2}
+          elevation={0}
+          flexDirection="row"
+          alignItems="center"
+          justifyContent="space-between"
+        >
+          <Typography sx={{ fontWeight: 700, fontSize: 18 }}>
+            Codice ID
+          </Typography>
+          <Typography sx={{ fontSize: 16, color: 'text.secondary' }}>
+            {detail.id}
+          </Typography>
+        </Stack>
 
         <OpportunitiesCtas status={detail.publication_status} id={detail.id} />
       </Stack>

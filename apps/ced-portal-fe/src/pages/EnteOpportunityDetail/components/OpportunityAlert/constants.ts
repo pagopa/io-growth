@@ -2,6 +2,19 @@ import { AlertProps } from '@mui/material';
 import { theme } from '../../../../core/theme';
 import { PublicationStatus } from '../../../../features/benefitsFilters/types';
 
+const baseSx = {
+  borderRadius: 2,
+  py: 1,
+  '& .MuiAlert-icon': {
+    alignItems: 'flex-start',
+    alignSelf: 'flex-start',
+    mt: 0.5,
+  },
+  '& .MuiAlert-message': {
+    p: 0,
+  },
+};
+
 export const opportunityAlertMap: Partial<
   Record<
     keyof typeof PublicationStatus,
@@ -25,16 +38,7 @@ export const opportunityAlertMap: Partial<
     sx: {
       color: theme.palette.info[850],
       border: '1px solid #89D9FC',
-      borderRadius: 2,
-      py: 1,
-      '& .MuiAlert-icon': {
-        alignItems: 'flex-start',
-        alignSelf: 'flex-start',
-        mt: 0.5,
-      },
-      '& .MuiAlert-message': {
-        p: 0,
-      },
+      ...baseSx,
     },
   },
   CHANGES_REQUESTED: {
@@ -46,16 +50,7 @@ export const opportunityAlertMap: Partial<
     sx: {
       color: theme.palette.warning[850],
       border: '1px solid #FFC107',
-      borderRadius: 2,
-      py: 1,
-      '& .MuiAlert-icon': {
-        alignItems: 'flex-start',
-        alignSelf: 'flex-start',
-        mt: 0.5,
-      },
-      '& .MuiAlert-message': {
-        p: 0,
-      },
+      ...baseSx,
     },
   },
   SCHEDULED_PUBLICATION: {
@@ -67,16 +62,7 @@ export const opportunityAlertMap: Partial<
     sx: {
       color: theme.palette.info[850],
       border: '1px solid #89D9FC',
-      borderRadius: 2,
-      py: 1,
-      '& .MuiAlert-icon': {
-        alignItems: 'flex-start',
-        alignSelf: 'flex-start',
-        mt: 0.5,
-      },
-      '& .MuiAlert-message': {
-        p: 0,
-      },
+      ...baseSx,
     },
   },
 };

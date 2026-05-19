@@ -6,7 +6,7 @@ export const getChipConfig = (item: Benefit): ChipProps => {
   const chipColor =
     benefitStateLabelMap[item.publication_status]?.color ?? 'default';
   return {
-    size: 'small' as any,
+    size: 'small',
     label:
       benefitStateLabelMap[item.publication_status]?.text ??
       item.publication_status,

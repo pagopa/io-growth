@@ -35,7 +35,7 @@ export const OpportunitiesPage = lazy(() => import('../pages/Opportunities'));
 export const OpportunityDetailPage = lazy(
   () => import('../pages/OpportunityDetail'),
 );
-// Provvisorio
+
 export const EnteOpportunityDetailPage = lazy(
   () => import('../pages/EnteOpportunityDetail'),
 );

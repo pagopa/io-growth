@@ -1,4 +1,6 @@
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import WebOutlined from '@mui/icons-material/WebOutlined';
+import Place from '@mui/icons-material/Place';
 import {
   Box,
   Button,
@@ -10,32 +12,25 @@ import {
   useTheme,
 } from '@mui/material';
 import WarningAmberRoundedIcon from '@mui/icons-material/WarningAmberRounded';
-import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useGetOpportunityDetailQuery } from '../../features/opportunities/api';
 import { APP_ROUTES } from '../../app/routeConfig';
-import { useToast } from '../../contexts';
-import { PublishModal } from '../../components/PublishModal';
-import { RequestChangesModal } from '../../components/RequestChangesModal';
 import { OpportunityDetailCard } from './components/OpportunityDetailCard';
 import { getChipConfig } from '../Home/components/utils';
 import { OpportunitiesCtas } from './components/OpportunitiesCtas/OpportunitiesCtas';
-import { OpportunityPlaces } from './components/OpportunityPlaces';
-import { OpportunitySites } from './components/OpportunitySites';
 import { OpportunityAlert } from './components/OpportunityAlert/OpportunityAlert';
+import { OpportunityDetailListSection } from './components/OpportunityDetailListSection';
+import { PLACES, WEBSITES } from './components/constants';
 
 export default function OpportunityDetailPage() {
   const theme = useTheme();
   const navigate = useNavigate();
-  const { showToast } = useToast();
   const { id } = useParams<{ id: string }>();
   const {
     data: detail,
     isLoading,
     isError,
   } = useGetOpportunityDetailQuery(id ?? '');
-  const [publishModalOpen, setPublishModalOpen] = useState(false);
-  const [requestChangesOpen, setRequestChangesOpen] = useState(false);
 
   if (isLoading) {
     return (
@@ -142,13 +137,17 @@ export default function OpportunityDetailPage() {
 
         <OpportunityDetailCard detail={detail} />
 
-        <OpportunityPlaces
-          detail={detail}
+        <OpportunityDetailListSection
+          title="Sedi"
+          icon={<Place sx={{ color: 'text.secondary', fontSize: 20 }} />}
+          rows={PLACES}
           // hideDelete={detail.places.length === 1 || detail.status === PublicationStatus.DELETED}
         />
 
-        <OpportunitySites
-          detail={detail}
+        <OpportunityDetailListSection
+          title="Siti web"
+          icon={<WebOutlined sx={{ color: 'text.secondary', fontSize: 20 }} />}
+          rows={WEBSITES}
           // hideDelete={detail.websites.length === 1 || detail.status === PublicationStatus.DELETED}
         />
 
@@ -171,32 +170,6 @@ export default function OpportunityDetailPage() {
 
         <OpportunitiesCtas status={detail.publication_status} id={detail.id} />
       </Stack>
-
-      <PublishModal
-        open={publishModalOpen}
-        onClose={() => setPublishModalOpen(false)}
-        onPublish={() => {
-          setPublishModalOpen(false);
-          navigate(APP_ROUTES.OPPORTUNITIES);
-          showToast('Fatto!', 'success');
-        }}
-        count={1}
-        publishDate={
-          detail?.validity_start
-            ? new Date(detail.validity_start).toLocaleDateString('it-IT')
-            : undefined
-        }
-      />
-
-      <RequestChangesModal
-        open={requestChangesOpen}
-        onClose={() => setRequestChangesOpen(false)}
-        onConfirm={() => {
-          setRequestChangesOpen(false);
-          navigate(APP_ROUTES.OPPORTUNITIES);
-          showToast('Fatto!', 'success');
-        }}
-      />
     </Box>
   );
 }

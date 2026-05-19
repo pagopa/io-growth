@@ -78,8 +78,6 @@ export function SideNavigation() {
   const role = useAppSelector(selectUserRole);
   const isAdmin = role === 'admin';
 
-  console.log({ role, isAdmin }, 'asojdiasidh');
-
   return (
     <Box
       component="aside"

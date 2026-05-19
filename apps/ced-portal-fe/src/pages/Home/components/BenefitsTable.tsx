@@ -147,11 +147,6 @@ export const BenefitsTable = ({ items }: BenefitsTableProps) => {
         anchor={menuAnchor}
         selectedItemId={selectedItemId}
         handleMenuClose={handleMenuClose}
-        // onView={onView}
-        // onDuplicate={onDuplicate}
-        // onEdit={onEdit}
-        // onSuspend={onSuspend}
-        // onDelete={onDelete}
       />
     </TableContainer>
   );

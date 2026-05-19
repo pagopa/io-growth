@@ -14,7 +14,182 @@ servers:
 security:
   - BearerAuth: []
 
+tags:
+  - name: Access
+    description:
+      Authentication flow via FIMS (OIDC). Obtain a session token before
+      calling protected endpoints.
+  - name: Application
+    description: CED card application management endpoints (require session token)
+
 paths:
+  /fauth:
+    get:
+      tags:
+        - Access
+      summary: Initiate FIMS authentication
+      description: |
+        Starts the OIDC/FIMS authentication flow. Redirects the user-agent to the
+        identity provider. The `device` parameter is forwarded to the IdP for
+        device-specific flows.
+      operationId: fimsAuth
+      security: []
+      parameters:
+        - in: query
+          name: device
+          required: false
+          description: Device identifier forwarded to the identity provider.
+          schema:
+            type: string
+      responses:
+        "302":
+          description: Redirect to the OpenID Connect provider.
+        "500":
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /fcb:
+    get:
+      tags:
+        - Access
+      summary: FIMS callback
+      description: |
+        Callback endpoint called by the identity provider after authentication.
+        Validates the OIDC response, creates a session, and redirects the
+        frontend to `/authorize` with a short-lived `id` parameter.
+      operationId: fimsCallback
+      security: []
+      parameters:
+        - in: query
+          name: state
+          required: true
+          schema:
+            type: string
+        - in: query
+          name: code
+          required: true
+          schema:
+            type: string
+        - in: query
+          name: iss
+          required: true
+          schema:
+            type: string
+        - in: header
+          name: signature
+          required: false
+          schema:
+            type: string
+        - in: header
+          name: signature-input
+          required: false
+          schema:
+            type: string
+      responses:
+        "302":
+          description: Redirect to `/authorize` with the session `id` and `device` in the query parameters.
+        "401":
+          description: Unauthorized — invalid or expired OIDC response.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /authorize:
+    get:
+      tags:
+        - Access
+      summary: Exchange session id for a session token
+      description: |
+        Called by the frontend after being redirected from `/fcb`. Exchanges the
+        short-lived `id` for a durable session token that must be used to
+        authenticate all subsequent requests to protected endpoints.
+      operationId: authorize
+      security: []
+      parameters:
+        - in: query
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Session token successfully issued.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - token
+                properties:
+                  token:
+                    type: string
+        "401":
+          description: Unauthorized — invalid or expired session id.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /test-session:
+    post:
+      tags:
+        - Access
+      summary: Create a test session (test users only)
+      description: |
+        Creates a FIMS session directly for a test user, bypassing the full OIDC
+        flow. The `fiscalCode` is hashed and matched against the server-side
+        `TEST_USERS` allowlist. Returns 403 if the fiscal code is not authorised.
+      operationId: createTestSession
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - fiscalCode
+                - familyName
+                - givenName
+              properties:
+                fiscalCode:
+                  type: string
+                familyName:
+                  type: string
+                givenName:
+                  type: string
+      responses:
+        "302":
+          description: Redirect to `/authorize?id=…` with the test session.
+        "403":
+          description: Forbidden — fiscal code is not in the test users list.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
   /status:
     get:
       tags:
@@ -32,7 +207,8 @@ paths:
               schema:
                 $ref: "#/components/schemas/StateResponse"
         "400":
-          description: INPS business/logic error (e.g., Active Card, foreign residence,
+          description:
+            INPS business/logic error (e.g., Active Card, foreign residence,
             Codes 700, 212-214)
           content:
             application/json:
@@ -172,7 +348,8 @@ paths:
                     $ref: "#/components/schemas/ApplicationState"
                     example: ACQUIRED
         "400":
-          description: Documentation validation or state inconsistency error (Codes
+          description:
+            Documentation validation or state inconsistency error (Codes
             400-409, 114, 115)
           content:
             application/json:
@@ -197,13 +374,15 @@ components:
       type: http
       scheme: bearer
       bearerFormat: OpaqueToken
-      description: Opaque token retrieved from the Authorization header for securing
+      description:
+        Opaque token retrieved from the Authorization header for securing
         the BFF endpoints.
 
   schemas:
     ApplicationState:
       type: string
-      description: Internal workflow state (managed by the BFF/DB) that guides the
+      description:
+        Internal workflow state (managed by the BFF/DB) that guides the
         FE's display logic.
       enum:
         - READY_FOR_NEW_DRAFT
@@ -285,7 +464,7 @@ components:
         sesso:
           type: string
           maxLength: 1
-          enum: [ M, F ]
+          enum: [M, F]
           description: Gender
         statoNascita:
           type: string
@@ -295,7 +474,8 @@ components:
           type: string
           maxLength: 60
           nullable: true
-          description: Full description of the Municipality of Birth (Required if
+          description:
+            Full description of the Municipality of Birth (Required if
             statoNascita is ITALIA)
         siglaProvinciaNascita:
           type: string
@@ -323,13 +503,15 @@ components:
           type: string
           maxLength: 40
           nullable: true
-          description: Optional surname for delivery. Pair PRESSO NOME/COGNOME is
+          description:
+            Optional surname for delivery. Pair PRESSO NOME/COGNOME is
             exclusive of PRESSO DENOMINAZIONE.
         pressoDenominazione:
           type: string
           maxLength: 40
           nullable: true
-          description: Optional Denomination for delivery. Length must not exceed 40
+          description:
+            Optional Denomination for delivery. Length must not exceed 40
             characters.
         siglaProvinciaRec:
           type: string
@@ -360,7 +542,8 @@ components:
 
     FornisciFotoRequest:
       type: object
-      description: Request body for FornisciFoto. The BFF injects the CodiceFiscale
+      description:
+        Request body for FornisciFoto. The BFF injects the CodiceFiscale
         from the session.
       required:
         - idLavorazione
@@ -381,7 +564,8 @@ components:
 
     ConfermaDomandaRequest:
       type: object
-      description: Request body for ConfermaDomanda (with optional documentation). The
+      description:
+        Request body for ConfermaDomanda (with optional documentation). The
         BFF injects the CodiceFiscale from the session.
       required:
         - idLavorazione
@@ -394,9 +578,10 @@ components:
           type: string
           maxLength: 1
           nullable: true
-          description: 1 - Trento/Bolzano/Valle d’Aosta, 2 - Sentenza/Decreto, 3 -
+          description:
+            1 - Trento/Bolzano/Valle d’Aosta, 2 - Sentenza/Decreto, 3 -
             Invalidità ante 2010.
-          enum: [ 1, 2, 3 ]
+          enum: [1, 2, 3]
         nomeFile:
           type: string
           maxLength: 255

@@ -6,14 +6,14 @@
 | Name | Version |
 | ---- | ------- |
 | <a name="requirement_azurerm"></a> [azurerm](#requirement\_azurerm) | ~> 4.0 |
-| <a name="requirement_dx"></a> [dx](#requirement\_dx) | ~> 0.0 |
+| <a name="requirement_dx"></a> [dx](#requirement\_dx) | ~> 0.9 |
 
 ## Providers
 
 | Name | Version |
 | ---- | ------- |
-| <a name="provider_azurerm"></a> [azurerm](#provider\_azurerm) | 4.67.0 |
-| <a name="provider_dx"></a> [dx](#provider\_dx) | ~> 0.0 |
+| <a name="provider_azurerm"></a> [azurerm](#provider\_azurerm) | 4.72.0 |
+| <a name="provider_dx"></a> [dx](#provider\_dx) | ~> 0.9 |
 
 ## Modules
 
@@ -33,11 +33,14 @@
 | <a name="module_portal_fe_static_web_app"></a> [portal\_fe\_static\_web\_app](#module\_portal\_fe\_static\_web\_app) | ../_modules/portal_fe_static_web_app | n/a |
 | <a name="module_postgresql"></a> [postgresql](#module\_postgresql) | ../_modules/postgresql | n/a |
 | <a name="module_redis"></a> [redis](#module\_redis) | ../_modules/redis | n/a |
+| <a name="module_redis_dx"></a> [redis\_dx](#module\_redis\_dx) | ../_modules/managed_redis | n/a |
+| <a name="module_storage_audit"></a> [storage\_audit](#module\_storage\_audit) | ../_modules/storage_audit | n/a |
 
 ## Resources
 
 | Name | Type |
 | ---- | ---- |
+| [azurerm_cosmosdb_sql_role_assignment.card_request_be](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/cosmosdb_sql_role_assignment) | resource |
 | [azurerm_dns_a_record.api](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/dns_a_record) | resource |
 | [azurerm_monitor_action_group.ced_error_action_group](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/monitor_action_group) | resource |
 | [azurerm_postgresql_flexible_server_database.ced_prod](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/postgresql_flexible_server_database) | resource |
@@ -52,6 +55,7 @@
 | [azurerm_key_vault_secret.action_group_email](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/key_vault_secret) | data source |
 | [azurerm_key_vault_secret.action_group_slack](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/key_vault_secret) | data source |
 | [azurerm_private_dns_zone.managed_redis](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/private_dns_zone) | data source |
+| [azurerm_private_dns_zone.privatelink_blob_core_windows_net](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/private_dns_zone) | data source |
 | [azurerm_resource_group.resource_rg](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/resource_group) | data source |
 | [azurerm_subscription.current](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/subscription) | data source |
 

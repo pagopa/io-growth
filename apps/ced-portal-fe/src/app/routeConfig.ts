@@ -1,20 +1,26 @@
 import { lazy } from 'react';
 
+//TODO refactor route names based on this difference between ente and admin routes
+const ENTE_ROUTES = {
+  HOME: '/ente/opportunita',
+  OVERVIEW: '/ente/panoramica',
+  OVERVIEW_COMPLETE_DATA: '/ente/panoramica/completa-dati',
+  CREATE_BENEFIT: '/ente/opportunita/crea',
+  ENTE_OPPORTUNITY_DETAIL: '/ente/opportunita/:id',
+} as const;
+
+const ADMIN_ROUTES = {
+  OPPORTUNITIES: '/admin/opportunita',
+  OPPORTUNITY_DETAIL: '/admin/opportunita/:id',
+  ENTITIES: '/admin/enti',
+  ENTITY_DETAIL: '/admin/enti/:id',
+} as const;
+
 export const APP_ROUTES = {
-  HOME: '/',
-  OVERVIEW: '/panoramica',
-  OVERVIEW_COMPLETE_DATA: '/panoramica/completa-dati',
+  ...ENTE_ROUTES,
+  ...ADMIN_ROUTES,
   UNAUTHORIZED: '/unauthorized',
   NOT_FOUND: '*',
-  CREATE_BENEFIT: '/agevolazioni/crea',
-  BENEFITS: '/agevolazioni',
-  ACCESS_POINTS: '/punti-di-accesso',
-  OPPORTUNITIES: '/opportunita',
-  OPPORTUNITY_DETAIL: '/opportunita/:id',
-  // Provvisorio
-  ENTE_OPPORTUNITY_DETAIL: '/ente-opportunita/:id',
-  ENTITIES: '/enti',
-  ENTITY_DETAIL: '/enti/:id',
 } as const;
 
 export const HomePage = lazy(() => import('../pages/Home'));

@@ -21,12 +21,13 @@ import {
 } from '@mui/material';
 import WarningAmberRoundedIcon from '@mui/icons-material/WarningAmberRounded';
 import { useCallback, useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { generatePath, useNavigate } from 'react-router-dom';
 import type { Opportunity } from '../../../features/opportunities/types';
 import {
   STATE_COLORS,
   STATE_OPTIONS,
 } from '../../../constants/opportunityState';
+import { APP_ROUTES } from '../../../app/routeConfig';
 
 type SortDirection = 'asc' | 'desc';
 
@@ -68,7 +69,7 @@ export const OpportunitiesTable = ({
 
   const handleView = () => {
     if (menuItemId) {
-      navigate(`/opportunita/${menuItemId}`);
+      navigate(generatePath(APP_ROUTES.OPPORTUNITY_DETAIL, { id: menuItemId }));
     }
     handleMenuClose();
   };

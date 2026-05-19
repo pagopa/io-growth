@@ -2,7 +2,6 @@ import BusinessOutlinedIcon from '@mui/icons-material/BusinessOutlined';
 import DashboardOutlinedIcon from '@mui/icons-material/DashboardOutlined';
 import LocalOfferOutlinedIcon from '@mui/icons-material/LocalOfferOutlined';
 import MenuRoundedIcon from '@mui/icons-material/MenuRounded';
-import PhotoOutlined from '@mui/icons-material/PhotoOutlined';
 import {
   Box,
   IconButton,
@@ -106,7 +105,7 @@ export function SideNavigation() {
             />
             <NavItem
               active={isOpportunitiesActive}
-              icon={<PhotoOutlined />}
+              icon={<LocalOfferOutlinedIcon />}
               label="Opportunità"
               onClick={() => navigate(APP_ROUTES.OPPORTUNITIES)}
             />
@@ -122,7 +121,7 @@ export function SideNavigation() {
             <NavItem
               active={isBenefitsActive}
               icon={<LocalOfferOutlinedIcon />}
-              label="Agevolazioni"
+              label="Opportunità"
               onClick={() => navigate(APP_ROUTES.HOME)}
             />
           </>

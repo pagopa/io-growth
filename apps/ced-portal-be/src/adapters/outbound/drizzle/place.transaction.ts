@@ -1,10 +1,12 @@
+import type { TypedDbClient } from "@pagopa/io-core-adapter-drizzle";
+
 import type { Place } from "../../../domain/entities/place.js";
 
-import { dbClient } from "./client.js";
+import * as schema from "./schema/index.js";
 import { address, place, supportContact, website } from "./schema/tables.js";
-
-type DbClient = typeof dbClient;
-type TransactionClient = Parameters<Parameters<DbClient["transaction"]>[0]>[0];
+type TransactionClient = Parameters<
+  Parameters<TypedDbClient<typeof schema>["transaction"]>[0]
+>[0];
 
 /**
  * Creates a place with its type-specific details and support contacts

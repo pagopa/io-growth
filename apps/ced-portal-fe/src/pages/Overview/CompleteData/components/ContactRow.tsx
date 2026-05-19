@@ -1,103 +1,87 @@
 import CancelIcon from '@mui/icons-material/Cancel';
-import { Box, IconButton, Stack } from '@mui/material';
+import { Box, IconButton } from '@mui/material';
+import { memo } from 'react';
 import { AppSelect, AppTextField } from '../../../../components';
 import type { Contact } from '../types';
-import { CONTACT_TYPE_OPTIONS } from './constants';
+import { CONTACT_TYPE_OPTIONS, getContactInputConfig } from './constants';
 
 interface ContactRowProps {
   contact: Contact;
   index: number;
   canRemove: boolean;
-  showPhoneField?: boolean;
-  showDetails?: boolean;
   onRemove: (index: number) => void;
   onChange: (index: number, field: keyof Contact, value: string) => void;
+  typeError?: string;
+  contactError?: string;
 }
 
-export const ContactRow = ({
-  contact,
-  index,
-  canRemove,
-  showPhoneField = true,
-  showDetails = true,
-  onRemove,
-  onChange,
-}: ContactRowProps) => {
-  const contactInput =
-    contact.type === 'TELEPHONE'
-      ? {
-          field: 'contact' as const,
-          placeholder: 'Inserisci numero di telefono',
-          type: 'tel' as const,
-          value: contact.contact,
-        }
-      : {
-          field: 'website' as const,
-          placeholder: 'Inserisci url',
-          type: 'url' as const,
-          value: contact.website,
-        };
+export const ContactRow = memo(
+  ({
+    contact,
+    index,
+    canRemove,
+    onRemove,
+    onChange,
+    typeError,
+    contactError,
+  }: ContactRowProps) => {
+    const contactInputBase = getContactInputConfig(contact.type);
 
-  return (
-    <Stack spacing={4}>
-      {showPhoneField && (
-        <AppTextField
-          required
-          label="Inserisci numero di telefono"
-          placeholder="Inserisci numero di telefono"
-          value={contact.contact}
-          onChange={(e) => onChange(index, 'contact', e.target.value)}
-          sx={{
-            '& .MuiOutlinedInput-root': { borderRadius: '8px' },
-          }}
-        />
-      )}
+    const contactInput = {
+      ...contactInputBase,
+      value: contact[contactInputBase.field],
+    };
 
-      {showDetails && (
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.25 }}>
-          {canRemove && (
-            <IconButton
-              onClick={() => onRemove(index)}
-              sx={{ color: '#D13333', p: 0 }}
-            >
-              <CancelIcon />
-            </IconButton>
-          )}
-
-          <Box
-            sx={{
-              display: 'grid',
-              gap: 2,
-              width: '100%',
-              gridTemplateColumns: {
-                xs: '1fr',
-                sm: '220px minmax(0, 1fr)',
-                md: '260px minmax(0, 1fr)',
-              },
-            }}
+    return (
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.25, mb: 1 }}>
+        {canRemove && (
+          <IconButton
+            onClick={() => onRemove(index)}
+            aria-label={`Remove contact ${index + 1}`}
+            sx={{ color: '#D13333', p: 0 }}
           >
-            <AppSelect
-              label="Tipo di contatto"
-              options={CONTACT_TYPE_OPTIONS}
-              value={contact.type || 'WEBSITE'}
-              onChange={(e) =>
-                onChange(index, 'type', e.target.value as string)
-              }
-              sx={{ '& .MuiOutlinedInput-root': { borderRadius: '8px' } }}
-            />
+            <CancelIcon />
+          </IconButton>
+        )}
+        <Box
+          sx={{
+            display: 'grid',
+            gap: 2,
+            width: '100%',
+            gridTemplateColumns: {
+              xs: '1fr',
+              sm: '220px minmax(0, 1fr)',
+              md: '260px minmax(0, 1fr)',
+            },
+          }}
+        >
+          <AppSelect
+            required={!canRemove}
+            label="Tipo di contatto"
+            options={CONTACT_TYPE_OPTIONS}
+            value={contact.type || ''}
+            error={Boolean(typeError)}
+            helperText={typeError}
+            onChange={(e) => onChange(index, 'type', e.target.value as string)}
+            sx={{ '& .MuiOutlinedInput-root': { borderRadius: '8px' } }}
+          />
 
-            <AppTextField
-              placeholder={contactInput.placeholder}
-              type={contactInput.type}
-              value={contactInput.value}
-              onChange={(e) =>
-                onChange(index, contactInput.field, e.target.value)
-              }
-              sx={{ '& .MuiOutlinedInput-root': { borderRadius: '8px' } }}
-            />
-          </Box>
+          <AppTextField
+            required={!canRemove}
+            label={contactInput.placeholder}
+            type={contactInput.type}
+            value={contactInput.value}
+            error={Boolean(contactError)}
+            helperText={contactError}
+            onChange={(e) =>
+              onChange(index, contactInput.field, e.target.value)
+            }
+            sx={{ '& .MuiOutlinedInput-root': { borderRadius: '8px' } }}
+          />
         </Box>
-      )}
-    </Stack>
-  );
-};
+      </Box>
+    );
+  },
+);
+
+ContactRow.displayName = 'ContactRow';

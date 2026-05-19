@@ -1,3 +1,4 @@
+import type { TypedDbClient } from "@pagopa/io-core-adapter-drizzle";
 import type { Result } from "neverthrow";
 
 import { ConflictError, GenericError } from "@pagopa/io-core-domain/errors";
@@ -7,15 +8,13 @@ import { err, ok } from "neverthrow";
 import type { Profile } from "../../../domain/entities/profile.js";
 import type { ProfileRepository } from "../../../domain/ports/outbound/persistence/profile.repository.js";
 
-import { dbClient } from "./client.js";
 import { mapPlaceRow } from "./place-row.mapper.js";
 import { createPlaceInTransaction } from "./place.transaction.js";
+import * as schema from "./schema/index.js";
 import { place, profile, supportContact } from "./schema/tables.js";
 
-type DbClient = typeof dbClient;
-
 export const createDrizzleProfileRepository = (
-  db: DbClient,
+  db: TypedDbClient<typeof schema>,
 ): ProfileRepository => ({
   create: async (
     input: Profile,

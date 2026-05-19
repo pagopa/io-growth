@@ -13,6 +13,11 @@ export interface GetPlaceByIdInput {
   placeId: string;
 }
 
+export interface GetPlaceIdsByOperatorInput {
+  operatorId: string;
+  placeIds: readonly string[];
+}
+
 export interface PlaceRepository {
   readonly create: (
     input: CreatePlaceInput,
@@ -20,6 +25,9 @@ export interface PlaceRepository {
   readonly getById: (
     input: GetPlaceByIdInput,
   ) => Promise<Result<Place | undefined, GenericError>>;
+  readonly getIdsByOperator: (
+    input: GetPlaceIdsByOperatorInput,
+  ) => Promise<Result<string[], GenericError>>;
   readonly listByOperatorId: (
     operatorId: string,
   ) => Promise<Result<Place[], GenericError>>;

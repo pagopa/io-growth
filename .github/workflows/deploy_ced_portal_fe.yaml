@@ -1,4 +1,4 @@
-name: Deploy Portal FE to Azure Static Web App
+name: Deploy CED Portal FE to Azure Static Web App
 
 on:
     workflow_dispatch:
@@ -19,9 +19,9 @@ on:
             - "apps/ced-portal-fe/**"
 
 jobs:
-    deploy_portal_fe:
+    deploy_ced_portal_fe:
         uses: pagopa/dx/.github/workflows/release-azure-staticapp-v1.yaml@main
-        name: Deploy Portal FE
+        name: Deploy CED Portal FE
         secrets: inherit
         with:
             workspace_name: ced-portal-fe

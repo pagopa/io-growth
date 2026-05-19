@@ -26,22 +26,57 @@ module "card_request_be_container_app" {
 
   secrets = [
     {
-      name                = "POSTGRES_USER"
-      key_vault_secret_id = format(local.secrets_id_template, "ced-p-itn-db-psql-01-admin-user")
+      name                = "FIMS_AUDIT_BLOB_URI"
+      key_vault_secret_id = format(local.secrets_id_template, "ced-p-itn-card-request-be-fims-audit-blob-uri")
     },
     {
-      name                = "POSTGRES_PASSWORD"
-      key_vault_secret_id = format(local.secrets_id_template, "ced-p-itn-db-psql-01-admin-password")
+      name                = "FIMS_CLIENT_ID"
+      key_vault_secret_id = format(local.secrets_id_template, "ced-p-itn-card-request-be-fims-client-id")
+    },
+    {
+      name                = "FIMS_CLIENT_SECRET"
+      key_vault_secret_id = format(local.secrets_id_template, "ced-p-itn-card-request-be-fims-client-secret")
+    },
+    {
+      name                = "FIMS_ISSUER_URL"
+      key_vault_secret_id = format(local.secrets_id_template, "ced-p-itn-card-request-be-fims-issuer-url")
+    },
+    {
+      name                = "PAGOPA_IDP_KEYS_BASE_URL"
+      key_vault_secret_id = format(local.secrets_id_template, "ced-p-itn-card-request-be-fims-idp-keys-base-url")
     }
   ]
 
   container_app_templates = [
     {
-      image = "docker.io/traefik/whoami:latest"
+      image        = local.card_request_be.image
+      app_settings = local.card_request_be.app_settings
+
       liveness_probe = {
-        path      = "/health"
+        path      = local.card_request_be.startup_probe_path
+        transport = "HTTP"
+      }
+
+      readiness_probe = {
+        path      = local.card_request_be.readiness_probe_path
+        transport = "HTTP"
+      }
+
+      startup_probe = {
+        path      = local.card_request_be.startup_probe_path
         transport = "HTTP"
       }
     }
   ]
+}
+
+# Grant the shared managed identity the built-in Cosmos DB Data Contributor role
+# so card_request_be can read/write CosmosDB without connection strings.
+resource "azurerm_cosmosdb_sql_role_assignment" "card_request_be" {
+  resource_group_name = module.cosmos_db.cosmos_db.resource_group_name
+  account_name        = module.cosmos_db.cosmos_db.name
+  # Built-in "Cosmos DB Built-in Data Contributor" role
+  role_definition_id = "${module.cosmos_db.cosmos_db.id}/sqlRoleDefinitions/00000000-0000-0000-0000-000000000002"
+  principal_id       = module.common_container_app_environment.user_assigned_identity.principal_id
+  scope              = module.cosmos_db.cosmos_db.id
 }

@@ -31,8 +31,7 @@ locals {
       POSTGRES_PORT   = "6432"
       POSTGRES_DB     = azurerm_postgresql_flexible_server_database.ced_test.name
       POSTGRES_SSL    = "true"
-      REDIS_HOST      = module.redis.hostname
-      REDIS_PORT      = tostring(module.redis.ssl_port)
+      REDIS_ENDPOINT  = module.redis_dx.endpoint
       REDIS_TLS       = "true"
       AZURE_CLIENT_ID = module.common_container_app_environment.user_assigned_identity.client_id
     }
@@ -54,10 +53,16 @@ locals {
       POSTGRES_PORT   = "6432"
       POSTGRES_DB     = azurerm_postgresql_flexible_server_database.ced_test.name
       POSTGRES_SSL    = "true"
-      REDIS_HOST      = module.redis.hostname
-      REDIS_PORT      = tostring(module.redis.ssl_port)
+      REDIS_ENDPOINT  = module.redis_dx.endpoint
       REDIS_TLS       = "true"
       AZURE_CLIENT_ID = module.common_container_app_environment.user_assigned_identity.client_id
+
+      # FIMS SSO settings
+      BASE_URL             = "https://browser.ced.pagopa.it"
+      FIMS_AUDIT_CONTAINER = "ced-browser-logs"
+      FIMS_REDIRECT_URL    = "${module.ced_apim.gateway_url}/browser/fcb"
+      FIMS_SCOPE           = "openid profile fiscal_code"
+      TEST_USERS           = "6960f673e4bf8cc073a32b3b4579bfdb97b50b8df29964bdea6fcd1576d16f82"
     }
 
     startup_probe_path   = "/api/info/startup"
@@ -72,14 +77,19 @@ locals {
 
     app_settings = {
       PORT            = "8080"
-      POSTGRES_HOST   = "${module.postgresql.postgres.name}.postgres.database.azure.com"
-      POSTGRES_PORT   = "6432"
-      POSTGRES_DB     = azurerm_postgresql_flexible_server_database.ced_test.name
-      POSTGRES_SSL    = "true"
-      REDIS_HOST      = module.redis.hostname
-      REDIS_PORT      = tostring(module.redis.ssl_port)
+      REDIS_ENDPOINT  = module.redis_dx.endpoint
       REDIS_TLS       = "true"
       AZURE_CLIENT_ID = module.common_container_app_environment.user_assigned_identity.client_id
+
+      # CosmosDB — accessed via RBAC (managed identity)
+      COSMOS_ENDPOINT = module.cosmos_db.cosmos_db.endpoint
+
+      # FIMS SSO settings
+      BASE_URL             = "https://card.ced.pagopa.it"
+      FIMS_AUDIT_CONTAINER = "ced-card-request-logs"
+      FIMS_REDIRECT_URL    = "${module.ced_apim.gateway_url}/card-request/fcb"
+      FIMS_SCOPE           = "openid profile fiscal_code"
+      TEST_USERS           = "6960f673e4bf8cc073a32b3b4579bfdb97b50b8df29964bdea6fcd1576d16f82"
     }
 
     startup_probe_path   = "/api/info/startup"

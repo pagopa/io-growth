@@ -49,6 +49,7 @@ export const createRedisClient = async (
         ...(config.tls ? { tls: true as const } : {}),
       },
     },
+    minimizeConnections: true,
     rootNodes: [{ socket: { host, port } }],
   });
 

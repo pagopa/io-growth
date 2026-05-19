@@ -1,5 +1,11 @@
 # @pagopa/io-core-domain
 
+## 0.0.3
+
+### Patch Changes
+
+- 7187aee: patches
+
 ## 0.0.2
 
 ### Patch Changes

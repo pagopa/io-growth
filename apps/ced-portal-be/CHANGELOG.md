@@ -1,5 +1,12 @@
 # ced-portal-be
 
+## 0.0.8
+
+### Patch Changes
+
+- Updated dependencies [27672b8]
+  - @pagopa/io-core-adapter-redis@0.0.5
+
 ## 0.0.7
 
 ### Patch Changes

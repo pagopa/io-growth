@@ -1,5 +1,11 @@
 # @pagopa/io-core-adapter-redis
 
+## 0.0.3
+
+### Patch Changes
+
+- 10cfe73: minimize connections
+
 ## 0.0.2
 
 ### Patch Changes

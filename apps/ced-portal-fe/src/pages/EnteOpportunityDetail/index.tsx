@@ -5,8 +5,8 @@ import {
   Box,
   Button,
   Chip,
-  CircularProgress,
   Paper,
+  Skeleton,
   Stack,
   Typography,
   useTheme,
@@ -37,18 +37,19 @@ export default function OpportunityDetailPage() {
       <Box
         sx={{
           minHeight: '100%',
-          display: 'grid',
-          placeItems: 'center',
           px: { xs: 2, md: 3.5 },
           py: { xs: 3, md: 4.5 },
         }}
         bgcolor={theme.palette.common.neutralGray}
       >
-        <Stack spacing={1} alignItems="center">
-          <CircularProgress size={28} />
-          <Typography sx={{ fontSize: 16, color: 'text.secondary' }}>
-            Caricamento dettagli...
-          </Typography>
+        <Stack spacing={3} sx={{ maxWidth: 800, mx: 'auto' }}>
+          <Skeleton variant="rounded" width={110} height={28} />
+          <Stack spacing={1}>
+            <Skeleton variant="text" width="55%" height={56} />
+            <Skeleton variant="text" width="45%" height={32} />
+          </Stack>
+          <Skeleton variant="rounded" width="100%" height={140} />
+          <Skeleton variant="rounded" width="100%" height={280} />
         </Stack>
       </Box>
     );

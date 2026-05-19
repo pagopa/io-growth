@@ -16,7 +16,6 @@ services:
       AZURITE_BLOB_PORT: "10000"
       AZURITE_QUEUE_PORT: "10001"
       AZURITE_TABLE_PORT: "10002"
-      REDIS_ENDPOINT: "redis:6379"
 
   postgres:
     image: postgres:16.13@sha256:760ea41aae126965bedd587d35a23de37447bb13a6ac4444bef6ff73b8b72234

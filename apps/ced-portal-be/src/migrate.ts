@@ -6,23 +6,23 @@ import { parseConfig } from "./config.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
-const appConfig = parseConfig();
+const config = parseConfig();
 
-const config = {
+const dbConfig = {
   connection: {
-    database: appConfig.POSTGRES_DB,
-    host: appConfig.POSTGRES_HOST,
-    password: appConfig.POSTGRES_PASSWORD,
-    port: appConfig.POSTGRES_PORT,
-    ssl: appConfig.POSTGRES_SSL,
-    user: appConfig.POSTGRES_USER,
+    database: config.POSTGRES_DB,
+    host: config.POSTGRES_HOST,
+    password: config.POSTGRES_PASSWORD,
+    port: config.POSTGRES_PORT,
+    ssl: config.POSTGRES_SSL,
+    user: config.POSTGRES_USER,
   },
   migrationsFolder: resolve(__dirname, "../drizzle/migrations"),
   recurrentFolder: resolve(__dirname, "../drizzle/recurrent"),
 };
 
 try {
-  await runAllMigrations(config);
+  await runAllMigrations(dbConfig);
   console.log("[migrate] Done.");
   process.exit(0);
 } catch (err) {

@@ -1,9 +1,11 @@
+import type { TypedDbClient } from "@pagopa/io-core-adapter-drizzle";
+
 import type {
   Benefit,
   Opportunity,
 } from "../../../domain/entities/opportunity.js";
-import type { DbClient } from "./client.js";
 
+import * as schema from "./schema/index.js";
 import {
   beneficiaryBenefit,
   caregiverBenefit,
@@ -11,7 +13,9 @@ import {
   opportunity,
   opportunityPlace,
 } from "./schema/tables.js";
-type TransactionClient = Parameters<Parameters<DbClient["transaction"]>[0]>[0];
+type TransactionClient = Parameters<
+  Parameters<TypedDbClient<typeof schema>["transaction"]>[0]
+>[0];
 
 const mapBenefitToRow = (benefit: Benefit, opportunityId: string) => {
   const base = { id: benefit.id, opportunityId, type: benefit.type };

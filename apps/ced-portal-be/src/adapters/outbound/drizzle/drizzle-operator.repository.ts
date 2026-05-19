@@ -1,3 +1,4 @@
+import type { TypedDbClient } from "@pagopa/io-core-adapter-drizzle";
 import type { BaseError } from "@pagopa/io-core-domain/errors";
 import type { Result } from "neverthrow";
 
@@ -7,12 +8,12 @@ import { err, ok } from "neverthrow";
 
 import type { Operator } from "../../../domain/entities/operator.js";
 import type { OperatorRepository } from "../../../domain/ports/outbound/persistence/operator.repository.js";
-import type { DbClient } from "./client.js";
 
+import * as schema from "./schema/index.js";
 import { operator } from "./schema/tables.js";
 
 export const createDrizzleOperatorRepository = (
-  db: DbClient,
+  db: TypedDbClient<typeof schema>,
 ): OperatorRepository => ({
   create: async (input: Operator): Promise<Result<Operator, BaseError>> => {
     try {

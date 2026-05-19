@@ -1,3 +1,4 @@
+import type { TypedDbClient } from "@pagopa/io-core-adapter-drizzle";
 import type { Result } from "neverthrow";
 
 import { GenericError } from "@pagopa/io-core-domain/errors";
@@ -6,12 +7,12 @@ import { err, ok } from "neverthrow";
 
 import type { OpportunityCategory } from "../../../domain/entities/opportunity-category.js";
 import type { OpportunityCategoryRepository } from "../../../domain/ports/outbound/persistence/opportunity-category.repository.js";
-import type { DbClient } from "./client.js";
 
+import * as schema from "./schema/index.js";
 import { opportunityCategory } from "./schema/tables.js";
 
 export const createDrizzleOpportunityCategoryRepository = (
-  db: DbClient,
+  db: TypedDbClient<typeof schema>,
 ): OpportunityCategoryRepository => ({
   getById: async (
     id: string,

@@ -1,3 +1,4 @@
+import type { TypedDbClient } from "@pagopa/io-core-adapter-drizzle";
 import type { Result } from "neverthrow";
 
 import { GenericError } from "@pagopa/io-core-domain/errors";
@@ -10,13 +11,13 @@ import type {
   OpportunityRepository,
   PaginatedOpportunities,
 } from "../../../domain/ports/outbound/persistence/opportunity.repository.js";
-import type { DbClient } from "./client.js";
 
 import {
   mapOpportunityDetailRow,
   mapOpportunitySummaryRow,
 } from "./opportunity-row.mapper.js";
 import { createOpportunityInTransaction } from "./opportunity.transaction.js";
+import * as schema from "./schema/index.js";
 import {
   localizedMetadata,
   opportunity,
@@ -27,7 +28,7 @@ const escapeIlikePattern = (value: string): string =>
   value.replace(/\\/g, "\\\\").replace(/%/g, "\\%").replace(/_/g, "\\_");
 
 export const createDrizzleOpportunityRepository = (
-  db: DbClient,
+  db: TypedDbClient<typeof schema>,
 ): OpportunityRepository => ({
   create: async (input): Promise<Result<void, GenericError>> => {
     try {

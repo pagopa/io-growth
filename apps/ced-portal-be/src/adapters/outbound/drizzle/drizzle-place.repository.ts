@@ -1,3 +1,4 @@
+import type { TypedDbClient } from "@pagopa/io-core-adapter-drizzle";
 import type { Result } from "neverthrow";
 
 import { GenericError } from "@pagopa/io-core-domain/errors";
@@ -6,14 +7,14 @@ import { err, ok } from "neverthrow";
 
 import type { Place } from "../../../domain/entities/place.js";
 import type { PlaceRepository } from "../../../domain/ports/outbound/persistence/place.repository.js";
-import type { DbClient } from "./client.js";
 
 import { mapPlaceRow, mapPlaceRows } from "./place-row.mapper.js";
 import { createPlaceInTransaction } from "./place.transaction.js";
+import * as schema from "./schema/index.js";
 import { place, supportContact } from "./schema/tables.js";
 
 export const createDrizzlePlaceRepository = (
-  db: DbClient,
+  db: TypedDbClient<typeof schema>,
 ): PlaceRepository => ({
   create: async (input): Promise<Result<void, GenericError>> => {
     try {

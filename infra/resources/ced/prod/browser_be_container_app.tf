@@ -32,14 +32,46 @@ module "browser_be_container_app" {
     {
       name                = "POSTGRES_PASSWORD"
       key_vault_secret_id = format(local.secrets_id_template, "ced-p-itn-db-psql-01-admin-password")
+    },
+    {
+      name                = "FIMS_AUDIT_BLOB_URI"
+      key_vault_secret_id = format(local.secrets_id_template, "ced-p-itn-browser-be-fims-audit-blob-uri")
+    },
+    {
+      name                = "FIMS_CLIENT_ID"
+      key_vault_secret_id = format(local.secrets_id_template, "ced-p-itn-browser-be-fims-client-id")
+    },
+    {
+      name                = "FIMS_CLIENT_SECRET"
+      key_vault_secret_id = format(local.secrets_id_template, "ced-p-itn-browser-be-fims-client-secret")
+    },
+    {
+      name                = "FIMS_ISSUER_URL"
+      key_vault_secret_id = format(local.secrets_id_template, "ced-p-itn-browser-be-fims-issuer-url")
+    },
+    {
+      name                = "PAGOPA_IDP_KEYS_BASE_URL"
+      key_vault_secret_id = format(local.secrets_id_template, "ced-p-itn-browser-be-fims-idp-keys-base-url")
     }
   ]
 
   container_app_templates = [
     {
-      image = "docker.io/traefik/whoami:latest"
+      image        = local.browser_be.image
+      app_settings = local.browser_be.app_settings
+
       liveness_probe = {
-        path      = "/health"
+        path      = local.browser_be.startup_probe_path
+        transport = "HTTP"
+      }
+
+      readiness_probe = {
+        path      = local.browser_be.readiness_probe_path
+        transport = "HTTP"
+      }
+
+      startup_probe = {
+        path      = local.browser_be.startup_probe_path
         transport = "HTTP"
       }
     }

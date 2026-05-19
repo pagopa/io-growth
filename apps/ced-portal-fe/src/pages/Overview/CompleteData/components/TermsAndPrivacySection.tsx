@@ -1,0 +1,58 @@
+import type { ChangeEvent } from 'react';
+import { Paper, Stack, Typography } from '@mui/material';
+import { PrivacyTipOutlined } from '@mui/icons-material';
+import { AppTextField } from '../../../../components';
+
+type TermsAndPrivacySectionProps = {
+  privacyUrl: string;
+  termsUrl: string;
+  onPrivacyUrlChange: (value: string) => void;
+  onTermsUrlChange: (value: string) => void;
+};
+
+export const TermsAndPrivacySection = ({
+  privacyUrl,
+  termsUrl,
+  onPrivacyUrlChange,
+  onTermsUrlChange,
+}: TermsAndPrivacySectionProps) => {
+  const handlePrivacyUrlChange = (e: ChangeEvent<HTMLInputElement>) =>
+    onPrivacyUrlChange(e.target.value);
+
+  const handleTermsUrlChange = (e: ChangeEvent<HTMLInputElement>) =>
+    onTermsUrlChange(e.target.value);
+
+  return (
+    <Paper
+      variant="outlined"
+      sx={{ borderRadius: 2, p: { xs: 1.5, md: 2 }, width: '100%' }}
+    >
+      <Stack spacing={2}>
+        <Stack direction="row" alignItems="center" spacing={1}>
+          <PrivacyTipOutlined
+            sx={{ color: 'common.decorativeIcon', fontSize: 20 }}
+          />
+          <Typography fontWeight={600} fontSize={16} sx={{ lineHeight: 1.25 }}>
+            Termini e Privacy
+          </Typography>
+        </Stack>
+        <AppTextField
+          fullWidth
+          label="Inserisci il link all’Informativa sulla privacy dell’ente relativa all’opportunità"
+          placeholder="Inserisci il link all’Informativa sulla privacy dell’ente relativa all’opportunità"
+          value={privacyUrl}
+          onChange={handlePrivacyUrlChange}
+          sx={{ '& .MuiOutlinedInput-root': { borderRadius: '8px' } }}
+        />
+        <AppTextField
+          fullWidth
+          label="Inserisci il link ai Termini e condizioni d’uso applicabili all’opportunità"
+          placeholder="Inserisci il link ai Termini e condizioni d’uso applicabili all’opportunità"
+          value={termsUrl}
+          onChange={handleTermsUrlChange}
+          sx={{ '& .MuiOutlinedInput-root': { borderRadius: '8px' } }}
+        />
+      </Stack>
+    </Paper>
+  );
+};

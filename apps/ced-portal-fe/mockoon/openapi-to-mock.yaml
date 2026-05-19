@@ -85,7 +85,7 @@ paths:
     get:
       tags:
         - Benefits
-      summary: Elenco agevolazioni
+      summary: Elenco opportunità
       parameters:
         - in: query
           name: search
@@ -103,7 +103,7 @@ paths:
               - SCHEDULED_PUBLICATION
       responses:
         '200':
-          description: Lista agevolazioni
+          description: Lista opportunità
           content:
             application/json:
               schema:
@@ -152,7 +152,7 @@ paths:
     post:
       tags:
         - Benefits
-      summary: Crea una nuova agevolazione
+      summary: Crea una nuova opportunità
       requestBody:
         required: true
         content:
@@ -161,14 +161,14 @@ paths:
               $ref: '#/components/schemas/BenefitInput'
       responses:
         '201':
-          description: Agevolazione creata
+          description: Opportunità creata
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Benefit'
               example:
                 id: ben-001
-                name: Nuova agevolazione
+                name: Nuova opportunità
                 state: DRAFT
                 createdAt: '2026-03-26T10:00:00Z'
         '400':

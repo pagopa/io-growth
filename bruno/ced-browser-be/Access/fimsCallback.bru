@@ -1,0 +1,22 @@
+meta {
+  name: FIMS callback
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{baseUrl}}/fcb
+  body: none
+  auth: none
+}
+
+params:query {
+  state: 
+  code: 
+  iss: 
+}
+
+headers {
+  ~signature: 
+  ~signature-input: 
+}

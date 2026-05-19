@@ -24,16 +24,22 @@ export const opportunityStatusEnum = pgEnum("opportunity_status", [
 ]);
 
 export const benefitTypeEnum = pgEnum("benefit_type", [
-  "percentual",
-  "absolute",
+  "free",
+  "reduced_fixed_price",
+  "priority",
+  "discount",
+  "other",
+]);
+
+export const benefitDiscountTypeEnum = pgEnum("benefit_discount_type", [
+  "percentage",
+  "fixed_amount",
 ]);
 
 export const localizedMetadataKeyEnum = pgEnum("localized_metadata_key", [
   "name",
   "description",
   "condition",
-  "type",
-  "category",
 ]);
 
 export const localizedMetadataLanguageEnum = pgEnum(
@@ -51,6 +57,7 @@ export const changeAuditEntityTypeEnum = pgEnum("change_audit_entity_type", [
   "beneficiary_benefit",
   "caregiver_benefit",
   "localized_metadata",
+  "opportunity_category",
 ]);
 
 export const changeAuditChangeTypeEnum = pgEnum("change_audit_change_type", [

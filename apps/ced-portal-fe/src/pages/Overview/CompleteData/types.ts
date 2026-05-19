@@ -11,4 +11,6 @@ export interface CompleteDataFormData {
   contacts: Contact[];
   logoFile: File | null;
   coverFile: File | null;
+  privacyUrl: string;
+  termsUrl: string;
 }

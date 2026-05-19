@@ -6,10 +6,10 @@ import { err, ok } from "neverthrow";
 
 import type { IHealthCheckRepository } from "../../../domain/ports/outbound/health-check.repository.js";
 
-export const createDrizzleHealthCheckRepository = <
-  TSchema extends Record<string, unknown>,
->(
-  db: TypedDbClient<TSchema>,
+import * as schema from "./schema/index.js";
+
+export const createDrizzleHealthCheckRepository = (
+  db: TypedDbClient<typeof schema>,
 ): IHealthCheckRepository => ({
   checkConnection: async () => {
     try {

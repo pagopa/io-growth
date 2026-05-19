@@ -2,7 +2,6 @@ import BusinessOutlinedIcon from '@mui/icons-material/BusinessOutlined';
 import DashboardOutlinedIcon from '@mui/icons-material/DashboardOutlined';
 import LocalOfferOutlinedIcon from '@mui/icons-material/LocalOfferOutlined';
 import MenuRoundedIcon from '@mui/icons-material/MenuRounded';
-import PhotoOutlined from '@mui/icons-material/PhotoOutlined';
 import {
   Box,
   IconButton,
@@ -75,6 +74,7 @@ export function SideNavigation() {
   const isOverviewActive = pathname === APP_ROUTES.OVERVIEW;
   const isBenefitsActive = pathname === APP_ROUTES.HOME;
   const isOpportunitiesActive = pathname === APP_ROUTES.OPPORTUNITIES;
+  const isEntitiesActive = pathname === APP_ROUTES.ENTITIES;
   const role = useAppSelector(selectUserRole);
   const isAdmin = role === 'admin';
 
@@ -95,10 +95,15 @@ export function SideNavigation() {
       <List disablePadding sx={{ py: 2.5 }}>
         {isAdmin ? (
           <>
-            <NavItem icon={<BusinessOutlinedIcon />} label="Enti" />
+            <NavItem
+              active={isEntitiesActive}
+              icon={<BusinessOutlinedIcon />}
+              label="Enti"
+              onClick={() => navigate(APP_ROUTES.ENTITIES)}
+            />
             <NavItem
               active={isOpportunitiesActive}
-              icon={<PhotoOutlined />}
+              icon={<LocalOfferOutlinedIcon />}
               label="Opportunità"
               onClick={() => navigate(APP_ROUTES.OPPORTUNITIES)}
             />
@@ -114,7 +119,7 @@ export function SideNavigation() {
             <NavItem
               active={isBenefitsActive}
               icon={<LocalOfferOutlinedIcon />}
-              label="Agevolazioni"
+              label="Opportunità"
               onClick={() => navigate(APP_ROUTES.HOME)}
             />
           </>

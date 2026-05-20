@@ -1,4 +1,4 @@
-import MoreVertRoundedIcon from '@mui/icons-material/MoreVertRounded';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
 import { format, parseISO } from 'date-fns';
 import { Chip, IconButton } from '@mui/material';
 import type { Theme } from '@mui/material/styles';
@@ -61,13 +61,9 @@ export const benefitsTableColumns: BenefitsTableColumn[] = [
     label: '',
     width: 48,
     align: 'right',
-    renderCell: (item, theme, action) => (
-      <IconButton
-        size="small"
-        onClick={(event) => action(event, item.id)}
-        sx={{ color: theme.palette.common.primaryButton, p: 0.4 }}
-      >
-        <MoreVertRoundedIcon sx={{ fontSize: 22 }} />
+    renderCell: (item, _theme, action) => (
+      <IconButton size="small" onClick={(event) => action(event, item.id)}>
+        <MoreVertIcon sx={{ fontSize: 22 }} />
       </IconButton>
     ),
   },

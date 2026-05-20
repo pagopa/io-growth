@@ -142,14 +142,12 @@ export default function OpportunityDetailPage() {
           title="Sedi"
           icon={<Place sx={{ color: 'text.secondary', fontSize: 20 }} />}
           rows={PLACES}
-          // hideDelete={detail.places.length === 1 || detail.status === PublicationStatus.DELETED}
         />
 
         <OpportunityDetailListSection
           title="Siti web"
           icon={<WebOutlined sx={{ color: 'text.secondary', fontSize: 20 }} />}
           rows={WEBSITES}
-          // hideDelete={detail.websites.length === 1 || detail.status === PublicationStatus.DELETED}
         />
 
         <Stack

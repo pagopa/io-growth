@@ -23,25 +23,25 @@ export const ActionsMenu = ({
   };
 
   const onView = (id: string) => {
-    navigate(generatePath(APP_ROUTES.ENTE_OPPORTUNITY_DETAIL, { id }));
+    navigate(generatePath(APP_ROUTES.ENTITY_OPPORTUNITY_DETAIL, { id }));
   };
 
   const onDuplicate = async (id: string) => {
-    // const newOpportunity = await
-    navigate(generatePath(APP_ROUTES.ENTE_OPPORTUNITY_DETAIL, { id }));
+    // TODO[IEG-2913][SCOPE MVP]: implement duplicate opportunity API with { id } and navigate to the created opportunity detail page.
+    navigate(generatePath(APP_ROUTES.ENTITY_OPPORTUNITY_DETAIL, { id }));
   };
 
-  // const onEdit = (id: string) => {
-  //   console.log('edit clicked');
-  // };
+  const onEdit = async (id: string) => {
+    // TODO[IEG-2660][OUT OF MVP SCOPE]: confirm UX - inline edit or prefilled create page including { id }.
+  };
 
-  // const onSuspend = (id: string) => {
-  //   console.log('suspend clicked');
-  // };
+  const onSuspend = async (id: string) => {
+    // TODO[IEG-2721][SCOPE - RELEASE IN OCTOBER]: call suspend opportunity API with { id }.
+  };
 
-  // const onDelete = (id: string) => {
-  //   console.log('delete clicked');
-  // };
+  const onDelete = async (id: string) => {
+    // TODO[IEG-2722][SCOPE - RELEASE IN OCTOBER]: call delete opportunity API with { id }.
+  };
 
   const handleAction = useCallback(
     (cb?: (id: string) => void) => {
@@ -77,14 +77,14 @@ export const ActionsMenu = ({
       <MenuItem onClick={() => handleAction(onDuplicate)} sx={menuItemsSx}>
         Duplica
       </MenuItem>
-      <MenuItem onClick={() => handleAction(() => null)} sx={menuItemsSx}>
+      <MenuItem onClick={() => handleAction(onEdit)} sx={menuItemsSx}>
         Modifica
       </MenuItem>
-      <MenuItem onClick={() => handleAction(() => null)} sx={menuItemsSx}>
+      <MenuItem onClick={() => handleAction(onSuspend)} sx={menuItemsSx}>
         Sospendi
       </MenuItem>
       <MenuItem
-        onClick={() => handleAction(() => null)}
+        onClick={() => handleAction(onDelete)}
         sx={{ color: theme.palette.error.main, gap: 1 }}
       >
         <CancelRoundedIcon sx={{ fontSize: 18 }} />

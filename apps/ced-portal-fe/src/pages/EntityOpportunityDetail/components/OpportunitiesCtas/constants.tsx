@@ -34,7 +34,7 @@ export const CTAS_BY_STATUS: Partial<
       {
         label: 'Sospendi',
         variant: 'outlined',
-        actionId: 'SUSPENDE',
+        actionId: 'SUSPEND',
       },
     ],
   },

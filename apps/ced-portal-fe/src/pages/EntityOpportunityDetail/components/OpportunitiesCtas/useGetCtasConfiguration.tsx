@@ -7,25 +7,23 @@ import { OpportunitiesCtaItem, OpportunitiesCtasLayout } from './types';
 
 export const useGetCtasConfiguration = (id: string) => {
   const navigate = useNavigate();
-  void id;
 
   const handleDelete = useCallback(() => {
-    // TODO: call delete opportunity API with { id }
+    // TODO[IEG-2722][SCOPE - RELEASE IN OCTOBER]: call delete opportunity API with { id }.
     navigate(APP_ROUTES.HOME);
-  }, [navigate]);
+  }, [id, navigate]);
 
   const handleModify = useCallback(() => {
-    // TODO: confirm UX - inline edit or prefilled create page
-    // TODO: include id when edit route is available
-  }, []);
+    // TODO[IEG-2660][OUT OF MVP SCOPE]: confirm UX - inline edit or prefilled create page including { id }.
+  }, [id]);
 
-  const handleSuspention = useCallback(() => {
-    // TODO: call suspend opportunity API with { id }
-  }, []);
+  const handleSuspension = useCallback(() => {
+    // TODO[IEG-2721][SCOPE - RELEASE IN OCTOBER]: call suspend opportunity API with { id }.
+  }, [id]);
 
   const handlePublication = useCallback(() => {
-    // TODO: call publish opportunity API with { id }
-  }, []);
+    // TODO[OUT OF MVP SCOPE]: call publish opportunity API with { id }.
+  }, [id]);
 
   const actionsMap: Record<
     NonNullable<OpportunitiesCtaItem['actionId']>,
@@ -35,9 +33,9 @@ export const useGetCtasConfiguration = (id: string) => {
       DELETE: handleDelete,
       MODIFY: handleModify,
       PUBLISH: handlePublication,
-      SUSPENDE: handleSuspention,
+      SUSPEND: handleSuspension,
     }),
-    [handleDelete, handleModify, handlePublication, handleSuspention],
+    [handleDelete, handleModify, handlePublication, handleSuspension],
   );
 
   const withActions = useCallback(

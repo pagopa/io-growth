@@ -32,9 +32,6 @@ export const OpportunityAlert = ({ status }: OpportunityAlertProps) => {
       >
         {title}
       </Typography>
-      {
-        // TODO add description value from opportunity detail when available
-      }
       <Typography
         sx={{
           mt: 1,

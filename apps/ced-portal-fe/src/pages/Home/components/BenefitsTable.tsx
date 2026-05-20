@@ -40,7 +40,6 @@ export const BenefitsTable = ({ items }: BenefitsTableProps) => {
 
   const handleMenuClose = () => {
     setMenuAnchor(null);
-    // setSelectedItemId(null);
   };
 
   const renderTableHead = useMemo(

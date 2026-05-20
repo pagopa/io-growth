@@ -1,7 +1,7 @@
 import { ButtonProps } from '@mui/material';
 import { OpportunityDetail } from '../../../../features/opportunities/types';
 
-type ActionId = 'MODIFY' | 'DELETE' | 'SUSPENDE' | 'PUBLISH';
+type ActionId = 'MODIFY' | 'DELETE' | 'SUSPEND' | 'PUBLISH';
 
 export type OpportunitiesCtaItem = {
   label: string;

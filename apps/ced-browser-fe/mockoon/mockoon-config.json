@@ -450,14 +450,14 @@
       "streamingInterval": 0
     },
     {
-      "uuid": "f2a3b4c5-d6e7-8901-cdef-012345678901",
+      "uuid": "0ec3a888-28eb-4568-8de2-c11e4a53f90c",
       "type": "http",
       "documentation": "Ricerca enti",
       "method": "get",
       "endpoint": "api/entities/search",
       "responses": [
         {
-          "uuid": "f2a3b4c5-d6e7-8901-cdef-012345678902",
+          "uuid": "f7dc1e1b-3479-4bb0-a60d-b4f1dd29a270",
           "body": "{\n  \"total\": 6,\n  \"items\": [\n    {\n      \"id\": \"entity-001\",\n      \"name\": \"Comune di Alessandria\",\n      \"address\": \"Piazza della Libertà, 1, 15121 Alessandria AL\"\n    },\n    {\n      \"id\": \"entity-002\",\n      \"name\": \"Teatro di Alessandria\",\n      \"address\": \"Piazza della Libertà, 1, 15121 Alessandria AL\"\n    },\n    {\n      \"id\": \"entity-003\",\n      \"name\": \"Giardino botanico \\\"Dina Bellotti\\\"\",\n      \"address\": \"Via Giulio Monteverde, 24, 15121 Alessandria AL\"\n    },\n    {\n      \"id\": \"entity-004\",\n      \"name\": \"Biblioteca civica \\\"Francesca Calvo\\\"\",\n      \"address\": \"Piazza Vittorio Veneto, 1, 15121 Alessandria AL\"\n    },\n    {\n      \"id\": \"entity-005\",\n      \"name\": \"Museo civico - Palazzo Cuttica\",\n      \"address\": \"Via Parma, 1, 15121 Alessandria AL\"\n    },\n    {\n      \"id\": \"entity-006\",\n      \"name\": \"Stadio comunale \\\"Moccagatta\\\"\",\n      \"address\": \"Spalto Rovereto, 17, 15121 Alessandria AL\"\n    }\n  ]\n}",
           "latency": 300,
           "statusCode": 200,
@@ -520,7 +520,7 @@
     },
     {
       "type": "route",
-      "uuid": "f2a3b4c5-d6e7-8901-cdef-012345678901"
+      "uuid": "0ec3a888-28eb-4568-8de2-c11e4a53f90c"
     },
     {
       "type": "route",
@@ -533,6 +533,10 @@
     {
       "type": "route",
       "uuid": "c39f4818-f95f-4a2f-b59b-535d1f63caca"
+    },
+    {
+      "type": "route",
+      "uuid": "f2a3b4c5-d6e7-8901-cdef-012345678901"
     }
   ],
   "proxyMode": false,

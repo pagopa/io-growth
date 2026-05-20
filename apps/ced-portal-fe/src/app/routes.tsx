@@ -14,7 +14,7 @@ import {
   UnauthorizedPage,
   EntitiesPage,
   EntityDetailPage,
-  EnteOpportunityDetailPage,
+  EntityOpportunityDetailPage,
 } from './routeConfig';
 
 export function AppRoutes() {
@@ -41,8 +41,8 @@ export function AppRoutes() {
             element={<OpportunityDetailPage />}
           />
           <Route
-            path={APP_ROUTES.ENTE_OPPORTUNITY_DETAIL}
-            element={<EnteOpportunityDetailPage />}
+            path={APP_ROUTES.ENTITY_OPPORTUNITY_DETAIL}
+            element={<EntityOpportunityDetailPage />}
           />
           <Route path={APP_ROUTES.ENTITIES} element={<EntitiesPage />} />
           <Route

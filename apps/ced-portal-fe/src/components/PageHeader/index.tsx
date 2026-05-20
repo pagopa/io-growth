@@ -1,5 +1,5 @@
 import { HeaderProduct } from '@pagopa/mui-italia';
-import { Box } from '@mui/material';
+import { Box, Typography } from '@mui/material';
 import { useCallback, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { productsList, partyList, partyRoleMap } from './constants';
@@ -36,9 +36,18 @@ export const PageHeader = () => {
 
   useEffect(() => {
     handlePartyChange(partyList[1]);
+    // Keeping an empty dependency array is intentional: adding deps (e.g. partyList/handlePartyChange)
+    // would re-run this effect and overwrite user-selected party, breaking the initialization flow.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  if (!user) return null;
+  if (!user) {
+    return (
+      <Box p={2}>
+        <Typography color="text.secondary">Utente non disponibile.</Typography>
+      </Box>
+    );
+  }
 
   return (
     <Box sx={{ '& .MuiContainer-root': { px: { xs: 2, md: 3 } } }}>

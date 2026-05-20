@@ -1,9 +1,10 @@
+import type { ReactNode } from 'react';
 import type { SxProps, Theme } from '@mui/material';
 
 export type DiscoveryListItemVariant = 'opportunity' | 'simple';
 
 type DiscoveryListItemBaseProps = {
-  title: string;
+  title: ReactNode;
   onClick?: () => void;
   disabled?: boolean;
   sx?: SxProps<Theme>;
@@ -16,7 +17,7 @@ type VariantMap = {
     badgeLabel: string;
   };
   simple: {
-    subtitle: string;
+    subtitle?: ReactNode;
   };
 };
 

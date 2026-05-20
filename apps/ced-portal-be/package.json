@@ -1,6 +1,6 @@
 {
   "name": "ced-portal-be",
-  "version": "0.0.4",
+  "version": "0.0.8",
   "private": true,
   "type": "module",
   "main": "dist/main.js",
@@ -34,6 +34,7 @@
     "fastify": "catalog:",
     "jose": "^6.2.2",
     "neverthrow": "catalog:",
+    "ulid": "^3.0.2",
     "zod": "catalog:"
   },
   "devDependencies": {

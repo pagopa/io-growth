@@ -1,50 +1,50 @@
-import type {
-  ConflictError,
-  GenericError,
-} from "@pagopa/io-core-domain/errors";
+import type { TypedDbClient } from "@pagopa/io-core-adapter-drizzle";
 import type { Result } from "neverthrow";
 
-import { GenericError as GenericErrorClass } from "@pagopa/io-core-domain/errors";
+import { ConflictError, GenericError } from "@pagopa/io-core-domain/errors";
 import { asc, eq } from "drizzle-orm";
 import { err, ok } from "neverthrow";
 
-import type { NewProfile, Profile } from "../../../domain/entities/profile.js";
+import type { Profile } from "../../../domain/entities/profile.js";
 import type { ProfileRepository } from "../../../domain/ports/outbound/persistence/profile.repository.js";
 
-import { dbClient } from "./client.js";
 import { mapPlaceRow } from "./place-row.mapper.js";
 import { createPlaceInTransaction } from "./place.transaction.js";
+import * as schema from "./schema/index.js";
 import { place, profile, supportContact } from "./schema/tables.js";
 
-type DbClient = typeof dbClient;
-
 export const createDrizzleProfileRepository = (
-  db: DbClient,
+  db: TypedDbClient<typeof schema>,
 ): ProfileRepository => ({
   create: async (
-    input: NewProfile,
+    input: Profile,
   ): Promise<Result<void, ConflictError | GenericError>> => {
     try {
       await db.transaction(async (tx) => {
-        const createdPlaceId = await createPlaceInTransaction(
-          tx,
-          input.operatorId,
-          input.place,
-        );
+        await createPlaceInTransaction(tx, input.operatorId, input.place);
 
-        await tx.insert(profile).values({
-          displayName: input.displayName,
-          operatorId: input.operatorId,
-          placeId: createdPlaceId,
-        });
+        const createdProfiles = await tx
+          .insert(profile)
+          .values({
+            displayName: input.displayName,
+            operatorId: input.operatorId,
+            placeId: input.place.id,
+          })
+          .onConflictDoNothing({ target: profile.operatorId })
+          .returning({ id: profile.id });
+
+        if (createdProfiles.length === 0) {
+          throw new ConflictError("Operator profile already exists");
+        }
       });
 
       return ok(undefined);
     } catch (error) {
+      if (error instanceof ConflictError) {
+        return err(error);
+      }
       return err(
-        new GenericErrorClass(
-          `Failed to create operator profile: ${String(error)}`,
-        ),
+        new GenericError(`Failed to create operator profile: ${String(error)}`),
       );
     }
   },
@@ -89,7 +89,7 @@ export const createDrizzleProfileRepository = (
 
       if (!placeRow) {
         return err(
-          new GenericErrorClass(
+          new GenericError(
             `Data integrity error: profile for operator ${operatorId} references a missing place`,
           ),
         );
@@ -107,9 +107,7 @@ export const createDrizzleProfileRepository = (
       });
     } catch (error) {
       return err(
-        new GenericErrorClass(
-          `Failed to get operator profile: ${String(error)}`,
-        ),
+        new GenericError(`Failed to get operator profile: ${String(error)}`),
       );
     }
   },

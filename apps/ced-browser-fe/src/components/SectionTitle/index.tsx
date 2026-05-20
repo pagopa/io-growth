@@ -14,6 +14,7 @@ export function SectionTitle({
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
+        mx: 3,
         pt: 1,
       }}
     >

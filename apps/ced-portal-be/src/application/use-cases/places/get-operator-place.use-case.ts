@@ -14,8 +14,8 @@ import type { PlaceRepository } from "../../../domain/ports/outbound/persistence
 import { validateUseCaseInput } from "../utils/validate-use-case-input.js";
 
 const GetOperatorPlaceInputSchema = z.object({
-  operatorId: z.uuid(),
-  placeId: z.uuid(),
+  operatorId: z.ulid(),
+  placeId: z.ulid(),
 });
 
 export type GetOperatorPlaceInput = z.infer<typeof GetOperatorPlaceInputSchema>;

@@ -19,7 +19,7 @@ export function AccessPointSection() {
           Punti di accesso
         </Typography>
         <Typography variant="body2" color="text.secondary">
-          Indica dove vuoi erogare l&apos;agevolazione.
+          Indica dove vuoi erogare l&apos;opportunità.
         </Typography>
       </Box>
       <AppRadioList

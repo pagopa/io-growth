@@ -6,11 +6,13 @@ export const APP_ROUTES = {
   OVERVIEW_COMPLETE_DATA: '/panoramica/completa-dati',
   UNAUTHORIZED: '/unauthorized',
   NOT_FOUND: '*',
-  CREATE_BENEFIT: '/agevolazioni/crea',
-  BENEFITS: '/agevolazioni',
+  CREATE_BENEFIT: '/opportunita/crea',
+  BENEFITS: '/opportunita',
   ACCESS_POINTS: '/punti-di-accesso',
-  OPPORTUNITIES: '/opportunita',
-  OPPORTUNITY_DETAIL: '/opportunita/:id',
+  OPPORTUNITIES: '/admin/opportunita',
+  OPPORTUNITY_DETAIL: '/admin/opportunita/:id',
+  ENTITIES: '/enti',
+  ENTITY_DETAIL: '/enti/:id',
 } as const;
 
 export const HomePage = lazy(() => import('../pages/Home'));
@@ -25,3 +27,5 @@ export const OpportunitiesPage = lazy(() => import('../pages/Opportunities'));
 export const OpportunityDetailPage = lazy(
   () => import('../pages/OpportunityDetail'),
 );
+export const EntitiesPage = lazy(() => import('../pages/Entities'));
+export const EntityDetailPage = lazy(() => import('../pages/EntityDetail'));

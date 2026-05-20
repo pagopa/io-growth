@@ -1,0 +1,19 @@
+meta {
+  name: Get a specific CED opportunity
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{baseUrl}}/opportunities/:opportunityId
+  body: none
+  auth: none
+}
+
+params:path {
+  opportunityId: 00000000-0000-0000-0000-000000000001
+}
+
+headers {
+  token: {{sessionToken}}
+}

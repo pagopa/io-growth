@@ -1,0 +1,48 @@
+{
+  "name": "@pagopa/io-core-adapter-fims",
+  "version": "0.0.2",
+  "type": "module",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "clean": "rm -rf dist",
+    "build": "tsc",
+    "typecheck": "tsc --noEmit",
+    "lint": "pnpm lint:check --fix",
+    "lint:check": "eslint .",
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage"
+  },
+  "dependencies": {
+    "@azure/storage-blob": "^12.31.0",
+    "@mattrglobal/http-signatures": "^4.0.1",
+    "@pagopa/io-core-adapter-fastify": "workspace:^",
+    "@pagopa/io-core-domain": "workspace:^",
+    "@xmldom/xmldom": "^0.9.8",
+    "fastify": "catalog:",
+    "jose": "^6.2.2",
+    "neverthrow": "catalog:",
+    "openid-client": "^5.7.0",
+    "xml-crypto": "^3.2.0",
+    "xpath": "^0.0.34",
+    "zod": "catalog:"
+  },
+  "peerDependencies": {},
+  "devDependencies": {
+    "@pagopa/eslint-config": "catalog:",
+    "@tsconfig/node22": "catalog:",
+    "@types/node": "catalog:",
+    "@vitest/coverage-v8": "catalog:",
+    "eslint": "catalog:",
+    "prettier": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
+  }
+}

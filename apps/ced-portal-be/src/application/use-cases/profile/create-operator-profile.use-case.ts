@@ -6,6 +6,7 @@ import type {
 
 import { ConflictError } from "@pagopa/io-core-domain/errors";
 import { err, ResultAsync } from "neverthrow";
+import { ulid } from "ulid";
 import { z } from "zod";
 
 import type { ProfileRepository } from "../../../domain/ports/outbound/persistence/profile.repository.js";
@@ -46,7 +47,7 @@ const CreateOperatorProfilePlaceSchema = z.discriminatedUnion("type", [
 
 const CreateOperatorProfileInputSchema = z.object({
   displayName: z.string().min(1),
-  operatorId: z.uuid(),
+  operatorId: z.ulid(),
   place: CreateOperatorProfilePlaceSchema,
 });
 
@@ -67,9 +68,26 @@ export const makeCreateOperatorProfileUseCase =
       (validatedInput) =>
         new ResultAsync(
           profileRepository.getByOperatorId(validatedInput.operatorId),
-        ).andThen((existing) =>
-          existing
-            ? err(new ConflictError("Operator profile already exists"))
-            : new ResultAsync(profileRepository.create(validatedInput)),
-        ),
+        ).andThen((existing) => {
+          if (existing) {
+            return err(new ConflictError("Operator profile already exists"));
+          }
+
+          const profile = {
+            displayName: validatedInput.displayName,
+            operatorId: validatedInput.operatorId,
+            place: {
+              ...validatedInput.place,
+              id: ulid(),
+              supportContacts: validatedInput.place.supportContacts.map(
+                (sc) => ({
+                  ...sc,
+                  id: ulid(),
+                }),
+              ),
+            },
+          };
+
+          return new ResultAsync(profileRepository.create(profile));
+        }),
     );

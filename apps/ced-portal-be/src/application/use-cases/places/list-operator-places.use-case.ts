@@ -13,7 +13,7 @@ import type { PlaceRepository } from "../../../domain/ports/outbound/persistence
 import { validateUseCaseInput } from "../utils/validate-use-case-input.js";
 
 const ListOperatorPlacesInputSchema = z.object({
-  operatorId: z.uuid(),
+  operatorId: z.ulid(),
 });
 
 export type ListOperatorPlacesInput = z.infer<

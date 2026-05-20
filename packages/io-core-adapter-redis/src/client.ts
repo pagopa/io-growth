@@ -1,5 +1,10 @@
-import { EntraIdCredentialsProviderFactory } from "@redis/entraid";
-import { createClient } from "redis";
+import { DefaultAzureCredential } from "@azure/identity";
+import { createCluster } from "@redis/client";
+import {
+  EntraIdCredentialsProviderFactory,
+  REDIS_SCOPE_DEFAULT,
+} from "@redis/entraid";
+import * as net from "node:net";
 
 export interface EntraIdConfig {
   readonly clientId: string;
@@ -10,15 +15,12 @@ export type RedisClient = RedisClientInstance & {
 };
 
 export interface RedisClientConfig {
-  readonly database?: number;
+  readonly endpoint: string;
   readonly entraId?: EntraIdConfig;
-  readonly host: string;
-  readonly password?: string;
-  readonly port: number;
   readonly tls?: boolean;
 }
 
-export type RedisClientInstance = ReturnType<typeof createClient>;
+export type RedisClientInstance = ReturnType<typeof createCluster>;
 
 export interface RedisCommands {
   del(key: string): Promise<number>;
@@ -28,35 +30,52 @@ export interface RedisCommands {
   setEx(key: string, seconds: number, value: string): Promise<unknown>;
 }
 
-const buildEntraIdCredentialsProvider = (entraId: EntraIdConfig) =>
-  EntraIdCredentialsProviderFactory.createForUserAssignedManagedIdentity({
-    clientId: entraId.clientId,
-    tokenManagerConfig: { expirationRefreshRatio: 0.8 },
-    userAssignedClientId: entraId.clientId,
+const buildEntraIdCredentialsProvider =
+  EntraIdCredentialsProviderFactory.createForDefaultAzureCredential({
+    credential: new DefaultAzureCredential(),
+    scopes: REDIS_SCOPE_DEFAULT,
+    tokenManagerConfig: {
+      expirationRefreshRatio: 0.8,
+    },
   });
+
+const makeNodeAddressMap =
+  (redisHostName: string) =>
+  (incomingAddress: string): { host: string; port: number } => {
+    const [hostNameOrIp = redisHostName, port = "10000"] =
+      incomingAddress.split(":");
+    return {
+      host: net.isIP(hostNameOrIp) !== 0 ? redisHostName : hostNameOrIp,
+      port: Number(port),
+    };
+  };
 
 export const createRedisClient = async (
   config: RedisClientConfig,
 ): Promise<RedisClient> => {
-  const client = createClient({
-    credentialsProvider: config.entraId
-      ? buildEntraIdCredentialsProvider(config.entraId)
-      : undefined,
-    database: config.database,
-    password: config.entraId ? undefined : config.password,
-    socket: {
-      host: config.host,
-      port: config.port,
-      reconnectStrategy: false,
-      ...(config.tls ? { tls: true as const } : {}),
+  const [redisHostName = config.endpoint] = config.endpoint.split(":");
+  const useTls = config.tls ?? false;
+  const scheme = useTls ? "rediss" : "redis";
+
+  const client = createCluster({
+    defaults: {
+      credentialsProvider: config.entraId
+        ? buildEntraIdCredentialsProvider
+        : undefined,
+      socket: {
+        connectTimeout: 15000,
+        ...(useTls ? { tls: true } : {}),
+      },
     },
+    nodeAddressMap: makeNodeAddressMap(redisHostName),
+    rootNodes: [{ url: `${scheme}://${config.endpoint}` }],
   });
 
   await client.connect();
 
   return Object.assign(client, {
     closeConnection: () => client.quit().then(() => undefined),
-  });
+  }) as unknown as RedisClient;
 };
 
 export type ResilientRedisClient = RedisCommands & {

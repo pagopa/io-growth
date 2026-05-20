@@ -1,13 +1,12 @@
 import { Box, Button, Stack, Typography, useTheme } from '@mui/material';
 import { SyntheticEvent, useMemo, useState } from 'react';
+import { FiltersBar, PageTabs, ResultsPagination } from '../../components';
 import { useOpportunitiesData } from '../../features/opportunities/hooks';
 import type { OpportunityFilters } from '../../features/opportunities/types';
 import { PublishModal } from '../../components/PublishModal';
-import { OpportunitiesFiltersBar } from './components/OpportunitiesFiltersBar';
-import { OpportunitiesTabs } from './components/OpportunitiesTabs';
 import { OpportunitiesTable } from './components/OpportunitiesTable';
-import { OpportunitiesPagination } from './components/OpportunitiesPagination';
 import { useToast } from '../../contexts';
+import { STATE_OPTIONS } from '../../constants';
 
 const INITIAL_FILTERS: OpportunityFilters = {
   search: '',
@@ -119,15 +118,16 @@ export default function OpportunitiesPage() {
           )}
         </Stack>
 
-        <OpportunitiesFiltersBar
+        <FiltersBar
           filters={draftFilters}
           onChange={handleFilterChange}
           onFilter={handleFilter}
           onReset={handleReset}
+          stateOptions={STATE_OPTIONS}
         />
 
         <Box>
-          <OpportunitiesTabs activeTab={activeTab} onChange={handleTabChange} />
+          <PageTabs activeTab={activeTab} onChange={handleTabChange} />
           <Box sx={{ mt: 2 }}>
             <OpportunitiesTable
               items={paginatedItems}
@@ -143,7 +143,7 @@ export default function OpportunitiesPage() {
             />
           </Box>
           {displayedItems.length > 0 && (
-            <OpportunitiesPagination
+            <ResultsPagination
               totalItems={displayedItems.length}
               page={page}
               rowsPerPage={rowsPerPage}

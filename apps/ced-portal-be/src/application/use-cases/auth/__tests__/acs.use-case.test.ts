@@ -27,8 +27,10 @@ const validPayload = {
 };
 
 const mockOperator = {
-  id: "operator-uuid-123",
+  externalId: "internalID",
+  id: "01JVMK3N8XQZP5T6G2WYHAB4CH",
   name: "Organization legal name",
+  status: "active" as const,
 };
 
 const createMockSessionRepository = (): SessionRepository => ({
@@ -82,7 +84,7 @@ describe("makeAcsUseCase", () => {
     expect(session).toEqual({
       firstName: "Mario",
       lastName: "Rossi",
-      operatorId: "operator-uuid-123",
+      operatorId: "01JVMK3N8XQZP5T6G2WYHAB4CH",
       operatorName: "Organization legal name",
       referentExternalId: "uid_12345",
       role: "OPERATOR",
@@ -115,6 +117,7 @@ describe("makeAcsUseCase", () => {
     );
     expect(operatorRepository.create).toHaveBeenCalledWith({
       externalId: "internalID",
+      id: expect.stringMatching(/^[0-9A-HJKMNP-TV-Z]{26}$/),
       name: "Organization legal name",
       status: "active",
     });
@@ -122,7 +125,7 @@ describe("makeAcsUseCase", () => {
     const [, session] = (
       sessionRepository.createSession as ReturnType<typeof vi.fn>
     ).mock.calls[0] as [string, { operatorId: string; operatorName: string }];
-    expect(session.operatorId).toBe("operator-uuid-123");
+    expect(session.operatorId).toBe("01JVMK3N8XQZP5T6G2WYHAB4CH");
     expect(session.operatorName).toBe("Organization legal name");
   });
 

@@ -8,8 +8,10 @@ import {
   timestamp,
   uuid,
 } from "drizzle-orm/pg-core";
+import { ulid } from "ulid";
 
 import {
+  benefitDiscountTypeEnum,
   benefitTypeEnum,
   changeAuditChangeTypeEnum,
   changeAuditEntityTypeEnum,
@@ -26,7 +28,7 @@ export const operator = pgTable("operator", {
     .notNull()
     .defaultNow(),
   externalId: uuid("external_id").notNull(),
-  id: uuid().primaryKey().defaultRandom(),
+  id: text().primaryKey(),
   name: text().notNull(),
   status: operatorStatusEnum().notNull(),
   updatedAt: timestamp("updated_at", { withTimezone: true })
@@ -38,9 +40,9 @@ export const place = pgTable("place", {
   createdAt: timestamp("created_at", { withTimezone: true })
     .notNull()
     .defaultNow(),
-  id: uuid().primaryKey().defaultRandom(),
+  id: text().primaryKey(),
   name: text().notNull(),
-  operatorId: uuid("operator_id")
+  operatorId: text("operator_id")
     .notNull()
     .references(() => operator.id),
   type: placeTypeEnum().notNull(),
@@ -54,12 +56,14 @@ export const profile = pgTable("profile", {
     .notNull()
     .defaultNow(),
   displayName: text("display_name").notNull(),
-  id: uuid().primaryKey().defaultRandom(),
-  operatorId: uuid("operator_id")
+  id: text()
+    .primaryKey()
+    .$defaultFn(() => ulid()),
+  operatorId: text("operator_id")
     .notNull()
     .references(() => operator.id)
     .unique(),
-  placeId: uuid("place_id")
+  placeId: text("place_id")
     .notNull()
     .references(() => place.id),
   updatedAt: timestamp("updated_at", { withTimezone: true })
@@ -71,8 +75,10 @@ export const website = pgTable("website", {
   createdAt: timestamp("created_at", { withTimezone: true })
     .notNull()
     .defaultNow(),
-  id: uuid().primaryKey().defaultRandom(),
-  placeId: uuid("place_id")
+  id: text()
+    .primaryKey()
+    .$defaultFn(() => ulid()),
+  placeId: text("place_id")
     .notNull()
     .references(() => place.id)
     .unique(),
@@ -88,8 +94,10 @@ export const address = pgTable("address", {
   createdAt: timestamp("created_at", { withTimezone: true })
     .notNull()
     .defaultNow(),
-  id: uuid().primaryKey().defaultRandom(),
-  placeId: uuid("place_id")
+  id: text()
+    .primaryKey()
+    .$defaultFn(() => ulid()),
+  placeId: text("place_id")
     .notNull()
     .references(() => place.id)
     .unique(),
@@ -105,8 +113,8 @@ export const supportContact = pgTable("support_contact", {
   createdAt: timestamp("created_at", { withTimezone: true })
     .notNull()
     .defaultNow(),
-  id: uuid().primaryKey().defaultRandom(),
-  placeId: uuid("place_id")
+  id: text().primaryKey(),
+  placeId: text("place_id")
     .notNull()
     .references(() => place.id),
   type: supportContactTypeEnum().notNull(),
@@ -116,14 +124,27 @@ export const supportContact = pgTable("support_contact", {
   value: text().notNull(),
 });
 
+export const opportunityCategory = pgTable("opportunity_category", {
+  description: text().notNull(),
+  id: text()
+    .primaryKey()
+    .$defaultFn(() => ulid()),
+  title: text().notNull(),
+});
+
 export const opportunity = pgTable("opportunity", {
+  categoryId: text("category_id")
+    .notNull()
+    .references(() => opportunityCategory.id),
   createdAt: timestamp("created_at", { withTimezone: true })
     .notNull()
     .defaultNow(),
   dateFrom: date("date_from").notNull(),
   dateTo: date("date_to"),
-  id: uuid().primaryKey().defaultRandom(),
-  operatorId: uuid("operator_id")
+  id: text()
+    .primaryKey()
+    .$defaultFn(() => ulid()),
+  operatorId: text("operator_id")
     .notNull()
     .references(() => operator.id),
   status: opportunityStatusEnum().notNull(),
@@ -136,10 +157,10 @@ export const opportunity = pgTable("opportunity", {
 export const opportunityPlace = pgTable(
   "opportunity_place",
   {
-    opportunityId: uuid("opportunity_id")
+    opportunityId: text("opportunity_id")
       .notNull()
       .references(() => opportunity.id),
-    placeId: uuid("place_id")
+    placeId: text("place_id")
       .notNull()
       .references(() => place.id),
   },
@@ -150,8 +171,12 @@ export const beneficiaryBenefit = pgTable("beneficiary_benefit", {
   createdAt: timestamp("created_at", { withTimezone: true })
     .notNull()
     .defaultNow(),
-  id: uuid().primaryKey().defaultRandom(),
-  opportunityId: uuid("opportunity_id")
+  description: text(),
+  discountType: benefitDiscountTypeEnum("discount_type"),
+  id: text()
+    .primaryKey()
+    .$defaultFn(() => ulid()),
+  opportunityId: text("opportunity_id")
     .notNull()
     .references(() => opportunity.id)
     .unique(),
@@ -159,15 +184,19 @@ export const beneficiaryBenefit = pgTable("beneficiary_benefit", {
   updatedAt: timestamp("updated_at", { withTimezone: true })
     .notNull()
     .defaultNow(),
-  value: integer().notNull(),
+  value: integer(),
 });
 
 export const caregiverBenefit = pgTable("caregiver_benefit", {
   createdAt: timestamp("created_at", { withTimezone: true })
     .notNull()
     .defaultNow(),
-  id: uuid().primaryKey().defaultRandom(),
-  opportunityId: uuid("opportunity_id")
+  description: text(),
+  discountType: benefitDiscountTypeEnum("discount_type"),
+  id: text()
+    .primaryKey()
+    .$defaultFn(() => ulid()),
+  opportunityId: text("opportunity_id")
     .notNull()
     .references(() => opportunity.id)
     .unique(),
@@ -175,17 +204,19 @@ export const caregiverBenefit = pgTable("caregiver_benefit", {
   updatedAt: timestamp("updated_at", { withTimezone: true })
     .notNull()
     .defaultNow(),
-  value: integer().notNull(),
+  value: integer(),
 });
 
 export const localizedMetadata = pgTable("localized_metadata", {
   createdAt: timestamp("created_at", { withTimezone: true })
     .notNull()
     .defaultNow(),
-  id: uuid().primaryKey().defaultRandom(),
+  id: text()
+    .primaryKey()
+    .$defaultFn(() => ulid()),
   key: localizedMetadataKeyEnum().notNull(),
   language: localizedMetadataLanguageEnum().notNull(),
-  opportunityId: uuid("opportunity_id")
+  opportunityId: text("opportunity_id")
     .notNull()
     .references(() => opportunity.id),
   updatedAt: timestamp("updated_at", { withTimezone: true })
@@ -199,10 +230,12 @@ export const changeAudit = pgTable("change_audit", {
   createdAt: timestamp("created_at", { withTimezone: true })
     .notNull()
     .defaultNow(),
-  entityId: uuid("entity_id").notNull(),
+  entityId: text("entity_id").notNull(),
   entityType: changeAuditEntityTypeEnum("entity_type").notNull(),
-  id: uuid().primaryKey().defaultRandom(),
-  operatorId: uuid("operator_id")
+  id: text()
+    .primaryKey()
+    .$defaultFn(() => ulid()),
+  operatorId: text("operator_id")
     .notNull()
     .references(() => operator.id),
   referentExternalId: text("referent_external_id").notNull(),

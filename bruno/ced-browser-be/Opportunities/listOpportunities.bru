@@ -1,0 +1,21 @@
+meta {
+  name: List and search CED opportunities
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/opportunities
+  body: none
+  auth: none
+}
+
+params:query {
+  ~q: 
+  ~limit: 
+  ~offset: 
+}
+
+headers {
+  token: {{sessionToken}}
+}

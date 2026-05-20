@@ -56,11 +56,7 @@ export function SideNavigation() {
       }}
     >
       <List disablePadding sx={{ py: 2.5 }}>
-        <NavItem
-          active
-          icon={<LocalOfferOutlinedIcon />}
-          label="Agevolazioni"
-        />
+        <NavItem active icon={<LocalOfferOutlinedIcon />} label="Opportunità" />
         <NavItem icon={<PlaceIcon />} label="Punti di accesso" />
       </List>
 

@@ -13,6 +13,8 @@ tags:
   - name: Auth
   - name: Profile
   - name: Places
+  - name: Opportunities
+  - name: Categories
 paths:
   /operator/profile:
     get:
@@ -35,16 +37,16 @@ paths:
                   value:
                     displayName: Operatore Demo
                     place:
-                      id: 8eec93a7-7850-4a6c-a3fd-1c5d6202b2e0
+                      id: 01JVMK3N8XQZP5T6G2WYHAB4CD
                       type: online
                       name: Sportello remoto
                       website:
                         url: https://example.org
                       supportContacts:
-                        - id: 36c92630-1836-4d2d-a3a2-3f50d8a9286f
+                        - id: 01JVMK3N8XQZP5T6G2WYHAB4CE
                           type: email
                           value: support@example.org
-                        - id: 9f81a86d-0e89-4ddb-89cf-8daed0b417d8
+                        - id: 01JVMK3N8XQZP5T6G2WYHAB4CF
                           type: phone
                           value: "+39 0000000000"
                 offlinePlace:
@@ -52,7 +54,7 @@ paths:
                   value:
                     displayName: Operatore Demo
                     place:
-                      id: aed18ac5-9dfa-4542-b783-6e7ef2f2471f
+                      id: 01JVMK3N8XQZP5T6G2WYHAB4CG
                       type: offline
                       name: Sportello centrale
                       address:
@@ -62,7 +64,7 @@ paths:
                         postalCode: "00100"
                         country: IT
                       supportContacts:
-                        - id: 531b7aea-f7f8-4266-9b92-60ea7061745e
+                        - id: 01JVMK3N8XQZP5T6G2WYHAB4CH
                           type: website
                           value: https://example.org/support
         "401":
@@ -158,16 +160,16 @@ paths:
                 mixedPlaces:
                   summary: Online and offline places
                   value:
-                    - id: 8eec93a7-7850-4a6c-a3fd-1c5d6202b2e0
+                    - id: 01JVMK3N8XQZP5T6G2WYHAB4CD
                       type: online
                       name: Sportello remoto
                       website:
                         url: https://example.org
                       supportContacts:
-                        - id: 36c92630-1836-4d2d-a3a2-3f50d8a9286f
+                        - id: 01JVMK3N8XQZP5T6G2WYHAB4CE
                           type: email
                           value: support@example.org
-                    - id: aed18ac5-9dfa-4542-b783-6e7ef2f2471f
+                    - id: 01JVMK3N8XQZP5T6G2WYHAB4CG
                       type: offline
                       name: Sportello centrale
                       address:
@@ -177,7 +179,7 @@ paths:
                         postalCode: "00100"
                         country: IT
                       supportContacts:
-                        - id: 9f81a86d-0e89-4ddb-89cf-8daed0b417d8
+                        - id: 01JVMK3N8XQZP5T6G2WYHAB4CF
                           type: phone
                           value: "+39 0000000000"
         "401":
@@ -262,7 +264,7 @@ paths:
           required: true
           schema:
             type: string
-            format: uuid
+            pattern: "^[0-9A-HJKMNP-TV-Z]{26}$"
       responses:
         "200":
           description: Operator place
@@ -274,19 +276,19 @@ paths:
                 onlinePlace:
                   summary: Online place
                   value:
-                    id: 8eec93a7-7850-4a6c-a3fd-1c5d6202b2e0
+                    id: 01JVMK3N8XQZP5T6G2WYHAB4CD
                     type: online
                     name: Sportello remoto
                     website:
                       url: https://example.org
                     supportContacts:
-                      - id: 36c92630-1836-4d2d-a3a2-3f50d8a9286f
+                      - id: 01JVMK3N8XQZP5T6G2WYHAB4CE
                         type: email
                         value: support@example.org
                 offlinePlace:
                   summary: Offline place
                   value:
-                    id: aed18ac5-9dfa-4542-b783-6e7ef2f2471f
+                    id: 01JVMK3N8XQZP5T6G2WYHAB4CG
                     type: offline
                     name: Sportello centrale
                     address:
@@ -296,7 +298,7 @@ paths:
                       postalCode: "00100"
                       country: IT
                     supportContacts:
-                      - id: 531b7aea-f7f8-4266-9b92-60ea7061745e
+                      - id: 01JVMK3N8XQZP5T6G2WYHAB4CH
                         type: website
                         value: https://example.org/support
         "401":
@@ -317,6 +319,204 @@ paths:
               example:
                 statusCode: 404
                 message: Place not found
+  /operator/opportunities/{opportunityId}:
+    get:
+      tags:
+        - Opportunities
+      summary: Get a single opportunity for the authenticated operator
+      operationId: getOperatorOpportunity
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: opportunityId
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: "^[0-9A-HJKMNP-TV-Z]{26}$"
+      responses:
+        "200":
+          description: Opportunity detail
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OpportunityDetailResponse"
+        "401":
+          description: Invalid or missing JWT
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 401
+                message: Unauthorized
+        "404":
+          description: Opportunity not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 404
+                message: Opportunity not found
+  /operator/opportunities:
+    get:
+      tags:
+        - Opportunities
+      summary: List opportunities for the authenticated operator
+      operationId: listOperatorOpportunities
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: offset
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+        - name: status
+          in: query
+          required: false
+          schema:
+            type: string
+            enum:
+              - draft
+              - test_pending
+              - test_passed
+              - published
+              - suspended
+              - deleted
+        - name: search
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: sortBy
+          in: query
+          required: false
+          schema:
+            type: string
+            enum:
+              - createdAt
+              - updatedAt
+            default: createdAt
+        - name: sortOrder
+          in: query
+          required: false
+          schema:
+            type: string
+            enum:
+              - asc
+              - desc
+            default: desc
+      responses:
+        "200":
+          description: Paginated list of operator opportunities
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OpportunityListResponse"
+        "401":
+          description: Invalid or missing JWT
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 401
+                message: Unauthorized
+    post:
+      tags:
+        - Opportunities
+      summary: Create an opportunity for the authenticated operator
+      operationId: createOperatorOpportunity
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OpportunityCreateRequest"
+            examples:
+              discountBenefit:
+                summary: Opportunity with discount benefit
+                value:
+                  dateFrom: "2026-01-01"
+                  dateTo: "2026-12-31"
+                  url: https://example.org/promo
+                  categoryId: 01KRJXEYD44B58700GT982CCYY
+                  placeIds:
+                    - 01JVMK3N8XQZP5T6G2WYHAB4CD
+                  beneficiaryBenefit:
+                    type: discount
+                    discountType: percentage
+                    value: 20
+                  caregiverBenefit:
+                    type: free
+                  localizedMetadata:
+                    - key: name
+                      language: it
+                      value: Sconto 20%
+                    - key: description
+                      language: it
+                      value: Sconto del 20% su tutti i servizi
+      responses:
+        "201":
+          description: Opportunity created successfully
+        "400":
+          description: Invalid opportunity payload
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 400
+                message: Validation error
+        "401":
+          description: Invalid or missing JWT
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 401
+                message: Unauthorized
+  /opportunity-categories:
+    get:
+      tags:
+        - Categories
+      summary: List all opportunity categories
+      operationId: listOpportunityCategories
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: List of opportunity categories
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/OpportunityCategoryItem"
+        "401":
+          description: Invalid or missing JWT
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 401
+                message: Unauthorized
   /acs:
     get:
       tags:
@@ -463,7 +663,7 @@ components:
       properties:
         id:
           type: string
-          format: uuid
+          pattern: "^[0-9A-HJKMNP-TV-Z]{26}$"
         type:
           type: string
           enum:
@@ -560,7 +760,7 @@ components:
       properties:
         id:
           type: string
-          format: uuid
+          pattern: "^[0-9A-HJKMNP-TV-Z]{26}$"
         type:
           type: string
           enum:
@@ -578,6 +778,258 @@ components:
         url:
           type: string
           format: uri
+    OpportunityCreateRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - dateFrom
+        - placeIds
+        - beneficiaryBenefit
+        - localizedMetadata
+        - categoryId
+      properties:
+        dateFrom:
+          type: string
+          format: date
+        dateTo:
+          type: string
+          format: date
+        url:
+          type: string
+          format: uri
+        categoryId:
+          type: string
+          pattern: "^[0-9A-HJKMNP-TV-Z]{26}$"
+        placeIds:
+          type: array
+          minItems: 1
+          items:
+            type: string
+            pattern: "^[0-9A-HJKMNP-TV-Z]{26}$"
+        beneficiaryBenefit:
+          $ref: "#/components/schemas/BenefitRequest"
+        caregiverBenefit:
+          $ref: "#/components/schemas/BenefitRequest"
+        localizedMetadata:
+          type: array
+          minItems: 1
+          items:
+            $ref: "#/components/schemas/LocalizedMetadataItem"
+    BenefitRequest:
+      oneOf:
+        - $ref: "#/components/schemas/BenefitFree"
+        - $ref: "#/components/schemas/BenefitPriority"
+        - $ref: "#/components/schemas/BenefitReducedFixedPrice"
+        - $ref: "#/components/schemas/BenefitDiscount"
+        - $ref: "#/components/schemas/BenefitOther"
+      discriminator:
+        propertyName: type
+        mapping:
+          free: "#/components/schemas/BenefitFree"
+          priority: "#/components/schemas/BenefitPriority"
+          reduced_fixed_price: "#/components/schemas/BenefitReducedFixedPrice"
+          discount: "#/components/schemas/BenefitDiscount"
+          other: "#/components/schemas/BenefitOther"
+    BenefitFree:
+      type: object
+      additionalProperties: false
+      required:
+        - type
+      properties:
+        type:
+          type: string
+          enum:
+            - free
+    BenefitPriority:
+      type: object
+      additionalProperties: false
+      required:
+        - type
+      properties:
+        type:
+          type: string
+          enum:
+            - priority
+    BenefitReducedFixedPrice:
+      type: object
+      additionalProperties: false
+      required:
+        - type
+        - value
+      properties:
+        type:
+          type: string
+          enum:
+            - reduced_fixed_price
+        value:
+          type: integer
+    BenefitDiscount:
+      type: object
+      additionalProperties: false
+      required:
+        - type
+        - discountType
+        - value
+      properties:
+        type:
+          type: string
+          enum:
+            - discount
+        discountType:
+          type: string
+          enum:
+            - percentage
+            - fixed_amount
+        value:
+          type: integer
+    BenefitOther:
+      type: object
+      additionalProperties: false
+      required:
+        - type
+        - description
+      properties:
+        type:
+          type: string
+          enum:
+            - other
+        description:
+          type: string
+    LocalizedMetadataItem:
+      type: object
+      additionalProperties: false
+      required:
+        - key
+        - language
+        - value
+      properties:
+        key:
+          type: string
+          enum:
+            - name
+            - description
+            - condition
+        language:
+          type: string
+          enum:
+            - en
+            - fr
+            - de
+            - sl
+            - it
+        value:
+          type: string
+    OpportunityListResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - items
+        - total
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/OpportunitySummaryItem"
+        total:
+          type: integer
+          minimum: 0
+    OpportunitySummaryItem:
+      type: object
+      additionalProperties: false
+      required:
+        - id
+        - status
+        - name
+        - categoryTitle
+        - dateFrom
+      properties:
+        id:
+          type: string
+          pattern: "^[0-9A-HJKMNP-TV-Z]{26}$"
+        status:
+          type: string
+          enum:
+            - draft
+            - test_pending
+            - test_passed
+            - published
+            - suspended
+            - deleted
+        name:
+          type: string
+        categoryTitle:
+          type: string
+        dateFrom:
+          type: string
+          format: date
+        dateTo:
+          type: string
+          format: date
+          nullable: true
+    OpportunityDetailResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - id
+        - status
+        - dateFrom
+        - categoryId
+        - categoryTitle
+        - beneficiaryBenefit
+        - localizedMetadata
+        - placeIds
+        - createdAt
+        - updatedAt
+      properties:
+        id:
+          type: string
+          pattern: "^[0-9A-HJKMNP-TV-Z]{26}$"
+        status:
+          type: string
+          enum:
+            - draft
+            - test_pending
+            - test_passed
+            - published
+            - suspended
+            - deleted
+        dateFrom:
+          type: string
+          format: date
+        dateTo:
+          type: string
+          format: date
+          nullable: true
+        url:
+          type: string
+          format: uri
+          nullable: true
+        categoryId:
+          type: string
+          pattern: "^[0-9A-HJKMNP-TV-Z]{26}$"
+        categoryTitle:
+          type: string
+        beneficiaryBenefit:
+          $ref: "#/components/schemas/BenefitRequest"
+        caregiverBenefit:
+          nullable: true
+          allOf:
+            - $ref: "#/components/schemas/BenefitRequest"
+        localizedMetadata:
+          type: array
+          items:
+            $ref: "#/components/schemas/LocalizedMetadataItem"
+        placeIds:
+          type: array
+          items:
+            type: string
+            pattern: "^[0-9A-HJKMNP-TV-Z]{26}$"
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
     ErrorResponse:
       type: object
       additionalProperties: false
@@ -588,6 +1040,21 @@ components:
         statusCode:
           type: integer
         message:
+          type: string
+    OpportunityCategoryItem:
+      type: object
+      additionalProperties: false
+      required:
+        - id
+        - title
+        - description
+      properties:
+        id:
+          type: string
+          pattern: "^[0-9A-HJKMNP-TV-Z]{26}$"
+        title:
+          type: string
+        description:
           type: string
     AuthorizeResponse:
       type: object

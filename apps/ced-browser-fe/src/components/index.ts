@@ -12,3 +12,4 @@ export * from './SectionTitle';
 export * from './ContactsSection';
 export * from './ItemsSection';
 export * from './ContactRow';
+export * from './PageHeader';

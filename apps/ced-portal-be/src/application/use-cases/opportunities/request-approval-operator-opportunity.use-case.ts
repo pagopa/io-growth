@@ -1,5 +1,6 @@
 import type { UseCase } from "@pagopa/io-core-domain";
 import type {
+  ConflictError,
   GenericError,
   ValidationError,
 } from "@pagopa/io-core-domain/errors";
@@ -27,7 +28,11 @@ export type RequestApprovalOperatorOpportunityInput = z.infer<
 export type RequestApprovalOperatorOpportunityUseCase = UseCase<
   RequestApprovalOperatorOpportunityInput,
   void,
-  GenericError | NotFoundError | PreconditionFailedError | ValidationError
+  | ConflictError
+  | GenericError
+  | NotFoundError
+  | PreconditionFailedError
+  | ValidationError
 >;
 
 export const makeRequestApprovalOperatorOpportunityUseCase =
@@ -53,6 +58,7 @@ export const makeRequestApprovalOperatorOpportunityUseCase =
           }
           return new ResultAsync(
             opportunityRepository.updateStatus({
+              expectedStatus: "draft",
               operatorId: validatedInput.operatorId,
               opportunityId: validatedInput.opportunityId,
               status: "approval_pending",

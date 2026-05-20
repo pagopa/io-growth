@@ -1,4 +1,4 @@
-import { GenericError } from "@pagopa/io-core-domain/errors";
+import { ConflictError, GenericError } from "@pagopa/io-core-domain/errors";
 import { err, ok } from "neverthrow";
 import { describe, expect, it, vi } from "vitest";
 
@@ -48,6 +48,7 @@ describe("makeRequestApprovalOperatorOpportunityUseCase", () => {
       opportunityId: MOCK_OPPORTUNITY_ID,
     });
     expect(repository.updateStatus).toHaveBeenCalledWith({
+      expectedStatus: "draft",
       operatorId: MOCK_OPERATOR_ID,
       opportunityId: MOCK_OPPORTUNITY_ID,
       status: "approval_pending",
@@ -132,6 +133,30 @@ describe("makeRequestApprovalOperatorOpportunityUseCase", () => {
     });
 
     expect(result).toEqual(err(repoError));
+  });
+
+  it("should return ConflictError when opportunity status was modified concurrently", async () => {
+    const conflictError = new ConflictError(
+      "Opportunity status was modified concurrently",
+    );
+    const repository = createMockOpportunityRepository({
+      getById: vi.fn().mockResolvedValue(ok(mockDraftOpportunityDetail)),
+      updateStatus: vi.fn().mockResolvedValue(err(conflictError)),
+    });
+    const useCase = makeRequestApprovalOperatorOpportunityUseCase(repository);
+
+    const result = await useCase({
+      operatorId: MOCK_OPERATOR_ID,
+      opportunityId: MOCK_OPPORTUNITY_ID,
+    });
+
+    expect(result).toEqual(
+      err(
+        expect.objectContaining({
+          kind: "ConflictError",
+        }),
+      ),
+    );
   });
 
   it("should return ValidationError when operatorId is invalid", async () => {

@@ -18,11 +18,6 @@ module "role_assignments" {
 
   managed_redis = [
     {
-      id          = var.redis_cache_id
-      role        = "owner"
-      description = "Allow container app environment to manage redis cache"
-    },
-    {
       id          = var.redis_id
       role        = "owner"
       description = "Allow container app environment to manage the DX Redis instance"

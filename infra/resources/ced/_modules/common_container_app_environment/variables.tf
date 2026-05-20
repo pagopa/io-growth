@@ -65,11 +65,6 @@ variable "key_vault_resource_group_name" {
   description = "The name of the resource group where the Key Vault is located."
 }
 
-variable "redis_cache_id" {
-  type        = string
-  description = "The ID of the Redis cache to which the container app environment will be granted access."
-}
-
 variable "redis_id" {
   type        = string
   description = "The ID of the DX Redis cache to which the container app environment will be granted access."

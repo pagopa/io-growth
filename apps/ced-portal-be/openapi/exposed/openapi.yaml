@@ -395,6 +395,15 @@ paths:
               example:
                 statusCode: 404
                 message: Opportunity not found
+        "409":
+          description: Opportunity status was modified concurrently
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 409
+                message: Opportunity status was modified concurrently
         "412":
           description: Opportunity is not in draft status
           content:

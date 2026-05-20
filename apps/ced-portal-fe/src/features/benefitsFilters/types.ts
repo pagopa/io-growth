@@ -1,4 +1,6 @@
-export enum BenefitStatus {
+export enum PublicationStatus {
+  SUSPENDED = 'Sospesa',
+  DELETED = 'Eliminata',
   SCHEDULED_PUBLICATION = 'Pubblicazione programmata',
   DRAFT = 'In bozza',
   PUBLISHED = 'Pubblicata su IO',
@@ -21,6 +23,6 @@ export enum BenefitCategory {
 
 export type BenefitFiltersState = {
   name: string | null;
-  status: keyof typeof BenefitStatus | null;
+  publication_status: keyof typeof PublicationStatus | null;
   category: BenefitCategory | null;
 };

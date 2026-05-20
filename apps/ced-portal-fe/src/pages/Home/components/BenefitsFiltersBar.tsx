@@ -15,7 +15,7 @@ import {
 import { useCallback, useState } from 'react';
 import {
   BenefitCategory,
-  BenefitStatus,
+  PublicationStatus,
 } from '../../../features/benefitsFilters/types';
 
 export const BenefitsFiltersBar = () => {
@@ -28,7 +28,7 @@ export const BenefitsFiltersBar = () => {
   const [filters, setFilters] = useState({
     name: nameFilter,
     category: categoryFilter,
-    status: statusFilter,
+    publication_status: statusFilter,
   });
 
   const handleNameFilterChange = useCallback(
@@ -52,7 +52,7 @@ export const BenefitsFiltersBar = () => {
     (e: SelectChangeEvent<string | string[]>) => {
       setFilters((prev) => ({
         ...prev,
-        status: e.target.value as keyof typeof BenefitStatus,
+        status: e.target.value as keyof typeof PublicationStatus,
       }));
     },
     [],
@@ -64,7 +64,7 @@ export const BenefitsFiltersBar = () => {
 
   const handleResetFilters = useCallback(() => {
     dispatch(resetBenefitFilters());
-    setFilters({ name: null, category: null, status: null });
+    setFilters({ name: null, category: null, publication_status: null });
   }, [dispatch]);
 
   return (
@@ -95,7 +95,7 @@ export const BenefitsFiltersBar = () => {
         onChange={handleCategoryFilterChange}
       />
       <AppSelect
-        value={filters.status || ''}
+        value={filters.publication_status || ''}
         fullWidth
         sx={{ flex: 0.5 }}
         label="Stato"

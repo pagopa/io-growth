@@ -19,7 +19,7 @@
     "start": "node dist/main.js",
     "migrate:dev": "tsx src/migrate.ts",
     "migrate:prod": "node dist/migrate.js",
-    "run:dev": "tsx --watch src/main.ts",
+    "run:dev": "tsx --env-file=.env --watch src/main.ts",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
     "generate": "orval"

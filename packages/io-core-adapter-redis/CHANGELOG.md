@@ -1,5 +1,11 @@
 # @pagopa/io-core-adapter-redis
 
+## 0.0.6
+
+### Patch Changes
+
+- 1dd19e8: fix redis client for local connections
+
 ## 0.0.5
 
 ### Patch Changes

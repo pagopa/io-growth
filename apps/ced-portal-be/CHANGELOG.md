@@ -1,5 +1,13 @@
 # ced-portal-be
 
+## 0.0.9
+
+### Patch Changes
+
+- 1dd19e8: fix redis client for local connections
+- Updated dependencies [1dd19e8]
+  - @pagopa/io-core-adapter-redis@0.0.6
+
 ## 0.0.8
 
 ### Patch Changes

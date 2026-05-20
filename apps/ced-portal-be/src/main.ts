@@ -38,6 +38,7 @@ import {
   mountGetOpportunityHandler,
   mountInfoReadinessHandler,
   mountInfoStartupHandler,
+  mountListGlobalOpportunitiesHandler,
   mountListOperatorOpportunitiesHandler,
   mountListOperatorPlacesHandler,
   mountListOpportunityCategoriesHandler,
@@ -67,6 +68,7 @@ import { makeCreateOperatorOpportunityUseCase } from "./application/use-cases/op
 import { makeGetOperatorOpportunityUseCase } from "./application/use-cases/opportunities/get-operator-opportunity.use-case.js";
 import { makeGetOpportunityUseCase } from "./application/use-cases/opportunities/get-opportunity.use-case.js";
 import { makeListOperatorOpportunitiesUseCase } from "./application/use-cases/opportunities/list-operator-opportunities.use-case.js";
+import { makeListOpportunitiesUseCase } from "./application/use-cases/opportunities/list-opportunities.use-case.js";
 import { makeListOpportunityCategoriesUseCase } from "./application/use-cases/opportunities/list-opportunity-categories.use-case.js";
 import { makeOperatorRequestOpportunityTestUseCase } from "./application/use-cases/opportunities/operator-request-opportunity-test.use-case.js";
 import { makeCreateOperatorPlaceUseCase } from "./application/use-cases/places/create-operator-place.use-case.js";
@@ -225,6 +227,10 @@ app.register(async (app) => {
   mountGetOperatorOpportunityHandler(
     app,
     makeGetOperatorOpportunityUseCase(opportunityRepository),
+  );
+  mountListGlobalOpportunitiesHandler(
+    app,
+    makeListOpportunitiesUseCase(opportunityRepository),
   );
   mountListOperatorOpportunitiesHandler(
     app,

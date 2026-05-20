@@ -565,6 +565,115 @@ paths:
               example:
                 statusCode: 401
                 message: Unauthorized
+  /opportunities:
+    get:
+      tags:
+        - Opportunities
+      summary: List all opportunities across all operators (department only)
+      operationId: listGlobalOpportunities
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: offset
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+        - name: status
+          in: query
+          required: false
+          schema:
+            type: string
+            enum:
+              - draft
+              - test_pending
+              - test_passed
+              - published
+              - suspended
+              - deleted
+        - name: search
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: sortBy
+          in: query
+          required: false
+          schema:
+            type: string
+            enum:
+              - createdAt
+              - updatedAt
+            default: createdAt
+        - name: sortOrder
+          in: query
+          required: false
+          schema:
+            type: string
+            enum:
+              - asc
+              - desc
+            default: desc
+        - name: operatorId
+          in: query
+          required: false
+          schema:
+            type: string
+            pattern: "^[0-9A-HJKMNP-TV-Z]{26}$"
+        - name: categoryId
+          in: query
+          required: false
+          schema:
+            type: string
+            pattern: "^[0-9A-HJKMNP-TV-Z]{26}$"
+        - name: dateFrom
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date
+        - name: dateTo
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date
+      responses:
+        "200":
+          description: Paginated list of opportunities across all operators
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OpportunityListResponse"
+        "401":
+          description: Invalid or missing JWT
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 401
+                message: Unauthorized
+        "403":
+          description: Forbidden — operator userType not allowed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 403
+                message: Forbidden
+
   /opportunities/{opportunityId}:
     get:
       tags:
@@ -614,6 +723,7 @@ paths:
               example:
                 statusCode: 404
                 message: Opportunity not found
+
   /opportunities/{opportunityId}/approve:
     patch:
       tags:
@@ -1355,6 +1465,7 @@ components:
         - name
         - categoryTitle
         - dateFrom
+        - operatorName
       properties:
         id:
           type: string
@@ -1380,6 +1491,8 @@ components:
           type: string
           format: date
           nullable: true
+        operatorName:
+          type: string
     OpportunityDetailResponse:
       type: object
       additionalProperties: false

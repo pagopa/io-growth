@@ -11,6 +11,7 @@ export { mountGetOpportunityHandler } from "./opportunities/admin-get-opportunit
 export { mountCreateOperatorOpportunityHandler } from "./opportunities/create-operator-opportunity.handler.js";
 export { mountGetOperatorOpportunityHandler } from "./opportunities/get-operator-opportunity.handler.js";
 export { mountListOperatorOpportunitiesHandler } from "./opportunities/list-operator-opportunities.handler.js";
+export { mountListGlobalOpportunitiesHandler } from "./opportunities/list-opportunities.handler.js";
 export { mountListOpportunityCategoriesHandler } from "./opportunities/list-opportunity-categories.handler.js";
 export { mountOperatorRequestOpportunityTestHandler } from "./opportunities/operator-request-opportunity-test.handler.js";
 export { mountCreateOperatorPlaceHandler } from "./places/create-operator-place.handler.js";

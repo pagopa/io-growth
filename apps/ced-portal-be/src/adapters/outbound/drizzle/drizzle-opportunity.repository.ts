@@ -2,7 +2,7 @@ import type { TypedDbClient } from "@pagopa/io-core-adapter-drizzle";
 import type { Result } from "neverthrow";
 
 import { ConflictError, GenericError } from "@pagopa/io-core-domain/errors";
-import { and, count, eq, ilike, inArray, sql } from "drizzle-orm";
+import { and, count, eq, gte, ilike, inArray, lte, sql } from "drizzle-orm";
 import { err, ok } from "neverthrow";
 
 import type { OpportunityDetail } from "../../../domain/entities/opportunity.js";
@@ -24,6 +24,7 @@ import { createOpportunityInTransaction } from "./opportunity.transaction.js";
 import * as schema from "./schema/index.js";
 import {
   localizedMetadata,
+  operator,
   opportunity,
   opportunityCategory,
 } from "./schema/tables.js";
@@ -262,16 +263,16 @@ export const createDrizzleOpportunityRepository = (
         sql`${localizedMetadata.language} = 'it'`,
       );
 
-      const conditions = [eq(opportunity.operatorId, input.operatorId)];
-
-      if (input.categoryId) {
+      const conditions = [];
+      if (input.operatorId)
+        conditions.push(eq(opportunity.operatorId, input.operatorId));
+      if (input.categoryId)
         conditions.push(eq(opportunity.categoryId, input.categoryId));
-      }
-
-      if (input.status) {
+      if (input.dateFrom)
+        conditions.push(gte(opportunity.dateFrom, input.dateFrom));
+      if (input.dateTo) conditions.push(lte(opportunity.dateTo, input.dateTo));
+      if (input.status)
         conditions.push(sql`${opportunity.status} = ${input.status}`);
-      }
-
       if (input.search) {
         conditions.push(
           ilike(
@@ -285,7 +286,6 @@ export const createDrizzleOpportunityRepository = (
         input.sortBy === "updatedAt"
           ? opportunity.updatedAt
           : opportunity.createdAt;
-
       const orderDirection =
         input.sortOrder === "asc" ? sql`ASC NULLS LAST` : sql`DESC NULLS LAST`;
 
@@ -297,6 +297,7 @@ export const createDrizzleOpportunityRepository = (
             dateTo: opportunity.dateTo,
             id: opportunity.id,
             name: localizedMetadata.value,
+            operatorName: operator.name,
             status: opportunity.status,
           })
           .from(opportunity)
@@ -305,8 +306,12 @@ export const createDrizzleOpportunityRepository = (
             opportunityCategory,
             eq(opportunityCategory.id, opportunity.categoryId),
           )
+          .innerJoin(operator, eq(opportunity.operatorId, operator.id))
           .where(and(...conditions))
-          .orderBy(sql`${orderColumn} ${orderDirection}`)
+          // id as tiebreaker ensures stable pagination when multiple records share the same createdAt/updatedAt
+          .orderBy(
+            sql`${orderColumn} ${orderDirection}, ${opportunity.id} ${orderDirection}`,
+          )
           .limit(input.limit)
           .offset(input.offset),
         db
@@ -317,6 +322,7 @@ export const createDrizzleOpportunityRepository = (
             opportunityCategory,
             eq(opportunityCategory.id, opportunity.categoryId),
           )
+          .innerJoin(operator, eq(opportunity.operatorId, operator.id))
           .where(and(...conditions)),
       ]);
 
@@ -326,9 +332,7 @@ export const createDrizzleOpportunityRepository = (
       return ok({ items, total });
     } catch (error) {
       return err(
-        new GenericError(
-          `Failed to list operator opportunities: ${String(error)}`,
-        ),
+        new GenericError(`Failed to list opportunities: ${String(error)}`),
       );
     }
   },

@@ -26,9 +26,11 @@ export interface FindByIdInput {
 
 export interface ListOpportunitiesInput {
   categoryId?: string;
+  dateFrom?: string;
+  dateTo?: string;
   limit: number;
   offset: number;
-  operatorId: string;
+  operatorId?: string;
   search?: string;
   sortBy: "createdAt" | "updatedAt";
   sortOrder: "asc" | "desc";

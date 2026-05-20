@@ -1,4 +1,7 @@
-import type { GenericError } from "@pagopa/io-core-domain/errors";
+import type {
+  ConflictError,
+  GenericError,
+} from "@pagopa/io-core-domain/errors";
 import type { Result } from "neverthrow";
 
 import type {
@@ -39,7 +42,7 @@ export interface OpportunityRepository {
   ) => Promise<Result<PaginatedOpportunities, GenericError>>;
   readonly updateStatus: (
     input: UpdateOpportunityStatusInput,
-  ) => Promise<Result<void, GenericError>>;
+  ) => Promise<Result<void, ConflictError | GenericError>>;
 }
 
 export interface PaginatedOpportunities {
@@ -48,6 +51,7 @@ export interface PaginatedOpportunities {
 }
 
 export interface UpdateOpportunityStatusInput {
+  expectedStatus?: Opportunity["status"];
   operatorId: string;
   opportunityId: string;
   status: Opportunity["status"];

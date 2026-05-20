@@ -1,7 +1,7 @@
 import type { TypedDbClient } from "@pagopa/io-core-adapter-drizzle";
 import type { Result } from "neverthrow";
 
-import { GenericError } from "@pagopa/io-core-domain/errors";
+import { ConflictError, GenericError } from "@pagopa/io-core-domain/errors";
 import { and, count, eq, ilike, sql } from "drizzle-orm";
 import { err, ok } from "neverthrow";
 
@@ -186,17 +186,27 @@ export const createDrizzleOpportunityRepository = (
 
   updateStatus: async (
     input: UpdateOpportunityStatusInput,
-  ): Promise<Result<void, GenericError>> => {
+  ): Promise<Result<void, ConflictError | GenericError>> => {
     try {
-      await db
+      const conditions = [
+        eq(opportunity.id, input.opportunityId),
+        eq(opportunity.operatorId, input.operatorId),
+      ];
+
+      if (input.expectedStatus) {
+        conditions.push(eq(opportunity.status, input.expectedStatus));
+      }
+
+      const result = await db
         .update(opportunity)
         .set({ status: input.status, updatedAt: new Date() })
-        .where(
-          and(
-            eq(opportunity.id, input.opportunityId),
-            eq(opportunity.operatorId, input.operatorId),
-          ),
+        .where(and(...conditions));
+
+      if (result.count === 0) {
+        return err(
+          new ConflictError("Opportunity status was modified concurrently"),
         );
+      }
 
       return ok(undefined);
     } catch (error) {

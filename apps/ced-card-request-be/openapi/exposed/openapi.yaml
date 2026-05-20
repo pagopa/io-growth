@@ -146,50 +146,6 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
 
-  /test-session:
-    post:
-      tags:
-        - Access
-      summary: Create a test session (test users only)
-      description: |
-        Creates a FIMS session directly for a test user, bypassing the full OIDC
-        flow. The `fiscalCode` is hashed and matched against the server-side
-        `TEST_USERS` allowlist. Returns 403 if the fiscal code is not authorised.
-      operationId: createTestSession
-      security: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              required:
-                - fiscalCode
-                - familyName
-                - givenName
-              properties:
-                fiscalCode:
-                  type: string
-                familyName:
-                  type: string
-                givenName:
-                  type: string
-      responses:
-        "302":
-          description: Redirect to `/authorize?id=…` with the test session.
-        "403":
-          description: Forbidden — fiscal code is not in the test users list.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
-        "500":
-          description: Internal server error.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
-
   /status:
     get:
       tags:

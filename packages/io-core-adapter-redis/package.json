@@ -1,6 +1,6 @@
 {
   "name": "@pagopa/io-core-adapter-redis",
-  "version": "0.0.3",
+  "version": "0.0.5",
   "type": "module",
   "exports": {
     ".": {
@@ -23,9 +23,9 @@
   "dependencies": {
     "@azure/identity": "^4.13.1",
     "@pagopa/io-core-domain": "workspace:^",
+    "@redis/client": "^5.12.1",
     "@redis/entraid": "^5.12.1",
-    "neverthrow": "catalog:",
-    "redis": "^5.1.1"
+    "neverthrow": "catalog:"
   },
   "devDependencies": {
     "@pagopa/eslint-config": "catalog:",

@@ -33,7 +33,6 @@ module "common_container_app_environment" {
   key_vault_name                = data.azurerm_key_vault.common.name
   key_vault_resource_group_name = data.azurerm_key_vault.common.resource_group_name
 
-  redis_cache_id = module.redis.id
   redis_id       = module.redis_dx.id
 
   cosmos_db_account_name        = module.cosmos_db.cosmos_db.name

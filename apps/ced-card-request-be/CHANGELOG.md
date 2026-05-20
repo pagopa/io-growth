@@ -1,5 +1,19 @@
 # ced-card-request-be
 
+## 0.0.5
+
+### Patch Changes
+
+- Updated dependencies [27672b8]
+  - @pagopa/io-core-adapter-redis@0.0.5
+
+## 0.0.4
+
+### Patch Changes
+
+- Updated dependencies [a6df4db]
+  - @pagopa/io-core-adapter-redis@0.0.4
+
 ## 0.0.3
 
 ### Patch Changes

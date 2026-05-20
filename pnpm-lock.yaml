@@ -646,15 +646,15 @@ importers:
       '@pagopa/io-core-domain':
         specifier: workspace:^
         version: link:../io-core-domain
+      '@redis/client':
+        specifier: ^5.12.1
+        version: 5.12.1
       '@redis/entraid':
         specifier: ^5.12.1
         version: 5.12.1(@redis/client@5.12.1)
       neverthrow:
         specifier: 'catalog:'
         version: 8.2.0
-      redis:
-        specifier: ^5.1.1
-        version: 5.12.1
     devDependencies:
       '@pagopa/eslint-config':
         specifier: 'catalog:'
@@ -1918,12 +1918,6 @@ packages:
   '@popperjs/core@2.11.8':
     resolution: {integrity: sha512-P1st0aksCrn9sGZhp8GMYwBnQsbvAWsZAX44oXNNvLHGqAOcoVxmjZiohstwQ7SqKnbR47akdNi+uleWD8+g6A==}
 
-  '@redis/bloom@5.12.1':
-    resolution: {integrity: sha512-PUUfv+ms7jgPSBVoo/DN4AkPHj4D5TZSd6SbJX7egzBplkYUcKmHRE8RKia7UtZ8bSQbLguLvxVO+asKtQfZWA==}
-    engines: {node: '>= 18.19.0'}
-    peerDependencies:
-      '@redis/client': ^5.12.1
-
   '@redis/client@5.12.1':
     resolution: {integrity: sha512-7aPGWeqA3uFm43o19umzdl16CEjK/JQGtSXVPevplTaOU3VJA/rseBC1QvYUz9lLDIMBimc4SW/zrW4S89BaCA==}
     engines: {node: '>= 18.19.0'}
@@ -1938,24 +1932,6 @@ packages:
 
   '@redis/entraid@5.12.1':
     resolution: {integrity: sha512-ygQ5W76LHGTG23bWxIzkqTStIjgrqq2Ltw9j1snrpnM5u/730SkEu+RXxt7JlpVKTJnM91+6yuh/ZK5VJkM6eA==}
-    engines: {node: '>= 18.19.0'}
-    peerDependencies:
-      '@redis/client': ^5.12.1
-
-  '@redis/json@5.12.1':
-    resolution: {integrity: sha512-eOze75esLve4vfqDel7aMX08CNaiLLQS2fV8mpRN9NxPe1rVR4vQyYiW/OgtGUysF6QOr9ANhfxABKNOJfXdKg==}
-    engines: {node: '>= 18.19.0'}
-    peerDependencies:
-      '@redis/client': ^5.12.1
-
-  '@redis/search@5.12.1':
-    resolution: {integrity: sha512-ItlxbxC9cKI6IU1TLWoczwJCRb6TdmkEpWv05UrPawqaAnWGRu3rcIqsc5vN483T2fSociuyV1UkWIL5I4//2w==}
-    engines: {node: '>= 18.19.0'}
-    peerDependencies:
-      '@redis/client': ^5.12.1
-
-  '@redis/time-series@5.12.1':
-    resolution: {integrity: sha512-c6JL6E3EcZJuNqKFz+KM+l9l5mpcQiKvTwgA3blt5glWJ8hjDk0yeHN3beE/MpqYIQ8UEX44ItQzgkE/gCBELQ==}
     engines: {node: '>= 18.19.0'}
     peerDependencies:
       '@redis/client': ^5.12.1
@@ -4243,10 +4219,6 @@ packages:
     resolution: {integrity: sha512-6tDA8g98We0zd0GvVeMT9arEOnTw9qM03L9cJXaCjrip1OO764RDBLBfrB4cwzNGDj5OA5ioymC9GkizgWJDUg==}
     engines: {node: '>=8'}
 
-  redis@5.12.1:
-    resolution: {integrity: sha512-LDsoVvb/CpoV9EN3FXvgvSHNJWuCIzl9MiO3ppOevuGLpSGJhwfQjpEwfFJcQvNSddHADDdZaWx0HnmMxRXG7g==}
-    engines: {node: '>= 18.19.0'}
-
   redux-persist@6.0.0:
     resolution: {integrity: sha512-71LLMbUq2r02ng2We9S215LtPu3fY0KgaGE0k8WRgl6RkqxtGfl7HUozz1Dftwsb0D/5mZ8dwAaPbtnzfvbEwQ==}
     peerDependencies:
@@ -6257,10 +6229,6 @@ snapshots:
 
   '@popperjs/core@2.11.8': {}
 
-  '@redis/bloom@5.12.1(@redis/client@5.12.1)':
-    dependencies:
-      '@redis/client': 5.12.1
-
   '@redis/client@5.12.1':
     dependencies:
       cluster-key-slot: 1.1.2
@@ -6272,18 +6240,6 @@ snapshots:
       '@redis/client': 5.12.1
     transitivePeerDependencies:
       - supports-color
-
-  '@redis/json@5.12.1(@redis/client@5.12.1)':
-    dependencies:
-      '@redis/client': 5.12.1
-
-  '@redis/search@5.12.1(@redis/client@5.12.1)':
-    dependencies:
-      '@redis/client': 5.12.1
-
-  '@redis/time-series@5.12.1(@redis/client@5.12.1)':
-    dependencies:
-      '@redis/client': 5.12.1
 
   '@reduxjs/toolkit@2.11.2(react-redux@9.2.0(@types/react@18.3.28)(react@18.3.1)(redux@5.0.1))(react@18.3.1)':
     dependencies:
@@ -8850,17 +8806,6 @@ snapshots:
     dependencies:
       indent-string: 4.0.0
       strip-indent: 3.0.0
-
-  redis@5.12.1:
-    dependencies:
-      '@redis/bloom': 5.12.1(@redis/client@5.12.1)
-      '@redis/client': 5.12.1
-      '@redis/json': 5.12.1(@redis/client@5.12.1)
-      '@redis/search': 5.12.1(@redis/client@5.12.1)
-      '@redis/time-series': 5.12.1(@redis/client@5.12.1)
-    transitivePeerDependencies:
-      - '@node-rs/xxhash'
-      - '@opentelemetry/api'
 
   redux-persist@6.0.0(react@18.3.1)(redux@5.0.1):
     dependencies:

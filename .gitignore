@@ -316,7 +316,7 @@ terraform.rc
 
 # Orval generated contracts (auto-generated from OpenAPI spec)
 apps/ced-portal-be/src/adapters/inbound/fastify/contracts/
-apps/ced-portal-fe/src/api/generated/
+apps/ced-portal-fe/src/core/api/generated/
 
 infra/**/temp
 

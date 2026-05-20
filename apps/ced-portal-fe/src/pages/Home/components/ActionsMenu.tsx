@@ -31,17 +31,17 @@ export const ActionsMenu = ({
     navigate(generatePath(APP_ROUTES.ENTITY_OPPORTUNITY_DETAIL, { id }));
   };
 
-  const onEdit = async (id: string) => {
-    // TODO[IEG-2660][OUT OF MVP SCOPE]: confirm UX - inline edit or prefilled create page including { id }.
-  };
+  // const onEdit = async (id: string) => {
+  // TODO[IEG-2660][OUT OF MVP SCOPE]: confirm UX - inline edit or prefilled create page including { id }.
+  // };
 
-  const onSuspend = async (id: string) => {
-    // TODO[IEG-2721][SCOPE - RELEASE IN OCTOBER]: call suspend opportunity API with { id }.
-  };
+  // const onSuspend = async (id: string) => {
+  // TODO[IEG-2721][SCOPE - RELEASE IN OCTOBER]: call suspend opportunity API with { id }.
+  // };
 
-  const onDelete = async (id: string) => {
-    // TODO[IEG-2722][SCOPE - RELEASE IN OCTOBER]: call delete opportunity API with { id }.
-  };
+  // const onDelete = async (id: string) => {
+  // TODO[IEG-2722][SCOPE - RELEASE IN OCTOBER]: call delete opportunity API with { id }.
+  // };
 
   const handleAction = useCallback(
     (cb?: (id: string) => void) => {
@@ -77,14 +77,14 @@ export const ActionsMenu = ({
       <MenuItem onClick={() => handleAction(onDuplicate)} sx={menuItemsSx}>
         Duplica
       </MenuItem>
-      <MenuItem onClick={() => handleAction(onEdit)} sx={menuItemsSx}>
+      <MenuItem onClick={() => handleAction(() => null)} sx={menuItemsSx}>
         Modifica
       </MenuItem>
-      <MenuItem onClick={() => handleAction(onSuspend)} sx={menuItemsSx}>
+      <MenuItem onClick={() => handleAction(() => null)} sx={menuItemsSx}>
         Sospendi
       </MenuItem>
       <MenuItem
-        onClick={() => handleAction(onDelete)}
+        onClick={() => handleAction(() => null)}
         sx={{ color: theme.palette.error.main, gap: 1 }}
       >
         <CancelRoundedIcon sx={{ fontSize: 18 }} />

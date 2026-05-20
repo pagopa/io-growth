@@ -30,7 +30,7 @@ export interface RedisCommands {
   setEx(key: string, seconds: number, value: string): Promise<unknown>;
 }
 
-const buildEntraIdCredentialsProvider =
+const buildEntraIdCredentialsProvider = () =>
   EntraIdCredentialsProviderFactory.createForDefaultAzureCredential({
     credential: new DefaultAzureCredential(),
     scopes: REDIS_SCOPE_DEFAULT,
@@ -60,19 +60,17 @@ export const createRedisClient = async (
   const client = createCluster({
     defaults: {
       credentialsProvider: config.entraId
-        ? buildEntraIdCredentialsProvider
+        ? buildEntraIdCredentialsProvider()
         : undefined,
       socket: {
         connectTimeout: 15000,
         ...(useTls ? { tls: true } : {}),
       },
     },
-    nodeAddressMap: makeNodeAddressMap(redisHostName),
+    ...(useTls ? { nodeAddressMap: makeNodeAddressMap(redisHostName) } : {}),
     rootNodes: [{ url: `${scheme}://${config.endpoint}` }],
   });
-
   await client.connect();
-
   return Object.assign(client, {
     closeConnection: () => client.quit().then(() => undefined),
   }) as unknown as RedisClient;

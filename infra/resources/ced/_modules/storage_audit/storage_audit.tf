@@ -56,7 +56,7 @@ resource "azurerm_storage_management_policy" "immutable_ced_browser_audit_logs_s
   storage_account_id = module.immutable_ced_audit_logs_storage.id
 
   rule {
-    name    = "deletepolicy"
+    name    = "cedbrowserauditlogsdeletepolicy"
     enabled = true
     filters {
       prefix_match = [
@@ -93,7 +93,7 @@ resource "azurerm_storage_management_policy" "immutable_ced_card_request_audit_l
   storage_account_id = module.immutable_ced_audit_logs_storage.id
 
   rule {
-    name    = "deletepolicy"
+    name    = "cedcardrequestauditlogsdeletepolicy"
     enabled = true
     filters {
       prefix_match = [

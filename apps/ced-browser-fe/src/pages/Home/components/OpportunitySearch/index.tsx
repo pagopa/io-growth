@@ -42,7 +42,8 @@ export function OpportunitySearch({
   const hasResults = !!data?.items.length;
 
   const showResults = !isLoading && hasResults;
-  const showEmpty = !isLoading && !hasResults;
+  const showInitialState = isSearchActive && !hasMinQueryLength;
+  const showEmpty = !isLoading && hasMinQueryLength && !hasResults;
   const showClearButton = isSearchActive || query.length > 0;
 
   const handleCancel = () => {
@@ -62,8 +63,8 @@ export function OpportunitySearch({
           onItemPress={(id) => generatePath(APP_ROUTES.ENTITY_DETAIL, { id })}
         />
       );
+    if (showInitialState) return <SearchInitialState />;
     if (showEmpty) return <SearchEmptyState />;
-    if (isSearchActive) return <SearchInitialState />;
     return null;
   };
 

@@ -14,8 +14,8 @@
 | Name | Version |
 | ---- | ------- |
 | <a name="provider_azuread"></a> [azuread](#provider\_azuread) | 2.53.1 |
-| <a name="provider_azurerm.PROD-CED"></a> [azurerm.PROD-CED](#provider\_azurerm.PROD-CED) | 4.63.0 |
-| <a name="provider_github"></a> [github](#provider\_github) | 6.11.1 |
+| <a name="provider_azurerm.PROD-CED"></a> [azurerm.PROD-CED](#provider\_azurerm.PROD-CED) | 4.72.0 |
+| <a name="provider_github"></a> [github](#provider\_github) | 6.12.1 |
 
 ## Modules
 

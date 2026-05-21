@@ -234,7 +234,7 @@ export default function OpportunityDetailPage() {
             </Box>
 
             <Box sx={{ mx: -3, mt: 2 }}>
-              <SectionTitle label="Gestito da" />
+              <SectionTitle label="Gestita da" />
               <DiscoveryListItem
                 variant="simple"
                 title={

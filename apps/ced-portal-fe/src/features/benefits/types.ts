@@ -1,16 +1,17 @@
-import { BenefitStatus } from '../benefitsFilters/types';
+import { PublicationStatus } from '../benefitsFilters/types';
 
 export interface Benefit {
+  id: string;
   name: string;
   category: string;
   createdAt: string;
-  state: keyof typeof BenefitStatus;
+  publication_status: keyof typeof PublicationStatus;
 }
 
 export type BenefitsResponse = Benefit[];
 
 export interface SaveBenefitDraftResponse {
   id: string;
-  status: keyof typeof BenefitStatus;
+  publication_status: keyof typeof PublicationStatus;
   createdAt: string;
 }

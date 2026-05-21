@@ -1,4 +1,6 @@
-export type OpportunityState =
+import { PublicationStatus } from '../benefitsFilters/types';
+
+export type OpportunityApprovalStatus =
   | 'Da_gestire'
   | 'In_attesa_di_modifiche'
   | 'Approvata'
@@ -9,7 +11,7 @@ export interface Opportunity {
   name: string;
   organization_name: string;
   created_at: string;
-  state: OpportunityState;
+  approval_status: OpportunityApprovalStatus;
 }
 
 export type OpportunitiesResponse = Opportunity[];
@@ -29,7 +31,7 @@ export interface OpportunityDetail {
   id: string;
   name: string;
   organization_name: string;
-  state: OpportunityState;
+  approval_status: OpportunityApprovalStatus;
   opportunity_type: string;
   discount_type: string;
   discount_value: number;
@@ -39,4 +41,6 @@ export interface OpportunityDetail {
   validity_end: string;
   conditions: string;
   companion: CompanionDetails;
+  createdAt: string;
+  publication_status: keyof typeof PublicationStatus;
 }

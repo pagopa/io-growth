@@ -1,5 +1,5 @@
 {
-  "uuid": "89eb3964-861e-4565-ac11-dbe8931ec2dc",
+  "uuid": "76c708e5-d639-4699-ae88-904e842ec92e",
   "lastMigration": 33,
   "name": "Ced",
   "endpointPrefix": "",
@@ -9,16 +9,16 @@
   "folders": [],
   "routes": [
     {
-      "uuid": "15ccebf6-2ca1-4eb5-b7d8-232e8d4e50db",
+      "uuid": "692cafc5-17ae-490e-8643-9f25691a51f2",
       "type": "http",
       "documentation": "Elenco opportunità",
       "method": "get",
       "endpoint": "api/benefits",
       "responses": [
         {
-          "uuid": "2b72d703-d310-45f6-8e17-365836adad2b",
-          "body": "[\n  {\n    \"name\": \"Test Revisione\",\n    \"category\": \"CULTURE_LEISURE\",\n    \"createdAt\": \"2026-03-28T09:15:30Z\",\n    \"state\": \"UNDER_REVIEW\"\n  },\n  {\n    \"name\": \"Test Bozza\",\n    \"category\": \"HEALTH_WELLNESS\",\n    \"createdAt\": \"2026-03-29T11:45:00Z\",\n    \"state\": \"DRAFT\"\n  },\n  {\n    \"name\": \"Test modifiche richieste\",\n    \"category\": \"EDUCATION\",\n    \"createdAt\": \"2026-03-30T14:20:15Z\",\n    \"state\": \"CHANGES_REQUESTED\"\n  },\n  {\n    \"name\": \"Test Pubblicata\",\n    \"category\": \"SPORT\",\n    \"createdAt\": \"2026-03-31T08:30:00Z\",\n    \"state\": \"PUBLISHED\"\n  },\n  {\n    \"name\": \"Test Pubblicazione Programmata\",\n    \"category\": \"HOME\",\n    \"createdAt\": \"2026-03-31T10:05:45Z\",\n    \"state\": \"SCHEDULED_PUBLICATION\"\n  },\n  {\n    \"name\": \"Test Pubblicazione Programmata - 2\",\n    \"category\": \"TELEPHONY_INTERNET\",\n    \"createdAt\": \"2026-04-02T16:50:22Z\",\n    \"state\": \"SCHEDULED_PUBLICATION\"\n  },\n  {\n    \"name\": \"Test Pubblicata - 2\",\n    \"category\": \"FINANCIAL_SERVICES\",\n    \"createdAt\": \"2026-04-05T09:12:10Z\",\n    \"state\": \"PUBLISHED\"\n  },\n  {\n    \"name\": \"Test Bozza - 2\",\n    \"category\": \"TRAVEL_TRANSPORT\",\n    \"createdAt\": \"2026-04-10T15:35:00Z\",\n    \"state\": \"DRAFT\"\n  },\n  {\n    \"name\": \"Test Bozza - 3\",\n    \"category\": \"SUSTAINABLE_MOBILITY\",\n    \"createdAt\": \"2026-04-15T11:20:33Z\",\n    \"state\": \"DRAFT\"\n  },\n  {\n    \"name\": \"Test Bozza - 4\",\n    \"category\": \"WORK_INTERNSHIPS\",\n    \"createdAt\": \"2026-04-20T18:05:19Z\",\n    \"state\": \"DRAFT\"\n  }\n]",
-          "latency": 0,
+          "uuid": "0c32df58-91b3-49e8-b806-fa8da78c0879",
+          "body": "[\n  {\n    \"id\": \"{{faker 'string.ulid'}}\",\n    \"name\": \"Accesso gratuito nei teatri comunali\",\n    \"organization_name\": \"Comune di Alessandria\",\n    \"entityId\": \"{{faker 'string.uuid'}}\",\n    \"accessPointId\": \"ap-mock-001\",\n    \"publication_status\": \"UNDER_REVIEW\",\n    \"approval_status\": \"Da_gestire\",\n    \"opportunity_type\": \"Gratuità\",\n    \"discount_type\": \"Percentuale\",\n    \"discount_value\": 100,\n    \"discount_label\": \"Gratis\",\n    \"description\": \"Inserisci qui la descrizione per l'accesso ai teatri...\",\n    \"category\": \"CULTURE_LEISURE\",\n    \"validity_start\": \"2026-04-01\",\n    \"validity_end\": \"2026-12-31\",\n    \"conditions\": \"Inserisci qui le condizioni d'uso...\",\n    \"info_url\": \"https://example.com/info\",\n    \"venue_name\": \"Teatro Comunale Mock\",\n    \"venue_address\": \"Via Teatro 1, Alessandria\",\n    \"managed_by\": \"Comune di Alessandria\",\n    \"companion\": {\n      \"enabled\": false,\n      \"discount_type\": \"Nessuno\",\n      \"discount_value\": 0\n    },\n    \"createdAt\": \"2026-03-12T09:00:00Z\"\n  },\n  {\n    \"id\": \"{{faker 'string.ulid'}}\",\n    \"name\": \"Biglietto gratuito nelle sale cinematografiche\",\n    \"organization_name\": \"Cineplex Moderno Alessandria\",\n    \"entityId\": \"{{faker 'string.uuid'}}\",\n    \"accessPointId\": \"ap-mock-002\",\n    \"publication_status\": \"DRAFT\",\n    \"approval_status\": \"Da_gestire\",\n    \"opportunity_type\": \"Gratuità\",\n    \"discount_type\": \"Percentuale\",\n    \"discount_value\": 100,\n    \"discount_label\": \"Gratis\",\n    \"description\": \"Inserisci qui la descrizione per il cinema...\",\n    \"category\": \"CULTURE_LEISURE\",\n    \"validity_start\": \"2026-04-01\",\n    \"validity_end\": \"2026-12-31\",\n    \"conditions\": \"Inserisci qui le condizioni d'uso...\",\n    \"info_url\": \"https://example.com/info\",\n    \"venue_name\": \"Cineplex Moderno\",\n    \"venue_address\": \"Via Cinema 2, Alessandria\",\n    \"managed_by\": \"Cineplex Moderno Alessandria\",\n    \"companion\": {\n      \"enabled\": false,\n      \"discount_type\": \"Nessuno\",\n      \"discount_value\": 0\n    },\n    \"createdAt\": \"2026-03-12T10:15:00Z\"\n  },\n  {\n    \"id\": \"{{faker 'string.ulid'}}\",\n    \"name\": \"Biglietto gratuito nelle sale cinematografiche\",\n    \"organization_name\": \"Cineplex Moderno Alessandria\",\n    \"entityId\": \"{{faker 'string.uuid'}}\",\n    \"accessPointId\": \"ap-mock-003\",\n    \"publication_status\": \"DRAFT\",\n    \"approval_status\": \"Da_gestire\",\n    \"opportunity_type\": \"Gratuità\",\n    \"discount_type\": \"Percentuale\",\n    \"discount_value\": 100,\n    \"discount_label\": \"Gratis\",\n    \"description\": \"Inserisci qui la descrizione per il cinema...\",\n    \"category\": \"CULTURE_LEISURE\",\n    \"validity_start\": \"2026-04-01\",\n    \"validity_end\": \"2026-12-31\",\n    \"conditions\": \"Inserisci qui le condizioni d'uso...\",\n    \"info_url\": \"https://example.com/info\",\n    \"venue_name\": \"Cineplex Moderno\",\n    \"venue_address\": \"Via Cinema 2, Alessandria\",\n    \"managed_by\": \"Cineplex Moderno Alessandria\",\n    \"companion\": {\n      \"enabled\": false,\n      \"discount_type\": \"Nessuno\",\n      \"discount_value\": 0\n    },\n    \"createdAt\": \"2026-03-12T11:30:00Z\"\n  },\n  {\n    \"id\": \"{{faker 'string.ulid'}}\",\n    \"name\": \"Biglietto gratuito nelle sale cinematografiche\",\n    \"organization_name\": \"Cineplex Moderno Alessandria\",\n    \"entityId\": \"{{faker 'string.uuid'}}\",\n    \"accessPointId\": \"ap-mock-004\",\n    \"publication_status\": \"SCHEDULED_PUBLICATION\",\n    \"approval_status\": \"Da_gestire\",\n    \"opportunity_type\": \"Gratuità\",\n    \"discount_type\": \"Percentuale\",\n    \"discount_value\": 100,\n    \"discount_label\": \"Gratis\",\n    \"description\": \"Inserisci qui la descrizione per il cinema...\",\n    \"category\": \"CULTURE_LEISURE\",\n    \"validity_start\": \"2026-04-01\",\n    \"validity_end\": \"2026-12-31\",\n    \"conditions\": \"Inserisci qui le condizioni d'uso...\",\n    \"info_url\": \"https://example.com/info\",\n    \"venue_name\": \"Cineplex Moderno\",\n    \"venue_address\": \"Via Cinema 2, Alessandria\",\n    \"managed_by\": \"Cineplex Moderno Alessandria\",\n    \"companion\": {\n      \"enabled\": false,\n      \"discount_type\": \"Nessuno\",\n      \"discount_value\": 0\n    },\n    \"createdAt\": \"2026-03-12T14:45:00Z\"\n  },\n  {\n    \"id\": \"{{faker 'string.ulid'}}\",\n    \"name\": \"Accesso gratuito nei cinema multisala\",\n    \"organization_name\": \"Comune di Cuneo\",\n    \"entityId\": \"{{faker 'string.uuid'}}\",\n    \"accessPointId\": \"ap-mock-005\",\n    \"publication_status\": \"CHANGES_REQUESTED\",\n    \"approval_status\": \"In_attesa_di_modifiche\",\n    \"opportunity_type\": \"Gratuità\",\n    \"discount_type\": \"Percentuale\",\n    \"discount_value\": 100,\n    \"discount_label\": \"Gratis\",\n    \"description\": \"Inserisci qui la descrizione per i cinema multisala...\",\n    \"category\": \"CULTURE_LEISURE\",\n    \"validity_start\": \"2026-04-01\",\n    \"validity_end\": \"2026-12-31\",\n    \"conditions\": \"Inserisci qui le condizioni d'uso...\",\n    \"info_url\": \"https://example.com/info\",\n    \"venue_name\": \"Multisala Mock Cuneo\",\n    \"venue_address\": \"Via Roma 10, Cuneo\",\n    \"managed_by\": \"Comune di Cuneo\",\n    \"companion\": {\n      \"enabled\": false,\n      \"discount_type\": \"Nessuno\",\n      \"discount_value\": 0\n    },\n    \"createdAt\": \"2026-03-12T16:20:00Z\"\n  },\n  {\n    \"id\": \"{{faker 'string.ulid'}}\",\n    \"name\": \"Sconto trasporto pubblico locale\",\n    \"organization_name\": \"Comune di Torino\",\n    \"entityId\": \"{{faker 'string.uuid'}}\",\n    \"accessPointId\": \"ap-mock-006\",\n    \"publication_status\": \"PUBLISHED\",\n    \"approval_status\": \"Approvata\",\n    \"opportunity_type\": \"Sconto\",\n    \"discount_type\": \"Percentuale\",\n    \"discount_value\": 50,\n    \"discount_label\": \"-50%\",\n    \"description\": \"Inserisci qui la descrizione per i trasporti...\",\n    \"category\": \"SUSTAINABLE_MOBILITY\",\n    \"validity_start\": \"2026-03-01\",\n    \"validity_end\": \"2026-12-31\",\n    \"conditions\": \"Inserisci qui le condizioni d'uso...\",\n    \"info_url\": \"https://example.com/info\",\n    \"venue_name\": \"GTT Torino\",\n    \"venue_address\": \"Corso Turati 19/6, Torino\",\n    \"managed_by\": \"Comune di Torino\",\n    \"companion\": {\n      \"enabled\": false,\n      \"discount_type\": \"Nessuno\",\n      \"discount_value\": 0\n    },\n    \"createdAt\": \"2026-02-28T08:30:00Z\"\n  },\n  {\n    \"id\": \"{{faker 'string.ulid'}}\",\n    \"name\": \"Ingresso gratuito musei civici\",\n    \"organization_name\": \"Comune di Milano\",\n    \"entityId\": \"{{faker 'string.uuid'}}\",\n    \"accessPointId\": \"ap-mock-007\",\n    \"publication_status\": \"PUBLISHED\",\n    \"approval_status\": \"Approvata\",\n    \"opportunity_type\": \"Gratuità\",\n    \"discount_type\": \"Percentuale\",\n    \"discount_value\": 100,\n    \"discount_label\": \"Gratis\",\n    \"description\": \"Inserisci qui la descrizione per i musei...\",\n    \"category\": \"CULTURE_LEISURE\",\n    \"validity_start\": \"2026-03-01\",\n    \"validity_end\": \"2026-12-31\",\n    \"conditions\": \"Inserisci qui le condizioni d'uso...\",\n    \"info_url\": \"https://example.com/info\",\n    \"venue_name\": \"Musei Civici Milano\",\n    \"venue_address\": \"Piazza Duomo 1, Milano\",\n    \"managed_by\": \"Comune di Milano\",\n    \"companion\": {\n      \"enabled\": false,\n      \"discount_type\": \"Nessuno\",\n      \"discount_value\": 0\n    },\n    \"createdAt\": \"2026-02-15T10:00:00Z\"\n  },\n  {\n    \"id\": \"{{faker 'string.ulid'}}\",\n    \"name\": \"Abbonamento palestre comunali\",\n    \"organization_name\": \"Comune di Roma\",\n    \"entityId\": \"{{faker 'string.uuid'}}\",\n    \"accessPointId\": \"ap-mock-008\",\n    \"publication_status\": \"DRAFT\",\n    \"approval_status\": \"Non_attiva\",\n    \"opportunity_type\": \"Sconto\",\n    \"discount_type\": \"Importo_fisso\",\n    \"discount_value\": 20,\n    \"discount_label\": \"-20€\",\n    \"description\": \"Inserisci qui la descrizione per le palestre...\",\n    \"category\": \"SPORT\",\n    \"validity_start\": \"2026-01-01\",\n    \"validity_end\": \"2026-06-30\",\n    \"conditions\": \"Inserisci qui le condizioni d'uso...\",\n    \"info_url\": \"https://example.com/info\",\n    \"venue_name\": \"Palestra Comunale Roma\",\n    \"venue_address\": \"Via delle Terme 1, Roma\",\n    \"managed_by\": \"Comune di Roma\",\n    \"companion\": {\n      \"enabled\": false,\n      \"discount_type\": \"Nessuno\",\n      \"discount_value\": 0\n    },\n    \"createdAt\": \"2026-01-20T12:00:00Z\"\n  }\n]",
+          "latency": 100,
           "statusCode": 200,
           "label": "Response with all statuses",
           "headers": [],
@@ -35,7 +35,7 @@
           "callbacks": []
         },
         {
-          "uuid": "ff25f763-7669-43f0-b42c-c4fd1e40cadb",
+          "uuid": "2a4faa15-7eb1-41eb-aff8-d960b476ebce",
           "body": "[]",
           "latency": 0,
           "statusCode": 200,
@@ -59,14 +59,14 @@
       "streamingInterval": 0
     },
     {
-      "uuid": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+      "uuid": "789c2799-77ab-4dd2-a743-a53f8a64b14e",
       "type": "http",
       "documentation": "Ricerca indirizzi",
       "method": "get",
       "endpoint": "api/addresses/search",
       "responses": [
         {
-          "uuid": "a1b2c3d4-e5f6-7890-abcd-ef1234567891",
+          "uuid": "aacf3a48-edef-412f-a606-8d988b0b834f",
           "body": "[\n    {\n        \"label\": \"Viale A. Ricci, 24\",\n        \"city\": \"Ferrara\",\n        \"postalCode\": \"44121\",\n        \"province\": \"FE\"\n    },\n    {\n        \"label\": \"Via Roma, 10\",\n        \"city\": \"Milano\",\n        \"postalCode\": \"20121\",\n        \"province\": \"MI\"\n    },\n    {\n        \"label\": \"Corso Vittorio Emanuele II, 5\",\n        \"city\": \"Roma\",\n        \"postalCode\": \"00186\",\n        \"province\": \"RM\"\n    },\n    {\n        \"label\": \"Via Garibaldi, 3\",\n        \"city\": \"Torino\",\n        \"postalCode\": \"10122\",\n        \"province\": \"TO\"\n    },\n    {\n        \"label\": \"Piazza Navona, 1\",\n        \"city\": \"Roma\",\n        \"postalCode\": \"00186\",\n        \"province\": \"RM\"\n    },\n    {\n        \"label\": \"Via Manzoni, 7\",\n        \"city\": \"Milano\",\n        \"postalCode\": \"20121\",\n        \"province\": \"MI\"\n    },\n    {\n        \"label\": \"Lungarno degli Archibusieri, 4\",\n        \"city\": \"Firenze\",\n        \"postalCode\": \"50122\",\n        \"province\": \"FI\"\n    },\n    {\n        \"label\": \"Via Toledo, 256\",\n        \"city\": \"Napoli\",\n        \"postalCode\": \"80132\",\n        \"province\": \"NA\"\n    },\n    {\n        \"label\": \"Via XX Settembre, 14\",\n        \"city\": \"Genova\",\n        \"postalCode\": \"16121\",\n        \"province\": \"GE\"\n    },\n    {\n        \"label\": \"Corso Buenos Aires, 33\",\n        \"city\": \"Milano\",\n        \"postalCode\": \"20124\",\n        \"province\": \"MI\"\n    }\n]",
           "latency": 0,
           "statusCode": 200,
@@ -90,14 +90,14 @@
       "streamingInterval": 0
     },
     {
-      "uuid": "d4e5f6a7-b8c9-0123-def0-234567890124",
+      "uuid": "687107da-537e-40d3-bb75-cb48cea2868a",
       "type": "crud",
       "documentation": "Websites CRUD",
       "method": "get",
       "endpoint": "api/websites",
       "responses": [
         {
-          "uuid": "d4e5f6a7-b8c9-0123-def0-234567890125",
+          "uuid": "479b8c5b-327b-43b7-8363-e213adf3d68d",
           "body": "",
           "latency": 0,
           "statusCode": 200,
@@ -121,14 +121,14 @@
       "streamingInterval": 0
     },
     {
-      "uuid": "c3d4e5f6-a7b8-9012-cdef-123456789012",
+      "uuid": "7f9e40d8-1c15-4c7c-8842-3f6bcb579785",
       "type": "crud",
       "documentation": "Locations CRUD",
       "method": "get",
       "endpoint": "api/locations",
       "responses": [
         {
-          "uuid": "c3d4e5f6-a7b8-9012-cdef-123456789013",
+          "uuid": "cd2c923d-3b45-4fd7-b2c0-6ebf41be642e",
           "body": "",
           "latency": 0,
           "statusCode": 200,
@@ -152,14 +152,14 @@
       "streamingInterval": 0
     },
     {
-      "uuid": "b1c2d3e4-f5a6-7890-bcde-f01234567890",
+      "uuid": "223249e2-f525-4320-b1cb-442e9017b63e",
       "type": "http",
       "documentation": "Salva opportunità in bozza",
       "method": "post",
       "endpoint": "api/benefits/draft",
       "responses": [
         {
-          "uuid": "b1c2d3e4-f5a6-7890-bcde-f01234567891",
+          "uuid": "0b7ca784-7eb4-4213-be19-75fff9bc7cdc",
           "body": "{\"id\": \"benefit-draft-001\", \"status\": \"Bozza\", \"createdAt\": \"2026-04-20T10:00:00Z\"}",
           "latency": 500,
           "statusCode": 201,
@@ -183,15 +183,15 @@
       "streamingInterval": 0
     },
     {
-      "uuid": "f1a2b3c4-d5e6-7890-abcd-ef0123456789",
+      "uuid": "691ae7f0-74fe-4d68-9b46-6864600a7593",
       "type": "http",
       "documentation": "Elenco opportunità",
       "method": "get",
       "endpoint": "api/opportunities",
       "responses": [
         {
-          "uuid": "f1a2b3c4-d5e6-7890-abcd-ef0123456790",
-          "body": "[\n    {\n        \"id\": \"opp-001\",\n        \"name\": \"Accesso gratuito nei teatri comunali\",\n        \"organization_name\": \"Comune di Alessandria\",\n        \"created_at\": \"2026-03-12\",\n        \"state\": \"Da_gestire\"\n    },\n    {\n        \"id\": \"opp-002\",\n        \"name\": \"Biglietto gratuito nelle sale cinematografiche\",\n        \"organization_name\": \"Cineplex Moderno Alessandria\",\n        \"created_at\": \"2026-03-12\",\n        \"state\": \"Da_gestire\"\n    },\n    {\n        \"id\": \"opp-003\",\n        \"name\": \"Biglietto gratuito nelle sale cinematografiche\",\n        \"organization_name\": \"Cineplex Moderno Alessandria\",\n        \"created_at\": \"2026-03-12\",\n        \"state\": \"Da_gestire\"\n    },\n    {\n        \"id\": \"opp-004\",\n        \"name\": \"Biglietto gratuito nelle sale cinematografiche\",\n        \"organization_name\": \"Cineplex Moderno Alessandria\",\n        \"created_at\": \"2026-03-12\",\n        \"state\": \"Da_gestire\"\n    },\n    {\n        \"id\": \"opp-005\",\n        \"name\": \"Accesso gratuito nei cinema multisala\",\n        \"organization_name\": \"Comune di Cuneo\",\n        \"created_at\": \"2026-03-12\",\n        \"state\": \"In_attesa_di_modifiche\"\n    },\n    {\n        \"id\": \"opp-006\",\n        \"name\": \"Sconto trasporto pubblico locale\",\n        \"organization_name\": \"Comune di Torino\",\n        \"created_at\": \"2026-02-28\",\n        \"state\": \"Approvata\"\n    },\n    {\n        \"id\": \"opp-007\",\n        \"name\": \"Ingresso gratuito musei civici\",\n        \"organization_name\": \"Comune di Milano\",\n        \"created_at\": \"2026-02-15\",\n        \"state\": \"Approvata\"\n    },\n    {\n        \"id\": \"opp-008\",\n        \"name\": \"Abbonamento palestre comunali\",\n        \"organization_name\": \"Comune di Roma\",\n        \"created_at\": \"2026-01-20\",\n        \"state\": \"Non_attiva\"\n    }\n]",
+          "uuid": "698fa9e0-8f8d-407a-82dd-9772a01d07fe",
+          "body": "[\n  {\n    \"id\": \"{{faker 'string.ulid'}}\",\n    \"name\": \"Accesso gratuito nei teatri comunali\",\n    \"organization_name\": \"Comune di Alessandria\",\n    \"entityId\": \"{{faker 'string.uuid'}}\",\n    \"accessPointId\": \"ap-mock-001\",\n    \"publication_status\": \"UNDER_REVIEW\",\n    \"approval_status\": \"Da_gestire\",\n    \"opportunity_type\": \"Gratuità\",\n    \"discount_type\": \"Percentuale\",\n    \"discount_value\": 100,\n    \"discount_label\": \"Gratis\",\n    \"description\": \"Inserisci qui la descrizione per l'accesso ai teatri...\",\n    \"category\": \"CULTURE_LEISURE\",\n    \"validity_start\": \"2026-04-01\",\n    \"validity_end\": \"2026-12-31\",\n    \"conditions\": \"Inserisci qui le condizioni d'uso...\",\n    \"info_url\": \"https://example.com/info\",\n    \"venue_name\": \"Teatro Comunale Mock\",\n    \"venue_address\": \"Via Teatro 1, Alessandria\",\n    \"managed_by\": \"Comune di Alessandria\",\n    \"companion\": {\n      \"enabled\": false,\n      \"discount_type\": \"Nessuno\",\n      \"discount_value\": 0\n    },\n    \"created_at\": \"2026-03-12T09:00:00Z\"\n  },\n  {\n    \"id\": \"{{faker 'string.ulid'}}\",\n    \"name\": \"Biglietto gratuito nelle sale cinematografiche\",\n    \"organization_name\": \"Cineplex Moderno Alessandria\",\n    \"entityId\": \"{{faker 'string.uuid'}}\",\n    \"accessPointId\": \"ap-mock-002\",\n    \"publication_status\": \"DRAFT\",\n    \"approval_status\": \"Da_gestire\",\n    \"opportunity_type\": \"Gratuità\",\n    \"discount_type\": \"Percentuale\",\n    \"discount_value\": 100,\n    \"discount_label\": \"Gratis\",\n    \"description\": \"Inserisci qui la descrizione per il cinema...\",\n    \"category\": \"CULTURE_LEISURE\",\n    \"validity_start\": \"2026-04-01\",\n    \"validity_end\": \"2026-12-31\",\n    \"conditions\": \"Inserisci qui le condizioni d'uso...\",\n    \"info_url\": \"https://example.com/info\",\n    \"venue_name\": \"Cineplex Moderno\",\n    \"venue_address\": \"Via Cinema 2, Alessandria\",\n    \"managed_by\": \"Cineplex Moderno Alessandria\",\n    \"companion\": {\n      \"enabled\": false,\n      \"discount_type\": \"Nessuno\",\n      \"discount_value\": 0\n    },\n    \"created_at\": \"2026-03-12T10:15:00Z\"\n  },\n  {\n    \"id\": \"{{faker 'string.ulid'}}\",\n    \"name\": \"Biglietto gratuito nelle sale cinematografiche\",\n    \"organization_name\": \"Cineplex Moderno Alessandria\",\n    \"entityId\": \"{{faker 'string.uuid'}}\",\n    \"accessPointId\": \"ap-mock-003\",\n    \"publication_status\": \"DRAFT\",\n    \"approval_status\": \"Da_gestire\",\n    \"opportunity_type\": \"Gratuità\",\n    \"discount_type\": \"Percentuale\",\n    \"discount_value\": 100,\n    \"discount_label\": \"Gratis\",\n    \"description\": \"Inserisci qui la descrizione per il cinema...\",\n    \"category\": \"CULTURE_LEISURE\",\n    \"validity_start\": \"2026-04-01\",\n    \"validity_end\": \"2026-12-31\",\n    \"conditions\": \"Inserisci qui le condizioni d'uso...\",\n    \"info_url\": \"https://example.com/info\",\n    \"venue_name\": \"Cineplex Moderno\",\n    \"venue_address\": \"Via Cinema 2, Alessandria\",\n    \"managed_by\": \"Cineplex Moderno Alessandria\",\n    \"companion\": {\n      \"enabled\": false,\n      \"discount_type\": \"Nessuno\",\n      \"discount_value\": 0\n    },\n    \"created_at\": \"2026-03-12T11:30:00Z\"\n  },\n  {\n    \"id\": \"{{faker 'string.ulid'}}\",\n    \"name\": \"Biglietto gratuito nelle sale cinematografiche\",\n    \"organization_name\": \"Cineplex Moderno Alessandria\",\n    \"entityId\": \"{{faker 'string.uuid'}}\",\n    \"accessPointId\": \"ap-mock-004\",\n    \"publication_status\": \"SCHEDULED_PUBLICATION\",\n    \"approval_status\": \"Da_gestire\",\n    \"opportunity_type\": \"Gratuità\",\n    \"discount_type\": \"Percentuale\",\n    \"discount_value\": 100,\n    \"discount_label\": \"Gratis\",\n    \"description\": \"Inserisci qui la descrizione per il cinema...\",\n    \"category\": \"CULTURE_LEISURE\",\n    \"validity_start\": \"2026-04-01\",\n    \"validity_end\": \"2026-12-31\",\n    \"conditions\": \"Inserisci qui le condizioni d'uso...\",\n    \"info_url\": \"https://example.com/info\",\n    \"venue_name\": \"Cineplex Moderno\",\n    \"venue_address\": \"Via Cinema 2, Alessandria\",\n    \"managed_by\": \"Cineplex Moderno Alessandria\",\n    \"companion\": {\n      \"enabled\": false,\n      \"discount_type\": \"Nessuno\",\n      \"discount_value\": 0\n    },\n    \"created_at\": \"2026-03-12T14:45:00Z\"\n  },\n  {\n    \"id\": \"{{faker 'string.ulid'}}\",\n    \"name\": \"Accesso gratuito nei cinema multisala\",\n    \"organization_name\": \"Comune di Cuneo\",\n    \"entityId\": \"{{faker 'string.uuid'}}\",\n    \"accessPointId\": \"ap-mock-005\",\n    \"publication_status\": \"CHANGES_REQUESTED\",\n    \"approval_status\": \"In_attesa_di_modifiche\",\n    \"opportunity_type\": \"Gratuità\",\n    \"discount_type\": \"Percentuale\",\n    \"discount_value\": 100,\n    \"discount_label\": \"Gratis\",\n    \"description\": \"Inserisci qui la descrizione per i cinema multisala...\",\n    \"category\": \"CULTURE_LEISURE\",\n    \"validity_start\": \"2026-04-01\",\n    \"validity_end\": \"2026-12-31\",\n    \"conditions\": \"Inserisci qui le condizioni d'uso...\",\n    \"info_url\": \"https://example.com/info\",\n    \"venue_name\": \"Multisala Mock Cuneo\",\n    \"venue_address\": \"Via Roma 10, Cuneo\",\n    \"managed_by\": \"Comune di Cuneo\",\n    \"companion\": {\n      \"enabled\": false,\n      \"discount_type\": \"Nessuno\",\n      \"discount_value\": 0\n    },\n    \"created_at\": \"2026-03-12T16:20:00Z\"\n  },\n  {\n    \"id\": \"{{faker 'string.ulid'}}\",\n    \"name\": \"Sconto trasporto pubblico locale\",\n    \"organization_name\": \"Comune di Torino\",\n    \"entityId\": \"{{faker 'string.uuid'}}\",\n    \"accessPointId\": \"ap-mock-006\",\n    \"publication_status\": \"PUBLISHED\",\n    \"approval_status\": \"Approvata\",\n    \"opportunity_type\": \"Sconto\",\n    \"discount_type\": \"Percentuale\",\n    \"discount_value\": 50,\n    \"discount_label\": \"-50%\",\n    \"description\": \"Inserisci qui la descrizione per i trasporti...\",\n    \"category\": \"SUSTAINABLE_MOBILITY\",\n    \"validity_start\": \"2026-03-01\",\n    \"validity_end\": \"2026-12-31\",\n    \"conditions\": \"Inserisci qui le condizioni d'uso...\",\n    \"info_url\": \"https://example.com/info\",\n    \"venue_name\": \"GTT Torino\",\n    \"venue_address\": \"Corso Turati 19/6, Torino\",\n    \"managed_by\": \"Comune di Torino\",\n    \"companion\": {\n      \"enabled\": false,\n      \"discount_type\": \"Nessuno\",\n      \"discount_value\": 0\n    },\n    \"created_at\": \"2026-02-28T08:30:00Z\"\n  },\n  {\n    \"id\": \"{{faker 'string.ulid'}}\",\n    \"name\": \"Ingresso gratuito musei civici\",\n    \"organization_name\": \"Comune di Milano\",\n    \"entityId\": \"{{faker 'string.uuid'}}\",\n    \"accessPointId\": \"ap-mock-007\",\n    \"publication_status\": \"PUBLISHED\",\n    \"approval_status\": \"Approvata\",\n    \"opportunity_type\": \"Gratuità\",\n    \"discount_type\": \"Percentuale\",\n    \"discount_value\": 100,\n    \"discount_label\": \"Gratis\",\n    \"description\": \"Inserisci qui la descrizione per i musei...\",\n    \"category\": \"CULTURE_LEISURE\",\n    \"validity_start\": \"2026-03-01\",\n    \"validity_end\": \"2026-12-31\",\n    \"conditions\": \"Inserisci qui le condizioni d'uso...\",\n    \"info_url\": \"https://example.com/info\",\n    \"venue_name\": \"Musei Civici Milano\",\n    \"venue_address\": \"Piazza Duomo 1, Milano\",\n    \"managed_by\": \"Comune di Milano\",\n    \"companion\": {\n      \"enabled\": false,\n      \"discount_type\": \"Nessuno\",\n      \"discount_value\": 0\n    },\n    \"created_at\": \"2026-02-15T10:00:00Z\"\n  },\n  {\n    \"id\": \"{{faker 'string.ulid'}}\",\n    \"name\": \"Abbonamento palestre comunali\",\n    \"organization_name\": \"Comune di Roma\",\n    \"entityId\": \"{{faker 'string.uuid'}}\",\n    \"accessPointId\": \"ap-mock-008\",\n    \"publication_status\": \"DRAFT\",\n    \"approval_status\": \"Non_attiva\",\n    \"opportunity_type\": \"Sconto\",\n    \"discount_type\": \"Importo_fisso\",\n    \"discount_value\": 20,\n    \"discount_label\": \"-20€\",\n    \"description\": \"Inserisci qui la descrizione per le palestre...\",\n    \"category\": \"SPORT\",\n    \"validity_start\": \"2026-01-01\",\n    \"validity_end\": \"2026-06-30\",\n    \"conditions\": \"Inserisci qui le condizioni d'uso...\",\n    \"info_url\": \"https://example.com/info\",\n    \"venue_name\": \"Palestra Comunale Roma\",\n    \"venue_address\": \"Via delle Terme 1, Roma\",\n    \"managed_by\": \"Comune di Roma\",\n    \"companion\": {\n      \"enabled\": false,\n      \"discount_type\": \"Nessuno\",\n      \"discount_value\": 0\n    },\n    \"created_at\": \"2026-01-20T12:00:00Z\"\n  }\n]",
           "latency": 0,
           "statusCode": 200,
           "label": "Response with all statuses",
@@ -209,7 +209,7 @@
           "callbacks": []
         },
         {
-          "uuid": "f1a2b3c4-d5e6-7890-abcd-ef0123456791",
+          "uuid": "78f1638c-d4d3-4716-809f-b8de521275fc",
           "body": "[]",
           "latency": 0,
           "statusCode": 200,
@@ -283,15 +283,15 @@
       "streamingInterval": 0
     },
     {
-      "uuid": "a2b3c4d5-e6f7-8901-bcde-f01234567890",
+      "uuid": "98738e73-d1d1-4dbf-815a-bf6593e4691a",
       "type": "http",
       "documentation": "Dettaglio opportunità",
       "method": "get",
       "endpoint": "api/opportunities/:id",
       "responses": [
         {
-          "uuid": "a2b3c4d5-e6f7-8901-bcde-f01234567891",
-          "body": "{\n    \"id\": \"{{urlParam 'id'}}\",\n    \"name\": \"Discount_Title\",\n    \"organization_name\": \"Comune di Alessandria\",\n    \"state\": \"Da_gestire\",\n    \"opportunity_type\": \"Sconto\",\n    \"discount_type\": \"Percentuale\",\n    \"discount_value\": 50,\n    \"description\": \"Consente l'accesso agevolato nei musei per i titolari della Carta Europea della Disabilità e un solo accompagnatore.\",\n    \"category\": \"Cultura e tempo libero\",\n    \"validity_start\": \"2026-03-01\",\n    \"validity_end\": \"2026-12-31\",\n    \"conditions\": \"L'accompagnatore ha diritto ad uno sconto se sulla Carta Europea della Disabilità è presente la \\\"A\\\" che indica il diritto di accompagnamento.\",\n    \"companion\": {\n        \"enabled\": true,\n        \"discount_type\": \"Importo fisso\",\n        \"discount_value\": 10\n    }\n}",
+          "uuid": "1a942243-fe8d-4c9b-a944-cf43f282ced9",
+          "body": "{\n    \"id\": \"{{urlParam 'id'}}\",\n    \"name\": \"Ingresso scontato alla mostra temporanea \\\"Impressionisti in Normandia\\\"\",\n    \"organization_name\": \"Comune di Alessandria\",\n    \"entityId\": \"comune-di-alessandria\",\n    \"accessPointId\": \"museo-della-gambarina\",\n    \"publication_status\": \"DELETED\",\n    \"approval_status\": \"Da_gestire\",\n    \"opportunity_type\": \"Sconto\",\n    \"discount_type\": \"Percentuale\",\n    \"discount_value\": 50,\n    \"discount_label\": \"-50%\",\n    \"description\": \"Sconto del 50% sul biglietto d'ingresso per la mostra dedicata ai maestri dell'Impressionismo. Un viaggio visivo tra le coste della Normandia attraverso le opere di Monet, Renoir, Delacroix e Courbet. Scopri come la luce del Nord ha rivoluzionato la storia dell'arte moderna.\",\n    \"category\": \"Cultura e tempo libero\",\n    \"validity_start\": \"2026-03-01\",\n    \"validity_end\": \"2026-03-21\",\n    \"conditions\": \"L'offerta è valida per l'acquisto di un biglietto intero presso la biglietteria fisica della mostra o sul sito ufficiale acquistando un biglietto agevolato per titolari Carta europea della disabilità. Lo sconto non è cumulabile con altre promozioni in corso o riduzioni per fasce d'età. È necessario esibire un documento d'identità valido all'ingresso insieme alla card fisica o digitale su app IO.\",\n    \"info_url\": \"https://palazzoducalevenezia.com\",\n    \"venue_name\": \"Museo della Gambarina\",\n    \"venue_address\": \"Piazza della Gambarina, 1, 15121\\nAlessandria AL\",\n    \"managed_by\": \"Comune di Alessandria\",\n    \"companion\": {\n        \"enabled\": true,\n        \"discount_type\": \"Stesse condizioni\",\n        \"discount_value\": 0\n    },\n    \"createdAt\": \"2026-03-12T09:00:00Z\"\n}",
           "latency": 0,
           "statusCode": 200,
           "label": "Opportunity detail",
@@ -348,27 +348,27 @@
   "rootChildren": [
     {
       "type": "route",
-      "uuid": "15ccebf6-2ca1-4eb5-b7d8-232e8d4e50db"
+      "uuid": "692cafc5-17ae-490e-8643-9f25691a51f2"
     },
     {
       "type": "route",
-      "uuid": "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+      "uuid": "789c2799-77ab-4dd2-a743-a53f8a64b14e"
     },
     {
       "type": "route",
-      "uuid": "d4e5f6a7-b8c9-0123-def0-234567890124"
+      "uuid": "687107da-537e-40d3-bb75-cb48cea2868a"
     },
     {
       "type": "route",
-      "uuid": "c3d4e5f6-a7b8-9012-cdef-123456789012"
+      "uuid": "7f9e40d8-1c15-4c7c-8842-3f6bcb579785"
     },
     {
       "type": "route",
-      "uuid": "b1c2d3e4-f5a6-7890-bcde-f01234567890"
+      "uuid": "223249e2-f525-4320-b1cb-442e9017b63e"
     },
     {
       "type": "route",
-      "uuid": "f1a2b3c4-d5e6-7890-abcd-ef0123456789"
+      "uuid": "691ae7f0-74fe-4d68-9b46-6864600a7593"
     },
     {
       "type": "route",
@@ -376,11 +376,11 @@
     },
     {
       "type": "route",
-      "uuid": "a2b3c4d5-e6f7-8901-bcde-f01234567890"
+      "uuid": "b7c8d9e0-f1a2-3456-bcde-112233445566"
     },
     {
       "type": "route",
-      "uuid": "b7c8d9e0-f1a2-3456-bcde-112233445566"
+      "uuid": "98738e73-d1d1-4dbf-815a-bf6593e4691a"
     }
   ],
   "proxyMode": false,
@@ -428,18 +428,18 @@
   ],
   "data": [
     {
-      "uuid": "sedi-bucket-0001-0000-0000-000000000001",
+      "uuid": "e05aabd3-9f02-4151-bc03-7d2605a99032",
       "id": "locations",
       "name": "Locations",
       "value": "[]",
-      "parsed": true
+      "documentation": ""
     },
     {
-      "uuid": "webs-bucket-0001-0000-0000-000000000001",
+      "uuid": "6bdcdef3-056f-40d9-9624-5964ea6e7734",
       "id": "websites",
       "name": "Websites",
       "value": "[]",
-      "parsed": true
+      "documentation": ""
     }
   ],
   "callbacks": []

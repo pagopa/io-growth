@@ -7,21 +7,21 @@ import {
   selectBenefitNameFilter,
   selectBenefitStatusFilter,
 } from '../benefitsFilters/selectors';
-import { BenefitStatus } from '../benefitsFilters/types';
+import { PublicationStatus } from '../benefitsFilters/types';
 
-const IN_MANAGEMENT_STATES: Set<keyof typeof BenefitStatus> = new Set([
+const IN_MANAGEMENT_STATES: Set<keyof typeof PublicationStatus> = new Set([
   'DRAFT',
   'UNDER_REVIEW',
   'CHANGES_REQUESTED',
 ]);
-const APPROVED_STATES: Set<keyof typeof BenefitStatus> = new Set([
+const APPROVED_STATES: Set<keyof typeof PublicationStatus> = new Set([
   'PUBLISHED',
   'SCHEDULED_PUBLICATION',
 ]);
 
 const getFilteredItems = (
   items: BenefitsResponse,
-  targetStates: Set<keyof typeof BenefitStatus>,
+  targetStates: Set<keyof typeof PublicationStatus>,
   filters: {
     nameFilter: ReturnType<typeof selectBenefitNameFilter>;
     categoryFilter: ReturnType<typeof selectBenefitCategoryFilter>;
@@ -30,8 +30,8 @@ const getFilteredItems = (
 ) => {
   const { nameFilter, categoryFilter, statusFilter } = filters;
 
-  return items.filter(({ state, name, category }) => {
-    if (!targetStates.has(state)) {
+  const filtered = items.filter(({ publication_status, name, category }) => {
+    if (!targetStates.has(publication_status)) {
       return false;
     }
 
@@ -40,10 +40,12 @@ const getFilteredItems = (
 
     const matchesCategory = !categoryFilter || category === categoryFilter;
 
-    const matchesStatus = !statusFilter || state === statusFilter;
+    const matchesStatus = !statusFilter || publication_status === statusFilter;
 
     return matchesName && matchesCategory && matchesStatus;
   });
+
+  return filtered;
 };
 
 export const useBenefitsData = () => {
@@ -85,5 +87,5 @@ export const useBenefitsData = () => {
 };
 
 export const formatBenefitRow = (item: Benefit) => {
-  return `${item.name} · ${item.category} · ${item.createdAt} · ${item.state}`;
+  return `${item.name} · ${item.category} · ${item.createdAt} · ${item.publication_status}`;
 };

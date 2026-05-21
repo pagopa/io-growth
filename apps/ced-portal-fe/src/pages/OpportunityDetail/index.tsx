@@ -124,10 +124,10 @@ export default function OpportunityDetailPage() {
           </Box>
           <Chip
             label={
-              STATE_OPTIONS.find((o) => o.value === detail.state)?.label ??
-              detail.state
+              STATE_OPTIONS.find((o) => o.value === detail.approval_status)
+                ?.label ?? detail.approval_status
             }
-            color={STATE_COLORS[detail.state] ?? 'default'}
+            color={STATE_COLORS[detail.approval_status] ?? 'default'}
             size="small"
           />
         </Stack>

@@ -49,14 +49,22 @@ resource "azurerm_storage_container" "immutable_ced_browser_audit_logs_storage_l
   container_access_type = "private"
 }
 
+resource "azurerm_storage_container" "immutable_ced_card_request_audit_logs_storage_logs" {
+  depends_on = [module.immutable_ced_audit_logs_storage]
+
+  name                  = "ced-card-request-logs"
+  storage_account_name  = module.immutable_ced_audit_logs_storage.name
+  container_access_type = "private"
+}
+
 # Policies
-resource "azurerm_storage_management_policy" "immutable_ced_browser_audit_logs_storage_management_policy" {
-  depends_on = [module.immutable_ced_audit_logs_storage, azurerm_storage_container.immutable_ced_browser_audit_logs_storage_logs]
+resource "azurerm_storage_management_policy" "immutable_audit_logs_storage_management_policy" {
+  depends_on = [module.immutable_ced_audit_logs_storage, azurerm_storage_container.immutable_ced_card_request_audit_logs_storage_logs]
 
   storage_account_id = module.immutable_ced_audit_logs_storage.id
 
   rule {
-    name    = "deletepolicy"
+    name    = "browserauditlogsdeletepolicy"
     enabled = true
     filters {
       prefix_match = [
@@ -76,24 +84,9 @@ resource "azurerm_storage_management_policy" "immutable_ced_browser_audit_logs_s
       }
     }
   }
-}
-
-resource "azurerm_storage_container" "immutable_ced_card_request_audit_logs_storage_logs" {
-  depends_on = [module.immutable_ced_audit_logs_storage]
-
-  name                  = "ced-card-request-logs"
-  storage_account_name  = module.immutable_ced_audit_logs_storage.name
-  container_access_type = "private"
-}
-
-# Policies
-resource "azurerm_storage_management_policy" "immutable_ced_card_request_audit_logs_storage_management_policy" {
-  depends_on = [module.immutable_ced_audit_logs_storage, azurerm_storage_container.immutable_ced_card_request_audit_logs_storage_logs]
-
-  storage_account_id = module.immutable_ced_audit_logs_storage.id
 
   rule {
-    name    = "deletepolicy"
+    name    = "cardrequestauditlogsdeletepolicy"
     enabled = true
     filters {
       prefix_match = [

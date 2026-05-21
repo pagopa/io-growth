@@ -1,13 +1,13 @@
-import MoreVertRoundedIcon from '@mui/icons-material/MoreVertRounded';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
 import { format, parseISO } from 'date-fns';
-import { Chip } from '@mui/material';
+import { Chip, IconButton } from '@mui/material';
 import type { Theme } from '@mui/material/styles';
-import type { ReactNode } from 'react';
+import type { MouseEvent, ReactNode } from 'react';
 import type { Benefit } from '../../../features/benefits/types';
 import { getChipConfig } from './utils';
 import {
   BenefitCategory,
-  BenefitStatus,
+  PublicationStatus,
 } from '../../../features/benefitsFilters/types';
 
 export interface BenefitsTableColumn {
@@ -17,7 +17,11 @@ export interface BenefitsTableColumn {
   align?: 'left' | 'center' | 'right';
   sortable?: boolean;
   sortAccessor?: (item: Benefit) => string | number;
-  renderCell: (item: Benefit, theme: Theme) => ReactNode;
+  renderCell: (
+    item: Benefit,
+    theme: Theme,
+    action: (event: MouseEvent<HTMLElement>, itemId: string) => void,
+  ) => ReactNode;
 }
 
 export const benefitsTableColumns: BenefitsTableColumn[] = [
@@ -46,10 +50,10 @@ export const benefitsTableColumns: BenefitsTableColumn[] = [
       format(parseISO(item.createdAt), 'dd/MM/yyyy - HH:mm'),
   },
   {
-    id: 'state',
+    id: 'publication_status',
     label: 'Stato',
     sortable: true,
-    sortAccessor: (item) => BenefitStatus[item.state],
+    sortAccessor: (item) => PublicationStatus[item.publication_status],
     renderCell: (item) => <Chip {...getChipConfig(item)} />,
   },
   {
@@ -57,13 +61,10 @@ export const benefitsTableColumns: BenefitsTableColumn[] = [
     label: '',
     width: 48,
     align: 'right',
-    renderCell: (_item, theme) => (
-      <MoreVertRoundedIcon
-        sx={{
-          color: theme.palette.common.primaryButton,
-          fontSize: 24,
-        }}
-      />
+    renderCell: (item, _theme, action) => (
+      <IconButton size="small" onClick={(event) => action(event, item.id)}>
+        <MoreVertIcon sx={{ fontSize: 22 }} />
+      </IconButton>
     ),
   },
 ];

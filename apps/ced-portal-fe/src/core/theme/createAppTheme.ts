@@ -85,6 +85,14 @@ export const createAppTheme = () =>
           },
         },
       },
+      MuiIconButton: {
+        styleOverrides: {
+          root: {
+            color: PRIMARY_BUTTON_BACKGROUND,
+            padding: 0.4,
+          },
+        },
+      },
       MuiAutocomplete: {
         styleOverrides: {
           root: {

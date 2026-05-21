@@ -3,15 +3,15 @@ import { useGetOpportunitiesQuery } from './api';
 import type {
   Opportunity,
   OpportunityFilters,
-  OpportunityState,
+  OpportunityApprovalStatus,
 } from './types';
 
-const NEW_STATES: Set<OpportunityState> = new Set([
+const NEW_STATES: Set<OpportunityApprovalStatus> = new Set([
   'Da_gestire',
   'In_attesa_di_modifiche',
 ]);
-const APPROVED_STATES: Set<OpportunityState> = new Set(['Approvata']);
-const INACTIVE_STATES: Set<OpportunityState> = new Set(['Non_attiva']);
+const APPROVED_STATES: Set<OpportunityApprovalStatus> = new Set(['Approvata']);
+const INACTIVE_STATES: Set<OpportunityApprovalStatus> = new Set(['Non_attiva']);
 
 const matchesSearch = (item: Opportunity, search: string): boolean => {
   if (!search) return true;
@@ -24,7 +24,7 @@ const matchesSearch = (item: Opportunity, search: string): boolean => {
 
 const matchesState = (item: Opportunity, state: string): boolean => {
   if (!state) return true;
-  return item.state === state;
+  return item.approval_status === state;
 };
 
 export const useOpportunitiesData = (filters: OpportunityFilters) => {
@@ -43,17 +43,19 @@ export const useOpportunitiesData = (filters: OpportunityFilters) => {
   );
 
   const newItems = useMemo(
-    () => filteredItems.filter((item) => NEW_STATES.has(item.state)),
+    () => filteredItems.filter((item) => NEW_STATES.has(item.approval_status)),
     [filteredItems],
   );
 
   const approvedItems = useMemo(
-    () => filteredItems.filter((item) => APPROVED_STATES.has(item.state)),
+    () =>
+      filteredItems.filter((item) => APPROVED_STATES.has(item.approval_status)),
     [filteredItems],
   );
 
   const inactiveItems = useMemo(
-    () => filteredItems.filter((item) => INACTIVE_STATES.has(item.state)),
+    () =>
+      filteredItems.filter((item) => INACTIVE_STATES.has(item.approval_status)),
     [filteredItems],
   );
 

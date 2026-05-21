@@ -1,45 +1,53 @@
 import { HeaderProduct } from '@pagopa/mui-italia';
-import { Box } from '@mui/material';
-import { useEffect } from 'react';
+import { Box, Typography } from '@mui/material';
+import { useCallback, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { productsList, partyList, partyRoleMap } from './constants';
-import { useAppDispatch } from '../../hooks';
+import { useAppDispatch, useAppSelector } from '../../hooks';
 import { setCredentials } from '../../core/auth/authSlice';
 import { APP_ROUTES } from '../../app/routeConfig';
+import { selectUser } from '../../core/auth/authSelectors';
 
 export const PageHeader = () => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const defaultParty = partyList[0];
-    dispatch(
-      setCredentials({
-        token: 'mock-token',
-        user: {
-          id: defaultParty.id,
-          name: defaultParty.name,
-          email: `${defaultParty.id}@test.it`,
-          role: partyRoleMap[defaultParty.id] ?? 'operator',
-        },
-      }),
-    );
-  }, [dispatch]);
+  const user = useAppSelector(selectUser);
+  const handlePartyChange = useCallback(
+    (party: { id: string; name: string }) => {
+      const role = partyRoleMap[party.id] ?? 'operator';
+      const isAdmin = role === 'admin';
+      dispatch(
+        setCredentials({
+          token: 'mock-token',
+          user: {
+            id: party.id,
+            name: party.name,
+            email: `${party.id}@test.it`,
+            role,
+          },
+        }),
+      );
 
-  const handlePartyChange = (party: { id: string; name: string }) => {
-    dispatch(
-      setCredentials({
-        token: 'mock-token',
-        user: {
-          id: party.id,
-          name: party.name,
-          email: `${party.id}@test.it`,
-          role: partyRoleMap[party.id] ?? 'operator',
-        },
-      }),
+      navigate(isAdmin ? APP_ROUTES.OPPORTUNITIES : APP_ROUTES.HOME);
+    },
+    [dispatch, navigate],
+  );
+
+  useEffect(() => {
+    handlePartyChange(partyList[1]);
+    // Keeping an empty dependency array is intentional: adding deps (e.g. partyList/handlePartyChange)
+    // would re-run this effect and overwrite user-selected party, breaking the initialization flow.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  if (!user) {
+    return (
+      <Box p={2}>
+        <Typography color="text.secondary">Utente non disponibile.</Typography>
+      </Box>
     );
-    navigate(APP_ROUTES.HOME);
-  };
+  }
 
   return (
     <Box sx={{ '& .MuiContainer-root': { px: { xs: 2, md: 3 } } }}>
@@ -47,7 +55,7 @@ export const PageHeader = () => {
         productsList={productsList}
         productId={productsList[0].id}
         partyList={partyList}
-        partyId={partyList[0].id}
+        partyId={user.id}
         onSelectedParty={handlePartyChange}
       />
     </Box>

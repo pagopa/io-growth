@@ -1,12 +1,13 @@
-## Short description
+## Description
 
-Include a summary of the changes.
+Use this section for a concise summary and rationale.
 
-## List of changes proposed in this pull request
+Keep the title clean: put the Jira task reference in the description (not in the title).
 
-- Feature A
-- Feature B
+Add the reference on a separate line at the end of the description (with a blank line before it):
+
+Resolves DX-1234
 
 ## How to test
 
-Describe the tests that you ran to verify your changes. Provide instructions so we can reproduce.
+Describe the tests you ran to verify your changes. Provide reproducible steps.

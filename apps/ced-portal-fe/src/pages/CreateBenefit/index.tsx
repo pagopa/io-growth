@@ -4,6 +4,7 @@ import { Box, Button, Container, Typography } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { APP_ROUTES } from '../../app/routeConfig';
 import { useSaveBenefitDraftMutation } from '../../features/benefits/api';
+import { useRequestApprovalMutation } from '../../features/opportunities/api';
 import {
   selectAccessPoint,
   selectNationwide,
@@ -42,6 +43,8 @@ export default function CreateBenefitPage() {
 
   const [saveDraft, { isLoading: isSavingDraft }] =
     useSaveBenefitDraftMutation();
+  const [requestApproval, { isLoading: isRequestingApproval }] =
+    useRequestApprovalMutation();
 
   const accessPoint = useAppSelector(selectAccessPoint);
   const nationwide = useAppSelector(selectNationwide);
@@ -114,9 +117,25 @@ export default function CreateBenefitPage() {
     }
   };
 
-  const handleConfirmSubmitReview = () => {
+  const handleConfirmSubmitReview = async () => {
     setSubmitReviewOpen(false);
-    navigate(-1);
+    try {
+      const draft = await saveDraft({
+        localizedForm: agreementState.localizedForm,
+        accessPoint,
+        nationwide,
+        selectedLocationIds,
+        selectedWebsiteIds,
+      }).unwrap();
+      await requestApproval(draft.id).unwrap();
+      showToast('Richiesta di approvazione inviata con successo', 'success');
+      navigate(APP_ROUTES.HOME);
+    } catch {
+      showToast(
+        "Errore durante l'invio della richiesta di approvazione",
+        'error',
+      );
+    }
   };
 
   const CurrentStep = STEPS[currentStep]?.component ?? null;
@@ -183,6 +202,7 @@ export default function CreateBenefitPage() {
           variant="contained"
           fullWidth
           onClick={handleConfirmSubmitReview}
+          disabled={isSavingDraft || isRequestingApproval}
         >
           Invia in revisione
         </Button>

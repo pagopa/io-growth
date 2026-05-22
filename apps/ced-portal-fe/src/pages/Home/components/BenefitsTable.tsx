@@ -23,6 +23,9 @@ export const BenefitsTable = ({ items }: BenefitsTableProps) => {
   const theme = useTheme();
   const [menuAnchor, setMenuAnchor] = useState<null | HTMLElement>(null);
   const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
+  const [selectedItemStatus, setSelectedItemStatus] = useState<
+    Benefit['publication_status'] | null
+  >(null);
   const { sortedItems, sortBy, sortDirection, handleSort } = useTableSort({
     items,
     columns: benefitsTableColumns,
@@ -34,7 +37,9 @@ export const BenefitsTable = ({ items }: BenefitsTableProps) => {
     event: React.MouseEvent<HTMLElement>,
     itemId: string,
   ) => {
+    const item = items.find((i) => i.id === itemId);
     setSelectedItemId(itemId);
+    setSelectedItemStatus(item?.publication_status ?? null);
     setMenuAnchor(event.currentTarget);
   };
 
@@ -145,6 +150,7 @@ export const BenefitsTable = ({ items }: BenefitsTableProps) => {
       <ActionsMenu
         anchor={menuAnchor}
         selectedItemId={selectedItemId}
+        selectedItemStatus={selectedItemStatus}
         handleMenuClose={handleMenuClose}
       />
     </TableContainer>

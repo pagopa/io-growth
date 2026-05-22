@@ -1,14 +1,18 @@
 import type { DataTableColumn } from '../../../../components/DataTable/types';
-import type { Location } from '../../../../features/location/types';
+import type { OfflinePlace } from '../../../../features/places/types';
 import { ItemDataTable } from '../components/ItemDataTable';
 
-const columns: DataTableColumn<Location>[] = [
+const columns: DataTableColumn<OfflinePlace>[] = [
   { id: 'name', label: 'Nome', renderCell: (item) => item.name },
-  { id: 'address', label: 'Indirizzo', renderCell: (item) => item.address },
+  {
+    id: 'address',
+    label: 'Indirizzo',
+    renderCell: (item) => item.address.street,
+  },
 ];
 
 interface LocationListProps {
-  locations: Location[];
+  locations: OfflinePlace[];
   onRemove: (id: string) => void;
 }
 

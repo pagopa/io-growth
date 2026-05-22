@@ -152,6 +152,37 @@
       "streamingInterval": 0
     },
     {
+      "uuid": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+      "type": "crud",
+      "documentation": "Operator places CRUD (GET list, POST create)",
+      "method": "get",
+      "endpoint": "api/operator/places",
+      "responses": [
+        {
+          "uuid": "b2c3d4e5-f6a7-8901-bcde-f12345678901",
+          "body": "",
+          "latency": 0,
+          "statusCode": 200,
+          "label": "Places list",
+          "headers": [],
+          "bodyType": "DATABUCKET",
+          "filePath": "",
+          "databucketID": "operator_places",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": true,
+          "crudKey": "id",
+          "callbacks": []
+        }
+      ],
+      "responseMode": null,
+      "streamingMode": null,
+      "streamingInterval": 0
+    },
+    {
       "uuid": "223249e2-f525-4320-b1cb-442e9017b63e",
       "type": "http",
       "documentation": "Salva opportunità in bozza",
@@ -364,6 +395,10 @@
     },
     {
       "type": "route",
+      "uuid": "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+    },
+    {
+      "type": "route",
       "uuid": "223249e2-f525-4320-b1cb-442e9017b63e"
     },
     {
@@ -439,6 +474,13 @@
       "id": "websites",
       "name": "Websites",
       "value": "[]",
+      "documentation": ""
+    },
+    {
+      "uuid": "f7e8d9c0-a1b2-3456-cdef-012345678901",
+      "id": "operator_places",
+      "name": "Operator Places",
+      "value": "[{\"id\": \"01JVMK3N8XQZP5T6G2WYHAB4CD\", \"type\": \"online\", \"name\": \"Sportello remoto\", \"website\": {\"url\": \"https://example.org\"}, \"supportContacts\": [{\"id\": \"01JVMK3N8XQZP5T6G2WYHAB4CE\", \"type\": \"email\", \"value\": \"support@example.org\"}]}, {\"id\": \"01JVMK3N8XQZP5T6G2WYHAB4CG\", \"type\": \"offline\", \"name\": \"Sportello centrale\", \"address\": {\"street\": \"Via Roma 1\", \"city\": \"Roma\", \"state\": \"RM\", \"postalCode\": \"00100\", \"country\": \"IT\"}, \"supportContacts\": [{\"id\": \"01JVMK3N8XQZP5T6G2WYHAB4CF\", \"type\": \"phone\", \"value\": \"+39 0000000000\"}]}]",
       "documentation": ""
     }
   ],

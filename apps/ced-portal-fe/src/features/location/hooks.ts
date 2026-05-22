@@ -1,47 +1,47 @@
-import { useMemo } from 'react';
+import {
+  useCreatePlaceMutation,
+  useLazySearchAddressesQuery,
+} from '../places/api';
+import type { Place } from '../places/types';
 import { useAppDispatch, useAppSelector } from '../../hooks/store';
-import { useCreateLocationMutation, useSearchAddressesQuery } from './api';
 import {
   resetLocationForm,
   selectLocationForm,
   setLocationAddress,
   setLocationAddressFromOption,
 } from './locationSlice';
-import type { AddressOption, Location } from './types';
+import type { AddressOption } from '../places/types';
 
 export function useLocationSubmit(
-  onConfirm: (newLocation?: Location) => void,
+  onConfirm: (newLocation?: Place) => void,
   onClose: () => void,
   setAttempted: (v: boolean) => void,
 ) {
   const dispatch = useAppDispatch();
   const locationForm = useAppSelector(selectLocationForm);
-  const [createLocation, { isLoading }] = useCreateLocationMutation();
+  const [createPlace, { isLoading }] = useCreatePlaceMutation();
 
   const handleConfirm = async () => {
     setAttempted(true);
-    const { name, address, city, postalCode, province, contacts } =
-      locationForm;
+    const { name, address, city, postalCode, province, contacts } = locationForm;
 
-    if (!name?.trim() || !address?.trim() || !city?.trim()) {
-      console.error('Required fields are missing');
-      return;
-    }
+    if (!name?.trim() || !address?.trim() || !city?.trim()) return;
 
-    const validContacts = contacts
+    const supportContacts = contacts
       .filter((c) => c.type?.trim() && c.value?.trim())
-      .map((c) => ({
-        type: c.type!.trim(),
-        value: c.value!.trim(),
-      }));
+      .map((c) => ({ type: c.type!.trim(), value: c.value!.trim() }));
 
-    const result = await createLocation({
+    const result = await createPlace({
+      type: 'offline',
       name: name.trim(),
-      address: address.trim(),
-      city: city.trim(),
-      postalCode: postalCode?.trim() || '',
-      province: province?.trim() || '',
-      contacts: validContacts,
+      address: {
+        street: address.trim(),
+        city: city.trim(),
+        state: province?.trim() ?? '',
+        postalCode: postalCode?.trim() ?? '',
+        country: 'IT',
+      },
+      supportContacts,
     });
 
     if ('error' in result) return;
@@ -57,38 +57,24 @@ export function useLocationSubmit(
   return { handleConfirm, handleClose, isLoading };
 }
 
-export function useLocationAddressSearch(existingLocations: Location[]) {
+export function useLocationAddressSearch() {
   const dispatch = useAppDispatch();
   const { address } = useAppSelector(selectLocationForm);
+  const [triggerSearch, { data: addressOptions = [] }] =
+    useLazySearchAddressesQuery();
 
-  const searchAddress = address?.trim() || '';
-
-  const { data: rawAddressOptions = [] } = useSearchAddressesQuery(
-    searchAddress,
-    {
-      skip: searchAddress.length < 3,
-    },
-  );
-
-  const usedAddresses = useMemo(
-    () => new Set(existingLocations.map((s) => s.address.toLowerCase())),
-    [existingLocations],
-  );
-
-  const addressOptions = useMemo(
-    () =>
-      rawAddressOptions.filter(
-        (o) =>
-          o.label.toLowerCase().includes(searchAddress.toLowerCase()) &&
-          !usedAddresses.has(o.label.toLowerCase()),
-      ),
-    [rawAddressOptions, searchAddress, usedAddresses],
-  );
+  const handleAddressChange = (val: string) => {
+    dispatch(setLocationAddress(val));
+    if (val.trim().length >= 3) {
+      void triggerSearch(val);
+    }
+  };
 
   return {
     addressOptions,
-    handleAddressChange: (val: string) => dispatch(setLocationAddress(val)),
+    handleAddressChange,
     handleAddressSelect: (option: AddressOption) =>
       dispatch(setLocationAddressFromOption(option)),
+    address,
   };
 }

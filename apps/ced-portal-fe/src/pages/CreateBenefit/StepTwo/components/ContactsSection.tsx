@@ -1,7 +1,7 @@
 import AddIcon from '@mui/icons-material/Add';
 import { Box, Typography, useTheme } from '@mui/material';
 import { ButtonNaked } from '@pagopa/mui-italia';
-import type { Contact } from '../../../../features/location/types';
+import type { Contact } from '../../../../features/places/types';
 import { ContactRow } from './ContactRow';
 
 interface ContactsSectionProps {

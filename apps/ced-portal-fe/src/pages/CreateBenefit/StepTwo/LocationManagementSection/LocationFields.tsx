@@ -9,24 +9,19 @@ import {
   selectLocationForm,
   setLocationName,
 } from '../../../../features/location/locationSlice';
-import type { Location } from '../../../../features/location/types';
 import { useAppDispatch, useAppSelector } from '../../../../hooks/store';
 import { useCheckRequiredLocationField } from './hooks/useCheckRequiredLocationField';
 
 interface LocationFieldsProps {
-  existingLocations: Location[];
   attempted?: boolean;
 }
 
-export function LocationFields({
-  existingLocations,
-  attempted,
-}: LocationFieldsProps) {
+export function LocationFields({ attempted }: LocationFieldsProps) {
   const dispatch = useAppDispatch();
   const { name, address, city, postalCode, province } =
     useAppSelector(selectLocationForm);
   const { addressOptions, handleAddressChange, handleAddressSelect } =
-    useLocationAddressSearch(existingLocations);
+    useLocationAddressSearch();
 
   const nameField = useCheckRequiredLocationField({
     key: 'name',

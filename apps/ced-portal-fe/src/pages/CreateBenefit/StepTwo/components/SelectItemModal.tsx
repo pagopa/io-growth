@@ -1,21 +1,54 @@
 import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
-import {
-  Box,
-  Button,
-  IconButton,
-  ListItemText,
-  MenuItem,
-  Typography,
-  useTheme,
-} from '@mui/material';
-import { alpha } from '@mui/material/styles';
+import { Box, Button, IconButton, ListItemText } from '@mui/material';
 import { ButtonNaked, Chip } from '@pagopa/mui-italia';
-import { useMemo, type ReactNode } from 'react';
+import { useCallback, useMemo, useState, type ReactNode } from 'react';
 import { AppCheckbox, AppModal, AppSelect } from '../../../../components';
 
 interface NamedItem {
   id: string;
   name: string;
+}
+
+interface SelectItemOptionProps<T extends NamedItem> {
+  value: string;
+  label: string;
+  items: T[];
+  icon: ReactNode;
+  getSubtitle: (item: T) => string;
+  selected: string[];
+}
+
+export function SelectItemOption<T extends NamedItem>({
+  value,
+  label,
+  items,
+  icon,
+  getSubtitle,
+  selected,
+}: SelectItemOptionProps<T>) {
+  const item = items.find((i) => i.id === value);
+  return (
+    <>
+      <ListItemText
+        primary={
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 0.5,
+              color: 'text.primary',
+            }}
+          >
+            {icon}
+            {label}
+          </Box>
+        }
+        secondary={item ? getSubtitle(item) : ''}
+        secondaryTypographyProps={{ sx: { pl: '20px' } }}
+      />
+      <AppCheckbox checked={selected.includes(value)} sx={{ mt: 0.25 }} />
+    </>
+  );
 }
 
 interface SelectedChipListProps<T extends NamedItem> {
@@ -68,6 +101,7 @@ interface SelectItemModalProps<T extends NamedItem> {
   addNewLabel: string;
   icon: ReactNode;
   getSubtitle: (item: T) => string;
+  emptySelectionError?: string;
 }
 
 export function SelectItemModal<T extends NamedItem>({
@@ -84,22 +118,91 @@ export function SelectItemModal<T extends NamedItem>({
   addNewLabel,
   icon,
   getSubtitle,
+  emptySelectionError,
 }: SelectItemModalProps<T>) {
-  const theme = useTheme();
+  const [attempted, setAttempted] = useState(false);
   const isAllSelected = selected.length === items.length && items.length > 0;
+  const hasError = attempted && selected.length === 0;
 
-  const handleToggleAll = () => {
+  const handleToggleAll = useCallback(() => {
     if (isAllSelected) {
       onSelectedChange([]);
     } else {
       onSelectedChange(items.map((item) => item.id));
     }
-  };
+  }, [isAllSelected, items, onSelectedChange]);
+
+  const renderValue = useCallback(
+    (vals: string | string[]) => (
+      <SelectedChipList
+        items={items}
+        selected={vals as string[]}
+        onDeselect={onSelectedChange}
+      />
+    ),
+    [items, onSelectedChange],
+  );
+
+  const renderOption = useCallback(
+    ({ value, label }: { value: string; label: string }) => (
+      <SelectItemOption
+        value={value}
+        label={label}
+        items={items}
+        icon={icon}
+        getSubtitle={getSubtitle}
+        selected={selected}
+      />
+    ),
+    [items, icon, getSubtitle, selected],
+  );
+
+  const handleChange = useCallback(
+    (e: { target: { value: string | string[] } }) => {
+      const selectedValues =
+        typeof e.target.value === 'string'
+          ? e.target.value.split(',')
+          : e.target.value;
+
+      if (selectedValues.includes('all')) {
+        handleToggleAll();
+      } else {
+        onSelectedChange(selectedValues);
+      }
+    },
+    [handleToggleAll, onSelectedChange],
+  );
+
+  const endAdornment =
+    selected.length > 0 ? (
+      <IconButton
+        size="small"
+        sx={{ mr: 3 }}
+        onMouseDown={(e) => e.preventDefault()}
+        onClick={(e) => {
+          e.stopPropagation();
+          onSelectedChange([]);
+        }}
+      >
+        <CloseRoundedIcon
+          sx={{
+            fontSize: 18,
+            color: 'common.neutralBlack',
+            '& path': { stroke: 'common.neutralBlack', strokeWidth: 1.5 },
+          }}
+        />
+      </IconButton>
+    ) : undefined;
+
+  const handleClose = useCallback(() => {
+    setAttempted(false);
+    onClose();
+  }, [onClose]);
 
   return (
     <AppModal
       open={open}
-      onClose={onClose}
+      onClose={handleClose}
       title={title}
       description={description}
     >
@@ -107,108 +210,16 @@ export function SelectItemModal<T extends NamedItem>({
         multiple
         displayEmpty
         value={selected}
-        onChange={(e) => {
-          const {
-            target: { value },
-          } = e;
-          const selectedValues =
-            typeof value === 'string' ? value.split(',') : value;
-
-          if (selectedValues.includes('all')) {
-            handleToggleAll();
-          } else {
-            onSelectedChange(selectedValues);
-          }
-        }}
+        onChange={handleChange}
         label={label}
-        endAdornment={
-          selected.length > 0 ? (
-            <IconButton
-              size="small"
-              sx={{ mr: 3 }}
-              onMouseDown={(e) => e.preventDefault()}
-              onClick={(e) => {
-                e.stopPropagation();
-                onSelectedChange([]);
-              }}
-            >
-              <CloseRoundedIcon
-                sx={{
-                  fontSize: 18,
-                  color: 'common.neutralBlack',
-                  '& path': { stroke: 'common.neutralBlack', strokeWidth: 1.5 },
-                }}
-              />
-            </IconButton>
-          ) : undefined
-        }
-        renderValue={(vals) => (
-          <SelectedChipList
-            items={items}
-            selected={vals as string[]}
-            onDeselect={onSelectedChange}
-          />
-        )}
+        endAdornment={endAdornment}
+        options={items.map((item) => ({ value: item.id, label: item.name }))}
+        renderValue={renderValue}
+        renderCustomOptions={renderOption}
+        error={hasError}
+        helperText={hasError ? emptySelectionError : undefined}
         fullWidth
-      >
-        <MenuItem
-          value="all"
-          sx={{
-            color: 'common.primaryButton',
-            fontWeight: 600,
-            py: 1.5,
-            px: 2,
-            '&:hover': {
-              bgcolor: alpha(theme.palette.common.primaryButton, 0.04),
-            },
-          }}
-        >
-          <Typography
-            variant="body2"
-            sx={{
-              textTransform: 'none',
-              fontWeight: 600,
-              color: 'common.primaryButton',
-            }}
-          >
-            {isAllSelected ? 'Deseleziona tutti' : 'Seleziona tutti'}
-          </Typography>
-        </MenuItem>
-        {items.map((item) => (
-          <MenuItem
-            key={item.id}
-            value={item.id}
-            sx={{
-              alignItems: 'flex-start',
-              '&.Mui-selected': { color: 'text.primary' },
-              '&.Mui-selected:hover': { color: 'text.primary' },
-            }}
-          >
-            <ListItemText
-              primary={
-                <Box
-                  sx={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 0.5,
-                    color: 'text.primary',
-                  }}
-                >
-                  {icon}
-                  {item.name}
-                </Box>
-              }
-              secondary={getSubtitle(item)}
-              secondaryTypographyProps={{ sx: { pl: '20px' } }}
-            />
-            <AppCheckbox
-              checked={selected.includes(item.id)}
-              sx={{ mt: 0.25 }}
-            />
-          </MenuItem>
-        ))}
-      </AppSelect>
-
+      />
       <Box
         sx={{
           display: 'flex',
@@ -221,7 +232,10 @@ export function SelectItemModal<T extends NamedItem>({
         <ButtonNaked onClick={onAddNew}>{addNewLabel}</ButtonNaked>
         <Button
           variant="contained"
-          onClick={() => onConfirm(selected)}
+          onClick={() => {
+            setAttempted(true);
+            if (selected.length > 0) onConfirm(selected);
+          }}
           sx={{ textTransform: 'none', px: 3, py: 1 }}
         >
           Conferma

@@ -1,9 +1,14 @@
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
 import type { RootState } from '../../core/store';
-import type { Contact } from '../location/types';
-
-import type { WebsiteFormState } from './types';
+import type { Contact } from '../places/types';
 import { isValidHttpsUrl } from '../../utils';
+
+interface WebsiteFormState {
+  name: string | null;
+  url: string | null;
+  urlError: string | null;
+  contacts: Contact[];
+}
 
 const createEmptyContact = (): Contact => ({
   type: null,

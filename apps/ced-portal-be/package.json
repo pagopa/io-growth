@@ -17,7 +17,7 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "start": "node dist/main.js",
-    "migrate:dev": "tsx src/migrate.ts",
+    "migrate:dev": "tsx --env-file=.env src/migrate.ts",
     "migrate:prod": "node dist/migrate.js",
     "run:dev": "tsx --env-file=.env --watch src/main.ts",
     "test": "vitest run",

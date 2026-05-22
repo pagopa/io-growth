@@ -11,8 +11,22 @@ export const opportunitiesApi = baseApi.injectEndpoints({
       query: (id) => `/opportunities/${id}`,
       providesTags: (_result, _error, id) => [{ type: 'Opportunities', id }],
     }),
+    // TODO replace with real endpoint
+    requestApproval: builder.mutation<void, string>({
+      query: (id) => ({
+        url: `/opportunities/${id}/request-approval`,
+        method: 'POST',
+      }),
+      invalidatesTags: (_result, _error, id) => [
+        { type: 'Opportunities', id },
+        'Opportunities',
+      ],
+    }),
   }),
 });
 
-export const { useGetOpportunitiesQuery, useGetOpportunityDetailQuery } =
-  opportunitiesApi;
+export const {
+  useGetOpportunitiesQuery,
+  useGetOpportunityDetailQuery,
+  useRequestApprovalMutation,
+} = opportunitiesApi;

@@ -359,12 +359,12 @@ paths:
               example:
                 statusCode: 404
                 message: Opportunity not found
-  /operator/opportunities/{opportunityId}/request-approval:
+  /operator/opportunities/{opportunityId}/request-test:
     patch:
       tags:
         - Opportunities
-      summary: Request approval for a draft opportunity
-      operationId: requestApprovalOperatorOpportunity
+      summary: Request testing for a draft opportunity
+      operationId: requestTestOperatorOpportunity
       security:
         - bearerAuth: []
       parameters:
@@ -376,7 +376,7 @@ paths:
             pattern: "^[0-9A-HJKMNP-TV-Z]{26}$"
       responses:
         "204":
-          description: Approval requested successfully
+          description: Testing requested successfully
         "401":
           description: Invalid or missing JWT
           content:
@@ -444,8 +444,8 @@ paths:
             type: string
             enum:
               - draft
-              - approval_pending
               - test_pending
+              - test_rejected
               - test_passed
               - published
               - suspended
@@ -1005,8 +1005,8 @@ components:
           type: string
           enum:
             - draft
-            - approval_pending
             - test_pending
+            - test_rejected
             - test_passed
             - published
             - suspended
@@ -1044,8 +1044,8 @@ components:
           type: string
           enum:
             - draft
-            - approval_pending
             - test_pending
+            - test_rejected
             - test_passed
             - published
             - suspended

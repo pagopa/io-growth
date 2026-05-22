@@ -51,7 +51,7 @@ describe("makeListOperatorOpportunitiesUseCase", () => {
     const inputWithFilters = {
       ...validInput,
       search: "sconto",
-      status: "published" as const,
+      status: "test_rejected" as const,
     };
 
     await useCase(inputWithFilters);

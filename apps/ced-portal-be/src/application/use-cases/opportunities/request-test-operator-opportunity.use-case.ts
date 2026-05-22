@@ -16,17 +16,17 @@ import type { OpportunityRepository } from "../../../domain/ports/outbound/persi
 
 import { validateUseCaseInput } from "../utils/validate-use-case-input.js";
 
-const RequestApprovalOperatorOpportunityInputSchema = z.object({
+const RequestTestOperatorOpportunityInputSchema = z.object({
   operatorId: z.ulid(),
   opportunityId: z.ulid(),
 });
 
-export type RequestApprovalOperatorOpportunityInput = z.infer<
-  typeof RequestApprovalOperatorOpportunityInputSchema
+export type RequestTestOperatorOpportunityInput = z.infer<
+  typeof RequestTestOperatorOpportunityInputSchema
 >;
 
-export type RequestApprovalOperatorOpportunityUseCase = UseCase<
-  RequestApprovalOperatorOpportunityInput,
+export type RequestTestOperatorOpportunityUseCase = UseCase<
+  RequestTestOperatorOpportunityInput,
   void,
   | ConflictError
   | GenericError
@@ -35,13 +35,13 @@ export type RequestApprovalOperatorOpportunityUseCase = UseCase<
   | ValidationError
 >;
 
-export const makeRequestApprovalOperatorOpportunityUseCase =
+export const makeRequestTestOperatorOpportunityUseCase =
   (
     opportunityRepository: OpportunityRepository,
-  ): RequestApprovalOperatorOpportunityUseCase =>
+  ): RequestTestOperatorOpportunityUseCase =>
   async (input) =>
     validateUseCaseInput(
-      RequestApprovalOperatorOpportunityInputSchema,
+      RequestTestOperatorOpportunityInputSchema,
       input,
     ).andThen((validatedInput) =>
       new ResultAsync(opportunityRepository.getById(validatedInput)).andThen(
@@ -52,7 +52,7 @@ export const makeRequestApprovalOperatorOpportunityUseCase =
           if (data.status !== "draft") {
             return errAsync(
               new PreconditionFailedError(
-                "Opportunity must be in draft status to request approval",
+                "Opportunity must be in draft status to request testing",
               ),
             );
           }
@@ -61,7 +61,7 @@ export const makeRequestApprovalOperatorOpportunityUseCase =
               expectedStatus: "draft",
               operatorId: validatedInput.operatorId,
               opportunityId: validatedInput.opportunityId,
-              status: "approval_pending",
+              status: "test_pending",
             }),
           );
         },

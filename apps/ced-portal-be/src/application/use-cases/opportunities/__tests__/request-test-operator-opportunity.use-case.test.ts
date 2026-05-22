@@ -4,7 +4,7 @@ import { describe, expect, it, vi } from "vitest";
 
 import type { OpportunityDetail } from "../../../../domain/entities/opportunity.js";
 
-import { makeRequestApprovalOperatorOpportunityUseCase } from "../request-approval-operator-opportunity.use-case.js";
+import { makeRequestTestOperatorOpportunityUseCase } from "../request-test-operator-opportunity.use-case.js";
 import { createMockOpportunityRepository, MOCK_OPERATOR_ID } from "./mocks.js";
 
 const MOCK_OPPORTUNITY_ID = "01JVMK3N8XQZP5T6G2WYHAB4CF";
@@ -29,13 +29,13 @@ const mockDraftOpportunityDetail: OpportunityDetail = {
   url: "https://example.org/promo",
 };
 
-describe("makeRequestApprovalOperatorOpportunityUseCase", () => {
-  it("should update status to approval_pending when opportunity is in draft", async () => {
+describe("makeRequestTestOperatorOpportunityUseCase", () => {
+  it("should update status to test_pending when opportunity is in draft", async () => {
     const repository = createMockOpportunityRepository({
       getById: vi.fn().mockResolvedValue(ok(mockDraftOpportunityDetail)),
       updateStatus: vi.fn().mockResolvedValue(ok(undefined)),
     });
-    const useCase = makeRequestApprovalOperatorOpportunityUseCase(repository);
+    const useCase = makeRequestTestOperatorOpportunityUseCase(repository);
 
     const result = await useCase({
       operatorId: MOCK_OPERATOR_ID,
@@ -51,7 +51,7 @@ describe("makeRequestApprovalOperatorOpportunityUseCase", () => {
       expectedStatus: "draft",
       operatorId: MOCK_OPERATOR_ID,
       opportunityId: MOCK_OPPORTUNITY_ID,
-      status: "approval_pending",
+      status: "test_pending",
     });
   });
 
@@ -59,7 +59,7 @@ describe("makeRequestApprovalOperatorOpportunityUseCase", () => {
     const repository = createMockOpportunityRepository({
       getById: vi.fn().mockResolvedValue(ok(undefined)),
     });
-    const useCase = makeRequestApprovalOperatorOpportunityUseCase(repository);
+    const useCase = makeRequestTestOperatorOpportunityUseCase(repository);
 
     const result = await useCase({
       operatorId: MOCK_OPERATOR_ID,
@@ -84,7 +84,7 @@ describe("makeRequestApprovalOperatorOpportunityUseCase", () => {
     const repository = createMockOpportunityRepository({
       getById: vi.fn().mockResolvedValue(ok(publishedOpportunity)),
     });
-    const useCase = makeRequestApprovalOperatorOpportunityUseCase(repository);
+    const useCase = makeRequestTestOperatorOpportunityUseCase(repository);
 
     const result = await useCase({
       operatorId: MOCK_OPERATOR_ID,
@@ -96,7 +96,7 @@ describe("makeRequestApprovalOperatorOpportunityUseCase", () => {
         expect.objectContaining({
           kind: "PreconditionFailedError",
           message:
-            "Precondition failed: Opportunity must be in draft status to request approval",
+            "Precondition failed: Opportunity must be in draft status to request testing",
         }),
       ),
     );
@@ -108,7 +108,7 @@ describe("makeRequestApprovalOperatorOpportunityUseCase", () => {
     const repository = createMockOpportunityRepository({
       getById: vi.fn().mockResolvedValue(err(repoError)),
     });
-    const useCase = makeRequestApprovalOperatorOpportunityUseCase(repository);
+    const useCase = makeRequestTestOperatorOpportunityUseCase(repository);
 
     const result = await useCase({
       operatorId: MOCK_OPERATOR_ID,
@@ -125,7 +125,7 @@ describe("makeRequestApprovalOperatorOpportunityUseCase", () => {
       getById: vi.fn().mockResolvedValue(ok(mockDraftOpportunityDetail)),
       updateStatus: vi.fn().mockResolvedValue(err(repoError)),
     });
-    const useCase = makeRequestApprovalOperatorOpportunityUseCase(repository);
+    const useCase = makeRequestTestOperatorOpportunityUseCase(repository);
 
     const result = await useCase({
       operatorId: MOCK_OPERATOR_ID,
@@ -143,7 +143,7 @@ describe("makeRequestApprovalOperatorOpportunityUseCase", () => {
       getById: vi.fn().mockResolvedValue(ok(mockDraftOpportunityDetail)),
       updateStatus: vi.fn().mockResolvedValue(err(conflictError)),
     });
-    const useCase = makeRequestApprovalOperatorOpportunityUseCase(repository);
+    const useCase = makeRequestTestOperatorOpportunityUseCase(repository);
 
     const result = await useCase({
       operatorId: MOCK_OPERATOR_ID,
@@ -161,7 +161,7 @@ describe("makeRequestApprovalOperatorOpportunityUseCase", () => {
 
   it("should return ValidationError when operatorId is invalid", async () => {
     const repository = createMockOpportunityRepository();
-    const useCase = makeRequestApprovalOperatorOpportunityUseCase(repository);
+    const useCase = makeRequestTestOperatorOpportunityUseCase(repository);
 
     const result = await useCase({
       operatorId: "invalid",
@@ -176,7 +176,7 @@ describe("makeRequestApprovalOperatorOpportunityUseCase", () => {
 
   it("should return ValidationError when opportunityId is invalid", async () => {
     const repository = createMockOpportunityRepository();
-    const useCase = makeRequestApprovalOperatorOpportunityUseCase(repository);
+    const useCase = makeRequestTestOperatorOpportunityUseCase(repository);
 
     const result = await useCase({
       operatorId: MOCK_OPERATOR_ID,

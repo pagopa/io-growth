@@ -24,8 +24,8 @@ const ListOperatorOpportunitiesInputSchema = z.object({
   status: z
     .enum([
       "draft",
-      "approval_pending",
       "test_pending",
+      "test_rejected",
       "test_passed",
       "published",
       "suspended",

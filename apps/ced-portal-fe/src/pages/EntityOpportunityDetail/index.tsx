@@ -108,31 +108,27 @@ export default function OpportunityDetailPage() {
         <Stack
           direction="row"
           justifyContent="space-between"
-          alignItems="flex-start"
+          alignItems="center"
         >
-          <Box>
-            <Stack direction="row" alignItems="center">
-              <Typography
-                variant="h4"
-                sx={{ fontWeight: 700, fontSize: { xs: 28, md: 36 } }}
-              >
-                {detail.name}
-              </Typography>
-              <Chip
-                {...getChipConfig(detail)}
-                sx={{
-                  flexShrink: 0,
-                  '& .MuiChip-label': {
-                    whiteSpace: 'nowrap',
-                  },
-                }}
-              />
-            </Stack>
-            <Typography sx={{ mt: 0.5, color: 'text.secondary', fontSize: 16 }}>
-              Ecco i dettagli dell&apos;opportunità che hai creato
-            </Typography>
-          </Box>
+          <Typography
+            variant="h4"
+            sx={{ fontWeight: 700, fontSize: { xs: 28, md: 36 } }}
+          >
+            {detail.name}
+          </Typography>
+          <Chip
+            {...getChipConfig(detail)}
+            sx={{
+              flexShrink: 0,
+              '& .MuiChip-label': {
+                whiteSpace: 'nowrap',
+              },
+            }}
+          />
         </Stack>
+        <Typography sx={{ color: 'text.secondary', fontSize: 16 }}>
+          Ecco i dettagli dell&apos;opportunità che hai creato
+        </Typography>
 
         <OpportunityAlert status={detail.publication_status} />
 

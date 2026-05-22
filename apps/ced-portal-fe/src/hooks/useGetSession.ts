@@ -58,15 +58,15 @@ export const useGetSession = () => {
       const lastSessionExchangeId =
         window.sessionStorage.getItem(SESSION_EXCHANGE_KEY);
       if (lastSessionExchangeId === redirectToken) {
-        // Token già processato: se l'utente è già autenticato (navigazione normale)
-        // facciamo redirect diretto. Se lo store è vuoto (refresh pagina),
-        // puliamo il guard e ripetiamo l'exchange nello stesso giro.
+        // If the user is already authenticated (normal navigation),
+        // redirect directly. If the store is empty (page refresh),
+        // clear the guard and repeat the exchange in the same cycle.
         if (token) {
           navigate(APP_ROUTES.HOME, { replace: true });
           return;
-        } else {
-          window.sessionStorage.removeItem(SESSION_EXCHANGE_KEY);
         }
+
+        window.sessionStorage.removeItem(SESSION_EXCHANGE_KEY);
       }
 
       try {

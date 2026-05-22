@@ -13,6 +13,9 @@ import type {
   AcsOutput,
 } from "../../../../application/use-cases/auth/acs.use-case.js";
 
+const AUTHORIZE_PAGE_BASE_URL =
+  process.env.CED_PORTAL_FE_BASE_URL ?? "http://localhost:5173";
+
 const acsSchema = zod
   .object({
     query: zod.object({
@@ -32,8 +35,7 @@ export const mountAcsHandler = (
     createHttpHandler(useCase, createHttpRequestValidator(acsSchema), {
       redirect: true,
       redirectUrlBuilder: ({ sessionId }) =>
-        // TODO: this should be replaced with a frontend url redirect after demo
-        `/api/ced-portal/v1/authorize?id=${sessionId}`,
+        `${AUTHORIZE_PAGE_BASE_URL}/authorize?id=${sessionId}`,
     }),
   );
 };

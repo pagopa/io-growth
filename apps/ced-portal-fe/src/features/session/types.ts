@@ -1,8 +1,7 @@
 export interface SessionPayload {
-  token: string;
-  user: {
-    id: string;
-    name: string;
-    email: string;
-  };
+  first_name: string;
+  last_name: string;
+  operator_name: string;
+  role: 'admin' | 'operator';
+  session_token: string;
 }

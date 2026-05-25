@@ -7,31 +7,31 @@ import {
 } from "@pagopa/io-core-adapter-fastify";
 import { z as zod } from "zod";
 
-import type { RequestTestOperatorOpportunityUseCase } from "../../../../application/use-cases/opportunities/operator-request-opportunity-test.use-case.js";
+import type { OperatorRequestOpportunityTestUseCase } from "../../../../application/use-cases/opportunities/operator-request-opportunity-test.use-case.js";
 
 import { OperatorSessionSchema } from "../auth/session.js";
-import { RequestTestOperatorOpportunityParams } from "../contracts/opportunities/opportunities.js";
+import { OperatorRequestOpportunityTestParams } from "../contracts/opportunities/opportunities.js";
 
-const requestTestOperatorOpportunityHttpSchema = zod.object({
-  path: RequestTestOperatorOpportunityParams,
+const operatorRequestOpportunityTestHttpSchema = zod.object({
+  path: OperatorRequestOpportunityTestParams,
 });
 
-const requestTestOperatorOpportunityValidator = withSession(
+const operatorRequestOpportunityTestValidator = withSession(
   OperatorSessionSchema,
-  createHttpRequestValidator(requestTestOperatorOpportunityHttpSchema),
+  createHttpRequestValidator(operatorRequestOpportunityTestHttpSchema),
   (session, { path }) => ({
     operatorId: session.operatorId,
     opportunityId: path.opportunityId,
   }),
 );
 
-export const mountRequestTestOperatorOpportunityHandler = (
+export const mountOperatorRequestOpportunityTestHandler = (
   fastify: FastifyInstance,
-  useCase: RequestTestOperatorOpportunityUseCase,
+  useCase: OperatorRequestOpportunityTestUseCase,
 ) => {
   fastify.patch(
     "/api/operator/opportunities/:opportunityId/request-test",
-    createHttpHandler(useCase, requestTestOperatorOpportunityValidator, {
+    createHttpHandler(useCase, operatorRequestOpportunityTestValidator, {
       successCode: 204,
     }),
   );

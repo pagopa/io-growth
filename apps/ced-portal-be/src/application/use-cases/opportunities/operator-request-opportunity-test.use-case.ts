@@ -16,17 +16,17 @@ import type { OpportunityRepository } from "../../../domain/ports/outbound/persi
 
 import { validateUseCaseInput } from "../utils/validate-use-case-input.js";
 
-const RequestTestOperatorOpportunityInputSchema = z.object({
+const OperatorRequestOpportunityTestInputSchema = z.object({
   operatorId: z.ulid(),
   opportunityId: z.ulid(),
 });
 
-export type RequestTestOperatorOpportunityInput = z.infer<
-  typeof RequestTestOperatorOpportunityInputSchema
+export type OperatorRequestOpportunityTestInput = z.infer<
+  typeof OperatorRequestOpportunityTestInputSchema
 >;
 
-export type RequestTestOperatorOpportunityUseCase = UseCase<
-  RequestTestOperatorOpportunityInput,
+export type OperatorRequestOpportunityTestUseCase = UseCase<
+  OperatorRequestOpportunityTestInput,
   void,
   | ConflictError
   | GenericError
@@ -35,13 +35,13 @@ export type RequestTestOperatorOpportunityUseCase = UseCase<
   | ValidationError
 >;
 
-export const makeRequestTestOperatorOpportunityUseCase =
+export const makeOperatorRequestOpportunityTestUseCase =
   (
     opportunityRepository: OpportunityRepository,
-  ): RequestTestOperatorOpportunityUseCase =>
+  ): OperatorRequestOpportunityTestUseCase =>
   async (input) =>
     validateUseCaseInput(
-      RequestTestOperatorOpportunityInputSchema,
+      OperatorRequestOpportunityTestInputSchema,
       input,
     ).andThen((validatedInput) =>
       new ResultAsync(opportunityRepository.getById(validatedInput)).andThen(

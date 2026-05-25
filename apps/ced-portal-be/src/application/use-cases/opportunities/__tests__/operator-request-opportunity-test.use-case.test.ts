@@ -4,7 +4,7 @@ import { describe, expect, it, vi } from "vitest";
 
 import type { OpportunityDetail } from "../../../../domain/entities/opportunity.js";
 
-import { makeRequestTestOperatorOpportunityUseCase } from "../request-test-operator-opportunity.use-case.js";
+import { makeRequestTestOperatorOpportunityUseCase } from "../operator-request-opportunity-test.use-case.js";
 import { createMockOpportunityRepository, MOCK_OPERATOR_ID } from "./mocks.js";
 
 const MOCK_OPPORTUNITY_ID = "01JVMK3N8XQZP5T6G2WYHAB4CF";

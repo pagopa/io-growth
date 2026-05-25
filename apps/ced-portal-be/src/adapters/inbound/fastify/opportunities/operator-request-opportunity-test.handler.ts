@@ -7,7 +7,7 @@ import {
 } from "@pagopa/io-core-adapter-fastify";
 import { z as zod } from "zod";
 
-import type { RequestTestOperatorOpportunityUseCase } from "../../../../application/use-cases/opportunities/request-test-operator-opportunity.use-case.js";
+import type { RequestTestOperatorOpportunityUseCase } from "../../../../application/use-cases/opportunities/operator-request-opportunity-test.use-case.js";
 
 import { OperatorSessionSchema } from "../auth/session.js";
 import { RequestTestOperatorOpportunityParams } from "../contracts/opportunities/opportunities.js";

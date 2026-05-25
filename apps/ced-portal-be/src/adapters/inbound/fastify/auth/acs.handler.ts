@@ -13,8 +13,7 @@ import type {
   AcsOutput,
 } from "../../../../application/use-cases/auth/acs.use-case.js";
 
-const AUTHORIZE_PAGE_BASE_URL =
-  process.env.CED_PORTAL_FE_BASE_URL;
+const AUTHORIZE_PAGE_BASE_URL = process.env.CED_PORTAL_FE_BASE_URL;
 
 const acsSchema = zod
   .object({

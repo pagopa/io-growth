@@ -19,6 +19,7 @@ const ADMIN_ROUTES = {
 export const APP_ROUTES = {
   ...ENTITY_ROUTES,
   ...ADMIN_ROUTES,
+  AUTHORIZE: '/authorize',
   UNAUTHORIZED: '/unauthorized',
   NOT_FOUND: '*',
 } as const;
@@ -29,6 +30,7 @@ export const OverviewCompleteDataPage = lazy(
   () => import('../pages/Overview/CompleteData'),
 );
 export const UnauthorizedPage = lazy(() => import('../pages/Unauthorized'));
+export const AuthorizePage = lazy(() => import('../pages/Authorize'));
 export const NotFoundPage = lazy(() => import('../pages/NotFound'));
 export const CreateBenefitPage = lazy(() => import('../pages/CreateBenefit'));
 export const OpportunitiesPage = lazy(() => import('../pages/Opportunities'));

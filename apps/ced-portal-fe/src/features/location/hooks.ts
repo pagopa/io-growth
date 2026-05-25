@@ -1,5 +1,6 @@
 import {
   useCreatePlaceMutation,
+  useLazyGetPlacesQuery,
   useLazySearchAddressesQuery,
 } from '../places/api';
 import type { Place } from '../places/types';
@@ -11,6 +12,7 @@ import {
   setLocationAddressFromOption,
 } from './locationSlice';
 import type { AddressOption } from '../places/types';
+import { useToast } from '../../contexts';
 
 export function useLocationSubmit(
   onConfirm: (newLocation?: Place) => void,
@@ -20,12 +22,22 @@ export function useLocationSubmit(
   const dispatch = useAppDispatch();
   const locationForm = useAppSelector(selectLocationForm);
   const [createPlace, { isLoading }] = useCreatePlaceMutation();
+  const [triggerGetPlaces] = useLazyGetPlacesQuery();
+  const { showToast } = useToast();
 
   const handleConfirm = async () => {
     setAttempted(true);
-    const { name, address, city, postalCode, province, contacts } = locationForm;
+    const { name, address, city, postalCode, province, contacts } =
+      locationForm;
 
-    if (!name?.trim() || !address?.trim() || !city?.trim()) return;
+    if (
+      !name?.trim() ||
+      !address?.trim() ||
+      !city?.trim() ||
+      !postalCode?.trim() ||
+      !province?.trim()
+    )
+      return;
 
     const supportContacts = contacts
       .filter((c) => c.type?.trim() && c.value?.trim())
@@ -44,9 +56,18 @@ export function useLocationSubmit(
       supportContacts,
     });
 
-    if ('error' in result) return;
+    if ('error' in result) {
+      showToast('Errore durante il salvataggio del luogo', 'error');
+      return;
+    }
+    const placesResult = await triggerGetPlaces();
+    if (placesResult.error) {
+      showToast('Errore durante il recupero dei luoghi', 'error');
+      return;
+    }
+    const newPlace = placesResult.data?.slice(-1)[0];
     dispatch(resetLocationForm());
-    onConfirm(result.data);
+    onConfirm(newPlace);
   };
 
   const handleClose = () => {
@@ -57,6 +78,7 @@ export function useLocationSubmit(
   return { handleConfirm, handleClose, isLoading };
 }
 
+// TODO: restore when an address search API with geocoding is available
 export function useLocationAddressSearch() {
   const dispatch = useAppDispatch();
   const { address } = useAppSelector(selectLocationForm);

@@ -1,5 +1,11 @@
 import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
-import { Box, Button, IconButton, ListItemText } from '@mui/material';
+import {
+  Box,
+  Button,
+  IconButton,
+  ListItemText,
+  Typography,
+} from '@mui/material';
 import { ButtonNaked, Chip } from '@pagopa/mui-italia';
 import { useCallback, useMemo, useState, type ReactNode } from 'react';
 import { AppCheckbox, AppModal, AppSelect } from '../../../../components';
@@ -144,16 +150,28 @@ export function SelectItemModal<T extends NamedItem>({
   );
 
   const renderOption = useCallback(
-    ({ value, label }: { value: string; label: string }) => (
-      <SelectItemOption
-        value={value}
-        label={label}
-        items={items}
-        icon={icon}
-        getSubtitle={getSubtitle}
-        selected={selected}
-      />
-    ),
+    ({ value, label }: { value: string; label: string }) => {
+      if (value === 'all') {
+        return (
+          <Typography
+            variant="body2"
+            sx={{ fontWeight: 600, color: 'common.primaryButton' }}
+          >
+            {label}
+          </Typography>
+        );
+      }
+      return (
+        <SelectItemOption
+          value={value}
+          label={label}
+          items={items}
+          icon={icon}
+          getSubtitle={getSubtitle}
+          selected={selected}
+        />
+      );
+    },
     [items, icon, getSubtitle, selected],
   );
 
@@ -194,6 +212,17 @@ export function SelectItemModal<T extends NamedItem>({
       </IconButton>
     ) : undefined;
 
+  const selectOptions = useMemo(
+    () => [
+      {
+        value: 'all',
+        label: isAllSelected ? 'Deseleziona tutti' : 'Seleziona tutti',
+      },
+      ...items.map((item) => ({ value: item.id, label: item.name })),
+    ],
+    [isAllSelected, items],
+  );
+
   const handleClose = useCallback(() => {
     setAttempted(false);
     onClose();
@@ -213,7 +242,7 @@ export function SelectItemModal<T extends NamedItem>({
         onChange={handleChange}
         label={label}
         endAdornment={endAdornment}
-        options={items.map((item) => ({ value: item.id, label: item.name }))}
+        options={selectOptions}
         renderValue={renderValue}
         renderCustomOptions={renderOption}
         error={hasError}

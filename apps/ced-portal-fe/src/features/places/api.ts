@@ -23,6 +23,7 @@ export const placesApi = baseApi.injectEndpoints({
 
 export const {
   useGetPlacesQuery,
+  useLazyGetPlacesQuery,
   useCreatePlaceMutation,
   useLazySearchAddressesQuery,
 } = placesApi;

@@ -1,5 +1,7 @@
+export type ContactType = 'email' | 'website';
+
 export interface Contact {
-  type: string | null;
+  type: ContactType | null;
   value: string | null;
 }
 

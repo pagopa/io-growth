@@ -4,8 +4,8 @@ import { AppSelect, AppTextField } from '../../../../components';
 import type { Contact } from '../../../../features/places/types';
 
 const CONTACT_TYPE_OPTIONS = [
-  { label: 'Telefono', value: 'TELEPHONE' },
-  { label: 'Sito web', value: 'WEB' },
+  { label: 'Email', value: 'email' },
+  { label: 'Sito web', value: 'website' },
 ];
 
 interface ContactRowProps {
@@ -33,7 +33,7 @@ export function ContactRow({
         display: 'flex',
         flexWrap: { xs: 'wrap', sm: 'nowrap' },
         alignItems: 'flex-start',
-        gap: 1,
+        gap: 2,
       }}
     >
       <Box

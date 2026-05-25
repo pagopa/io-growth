@@ -480,7 +480,7 @@
       "uuid": "f7e8d9c0-a1b2-3456-cdef-012345678901",
       "id": "operator_places",
       "name": "Operator Places",
-      "value": "[{\"id\": \"01JVMK3N8XQZP5T6G2WYHAB4CD\", \"type\": \"online\", \"name\": \"Sportello remoto\", \"website\": {\"url\": \"https://example.org\"}, \"supportContacts\": [{\"id\": \"01JVMK3N8XQZP5T6G2WYHAB4CE\", \"type\": \"email\", \"value\": \"support@example.org\"}]}, {\"id\": \"01JVMK3N8XQZP5T6G2WYHAB4CG\", \"type\": \"offline\", \"name\": \"Sportello centrale\", \"address\": {\"street\": \"Via Roma 1\", \"city\": \"Roma\", \"state\": \"RM\", \"postalCode\": \"00100\", \"country\": \"IT\"}, \"supportContacts\": [{\"id\": \"01JVMK3N8XQZP5T6G2WYHAB4CF\", \"type\": \"phone\", \"value\": \"+39 0000000000\"}]}]",
+      "value": "[]",
       "documentation": ""
     }
   ],

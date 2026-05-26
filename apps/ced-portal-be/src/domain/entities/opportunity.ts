@@ -58,6 +58,7 @@ export const OpportunitySchema = z.object({
   status: z.enum([
     "draft",
     "test_pending",
+    "test_rejected",
     "test_passed",
     "published",
     "suspended",
@@ -97,6 +98,7 @@ export const OpportunitySummarySchema = z.object({
   status: z.enum([
     "draft",
     "test_pending",
+    "test_rejected",
     "test_passed",
     "published",
     "suspended",
@@ -126,6 +128,7 @@ export const OpportunityDetailSchema = z.object({
   status: z.enum([
     "draft",
     "test_pending",
+    "test_rejected",
     "test_passed",
     "published",
     "suspended",

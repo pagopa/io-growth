@@ -41,11 +41,9 @@ export function PageHeader({
 
       {title && (
         <Typography
+          variant="h1"
           component="h1"
           sx={{
-            fontSize: 28,
-            fontWeight: 700,
-            lineHeight: 1.2,
             color: 'text.primary',
           }}
         >

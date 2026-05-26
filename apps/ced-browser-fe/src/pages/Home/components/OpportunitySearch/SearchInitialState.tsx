@@ -24,13 +24,12 @@ export function SearchInitialState() {
           </svg>
         </Box>
         <Typography
+          variant="h1"
           component="h1"
           sx={{
             mb: 1.5,
             color: theme.palette.common.neutral900,
-            fontSize: 26,
-            lineHeight: 1.15,
-            fontWeight: 700,
+            fontSize: 28,
           }}
         >
           Inizia a cercare

@@ -19,7 +19,7 @@ export function LocationFields({ attempted }: LocationFieldsProps) {
   const dispatch = useAppDispatch();
   const { name, address, city, postalCode, province } =
     useAppSelector(selectLocationForm);
-  // TODO: restore when an address search API with geocoding is available
+  // TODO [OUT OF MVP SCOPE]: restore when an address search API with geocoding is available
   // const { addressOptions, handleAddressChange, handleAddressSelect } =
   //   useLocationAddressSearch();
 

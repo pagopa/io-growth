@@ -39,8 +39,8 @@ export function useLocationSubmit(
       address: {
         street: address.trim(),
         city: city.trim(),
-        state: province?.trim(),
-        postalCode: postalCode?.trim(),
+        state: province.trim(),
+        postalCode: postalCode.trim(),
         country: 'IT',
       },
       supportContacts,
@@ -64,7 +64,7 @@ export function useLocationSubmit(
   return { handleConfirm, handleClose, isLoading };
 }
 
-// TODO: restore when an address search API with geocoding is available
+// TODO [OUT OF MVP SCOPE]: restore when an address search API with geocoding is available
 // export function useLocationAddressSearch(existingLocations: OfflinePlace[]) {
 //   const dispatch = useAppDispatch();
 //   const { address } = useAppSelector(selectLocationForm);

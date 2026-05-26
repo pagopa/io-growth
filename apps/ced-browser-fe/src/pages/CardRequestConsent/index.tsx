@@ -83,7 +83,7 @@ export default function CardRequestConsentPage() {
           >
             Codice fiscale
           </Typography>
-          <CheckIcon sx={{ color: '#384150', fontSize: 36 }} />
+          <CheckIcon sx={{ color: '#2B2E38', fontSize: 24 }} />
         </Box>
 
         <Typography

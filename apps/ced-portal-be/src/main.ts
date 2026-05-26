@@ -1,3 +1,9 @@
+import multipart from "@fastify/multipart";
+import {
+  createDocumentContentClient,
+  createInstitutionClient,
+  createOnboardingClient,
+} from "@pagopa/io-core-adapter-ar";
 import { createTypedDbClient } from "@pagopa/io-core-adapter-drizzle";
 import { createAuthenticationPreHandler } from "@pagopa/io-core-adapter-fastify";
 import { createResilientRedisClient } from "@pagopa/io-core-adapter-redis";
@@ -6,9 +12,12 @@ import Fastify from "fastify";
 import {
   mountAcsHandler,
   mountAuthorizeHandler,
+  mountCompleteOnboardingHandler,
   mountCreateOperatorOpportunityHandler,
   mountCreateOperatorPlaceHandler,
   mountCreateOperatorProfileHandler,
+  mountGetContractSignedHandler,
+  mountGetOnboardingHandler,
   mountGetOperatorOpportunityHandler,
   mountGetOperatorPlaceHandler,
   mountGetOperatorProfileHandler,
@@ -17,8 +26,10 @@ import {
   mountListOperatorOpportunitiesHandler,
   mountListOperatorPlacesHandler,
   mountListOpportunityCategoriesHandler,
+  mountListPendingOnboardingsHandler,
   mountOperatorRequestOpportunityTestHandler,
 } from "./adapters/inbound/fastify/index.js";
+import { createArOnboardingRepository } from "./adapters/outbound/ar/ar-onboarding.repository.js";
 import { createDrizzleOperatorRepository } from "./adapters/outbound/drizzle/drizzle-operator.repository.js";
 import { createDrizzleOpportunityCategoryRepository } from "./adapters/outbound/drizzle/drizzle-opportunity-category.repository.js";
 import { createDrizzleOpportunityRepository } from "./adapters/outbound/drizzle/drizzle-opportunity.repository.js";
@@ -30,6 +41,10 @@ import { createRedisHealthCheckRepository } from "./adapters/outbound/redis/redi
 import { createRedisSessionRepository } from "./adapters/outbound/redis/redis-session.repository.js";
 import { makeAcsUseCase } from "./application/use-cases/auth/acs.use-case.js";
 import { makeAuthorizeUseCase } from "./application/use-cases/auth/authorize.use-case.js";
+import { makeCompleteOnboardingUseCase } from "./application/use-cases/department/complete-onboarding.use-case.js";
+import { makeGetContractSignedUseCase } from "./application/use-cases/department/get-contract-signed.use-case.js";
+import { makeGetOnboardingUseCase } from "./application/use-cases/department/get-onboarding.use-case.js";
+import { makeListOnboardingsUseCase } from "./application/use-cases/department/list-onboardings.use-case.js";
 import { makeGetInfoReadinessUseCase } from "./application/use-cases/health/info-readiness.use-case.js";
 import { makeGetInfoStartupUseCase } from "./application/use-cases/health/info-startup.use-case.js";
 import { makeCreateOperatorOpportunityUseCase } from "./application/use-cases/opportunities/create-operator-opportunity.use-case.js";
@@ -45,6 +60,12 @@ import { makeGetOperatorProfileUseCase } from "./application/use-cases/profile/g
 import { parseConfig } from "./config.js";
 
 const config = parseConfig();
+
+const arClientConfig = {
+  baseUrl: config.AR_ENDPOINT,
+  subscriptionKey: config.AR_API_KEY,
+};
+
 const dbClient = createTypedDbClient(
   {
     database: config.POSTGRES_DB,
@@ -76,8 +97,15 @@ const opportunityCategoryRepository =
 const opportunityRepository = createDrizzleOpportunityRepository(dbClient);
 const placeRepository = createDrizzlePlaceRepository(dbClient);
 const profileRepository = createDrizzleProfileRepository(dbClient);
+const arOnboardingRepository = createArOnboardingRepository(
+  createInstitutionClient(arClientConfig),
+  createOnboardingClient(arClientConfig),
+  createDocumentContentClient(arClientConfig),
+);
 
 const app = Fastify();
+
+await app.register(multipart);
 
 // Use cases
 const getInfoReadinessUseCase = makeGetInfoReadinessUseCase({
@@ -143,6 +171,26 @@ app.register(async (app) => {
   mountOperatorRequestOpportunityTestHandler(
     app,
     makeOperatorRequestOpportunityTestUseCase(opportunityRepository),
+  );
+  mountListPendingOnboardingsHandler(
+    app,
+    makeListOnboardingsUseCase(
+      arOnboardingRepository,
+      opportunityRepository,
+      config.CED_PRODUCT_ID,
+    ),
+  );
+  mountCompleteOnboardingHandler(
+    app,
+    makeCompleteOnboardingUseCase(arOnboardingRepository),
+  );
+  mountGetContractSignedHandler(
+    app,
+    makeGetContractSignedUseCase(arOnboardingRepository),
+  );
+  mountGetOnboardingHandler(
+    app,
+    makeGetOnboardingUseCase(arOnboardingRepository),
   );
 });
 

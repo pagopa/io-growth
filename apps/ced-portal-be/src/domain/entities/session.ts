@@ -5,4 +5,5 @@ export interface Session {
   readonly operatorName: string;
   readonly referentExternalId: string;
   readonly role: string;
+  readonly userType: "admin" | "operator" | "test_user";
 }

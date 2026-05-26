@@ -14,6 +14,7 @@ export const SessionSchema = z.object({
   operatorName: z.string(),
   referentExternalId: z.string(),
   role: z.string(),
+  userType: z.enum(["admin", "operator", "test_user"]),
 });
 
 /**
@@ -21,4 +22,8 @@ export const SessionSchema = z.object({
  */
 export const OperatorSessionSchema = SessionSchema.pick({
   operatorId: true,
+});
+
+export const AdminSessionSchema = SessionSchema.pick({
+  userType: true,
 });

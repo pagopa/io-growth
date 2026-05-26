@@ -7,10 +7,12 @@ import { err, ok } from "neverthrow";
 
 import type { OpportunityDetail } from "../../../domain/entities/opportunity.js";
 import type {
+  GetOpportunityByIdGlobalInput,
   GetOpportunityByIdInput,
   ListOpportunitiesInput,
   OpportunityRepository,
   PaginatedOpportunities,
+  UpdateOpportunityStatusGlobalInput,
   UpdateOpportunityStatusInput,
 } from "../../../domain/ports/outbound/persistence/opportunity.repository.js";
 
@@ -92,6 +94,90 @@ const getOpportunityDetailById = async (
     );
   }
 };
+const getByIdGlobal =
+  (db: TypedDbClient<typeof schema>) =>
+  async (
+    input: GetOpportunityByIdGlobalInput,
+  ): Promise<Result<OpportunityDetail | undefined, GenericError>> => {
+    try {
+      const row = await db.query.opportunity.findFirst({
+        columns: {
+          categoryId: true,
+          createdAt: true,
+          dateFrom: true,
+          dateTo: true,
+          id: true,
+          status: true,
+          updatedAt: true,
+          url: true,
+        },
+        where: eq(opportunity.id, input.opportunityId),
+        with: {
+          beneficiaryBenefit: {
+            columns: {
+              description: true,
+              discountType: true,
+              type: true,
+              value: true,
+            },
+          },
+          caregiverBenefit: {
+            columns: {
+              description: true,
+              discountType: true,
+              type: true,
+              value: true,
+            },
+          },
+          category: { columns: { title: true } },
+          localizedMetadata: {
+            columns: { key: true, language: true, value: true },
+          },
+          operator: { columns: { name: true } },
+          opportunityPlaces: { columns: { placeId: true } },
+        },
+      });
+      if (!row) return ok(undefined);
+      return mapOpportunityDetailRow(row);
+    } catch (error) {
+      return err(
+        new GenericError(`Failed to get opportunity: ${String(error)}`),
+      );
+    }
+  };
+
+const updateStatusGlobal =
+  (db: TypedDbClient<typeof schema>) =>
+  async (
+    input: UpdateOpportunityStatusGlobalInput,
+  ): Promise<Result<void, ConflictError | GenericError>> => {
+    try {
+      const result = await db
+        .update(opportunity)
+        .set({
+          ...(input.dateFrom ? { dateFrom: input.dateFrom } : {}),
+          status: input.status,
+          updatedAt: new Date(),
+        })
+        .where(
+          and(
+            eq(opportunity.id, input.opportunityId),
+            inArray(opportunity.status, input.expectedStatuses),
+          ),
+        );
+      if (result.count === 0)
+        return err(
+          new ConflictError("Opportunity status was modified concurrently"),
+        );
+      return ok(undefined);
+    } catch (error) {
+      return err(
+        new GenericError(
+          `Failed to update opportunity status: ${String(error)}`,
+        ),
+      );
+    }
+  };
 
 export const createDrizzleOpportunityRepository = (
   db: TypedDbClient<typeof schema>,
@@ -162,6 +248,8 @@ export const createDrizzleOpportunityRepository = (
 
   getById: async (input: GetOpportunityByIdInput) =>
     getOpportunityDetailById(db, input),
+
+  getByIdGlobal: getByIdGlobal(db),
 
   list: async (
     input: ListOpportunitiesInput,
@@ -277,4 +365,6 @@ export const createDrizzleOpportunityRepository = (
       );
     }
   },
+
+  updateStatusGlobal: updateStatusGlobal(db),
 });

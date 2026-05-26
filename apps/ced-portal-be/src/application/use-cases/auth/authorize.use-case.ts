@@ -14,6 +14,7 @@ export interface AuthorizeOutput {
   readonly last_name: string;
   readonly operator_name: string;
   readonly session_token: string;
+  readonly user_type: "admin" | "operator" | "test_user";
 }
 
 export const makeAuthorizeUseCase =
@@ -29,5 +30,6 @@ export const makeAuthorizeUseCase =
         last_name: session.lastName,
         operator_name: session.operatorName,
         session_token: token,
+        user_type: session.userType,
       })),
     );

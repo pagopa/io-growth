@@ -40,18 +40,28 @@ const createMockSessionRepository = (): SessionRepository => ({
   getSessionTokenByOneTimeId: vi.fn(),
 });
 
+const mockConfig = {
+  ADMIN_FISCAL_CODES: [] as string[],
+  TEST_USER_FISCAL_CODES: [] as string[],
+};
+
 const createMockOperatorRepository = (
   existing?: undefined | { id: string; name: string },
 ): OperatorRepository => ({
   create: vi.fn().mockResolvedValue(ok(mockOperator)),
   getByExternalId: vi.fn().mockResolvedValue(ok(existing)),
+  getById: vi.fn(),
 });
 
 describe("makeAcsUseCase", () => {
   it("should retrieve existing operator, create a session and return a redirect URL", async () => {
     const sessionRepository = createMockSessionRepository();
     const operatorRepository = createMockOperatorRepository(mockOperator);
-    const useCase = makeAcsUseCase(sessionRepository, operatorRepository);
+    const useCase = makeAcsUseCase(
+      sessionRepository,
+      operatorRepository,
+      mockConfig,
+    );
     const token = await makeToken(validPayload);
 
     const result = await useCase({ token });
@@ -77,6 +87,7 @@ describe("makeAcsUseCase", () => {
         operatorName: string;
         referentExternalId: string;
         role: string;
+        userType: string;
       },
     ];
     expect(sessionToken).toHaveLength(64);
@@ -88,6 +99,7 @@ describe("makeAcsUseCase", () => {
       operatorName: "Organization legal name",
       referentExternalId: "uid_12345",
       role: "OPERATOR",
+      userType: "operator",
     });
 
     expect(sessionRepository.createOneTimeSessionId).toHaveBeenCalledOnce();
@@ -103,7 +115,11 @@ describe("makeAcsUseCase", () => {
   it("should create operator when not found, then create session", async () => {
     const sessionRepository = createMockSessionRepository();
     const operatorRepository = createMockOperatorRepository(undefined);
-    const useCase = makeAcsUseCase(sessionRepository, operatorRepository);
+    const useCase = makeAcsUseCase(
+      sessionRepository,
+      operatorRepository,
+      mockConfig,
+    );
     const token = await makeToken(validPayload);
 
     const result = await useCase({ token });
@@ -132,7 +148,11 @@ describe("makeAcsUseCase", () => {
   it("should return a ValidationError when the token payload is invalid", async () => {
     const sessionRepository = createMockSessionRepository();
     const operatorRepository = createMockOperatorRepository();
-    const useCase = makeAcsUseCase(sessionRepository, operatorRepository);
+    const useCase = makeAcsUseCase(
+      sessionRepository,
+      operatorRepository,
+      mockConfig,
+    );
     const token = await makeToken({ name: "Mario" }); // missing required fields
 
     const result = await useCase({ token });
@@ -152,7 +172,11 @@ describe("makeAcsUseCase", () => {
     ).mockResolvedValue(
       (await import("neverthrow")).err(new GenericError("db down")),
     );
-    const useCase = makeAcsUseCase(sessionRepository, operatorRepository);
+    const useCase = makeAcsUseCase(
+      sessionRepository,
+      operatorRepository,
+      mockConfig,
+    );
     const token = await makeToken(validPayload);
 
     const result = await useCase({ token });
@@ -172,7 +196,11 @@ describe("makeAcsUseCase", () => {
     ).mockResolvedValue(
       (await import("neverthrow")).err(new GenericError("redis down")),
     );
-    const useCase = makeAcsUseCase(sessionRepository, operatorRepository);
+    const useCase = makeAcsUseCase(
+      sessionRepository,
+      operatorRepository,
+      mockConfig,
+    );
     const token = await makeToken(validPayload);
 
     const result = await useCase({ token });
@@ -192,7 +220,11 @@ describe("makeAcsUseCase", () => {
     ).mockResolvedValue(
       (await import("neverthrow")).err(new GenericError("redis down")),
     );
-    const useCase = makeAcsUseCase(sessionRepository, operatorRepository);
+    const useCase = makeAcsUseCase(
+      sessionRepository,
+      operatorRepository,
+      mockConfig,
+    );
     const token = await makeToken(validPayload);
 
     const result = await useCase({ token });

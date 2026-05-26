@@ -15,6 +15,10 @@ export interface CreateOpportunityInput {
   opportunity: Opportunity;
 }
 
+export interface GetOpportunityByIdGlobalInput {
+  opportunityId: string;
+}
+
 export interface GetOpportunityByIdInput {
   operatorId: string;
   opportunityId: string;
@@ -41,17 +45,30 @@ export interface OpportunityRepository {
   readonly getById: (
     input: GetOpportunityByIdInput,
   ) => Promise<Result<OpportunityDetail | undefined, GenericError>>;
+  readonly getByIdGlobal: (
+    input: GetOpportunityByIdGlobalInput,
+  ) => Promise<Result<OpportunityDetail | undefined, GenericError>>;
   readonly list: (
     input: ListOpportunitiesInput,
   ) => Promise<Result<PaginatedOpportunities, GenericError>>;
   readonly updateStatus: (
     input: UpdateOpportunityStatusInput,
   ) => Promise<Result<void, ConflictError | GenericError>>;
+  readonly updateStatusGlobal: (
+    input: UpdateOpportunityStatusGlobalInput,
+  ) => Promise<Result<void, ConflictError | GenericError>>;
 }
 
 export interface PaginatedOpportunities {
   items: OpportunitySummary[];
   total: number;
+}
+
+export interface UpdateOpportunityStatusGlobalInput {
+  dateFrom?: string;
+  expectedStatuses: OpportunitySummary["status"][];
+  opportunityId: string;
+  status: OpportunitySummary["status"];
 }
 
 export interface UpdateOpportunityStatusInput {

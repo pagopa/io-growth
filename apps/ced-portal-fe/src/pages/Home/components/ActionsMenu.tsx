@@ -7,12 +7,12 @@ import { useCallback, useState } from 'react';
 import { useRequestApprovalMutation } from '../../../features/opportunities/api';
 import { useToast } from '../../../contexts';
 import { AppModal } from '../../../components';
-import type { PublicationStatus } from '../../../features/benefitsFilters/types';
+import { OpportunitySummaryItemStatus } from '../../../core/api/generated/model';
 
 type ActionsMenuProps = {
   anchor: null | HTMLElement;
   selectedItemId: string | null;
-  selectedItemStatus: keyof typeof PublicationStatus | null;
+  selectedItemStatus: keyof typeof OpportunitySummaryItemStatus | null;
   handleMenuClose: () => void;
 };
 
@@ -33,8 +33,8 @@ export const ActionsMenu = ({
   };
 
   const canRequestApproval =
-    selectedItemStatus === 'DRAFT' ||
-    selectedItemStatus === 'CHANGES_REQUESTED';
+    selectedItemStatus === OpportunitySummaryItemStatus.draft ||
+    selectedItemStatus === OpportunitySummaryItemStatus.approval_pending;
 
   const onView = (id: string) => {
     navigate(generatePath(APP_ROUTES.ENTITY_OPPORTUNITY_DETAIL, { id }));
@@ -45,9 +45,11 @@ export const ActionsMenu = ({
     navigate(generatePath(APP_ROUTES.ENTITY_OPPORTUNITY_DETAIL, { id }));
   };
 
-  // const onEdit = async (id: string) => {
-  // TODO[IEG-2660][OUT OF MVP SCOPE]: confirm UX - inline edit or prefilled create page including { id }.
-  // };
+  const onEdit = async (id: string) => {
+    navigate(APP_ROUTES.CREATE_BENEFIT, {
+      state: { sourceOpportunityId: id },
+    });
+  };
 
   // const onSuspend = async (id: string) => {
   // TODO[IEG-2721][SCOPE - RELEASE IN OCTOBER]: call suspend opportunity API with { id }.
@@ -107,7 +109,7 @@ export const ActionsMenu = ({
         <MenuItem onClick={() => handleAction(onDuplicate)} sx={menuItemsSx}>
           Duplica
         </MenuItem>
-        <MenuItem onClick={() => handleAction(() => null)} sx={menuItemsSx}>
+        <MenuItem onClick={() => handleAction(onEdit)} sx={menuItemsSx}>
           Modifica
         </MenuItem>
         {canRequestApproval && (

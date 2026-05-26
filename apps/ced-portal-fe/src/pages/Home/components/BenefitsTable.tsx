@@ -14,6 +14,7 @@ import type { Benefit } from '../../../features/benefits/types';
 import { benefitsTableColumns } from './BenefitsTable.config';
 import { useTableSort } from '../../../hooks/useTableSort';
 import { ActionsMenu } from './ActionsMenu';
+import { OpportunitySummaryItemStatus } from '../../../core/api/generated/model';
 
 interface BenefitsTableProps {
   items: Benefit[];
@@ -24,7 +25,7 @@ export const BenefitsTable = ({ items }: BenefitsTableProps) => {
   const [menuAnchor, setMenuAnchor] = useState<null | HTMLElement>(null);
   const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
   const [selectedItemStatus, setSelectedItemStatus] = useState<
-    Benefit['publication_status'] | null
+    keyof typeof OpportunitySummaryItemStatus | null
   >(null);
   const { sortedItems, sortBy, sortDirection, handleSort } = useTableSort({
     items,
@@ -39,7 +40,7 @@ export const BenefitsTable = ({ items }: BenefitsTableProps) => {
   ) => {
     const item = items.find((i) => i.id === itemId);
     setSelectedItemId(itemId);
-    setSelectedItemStatus(item?.publication_status ?? null);
+    setSelectedItemStatus(item?.status ?? null);
     setMenuAnchor(event.currentTarget);
   };
 

@@ -54,7 +54,6 @@ describe("makeGetOpportunityUseCase", () => {
     expect(result).toEqual(ok(mockOpportunityDetail));
     expect(repository.getByIdGlobal).toHaveBeenCalledWith({
       opportunityId: MOCK_OPPORTUNITY_ID,
-      userType: "admin",
     });
   });
 

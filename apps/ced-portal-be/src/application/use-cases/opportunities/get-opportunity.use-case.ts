@@ -32,7 +32,9 @@ export const makeGetOpportunityUseCase =
     validateUseCaseInput(GetOpportunityInputSchema, input).andThen(
       (validatedInput) =>
         new ResultAsync(
-          opportunityRepository.getByIdGlobal(validatedInput),
+          opportunityRepository.getByIdGlobal({
+            opportunityId: validatedInput.opportunityId,
+          }),
         ).andThen((data) =>
           data ? ok(data) : err(new NotFoundError("Opportunity", "not found")),
         ),

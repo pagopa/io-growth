@@ -10,7 +10,7 @@ CREATE TYPE place_type AS ENUM ('online', 'offline');
 CREATE TYPE support_contact_type AS ENUM ('email', 'phone', 'website');
 --> statement-breakpoint
 
-CREATE TYPE opportunity_status AS ENUM ('draft', 'test_pending', 'test_passed', 'published', 'suspended', 'deleted');
+CREATE TYPE opportunity_status AS ENUM ('draft', 'test_pending', 'test_rejected', 'test_passed', 'published', 'suspended', 'deleted');
 --> statement-breakpoint
 
 CREATE TYPE benefit_type AS ENUM ('free', 'reduced_fixed_price', 'priority', 'discount', 'other');
@@ -124,6 +124,7 @@ CREATE TABLE opportunity (
   date_from DATE NOT NULL,
   date_to DATE,
   url TEXT,
+  rejection_message TEXT,
   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );

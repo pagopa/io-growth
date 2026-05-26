@@ -17,6 +17,7 @@ import {
   mountListOperatorOpportunitiesHandler,
   mountListOperatorPlacesHandler,
   mountListOpportunityCategoriesHandler,
+  mountOperatorRequestOpportunityTestHandler,
 } from "./adapters/inbound/fastify/index.js";
 import { createDrizzleOperatorRepository } from "./adapters/outbound/drizzle/drizzle-operator.repository.js";
 import { createDrizzleOpportunityCategoryRepository } from "./adapters/outbound/drizzle/drizzle-opportunity-category.repository.js";
@@ -35,6 +36,7 @@ import { makeCreateOperatorOpportunityUseCase } from "./application/use-cases/op
 import { makeGetOperatorOpportunityUseCase } from "./application/use-cases/opportunities/get-operator-opportunity.use-case.js";
 import { makeListOperatorOpportunitiesUseCase } from "./application/use-cases/opportunities/list-operator-opportunities.use-case.js";
 import { makeListOpportunityCategoriesUseCase } from "./application/use-cases/opportunities/list-opportunity-categories.use-case.js";
+import { makeOperatorRequestOpportunityTestUseCase } from "./application/use-cases/opportunities/operator-request-opportunity-test.use-case.js";
 import { makeCreateOperatorPlaceUseCase } from "./application/use-cases/places/create-operator-place.use-case.js";
 import { makeGetOperatorPlaceUseCase } from "./application/use-cases/places/get-operator-place.use-case.js";
 import { makeListOperatorPlacesUseCase } from "./application/use-cases/places/list-operator-places.use-case.js";
@@ -137,6 +139,10 @@ app.register(async (app) => {
   mountListOpportunityCategoriesHandler(
     app,
     makeListOpportunityCategoriesUseCase(opportunityCategoryRepository),
+  );
+  mountOperatorRequestOpportunityTestHandler(
+    app,
+    makeOperatorRequestOpportunityTestUseCase(opportunityRepository),
   );
 });
 

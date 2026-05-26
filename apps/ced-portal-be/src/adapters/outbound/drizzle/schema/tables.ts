@@ -147,6 +147,7 @@ export const opportunity = pgTable("opportunity", {
   operatorId: text("operator_id")
     .notNull()
     .references(() => operator.id),
+  rejectionMessage: text("rejection_message"),
   status: opportunityStatusEnum().notNull(),
   updatedAt: timestamp("updated_at", { withTimezone: true })
     .notNull()

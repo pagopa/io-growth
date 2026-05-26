@@ -66,7 +66,7 @@ const locationSlice = createSlice({
     ) {
       const { index, field, value } = action.payload;
       if (state.contacts[index]) {
-        state.contacts[index][field] = value;
+        state.contacts[index] = { ...state.contacts[index], [field]: value };
       }
     },
     resetLocationForm() {

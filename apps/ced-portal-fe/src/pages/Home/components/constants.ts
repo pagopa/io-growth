@@ -6,7 +6,7 @@ export const benefitStateLabelMap: Record<
   { text: string; color: ChipColors }
 > = {
   draft: { text: 'In bozza', color: 'default' },
-  approval_pending: { text: 'In attesa di approvazione', color: 'info' },
+  test_rejected: { text: 'Rifiutato', color: 'error' },
   test_pending: { text: 'In fase di test', color: 'warning' },
   test_passed: { text: 'Test superato', color: 'info' },
   published: { text: 'Pubblicata su IO', color: 'success' },

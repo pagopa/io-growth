@@ -11,7 +11,7 @@ import type { Benefit } from './types';
 
 const IN_MANAGEMENT_STATES: Set<OpportunitySummaryItemStatus> = new Set([
   'draft',
-  'approval_pending',
+  'test_rejected',
 ]);
 const APPROVED_STATES: Set<OpportunitySummaryItemStatus> = new Set([
   'test_pending',

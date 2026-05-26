@@ -5,7 +5,7 @@ export const publicationStatusLabels: Record<
   string
 > = {
   draft: 'In bozza',
-  approval_pending: 'In attesa di approvazione',
+  test_rejected: 'Rifiutato',
   test_pending: 'In fase di test',
   test_passed: 'Test superato',
   published: 'Pubblicata su IO',

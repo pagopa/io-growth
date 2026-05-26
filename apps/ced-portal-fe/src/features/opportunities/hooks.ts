@@ -9,7 +9,7 @@ import { OpportunityStatusEnum } from './types';
 
 const NEW_STATES: Set<OpportunityStatus> = new Set([
   OpportunityStatusEnum.draft,
-  OpportunityStatusEnum.approval_pending,
+  OpportunityStatusEnum.test_rejected,
 ]);
 const APPROVED_STATES: Set<OpportunityStatus> = new Set([
   OpportunityStatusEnum.test_pending,

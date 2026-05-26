@@ -12,7 +12,7 @@ export const STATE_OPTIONS: {
   label: string;
 }[] = [
   { value: 'draft', label: 'Bozza' },
-  { value: 'approval_pending', label: 'In attesa di approvazione' },
+  { value: 'test_rejected', label: 'Rifiutato' },
   { value: 'test_pending', label: 'In fase di test' },
   { value: 'test_passed', label: 'Test superato' },
   { value: 'published', label: 'Pubblicata' },
@@ -25,7 +25,7 @@ export const STATE_COLORS: Record<
   OpportunityStateColors
 > = {
   draft: 'default',
-  approval_pending: 'info',
+  test_rejected: 'error',
   test_pending: 'warning',
   test_passed: 'info',
   published: 'success',

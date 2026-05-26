@@ -28,7 +28,7 @@ export const opportunityAlertMap: Partial<
     }
   >
 > = {
-  approval_pending: {
+  test_pending: {
     title: 'In revisione',
     description:
       "Il processo di revisione potrebbe richiedere un po' di tempo. Riceverai un'email con gli aggiornamenti.",
@@ -41,7 +41,8 @@ export const opportunityAlertMap: Partial<
       ...baseSx,
     },
   },
-  test_pending: {
+  // TODO: confirm if we need to handle with this state
+  test_rejected: {
     title: 'In fase di test',
     description: "L'opportunità è in fase di test.",
     severity: 'info',

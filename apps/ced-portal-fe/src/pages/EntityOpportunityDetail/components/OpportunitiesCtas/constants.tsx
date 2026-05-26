@@ -25,7 +25,7 @@ export const CTAS_BY_STATUS: Partial<
     leftCtas: [DELETE_CTA],
     rightCtas: [MODIFY_CTA],
   },
-  approval_pending: {},
+  test_rejected: {},
   test_pending: {},
   test_passed: {},
   published: {

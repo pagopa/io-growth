@@ -1,10 +1,10 @@
-import multipart from "@fastify/multipart";
 import {
   createDocumentContentClient,
   createInstitutionClient,
   createOnboardingClient,
 } from "@pagopa/io-core-adapter-ar";
 import { createTypedDbClient } from "@pagopa/io-core-adapter-drizzle";
+import { multipart } from "@pagopa/io-core-adapter-fastify";
 import { createAuthenticationPreHandler } from "@pagopa/io-core-adapter-fastify";
 import { createResilientRedisClient } from "@pagopa/io-core-adapter-redis";
 import Fastify from "fastify";

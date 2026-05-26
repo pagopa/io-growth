@@ -47,6 +47,32 @@ export const createAppTheme = () =>
   createTheme(muiItaliaTheme, {
     typography: {
       fontFamily: '"Titillium Web", Arial, sans-serif',
+      fontWeightLight: 300,
+      fontWeightRegular: 400,
+      fontWeightMedium: 600,
+      fontWeightBold: 700,
+      h1: {
+        fontFamily: '"Titillium Web", Arial, sans-serif',
+        fontSize: '28px',
+        lineHeight: '42px',
+        letterSpacing: '0px',
+        fontWeight: 600,
+      },
+      h2: {
+        fontFamily: '"Titillium Web", Arial, sans-serif',
+        fontSize: '22px',
+        lineHeight: '33px',
+        letterSpacing: '0px',
+        fontWeight: 600,
+      },
+      button: {
+        fontFamily: '"Titillium Web", Arial, sans-serif',
+        fontSize: '16px',
+        lineHeight: '22px',
+        letterSpacing: '0px',
+        fontWeight: 600,
+        textTransform: 'none',
+      },
       allVariants: {
         fontFamily: '"Titillium Web", Arial, sans-serif',
       },

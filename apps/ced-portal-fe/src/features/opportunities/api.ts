@@ -19,6 +19,7 @@ export const opportunitiesApi = baseApi.injectEndpoints({
       invalidatesTags: (_result, _error, id) => [
         { type: 'Opportunities', id },
         'Opportunities',
+        'Benefits',
       ],
     }),
   }),

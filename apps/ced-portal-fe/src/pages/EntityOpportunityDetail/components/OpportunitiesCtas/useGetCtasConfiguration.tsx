@@ -14,8 +14,10 @@ export const useGetCtasConfiguration = (id: string) => {
   }, [id, navigate]);
 
   const handleModify = useCallback(() => {
-    // TODO[IEG-2660][OUT OF MVP SCOPE]: confirm UX - inline edit or prefilled create page including { id }.
-  }, [id]);
+    navigate(APP_ROUTES.CREATE_BENEFIT, {
+      state: { sourceOpportunityId: id },
+    });
+  }, [id, navigate]);
 
   const handleSuspension = useCallback(() => {
     // TODO[IEG-2721][SCOPE - RELEASE IN OCTOBER]: call suspend opportunity API with { id }.

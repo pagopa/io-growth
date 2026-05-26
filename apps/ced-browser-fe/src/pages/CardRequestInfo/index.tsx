@@ -31,11 +31,10 @@ export default function CardRequestInfoPage() {
 
       <Box sx={{ px: 3, pt: 4, pb: 3 }}>
         <Typography
+          variant="h1"
           component="h1"
           sx={{
-            fontSize: 46,
-            fontWeight: 500,
-            lineHeight: 1,
+            color: theme.palette.common.neutralBlack,
           }}
         >
           Carta Europea della Disabilità: cos’è e come funziona
@@ -62,8 +61,21 @@ export default function CardRequestInfoPage() {
             lineHeight: 1.45,
           }}
         >
-          La richiesta della carta e <Box component="strong">gratuita</Box> e
-          non ci sono <Box component="strong">limiti di utilizzo</Box>.
+          La richiesta della carta e{' '}
+          <Box
+            component="span"
+            sx={{ fontWeight: theme.typography.fontWeightBold }}
+          >
+            gratuita
+          </Box>{' '}
+          e non ci sono{' '}
+          <Box
+            component="span"
+            sx={{ fontWeight: theme.typography.fontWeightBold }}
+          >
+            limiti di utilizzo
+          </Box>
+          .
         </Typography>
 
         <Box
@@ -75,7 +87,7 @@ export default function CardRequestInfoPage() {
           }}
         />
 
-        <Typography component="h2" sx={{ fontSize: 34, fontWeight: 700 }}>
+        <Typography variant="h2" component="h2">
           Chi puo richiederla?
         </Typography>
 
@@ -106,10 +118,7 @@ export default function CardRequestInfoPage() {
           Consulta le categorie di aventi diritto
         </Link>
 
-        <Typography
-          component="h2"
-          sx={{ mt: 3, fontSize: 34, fontWeight: 700 }}
-        >
+        <Typography variant="h2" component="h2" sx={{ mt: 3 }}>
           Cosa serve
         </Typography>
 
@@ -133,9 +142,21 @@ export default function CardRequestInfoPage() {
             lineHeight: 1.45,
           }}
         >
-          Ti servira <Box component="strong">una tua foto in primo piano</Box>.
-          Potrebbe esserti richiesto anche il{' '}
-          <Box component="strong">documento che attesta l&apos;invalidita</Box>.
+          Ti servira{' '}
+          <Box
+            component="span"
+            sx={{ fontWeight: theme.typography.fontWeightBold }}
+          >
+            una tua foto in primo piano
+          </Box>
+          . Potrebbe esserti richiesto anche il{' '}
+          <Box
+            component="span"
+            sx={{ fontWeight: theme.typography.fontWeightBold }}
+          >
+            documento che attesta l&apos;invalidita
+          </Box>
+          .
         </Typography>
 
         <Typography
@@ -159,7 +180,7 @@ export default function CardRequestInfoPage() {
           }}
         />
 
-        <Typography component="h2" sx={{ fontSize: 34, fontWeight: 700 }}>
+        <Typography variant="h2" component="h2">
           Come si usa
         </Typography>
 
@@ -171,8 +192,13 @@ export default function CardRequestInfoPage() {
             lineHeight: 1.45,
           }}
         >
-          <Box component="strong">Nei punti di accesso fisici e online</Box> dei
-          partner, mostra la tua carta per usufruire delle opportunita su
+          <Box
+            component="span"
+            sx={{ fontWeight: theme.typography.fontWeightBold }}
+          >
+            Nei punti di accesso fisici e online
+          </Box>{' '}
+          dei partner, mostra la tua carta per usufruire delle opportunita su
           trasporti, spettacoli, attivita culturali e molto altro.
         </Typography>
 
@@ -252,9 +278,6 @@ export default function CardRequestInfoPage() {
           sx={{
             height: 52,
             borderRadius: '10px',
-            textTransform: 'none',
-            fontSize: 22,
-            fontWeight: 700,
             bgcolor: theme.palette.common.primaryButton,
           }}
         >
@@ -267,9 +290,6 @@ export default function CardRequestInfoPage() {
           onClick={() => navigate(-1)}
           sx={{
             mt: 1,
-            textTransform: 'none',
-            fontSize: 18,
-            fontWeight: 600,
             color: theme.palette.common.primaryButton,
           }}
         >

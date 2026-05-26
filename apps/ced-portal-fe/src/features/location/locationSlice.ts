@@ -1,6 +1,6 @@
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
 import type { RootState } from '../../core/store';
-import type { AddressOption, Contact } from '../places/types';
+import type { Contact } from '../places/types';
 import type { LocationFormState } from './types';
 
 const createEmptyContact = (): Contact => ({
@@ -34,12 +34,13 @@ const locationSlice = createSlice({
         state.province = null;
       }
     },
-    setLocationAddressFromOption(state, action: PayloadAction<AddressOption>) {
-      state.address = action.payload.label;
-      state.city = action.payload.city;
-      state.postalCode = action.payload.postalCode;
-      state.province = action.payload.province;
-    },
+    // TODO: restore when an address search API with geocoding is available
+    // setLocationAddressFromOption(state, action: PayloadAction<AddressOption>) {
+    //   state.address = action.payload.label;
+    //   state.city = action.payload.city;
+    //   state.postalCode = action.payload.postalCode;
+    //   state.province = action.payload.province;
+    // },
     setLocationCity(state, action: PayloadAction<string | null>) {
       state.city = action.payload;
     },
@@ -77,7 +78,7 @@ const locationSlice = createSlice({
 export const {
   setLocationName,
   setLocationAddress,
-  setLocationAddressFromOption,
+  // setLocationAddressFromOption, // TODO: restore when address search API available
   setLocationCity,
   setLocationPostalCode,
   setLocationProvince,

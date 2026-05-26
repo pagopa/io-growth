@@ -1,17 +1,7 @@
-import {
-  useCreatePlaceMutation,
-  useLazyGetPlacesQuery,
-  useLazySearchAddressesQuery,
-} from '../places/api';
+import { useCreatePlaceMutation, useGetPlacesQuery } from '../places/api';
 import type { Place } from '../places/types';
 import { useAppDispatch, useAppSelector } from '../../hooks/store';
-import {
-  resetLocationForm,
-  selectLocationForm,
-  setLocationAddress,
-  setLocationAddressFromOption,
-} from './locationSlice';
-import type { AddressOption } from '../places/types';
+import { resetLocationForm, selectLocationForm } from './locationSlice';
 import { useToast } from '../../contexts';
 
 export function useLocationSubmit(
@@ -22,7 +12,7 @@ export function useLocationSubmit(
   const dispatch = useAppDispatch();
   const locationForm = useAppSelector(selectLocationForm);
   const [createPlace, { isLoading }] = useCreatePlaceMutation();
-  const [triggerGetPlaces] = useLazyGetPlacesQuery();
+  const { refetch: refetchPlaces } = useGetPlacesQuery();
   const { showToast } = useToast();
 
   const handleConfirm = async () => {
@@ -49,22 +39,18 @@ export function useLocationSubmit(
       address: {
         street: address.trim(),
         city: city.trim(),
-        state: province?.trim() ?? '',
-        postalCode: postalCode?.trim() ?? '',
+        state: province?.trim(),
+        postalCode: postalCode?.trim(),
         country: 'IT',
       },
       supportContacts,
     });
 
-    if ('error' in result) {
-      showToast('Errore durante il salvataggio del luogo', 'error');
-      return;
-    }
-    const placesResult = await triggerGetPlaces();
-    if (placesResult.error) {
-      showToast('Errore durante il recupero dei luoghi', 'error');
-      return;
-    }
+    if ('error' in result)
+      return showToast('Errore durante il salvataggio del luogo', 'error');
+    const placesResult = await refetchPlaces();
+    if (placesResult.error)
+      return showToast('Errore durante il recupero dei luoghi', 'error');
     const newPlace = placesResult.data?.slice(-1)[0];
     dispatch(resetLocationForm());
     onConfirm(newPlace);
@@ -79,24 +65,38 @@ export function useLocationSubmit(
 }
 
 // TODO: restore when an address search API with geocoding is available
-export function useLocationAddressSearch() {
-  const dispatch = useAppDispatch();
-  const { address } = useAppSelector(selectLocationForm);
-  const [triggerSearch, { data: addressOptions = [] }] =
-    useLazySearchAddressesQuery();
-
-  const handleAddressChange = (val: string) => {
-    dispatch(setLocationAddress(val));
-    if (val.trim().length >= 3) {
-      void triggerSearch(val);
-    }
-  };
-
-  return {
-    addressOptions,
-    handleAddressChange,
-    handleAddressSelect: (option: AddressOption) =>
-      dispatch(setLocationAddressFromOption(option)),
-    address,
-  };
-}
+// export function useLocationAddressSearch(existingLocations: OfflinePlace[]) {
+//   const dispatch = useAppDispatch();
+//   const { address } = useAppSelector(selectLocationForm);
+//
+//   const searchAddress = address?.trim() || '';
+//
+//   const { data: rawAddressOptions = [] } = useSearchAddressesQuery(
+//     searchAddress,
+//     {
+//       skip: searchAddress.length < 3,
+//     },
+//   );
+//
+//   const usedAddresses = useMemo(
+//     () => new Set(existingLocations.map((s) => s.address.street.toLowerCase())),
+//     [existingLocations],
+//   );
+//
+//   const addressOptions = useMemo(
+//     () =>
+//       rawAddressOptions.filter(
+//         (o) =>
+//           o.label.toLowerCase().includes(searchAddress.toLowerCase()) &&
+//           !usedAddresses.has(o.label.toLowerCase()),
+//       ),
+//     [rawAddressOptions, searchAddress, usedAddresses],
+//   );
+//
+//   return {
+//     addressOptions,
+//     handleAddressChange: (val: string) => dispatch(setLocationAddress(val)),
+//     handleAddressSelect: (option: AddressOption) =>
+//       dispatch(setLocationAddressFromOption(option)),
+//   };
+// }

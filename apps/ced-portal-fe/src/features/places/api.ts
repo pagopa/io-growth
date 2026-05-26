@@ -1,5 +1,5 @@
 import { baseApi } from '../../core/api/baseApi';
-import type { AddressOption, CreatePlacePayload, Place } from './types';
+import type { CreatePlacePayload, Place } from './types';
 
 export const placesApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
@@ -15,15 +15,7 @@ export const placesApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: ['Places'],
     }),
-    searchAddresses: builder.query<AddressOption[], string>({
-      query: (q) => `/addresses/search?q=${encodeURIComponent(q)}`,
-    }),
   }),
 });
 
-export const {
-  useGetPlacesQuery,
-  useLazyGetPlacesQuery,
-  useCreatePlaceMutation,
-  useLazySearchAddressesQuery,
-} = placesApi;
+export const { useGetPlacesQuery, useCreatePlaceMutation } = placesApi;

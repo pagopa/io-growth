@@ -1,8 +1,7 @@
+import { arConfigSchema } from "@pagopa/io-core-adapter-ar";
 import { z } from "zod";
 
-const configSchema = z.object({
-  AR_API_KEY: z.string().min(1),
-  AR_ENDPOINT: z.string().min(1),
+const configSchema = arConfigSchema.extend({
   AZURE_CLIENT_ID: z.string().optional(),
   CED_PORTAL_FE_BASE_URL: z.string().min(1),
   CED_PRODUCT_ID: z.string().min(1),

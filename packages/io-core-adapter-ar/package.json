@@ -23,19 +23,19 @@
   },
   "dependencies": {
     "@pagopa/io-core-domain": "workspace:^",
-    "neverthrow": "catalog:"
+    "neverthrow": "catalog:",
+    "zod": "catalog:"
   },
-  "peerDependencies": {},
   "devDependencies": {
     "@pagopa/eslint-config": "catalog:",
     "@tsconfig/node22": "catalog:",
     "@types/node": "catalog:",
-    "undici-types": "catalog:",
     "@vitest/coverage-v8": "catalog:",
     "eslint": "catalog:",
     "orval": "catalog:",
     "prettier": "catalog:",
     "typescript": "catalog:",
+    "undici-types": "catalog:",
     "vitest": "catalog:"
   }
 }

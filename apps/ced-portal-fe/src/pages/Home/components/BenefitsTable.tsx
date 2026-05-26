@@ -105,7 +105,7 @@ export const BenefitsTable = ({ items }: BenefitsTableProps) => {
 
   const renderTableRow = (item: Benefit, index: number) => (
     <TableRow
-      key={`${item.name}-${item.createdAt}`}
+      key={`${item.name}-${item.dateFrom}`}
       sx={{
         bgcolor: theme.palette.background.paper,
         height: 48,

@@ -1,18 +1,36 @@
-export const STATE_OPTIONS = [
-  { value: 'Da_gestire', label: 'Da gestire' },
-  { value: 'In_attesa_di_modifiche', label: 'In attesa di modifiche' },
-  { value: 'Approvata', label: 'Approvata' },
-  { value: 'Non_attiva', label: 'Non attiva' },
+import { OpportunitySummaryItemStatus } from '../core/api/generated/model';
+
+type OpportunityStateColors =
+  | 'default'
+  | 'warning'
+  | 'success'
+  | 'info'
+  | 'error';
+
+export const STATE_OPTIONS: {
+  value: OpportunitySummaryItemStatus;
+  label: string;
+}[] = [
+  { value: 'draft', label: 'Bozza' },
+  { value: 'approval_pending', label: 'In attesa di approvazione' },
+  { value: 'test_pending', label: 'In fase di test' },
+  { value: 'test_passed', label: 'Test superato' },
+  { value: 'published', label: 'Pubblicata' },
+  { value: 'suspended', label: 'Sospesa' },
+  { value: 'deleted', label: 'Eliminata' },
 ];
 
 export const STATE_COLORS: Record<
-  string,
-  'default' | 'warning' | 'success' | 'info' | 'error'
+  OpportunitySummaryItemStatus,
+  OpportunityStateColors
 > = {
-  Da_gestire: 'warning',
-  In_attesa_di_modifiche: 'info',
-  Approvata: 'success',
-  Non_attiva: 'default',
+  draft: 'default',
+  approval_pending: 'info',
+  test_pending: 'warning',
+  test_passed: 'info',
+  published: 'success',
+  suspended: 'warning',
+  deleted: 'error',
 };
 
 export const ENTITY_STATE_OPTIONS = [
@@ -24,8 +42,8 @@ export const ENTITY_STATE_OPTIONS = [
 ];
 
 export const ENTITY_STATE_COLORS: Record<
-  string,
-  'default' | 'warning' | 'success' | 'info' | 'error'
+  (typeof ENTITY_STATE_OPTIONS)[number]['value'],
+  OpportunityStateColors
 > = {
   Da_gestire: 'warning',
   Rifiutata: 'default',

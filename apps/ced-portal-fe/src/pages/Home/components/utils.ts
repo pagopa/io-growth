@@ -1,13 +1,10 @@
 import { ChipProps } from '@mui/material';
-import type { Benefit } from '../../../features/benefits/types';
 import { benefitStateLabelMap } from './constants';
 
-export const getChipConfig = (item: Benefit): ChipProps => {
-  const color =
-    benefitStateLabelMap[item.publication_status]?.color ?? 'default';
-  const label =
-    benefitStateLabelMap[item.publication_status]?.text ??
-    item.publication_status;
+export const getChipConfig = (item: { status: string }): ChipProps => {
+  const key = item.status as keyof typeof benefitStateLabelMap;
+  const color = benefitStateLabelMap[key]?.color ?? 'default';
+  const label = benefitStateLabelMap[key]?.text ?? item.status;
 
   return {
     size: 'small',

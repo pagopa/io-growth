@@ -1,5 +1,5 @@
 import { ButtonProps } from '@mui/material';
-import { OpportunityDetail } from '../../../../features/opportunities/types';
+import type { OpportunityStatus } from '../../../../features/opportunities/types';
 
 type ActionId =
   | 'MODIFY'
@@ -18,8 +18,8 @@ export type OpportunitiesCtaItem = {
 };
 
 export type OpportunitiesCtasProps = {
-  status: OpportunityDetail['publication_status'];
-  id: OpportunityDetail['id'];
+  status: OpportunityStatus;
+  id: string;
 };
 
 export type OpportunitiesCtasLayout = {

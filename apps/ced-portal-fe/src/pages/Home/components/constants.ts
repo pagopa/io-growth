@@ -1,18 +1,15 @@
 import { ChipColors } from '@pagopa/mui-italia';
-import { PublicationStatus } from '../../../features/benefitsFilters/types';
+import type { OpportunitySummaryItemStatus } from '../../../core/api/generated/model';
 
 export const benefitStateLabelMap: Record<
-  keyof typeof PublicationStatus,
+  OpportunitySummaryItemStatus,
   { text: string; color: ChipColors }
 > = {
-  SCHEDULED_PUBLICATION: {
-    text: 'Pubblicazione programmata',
-    color: 'info',
-  },
-  PUBLISHED: { text: 'Pubblicata su IO', color: 'success' },
-  UNDER_REVIEW: { text: 'In revisione', color: 'primary' },
-  DRAFT: { text: 'In bozza', color: 'default' },
-  CHANGES_REQUESTED: { text: 'Modifiche richieste', color: 'warning' },
-  DELETED: { text: 'Eliminata', color: 'error' },
-  SUSPENDED: { text: 'Sospesa', color: 'default' },
+  draft: { text: 'In bozza', color: 'default' },
+  approval_pending: { text: 'In attesa di approvazione', color: 'info' },
+  test_pending: { text: 'In fase di test', color: 'warning' },
+  test_passed: { text: 'Test superato', color: 'info' },
+  published: { text: 'Pubblicata su IO', color: 'success' },
+  suspended: { text: 'Sospesa', color: 'default' },
+  deleted: { text: 'Eliminata', color: 'error' },
 };

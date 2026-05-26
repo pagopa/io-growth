@@ -114,7 +114,7 @@ export default function OpportunityDetailPage() {
             variant="h4"
             sx={{ fontWeight: 700, fontSize: { xs: 28, md: 36 } }}
           >
-            {detail.name}
+            {detail.categoryTitle}
           </Typography>
           <Chip
             {...getChipConfig(detail)}
@@ -130,7 +130,7 @@ export default function OpportunityDetailPage() {
           Ecco i dettagli dell&apos;opportunità che hai creato
         </Typography>
 
-        <OpportunityAlert status={detail.publication_status} />
+        <OpportunityAlert status={detail.status} />
 
         <OpportunityDetailCard detail={detail} />
 
@@ -163,7 +163,7 @@ export default function OpportunityDetailPage() {
           </Typography>
         </Stack>
 
-        <OpportunitiesCtas status={detail.publication_status} id={detail.id} />
+        <OpportunitiesCtas status={detail.status} id={detail.id} />
       </Stack>
     </Box>
   );

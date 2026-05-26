@@ -1,17 +1,21 @@
-import { PublicationStatus } from '../benefitsFilters/types';
+import type { OpportunitySummaryItemStatus } from '../../core/api/generated/model';
 
 export interface Benefit {
   id: string;
   name: string;
-  category: string;
-  createdAt: string;
-  publication_status: keyof typeof PublicationStatus;
+  categoryTitle: string;
+  dateFrom: string;
+  dateTo?: string | null;
+  status: OpportunitySummaryItemStatus;
 }
 
-export type BenefitsResponse = Benefit[];
+export interface BenefitsResponse {
+  items: Benefit[];
+  total: number;
+}
 
 export interface SaveBenefitDraftResponse {
   id: string;
-  publication_status: keyof typeof PublicationStatus;
+  status: OpportunitySummaryItemStatus;
   createdAt: string;
 }

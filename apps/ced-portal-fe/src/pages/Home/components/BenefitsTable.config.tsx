@@ -5,10 +5,7 @@ import type { Theme } from '@mui/material/styles';
 import type { MouseEvent, ReactNode } from 'react';
 import type { Benefit } from '../../../features/benefits/types';
 import { getChipConfig } from './utils';
-import {
-  BenefitCategory,
-  PublicationStatus,
-} from '../../../features/benefitsFilters/types';
+import { publicationStatusLabels } from '../../../features/benefitsFilters/types';
 
 export interface BenefitsTableColumn {
   id: string;
@@ -36,24 +33,21 @@ export const benefitsTableColumns: BenefitsTableColumn[] = [
     id: 'category',
     label: 'Categoria',
     sortable: true,
-    sortAccessor: (item) =>
-      BenefitCategory[item.category as keyof typeof BenefitCategory],
-    renderCell: (item) =>
-      BenefitCategory[item.category as keyof typeof BenefitCategory],
+    sortAccessor: (item) => item.categoryTitle,
+    renderCell: (item) => item.categoryTitle,
   },
   {
-    id: 'createdAt',
-    label: 'Creata il',
+    id: 'dateFrom',
+    label: 'Data inizio',
     sortable: true,
-    sortAccessor: (item) => parseISO(item.createdAt).getTime(),
-    renderCell: (item) =>
-      format(parseISO(item.createdAt), 'dd/MM/yyyy - HH:mm'),
+    sortAccessor: (item) => parseISO(item.dateFrom).getTime(),
+    renderCell: (item) => format(parseISO(item.dateFrom), 'dd/MM/yyyy'),
   },
   {
-    id: 'publication_status',
+    id: 'status',
     label: 'Stato',
     sortable: true,
-    sortAccessor: (item) => PublicationStatus[item.publication_status],
+    sortAccessor: (item) => publicationStatusLabels[item.status],
     renderCell: (item) => <Chip {...getChipConfig(item)} />,
   },
   {

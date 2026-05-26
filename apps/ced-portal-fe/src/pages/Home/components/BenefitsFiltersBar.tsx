@@ -13,10 +13,8 @@ import {
   setBenefitFilters,
 } from '../../../features/benefitsFilters/benefitFiltersSlice';
 import { useCallback, useState } from 'react';
-import {
-  BenefitCategory,
-  PublicationStatus,
-} from '../../../features/benefitsFilters/types';
+import type { OpportunitySummaryItemStatus } from '../../../core/api/generated/model';
+import { BenefitCategory } from '../../../features/benefitsFilters/types';
 
 export const BenefitsFiltersBar = () => {
   const dispatch = useAppDispatch();
@@ -28,7 +26,7 @@ export const BenefitsFiltersBar = () => {
   const [filters, setFilters] = useState({
     name: nameFilter,
     category: categoryFilter,
-    publication_status: statusFilter,
+    status: statusFilter,
   });
 
   const handleNameFilterChange = useCallback(
@@ -52,7 +50,7 @@ export const BenefitsFiltersBar = () => {
     (e: SelectChangeEvent<string | string[]>) => {
       setFilters((prev) => ({
         ...prev,
-        status: e.target.value as keyof typeof PublicationStatus,
+        status: e.target.value as OpportunitySummaryItemStatus,
       }));
     },
     [],
@@ -64,7 +62,7 @@ export const BenefitsFiltersBar = () => {
 
   const handleResetFilters = useCallback(() => {
     dispatch(resetBenefitFilters());
-    setFilters({ name: null, category: null, publication_status: null });
+    setFilters({ name: null, category: null, status: null });
   }, [dispatch]);
 
   return (
@@ -95,7 +93,7 @@ export const BenefitsFiltersBar = () => {
         onChange={handleCategoryFilterChange}
       />
       <AppSelect
-        value={filters.publication_status || ''}
+        value={filters.status || ''}
         fullWidth
         sx={{ flex: 0.5 }}
         label="Stato"

@@ -1,6 +1,6 @@
 import {
   BenefitCategory,
-  PublicationStatus,
+  publicationStatusLabels,
 } from '../../features/benefitsFilters/types';
 import { BenefitType, FixedPriceBenefitType } from './types';
 
@@ -13,7 +13,7 @@ const generateOptions = <T extends string>(
   }));
 
 export const categoriesOptions = generateOptions(BenefitCategory);
-export const statusOptions = generateOptions(PublicationStatus);
+export const statusOptions = generateOptions(publicationStatusLabels);
 export const benefitTypeOptions = generateOptions(BenefitType);
 export const fixedPriceBenefitTypeOptions = generateOptions(
   FixedPriceBenefitType,

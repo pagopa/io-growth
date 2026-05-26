@@ -245,17 +245,17 @@ export const OpportunitiesTable = ({
                 />
               </TableCell>
               <TableCell>{item.name}</TableCell>
-              <TableCell>{item.organization_name}</TableCell>
+              <TableCell>{item.categoryTitle}</TableCell>
               <TableCell>
-                {new Date(item.created_at).toLocaleDateString('it-IT')}
+                {new Date(item.dateFrom).toLocaleDateString('it-IT')}
               </TableCell>
               <TableCell>
                 <Chip
                   label={
-                    STATE_OPTIONS.find((o) => o.value === item.approval_status)
-                      ?.label ?? item.approval_status
+                    STATE_OPTIONS.find((o) => o.value === item.status)?.label ??
+                    item.status
                   }
-                  color={STATE_COLORS[item.approval_status] ?? 'default'}
+                  color={STATE_COLORS[item.status] ?? 'default'}
                   size="small"
                 />
               </TableCell>

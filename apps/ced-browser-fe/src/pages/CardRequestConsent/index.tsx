@@ -1,16 +1,16 @@
 import CheckIcon from '@mui/icons-material/Check';
 import { Box, Button, Link, Typography, useTheme } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
+import { APP_ROUTES } from '../../app/routeConfig';
 
-const REQUEST_CARD_URL = 'https://www.google.com/';
-const PRIVACY_URL = REQUEST_CARD_URL;
+const PRIVACY_URL = 'https://www.google.com/';
 
 export default function CardRequestConsentPage() {
   const navigate = useNavigate();
   const theme = useTheme();
 
   const handleContinue = () => {
-    window.open(REQUEST_CARD_URL, '_blank', 'noopener,noreferrer');
+    navigate(APP_ROUTES.CARD_REQUEST_LOADING);
   };
 
   return (

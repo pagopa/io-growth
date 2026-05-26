@@ -5,7 +5,7 @@ meta {
 }
 
 get {
-  url: {{baseUrl}}/department/onboardings?page=0&size=20&status=COMPLETED&name=di
+  url: {{baseUrl}}/department/onboardings?page=0&size=20&status=COMPLETED
   body: none
   auth: inherit
 }
@@ -14,5 +14,5 @@ params:query {
   page: 0
   size: 20
   status: COMPLETED
-  name: di
+  ~name: di
 }

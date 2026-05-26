@@ -1,0 +1,18 @@
+meta {
+  name: List onboardings
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/department/onboardings?page=0&size=20&status=COMPLETED&name=di
+  body: none
+  auth: inherit
+}
+
+params:query {
+  page: 0
+  size: 20
+  status: COMPLETED
+  name: di
+}

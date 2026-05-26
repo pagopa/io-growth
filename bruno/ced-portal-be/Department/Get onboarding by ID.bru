@@ -1,0 +1,15 @@
+meta {
+  name: Get onboarding by ID
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{baseUrl}}/department/onboardings/{{onboardingId}}
+  body: none
+  auth: inherit
+}
+
+vars:pre-request {
+  onboardingId: 45110ed5-6020-401d-922d-7c8cbf0db3e7
+}

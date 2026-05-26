@@ -1,7 +1,4 @@
-export interface ArClientConfig {
-  readonly baseUrl: string;
-  readonly subscriptionKey: string;
-}
+import type { ArClientConfig } from "./config.js";
 
 let globalConfig: ArClientConfig | undefined;
 

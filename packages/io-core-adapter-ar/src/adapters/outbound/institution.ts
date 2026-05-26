@@ -1,10 +1,10 @@
 import { GenericError } from "@pagopa/io-core-domain/errors";
 import { err, ok } from "neverthrow";
 
+import type { ArClientConfig } from "../../config.js";
 import type { InstitutionRepository } from "../../domain/ports/outbound/institution.repository.js";
-import type { ArClientConfig } from "../../fetcher.js";
 
-import { initArClient } from "../../fetcher.js";
+import { initArClient } from "../../client.js";
 import { retrieveOnboardingOnSearchEngine } from "../../generated/endpoints/institution/institution.js";
 
 export const createInstitutionClient = (

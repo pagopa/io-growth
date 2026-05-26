@@ -13,7 +13,7 @@ export default defineConfig({
       override: {
         mutator: {
           name: "customFetch",
-          path: "./src/fetcher.ts",
+          path: "./src/client.ts",
         },
       },
       schemas: "./src/generated/model",

@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { customFetch, initArClient } from "../fetcher.js";
+import { customFetch, initArClient } from "../client.js";
 
 describe("customFetch", () => {
   afterEach(() => {

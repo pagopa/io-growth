@@ -86,15 +86,17 @@ export default function CreateBenefitPage() {
     return true;
   };
 
+  const buildDraftPayload = () => ({
+    localizedForm: agreementState.localizedForm,
+    accessPoint,
+    nationwide,
+    selectedLocationIds,
+    selectedWebsiteIds,
+  });
+
   const handleSaveDraft = async () => {
     try {
-      await saveDraft({
-        localizedForm: agreementState.localizedForm,
-        accessPoint,
-        nationwide,
-        selectedLocationIds,
-        selectedWebsiteIds,
-      }).unwrap();
+      await saveDraft(buildDraftPayload()).unwrap();
       showToast('Bozza salvata con successo', 'success');
       navigate(APP_ROUTES.HOME);
     } catch {
@@ -128,15 +130,17 @@ export default function CreateBenefitPage() {
 
   const handleConfirmSubmitReview = async () => {
     setSubmitReviewOpen(false);
+
+    if (!sourceOpportunityId) {
+      showToast(
+        "Impossibile inviare in revisione senza un'opportunità esistente",
+        'error',
+      );
+      return;
+    }
+
     try {
-      const draft = await saveDraft({
-        localizedForm: agreementState.localizedForm,
-        accessPoint,
-        nationwide,
-        selectedLocationIds,
-        selectedWebsiteIds,
-      }).unwrap();
-      await requestApproval(draft.id).unwrap();
+      await requestApproval(sourceOpportunityId).unwrap();
       showToast('Richiesta di approvazione inviata con successo', 'success');
       navigate(APP_ROUTES.HOME);
     } catch {

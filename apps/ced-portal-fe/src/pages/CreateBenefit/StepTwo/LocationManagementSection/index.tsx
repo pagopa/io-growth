@@ -7,6 +7,7 @@ import {
   Switch,
   Typography,
 } from '@mui/material';
+import { useMemo } from 'react';
 import { SectionCard } from '../../../../components';
 import { useGetPlacesQuery } from '../../../../features/places/api';
 
@@ -33,9 +34,13 @@ export function LocationManagementSection() {
   const { data: allPlaces = [] } = useGetPlacesQuery(undefined, {
     skip: !showTerritorySection,
   });
-  const availableLocations = allPlaces.filter((p) => p.type === 'offline');
-  const selectedLocations = availableLocations.filter((s) =>
-    selectedLocationIds.includes(s.id),
+  const availableLocations = useMemo(
+    () => allPlaces.filter((p) => p.type === 'offline'),
+    [allPlaces],
+  );
+  const selectedLocations = useMemo(
+    () => availableLocations.filter((s) => selectedLocationIds.includes(s.id)),
+    [availableLocations, selectedLocationIds],
   );
 
   const {

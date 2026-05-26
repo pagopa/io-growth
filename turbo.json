@@ -3,7 +3,10 @@
   "tasks": {
     "generate": {
       "inputs": ["openapi/**/*.yaml", "orval.config.ts"],
-      "outputs": ["src/adapters/inbound/fastify/contracts/**"]
+      "outputs": [
+        "src/adapters/inbound/fastify/contracts/**",
+        "src/generated/**"
+      ]
     },
     "build": {
       "dependsOn": ["^build", "generate"],

@@ -1,7 +1,7 @@
 import { useState, type ComponentType } from 'react';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { Box, Button, Container, Typography } from '@mui/material';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { APP_ROUTES } from '../../app/routeConfig';
 import { useSaveBenefitDraftMutation } from '../../features/benefits/api';
 import { useRequestApprovalMutation } from '../../features/opportunities/api';
@@ -19,6 +19,8 @@ import { WizardStepper } from './components/WizardStepper';
 import { StepOne } from './StepOne';
 import { StepTwo } from './StepTwo';
 import { useToast } from '../../contexts';
+import type { CreateBenefitNavigationState } from './types';
+import { useHydrateFromSourceOpportunity } from './hooks/useHydrateFromSourceOpportunity';
 
 export interface StepProps {
   attempted: boolean;
@@ -36,6 +38,13 @@ const STEPS: StepConfig[] = [
 
 export default function CreateBenefitPage() {
   const navigate = useNavigate();
+  const location = useLocation() as {
+    state: CreateBenefitNavigationState | null;
+  };
+
+  const sourceOpportunityId = location.state?.sourceOpportunityId ?? null;
+  useHydrateFromSourceOpportunity(sourceOpportunityId);
+
   const [currentStep, setCurrentStep] = useState(0);
   const [attempted, setAttempted] = useState(false);
   const [submitReviewOpen, setSubmitReviewOpen] = useState(false);

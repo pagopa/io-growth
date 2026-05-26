@@ -11,10 +11,9 @@ import {
 } from '@mui/material';
 import { useMemo, useState } from 'react';
 import type { Benefit } from '../../../features/benefits/types';
-import { benefitsTableColumns } from './BenefitsTable.config';
 import { useTableSort } from '../../../hooks/useTableSort';
 import { ActionsMenu } from './ActionsMenu';
-import { OpportunitySummaryItemStatus } from '../../../core/api/generated/model';
+import { benefitsTableColumns } from './BenefitsTable.config';
 
 interface BenefitsTableProps {
   items: Benefit[];
@@ -24,9 +23,7 @@ export const BenefitsTable = ({ items }: BenefitsTableProps) => {
   const theme = useTheme();
   const [menuAnchor, setMenuAnchor] = useState<null | HTMLElement>(null);
   const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
-  const [selectedItemStatus, setSelectedItemStatus] = useState<
-    keyof typeof OpportunitySummaryItemStatus | null
-  >(null);
+
   const { sortedItems, sortBy, sortDirection, handleSort } = useTableSort({
     items,
     columns: benefitsTableColumns,
@@ -38,9 +35,7 @@ export const BenefitsTable = ({ items }: BenefitsTableProps) => {
     event: React.MouseEvent<HTMLElement>,
     itemId: string,
   ) => {
-    const item = items.find((i) => i.id === itemId);
     setSelectedItemId(itemId);
-    setSelectedItemStatus(item?.status ?? null);
     setMenuAnchor(event.currentTarget);
   };
 
@@ -151,7 +146,6 @@ export const BenefitsTable = ({ items }: BenefitsTableProps) => {
       <ActionsMenu
         anchor={menuAnchor}
         selectedItemId={selectedItemId}
-        selectedItemStatus={selectedItemStatus}
         handleMenuClose={handleMenuClose}
       />
     </TableContainer>

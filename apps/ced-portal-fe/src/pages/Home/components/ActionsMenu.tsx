@@ -1,25 +1,21 @@
 import CancelRoundedIcon from '@mui/icons-material/CancelRounded';
-import SendOutlinedIcon from '@mui/icons-material/SendOutlined';
 import { Button, Menu, MenuItem, Stack, useTheme } from '@mui/material';
+import { useCallback, useState } from 'react';
 import { generatePath, useNavigate } from 'react-router-dom';
 import { APP_ROUTES } from '../../../app/routeConfig';
-import { useCallback, useState } from 'react';
-import { useRequestApprovalMutation } from '../../../features/opportunities/api';
-import { useToast } from '../../../contexts';
 import { AppModal } from '../../../components';
-import { OpportunitySummaryItemStatus } from '../../../core/api/generated/model';
+import { useToast } from '../../../contexts';
+import { useRequestApprovalMutation } from '../../../features/opportunities/api';
 
 type ActionsMenuProps = {
   anchor: null | HTMLElement;
   selectedItemId: string | null;
-  selectedItemStatus: keyof typeof OpportunitySummaryItemStatus | null;
   handleMenuClose: () => void;
 };
 
 export const ActionsMenu = ({
   anchor,
   selectedItemId,
-  selectedItemStatus,
   handleMenuClose,
 }: ActionsMenuProps) => {
   const theme = useTheme();
@@ -31,10 +27,6 @@ export const ActionsMenu = ({
   const menuItemsSx = {
     color: theme.palette.common.primaryButton,
   };
-
-  const canRequestApproval =
-    selectedItemStatus === OpportunitySummaryItemStatus.draft ||
-    selectedItemStatus === OpportunitySummaryItemStatus.approval_pending;
 
   const onView = (id: string) => {
     navigate(generatePath(APP_ROUTES.ENTITY_OPPORTUNITY_DETAIL, { id }));
@@ -112,17 +104,6 @@ export const ActionsMenu = ({
         <MenuItem onClick={() => handleAction(onEdit)} sx={menuItemsSx}>
           Modifica
         </MenuItem>
-        {canRequestApproval && (
-          <MenuItem
-            onClick={() => {
-              setApprovalDialogOpen(true);
-            }}
-            sx={{ color: theme.palette.common.primaryButton, gap: 1 }}
-          >
-            <SendOutlinedIcon sx={{ fontSize: 18 }} />
-            Richiedi approvazione
-          </MenuItem>
-        )}
         <MenuItem onClick={() => handleAction(() => null)} sx={menuItemsSx}>
           Sospendi
         </MenuItem>

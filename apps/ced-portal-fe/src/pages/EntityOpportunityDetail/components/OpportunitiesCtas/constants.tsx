@@ -1,7 +1,6 @@
 import DeleteIcon from '@mui/icons-material/DeleteOutlineOutlined';
-import SendIcon from '@mui/icons-material/SendOutlined';
 
-import { OpportunityDetail } from '../../../../features/opportunities/types';
+import { OpportunityStatus } from '../../../../features/opportunities/types';
 
 import { OpportunitiesCtaItem, OpportunitiesCtasLayout } from './types';
 
@@ -19,24 +18,17 @@ const DELETE_CTA: OpportunitiesCtaItem = {
   startIcon: <DeleteIcon />,
 };
 
-const REQUEST_APPROVAL_CTA: OpportunitiesCtaItem = {
-  label: 'Richiedi approvazione',
-  variant: 'contained',
-  actionId: 'REQUEST_APPROVAL',
-  startIcon: <SendIcon />,
-};
-
 export const CTAS_BY_STATUS: Partial<
-  Record<OpportunityDetail['publication_status'], OpportunitiesCtasLayout>
+  Record<OpportunityStatus, OpportunitiesCtasLayout>
 > = {
-  DRAFT: {
+  draft: {
     leftCtas: [DELETE_CTA],
-    rightCtas: [MODIFY_CTA, REQUEST_APPROVAL_CTA],
+    rightCtas: [MODIFY_CTA],
   },
-  CHANGES_REQUESTED: {
-    rightCtas: [MODIFY_CTA, REQUEST_APPROVAL_CTA],
-  },
-  PUBLISHED: {
+  approval_pending: {},
+  test_pending: {},
+  test_passed: {},
+  published: {
     leftCtas: [DELETE_CTA],
     rightCtas: [
       MODIFY_CTA,
@@ -47,12 +39,8 @@ export const CTAS_BY_STATUS: Partial<
       },
     ],
   },
-  SCHEDULED_PUBLICATION: {
-    ctas: [MODIFY_CTA],
-  },
-  UNDER_REVIEW: {},
-  DELETED: {},
-  SUSPENDED: {
+  deleted: {},
+  suspended: {
     leftCtas: [DELETE_CTA],
     rightCtas: [
       {

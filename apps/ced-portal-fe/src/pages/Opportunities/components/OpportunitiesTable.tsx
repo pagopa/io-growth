@@ -24,7 +24,7 @@ import { useCallback, useMemo, useState } from 'react';
 import { generatePath, useNavigate } from 'react-router-dom';
 import type { Opportunity } from '../../../features/opportunities/types';
 import {
-  STATE_COLORS,
+  ENTITY_STATE_COLORS,
   STATE_OPTIONS,
 } from '../../../constants/opportunityState';
 import { APP_ROUTES } from '../../../app/routeConfig';
@@ -255,7 +255,7 @@ export const OpportunitiesTable = ({
                     STATE_OPTIONS.find((o) => o.value === item.approval_status)
                       ?.label ?? item.approval_status
                   }
-                  color={STATE_COLORS[item.approval_status] ?? 'default'}
+                  color={ENTITY_STATE_COLORS[item.approval_status] ?? 'default'}
                   size="small"
                 />
               </TableCell>

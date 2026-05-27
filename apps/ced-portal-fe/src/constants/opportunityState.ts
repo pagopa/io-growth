@@ -36,6 +36,7 @@ export const OPPORTUNITY_STATUS_COLORS: Record<
   published: 'success',
   suspended: 'warning',
   deleted: 'error',
+  test_rejected: 'default',
 };
 
 export const ENTITY_STATE_OPTIONS = [

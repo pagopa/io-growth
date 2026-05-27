@@ -12,6 +12,10 @@ export const opportunityStatusLabelMap: Record<
   published: { text: 'Pubblicata', color: 'success' },
   suspended: { text: 'Sospesa', color: 'default' },
   deleted: { text: 'Eliminata', color: 'error' },
+  test_rejected: {
+    text: '',
+    color: 'default',
+  },
 };
 
 export const benefitStateLabelMap: Record<

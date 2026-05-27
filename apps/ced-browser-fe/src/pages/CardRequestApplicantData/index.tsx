@@ -71,7 +71,7 @@ export default function CardRequestApplicantDataPage() {
               color: theme.palette.common.neutralBlack,
             }}
           >
-            Ecco a chi verra assegnata la carta
+            Ecco a chi verrà assegnata la carta
           </Typography>
 
           <Typography

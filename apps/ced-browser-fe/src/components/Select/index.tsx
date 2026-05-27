@@ -34,6 +34,7 @@ export const AppSelect = ({
   value,
   defaultValue = '',
   error,
+  fullWidth = true,
   onOpen,
   onClose,
   renderCustomOptions,
@@ -80,7 +81,49 @@ export const AppSelect = ({
   }, [options, renderCustomOptions]);
 
   return (
-    <FormControl error={error} sx={sx} required={props.required}>
+    <FormControl
+      error={error}
+      fullWidth={fullWidth}
+      required={props.required}
+      sx={{
+        minWidth: 'unset',
+        maxWidth: 'unset',
+        backgroundColor: 'common.white',
+        borderRadius: '8px',
+        '& .MuiOutlinedInput-root': {
+          height: 48,
+          minHeight: 48,
+          borderRadius: '8px',
+          backgroundColor: 'common.white',
+          '& fieldset': {
+            borderColor: 'grey.600',
+            borderWidth: 1,
+          },
+          '&:hover fieldset': {
+            borderColor: 'grey.600',
+          },
+          '&.Mui-focused fieldset': {
+            borderColor: 'common.primaryButton',
+            borderWidth: 2,
+          },
+        },
+        '& .MuiFormLabel-asterisk': {
+          color: '#e53935',
+        },
+        '& .MuiInputLabel-root': {
+          color: 'grey.700',
+          fontSize: 16,
+          fontWeight: 600,
+          '&.Mui-focused': {
+            color: 'common.primaryButton',
+          },
+          '&.MuiInputLabel-shrink': {
+            transform: 'translate(14px, -9px) scale(0.75)',
+          },
+        },
+        ...sx,
+      }}
+    >
       <InputLabel shrink={shrink}>{label}</InputLabel>
       <Select
         label={label}

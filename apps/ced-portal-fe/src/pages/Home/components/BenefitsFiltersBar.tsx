@@ -2,7 +2,7 @@ import FilterAltOutlined from '@mui/icons-material/FilterAltOutlined';
 import { Button, SelectChangeEvent, Stack } from '@mui/material';
 import { useCallback } from 'react';
 import { AppSelect, AppTextField } from '../../../components';
-import { OPPORTUNITY_STATUS_OPTIONS, STATE_OPTIONS } from '../../../constants';
+import { STATE_OPTIONS } from '../../../constants';
 import type { OpportunitySummaryItemStatus } from '../../../core/api/generated/model';
 import type { OpportunityCategoryItem } from '../../../core/api/generated/model/opportunityCategoryItem';
 

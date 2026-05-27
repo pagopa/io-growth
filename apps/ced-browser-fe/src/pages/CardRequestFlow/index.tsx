@@ -1,9 +1,10 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { Box, Button, Typography, useTheme } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { Stepper, PageHeader } from '../../components';
 import { ApplicantDataStep } from './steps/ApplicantDataStep';
 import { AddressStep } from './steps/AddressStep';
+import type { StepRef } from './types';
 
 const TOTAL_STEPS = 6;
 
@@ -16,11 +17,15 @@ export default function CardRequestFlowPage() {
   const navigate = useNavigate();
   const theme = useTheme();
   const [currentStep, setCurrentStep] = useState(0);
+  const stepRef = useRef<StepRef>(null);
 
   const { title, content: StepContent } = steps[currentStep];
   const isLastStep = currentStep === steps.length - 1;
 
   const handleNext = () => {
+    if (stepRef.current && !stepRef.current.validate()) {
+      return;
+    }
     if (!isLastStep) {
       setCurrentStep((s) => s + 1);
     }
@@ -80,7 +85,7 @@ export default function CardRequestFlowPage() {
             pb: 4,
           }}
         >
-          <StepContent />
+          <StepContent ref={stepRef} />
         </Box>
 
         <Box sx={{ pb: 'calc(140px + env(safe-area-inset-bottom, 0px))' }} />

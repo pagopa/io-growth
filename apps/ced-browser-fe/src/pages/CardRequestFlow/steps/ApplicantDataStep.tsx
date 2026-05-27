@@ -1,5 +1,7 @@
+import { forwardRef, useImperativeHandle } from 'react';
 import { Box, Typography, useTheme } from '@mui/material';
 import { AppTextField } from '../../../components';
+import type { StepRef } from '../types';
 
 const personalData = [
   { label: 'Nome', value: 'Anna' },
@@ -13,43 +15,49 @@ const personalData = [
   { label: 'Cittadinanza', value: 'Italiana' },
 ];
 
-export function ApplicantDataStep() {
-  const theme = useTheme();
+export const ApplicantDataStep = forwardRef<StepRef>(
+  function ApplicantDataStep(_, ref) {
+    const theme = useTheme();
 
-  return (
-    <>
-      <Typography
-        variant="h3"
-        component="h3"
-        sx={{
-          color: theme.palette.common.neutralBlack,
-        }}
-      >
-        Ecco a chi verra assegnata la carta
-      </Typography>
+    useImperativeHandle(ref, () => ({
+      validate: () => true,
+    }));
 
-      <Typography
-        sx={{
-          mt: 1,
-          color: theme.palette.common.neutralDarkGray,
-          fontSize: 17,
-          lineHeight: 1.45,
-        }}
-      >
-        Conferma i tuoi dati anagrafici.
-      </Typography>
+    return (
+      <>
+        <Typography
+          variant="h3"
+          component="h3"
+          sx={{
+            color: theme.palette.common.neutralBlack,
+          }}
+        >
+          Ecco a chi verrà assegnata la carta
+        </Typography>
 
-      <Box sx={{ mt: 3, display: 'grid', gap: 2.25 }}>
-        {personalData.map((field) => (
-          <AppTextField
-            disabled
-            key={field.label}
-            label={field.label}
-            value={field.value}
-            InputProps={{ readOnly: true }}
-          />
-        ))}
-      </Box>
-    </>
-  );
-}
+        <Typography
+          sx={{
+            mt: 1,
+            color: theme.palette.common.neutralDarkGray,
+            fontSize: 17,
+            lineHeight: 1.45,
+          }}
+        >
+          Conferma i tuoi dati anagrafici.
+        </Typography>
+
+        <Box sx={{ mt: 3, display: 'grid', gap: 2.25 }}>
+          {personalData.map((field) => (
+            <AppTextField
+              disabled
+              key={field.label}
+              label={field.label}
+              value={field.value}
+              InputProps={{ readOnly: true }}
+            />
+          ))}
+        </Box>
+      </>
+    );
+  },
+);

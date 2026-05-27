@@ -51,8 +51,6 @@ export const InfoBox = ({
               <Typography
                 variant="h6"
                 sx={{
-                  fontWeight: 700,
-                  lineHeight: 1.3,
                   color: 'text.primary',
                   pr: 2,
                 }}

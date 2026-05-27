@@ -13,3 +13,4 @@ export * from './ContactsSection';
 export * from './ItemsSection';
 export * from './ContactRow';
 export * from './PageHeader';
+export * from './Stepper';

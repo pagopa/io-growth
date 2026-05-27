@@ -224,6 +224,9 @@ export const createAppTheme = () =>
               fontSize: 16,
               fontWeight: 600,
             },
+            '& .MuiInputBase-input.Mui-disabled': {
+              backgroundColor: APP_NEUTRAL_GRAY,
+            },
             '& .MuiInputLabel-root': {
               color: NEUTRAL_700,
               fontSize: 16,

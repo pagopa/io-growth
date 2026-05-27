@@ -1,6 +1,7 @@
 import { Box, Button, Typography, useTheme } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { AppTextField, Stepper, PageHeader } from '../../components';
+import { APP_ROUTES } from '../../app/routeConfig';
 
 export default function CardRequestApplicantDataPage() {
   const navigate = useNavigate();
@@ -118,6 +119,7 @@ export default function CardRequestApplicantDataPage() {
         <Button
           fullWidth
           variant="contained"
+          onClick={() => navigate(APP_ROUTES.CARD_REQUEST_FLOW)}
           sx={{
             height: 52,
             borderRadius: '10px',

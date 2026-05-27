@@ -4,8 +4,8 @@ import { AppLayout } from '../layouts/AppLayout';
 import { ProtectedRoute } from '../core/auth/ProtectedRoute';
 import {
   APP_ROUTES,
-  CardRequestApplicantDataPage,
   CardRequestConsentPage,
+  CardRequestFlowPage,
   CardRequestInfoPage,
   CardRequestLoadingPage,
   EntityAccessPointDetailPage,
@@ -69,8 +69,8 @@ export function AppRoutes() {
             element={<CardRequestLoadingPage />}
           />
           <Route
-            path={APP_ROUTES.CARD_REQUEST_APPLICANT_DATA}
-            element={<CardRequestApplicantDataPage />}
+            path={APP_ROUTES.CARD_REQUEST_FLOW}
+            element={<CardRequestFlowPage />}
           />
           <Route
             path={APP_ROUTES.EUROPEAN_OPPORTUNITIES}

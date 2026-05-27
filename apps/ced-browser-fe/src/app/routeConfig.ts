@@ -11,7 +11,7 @@ export const APP_ROUTES = {
   CARD_REQUEST_INFO: '/card-request-info',
   CARD_REQUEST_CONSENT: '/card-request-consent',
   CARD_REQUEST_LOADING: '/card-request-loading',
-  CED_ADDRESS: '/ced-address',
+  CARD_REQUEST_APPLICANT_DATA: '/card-request-applicant-data',
   EUROPEAN_OPPORTUNITIES: '/european-opportunities',
   OPPORTUNITIES_LIST: '/opportunities',
   NOT_FOUND: '/not-found',
@@ -60,7 +60,9 @@ export const CardRequestConsentPage = lazy(
 export const CardRequestLoadingPage = lazy(
   () => import('../pages/CardRequestLoading'),
 );
-export const CedAddressPage = lazy(() => import('../pages/CedAddress'));
+export const CardRequestApplicantDataPage = lazy(
+  () => import('../pages/CardRequestApplicantData'),
+);
 export const EuropeanOpportunitiesPage = lazy(
   () => import('../pages/EuropeanOpportunities'),
 );

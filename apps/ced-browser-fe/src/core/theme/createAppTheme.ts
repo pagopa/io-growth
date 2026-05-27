@@ -442,7 +442,7 @@ export const createAppTheme = () =>
             '& .MuiStepIcon-text': {
               fontSize: '12px',
               fontWeight: 700,
-              fill: '#ffffff',
+              fill: NEUTRAL_600,
             },
             '& .Mui-active .MuiStepIcon-text, & .Mui-completed .MuiStepIcon-text':
               {

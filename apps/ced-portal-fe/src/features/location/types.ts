@@ -1,9 +1,4 @@
-import type { SupportContactCreateRequestType } from '../../core/api/generated/model';
-
-export interface Contact {
-  type: SupportContactCreateRequestType | null;
-  value: string | null;
-}
+import type { SupportContactCreateRequest } from '../../core/api/generated/model';
 
 export interface LocationFormState {
   name: string;
@@ -11,7 +6,7 @@ export interface LocationFormState {
   city: string | null;
   postalCode: string | null;
   province: string | null;
-  contacts: Contact[];
+  contacts: SupportContactCreateRequest[];
 }
 
 export type LocationStringFieldKey = keyof Omit<LocationFormState, 'contacts'>;

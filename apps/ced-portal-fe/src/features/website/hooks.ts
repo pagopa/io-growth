@@ -26,9 +26,7 @@ export function useWebsiteSubmit(
 
     if (!name?.trim() || !url?.trim() || urlError) return;
 
-    const supportContacts = contacts
-      .filter((c) => c.type?.trim() && c.value?.trim())
-      .map((c) => ({ type: c.type!, value: c.value!.trim() }));
+    const supportContacts = contacts.filter((c) => c.value.trim());
 
     const result = await createPlace({
       type: 'online',

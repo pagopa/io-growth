@@ -16,7 +16,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useGetOpportunityDetailQuery } from '../../features/opportunities/api';
 import { APP_ROUTES } from '../../app/routeConfig';
 import { OpportunityDetailCard } from './components/OpportunityDetailCard';
-import { getChipConfig } from '../Home/components/utils';
+import { getDetailChipConfig } from '../Home/components/utils';
 import { OpportunitiesCtas } from './components/OpportunitiesCtas/OpportunitiesCtas';
 import { OpportunityAlert } from './components/OpportunityAlert/OpportunityAlert';
 import { OpportunityDetailListSection } from './components/OpportunityDetailListSection';
@@ -119,7 +119,7 @@ export default function OpportunityDetailPage() {
                 {detail.name}
               </Typography>
               <Chip
-                {...getChipConfig(detail)}
+                {...getDetailChipConfig(detail)}
                 sx={{
                   flexShrink: 0,
                   '& .MuiChip-label': {

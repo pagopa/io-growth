@@ -5,6 +5,16 @@ export const STATE_OPTIONS = [
   { value: 'Non_attiva', label: 'Non attiva' },
 ];
 
+export const OPPORTUNITY_STATUS_OPTIONS = [
+  { value: 'draft', label: 'Bozza' },
+  { value: 'test_pending', label: 'In test' },
+  { value: 'test_rejected', label: 'Test rifiutato' },
+  { value: 'test_passed', label: 'Test superato' },
+  { value: 'published', label: 'Pubblicata' },
+  { value: 'suspended', label: 'Sospesa' },
+  { value: 'deleted', label: 'Eliminata' },
+];
+
 export const STATE_COLORS: Record<
   string,
   'default' | 'warning' | 'success' | 'info' | 'error'

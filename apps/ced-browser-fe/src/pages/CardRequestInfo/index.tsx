@@ -1,5 +1,6 @@
 import { Box, Button, Link, Typography, useTheme } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
+import { APP_ROUTES } from '../../app/routeConfig';
 
 const REQUEST_CARD_URL = 'https://www.google.com/';
 const CATEGORIES_URL = REQUEST_CARD_URL;
@@ -11,9 +12,7 @@ export default function CardRequestInfoPage() {
   const navigate = useNavigate();
   const theme = useTheme();
 
-  const handleContinue = () => {
-    window.open(REQUEST_CARD_URL, '_blank', 'noopener,noreferrer');
-  };
+  const handleContinue = () => navigate(APP_ROUTES.CARD_REQUEST_CONSENT);
 
   return (
     <Box

@@ -4,7 +4,10 @@ import { AppLayout } from '../layouts/AppLayout';
 import { ProtectedRoute } from '../core/auth/ProtectedRoute';
 import {
   APP_ROUTES,
+  CardRequestConsentPage,
   CardRequestInfoPage,
+  CardRequestLoadingPage,
+  CedAddressPage,
   EntityAccessPointDetailPage,
   EntityAccessPointsPage,
   EntityDetailPage,
@@ -57,6 +60,15 @@ export function AppRoutes() {
             path={APP_ROUTES.CARD_REQUEST_INFO}
             element={<CardRequestInfoPage />}
           />
+          <Route
+            path={APP_ROUTES.CARD_REQUEST_CONSENT}
+            element={<CardRequestConsentPage />}
+          />
+          <Route
+            path={APP_ROUTES.CARD_REQUEST_LOADING}
+            element={<CardRequestLoadingPage />}
+          />
+          <Route path={APP_ROUTES.CED_ADDRESS} element={<CedAddressPage />} />
           <Route
             path={APP_ROUTES.EUROPEAN_OPPORTUNITIES}
             element={<EuropeanOpportunitiesPage />}

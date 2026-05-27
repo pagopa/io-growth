@@ -440,7 +440,7 @@ export const createAppTheme = () =>
               },
             },
             '& .MuiStepIcon-text': {
-              fontSize: '12px',
+              fontSize: '14px',
               fontWeight: 700,
               fill: NEUTRAL_600,
             },

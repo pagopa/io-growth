@@ -18,7 +18,10 @@ import { useToast } from '../../contexts';
 import { PublishModal } from '../../components/PublishModal';
 import { RequestChangesModal } from '../../components/RequestChangesModal';
 import { OpportunityDetailCard } from './components/OpportunityDetailCard';
-import { STATE_COLORS, STATE_OPTIONS } from '../../constants/opportunityState';
+import {
+  ENTITY_STATE_COLORS,
+  STATE_OPTIONS,
+} from '../../constants/opportunityState';
 
 export default function OpportunityDetailPage() {
   const theme = useTheme();
@@ -127,7 +130,7 @@ export default function OpportunityDetailPage() {
               STATE_OPTIONS.find((o) => o.value === detail.approval_status)
                 ?.label ?? detail.approval_status
             }
-            color={STATE_COLORS[detail.approval_status] ?? 'default'}
+            color={ENTITY_STATE_COLORS[detail.approval_status] ?? 'default'}
             size="small"
           />
         </Stack>

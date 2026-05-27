@@ -1,14 +1,13 @@
 import { ChipColors } from '@pagopa/mui-italia';
-import type { OpportunityStatus } from '../../../features/benefits/types';
 import { PublicationStatus } from '../../../features/benefitsFilters/types';
+import { OpportunitySummaryItemStatus } from '../../../core/api/generated/model';
 
 export const opportunityStatusLabelMap: Record<
-  OpportunityStatus,
+  OpportunitySummaryItemStatus,
   { text: string; color: ChipColors }
 > = {
   draft: { text: 'Bozza', color: 'default' },
   test_pending: { text: 'In test', color: 'primary' },
-  test_rejected: { text: 'Test rifiutato', color: 'warning' },
   test_passed: { text: 'Test superato', color: 'success' },
   published: { text: 'Pubblicata', color: 'success' },
   suspended: { text: 'Sospesa', color: 'default' },

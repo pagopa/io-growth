@@ -1,4 +1,5 @@
 import { baseApi } from '../../core/api/baseApi';
+import { compactQueryParams } from '../../utils';
 import type {
   BenefitsQueryParams,
   BenefitsResponse,
@@ -11,15 +12,7 @@ export const benefitsApi = baseApi.injectEndpoints({
     getBenefits: builder.query<BenefitsResponse, BenefitsQueryParams>({
       query: (params) => ({
         url: '/operator/opportunities',
-        params: {
-          ...(params.offset !== undefined && { offset: params.offset }),
-          ...(params.limit !== undefined && { limit: params.limit }),
-          ...(params.categoryId && { categoryId: params.categoryId }),
-          ...(params.status && { status: params.status }),
-          ...(params.search && { search: params.search }),
-          ...(params.sortBy && { sortBy: params.sortBy }),
-          ...(params.sortOrder && { sortOrder: params.sortOrder }),
-        },
+        params: compactQueryParams(params),
       }),
       providesTags: ['Benefits'],
     }),

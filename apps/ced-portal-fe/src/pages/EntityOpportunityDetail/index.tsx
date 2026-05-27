@@ -16,7 +16,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useGetOpportunityDetailQuery } from '../../features/opportunities/api';
 import { APP_ROUTES } from '../../app/routeConfig';
 import { OpportunityDetailCard } from './components/OpportunityDetailCard';
-import { getChipConfig } from '../Home/components/utils';
+import { getDetailChipConfig } from '../Home/components/utils';
 import { OpportunitiesCtas } from './components/OpportunitiesCtas/OpportunitiesCtas';
 import { OpportunityAlert } from './components/OpportunityAlert/OpportunityAlert';
 import { OpportunityDetailListSection } from './components/OpportunityDetailListSection';
@@ -110,21 +110,28 @@ export default function OpportunityDetailPage() {
           justifyContent="space-between"
           alignItems="center"
         >
-          <Typography
-            variant="h4"
-            sx={{ fontWeight: 700, fontSize: { xs: 28, md: 36 } }}
-          >
-            {detail.categoryTitle}
-          </Typography>
-          <Chip
-            {...getChipConfig(detail)}
-            sx={{
-              flexShrink: 0,
-              '& .MuiChip-label': {
-                whiteSpace: 'nowrap',
-              },
-            }}
-          />
+          <Box>
+            <Stack direction="row" alignItems="center">
+              <Typography
+                variant="h4"
+                sx={{ fontWeight: 700, fontSize: { xs: 28, md: 36 } }}
+              >
+                {detail.categoryTitle}
+              </Typography>
+              <Chip
+                {...getDetailChipConfig(detail)}
+                sx={{
+                  flexShrink: 0,
+                  '& .MuiChip-label': {
+                    whiteSpace: 'nowrap',
+                  },
+                }}
+              />
+            </Stack>
+            <Typography sx={{ mt: 0.5, color: 'text.secondary', fontSize: 16 }}>
+              Ecco i dettagli dell&apos;opportunità che hai creato
+            </Typography>
+          </Box>
         </Stack>
         <Typography sx={{ color: 'text.secondary', fontSize: 16 }}>
           Ecco i dettagli dell&apos;opportunità che hai creato

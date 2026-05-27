@@ -24,8 +24,8 @@ import { useCallback, useMemo, useState } from 'react';
 import { generatePath, useNavigate } from 'react-router-dom';
 import type { Opportunity } from '../../../features/opportunities/types';
 import {
-  STATE_COLORS,
   STATE_OPTIONS,
+  STATE_COLORS,
 } from '../../../constants/opportunityState';
 import { APP_ROUTES } from '../../../app/routeConfig';
 

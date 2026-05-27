@@ -101,7 +101,7 @@ export const BenefitsTable = ({ items }: BenefitsTableProps) => {
 
   const renderTableRow = (item: Benefit, index: number) => (
     <TableRow
-      key={`${item.name}-${item.id}`}
+      key={item.id}
       sx={{
         bgcolor: theme.palette.background.paper,
         height: 48,

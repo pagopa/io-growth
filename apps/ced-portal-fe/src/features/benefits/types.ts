@@ -19,3 +19,19 @@ export interface SaveBenefitDraftResponse {
   status: OpportunitySummaryItemStatus;
   createdAt: string;
 }
+
+export interface OpportunityCategory {
+  id: string;
+  title: string;
+  description: string;
+}
+
+export interface BenefitsQueryParams {
+  offset?: number;
+  limit?: number;
+  categoryId?: string;
+  status?: OpportunitySummaryItemStatus;
+  search?: string;
+  sortBy?: 'createdAt' | 'updatedAt';
+  sortOrder?: 'asc' | 'desc';
+}

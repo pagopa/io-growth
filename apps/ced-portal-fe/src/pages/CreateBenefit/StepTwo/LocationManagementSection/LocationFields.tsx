@@ -10,9 +10,33 @@ import {
 } from '../../../../features/location/locationSlice';
 import { useAppDispatch, useAppSelector } from '../../../../hooks/store';
 import { useCheckRequiredLocationField } from './hooks/useCheckRequiredLocationField';
+import { useLocationFieldValidations } from './hooks/useLocationFieldValidations';
 
 interface LocationFieldsProps {
   attempted?: boolean;
+}
+
+interface FieldConfig {
+  key: string;
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+  validation: ReturnType<typeof useCheckRequiredLocationField>;
+}
+
+function renderField(field: FieldConfig) {
+  return (
+    <FormField
+      key={field.key}
+      value={field.value}
+      label={field.label}
+      required
+      onChange={(e) => field.onChange(e.target.value)}
+      {...field.validation}
+    >
+      <AppTextField />
+    </FormField>
+  );
 }
 
 export function LocationFields({ attempted }: LocationFieldsProps) {
@@ -23,49 +47,69 @@ export function LocationFields({ attempted }: LocationFieldsProps) {
   // const { addressOptions, handleAddressChange, handleAddressSelect } =
   //   useLocationAddressSearch();
 
-  const nameField = useCheckRequiredLocationField({
-    key: 'name',
-    required: true,
-    attempted,
-  });
-  const addressField = useCheckRequiredLocationField({
-    key: 'address',
-    required: true,
-    attempted,
-  });
-  const cityField = useCheckRequiredLocationField({
-    key: 'city',
-    required: true,
-    attempted,
-  });
-  const postalCodeField = useCheckRequiredLocationField({
-    key: 'postalCode',
-    required: true,
-    attempted,
-  });
-  const provinceField = useCheckRequiredLocationField({
-    key: 'province',
-    required: true,
-    attempted,
-  });
+  const {
+    name: nameField,
+    address: addressField,
+    city: cityField,
+    postalCode: postalCodeField,
+    province: provinceField,
+  } = useLocationFieldValidations(attempted);
+
+  const singleFields: FieldConfig[] = [
+    {
+      key: 'name',
+      label: 'Nome',
+      value: name,
+      onChange: (v) => dispatch(setLocationName(v)),
+      validation: nameField,
+    },
+    {
+      key: 'address',
+      label: 'Indirizzo',
+      value: address || '',
+      onChange: (v) => dispatch(setLocationAddress(v)),
+      validation: addressField,
+    },
+  ];
+
+  const rowFields: FieldConfig[] = [
+    {
+      key: 'city',
+      label: 'Città',
+      value: city || '',
+      onChange: (v) => dispatch(setLocationCity(v)),
+      validation: cityField,
+    },
+    {
+      key: 'postalCode',
+      label: 'CAP',
+      value: postalCode || '',
+      onChange: (v) => dispatch(setLocationPostalCode(v)),
+      validation: postalCodeField,
+    },
+    {
+      key: 'province',
+      label: 'Provincia',
+      value: province || '',
+      onChange: (v) => dispatch(setLocationProvince(v)),
+      validation: provinceField,
+    },
+  ];
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-      <FormField
-        value={name}
-        label="Nome"
-        required
-        onChange={(e) => dispatch(setLocationName(e.target.value))}
-        {...nameField}
-      >
-        <AppTextField />
-      </FormField>
+      {singleFields.map(renderField)}
 
       {/*
        * TODO: Restore address autocomplete + auto-filled city/CAP/province once
        * an address search API with geocoding is available.
-       * Use AppAutocomplete + useLocationAddressSearch (setLocationAddressFromOption
-       * populates city/postalCode/province automatically — fields were disabled).
+       * Remove address from singleFields, render it separately with AppAutocomplete
+       * via useLocationAddressSearch (setLocationAddressFromOption populates
+       * city/postalCode/province automatically — rowFields would be disabled).
+       *
+       * const singleFields: FieldConfig[] = [
+       *   { key: 'name', label: 'Nome', value: name, onChange: (v) => dispatch(setLocationName(v)), validation: nameField },
+       * ];
        *
        * <FormField label="Indirizzo" required {...addressField}>
        *   <AppAutocomplete
@@ -76,23 +120,15 @@ export function LocationFields({ attempted }: LocationFieldsProps) {
        *   />
        * </FormField>
        * {city && (
-       *   <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: '16px' }}>
-       *     <AppTextField label="Città" value={city} disabled sx={{ flex: { xs: '1 1 100%', sm: 1 } }} />
-       *     <AppTextField label="CAP" value={postalCode} disabled sx={{ flex: { xs: '1 1 calc(50% - 8px)', sm: 1 } }} />
-       *     <AppTextField label="Provincia" value={province} disabled sx={{ flex: { xs: '1 1 calc(50% - 8px)', sm: 1 } }} />
+       *   <Box sx={{ display: 'flex', gap: '20px', flexDirection: { xs: 'column', md: 'row' } }}>
+       *     {rowFields.map((field) => (
+       *       <Box key={field.key} sx={{ flex: 1 }}>
+       *         <AppTextField label={field.label} value={field.value} disabled />
+       *       </Box>
+       *     ))}
        *   </Box>
        * )}
        */}
-
-      <FormField
-        value={address || ''}
-        label="Indirizzo"
-        required
-        onChange={(e) => dispatch(setLocationAddress(e.target.value))}
-        {...addressField}
-      >
-        <AppTextField />
-      </FormField>
 
       <Box
         sx={{
@@ -101,39 +137,11 @@ export function LocationFields({ attempted }: LocationFieldsProps) {
           flexDirection: { xs: 'column', md: 'row' },
         }}
       >
-        <Box sx={{ flex: 1 }}>
-          <FormField
-            value={city || ''}
-            label="Città"
-            required
-            onChange={(e) => dispatch(setLocationCity(e.target.value))}
-            {...cityField}
-          >
-            <AppTextField />
-          </FormField>
-        </Box>
-        <Box sx={{ flex: 1 }}>
-          <FormField
-            value={postalCode || ''}
-            label="CAP"
-            required
-            onChange={(e) => dispatch(setLocationPostalCode(e.target.value))}
-            {...postalCodeField}
-          >
-            <AppTextField />
-          </FormField>
-        </Box>
-        <Box sx={{ flex: 1 }}>
-          <FormField
-            value={province || ''}
-            label="Provincia"
-            required
-            onChange={(e) => dispatch(setLocationProvince(e.target.value))}
-            {...provinceField}
-          >
-            <AppTextField />
-          </FormField>
-        </Box>
+        {rowFields.map((field) => (
+          <Box key={field.key} sx={{ flex: 1 }}>
+            {renderField(field)}
+          </Box>
+        ))}
       </Box>
     </Box>
   );

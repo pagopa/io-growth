@@ -43,9 +43,7 @@ export function LocationFields({ attempted }: LocationFieldsProps) {
   const dispatch = useAppDispatch();
   const { name, address, city, postalCode, province } =
     useAppSelector(selectLocationForm);
-  // TODO [OUT OF MVP SCOPE]: restore when an address search API with geocoding is available
-  // const { addressOptions, handleAddressChange, handleAddressSelect } =
-  //   useLocationAddressSearch();
+  // TODO [OUT OF MVP SCOPE]: implement address search when API with geocoding is available
 
   const {
     name: nameField,
@@ -99,36 +97,6 @@ export function LocationFields({ attempted }: LocationFieldsProps) {
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
       {singleFields.map(renderField)}
-
-      {/*
-       * TODO: Restore address autocomplete + auto-filled city/CAP/province once
-       * an address search API with geocoding is available.
-       * Remove address from singleFields, render it separately with AppAutocomplete
-       * via useLocationAddressSearch (setLocationAddressFromOption populates
-       * city/postalCode/province automatically — rowFields would be disabled).
-       *
-       * const singleFields: FieldConfig[] = [
-       *   { key: 'name', label: 'Nome', value: name, onChange: (v) => dispatch(setLocationName(v)), validation: nameField },
-       * ];
-       *
-       * <FormField label="Indirizzo" required {...addressField}>
-       *   <AppAutocomplete
-       *     inputValue={address || ''}
-       *     options={addressOptions}
-       *     onValueChange={handleAddressChange}
-       *     onSelect={handleAddressSelect}
-       *   />
-       * </FormField>
-       * {city && (
-       *   <Box sx={{ display: 'flex', gap: '20px', flexDirection: { xs: 'column', md: 'row' } }}>
-       *     {rowFields.map((field) => (
-       *       <Box key={field.key} sx={{ flex: 1 }}>
-       *         <AppTextField label={field.label} value={field.value} disabled />
-       *       </Box>
-       *     ))}
-       *   </Box>
-       * )}
-       */}
 
       <Box
         sx={{

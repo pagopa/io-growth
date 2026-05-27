@@ -34,13 +34,6 @@ const locationSlice = createSlice({
         state.province = null;
       }
     },
-    // TODO [OUT OF MVP SCOPE]: restore when an address search API with geocoding is available
-    // setLocationAddressFromOption(state, action: PayloadAction<AddressOption>) {
-    //   state.address = action.payload.label;
-    //   state.city = action.payload.city;
-    //   state.postalCode = action.payload.postalCode;
-    //   state.province = action.payload.province;
-    // },
     setLocationCity(state, action: PayloadAction<string | null>) {
       state.city = action.payload;
     },
@@ -78,7 +71,6 @@ const locationSlice = createSlice({
 export const {
   setLocationName,
   setLocationAddress,
-  // setLocationAddressFromOption, // TODO [OUT OF MVP SCOPE]: restore when address search API available
   setLocationCity,
   setLocationPostalCode,
   setLocationProvince,

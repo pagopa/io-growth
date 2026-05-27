@@ -63,7 +63,7 @@ export const MainContent = () => {
     setPage(0);
   };
 
-  // OnReset: azzera tutto
+  // OnReset: reset filters inputs
   const handleReset = () => {
     setSearchInput('');
     setCategoryIdInput('');

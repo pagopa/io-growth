@@ -8,6 +8,10 @@ export const APP_ROUTES = {
   ENTITY_ACCESS_POINTS: '/enti/:id/punti-di-accesso',
   ENTITY_ACCESS_POINT_DETAIL: '/enti/:id/punti-di-accesso/:accessPointId',
   OPPORTUNITY_DETAIL: '/opportunita/:id',
+  CARD_REQUEST_INFO: '/card-request-info',
+  CARD_REQUEST_CONSENT: '/card-request-consent',
+  CARD_REQUEST_LOADING: '/card-request-loading',
+  CARD_REQUEST_APPLICANT_DATA: '/card-request-applicant-data',
   EUROPEAN_OPPORTUNITIES: '/european-opportunities',
   OPPORTUNITIES_LIST: '/opportunities',
   NOT_FOUND: '/not-found',
@@ -46,6 +50,18 @@ export const EntityAccessPointDetailPage = lazy(
 );
 export const OpportunityDetailPage = lazy(
   () => import('../pages/OpportunityDetail'),
+);
+export const CardRequestInfoPage = lazy(
+  () => import('../pages/CardRequestInfo'),
+);
+export const CardRequestConsentPage = lazy(
+  () => import('../pages/CardRequestConsent'),
+);
+export const CardRequestLoadingPage = lazy(
+  () => import('../pages/CardRequestLoading'),
+);
+export const CardRequestApplicantDataPage = lazy(
+  () => import('../pages/CardRequestApplicantData'),
 );
 export const EuropeanOpportunitiesPage = lazy(
   () => import('../pages/EuropeanOpportunities'),

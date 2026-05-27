@@ -70,7 +70,7 @@ export default function EuropeanOpportunitiesPage() {
           <ArrowBackIcon sx={{ mr: 1 }} />
           <Typography variant="body1">Indietro</Typography>
         </Box>
-        <Typography variant="h4" fontWeight="bold" sx={{ mb: 2 }}>
+        <Typography variant="h4" sx={{ mb: 2 }}>
           Opportunità in Europa
         </Typography>
         <Typography variant="body1" color="text.secondary">
@@ -90,7 +90,7 @@ export default function EuropeanOpportunitiesPage() {
         <Typography variant="body1">Indietro</Typography>
       </Box>
 
-      <Typography variant="h4" fontWeight="bold" sx={{ mb: 2 }}>
+      <Typography variant="h4" sx={{ mb: 2 }}>
         Opportunità in Europa
       </Typography>
 

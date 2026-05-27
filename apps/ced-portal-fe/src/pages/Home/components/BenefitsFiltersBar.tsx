@@ -3,7 +3,7 @@ import { Button, SelectChangeEvent, Stack } from '@mui/material';
 import { AppSelect, AppTextField } from '../../../components';
 import { OPPORTUNITY_STATUS_OPTIONS } from '../../../constants';
 import { useCallback } from 'react';
-import type { OpportunityStatus } from '../../../features/benefits/types';
+import { OpportunitySummaryItemStatus } from '../../../core/api/generated/model';
 
 interface BenefitsFiltersBarProps {
   search: string;
@@ -11,8 +11,8 @@ interface BenefitsFiltersBarProps {
   categoryId: string;
   categoryOptions: Array<{ value: string; label: string }>;
   onCategoryChange: (value: string) => void;
-  status: OpportunityStatus | '';
-  onStatusChange: (value: OpportunityStatus | '') => void;
+  status: OpportunitySummaryItemStatus | '';
+  onStatusChange: (value: OpportunitySummaryItemStatus | '') => void;
   onFilter: () => void;
   onReset: () => void;
 }
@@ -44,7 +44,7 @@ export const BenefitsFiltersBar = ({
 
   const handleStatusChange = useCallback(
     (e: SelectChangeEvent<string | string[]>) => {
-      onStatusChange(e.target.value as OpportunityStatus | '');
+      onStatusChange(e.target.value as OpportunitySummaryItemStatus | '');
     },
     [onStatusChange],
   );

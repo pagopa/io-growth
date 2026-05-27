@@ -1,8 +1,8 @@
 import type { DataTableColumn } from '../../../../components/DataTable/types';
-import type { OfflinePlace } from '../../../../features/places/types';
+import type { OfflinePlaceResponse } from '../../../../core/api/generated/model';
 import { ItemDataTable } from '../components/ItemDataTable';
 
-const columns: DataTableColumn<OfflinePlace>[] = [
+const columns: DataTableColumn<OfflinePlaceResponse>[] = [
   { id: 'name', label: 'Nome', renderCell: (item) => item.name },
   {
     id: 'address',
@@ -12,7 +12,7 @@ const columns: DataTableColumn<OfflinePlace>[] = [
 ];
 
 interface LocationListProps {
-  locations: OfflinePlace[];
+  locations: OfflinePlaceResponse[];
   onRemove: (id: string) => void;
 }
 

@@ -1,7 +1,7 @@
 import DeleteIcon from '@mui/icons-material/Delete';
 import { Box, IconButton, useTheme } from '@mui/material';
 import { AppSelect, AppTextField } from '../../../../components';
-import type { Contact } from '../../../../features/places/types';
+import type { Contact } from '../../../../features/location/types';
 
 const CONTACT_TYPE_OPTIONS = [
   { label: 'Email', value: 'email' },

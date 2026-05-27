@@ -1,14 +1,14 @@
 import type { DataTableColumn } from '../../../../components/DataTable/types';
-import type { OnlinePlace } from '../../../../features/places/types';
+import type { OnlinePlaceResponse } from '../../../../core/api/generated/model';
 import { ItemDataTable } from '../components/ItemDataTable';
 
-const columns: DataTableColumn<OnlinePlace>[] = [
+const columns: DataTableColumn<OnlinePlaceResponse>[] = [
   { id: 'name', label: 'Nome', renderCell: (item) => item.name },
   { id: 'url', label: 'URL', renderCell: (item) => item.website.url },
 ];
 
 interface WebsiteListProps {
-  websites: OnlinePlace[];
+  websites: OnlinePlaceResponse[];
   onRemove: (id: string) => void;
 }
 

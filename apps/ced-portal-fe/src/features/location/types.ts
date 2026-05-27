@@ -1,4 +1,9 @@
-import type { Contact } from '../places/types';
+import type { SupportContactCreateRequestType } from '../../core/api/generated/model';
+
+export interface Contact {
+  type: SupportContactCreateRequestType | null;
+  value: string | null;
+}
 
 export interface LocationFormState {
   name: string;

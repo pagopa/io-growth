@@ -1,6 +1,6 @@
 import { Button } from '@mui/material';
 import { AppModal } from '../../../../components';
-import type { Place } from '../../../../features/places/types';
+import type { PlaceResponse } from '../../../../core/api/generated/model';
 import { useLocationSubmit } from '../../../../features/location/hooks';
 import { LocationContactsSection } from './LocationContactsSection';
 import { LocationFields } from './LocationFields';
@@ -9,7 +9,7 @@ import { useState } from 'react';
 interface AddLocationModalProps {
   open: boolean;
   onClose: () => void;
-  onConfirm: (newLocation?: Place) => void;
+  onConfirm: (newLocation?: PlaceResponse) => void;
   onBack?: () => void;
 }
 

@@ -1,13 +1,16 @@
 import { baseApi } from '../../core/api/baseApi';
-import type { CreatePlacePayload, Place } from './types';
+import type {
+  PlaceCreateRequest,
+  PlaceResponse,
+} from '../../core/api/generated/model';
 
 export const placesApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
-    getPlaces: builder.query<Place[], void>({
+    getPlaces: builder.query<PlaceResponse[], void>({
       query: () => '/operator/places',
       providesTags: ['Places'],
     }),
-    createPlace: builder.mutation<Place, CreatePlacePayload>({
+    createPlace: builder.mutation<PlaceResponse, PlaceCreateRequest>({
       query: (body) => ({
         url: '/operator/places',
         method: 'POST',

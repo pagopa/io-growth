@@ -1,6 +1,6 @@
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
 import type { RootState } from '../../core/store';
-import type { Contact } from '../places/types';
+import type { Contact } from './types';
 import type { LocationFormState } from './types';
 
 const createEmptyContact = (): Contact => ({

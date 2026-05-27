@@ -1,5 +1,5 @@
 import { useCreatePlaceMutation, useGetPlacesQuery } from '../places/api';
-import type { Place } from '../places/types';
+import type { PlaceResponse } from '../../core/api/generated/model';
 import { useAppDispatch, useAppSelector } from '../../hooks/store';
 import {
   resetWebsiteForm,
@@ -9,7 +9,7 @@ import {
 import { useToast } from '../../contexts';
 
 export function useWebsiteSubmit(
-  onConfirm: (newWebsite?: Place) => void,
+  onConfirm: (newWebsite?: PlaceResponse) => void,
   onClose: () => void,
   setAttempted: (v: boolean) => void,
 ) {
@@ -28,7 +28,7 @@ export function useWebsiteSubmit(
 
     const supportContacts = contacts
       .filter((c) => c.type?.trim() && c.value?.trim())
-      .map((c) => ({ type: c.type!.trim(), value: c.value!.trim() }));
+      .map((c) => ({ type: c.type!, value: c.value!.trim() }));
 
     const result = await createPlace({
       type: 'online',

@@ -1,11 +1,11 @@
 import { useCreatePlaceMutation, useGetPlacesQuery } from '../places/api';
-import type { Place } from '../places/types';
+import type { PlaceResponse } from '../../core/api/generated/model';
 import { useAppDispatch, useAppSelector } from '../../hooks/store';
 import { resetLocationForm, selectLocationForm } from './locationSlice';
 import { useToast } from '../../contexts';
 
 export function useLocationSubmit(
-  onConfirm: (newLocation?: Place) => void,
+  onConfirm: (newLocation?: PlaceResponse) => void,
   onClose: () => void,
   setAttempted: (v: boolean) => void,
 ) {
@@ -31,7 +31,7 @@ export function useLocationSubmit(
 
     const supportContacts = contacts
       .filter((c) => c.type?.trim() && c.value?.trim())
-      .map((c) => ({ type: c.type!.trim(), value: c.value!.trim() }));
+      .map((c) => ({ type: c.type!, value: c.value!.trim() }));
 
     const result = await createPlace({
       type: 'offline',

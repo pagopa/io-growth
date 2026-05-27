@@ -1,10 +1,10 @@
 import LocationOnIcon from '@mui/icons-material/LocationOn';
-import type { OfflinePlace } from '../../../../features/places/types';
+import type { OfflinePlaceResponse } from '../../../../core/api/generated/model';
 import { SelectItemModal } from '../components/SelectItemModal';
 
 interface SelectLocationModalProps {
   open: boolean;
-  locations: OfflinePlace[];
+  locations: OfflinePlaceResponse[];
   selected: string[];
   onSelectedChange: (ids: string[]) => void;
   onClose: () => void;

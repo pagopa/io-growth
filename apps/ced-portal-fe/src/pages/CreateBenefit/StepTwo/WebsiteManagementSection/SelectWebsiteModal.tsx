@@ -1,10 +1,10 @@
 import LanguageIcon from '@mui/icons-material/Language';
-import type { OnlinePlace } from '../../../../features/places/types';
+import type { OnlinePlaceResponse } from '../../../../core/api/generated/model';
 import { SelectItemModal } from '../components/SelectItemModal';
 
 interface SelectWebsiteModalProps {
   open: boolean;
-  websites: OnlinePlace[];
+  websites: OnlinePlaceResponse[];
   selected: string[];
   onSelectedChange: (ids: string[]) => void;
   onClose: () => void;

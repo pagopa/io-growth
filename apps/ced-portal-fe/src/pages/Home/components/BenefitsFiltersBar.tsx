@@ -4,13 +4,14 @@ import { AppSelect, AppTextField } from '../../../components';
 import { OPPORTUNITY_STATUS_OPTIONS } from '../../../constants';
 import { useCallback } from 'react';
 import { OpportunitySummaryItemStatus } from '../../../core/api/generated/model';
+import type { OpportunityCategoryItem } from '../../../core/api/generated/model/opportunityCategoryItem';
 
 interface BenefitsFiltersBarProps {
   search: string;
   onSearchChange: (value: string) => void;
-  categoryId: string;
-  categoryOptions: Array<{ value: string; label: string }>;
-  onCategoryChange: (value: string) => void;
+  categoryId: OpportunityCategoryItem['id'];
+  categoryOptions: OpportunityCategoryItem[];
+  onCategoryChange: (value: OpportunityCategoryItem['id']) => void;
   status: OpportunitySummaryItemStatus | '';
   onStatusChange: (value: OpportunitySummaryItemStatus | '') => void;
   onFilter: () => void;
@@ -19,12 +20,12 @@ interface BenefitsFiltersBarProps {
 
 export const BenefitsFiltersBar = ({
   search,
-  onSearchChange,
   categoryId,
   categoryOptions,
   onCategoryChange,
   status,
   onStatusChange,
+  onSearchChange,
   onFilter,
   onReset,
 }: BenefitsFiltersBarProps) => {
@@ -73,7 +74,10 @@ export const BenefitsFiltersBar = ({
         sx={{ flex: 0.5 }}
         label="Categoria"
         placeholder="Categoria"
-        options={categoryOptions}
+        options={categoryOptions.map((cat) => ({
+          value: cat.id,
+          label: cat.title,
+        }))}
         onChange={handleCategoryChange}
       />
 

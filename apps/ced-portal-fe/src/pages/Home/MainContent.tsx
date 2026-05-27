@@ -4,11 +4,11 @@ import { ResultsPagination } from '../../components';
 import { useGetOpportunityCategoriesQuery } from '../../features/benefits/api';
 import { useBenefitsData } from '../../features/benefits/hooks';
 import { useDebounce } from '../../hooks/useDebounce';
-import type { OpportunityStatus } from '../../features/benefits/types';
 import { BenefitsContentState } from './components/BenefitsContentState';
 import { BenefitsFiltersBar } from './components/BenefitsFiltersBar';
 import { BenefitsTabs } from './components/BenefitsTabs';
 import { MainContentHeader } from './components/MainContentHeader';
+import { OpportunitySummaryItemStatus } from '../../core/api/generated/model';
 
 const DEFAULT_ROWS_PER_PAGE = 20;
 
@@ -18,21 +18,18 @@ export const MainContent = () => {
 
   const [searchInput, setSearchInput] = useState('');
   const [categoryIdInput, setCategoryIdInput] = useState('');
-  const [statusInput, setStatusInput] = useState<OpportunityStatus | ''>('');
+  const [statusInput, setStatusInput] = useState<
+    OpportunitySummaryItemStatus | ''
+  >('');
 
   const [search, setSearch] = useState('');
   const [categoryId, setCategoryId] = useState('');
-  const [status, setStatus] = useState<OpportunityStatus | ''>('');
+  const [status, setStatus] = useState<OpportunitySummaryItemStatus | ''>('');
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(DEFAULT_ROWS_PER_PAGE);
 
   const debouncedSearch = useDebounce(search, 500);
   const { data: categories = [] } = useGetOpportunityCategoriesQuery();
-
-  const categoryOptions = categories.map((category) => ({
-    value: category.id,
-    label: category.title,
-  }));
 
   const {
     inManagementItems,
@@ -55,7 +52,7 @@ export const MainContent = () => {
   };
 
   const handleSearchChange = (value: string) => setSearchInput(value);
-  const handleStatusChange = (value: OpportunityStatus | '') =>
+  const handleStatusChange = (value: OpportunitySummaryItemStatus | '') =>
     setStatusInput(value);
   const handleCategoryChange = (value: string) => setCategoryIdInput(value);
 
@@ -95,7 +92,7 @@ export const MainContent = () => {
           search={searchInput}
           onSearchChange={handleSearchChange}
           categoryId={categoryIdInput}
-          categoryOptions={categoryOptions}
+          categoryOptions={categories}
           onCategoryChange={handleCategoryChange}
           status={statusInput}
           onStatusChange={handleStatusChange}

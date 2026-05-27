@@ -414,8 +414,9 @@ export const createAppTheme = () =>
             mb: 4,
             width: '100%',
             alignItems: 'flex-start',
-            '& .MuiStep-root': { p: 0, flex: 'none' },
+            '& .MuiStep-root': { p: 0, flex: 1 },
             '& .MuiStepLabel-root': {
+              width: '100%',
               flexDirection: 'column',
               alignItems: 'center',
               gap: 0,
@@ -426,18 +427,22 @@ export const createAppTheme = () =>
               color: NEUTRAL_BLACK,
               fontWeight: 600,
             },
+            '& .MuiStepConnector-root.Mui-active .MuiStepConnector-line, & .MuiStepConnector-root.Mui-completed .MuiStepConnector-line':
+              {
+                borderColor: PRIMARY_BUTTON_BACKGROUND,
+              },
             '& .MuiStepIcon-root': {
               width: 20,
               height: 20,
               color: '#D2D6E3',
               '&.Mui-active, &.Mui-completed': {
-                color: muiItaliaTheme.palette.common.primaryButton,
+                color: PRIMARY_BUTTON_BACKGROUND,
               },
             },
             '& .MuiStepIcon-text': {
               fontSize: '12px',
               fontWeight: 700,
-              fill: NEUTRAL_600,
+              fill: '#ffffff',
             },
             '& .Mui-active .MuiStepIcon-text, & .Mui-completed .MuiStepIcon-text':
               {
@@ -450,6 +455,9 @@ export const createAppTheme = () =>
         styleOverrides: {
           root: {
             flex: 1,
+            top: 8,
+            left: 'calc(-50% + 16px)',
+            right: 'calc(50% + 16px)',
             alignSelf: 'flex-start',
             mt: '8px',
           },

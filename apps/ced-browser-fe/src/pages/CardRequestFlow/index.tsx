@@ -1,8 +1,38 @@
+import { useState } from 'react';
 import { Box, Button, Typography, useTheme } from '@mui/material';
-import { AppSelect, AppTextField, Stepper, PageHeader } from '../../components';
+import { useNavigate } from 'react-router-dom';
+import { Stepper, PageHeader } from '../../components';
+import { ApplicantDataStep } from './steps/ApplicantDataStep';
+import { AddressStep } from './steps/AddressStep';
 
-export default function CedAddressPage() {
+const TOTAL_STEPS = 6;
+
+const steps = [
+  { title: 'Conferma i tuoi dati', content: ApplicantDataStep },
+  { title: 'Indica il tuo indirizzo', content: AddressStep },
+];
+
+export default function CardRequestFlowPage() {
+  const navigate = useNavigate();
   const theme = useTheme();
+  const [currentStep, setCurrentStep] = useState(0);
+
+  const { title, content: StepContent } = steps[currentStep];
+  const isLastStep = currentStep === steps.length - 1;
+
+  const handleNext = () => {
+    if (!isLastStep) {
+      setCurrentStep((s) => s + 1);
+    }
+  };
+
+  const handleBack = () => {
+    if (currentStep > 0) {
+      setCurrentStep((s) => s - 1);
+    } else {
+      navigate(-1);
+    }
+  };
 
   return (
     <Box
@@ -25,6 +55,7 @@ export default function CedAddressPage() {
             Completa i passaggi e invia la richiesta.
           </Typography>
         }
+        onBack={handleBack}
       />
 
       <Box sx={{ px: 3, pb: 3 }}>
@@ -36,10 +67,10 @@ export default function CedAddressPage() {
             color: theme.palette.common.neutralBlack,
           }}
         >
-          Indica il tuo indirizzo
+          {title}
         </Typography>
 
-        <Stepper activeStep={1} totalSteps={6} />
+        <Stepper activeStep={currentStep} totalSteps={TOTAL_STEPS} />
 
         <Box
           sx={{
@@ -49,36 +80,7 @@ export default function CedAddressPage() {
             pb: 4,
           }}
         >
-          <Typography
-            variant="h3"
-            component="h3"
-            sx={{
-              color: theme.palette.common.neutralBlack,
-            }}
-          >
-            Dove vuoi ricevere la carta?
-          </Typography>
-
-          <Typography
-            sx={{
-              mt: 1,
-              color: theme.palette.common.neutralDarkGray,
-              fontSize: 17,
-              lineHeight: 1.45,
-            }}
-          >
-            Puoi indicare anche un indirizzo diverso da quello di residenza o
-            domicilio.
-          </Typography>
-
-          <Box sx={{ mt: 3, display: 'grid', gap: 2.25 }}>
-            <AppSelect label="Provincia" required options={[]} />
-            <AppSelect label="Comune" required options={[]} />
-            <AppSelect label="CAP" required options={[]} />
-            <AppTextField label="Indirizzo" required />
-            <AppTextField label="Civico" required />
-            <AppTextField label="Altri dettagli" />
-          </Box>
+          <StepContent />
         </Box>
 
         <Box sx={{ pb: 'calc(140px + env(safe-area-inset-bottom, 0px))' }} />
@@ -102,6 +104,7 @@ export default function CedAddressPage() {
         <Button
           fullWidth
           variant="contained"
+          onClick={handleNext}
           sx={{
             height: 52,
             borderRadius: '10px',
@@ -110,6 +113,20 @@ export default function CedAddressPage() {
         >
           Conferma
         </Button>
+
+        {currentStep === 0 && (
+          <Button
+            fullWidth
+            variant="text"
+            onClick={handleBack}
+            sx={{
+              mt: 1,
+              color: theme.palette.common.primaryButton,
+            }}
+          >
+            Annulla
+          </Button>
+        )}
       </Box>
     </Box>
   );

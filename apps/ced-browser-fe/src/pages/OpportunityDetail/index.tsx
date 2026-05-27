@@ -90,16 +90,15 @@ export default function OpportunityDetailPage() {
                   : resolvedData.opportunity_type)}
             </Box>
 
-            <Box
+            <Typography
+              variant="h1"
               component="h1"
               sx={{
-                lineHeight: 1.2,
-                fontWeight: 700,
                 mb: 2,
               }}
             >
               {resolvedData.name}
-            </Box>
+            </Typography>
 
             <Box
               sx={{

@@ -8,62 +8,41 @@ import {
   Switch,
   Typography,
 } from '@mui/material';
-import { useCallback } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 import { useAppDispatch, useAppSelector } from '../../../../hooks';
-import {
-  setCompanionBenefitEnabled,
-  setLocalizedCompanionField,
-  setSameConditionAsOwner,
-} from '../../../../features/agreementDetailCreation/agreementDetailCreationSlice';
-import {
-  selectActiveAgreementLanguage,
-  selectFieldActiveAgreementLanguageCompanionForm,
-} from '../../../../features/agreementDetailCreation/selectors';
-import { AgreementLocalizedFormState } from '../../../../features/agreementDetailCreation/types';
 import { BenefitDetailsSection } from './components/BenefitDetailsSection';
 import { getAgreementCopy } from '../../../../constants';
+import {
+  selectActiveFormLanguage,
+  selectEnabledCaregiver,
+} from '../../../../features/opportunityCreation/selectors';
+import {
+  cloneOwnerBenefitToCompanion,
+  setCaregiverEnabled,
+} from '../../../../features/opportunityCreation/opportunityCreationSlice';
 
 export const AgreementCompanionSection = () => {
   const dispatch = useAppDispatch();
-  const activeLanguage = useAppSelector(selectActiveAgreementLanguage);
+  const activeLanguage = useAppSelector(selectActiveFormLanguage);
+  const [isSameAsOwner, setIsSameAsOwner] = useState(false);
   const companionCopy =
     getAgreementCopy(activeLanguage).additionalSections.companion;
 
-  const isCompanionBenefit = useAppSelector(
-    selectFieldActiveAgreementLanguageCompanionForm('isCompanionBenefit'),
-  );
-
-  const sameConditionAsOwner = useAppSelector(
-    selectFieldActiveAgreementLanguageCompanionForm('isSameConditionAsOwner'),
-  );
-  const handleFieldChange = useCallback(
-    (
-      field: keyof AgreementLocalizedFormState['companion'],
-      value: string | number,
-    ) => {
-      dispatch(
-        setLocalizedCompanionField({
-          languageId: activeLanguage,
-          field,
-          value: String(value),
-        }),
-      );
-    },
-    [activeLanguage, dispatch],
-  );
+  const isEnabled = useAppSelector(selectEnabledCaregiver);
 
   const handleToggleCompanionBenefit = useCallback(
     (checked: boolean) => {
-      dispatch(
-        setCompanionBenefitEnabled({
-          languageId: activeLanguage,
-          value: checked,
-        }),
-      );
+      dispatch(setCaregiverEnabled(checked));
     },
-    [activeLanguage, dispatch],
+    [dispatch],
   );
+
+  useEffect(() => {
+    if (isSameAsOwner) {
+      dispatch(cloneOwnerBenefitToCompanion());
+    }
+  }, [dispatch, isSameAsOwner]);
 
   return (
     <Paper elevation={0} sx={{ borderRadius: 2.5, p: { xs: 2, md: 3 } }}>
@@ -75,28 +54,25 @@ export const AgreementCompanionSection = () => {
           </Typography>
           <Box sx={{ flex: 1 }} />
           <Switch
-            checked={isCompanionBenefit}
+            checked={isEnabled}
             onChange={(_, checked) => handleToggleCompanionBenefit(checked)}
             inputProps={{
               'aria-label': companionCopy.toggleAriaLabel,
             }}
           />
         </Stack>
-        {isCompanionBenefit && (
+        {isEnabled && (
           <>
             <FormControlLabel
               sx={{ alignItems: 'center', ml: -0.75 }}
               control={
                 <Checkbox
-                  checked={sameConditionAsOwner}
-                  onChange={(_, checked) =>
-                    dispatch(
-                      setSameConditionAsOwner({
-                        languageId: activeLanguage,
-                        value: checked,
-                      }),
-                    )
-                  }
+                  // TODO style -> check step 2 to align
+                  sx={{}}
+                  checked={isSameAsOwner}
+                  onChange={(_, checked) => {
+                    setIsSameAsOwner(checked);
+                  }}
                 />
               }
               label={
@@ -105,7 +81,7 @@ export const AgreementCompanionSection = () => {
                 </Typography>
               }
             />
-            <BenefitDetailsSection handleFieldChange={handleFieldChange} />
+            <BenefitDetailsSection isSameAsOwner={isSameAsOwner} />
           </>
         )}
       </Stack>

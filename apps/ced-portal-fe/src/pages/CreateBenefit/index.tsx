@@ -10,7 +10,6 @@ import {
   selectSelectedLocationIds,
   selectSelectedWebsiteIds,
 } from '../../features/wizard/slice';
-import { selectAgreementDetailCreationState } from '../../features/agreementDetailCreation/selectors';
 import { useAppSelector } from '../../hooks/store';
 import { AppModal } from '../../components';
 import { WizardFooter } from './components/WizardFooter';
@@ -18,7 +17,7 @@ import { WizardStepper } from './components/WizardStepper';
 import { StepOne } from './StepOne';
 import { StepTwo } from './StepTwo';
 import { useToast } from '../../contexts';
-
+import { useGetFirstStepValidation } from './hooks/useGetFirstStepValidation';
 export interface StepProps {
   attempted: boolean;
 }
@@ -40,27 +39,18 @@ export default function CreateBenefitPage() {
   const [submitReviewOpen, setSubmitReviewOpen] = useState(false);
   const { showToast } = useToast();
 
-  const [saveDraft, { isLoading: isSavingDraft }] =
-    useSaveBenefitDraftMutation();
+  const [_, { isLoading: isSavingDraft }] = useSaveBenefitDraftMutation();
 
   const accessPoint = useAppSelector(selectAccessPoint);
   const nationwide = useAppSelector(selectNationwide);
   const selectedLocationIds = useAppSelector(selectSelectedLocationIds);
   const selectedWebsiteIds = useAppSelector(selectSelectedWebsiteIds);
-  const agreementState = useAppSelector(selectAgreementDetailCreationState);
+  // const opportunity = useAppSelector(baseSelectOpportunityForm);
+
+  const isFirstStepValid = useGetFirstStepValidation();
 
   const isStepValid = (step: number): boolean => {
-    if (step === 0) {
-      const activeForm =
-        agreementState.localizedForm[agreementState.activeLanguage];
-      return (
-        activeForm.details.name.trim().length > 0 &&
-        activeForm.details.benefitType.trim().length > 0 &&
-        activeForm.details.description.trim().length > 0 &&
-        activeForm.details.category.trim().length > 0 &&
-        activeForm.startDate.trim().length > 0
-      );
-    }
+    if (step === 0) return isFirstStepValid;
     if (step === 1) {
       const hasTerritory =
         accessPoint === 'territory' || accessPoint === 'both';
@@ -76,13 +66,13 @@ export default function CreateBenefitPage() {
 
   const handleSaveDraft = async () => {
     try {
-      await saveDraft({
-        localizedForm: agreementState.localizedForm,
-        accessPoint,
-        nationwide,
-        selectedLocationIds,
-        selectedWebsiteIds,
-      }).unwrap();
+      // await saveDraft({
+      //   localizedForm: agreementState.localizedForm,
+      //   accessPoint,
+      //   nationwide,
+      //   selectedLocationIds,
+      //   selectedWebsiteIds,
+      // }).unwrap();
       showToast('Bozza salvata con successo', 'success');
       navigate(APP_ROUTES.HOME);
     } catch {

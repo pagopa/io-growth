@@ -1,48 +1,35 @@
 import { AppSelect, AppTextField } from '../../../../../components';
 import { useAppSelector } from '../../../../../hooks';
-import { selectFieldActiveAgreementLanguageForm } from '../../../../../features/agreementDetailCreation/selectors';
-import { BenefitDiscountValueType } from '../../../../../features/agreementDetailCreation/types';
 import { FixedPriceFields } from './FixedPriceFields';
 import { DetailFormField } from '../../AgreementDetailsSection/components/DetailFormField';
 import { benefitTypeOptions } from '../../../../../constants';
-import { BenefitType } from '../../../../../constants/formOptions/types';
+import { selectBeneficiaryBenefit } from '../../../../../features/opportunityCreation/selectors';
 
 export const ViewSameConditions = () => {
-  const benefitType = useAppSelector(
-    selectFieldActiveAgreementLanguageForm('benefitType'),
-  );
-  const benefitDiscountValue = useAppSelector(
-    selectFieldActiveAgreementLanguageForm('benefitDiscountValue'),
-  );
-  const benefitDiscountValueType = useAppSelector(
-    selectFieldActiveAgreementLanguageForm('benefitDiscountValueType'),
-  );
-  const otherBenefitTypeDescription = useAppSelector(
-    selectFieldActiveAgreementLanguageForm('otherBenefitTypeDescription'),
-  );
+  const benefit = useAppSelector(selectBeneficiaryBenefit);
 
+  if (!benefit) {
+    return null;
+  }
+
+  const { type } = benefit;
   return (
     <>
-      <DetailFormField name={'benefitType'}>
-        <AppSelect options={benefitTypeOptions} value={benefitType} disabled />
+      <DetailFormField name={'benefitType'} path={'beneficiaryBenefit.type'}>
+        <AppSelect options={benefitTypeOptions} disabled />
       </DetailFormField>
-      {BenefitType[benefitType as keyof typeof BenefitType] ===
-        BenefitType.FIXED_PRICE && (
-        <FixedPriceFields
-          sameValues
-          values={{
-            discountValueType:
-              benefitDiscountValueType as BenefitDiscountValueType,
-            discountValue: benefitDiscountValue,
-          }}
-        />
+      {type === 'discount' && (
+        // BenefitType[type as keyof typeof BenefitType] ===
+        //   BenefitType.FIXED_PRICE
+        <FixedPriceFields sameValues benefit={benefit} />
       )}
 
       <DetailFormField
-        hide={benefitType !== 'OTHER'}
+        hide={type !== 'other'}
         name={'otherBenefitTypeDescription'}
+        path={'beneficiaryBenefit.description'}
       >
-        <AppTextField fullWidth value={otherBenefitTypeDescription} disabled />
+        <AppTextField fullWidth disabled />
       </DetailFormField>
     </>
   );

@@ -2,7 +2,7 @@ import {
   BenefitCategory,
   PublicationStatus,
 } from '../../features/benefitsFilters/types';
-import { BenefitType, FixedPriceBenefitType } from './types';
+import { benefitTypeMap, discountTypeMap } from './types';
 
 const generateOptions = <T extends string>(
   enumObj: Record<T, string>,
@@ -14,10 +14,8 @@ const generateOptions = <T extends string>(
 
 export const categoriesOptions = generateOptions(BenefitCategory);
 export const statusOptions = generateOptions(PublicationStatus);
-export const benefitTypeOptions = generateOptions(BenefitType);
-export const fixedPriceBenefitTypeOptions = generateOptions(
-  FixedPriceBenefitType,
-);
+export const benefitTypeOptions = generateOptions(benefitTypeMap);
+export const fixedPriceBenefitTypeOptions = generateOptions(discountTypeMap);
 
 export const categoriesDropdownDescriptions: Record<
   keyof typeof BenefitCategory,

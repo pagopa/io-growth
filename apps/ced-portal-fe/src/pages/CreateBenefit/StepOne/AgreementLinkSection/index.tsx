@@ -1,17 +1,17 @@
 import LinkRoundedIcon from '@mui/icons-material/LinkRounded';
 import { Paper, Stack, TextField, Typography } from '@mui/material';
 import { useAppDispatch, useAppSelector } from '../../../../hooks';
-import { setBenefitUrl } from '../../../../features/agreementDetailCreation/agreementDetailCreationSlice';
-import {
-  selectActiveAgreementLanguage,
-  selectActiveAgreementLanguageForm,
-} from '../../../../features/agreementDetailCreation/selectors';
 import { getAgreementCopy } from '../../../../constants';
+import {
+  selectActiveFormLanguage,
+  selectUrl,
+} from '../../../../features/opportunityCreation/selectors';
+import { setField } from '../../../../features/opportunityCreation/opportunityCreationSlice';
 
 export function AgreementLinkSection() {
   const dispatch = useAppDispatch();
-  const activeLanguage = useAppSelector(selectActiveAgreementLanguage);
-  const { benefitUrl } = useAppSelector(selectActiveAgreementLanguageForm);
+  const activeLanguage = useAppSelector(selectActiveFormLanguage);
+  const benefitUrl = useAppSelector(selectUrl);
   const copy = getAgreementCopy(activeLanguage).additionalSections.link;
 
   return (
@@ -27,8 +27,8 @@ export function AgreementLinkSection() {
           value={benefitUrl}
           onChange={(event) =>
             dispatch(
-              setBenefitUrl({
-                languageId: activeLanguage,
+              setField({
+                field: 'url',
                 value: event.target.value,
               }),
             )

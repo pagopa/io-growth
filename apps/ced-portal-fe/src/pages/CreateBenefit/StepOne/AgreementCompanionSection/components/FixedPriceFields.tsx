@@ -9,53 +9,39 @@ import {
   TextField,
 } from '@mui/material';
 import { useAppDispatch, useAppSelector } from '../../../../../hooks';
-import {
-  setCompanionDiscountValue,
-  setCompanionDiscountValueType,
-} from '../../../../../features/agreementDetailCreation/agreementDetailCreationSlice';
-import { useMemo } from 'react';
-import {
-  selectActiveAgreementLanguage,
-  selectFieldActiveAgreementLanguageCompanionForm,
-} from '../../../../../features/agreementDetailCreation/selectors';
-import { BenefitDiscountValueType } from '../../../../../features/agreementDetailCreation/types';
+import { useCallback, useMemo } from 'react';
 import { getAgreementCopy } from '../../../../../constants';
+import {
+  BenefitDiscount,
+  BenefitDiscountDiscountType,
+  BenefitDiscountType,
+} from '../../../../../core/api/generated/model';
+import { selectActiveFormLanguage } from '../../../../../features/opportunityCreation/selectors';
+import { setBenefit } from '../../../../../features/opportunityCreation/opportunityCreationSlice';
 
 type FixedPriceFieldsProps = {
   sameValues?: boolean;
-  values?: {
-    discountValueType: BenefitDiscountValueType;
-    discountValue: string;
-  };
+  benefit?: BenefitDiscount;
 };
 export const FixedPriceFields = ({
   sameValues,
-  values,
+  benefit,
 }: FixedPriceFieldsProps) => {
   const dispatch = useAppDispatch();
-  const activeLanguage = useAppSelector(selectActiveAgreementLanguage);
+  const activeLanguage = useAppSelector(selectActiveFormLanguage);
 
   const copy = getAgreementCopy(activeLanguage).additionalSections.companion;
 
-  const fixedPriceBenefitType = copy.benefitTypeOptions.fixedPrice;
-
-  const isFixedPriceBenefit =
-    useAppSelector(
-      selectFieldActiveAgreementLanguageCompanionForm('companionBenefitType'),
-    ) === fixedPriceBenefitType;
-
-  const companionDiscountValueType = useAppSelector(
-    selectFieldActiveAgreementLanguageCompanionForm(
-      'companionDiscountValueType',
-    ),
+  const companionDiscountValueType = useMemo(
+    () => benefit?.discountType,
+    [benefit],
   );
 
-  const companionDiscountValue = useAppSelector(
-    selectFieldActiveAgreementLanguageCompanionForm('companionDiscountValue'),
-  );
+  const companionDiscountValue = useMemo(() => benefit?.value, [benefit]);
+
   const discountIcon = useMemo(
     () =>
-      companionDiscountValueType === 'PERCENTAGE' ? (
+      companionDiscountValueType === 'percentage' ? (
         <PercentRoundedIcon sx={{ fontSize: 18 }} />
       ) : (
         <EuroRoundedIcon sx={{ fontSize: 18 }} />
@@ -63,10 +49,43 @@ export const FixedPriceFields = ({
     [companionDiscountValueType],
   );
 
+  const handleChange = useCallback(
+    (value: number) => {
+      dispatch(
+        setBenefit({
+          which: 'caregiverBenefit',
+          value: {
+            type: BenefitDiscountType.discount,
+            discountType:
+              companionDiscountValueType as BenefitDiscountDiscountType,
+            value,
+          },
+        }),
+      );
+    },
+    [companionDiscountValueType, dispatch],
+  );
+
+  const handleBenefitTypeChange = useCallback(
+    (value: string) => {
+      dispatch(
+        setBenefit({
+          which: 'caregiverBenefit',
+          value: {
+            type: BenefitDiscountType.discount,
+            discountType: value as BenefitDiscountDiscountType,
+            value: 0,
+          },
+        }),
+      );
+    },
+    [dispatch],
+  );
+
   if (sameValues) {
     return (
       <Stack spacing={1.25} sx={{ mt: 1.25 }}>
-        <RadioGroup row value={values?.discountValueType}>
+        <RadioGroup row value={companionDiscountValueType}>
           <FormControlLabel
             value="percentage"
             disabled
@@ -74,7 +93,7 @@ export const FixedPriceFields = ({
             label={copy.discountTypeOptions.percentage}
           />
           <FormControlLabel
-            value="fixed"
+            value="fixed_amount"
             disabled
             control={<Radio />}
             label={copy.discountTypeOptions.fixed}
@@ -101,7 +120,7 @@ export const FixedPriceFields = ({
           <TextField
             disabled
             label={copy.discountValueLabel}
-            value={values?.discountValue}
+            value={companionDiscountValue}
             fullWidth
           />
         </Stack>
@@ -109,23 +128,13 @@ export const FixedPriceFields = ({
     );
   }
 
-  if (!isFixedPriceBenefit) {
-    return null;
-  }
-
   return (
     <Stack spacing={1.25} sx={{ mt: 1.25 }}>
       <RadioGroup
+        sx={{ flexWrap: 'nowrap' }}
         row
         value={companionDiscountValueType}
-        onChange={(event) =>
-          dispatch(
-            setCompanionDiscountValueType({
-              languageId: activeLanguage,
-              value: event.target.value as BenefitDiscountValueType,
-            }),
-          )
-        }
+        onChange={(event) => handleBenefitTypeChange(event.target.value)}
       >
         <FormControlLabel
           value="percentage"
@@ -159,14 +168,7 @@ export const FixedPriceFields = ({
         <TextField
           label={copy.discountValueLabel}
           value={companionDiscountValue}
-          onChange={(event) =>
-            dispatch(
-              setCompanionDiscountValue({
-                languageId: activeLanguage,
-                value: event.target.value,
-              }),
-            )
-          }
+          onChange={(event) => handleChange(Number(event.target.value))}
           fullWidth
         />
       </Stack>

@@ -7,29 +7,28 @@ import {
   Typography,
   Stack,
 } from '@mui/material';
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
 import { useAppDispatch, useAppSelector } from '../../../../hooks';
-import {
-  setEndDate,
-  setHasEndDate,
-  setStartDate,
-} from '../../../../features/agreementDetailCreation/agreementDetailCreationSlice';
-import {
-  selectActiveAgreementLanguage,
-  selectActiveAgreementLanguageForm,
-} from '../../../../features/agreementDetailCreation/selectors';
 import { getAgreementCopy } from '../../../../constants';
+import {
+  selectActiveFormLanguage,
+  selectDateFrom,
+  selectDateTo,
+} from '../../../../features/opportunityCreation/selectors';
+import { setField } from '../../../../features/opportunityCreation/opportunityCreationSlice';
 
 export function AgreementValiditySection({
   attempted,
 }: Readonly<{ attempted: boolean }>) {
   const dispatch = useAppDispatch();
-  const activeLanguage = useAppSelector(selectActiveAgreementLanguage);
-  const { hasEndDate, startDate, endDate } = useAppSelector(
-    selectActiveAgreementLanguageForm,
-  );
+  const dateFrom = useAppSelector(selectDateFrom);
+  const dateTo = useAppSelector(selectDateTo);
+
+  const [hasEndDate, setHasEndDateLocal] = useState(!!dateTo);
+
+  const activeLanguage = useAppSelector(selectActiveFormLanguage);
   const copy = getAgreementCopy(activeLanguage).additionalSections.validity;
-  const startDateError = attempted && !startDate.trim();
+  const startDateError = attempted && !dateFrom.trim();
 
   const renderEndDateField = useCallback(() => {
     if (!hasEndDate) {
@@ -42,11 +41,11 @@ export function AgreementValiditySection({
           type="date"
           fullWidth
           label={copy.endDateLabel}
-          value={endDate}
+          value={dateTo}
           onChange={(event) =>
             dispatch(
-              setEndDate({
-                languageId: activeLanguage,
+              setField({
+                field: 'dateTo',
                 value: event.target.value,
               }),
             )
@@ -58,14 +57,7 @@ export function AgreementValiditySection({
         </Typography>
       </Box>
     );
-  }, [
-    activeLanguage,
-    copy.dateHelperText,
-    copy.endDateLabel,
-    dispatch,
-    endDate,
-    hasEndDate,
-  ]);
+  }, [copy.dateHelperText, copy.endDateLabel, dateTo, dispatch, hasEndDate]);
 
   return (
     <Paper elevation={0} sx={{ borderRadius: 2.5, p: { xs: 2, md: 3 } }}>
@@ -78,11 +70,7 @@ export function AgreementValiditySection({
         <Stack direction="row" alignItems="center" spacing={1}>
           <Switch
             checked={hasEndDate}
-            onChange={(_, checked) =>
-              dispatch(
-                setHasEndDate({ languageId: activeLanguage, value: checked }),
-              )
-            }
+            onChange={(_, checked) => setHasEndDateLocal(checked)}
             inputProps={{ 'aria-label': copy.setEndDateAriaLabel }}
           />
           <Typography sx={{ fontWeight: 600 }}>
@@ -105,11 +93,11 @@ export function AgreementValiditySection({
               required
               error={startDateError}
               helperText={startDateError ? 'Campo obbligatorio' : undefined}
-              value={startDate}
+              value={dateFrom}
               onChange={(event) =>
                 dispatch(
-                  setStartDate({
-                    languageId: activeLanguage,
+                  setField({
+                    field: 'dateFrom',
                     value: event.target.value,
                   }),
                 )

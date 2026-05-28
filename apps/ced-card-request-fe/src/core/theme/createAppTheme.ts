@@ -11,6 +11,7 @@ const ALERT_ERROR_BG = '#FFD9D9';
 const ALERT_ERROR_BORDER = '#FF6666';
 const ALERT_SUCCESS_BORDER = '#89D188';
 const ERROR_ICON_BG = '#5D1313';
+const ERROR_TEXT = '#e53935';
 const TOAST_ERROR_BG = ERROR_ICON_BG;
 const NEUTRAL_600 = '#636B82';
 const NEUTRAL_700 = '#4E5A70';
@@ -214,7 +215,7 @@ export const createAppTheme = () =>
               },
             },
             '& .MuiFormLabel-asterisk': {
-              color: '#e53935',
+              color: ERROR_TEXT,
             },
             '& .MuiInputBase-input': {
               height: 48,
@@ -248,13 +249,40 @@ export const createAppTheme = () =>
       MuiFormControl: {
         styleOverrides: {
           root: {
-            minWidth: { xs: '100%', lg: 160 },
-            maxWidth: { xs: '100%', lg: 160 },
+            minWidth: 'unset',
+            maxWidth: 'unset',
             backgroundColor: muiItaliaTheme.palette.common.white,
-            borderRadius: 2,
+            borderRadius: '8px',
             '& .MuiOutlinedInput-root': {
-              borderRadius: 2,
-              minHeight: 56,
+              height: 48,
+              minHeight: 48,
+              borderRadius: '8px',
+              backgroundColor: muiItaliaTheme.palette.common.white,
+              '& fieldset': {
+                borderColor: NEUTRAL_600,
+                borderWidth: 1,
+              },
+              '&:hover fieldset': {
+                borderColor: NEUTRAL_600,
+              },
+              '&.Mui-focused fieldset': {
+                borderColor: PRIMARY_BUTTON_BACKGROUND,
+                borderWidth: 2,
+              },
+            },
+            '& .MuiFormLabel-asterisk': {
+              color: ERROR_TEXT,
+            },
+            '& .MuiInputLabel-root': {
+              color: NEUTRAL_700,
+              fontSize: 16,
+              fontWeight: 600,
+              '&.Mui-focused': {
+                color: PRIMARY_BUTTON_BACKGROUND,
+              },
+              '&.MuiInputLabel-shrink': {
+                transform: 'translate(14px, -9px) scale(0.75)',
+              },
             },
           },
         },

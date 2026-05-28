@@ -12,6 +12,7 @@ export default defineConfig({
       mode: "tags-split",
       override: {
         mutator: {
+          extension: ".js",
           name: "customFetch",
           path: "./src/client.ts",
         },

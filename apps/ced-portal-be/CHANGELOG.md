@@ -1,5 +1,12 @@
 # ced-portal-be
 
+## 0.0.11
+
+### Patch Changes
+
+- Updated dependencies [83b2513]
+  - @pagopa/io-core-adapter-ar@0.0.3
+
 ## 0.0.10
 
 ### Patch Changes

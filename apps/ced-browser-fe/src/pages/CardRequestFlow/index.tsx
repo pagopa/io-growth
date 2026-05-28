@@ -17,7 +17,7 @@ export default function CardRequestFlowPage() {
   const navigate = useNavigate();
   const theme = useTheme();
   const [currentStep, setCurrentStep] = useState(0);
-  const stepRef = useRef<StepRef>(null);
+  const stepRef = useRef<StepRef | null>(null);
 
   const { title, content: StepContent } = steps[currentStep];
   const isLastStep = currentStep === steps.length - 1;

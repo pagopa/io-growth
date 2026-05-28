@@ -55,23 +55,6 @@ export const useGetFirstStepValidation = () => {
   const validateDates =
     !!dateFrom && !!dateTo ? new Date(dateFrom) < new Date(dateTo) : !!dateFrom;
 
-  console.log(
-    {
-      opportunityForm,
-      validateBenefits,
-      validateDates,
-      caregiverBenefitValid,
-      validateLocalizedMetadata,
-      categoryId: !!categoryId,
-      result:
-        validateBenefits &&
-        caregiverBenefitValid &&
-        validateLocalizedMetadata &&
-        validateDates &&
-        !!categoryId,
-    },
-    'aihsidhaishd',
-  );
   return (
     validateBenefits &&
     caregiverBenefitValid &&

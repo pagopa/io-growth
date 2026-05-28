@@ -29,7 +29,7 @@ export default function HomePage() {
     >
       <Stack direction="column" px={3} pt={3}>
         <Collapse in={!isSearchActive}>
-          <Typography variant="h4" sx={{ fontWeight: 700, pb: 2 }}>
+          <Typography variant="h1" sx={{ pb: 2 }}>
             Scopri le opportunità
           </Typography>
         </Collapse>

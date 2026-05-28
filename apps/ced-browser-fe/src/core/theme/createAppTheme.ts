@@ -47,6 +47,60 @@ export const createAppTheme = () =>
   createTheme(muiItaliaTheme, {
     typography: {
       fontFamily: '"Titillium Web", Arial, sans-serif',
+      fontWeightLight: 300,
+      fontWeightRegular: 400,
+      fontWeightMedium: 600,
+      fontWeightBold: 700,
+      h1: {
+        fontFamily: '"Titillium Web", Arial, sans-serif',
+        fontSize: '28px',
+        lineHeight: '42px',
+        letterSpacing: '0px',
+        fontWeight: 600,
+      },
+      h2: {
+        fontFamily: '"Titillium Web", Arial, sans-serif',
+        fontSize: '22px',
+        lineHeight: '33px',
+        letterSpacing: '0px',
+        fontWeight: 600,
+      },
+      h3: {
+        fontFamily: '"Titillium Web", Arial, sans-serif',
+        fontSize: '20px',
+        lineHeight: '30px',
+        letterSpacing: '0px',
+        fontWeight: 600,
+      },
+      h4: {
+        fontFamily: '"Titillium Web", Arial, sans-serif',
+        fontSize: '18px',
+        lineHeight: '27px',
+        letterSpacing: '0px',
+        fontWeight: 600,
+      },
+      h5: {
+        fontFamily: '"Titillium Web", Arial, sans-serif',
+        fontSize: '16px',
+        lineHeight: '24px',
+        letterSpacing: '0px',
+        fontWeight: 600,
+      },
+      h6: {
+        fontFamily: '"Titillium Web", Arial, sans-serif',
+        fontSize: '16px',
+        lineHeight: '24px',
+        letterSpacing: '0px',
+        fontWeight: 600,
+      },
+      button: {
+        fontFamily: '"Titillium Web", Arial, sans-serif',
+        fontSize: '16px',
+        lineHeight: '22px',
+        letterSpacing: '0px',
+        fontWeight: 600,
+        textTransform: 'none',
+      },
       allVariants: {
         fontFamily: '"Titillium Web", Arial, sans-serif',
       },
@@ -169,6 +223,9 @@ export const createAppTheme = () =>
               color: NEUTRAL_BLACK,
               fontSize: 16,
               fontWeight: 600,
+            },
+            '& .MuiInputBase-input.Mui-disabled': {
+              backgroundColor: APP_NEUTRAL_GRAY,
             },
             '& .MuiInputLabel-root': {
               color: NEUTRAL_700,
@@ -357,8 +414,9 @@ export const createAppTheme = () =>
             mb: 4,
             width: '100%',
             alignItems: 'flex-start',
-            '& .MuiStep-root': { p: 0, flex: 'none' },
+            '& .MuiStep-root': { p: 0, flex: 1 },
             '& .MuiStepLabel-root': {
+              width: '100%',
               flexDirection: 'column',
               alignItems: 'center',
               gap: 0,
@@ -369,16 +427,20 @@ export const createAppTheme = () =>
               color: NEUTRAL_BLACK,
               fontWeight: 600,
             },
+            '& .MuiStepConnector-root.Mui-active .MuiStepConnector-line, & .MuiStepConnector-root.Mui-completed .MuiStepConnector-line':
+              {
+                borderColor: PRIMARY_BUTTON_BACKGROUND,
+              },
             '& .MuiStepIcon-root': {
               width: 20,
               height: 20,
               color: '#D2D6E3',
               '&.Mui-active, &.Mui-completed': {
-                color: muiItaliaTheme.palette.common.primaryButton,
+                color: PRIMARY_BUTTON_BACKGROUND,
               },
             },
             '& .MuiStepIcon-text': {
-              fontSize: '12px',
+              fontSize: '14px',
               fontWeight: 700,
               fill: NEUTRAL_600,
             },
@@ -393,6 +455,9 @@ export const createAppTheme = () =>
         styleOverrides: {
           root: {
             flex: 1,
+            top: 8,
+            left: 'calc(-50% + 16px)',
+            right: 'calc(50% + 16px)',
             alignSelf: 'flex-start',
             mt: '8px',
           },

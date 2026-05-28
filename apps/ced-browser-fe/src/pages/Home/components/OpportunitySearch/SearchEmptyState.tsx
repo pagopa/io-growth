@@ -33,14 +33,13 @@ export function SearchEmptyState() {
         </svg>
 
         <Typography
+          variant="h1"
           component="h1"
           sx={{
             mt: '28px',
             mb: 1.5,
             color: theme.palette.common.neutral900,
-            fontSize: 26,
-            lineHeight: 1.15,
-            fontWeight: 700,
+            fontSize: 28,
           }}
         >
           Qui non c&apos;è nulla!

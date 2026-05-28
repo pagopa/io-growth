@@ -1,80 +1,35 @@
 import { useMemo } from 'react';
 import { useGetBenefitsQuery } from './api';
-import type { Benefit, BenefitsResponse } from './types';
-import { useAppSelector } from '../../hooks';
-import {
-  selectBenefitCategoryFilter,
-  selectBenefitNameFilter,
-  selectBenefitStatusFilter,
-} from '../benefitsFilters/selectors';
-import { PublicationStatus } from '../benefitsFilters/types';
+import type { Benefit, BenefitsQueryParams } from './types';
+import { OpportunitySummaryItemStatus } from '../../core/api/generated/model/opportunitySummaryItemStatus';
 
-const IN_MANAGEMENT_STATES: Set<keyof typeof PublicationStatus> = new Set([
-  'DRAFT',
-  'UNDER_REVIEW',
-  'CHANGES_REQUESTED',
-]);
-const APPROVED_STATES: Set<keyof typeof PublicationStatus> = new Set([
-  'PUBLISHED',
-  'SCHEDULED_PUBLICATION',
+const IN_MANAGEMENT_STATES: Set<OpportunitySummaryItemStatus> = new Set([
+  OpportunitySummaryItemStatus.draft,
+  OpportunitySummaryItemStatus.test_pending,
+  OpportunitySummaryItemStatus.test_passed,
 ]);
 
-const getFilteredItems = (
-  items: BenefitsResponse,
-  targetStates: Set<keyof typeof PublicationStatus>,
-  filters: {
-    nameFilter: ReturnType<typeof selectBenefitNameFilter>;
-    categoryFilter: ReturnType<typeof selectBenefitCategoryFilter>;
-    statusFilter: ReturnType<typeof selectBenefitStatusFilter>;
-  },
-) => {
-  const { nameFilter, categoryFilter, statusFilter } = filters;
+const APPROVED_STATES: Set<OpportunitySummaryItemStatus> = new Set([
+  OpportunitySummaryItemStatus.published,
+  OpportunitySummaryItemStatus.suspended,
+  OpportunitySummaryItemStatus.deleted,
+]);
 
-  const filtered = items.filter(({ publication_status, name, category }) => {
-    if (!targetStates.has(publication_status)) {
-      return false;
-    }
+export const useBenefitsData = (params: BenefitsQueryParams) => {
+  const query = useGetBenefitsQuery(params);
 
-    const matchesName =
-      !nameFilter || name.toLowerCase().includes(nameFilter.toLowerCase());
+  const items = useMemo<Benefit[]>(() => query.data?.items ?? [], [query.data]);
 
-    const matchesCategory = !categoryFilter || category === categoryFilter;
-
-    const matchesStatus = !statusFilter || publication_status === statusFilter;
-
-    return matchesName && matchesCategory && matchesStatus;
-  });
-
-  return filtered;
-};
-
-export const useBenefitsData = () => {
-  const query = useGetBenefitsQuery();
-
-  const nameFilter = useAppSelector(selectBenefitNameFilter);
-  const statusFilter = useAppSelector(selectBenefitStatusFilter);
-  const categoryFilter = useAppSelector(selectBenefitCategoryFilter);
-
-  const items = useMemo(() => query.data ?? [], [query.data]);
+  const total = useMemo(() => query.data?.total ?? 0, [query.data]);
 
   const inManagementItems = useMemo(
-    () =>
-      getFilteredItems(items, IN_MANAGEMENT_STATES, {
-        nameFilter,
-        categoryFilter,
-        statusFilter,
-      }),
-    [categoryFilter, items, nameFilter, statusFilter],
+    () => items.filter((item) => IN_MANAGEMENT_STATES.has(item.status)),
+    [items],
   );
 
   const approvedItems = useMemo(
-    () =>
-      getFilteredItems(items, APPROVED_STATES, {
-        nameFilter,
-        categoryFilter,
-        statusFilter,
-      }),
-    [categoryFilter, items, nameFilter, statusFilter],
+    () => items.filter((item) => APPROVED_STATES.has(item.status)),
+    [items],
   );
 
   return {
@@ -82,10 +37,6 @@ export const useBenefitsData = () => {
     items,
     inManagementItems,
     approvedItems,
-    hasItems: Boolean(items.length),
+    total,
   };
-};
-
-export const formatBenefitRow = (item: Benefit) => {
-  return `${item.name} · ${item.category} · ${item.createdAt} · ${item.publication_status}`;
 };

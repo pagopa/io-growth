@@ -17,6 +17,7 @@ export const supportContactTypeEnum = pgEnum("support_contact_type", [
 export const opportunityStatusEnum = pgEnum("opportunity_status", [
   "draft",
   "test_pending",
+  "test_rejected",
   "test_passed",
   "published",
   "suspended",

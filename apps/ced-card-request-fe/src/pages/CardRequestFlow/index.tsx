@@ -6,6 +6,7 @@ import { AddressStep } from './steps/AddressStep';
 import { ApplicantDataStep } from './steps/ApplicantDataStep';
 import { PhotoUploadStep } from './steps/PhotoUploadStep';
 import { DocumentTypeStep } from './steps/DocumentTypeStep';
+import { SavedDraftDialog } from './SavedDraftDialog';
 import type { StepRef } from './types';
 
 const TOTAL_STEPS = 6;
@@ -41,6 +42,7 @@ export default function CardRequestFlowPage() {
   const navigate = useNavigate();
   const theme = useTheme();
   const [currentStep, setCurrentStep] = useState(0);
+  const [draftSaved, setDraftSaved] = useState(false);
   const stepRef = useRef<StepRef | null>(null);
 
   const {
@@ -144,7 +146,11 @@ export default function CardRequestFlowPage() {
           <Button
             fullWidth
             variant="text"
-            onClick={handleBack}
+            onClick={
+              cancelLabel === 'Riprendi più tardi'
+                ? () => setDraftSaved(true)
+                : handleBack
+            }
             sx={{
               mt: 1,
               color: theme.palette.common.primaryButton,
@@ -154,6 +160,13 @@ export default function CardRequestFlowPage() {
           </Button>
         )}
       </Box>
+
+      {draftSaved && (
+        <SavedDraftDialog
+          onClose={() => navigate(-1)}
+          onResume={() => setDraftSaved(false)}
+        />
+      )}
     </Box>
   );
 }

@@ -2,6 +2,7 @@ import { forwardRef, useImperativeHandle } from 'react';
 import { Box, Typography, useTheme } from '@mui/material';
 import { AppTextField } from '../../../components';
 import type { StepRef } from '../types';
+import { StepCard } from '../StepCard';
 
 const personalData = [
   { label: 'Nome', value: 'Anna' },
@@ -24,7 +25,7 @@ export const ApplicantDataStep = forwardRef<StepRef>(
     }));
 
     return (
-      <>
+      <StepCard>
         <Typography
           variant="h3"
           component="h3"
@@ -57,7 +58,7 @@ export const ApplicantDataStep = forwardRef<StepRef>(
             />
           ))}
         </Box>
-      </>
+      </StepCard>
     );
   },
 );

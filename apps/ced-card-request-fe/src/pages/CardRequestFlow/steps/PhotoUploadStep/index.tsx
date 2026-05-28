@@ -10,6 +10,7 @@ import {
 import FileUploadOutlinedIcon from '@mui/icons-material/FileUploadOutlined';
 import type { StepRef } from '../../types';
 import { PhotoGuidelinesDrawer } from './PhotoGuidelinesDrawer';
+import { StepCard } from '../../StepCard';
 
 type UploadState = 'idle' | 'loading' | 'preview';
 
@@ -99,7 +100,7 @@ export const PhotoUploadStep = forwardRef<StepRef>(
 
     if (uploadState === 'preview' && preview) {
       return (
-        <>
+        <StepCard>
           <Typography
             variant="h3"
             component="h3"
@@ -154,12 +155,12 @@ export const PhotoUploadStep = forwardRef<StepRef>(
               Cambia foto
             </Button>
           </Box>
-        </>
+        </StepCard>
       );
     }
 
     return (
-      <>
+      <StepCard>
         <Typography
           variant="h3"
           component="h3"
@@ -273,7 +274,7 @@ export const PhotoUploadStep = forwardRef<StepRef>(
             *Devi caricare una foto per continuare
           </Typography>
         )}
-      </>
+      </StepCard>
     );
   },
 );

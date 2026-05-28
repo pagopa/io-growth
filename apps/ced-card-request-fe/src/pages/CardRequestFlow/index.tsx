@@ -5,7 +5,7 @@ import { PageHeader, Stepper } from '../../components';
 import { AddressStep } from './steps/AddressStep';
 import { ApplicantDataStep } from './steps/ApplicantDataStep';
 import { PhotoUploadStep } from './steps/PhotoUploadStep';
-import { Step4Placeholder } from './steps/Step4Placeholder';
+import { DocumentTypeStep } from './steps/DocumentTypeStep';
 import type { StepRef } from './types';
 
 const TOTAL_STEPS = 6;
@@ -30,10 +30,10 @@ const steps = [
     cancelLabel: 'Riprendi più tardi',
   },
   {
-    title: 'Step 4',
-    content: Step4Placeholder,
+    title: 'Indica il tipo di documento',
+    content: DocumentTypeStep,
     confirmLabel: 'Continua',
-    cancelLabel: undefined,
+    cancelLabel: 'Riprendi più tardi',
   },
 ];
 
@@ -107,16 +107,7 @@ export default function CardRequestFlowPage() {
 
         <Stepper activeStep={currentStep} totalSteps={TOTAL_STEPS} />
 
-        <Box
-          sx={{
-            borderRadius: 3,
-            bgcolor: theme.palette.background.paper,
-            p: 3,
-            pb: 4,
-          }}
-        >
-          <StepContent ref={stepRef} />
-        </Box>
+        <StepContent ref={stepRef} />
 
         <Box sx={{ pb: 'calc(140px + env(safe-area-inset-bottom, 0px))' }} />
       </Box>

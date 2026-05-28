@@ -34,12 +34,16 @@ const addressData = [
 interface SummaryProps {
   onEditApplicant?: () => void;
   onEditAddress?: () => void;
+  onEditJudgment?: () => void;
   onEditPhoto?: () => void;
   photoPreview?: string | null;
 }
 
 export const SummaryStep = forwardRef<StepRef, SummaryProps>(
-  function SummaryStep({ onEditPhoto, onEditAddress, photoPreview }, ref) {
+  function SummaryStep(
+    { onEditPhoto, onEditAddress, onEditJudgment, photoPreview },
+    ref,
+  ) {
     const theme = useTheme();
     const [expanded, setExpanded] = useState<string | false>('personal');
 
@@ -238,7 +242,11 @@ export const SummaryStep = forwardRef<StepRef, SummaryProps>(
                 </Typography>
                 {expanded === 'photo' && (
                   <Typography
-                    sx={{ color: theme.palette.common.neutralDarkGray }}
+                    sx={{
+                      color: theme.palette.common.neutralDarkGray,
+                      fontSize: 15,
+                      mt: 0.5,
+                    }}
                   >
                     Sarà stampata sulla carta.
                   </Typography>
@@ -272,6 +280,50 @@ export const SummaryStep = forwardRef<StepRef, SummaryProps>(
                     onClick={() => onEditPhoto?.()}
                   >
                     Cambia foto
+                  </Button>
+                </Box>
+              </Box>
+            </AccordionDetails>
+          </Accordion>
+
+          <Accordion
+            expanded={expanded === 'judgment'}
+            onChange={() =>
+              setExpanded((s) => (s === 'judgment' ? false : 'judgment'))
+            }
+            sx={accordionSx}
+          >
+            <AccordionSummary expandIcon={<ExpandMoreIcon />} sx={summarySx}>
+              <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                <Typography sx={{ fontWeight: 600, fontSize: 18 }}>
+                  Sentenza giudiziaria
+                </Typography>
+                {expanded === 'judgment' && (
+                  <Typography
+                    sx={{
+                      color: theme.palette.common.neutralDarkGray,
+                      fontSize: 15,
+                      mt: 0.5,
+                    }}
+                  >
+                    Informazioni sulla sentenza giudiziaria.
+                  </Typography>
+                )}
+              </Box>
+            </AccordionSummary>
+            <AccordionDetails sx={detailsSx}>
+              <Box sx={{ display: 'grid', gap: 0.75 }}>
+                <Box sx={{ ml: -2.5, mt: -2 }}>
+                  <Button
+                    size="small"
+                    sx={{
+                      fontWeight: 600,
+                      fontSize: 17,
+                      color: theme.palette.common.primaryButton,
+                    }}
+                    onClick={() => onEditJudgment?.()}
+                  >
+                    Modifica sentenza
                   </Button>
                 </Box>
               </Box>

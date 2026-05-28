@@ -11,17 +11,12 @@ import {
   selectBeneficiaryBenefit,
 } from '../../../../features/opportunityCreation/selectors';
 import { AgreementLanguageTabs } from './components/AgreementLanguageTabs';
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 import { AgreementDetailHeading } from './components/AgreementDetailHeading';
 import { AppSelect, AppTextField } from '../../../../components';
 import { FixedPriceBenefitFields } from './components/FixedPriceBenefitFields';
 import { DetailFormField } from './components/DetailFormField';
-import {
-  benefitTypeOptions,
-  categoriesDropdownDescriptions,
-  categoriesOptions,
-  getAgreementCopy,
-} from '../../../../constants';
+import { benefitTypeOptions, getAgreementCopy } from '../../../../constants';
 import {
   BenefitDiscountDiscountType,
   BenefitOtherType,
@@ -31,6 +26,7 @@ import {
 } from '../../../../core/api/generated/model';
 import { FieldWithIcon } from './components/FieldWithIcon';
 import { benefitTypeMap } from '../../../../constants/formOptions/types';
+import { selectOpportunityCategories } from '../../../../features/benefits/selectors';
 
 export function AgreementDetailsSection({
   attempted,
@@ -40,6 +36,17 @@ export function AgreementDetailsSection({
   const copy = getAgreementCopy(activeLanguage);
 
   const benefitType = useAppSelector(selectBeneficiaryBenefit);
+
+  const categories = useAppSelector(selectOpportunityCategories);
+
+  const categoriesOptions = useMemo(
+    () =>
+      categories.map(({ id, title }) => ({
+        value: id,
+        label: title,
+      })),
+    [categories],
+  );
 
   const handleLocalizedFieldChange = useCallback(
     (
@@ -223,7 +230,7 @@ export function AgreementDetailsSection({
           >
             <AppSelect
               options={categoriesOptions}
-              renderCustomOptions={({ label, value, lastElement }) => (
+              renderCustomOptions={({ label, lastElement, index }) => (
                 <Stack
                   direction="column"
                   spacing={0.5}
@@ -238,11 +245,7 @@ export function AgreementDetailsSection({
                     color="text.secondary"
                     component="span"
                   >
-                    {
-                      categoriesDropdownDescriptions[
-                        value as keyof typeof categoriesDropdownDescriptions
-                      ]
-                    }
+                    {categories[index].description}
                   </Typography>
                   {!lastElement && <Divider sx={{ width: '100%' }} />}
                 </Stack>

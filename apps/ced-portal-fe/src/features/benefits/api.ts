@@ -18,6 +18,7 @@ export const benefitsApi = baseApi.injectEndpoints({
     }),
     getOpportunityCategories: builder.query<OpportunityCategory[], void>({
       query: () => '/opportunity-categories',
+      keepUnusedDataFor: 3600,
     }),
     saveBenefitDraft: builder.mutation<SaveBenefitDraftResponse, unknown>({
       query: (body) => ({

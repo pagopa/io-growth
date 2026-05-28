@@ -23,6 +23,7 @@ interface AppSelectProps extends Omit<
     value: string;
     label: string;
     lastElement: boolean;
+    index: number;
   }) => ReactNode;
 }
 
@@ -52,6 +53,7 @@ export const AppSelect = ({
       value: string;
       label: string;
       lastElement: boolean;
+      index: number;
     }) => (renderCustomOptions ? renderCustomOptions(params) : params.label);
 
     return options?.map(({ label, value }, index) => (
@@ -74,6 +76,7 @@ export const AppSelect = ({
           label,
           value,
           lastElement: index === options.length - 1,
+          index,
         })}
       </MenuItem>
     ));

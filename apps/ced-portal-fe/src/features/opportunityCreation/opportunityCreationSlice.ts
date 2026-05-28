@@ -4,20 +4,21 @@ import {
   BenefitRequest,
   LocalizedMetadataItem,
   LocalizedMetadataItemLanguage,
+  LocalizedMetadataItemKey,
 } from '../../core/api/generated/model';
 
 // A simplified form state that avoids deep nesting while keeping small objects
 export interface OpportunityCreationForm {
-  dateFrom?: string;
+  dateFrom: string;
   dateTo?: string;
   url?: string;
-  categoryId?: string;
+  categoryId: string;
   placeIds: string[];
-  beneficiaryBenefit?: BenefitRequest | null;
-  caregiverBenefit?: BenefitRequest | null;
+  beneficiaryBenefit: BenefitRequest;
+  caregiverBenefit?: BenefitRequest;
   localizedMetadata: Record<
     LocalizedMetadataItemLanguage,
-    Record<'name' | 'description' | 'condition', string>
+    Record<LocalizedMetadataItemKey, string>
   >;
 }
 
@@ -28,13 +29,13 @@ export interface OpportunityCreationState {
 }
 
 const createEmptyForm = (): OpportunityCreationForm => ({
-  dateFrom: undefined,
+  dateFrom: '',
   dateTo: undefined,
   url: undefined,
-  categoryId: undefined,
+  categoryId: '',
   placeIds: [],
-  beneficiaryBenefit: null,
-  caregiverBenefit: null,
+  beneficiaryBenefit: {} as BenefitRequest,
+  caregiverBenefit: undefined,
   localizedMetadata: {
     de: {},
     en: {},
@@ -97,7 +98,7 @@ const opportunityCreationSlice = createSlice({
       state,
       action: PayloadAction<{
         which: 'beneficiaryBenefit' | 'caregiverBenefit';
-        value: BenefitRequest | null;
+        value: BenefitRequest;
       }>,
     ) => {
       const { which, value } = action.payload;

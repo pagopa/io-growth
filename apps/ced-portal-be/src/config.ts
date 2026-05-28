@@ -1,7 +1,10 @@
+import { arConfigSchema } from "@pagopa/io-core-adapter-ar";
 import { z } from "zod";
 
-const configSchema = z.object({
+const configSchema = arConfigSchema.extend({
   AZURE_CLIENT_ID: z.string().optional(),
+  CED_PORTAL_FE_BASE_URL: z.string().min(1),
+  CED_PRODUCT_ID: z.string().min(1),
   HOST: z.string().default("0.0.0.0"),
   PORT: z.coerce.number().int().min(1).max(65535).default(8080),
   POSTGRES_DB: z.string().min(1),

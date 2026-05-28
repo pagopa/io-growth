@@ -1,0 +1,22 @@
+meta {
+  name: Assertion Consumer Service callback
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/acs?token={{token}}
+  body: none
+  auth: none
+}
+
+params:query {
+  token: {{token}}
+}
+
+script:post-response {
+  if (res.status === 200) {
+    bru.setEnvVar("sessionToken", res.body.session_token, { persist: false });
+  
+    }
+}

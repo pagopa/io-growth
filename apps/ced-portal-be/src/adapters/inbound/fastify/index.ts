@@ -1,5 +1,9 @@
 export { mountAcsHandler } from "./auth/acs.handler.js";
 export { mountAuthorizeHandler } from "./auth/authorize.handler.js";
+export { mountCompleteOnboardingHandler } from "./department/complete-onboarding.handler.js";
+export { mountGetContractSignedHandler } from "./department/get-contract-signed.handler.js";
+export { mountGetOnboardingHandler } from "./department/get-onboarding.handler.js";
+export { mountListPendingOnboardingsHandler } from "./department/list-pending-onboardings.handler.js";
 export { mountInfoReadinessHandler } from "./health/info-readiness.handler.js";
 export { mountInfoStartupHandler } from "./health/info-startup.handler.js";
 export { mountCreateOperatorOpportunityHandler } from "./opportunities/create-operator-opportunity.handler.js";

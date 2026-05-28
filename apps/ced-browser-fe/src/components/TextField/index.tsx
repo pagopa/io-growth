@@ -31,9 +31,12 @@ export const AppTextField = ({
         ...InputProps,
         ...(error && {
           endAdornment: (
-            <InputAdornment position="end" sx={{ flexShrink: 0 }}>
-              <ErrorIcon color="error" />
-            </InputAdornment>
+            <>
+              {InputProps?.endAdornment}
+              <InputAdornment position="end" sx={{ flexShrink: 0 }}>
+                <ErrorIcon color="error" />
+              </InputAdornment>
+            </>
           ),
         }),
       }}

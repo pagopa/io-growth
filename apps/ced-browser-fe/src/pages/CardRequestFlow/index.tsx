@@ -1,9 +1,9 @@
-import { useRef, useState } from 'react';
 import { Box, Button, Typography, useTheme } from '@mui/material';
+import { useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Stepper, PageHeader } from '../../components';
-import { ApplicantDataStep } from './steps/ApplicantDataStep';
+import { PageHeader, Stepper } from '../../components';
 import { AddressStep } from './steps/AddressStep';
+import { ApplicantDataStep } from './steps/ApplicantDataStep';
 import { PhotoUploadStep } from './steps/PhotoUploadStep';
 import { Step4Placeholder } from './steps/Step4Placeholder';
 import type { StepRef } from './types';
@@ -41,7 +41,7 @@ export default function CardRequestFlowPage() {
   const navigate = useNavigate();
   const theme = useTheme();
   const [currentStep, setCurrentStep] = useState(0);
-  const stepRef = useRef<StepRef>(null);
+  const stepRef = useRef<StepRef | null>(null);
 
   const {
     title,

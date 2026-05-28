@@ -59,6 +59,22 @@ describe("makeListOperatorOpportunitiesUseCase", () => {
     expect(repository.list).toHaveBeenCalledWith(inputWithFilters);
   });
 
+  it("should pass categoryId filter to repository", async () => {
+    const repository = createMockOpportunityRepository({
+      list: vi.fn().mockResolvedValue(ok({ items: [], total: 0 })),
+    });
+    const useCase = makeListOperatorOpportunitiesUseCase(repository);
+
+    const inputWithCategory = {
+      ...validInput,
+      categoryId: "01KRJXEYD44B58700GT982CCYY",
+    };
+
+    await useCase(inputWithCategory);
+
+    expect(repository.list).toHaveBeenCalledWith(inputWithCategory);
+  });
+
   it("should propagate repository errors", async () => {
     const repoError = new GenericError("DB connection failed");
     const repository = createMockOpportunityRepository({

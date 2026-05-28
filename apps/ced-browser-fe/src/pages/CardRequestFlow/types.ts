@@ -1,3 +1,3 @@
 export interface StepRef {
-  validate: () => boolean;
+  validate: () => boolean | Promise<boolean>;
 }

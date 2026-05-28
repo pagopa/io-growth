@@ -1,16 +1,40 @@
-import { useRef, useState } from 'react';
 import { Box, Button, Typography, useTheme } from '@mui/material';
+import { useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Stepper, PageHeader } from '../../components';
-import { ApplicantDataStep } from './steps/ApplicantDataStep';
+import { PageHeader, Stepper } from '../../components';
 import { AddressStep } from './steps/AddressStep';
+import { ApplicantDataStep } from './steps/ApplicantDataStep';
+import { PhotoUploadStep } from './steps/PhotoUploadStep';
+import { Step4Placeholder } from './steps/Step4Placeholder';
 import type { StepRef } from './types';
 
 const TOTAL_STEPS = 6;
 
 const steps = [
-  { title: 'Conferma i tuoi dati', content: ApplicantDataStep },
-  { title: 'Indica il tuo indirizzo', content: AddressStep },
+  {
+    title: 'Conferma i tuoi dati',
+    content: ApplicantDataStep,
+    confirmLabel: 'Conferma',
+    cancelLabel: 'Annulla',
+  },
+  {
+    title: 'Indica il tuo indirizzo',
+    content: AddressStep,
+    confirmLabel: 'Conferma',
+    cancelLabel: undefined,
+  },
+  {
+    title: 'Aggiungi una foto',
+    content: PhotoUploadStep,
+    confirmLabel: 'Continua',
+    cancelLabel: 'Riprendi più tardi',
+  },
+  {
+    title: 'Step 4',
+    content: Step4Placeholder,
+    confirmLabel: 'Continua',
+    cancelLabel: undefined,
+  },
 ];
 
 export default function CardRequestFlowPage() {
@@ -19,12 +43,18 @@ export default function CardRequestFlowPage() {
   const [currentStep, setCurrentStep] = useState(0);
   const stepRef = useRef<StepRef | null>(null);
 
-  const { title, content: StepContent } = steps[currentStep];
+  const {
+    title,
+    content: StepContent,
+    confirmLabel,
+    cancelLabel,
+  } = steps[currentStep];
   const isLastStep = currentStep === steps.length - 1;
 
-  const handleNext = () => {
-    if (stepRef.current && !stepRef.current.validate()) {
-      return;
+  const handleNext = async () => {
+    if (stepRef.current) {
+      const isValid = await stepRef.current.validate();
+      if (!isValid) return;
     }
     if (!isLastStep) {
       setCurrentStep((s) => s + 1);
@@ -116,10 +146,10 @@ export default function CardRequestFlowPage() {
             bgcolor: theme.palette.common.primaryButton,
           }}
         >
-          Conferma
+          {confirmLabel}
         </Button>
 
-        {currentStep === 0 && (
+        {cancelLabel && (
           <Button
             fullWidth
             variant="text"
@@ -129,7 +159,7 @@ export default function CardRequestFlowPage() {
               color: theme.palette.common.primaryButton,
             }}
           >
-            Annulla
+            {cancelLabel}
           </Button>
         )}
       </Box>

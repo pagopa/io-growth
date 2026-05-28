@@ -8,15 +8,14 @@
 
 html,
 body {
-  height: 100dvh;
+  min-height: 100dvh;
   font-family: 'Titillium Web', Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
   background-color: #e3f2fd;
-  overflow: hidden;
 }
 
 #root {
-  height: 100dvh;
+  min-height: 100dvh;
 }

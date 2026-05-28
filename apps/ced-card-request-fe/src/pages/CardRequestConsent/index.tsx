@@ -10,7 +10,7 @@ export default function CardRequestConsentPage() {
   const theme = useTheme();
 
   const handleContinue = () => {
-    navigate(APP_ROUTES.CARD_REQUEST_LOADING);
+    navigate(APP_ROUTES.LOADING);
   };
 
   return (

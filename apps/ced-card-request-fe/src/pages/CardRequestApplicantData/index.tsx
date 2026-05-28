@@ -119,7 +119,7 @@ export default function CardRequestApplicantDataPage() {
         <Button
           fullWidth
           variant="contained"
-          onClick={() => navigate(APP_ROUTES.CARD_REQUEST_FLOW)}
+          onClick={() => navigate(APP_ROUTES.APPLICATION)}
           sx={{
             height: 52,
             borderRadius: '10px',

@@ -34,6 +34,7 @@ export const AppSelect = ({
   value,
   defaultValue = '',
   error,
+  fullWidth = true,
   onOpen,
   onClose,
   renderCustomOptions,
@@ -80,7 +81,12 @@ export const AppSelect = ({
   }, [options, renderCustomOptions]);
 
   return (
-    <FormControl error={error} sx={sx} required={props.required}>
+    <FormControl
+      error={error}
+      fullWidth={fullWidth}
+      required={props.required}
+      sx={sx}
+    >
       <InputLabel shrink={shrink}>{label}</InputLabel>
       <Select
         label={label}

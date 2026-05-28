@@ -1,17 +1,17 @@
 import { ChipOwnProps } from '@mui/material';
-import type { OpportunitySummaryItemStatus } from '../core/api/generated/model';
+import { OpportunitySummaryItemStatus } from '../core/api/generated/model';
 
 export const STATE_OPTIONS: {
   value: OpportunitySummaryItemStatus;
   label: string;
 }[] = [
-  { value: 'draft', label: 'Bozza' },
-  { value: 'test_rejected', label: 'Rifiutato' },
-  { value: 'test_pending', label: 'In fase di test' },
-  { value: 'test_passed', label: 'Test superato' },
-  { value: 'published', label: 'Pubblicata' },
-  { value: 'suspended', label: 'Sospesa' },
-  { value: 'deleted', label: 'Eliminata' },
+  { value: OpportunitySummaryItemStatus.draft, label: 'Bozza' },
+  { value: OpportunitySummaryItemStatus.test_pending, label: 'In test' },
+  { value: OpportunitySummaryItemStatus.test_rejected, label: 'Rifiutato' },
+  { value: OpportunitySummaryItemStatus.test_passed, label: 'Test superato' },
+  { value: OpportunitySummaryItemStatus.published, label: 'Pubblicata' },
+  { value: OpportunitySummaryItemStatus.suspended, label: 'Sospesa' },
+  { value: OpportunitySummaryItemStatus.deleted, label: 'Eliminata' },
 ];
 
 export const STATE_COLORS: Record<

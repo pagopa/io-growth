@@ -12,7 +12,7 @@ export default function CardRequestInfoPage() {
   const navigate = useNavigate();
   const theme = useTheme();
 
-  const handleContinue = () => navigate(APP_ROUTES.CARD_REQUEST_CONSENT);
+  const handleContinue = () => navigate(APP_ROUTES.CONSENT);
 
   return (
     <Box

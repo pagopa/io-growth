@@ -12,6 +12,7 @@ const ALERT_ERROR_BORDER = '#FF6666';
 const ALERT_SUCCESS_BORDER = '#89D188';
 const ERROR_ICON_BG = '#5D1313';
 const TOAST_ERROR_BG = ERROR_ICON_BG;
+const DECORATIVE_CYAN = '#AAEEEF';
 
 declare module '@mui/material/styles' {
   interface CommonColors {
@@ -25,6 +26,7 @@ declare module '@mui/material/styles' {
     alertErrorBorder: string;
     alertSuccessBorder: string;
     toastError: string;
+    decorativeCyan: string;
   }
 }
 
@@ -48,6 +50,7 @@ export const createAppTheme = () =>
         alertSuccessBorder: ALERT_SUCCESS_BORDER,
         neutralDarkGray: APP_NEUTRAL_DARK_GRAY,
         toastError: TOAST_ERROR_BG,
+        decorativeCyan: DECORATIVE_CYAN,
       },
     },
     components: {

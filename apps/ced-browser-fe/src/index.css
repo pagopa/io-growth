@@ -1,8 +1,10 @@
 @font-face {
   font-family: 'Titillio';
   src:
-    url('https://raw.githubusercontent.com/pagopa/titillio/main/WEB/WOFF2/Titillio-Light.woff2') format('woff2'),
-    url('https://raw.githubusercontent.com/pagopa/titillio/main/WEB/Titillio-Light.woff') format('woff');
+    url('https://raw.githubusercontent.com/pagopa/titillio/main/WEB/WOFF2/Titillio-Light.woff2')
+      format('woff2'),
+    url('https://raw.githubusercontent.com/pagopa/titillio/main/WEB/Titillio-Light.woff')
+      format('woff');
   font-weight: 300;
   font-style: normal;
   font-display: swap;
@@ -11,8 +13,10 @@
 @font-face {
   font-family: 'Titillio';
   src:
-    url('https://raw.githubusercontent.com/pagopa/titillio/main/WEB/WOFF2/Titillio-Regular.woff2') format('woff2'),
-    url('https://raw.githubusercontent.com/pagopa/titillio/main/WEB/Titillio-Regular.woff') format('woff');
+    url('https://raw.githubusercontent.com/pagopa/titillio/main/WEB/WOFF2/Titillio-Regular.woff2')
+      format('woff2'),
+    url('https://raw.githubusercontent.com/pagopa/titillio/main/WEB/Titillio-Regular.woff')
+      format('woff');
   font-weight: 400;
   font-style: normal;
   font-display: swap;
@@ -21,8 +25,10 @@
 @font-face {
   font-family: 'Titillio';
   src:
-    url('https://raw.githubusercontent.com/pagopa/titillio/main/WEB/WOFF2/Titillio-Semibold.woff2') format('woff2'),
-    url('https://raw.githubusercontent.com/pagopa/titillio/main/WEB/Titillio-Semibold.woff') format('woff');
+    url('https://raw.githubusercontent.com/pagopa/titillio/main/WEB/WOFF2/Titillio-Semibold.woff2')
+      format('woff2'),
+    url('https://raw.githubusercontent.com/pagopa/titillio/main/WEB/Titillio-Semibold.woff')
+      format('woff');
   font-weight: 600;
   font-style: normal;
   font-display: swap;
@@ -31,8 +37,10 @@
 @font-face {
   font-family: 'Titillio';
   src:
-    url('https://raw.githubusercontent.com/pagopa/titillio/main/WEB/WOFF2/Titillio-Bold.woff2') format('woff2'),
-    url('https://raw.githubusercontent.com/pagopa/titillio/main/WEB/Titillio-Bold.woff') format('woff');
+    url('https://raw.githubusercontent.com/pagopa/titillio/main/WEB/WOFF2/Titillio-Bold.woff2')
+      format('woff2'),
+    url('https://raw.githubusercontent.com/pagopa/titillio/main/WEB/Titillio-Bold.woff')
+      format('woff');
   font-weight: 700;
   font-style: normal;
   font-display: swap;

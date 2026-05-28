@@ -1,11 +1,8 @@
 import CancelRoundedIcon from '@mui/icons-material/CancelRounded';
-import { Button, Menu, MenuItem, Stack, useTheme } from '@mui/material';
-import { useCallback, useState } from 'react';
+import { Menu, MenuItem, useTheme } from '@mui/material';
+import { useCallback } from 'react';
 import { generatePath, useNavigate } from 'react-router-dom';
 import { APP_ROUTES } from '../../../app/routeConfig';
-import { AppModal } from '../../../components';
-import { useToast } from '../../../contexts';
-import { useRequestApprovalMutation } from '../../../features/opportunities/api';
 
 type ActionsMenuProps = {
   anchor: null | HTMLElement;
@@ -20,9 +17,6 @@ export const ActionsMenu = ({
 }: ActionsMenuProps) => {
   const theme = useTheme();
   const navigate = useNavigate();
-  const { showToast } = useToast();
-  const [requestApproval] = useRequestApprovalMutation();
-  const [approvalDialogOpen, setApprovalDialogOpen] = useState(false);
 
   const menuItemsSx = {
     color: theme.palette.common.primaryButton,
@@ -61,85 +55,43 @@ export const ActionsMenu = ({
     [handleMenuClose, selectedItemId],
   );
 
-  const handleRequestApproval = async () => {
-    if (!selectedItemId) return;
-    setApprovalDialogOpen(false);
-    handleMenuClose();
-    try {
-      await requestApproval(selectedItemId).unwrap();
-      showToast('Richiesta di approvazione inviata con successo', 'success');
-    } catch {
-      showToast(
-        "Errore durante l'invio della richiesta di approvazione",
-        'error',
-      );
-    }
-  };
-
   return (
-    <>
-      <Menu
-        anchorEl={anchor}
-        open={Boolean(anchor)}
-        onClose={handleMenuClose}
-        PaperProps={{
-          sx: {
-            minWidth: 220,
-            borderRadius: 2,
-            boxShadow: '0 6px 20px rgba(24, 39, 75, 0.18)',
-          },
+    <Menu
+      anchorEl={anchor}
+      open={Boolean(anchor)}
+      onClose={handleMenuClose}
+      PaperProps={{
+        sx: {
+          minWidth: 220,
+          borderRadius: 2,
+          boxShadow: '0 6px 20px rgba(24, 39, 75, 0.18)',
+        },
+      }}
+    >
+      <MenuItem
+        onClick={() => {
+          handleAction(onView);
         }}
+        sx={menuItemsSx}
       >
-        <MenuItem
-          onClick={() => {
-            handleAction(onView);
-          }}
-          sx={menuItemsSx}
-        >
-          Visualizza
-        </MenuItem>
-        <MenuItem onClick={() => handleAction(onDuplicate)} sx={menuItemsSx}>
-          Duplica
-        </MenuItem>
-        <MenuItem onClick={() => handleAction(onEdit)} sx={menuItemsSx}>
-          Modifica
-        </MenuItem>
-        <MenuItem onClick={() => handleAction(() => null)} sx={menuItemsSx}>
-          Sospendi
-        </MenuItem>
-        <MenuItem
-          onClick={() => handleAction(() => null)}
-          sx={{ color: theme.palette.error.main, gap: 1 }}
-        >
-          <CancelRoundedIcon sx={{ fontSize: 18 }} />
-          Elimina
-        </MenuItem>
-      </Menu>
-
-      <AppModal
-        open={approvalDialogOpen}
-        onClose={() => {
-          setApprovalDialogOpen(false);
-          handleMenuClose();
-        }}
-        title="Richiedi approvazione"
-        description="Il Dipartimento effettuerà la revisione della tua opportunità. Il processo potrebbe richiedere diverso tempo. Se approvata, sarà pubblicata su IO a partire dalla data di inizio validità che hai scelto."
+        Visualizza
+      </MenuItem>
+      <MenuItem onClick={() => handleAction(onDuplicate)} sx={menuItemsSx}>
+        Duplica
+      </MenuItem>
+      <MenuItem onClick={() => handleAction(onEdit)} sx={menuItemsSx}>
+        Modifica
+      </MenuItem>
+      <MenuItem onClick={() => handleAction(() => null)} sx={menuItemsSx}>
+        Sospendi
+      </MenuItem>
+      <MenuItem
+        onClick={() => handleAction(() => null)}
+        sx={{ color: theme.palette.error.main, gap: 1 }}
       >
-        <Stack direction="row" spacing={2} justifyContent="flex-end">
-          <Button
-            variant="outlined"
-            onClick={() => {
-              setApprovalDialogOpen(false);
-              handleMenuClose();
-            }}
-          >
-            Annulla
-          </Button>
-          <Button variant="contained" onClick={handleRequestApproval}>
-            Invia in revisione
-          </Button>
-        </Stack>
-      </AppModal>
-    </>
+        <CancelRoundedIcon sx={{ fontSize: 18 }} />
+        Elimina
+      </MenuItem>
+    </Menu>
   );
 };

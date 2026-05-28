@@ -1,11 +1,5 @@
-import { OpportunitySummaryItemStatus } from '../core/api/generated/model';
-
-type OpportunityStateColors =
-  | 'default'
-  | 'warning'
-  | 'success'
-  | 'info'
-  | 'error';
+import { ChipOwnProps } from '@mui/material';
+import type { OpportunitySummaryItemStatus } from '../core/api/generated/model';
 
 export const STATE_OPTIONS: {
   value: OpportunitySummaryItemStatus;
@@ -22,7 +16,7 @@ export const STATE_OPTIONS: {
 
 export const STATE_COLORS: Record<
   OpportunitySummaryItemStatus,
-  OpportunityStateColors
+  ChipOwnProps['color']
 > = {
   draft: 'default',
   test_pending: 'warning',

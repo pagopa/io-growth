@@ -39,13 +39,18 @@ export default function CreateBenefitPage() {
   const [submitReviewOpen, setSubmitReviewOpen] = useState(false);
   const { showToast } = useToast();
 
-  const [_, { isLoading: isSavingDraft }] = useSaveBenefitDraftMutation();
+  const [saveDraft, { isLoading: isSavingDraft }] =
+    useSaveBenefitDraftMutation();
+
+  // Leaving here commented, needed for test purposes only in local env
+  // will be removed after https://github.com/pagopa/io-growth/pull/117 is merged
+  // await create();
+  // const create = useCreateOpportunity();
 
   const accessPoint = useAppSelector(selectAccessPoint);
   const nationwide = useAppSelector(selectNationwide);
   const selectedLocationIds = useAppSelector(selectSelectedLocationIds);
   const selectedWebsiteIds = useAppSelector(selectSelectedWebsiteIds);
-  // const opportunity = useAppSelector(baseSelectOpportunityForm);
 
   const isFirstStepValid = useGetFirstStepValidation();
 
@@ -66,13 +71,13 @@ export default function CreateBenefitPage() {
 
   const handleSaveDraft = async () => {
     try {
-      // await saveDraft({
-      //   localizedForm: agreementState.localizedForm,
-      //   accessPoint,
-      //   nationwide,
-      //   selectedLocationIds,
-      //   selectedWebsiteIds,
-      // }).unwrap();
+      await saveDraft({
+        localizedForm: {},
+        accessPoint,
+        nationwide,
+        selectedLocationIds,
+        selectedWebsiteIds,
+      }).unwrap();
       showToast('Bozza salvata con successo', 'success');
       navigate(APP_ROUTES.HOME);
     } catch {
@@ -89,7 +94,7 @@ export default function CreateBenefitPage() {
     }
   };
 
-  const handleNext = () => {
+  const handleNext = async () => {
     if (currentStep === 1 && !accessPoint) {
       showToast('Indica il punto di accesso per continuare', 'error');
       return;
@@ -99,6 +104,9 @@ export default function CreateBenefitPage() {
     if (currentStep === STEPS.length - 1) {
       setSubmitReviewOpen(true);
     } else {
+      // Leaving here commented, needed for test purposes only in local env
+      // will be removed after https://github.com/pagopa/io-growth/pull/117 is merged
+      // await create();
       setAttempted(false);
       setCurrentStep((s) => s + 1);
     }

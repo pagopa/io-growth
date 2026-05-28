@@ -67,8 +67,6 @@ export const AgreementCompanionSection = () => {
               sx={{ alignItems: 'center', ml: -0.75 }}
               control={
                 <Checkbox
-                  // TODO style -> check step 2 to align
-                  sx={{}}
                   checked={isSameAsOwner}
                   onChange={(_, checked) => {
                     setIsSameAsOwner(checked);

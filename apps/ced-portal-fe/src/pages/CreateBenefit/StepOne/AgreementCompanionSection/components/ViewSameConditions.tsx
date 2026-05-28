@@ -18,11 +18,7 @@ export const ViewSameConditions = () => {
       <DetailFormField name={'benefitType'} path={'beneficiaryBenefit.type'}>
         <AppSelect options={benefitTypeOptions} disabled />
       </DetailFormField>
-      {type === 'discount' && (
-        // BenefitType[type as keyof typeof BenefitType] ===
-        //   BenefitType.FIXED_PRICE
-        <FixedPriceFields sameValues benefit={benefit} />
-      )}
+      {type === 'discount' && <FixedPriceFields sameValues benefit={benefit} />}
 
       <DetailFormField
         hide={type !== 'other'}

@@ -38,8 +38,6 @@ export const useCreateOpportunity = () => {
       ...opportunity,
       placeIds: ['01KSQ7Y68BSCB5N60T9ZCBSM80'],
       localizedMetadata,
-      // dateFrom:
-      // dateTo:
     };
 
     await createOpportunity(payload);

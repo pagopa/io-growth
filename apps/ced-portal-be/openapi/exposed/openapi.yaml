@@ -455,6 +455,12 @@ paths:
           required: false
           schema:
             type: string
+        - name: categoryId
+          in: query
+          required: false
+          schema:
+            type: string
+            pattern: "^[0-9A-HJKMNP-TV-Z]{26}$"
         - name: sortBy
           in: query
           required: false

@@ -119,6 +119,10 @@ export const createDrizzleOpportunityRepository = (
 
       const conditions = [eq(opportunity.operatorId, input.operatorId)];
 
+      if (input.categoryId) {
+        conditions.push(eq(opportunity.categoryId, input.categoryId));
+      }
+
       if (input.status) {
         conditions.push(sql`${opportunity.status} = ${input.status}`);
       }

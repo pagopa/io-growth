@@ -5,7 +5,6 @@ import type { AuthState } from '../auth/types';
 import { wizardReducer } from '../../features/wizard/slice';
 import { locationReducer } from '../../features/location/locationSlice';
 import { websiteReducer } from '../../features/website/websiteSlice';
-// import { agreementDetailCreationReducer } from '../../features/agreementDetailCreation/agreementDetailCreationSlice';
 import { benefitFiltersReducer } from '../../features/benefitsFilters/benefitFiltersSlice';
 import { opportunityCreationReducer } from '../../features/opportunityCreation/opportunityCreationSlice';
 
@@ -42,7 +41,6 @@ export const store = configureStore({
     location: locationReducer,
     website: websiteReducer,
     benefitFilters: benefitFiltersReducer,
-    // agreementDetailCreation: agreementDetailCreationReducer,
     opportunityCreation: opportunityCreationReducer,
     [baseApi.reducerPath]: baseApi.reducer,
   },

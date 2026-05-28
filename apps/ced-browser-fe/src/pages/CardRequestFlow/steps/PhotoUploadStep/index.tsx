@@ -8,7 +8,8 @@ import {
   useTheme,
 } from '@mui/material';
 import FileUploadOutlinedIcon from '@mui/icons-material/FileUploadOutlined';
-import type { StepRef } from '../types';
+import type { StepRef } from '../../types';
+import { PhotoGuidelinesDrawer } from './PhotoGuidelinesDrawer';
 
 type UploadState = 'idle' | 'loading' | 'preview';
 
@@ -19,12 +20,7 @@ export const PhotoUploadStep = forwardRef<StepRef>(
     const [preview, setPreview] = useState<string | null>(null);
     const [error, setError] = useState(false);
     const [uploadState, setUploadState] = useState<UploadState>('idle');
-
-    const showLoadingAndResolve = () =>
-      new Promise<boolean>((resolve) => {
-        setUploadState('loading');
-        setTimeout(() => resolve(true), 2000);
-      });
+    const [guidelinesOpen, setGuidelinesOpen] = useState(false);
 
     useImperativeHandle(ref, () => ({
       validate() {
@@ -33,7 +29,12 @@ export const PhotoUploadStep = forwardRef<StepRef>(
           return false;
         }
         if (uploadState === 'preview') {
-          return showLoadingAndResolve();
+          setUploadState('loading');
+          return new Promise<boolean>((resolve) => {
+            setTimeout(() => {
+              resolve(true);
+            }, 2000);
+          });
         }
         return true;
       },
@@ -196,7 +197,7 @@ export const PhotoUploadStep = forwardRef<StepRef>(
         </Box>
 
         <Link
-          href="#"
+          onClick={() => setGuidelinesOpen(true)}
           underline="always"
           sx={{
             display: 'inline-block',
@@ -204,10 +205,16 @@ export const PhotoUploadStep = forwardRef<StepRef>(
             color: theme.palette.common.primaryButton,
             fontSize: 17,
             fontWeight: 600,
+            cursor: 'pointer',
           }}
         >
           Leggi le indicazioni complete
         </Link>
+
+        <PhotoGuidelinesDrawer
+          open={guidelinesOpen}
+          onClose={() => setGuidelinesOpen(false)}
+        />
 
         <Box
           sx={{

@@ -35,10 +35,10 @@ export function useWebsiteSubmit(
       supportContacts,
     });
 
-    if (result.error)
+    if ('error' in result)
       return showToast('Errore durante il salvataggio del sito', 'error');
     const placesResult = await refetchPlaces();
-    if (placesResult.error)
+    if ('error' in placesResult)
       return showToast('Errore durante il recupero dei siti', 'error');
     const newWebsite = placesResult.data?.slice(-1)[0];
     dispatch(resetWebsiteForm());

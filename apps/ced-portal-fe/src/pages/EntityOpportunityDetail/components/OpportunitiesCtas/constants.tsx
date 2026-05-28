@@ -1,6 +1,5 @@
 import DeleteIcon from '@mui/icons-material/DeleteOutlineOutlined';
-
-import { OpportunityStatus } from '../../../../features/opportunities/types';
+import type { OpportunityStatus } from '../../../../features/opportunities/types';
 
 import { OpportunitiesCtaItem, OpportunitiesCtasLayout } from './types';
 

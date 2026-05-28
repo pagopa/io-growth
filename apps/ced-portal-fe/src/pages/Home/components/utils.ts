@@ -1,5 +1,5 @@
 import { ChipProps } from '@mui/material';
-import { OpportunityDetailResponse } from '../../../core/api/generated/model';
+import type { OpportunityDetailResponse } from '../../../core/api/generated/model';
 import type { Benefit } from '../../../features/benefits/types';
 import { benefitStateLabelMap, opportunityStatusLabelMap } from './constants';
 

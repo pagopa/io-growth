@@ -1,5 +1,5 @@
 import { ChipColors } from '@pagopa/mui-italia';
-import { OpportunitySummaryItemStatus } from '../../../core/api/generated/model';
+import type { OpportunitySummaryItemStatus } from '../../../core/api/generated/model';
 
 export const opportunityStatusLabelMap: Record<
   OpportunitySummaryItemStatus,

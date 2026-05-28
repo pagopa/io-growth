@@ -26,3 +26,22 @@ export const STATE_COLORS: Record<
   deleted: 'error',
   test_rejected: 'default',
 };
+
+export const ENTITY_STATE_OPTIONS = [
+  { value: 'Da_gestire', label: 'Da gestire' },
+  { value: 'Rifiutata', label: 'Rifiutata' },
+  { value: 'Attivo', label: 'Attivo' },
+  { value: 'Inattivo', label: 'Inattivo' },
+  { value: 'Cessato', label: 'Cessato' },
+];
+
+export const ENTITY_STATE_COLORS: Record<
+  string,
+  'default' | 'warning' | 'success' | 'info' | 'error'
+> = {
+  Da_gestire: 'warning',
+  Rifiutata: 'default',
+  Attivo: 'success',
+  Inattivo: 'warning',
+  Cessato: 'default',
+};

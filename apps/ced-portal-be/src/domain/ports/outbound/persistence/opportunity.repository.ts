@@ -21,6 +21,7 @@ export interface GetOpportunityByIdInput {
 }
 
 export interface ListOpportunitiesInput {
+  categoryId?: string;
   limit: number;
   offset: number;
   operatorId: string;

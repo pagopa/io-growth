@@ -43,6 +43,7 @@ const listOperatorOpportunitiesValidator = withSession(
   OperatorSessionSchema,
   createHttpRequestValidator(listOperatorOpportunitiesHttpSchema),
   (session, { query }) => ({
+    categoryId: query.categoryId,
     limit: query.limit,
     offset: query.offset,
     operatorId: session.operatorId,

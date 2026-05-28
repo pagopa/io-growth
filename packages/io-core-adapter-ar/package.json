@@ -1,6 +1,6 @@
 {
   "name": "@pagopa/io-core-adapter-ar",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "type": "module",
   "exports": {
     ".": {
@@ -14,12 +14,13 @@
   "scripts": {
     "clean": "rm -rf dist",
     "generate": "orval",
-    "build": "tsc",
+    "build": "pnpm clean && pnpm generate && pnpm esm:generated && tsc",
     "typecheck": "tsc --noEmit",
     "lint": "pnpm lint:check --fix",
     "lint:check": "eslint .",
     "test": "vitest run",
-    "test:coverage": "vitest run --coverage"
+    "test:coverage": "vitest run --coverage",
+    "esm:generated": "ts2esm tsconfig.json"
   },
   "dependencies": {
     "@pagopa/io-core-domain": "workspace:^",
@@ -36,6 +37,7 @@
     "prettier": "catalog:",
     "typescript": "catalog:",
     "undici-types": "catalog:",
-    "vitest": "catalog:"
+    "vitest": "catalog:",
+    "ts2esm": "^2.2.7"
   }
 }

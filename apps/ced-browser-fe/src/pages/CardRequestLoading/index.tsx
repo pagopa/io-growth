@@ -11,7 +11,7 @@ export default function CardRequestLoadingPage() {
 
   useEffect(() => {
     const timeoutId = globalThis.setTimeout(() => {
-      navigate(APP_ROUTES.CARD_REQUEST_APPLICANT_DATA, { replace: true });
+      navigate(APP_ROUTES.CARD_REQUEST_FLOW, { replace: true });
     }, REDIRECT_DELAY_MS);
 
     return () => {

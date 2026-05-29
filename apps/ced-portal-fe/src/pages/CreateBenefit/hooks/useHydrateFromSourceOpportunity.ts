@@ -1,7 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { useGetLocationsQuery } from '../../../features/location/api';
 import { useGetOpportunityDetailQuery } from '../../../features/opportunities/api';
-import { useGetWebsitesQuery } from '../../../features/website/api';
 import {
   setAccessPoint,
   setNationwide,
@@ -33,6 +31,7 @@ import type {
   CreateBenefitNavigationState,
 } from '../types';
 import { buildOpportunityPrefillData } from '../utils/opportunityPrefill';
+import { useGetPlacesQuery } from '../../../features/places/api';
 
 export const useHydrateFromSourceOpportunity = (
   sourceOpportunityId:
@@ -49,15 +48,15 @@ export const useHydrateFromSourceOpportunity = (
     },
   );
 
-  const { data: availableLocations = [], isLoading: isLocationsLoading } =
-    useGetLocationsQuery(undefined, {
+  const { data: places = [], isLoading: isPlacesLoading } = useGetPlacesQuery(
+    undefined,
+    {
       skip: !sourceOpportunityId,
-    });
+    },
+  );
 
-  const { data: availableWebsites = [], isLoading: isWebsitesLoading } =
-    useGetWebsitesQuery(undefined, {
-      skip: !sourceOpportunityId,
-    });
+  const availableLocations = places.filter(({ type }) => type === 'offline');
+  const availableWebsites = places.filter(({ type }) => type === 'online');
 
   useEffect(() => {
     dispatch(resetAgreementDetailCreationForm());
@@ -79,7 +78,7 @@ export const useHydrateFromSourceOpportunity = (
       return;
     }
 
-    if (isLocationsLoading || isWebsitesLoading) {
+    if (isPlacesLoading) {
       return;
     }
 
@@ -214,8 +213,7 @@ export const useHydrateFromSourceOpportunity = (
     availableLocations,
     availableWebsites,
     dispatch,
-    isLocationsLoading,
-    isWebsitesLoading,
+    isPlacesLoading,
     sourceOpportunityDetail,
     sourceOpportunityId,
   ]);

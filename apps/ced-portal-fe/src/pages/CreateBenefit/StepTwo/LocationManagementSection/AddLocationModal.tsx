@@ -1,7 +1,7 @@
 import { Button } from '@mui/material';
 import { AppModal } from '../../../../components';
+import type { PlaceResponse } from '../../../../core/api/generated/model';
 import { useLocationSubmit } from '../../../../features/location/hooks';
-import type { Location } from '../../../../features/location/types';
 import { LocationContactsSection } from './LocationContactsSection';
 import { LocationFields } from './LocationFields';
 import { useState } from 'react';
@@ -9,9 +9,8 @@ import { useState } from 'react';
 interface AddLocationModalProps {
   open: boolean;
   onClose: () => void;
-  onConfirm: (newLocation?: Location) => void;
+  onConfirm: (newLocation?: PlaceResponse) => void;
   onBack?: () => void;
-  existingLocations?: Location[];
 }
 
 export function AddLocationModal({
@@ -19,7 +18,6 @@ export function AddLocationModal({
   onClose,
   onConfirm,
   onBack,
-  existingLocations = [],
 }: AddLocationModalProps) {
   const [attempted, setAttempted] = useState(false);
   const { handleConfirm, handleClose, isLoading } = useLocationSubmit(
@@ -36,10 +34,7 @@ export function AddLocationModal({
       title="Aggiungi nuova sede"
       description="Le informazioni saranno visibili su IO nel dettaglio della sede."
     >
-      <LocationFields
-        existingLocations={existingLocations}
-        attempted={attempted}
-      />
+      <LocationFields attempted={attempted} />
 
       <LocationContactsSection />
 

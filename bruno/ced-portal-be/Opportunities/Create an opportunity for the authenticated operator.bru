@@ -1,0 +1,48 @@
+meta {
+  name: Create an opportunity for the authenticated operator
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/operator/opportunities
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "dateFrom": "2026-01-01",
+    "dateTo": "2027-12-31",
+    "url": "https://example.org/promo-2",
+    "categoryId": "01KRJXEYD44B58700GT982CCYY",
+    "placeIds": [
+      "01KS7DN6MBTZ1WXTA69ABERZ5M"
+    ],
+    "beneficiaryBenefit": {
+      "type": "discount",
+      "discountType": "percentage",
+      "value": 20
+    },
+    "caregiverBenefit": {
+      "type": "free"
+    },
+    "localizedMetadata": [
+      {
+        "key": "name",
+        "language": "it",
+        "value": "Sconto 20%"
+      },
+      {
+        "key": "description",
+        "language": "it",
+        "value": "Sconto del 20% su tutti i servizi"
+      },
+      {
+        "key": "condition",
+        "language": "it",
+        "value": "Valido solo dal lunedi al venerdi"
+      }
+    ]
+  }
+}

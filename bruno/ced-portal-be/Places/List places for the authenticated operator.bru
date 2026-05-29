@@ -1,0 +1,11 @@
+meta {
+  name: List places for the authenticated operator
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/operator/places
+  body: none
+  auth: inherit
+}

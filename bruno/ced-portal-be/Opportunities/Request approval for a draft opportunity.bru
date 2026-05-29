@@ -1,0 +1,15 @@
+meta {
+  name: Request approval for a draft opportunity
+  type: http
+  seq: 4
+}
+
+patch {
+  url: {{baseUrl}}/operator/opportunities/:opportunityId/request-approval
+  body: none
+  auth: inherit
+}
+
+params:path {
+  opportunityId: 01KS2TJ041S9MY8D76EN6D8PVS
+}

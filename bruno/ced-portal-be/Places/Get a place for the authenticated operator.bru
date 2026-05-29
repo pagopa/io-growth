@@ -1,0 +1,15 @@
+meta {
+  name: Get a place for the authenticated operator
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{baseUrl}}/operator/places/:placeId
+  body: none
+  auth: inherit
+}
+
+params:path {
+  placeId: 01KRBRK7FM6WF1CYSZ1D9Y6TTE
+}

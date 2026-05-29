@@ -1,5 +1,11 @@
 # @pagopa/io-core-adapter-fastify
 
+## 0.0.4
+
+### Patch Changes
+
+- ea6b48c: added AR intgration
+
 ## 0.0.3
 
 ### Patch Changes

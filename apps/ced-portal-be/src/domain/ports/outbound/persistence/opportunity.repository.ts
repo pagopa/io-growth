@@ -21,6 +21,7 @@ export interface GetOpportunityByIdInput {
 }
 
 export interface ListOpportunitiesInput {
+  categoryId?: string;
   limit: number;
   offset: number;
   operatorId: string;
@@ -31,6 +32,9 @@ export interface ListOpportunitiesInput {
 }
 
 export interface OpportunityRepository {
+  readonly countByOperatorIds: (
+    operatorIds: readonly string[],
+  ) => Promise<Result<ReadonlyMap<string, number>, GenericError>>;
   readonly create: (
     input: CreateOpportunityInput,
   ) => Promise<Result<void, GenericError>>;

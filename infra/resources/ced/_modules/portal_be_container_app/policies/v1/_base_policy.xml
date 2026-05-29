@@ -16,6 +16,7 @@
             <allowed-headers>
                 <header>Content-Type</header>
                 <header>Accept</header>
+                <header>Authorization</header>
             </allowed-headers>
             <expose-headers>
                 <header>*</header>

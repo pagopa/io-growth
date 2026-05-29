@@ -2,6 +2,7 @@ import { Box, Button, Typography, useTheme } from '@mui/material';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Check, ContentCopy } from '@mui/icons-material';
+import { copyTextToClipboard } from '../../utils';
 
 interface Props {
   requestNumber?: string;
@@ -17,10 +18,11 @@ export default function SubmissionSuccess({ requestNumber, onClose }: Props) {
 
   const handleCopy = async () => {
     try {
-      await navigator.clipboard.writeText(number);
+      const success = await copyTextToClipboard(number);
+      if (!success) throw new Error('Copy failed');
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
-    } catch (e) {
+    } catch {
       // ignore
     }
   };

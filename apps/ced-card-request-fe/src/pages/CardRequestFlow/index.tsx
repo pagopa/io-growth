@@ -1,14 +1,21 @@
-import { Box, Button, Typography, useTheme } from '@mui/material';
+import {
+  Box,
+  Button,
+  Typography,
+  useTheme,
+  CircularProgress,
+} from '@mui/material';
 import { useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { APP_ROUTES } from '../../app/routeConfig';
 import { PageHeader, Stepper } from '../../components';
 import { AddressStep } from './steps/AddressStep';
 import { ApplicantDataStep } from './steps/ApplicantDataStep';
 import { PhotoUploadStep } from './steps/PhotoUploadStep';
-import { Step4Placeholder } from './steps/Step4Placeholder';
+import { DocumentTypeStep } from './steps/DocumentTypeStep';
+import { SavedDraftDialog } from './SavedDraftDialog';
 import type { StepRef } from './types';
-
-const TOTAL_STEPS = 6;
+import SummaryStep from './steps/SummaryStep';
 
 const steps = [
   {
@@ -30,18 +37,24 @@ const steps = [
     cancelLabel: 'Riprendi più tardi',
   },
   {
-    title: 'Step 4',
-    content: Step4Placeholder,
+    title: 'Indica il tipo di documento',
+    content: DocumentTypeStep,
     confirmLabel: 'Continua',
-    cancelLabel: undefined,
+    cancelLabel: 'Riprendi più tardi',
   },
+  { title: 'Riepilogo e invio', content: SummaryStep },
 ];
+
+const TOTAL_STEPS = steps.length;
 
 export default function CardRequestFlowPage() {
   const navigate = useNavigate();
   const theme = useTheme();
   const [currentStep, setCurrentStep] = useState(0);
+  const [draftSaved, setDraftSaved] = useState(false);
   const stepRef = useRef<StepRef | null>(null);
+  const [photoPreview, setPhotoPreview] = useState<string>('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const {
     title,
@@ -50,6 +63,18 @@ export default function CardRequestFlowPage() {
     cancelLabel,
   } = steps[currentStep];
   const isLastStep = currentStep === steps.length - 1;
+  const actionLabel = isLastStep
+    ? 'Invia richiesta'
+    : (confirmLabel ?? 'Conferma');
+
+  if (draftSaved) {
+    return (
+      <SavedDraftDialog
+        onClose={() => navigate(APP_ROUTES.HOME)}
+        onResume={() => setDraftSaved(false)}
+      />
+    );
+  }
 
   const handleNext = async () => {
     if (stepRef.current) {
@@ -59,6 +84,16 @@ export default function CardRequestFlowPage() {
     if (!isLastStep) {
       setCurrentStep((s) => s + 1);
     }
+  };
+
+  const handleSubmit = () => {
+    // show loading overlay and simulate submit
+    setIsSubmitting(true);
+    setTimeout(() => {
+      // after simulated submit, navigate to success route
+      setIsSubmitting(false);
+      navigate(APP_ROUTES.REQUEST_SUCCESS);
+    }, 2000);
   };
 
   const handleBack = () => {
@@ -107,16 +142,55 @@ export default function CardRequestFlowPage() {
 
         <Stepper activeStep={currentStep} totalSteps={TOTAL_STEPS} />
 
-        <Box
+        {/* <Box
           sx={{
             borderRadius: 3,
-            bgcolor: theme.palette.background.paper,
+            bgcolor: isSummary ? 'transparent' : theme.palette.background.paper,
             p: 3,
             pb: 4,
           }}
-        >
-          <StepContent ref={stepRef} />
-        </Box>
+        > */}
+        <StepContent
+          ref={stepRef}
+          onEditApplicant={() => setCurrentStep(0)}
+          onEditAddress={() => setCurrentStep(1)}
+          onEditPhoto={() => setCurrentStep(2)}
+          onPhotoPreviewChange={(url: string) => setPhotoPreview(url)}
+          photoPreview={photoPreview}
+        />
+        {/* </Box> */}
+
+        {isSubmitting && (
+          <Box
+            sx={{
+              position: 'fixed',
+              inset: 0,
+              zIndex: 1400,
+              bgcolor: 'background.paper',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: 3,
+            }}
+          >
+            <CircularProgress
+              size={64}
+              sx={{ color: theme.palette.primary.main }}
+            />
+            <Typography
+              variant="h2"
+              sx={{ color: theme.palette.common.neutralBlack }}
+            >
+              Stiamo elaborando la tua richiesta
+            </Typography>
+            <Typography
+              sx={{ color: theme.palette.common.neutralDarkGray, fontSize: 17 }}
+            >
+              Attendi qualche secondo
+            </Typography>
+          </Box>
+        )}
 
         <Box sx={{ pb: 'calc(140px + env(safe-area-inset-bottom, 0px))' }} />
       </Box>
@@ -139,21 +213,25 @@ export default function CardRequestFlowPage() {
         <Button
           fullWidth
           variant="contained"
-          onClick={handleNext}
+          onClick={isLastStep ? handleSubmit : handleNext}
           sx={{
             height: 52,
             borderRadius: '10px',
             bgcolor: theme.palette.common.primaryButton,
           }}
         >
-          {confirmLabel}
+          {actionLabel}
         </Button>
 
         {cancelLabel && (
           <Button
             fullWidth
             variant="text"
-            onClick={handleBack}
+            onClick={
+              cancelLabel === 'Riprendi più tardi'
+                ? () => setDraftSaved(true)
+                : handleBack
+            }
             sx={{
               mt: 1,
               color: theme.palette.common.primaryButton,

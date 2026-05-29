@@ -240,8 +240,9 @@ export const EntitiesTable = ({
               <TableCell>
                 <Chip
                   label={
-                    ENTITY_STATE_OPTIONS.find((o) => o.value === item.state)
-                      ?.label ?? item.state
+                    ENTITY_STATE_OPTIONS.find(
+                      (option) => option.value === item.state,
+                    )?.label || item.state
                   }
                   color={ENTITY_STATE_COLORS[item.state] ?? 'default'}
                   size="small"

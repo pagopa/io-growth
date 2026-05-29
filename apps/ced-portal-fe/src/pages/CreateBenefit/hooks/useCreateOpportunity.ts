@@ -1,8 +1,15 @@
-import { useAppSelector } from '../../../hooks';
+import { useAppDispatch, useAppSelector } from '../../../hooks';
 import { selectOpportunityForm } from '../../../features/opportunityCreation/selectors';
-import { OpportunityCreationForm } from '../../../features/opportunityCreation/opportunityCreationSlice';
+import {
+  OpportunityCreationForm,
+  resetForm,
+} from '../../../features/opportunityCreation/opportunityCreationSlice';
 import { OpportunityCreateRequest } from '../../../core/api/generated/model';
 import { useCreateOpportunityMutation } from '../../../features/opportunities/api';
+import { useNavigate } from 'react-router-dom';
+import { APP_ROUTES } from '../../../app/routeConfig';
+import { useToast } from '../../../contexts';
+import { useCallback } from 'react';
 
 const typedObjectEntries = <T extends Record<PropertyKey, unknown>>(
   object: T,
@@ -10,12 +17,16 @@ const typedObjectEntries = <T extends Record<PropertyKey, unknown>>(
   Object.entries(object) as Array<[keyof T, T[keyof T]]>;
 
 export const useCreateOpportunity = () => {
+  const navigate = useNavigate();
+  const dispatch = useAppDispatch();
+  const { showToast } = useToast();
+
   const [createOpportunity] = useCreateOpportunityMutation();
   const opportunity: OpportunityCreationForm = useAppSelector(
     selectOpportunityForm,
   );
 
-  const handleCreation = async () => {
+  const handleCreation = useCallback(async () => {
     const localizedMetadata = typedObjectEntries(
       opportunity.localizedMetadata,
     ).reduce<OpportunityCreateRequest['localizedMetadata']>(
@@ -40,8 +51,20 @@ export const useCreateOpportunity = () => {
       localizedMetadata,
     };
 
-    await createOpportunity(payload);
-  };
+    const { error } = await createOpportunity(payload);
+
+    if (!error) {
+      navigate(APP_ROUTES.HOME);
+      showToast('Fatto!', 'success');
+      dispatch(resetForm());
+    }
+
+    if (error) {
+      navigate(APP_ROUTES.HOME);
+      showToast('Errore durante la creazione', 'error');
+      dispatch(resetForm());
+    }
+  }, [createOpportunity, dispatch, navigate, opportunity, showToast]);
 
   return handleCreation;
 };

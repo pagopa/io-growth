@@ -28,7 +28,9 @@ const matchesState = (item: Opportunity, state: string): boolean => {
 };
 
 export const useOpportunitiesData = (filters: OpportunityFilters) => {
-  const query = useGetOpportunitiesQuery();
+  const query = useGetOpportunitiesQuery(undefined, {
+    refetchOnMountOrArgChange: true,
+  });
 
   const items = useMemo(() => query.data ?? [], [query.data]);
 

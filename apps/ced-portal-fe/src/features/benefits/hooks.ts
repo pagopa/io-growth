@@ -16,7 +16,9 @@ const APPROVED_STATES: Set<OpportunitySummaryItemStatus> = new Set([
 ]);
 
 export const useBenefitsData = (params: BenefitsQueryParams) => {
-  const query = useGetBenefitsQuery(params);
+  const query = useGetBenefitsQuery(params, {
+    refetchOnMountOrArgChange: true,
+  });
 
   const items = useMemo<Benefit[]>(() => query.data?.items ?? [], [query.data]);
 

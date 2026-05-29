@@ -18,6 +18,7 @@ import { StepOne } from './StepOne';
 import { StepTwo } from './StepTwo';
 import { useToast } from '../../contexts';
 import { useGetFirstStepValidation } from './hooks/useGetFirstStepValidation';
+import { useCreateOpportunity } from './hooks/useCreateOpportunity';
 export interface StepProps {
   attempted: boolean;
 }
@@ -45,7 +46,7 @@ export default function CreateBenefitPage() {
   // Leaving here commented, needed for test purposes only in local env
   // will be removed after https://github.com/pagopa/io-growth/pull/117 is merged
   // await create();
-  // const create = useCreateOpportunity();
+  const create = useCreateOpportunity();
 
   const accessPoint = useAppSelector(selectAccessPoint);
   const nationwide = useAppSelector(selectNationwide);
@@ -106,7 +107,7 @@ export default function CreateBenefitPage() {
     } else {
       // Leaving here commented, needed for test purposes only in local env
       // will be removed after https://github.com/pagopa/io-growth/pull/117 is merged
-      // await create();
+      await create();
       setAttempted(false);
       setCurrentStep((s) => s + 1);
     }

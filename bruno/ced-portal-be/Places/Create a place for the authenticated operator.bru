@@ -1,0 +1,27 @@
+meta {
+  name: Create a place for the authenticated operator
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/operator/places
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "type": "online",
+    "name": "test 3",
+    "website": {
+      "url":"http://example2.com"
+    },
+    "supportContacts": [
+      {
+        "type": "website",
+        "value": "https://example.org/support"
+      }
+    ]
+  }
+}

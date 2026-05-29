@@ -1,0 +1,30 @@
+meta {
+  name: Create the authenticated operator profile
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/operator/profile
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "displayName": "Operatore Demo",
+    "place": {
+      "type": "online",
+      "name": "Sportello remoto",
+      "website": {
+        "url": "https://example.org"
+      },
+      "supportContacts": [
+        {
+          "type": "email",
+          "value": "support@example.org"
+        }
+      ]
+    }
+  }
+}

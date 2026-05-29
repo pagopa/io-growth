@@ -1,1 +1,1 @@
-/// exports here
+export { copyTextToClipboard } from './clipboard';

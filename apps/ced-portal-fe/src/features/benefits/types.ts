@@ -1,17 +1,37 @@
-import { PublicationStatus } from '../benefitsFilters/types';
+import type { OpportunitySummaryItemStatus } from '../../core/api/generated/model/opportunitySummaryItemStatus';
 
 export interface Benefit {
   id: string;
   name: string;
-  category: string;
-  createdAt: string;
-  publication_status: keyof typeof PublicationStatus;
+  status: OpportunitySummaryItemStatus;
+  categoryTitle: string;
+  dateFrom: string;
+  dateTo: string | null;
 }
 
-export type BenefitsResponse = Benefit[];
+export interface OpportunityCategory {
+  id: string;
+  title: string;
+  description: string;
+}
+
+export interface BenefitsQueryParams {
+  offset?: number;
+  limit?: number;
+  categoryId?: string;
+  status?: OpportunitySummaryItemStatus;
+  search?: string;
+  sortBy?: 'createdAt' | 'updatedAt';
+  sortOrder?: 'asc' | 'desc';
+}
+
+export interface BenefitsResponse {
+  items: Benefit[];
+  total: number;
+}
 
 export interface SaveBenefitDraftResponse {
   id: string;
-  publication_status: keyof typeof PublicationStatus;
+  publication_status: OpportunitySummaryItemStatus;
   createdAt: string;
 }

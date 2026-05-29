@@ -1,12 +1,27 @@
 import { runAllMigrations } from "@pagopa/io-core-adapter-drizzle";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { z } from "zod";
 
-import { parseConfig } from "./config.js";
+const migrateConfigSchema = z.object({
+  POSTGRES_DB: z.string().min(1),
+  POSTGRES_HOST: z.string().min(1),
+  POSTGRES_PASSWORD: z.string().optional(),
+  POSTGRES_PORT: z.coerce.number().int().min(1).max(65535).default(6432),
+  POSTGRES_SSL: z
+    .string()
+    .optional()
+    .transform((v) => v === "true"),
+  POSTGRES_USER: z.string().min(1),
+});
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
-const config = parseConfig();
+const result = migrateConfigSchema.safeParse(process.env);
+if (!result.success) {
+  throw new Error(`Invalid migration configuration:\n${result.error.message}`);
+}
+const config = result.data;
 
 const dbConfig = {
   connection: {

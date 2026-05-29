@@ -1,0 +1,20 @@
+meta {
+  name: List opportunities for the authenticated operator
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/operator/opportunities
+  body: none
+  auth: inherit
+}
+
+params:query {
+  offset: 0
+  limit: 20
+  status: 
+  search: 
+  sortBy: createdAt
+  sortOrder: desc
+}

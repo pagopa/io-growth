@@ -1,71 +1,54 @@
 import FilterAltOutlined from '@mui/icons-material/FilterAltOutlined';
 import { Button, SelectChangeEvent, Stack } from '@mui/material';
 import { AppSelect, AppTextField } from '../../../components';
-import { useAppDispatch, useAppSelector } from '../../../hooks';
-import {
-  selectBenefitCategoryFilter,
-  selectBenefitNameFilter,
-  selectBenefitStatusFilter,
-} from '../../../features/benefitsFilters/selectors';
-import { categoriesOptions, statusOptions } from '../../../constants';
-import {
-  resetBenefitFilters,
-  setBenefitFilters,
-} from '../../../features/benefitsFilters/benefitFiltersSlice';
-import { useCallback, useState } from 'react';
-import {
-  BenefitCategory,
-  PublicationStatus,
-} from '../../../features/benefitsFilters/types';
+import { OPPORTUNITY_STATUS_OPTIONS } from '../../../constants';
+import { useCallback } from 'react';
+import { OpportunitySummaryItemStatus } from '../../../core/api/generated/model';
+import type { OpportunityCategoryItem } from '../../../core/api/generated/model/opportunityCategoryItem';
 
-export const BenefitsFiltersBar = () => {
-  const dispatch = useAppDispatch();
+interface BenefitsFiltersBarProps {
+  search: string;
+  onSearchChange: (value: string) => void;
+  categoryId: OpportunityCategoryItem['id'];
+  categoryOptions: OpportunityCategoryItem[];
+  onCategoryChange: (value: OpportunityCategoryItem['id']) => void;
+  status: OpportunitySummaryItemStatus | '';
+  onStatusChange: (value: OpportunitySummaryItemStatus | '') => void;
+  onFilter: () => void;
+  onReset: () => void;
+}
 
-  const nameFilter = useAppSelector(selectBenefitNameFilter);
-  const categoryFilter = useAppSelector(selectBenefitCategoryFilter);
-  const statusFilter = useAppSelector(selectBenefitStatusFilter);
-
-  const [filters, setFilters] = useState({
-    name: nameFilter,
-    category: categoryFilter,
-    publication_status: statusFilter,
-  });
-
-  const handleNameFilterChange = useCallback(
+export const BenefitsFiltersBar = ({
+  search,
+  categoryId,
+  categoryOptions,
+  onCategoryChange,
+  status,
+  onStatusChange,
+  onSearchChange,
+  onFilter,
+  onReset,
+}: BenefitsFiltersBarProps) => {
+  const handleSearchChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
-      setFilters((prev) => ({ ...prev, name: e.target.value }));
+      onSearchChange(e.target.value);
     },
-    [],
+    [onSearchChange],
   );
 
-  const handleCategoryFilterChange = useCallback(
+  const handleCategoryChange = useCallback(
     (e: SelectChangeEvent<string | string[]>) => {
-      setFilters((prev) => ({
-        ...prev,
-        category: e.target.value as BenefitCategory,
-      }));
+      onCategoryChange(e.target.value as string);
     },
-    [],
+    [onCategoryChange],
   );
 
-  const handleStatusFilterChange = useCallback(
+  const handleStatusChange = useCallback(
     (e: SelectChangeEvent<string | string[]>) => {
-      setFilters((prev) => ({
-        ...prev,
-        status: e.target.value as keyof typeof PublicationStatus,
-      }));
+      onStatusChange(e.target.value as OpportunitySummaryItemStatus | '');
     },
-    [],
+    [onStatusChange],
   );
-
-  const handleApplyFilters = useCallback(() => {
-    dispatch(setBenefitFilters(filters));
-  }, [dispatch, filters]);
-
-  const handleResetFilters = useCallback(() => {
-    dispatch(resetBenefitFilters());
-    setFilters({ name: null, category: null, publication_status: null });
-  }, [dispatch]);
 
   return (
     <Stack
@@ -77,8 +60,8 @@ export const BenefitsFiltersBar = () => {
       <AppTextField
         fullWidth
         placeholder="Cerca per nome"
-        value={filters.name || ''}
-        onChange={handleNameFilterChange}
+        value={search}
+        onChange={handleSearchChange}
         sx={{
           flex: 1,
           minWidth: 0,
@@ -87,21 +70,25 @@ export const BenefitsFiltersBar = () => {
 
       <AppSelect
         fullWidth
-        value={filters.category || ''}
+        value={categoryId}
         sx={{ flex: 0.5 }}
         label="Categoria"
         placeholder="Categoria"
-        options={categoriesOptions}
-        onChange={handleCategoryFilterChange}
+        options={categoryOptions.map((cat) => ({
+          value: cat.id,
+          label: cat.title,
+        }))}
+        onChange={handleCategoryChange}
       />
+
       <AppSelect
-        value={filters.publication_status || ''}
+        value={status}
         fullWidth
         sx={{ flex: 0.5 }}
         label="Stato"
         placeholder="Stato"
-        options={statusOptions}
-        onChange={handleStatusFilterChange}
+        options={OPPORTUNITY_STATUS_OPTIONS}
+        onChange={handleStatusChange}
       />
 
       <Stack
@@ -114,14 +101,14 @@ export const BenefitsFiltersBar = () => {
           variant="text"
           startIcon={<FilterAltOutlined />}
           sx={{ fontWeight: 700, fontSize: 16, px: 0.5 }}
-          onClick={handleApplyFilters}
+          onClick={onFilter}
         >
           Filtra
         </Button>
         <Button
           variant="text"
           sx={{ fontWeight: 700, fontSize: 16, px: 0.5 }}
-          onClick={handleResetFilters}
+          onClick={onReset}
         >
           Rimuovi filtri
         </Button>

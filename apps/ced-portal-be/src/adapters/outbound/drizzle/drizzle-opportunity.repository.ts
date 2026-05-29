@@ -2,7 +2,7 @@ import type { TypedDbClient } from "@pagopa/io-core-adapter-drizzle";
 import type { Result } from "neverthrow";
 
 import { ConflictError, GenericError } from "@pagopa/io-core-domain/errors";
-import { and, count, eq, ilike, sql } from "drizzle-orm";
+import { and, count, eq, ilike, inArray, sql } from "drizzle-orm";
 import { err, ok } from "neverthrow";
 
 import type {
@@ -28,9 +28,37 @@ import {
 const escapeIlikePattern = (value: string): string =>
   value.replace(/\\/g, "\\\\").replace(/%/g, "\\%").replace(/_/g, "\\_");
 
+// eslint-disable-next-line max-lines-per-function
 export const createDrizzleOpportunityRepository = (
   db: TypedDbClient<typeof schema>,
 ): OpportunityRepository => ({
+  countByOperatorIds: async (operatorIds) => {
+    if (operatorIds.length === 0) {
+      return ok(new Map<string, number>());
+    }
+    try {
+      const rows = await db
+        .select({
+          operatorId: opportunity.operatorId,
+          total: count(),
+        })
+        .from(opportunity)
+        .where(inArray(opportunity.operatorId, [...operatorIds]))
+        .groupBy(opportunity.operatorId);
+
+      const result = new Map<string, number>(
+        rows.map((row) => [row.operatorId, row.total]),
+      );
+      return ok(result);
+    } catch (error) {
+      return err(
+        new GenericError(
+          `Failed to count opportunities by operator ids: ${String(error)}`,
+        ),
+      );
+    }
+  },
+
   create: async (input): Promise<Result<void, GenericError>> => {
     try {
       await db.transaction(async (tx) => {
@@ -118,6 +146,10 @@ export const createDrizzleOpportunityRepository = (
       );
 
       const conditions = [eq(opportunity.operatorId, input.operatorId)];
+
+      if (input.categoryId) {
+        conditions.push(eq(opportunity.categoryId, input.categoryId));
+      }
 
       if (input.status) {
         conditions.push(sql`${opportunity.status} = ${input.status}`);

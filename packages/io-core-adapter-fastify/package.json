@@ -1,6 +1,6 @@
 {
   "name": "@pagopa/io-core-adapter-fastify",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "type": "module",
   "exports": {
     ".": {
@@ -22,6 +22,7 @@
   },
   "dependencies": {
     "fastify": "catalog:",
+    "@fastify/multipart": "catalog:",
     "@pagopa/io-core-domain": "workspace:^",
     "@standard-schema/spec": "^1.1.0",
     "neverthrow": "catalog:"

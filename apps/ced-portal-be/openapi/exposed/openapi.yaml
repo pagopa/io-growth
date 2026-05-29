@@ -15,6 +15,7 @@ tags:
   - name: Places
   - name: Opportunities
   - name: Categories
+  - name: Department
 paths:
   /operator/profile:
     get:
@@ -455,6 +456,12 @@ paths:
           required: false
           schema:
             type: string
+        - name: categoryId
+          in: query
+          required: false
+          schema:
+            type: string
+            pattern: "^[0-9A-HJKMNP-TV-Z]{26}$"
         - name: sortBy
           in: query
           required: false
@@ -641,6 +648,205 @@ paths:
               example:
                 statusCode: 404
                 message: Session not found
+  /department/onboardings:
+    get:
+      tags:
+        - Department
+      summary: List onboarding requests
+      description: >-
+        Returns a paginated list of onboarding requests for the configured
+        product. Non-PENDING_IN_REVIEW items are enriched with an opportunity
+        count from the local database.
+      operationId: listOnboardings
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+        - name: size
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+        - name: status
+          in: query
+          required: false
+          schema:
+            type: string
+            enum:
+              - REQUEST
+              - TOBEVALIDATED
+              - PENDING
+              - PENDING_IN_REVIEW
+              - COMPLETED
+              - FAILED
+              - REJECTED
+              - DELETED
+        - name: name
+          in: query
+          required: false
+          description: Filter onboardings by institution name.
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Paginated list of pending onboarding requests
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PendingOnboardingsResponse"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 401
+                message: Unauthorized
+  /department/onboardings/{onboardingId}:
+    get:
+      tags:
+        - Department
+      summary: Get an onboarding by ID
+      description: >-
+        Retrieves a single onboarding request by its ID from Area Riservata.
+        Returns 404 if the onboarding is not found.
+      operationId: getOnboarding
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: onboardingId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Onboarding found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OnboardingItem"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 401
+                message: Unauthorized
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 404
+                message: Not Found
+  /department/onboardings/{onboardingId}/complete:
+    put:
+      tags:
+        - Department
+      summary: Complete an onboarding request
+      description: >-
+        Uploads the signed contract for the given onboarding and triggers the
+        completion workflow on Area Riservata.
+      operationId: completeOnboarding
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: onboardingId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - contract
+              properties:
+                contract:
+                  type: string
+                  format: binary
+      responses:
+        "200":
+          description: Onboarding completed successfully
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 401
+                message: Unauthorized
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 403
+                message: Forbidden
+  /department/onboardings/{onboardingId}/contract:
+    get:
+      tags:
+        - Department
+      summary: Download the signed contract for an onboarding
+      description: >-
+        Downloads the signed contract file associated with the specified
+        onboarding from Area Riservata.
+      operationId: getContractSigned
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: onboardingId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Signed contract file
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 401
+                message: Unauthorized
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 403
+                message: Forbidden
 components:
   securitySchemes:
     bearerAuth:
@@ -1130,3 +1336,54 @@ components:
           type: string
         session_token:
           type: string
+    PendingOnboardingsResponse:
+      type: object
+      required:
+        - items
+        - count
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/OnboardingItem"
+        count:
+          type: integer
+          minimum: 0
+    OnboardingItem:
+      type: object
+      properties:
+        id:
+          type: string
+        productId:
+          type: string
+        workflowType:
+          type: string
+        status:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        opportunityCount:
+          type: integer
+          minimum: 0
+          description: >-
+            Number of opportunities for this operator. Present only for
+            non-PENDING_IN_REVIEW onboardings.
+        institution:
+          type: object
+          properties:
+            id:
+              type: string
+            description:
+              type: string
+            taxCode:
+              type: string
+            digitalAddress:
+              type: string
+            city:
+              type: string
+            county:
+              type: string

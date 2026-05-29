@@ -32,6 +32,14 @@ module "portal_be_container_app" {
     {
       name                = "POSTGRES_PASSWORD"
       key_vault_secret_id = format(local.secrets_id_template, "ced-p-itn-db-psql-01-admin-password")
+    },
+    {
+      name                = "AR_API_KEY"
+      key_vault_secret_id = format(local.secrets_id_template, "ced-p-itn-portal-be-ar-client-api-key")
+    },
+    {
+      name                = "AR_ENDPOINT"
+      key_vault_secret_id = format(local.secrets_id_template, "ced-p-itn-portal-be-ar-client-endpoint")
     }
   ]
 

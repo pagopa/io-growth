@@ -1,0 +1,11 @@
+meta {
+  name: Get the authenticated operator profile
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/operator/profile
+  body: none
+  auth: inherit
+}

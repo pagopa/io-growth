@@ -1,4 +1,11 @@
-import { Box, Button, Typography, useTheme } from '@mui/material';
+import { useEffect, useState } from 'react';
+import {
+  Box,
+  Button,
+  CircularProgress,
+  Typography,
+  useTheme,
+} from '@mui/material';
 import CheckRoundedIcon from '@mui/icons-material/CheckRounded';
 
 interface SavedDraftDialogProps {
@@ -8,13 +15,53 @@ interface SavedDraftDialogProps {
 
 export function SavedDraftDialog({ onClose, onResume }: SavedDraftDialogProps) {
   const theme = useTheme();
+  const [saved, setSaved] = useState(false);
+
+  useEffect(() => {
+    const id = setTimeout(() => setSaved(true), 2000);
+    return () => clearTimeout(id);
+  }, []);
+
+  if (!saved) {
+    return (
+      <Box
+        sx={{
+          minHeight: '100dvh',
+          bgcolor: theme.palette.common.neutralGray,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: 3,
+        }}
+      >
+        <CircularProgress
+          size={64}
+          sx={{ color: theme.palette.common.primaryButton }}
+        />
+        <Typography
+          variant="h3"
+          component="p"
+          sx={{ color: theme.palette.common.neutralBlack, mt: 2 }}
+        >
+          Stiamo salvando la bozza
+        </Typography>
+        <Typography
+          sx={{
+            color: theme.palette.common.neutralDarkGray,
+            fontSize: 17,
+          }}
+        >
+          Attendi qualche secondo
+        </Typography>
+      </Box>
+    );
+  }
 
   return (
     <Box
       sx={{
-        position: 'fixed',
-        inset: 0,
-        zIndex: 1300,
+        minHeight: '100dvh',
         bgcolor: theme.palette.common.neutralGray,
         display: 'flex',
         flexDirection: 'column',

@@ -53,6 +53,15 @@ export default function CardRequestFlowPage() {
   } = steps[currentStep];
   const isLastStep = currentStep === steps.length - 1;
 
+  if (draftSaved) {
+    return (
+      <SavedDraftDialog
+        onClose={() => navigate(-1)}
+        onResume={() => setDraftSaved(false)}
+      />
+    );
+  }
+
   const handleNext = async () => {
     if (stepRef.current) {
       const isValid = await stepRef.current.validate();
@@ -160,13 +169,6 @@ export default function CardRequestFlowPage() {
           </Button>
         )}
       </Box>
-
-      {draftSaved && (
-        <SavedDraftDialog
-          onClose={() => navigate(-1)}
-          onResume={() => setDraftSaved(false)}
-        />
-      )}
     </Box>
   );
 }

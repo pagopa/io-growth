@@ -1,6 +1,7 @@
 import { Box, Button, Typography, useTheme } from '@mui/material';
 import { useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { APP_ROUTES } from '../../app/routeConfig';
 import { PageHeader, Stepper } from '../../components';
 import { AddressStep } from './steps/AddressStep';
 import { ApplicantDataStep } from './steps/ApplicantDataStep';
@@ -56,7 +57,7 @@ export default function CardRequestFlowPage() {
   if (draftSaved) {
     return (
       <SavedDraftDialog
-        onClose={() => navigate(-1)}
+        onClose={() => navigate(APP_ROUTES.HOME)}
         onResume={() => setDraftSaved(false)}
       />
     );

@@ -59,6 +59,11 @@ const wizardSlice = createSlice({
         (id) => id !== action.payload,
       );
     },
+
+    resetPlaces(state) {
+      state.selectedLocationIds = [];
+      state.selectedWebsiteIds = [];
+    },
   },
 });
 
@@ -69,6 +74,7 @@ export const {
   removeSelectedLocationId,
   setSelectedWebsiteIds,
   removeSelectedWebsiteId,
+  resetPlaces,
 } = wizardSlice.actions;
 
 export const wizardReducer = wizardSlice.reducer;

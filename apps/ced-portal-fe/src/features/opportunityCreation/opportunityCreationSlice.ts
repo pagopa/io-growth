@@ -102,7 +102,6 @@ const opportunityCreationSlice = createSlice({
       }>,
     ) => {
       const { which, value } = action.payload;
-
       state.form[which] = value;
     },
 

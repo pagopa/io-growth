@@ -10,6 +10,11 @@ import { useNavigate } from 'react-router-dom';
 import { APP_ROUTES } from '../../../app/routeConfig';
 import { useToast } from '../../../contexts';
 import { useCallback } from 'react';
+import {
+  removeSelectedWebsiteId,
+  selectSelectedLocationIds,
+  selectSelectedWebsiteIds,
+} from '../../../features/wizard/slice';
 
 const typedObjectEntries = <T extends Record<PropertyKey, unknown>>(
   object: T,
@@ -25,6 +30,9 @@ export const useCreateOpportunity = () => {
   const opportunity: OpportunityCreationForm = useAppSelector(
     selectOpportunityForm,
   );
+
+  const locationsIds = useAppSelector(selectSelectedLocationIds);
+  const websiteIds = useAppSelector(selectSelectedWebsiteIds);
 
   const handleCreation = useCallback(async () => {
     const localizedMetadata = typedObjectEntries(
@@ -47,14 +55,13 @@ export const useCreateOpportunity = () => {
 
     const payload: OpportunityCreateRequest = {
       ...opportunity,
-      placeIds: ['01KSQ7Y68BSCB5N60T9ZCBSM80'],
+      placeIds: [...locationsIds, ...websiteIds],
       localizedMetadata,
     };
 
     const { error } = await createOpportunity(payload);
 
     if (!error) {
-      navigate(APP_ROUTES.HOME);
       showToast('Fatto!', 'success');
       dispatch(resetForm());
     }
@@ -64,7 +71,15 @@ export const useCreateOpportunity = () => {
       showToast('Errore durante la creazione', 'error');
       dispatch(resetForm());
     }
-  }, [createOpportunity, dispatch, navigate, opportunity, showToast]);
+  }, [
+    createOpportunity,
+    dispatch,
+    locationsIds,
+    navigate,
+    opportunity,
+    showToast,
+    websiteIds,
+  ]);
 
   return handleCreation;
 };

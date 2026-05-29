@@ -6,12 +6,13 @@ import { APP_ROUTES } from '../../app/routeConfig';
 import { useSaveBenefitDraftMutation } from '../../features/benefits/api';
 import { useRequestApprovalMutation } from '../../features/opportunities/api';
 import {
+  resetPlaces,
   selectAccessPoint,
   selectNationwide,
   selectSelectedLocationIds,
   selectSelectedWebsiteIds,
 } from '../../features/wizard/slice';
-import { useAppSelector } from '../../hooks/store';
+import { useAppDispatch, useAppSelector } from '../../hooks/store';
 import { AppModal } from '../../components';
 import { WizardFooter } from './components/WizardFooter';
 import { WizardStepper } from './components/WizardStepper';
@@ -38,10 +39,12 @@ const STEPS: StepConfig[] = [
 ];
 
 export default function CreateBenefitPage() {
+  const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const location = useLocation() as {
     state: CreateBenefitNavigationState | null;
   };
+  console.log('🚀 ~ CreateBenefitPage ~ location:', location);
 
   const sourceOpportunityId = location.state?.sourceOpportunityId ?? null;
   useHydrateFromSourceOpportunity(sourceOpportunityId);
@@ -50,16 +53,12 @@ export default function CreateBenefitPage() {
   const [attempted, setAttempted] = useState(false);
   const [submitReviewOpen, setSubmitReviewOpen] = useState(false);
   const { showToast } = useToast();
+  const createOpportunity = useCreateOpportunity();
 
   const [saveDraft, { isLoading: isSavingDraft }] =
     useSaveBenefitDraftMutation();
   const [requestApproval, { isLoading: isRequestingApproval }] =
     useRequestApprovalMutation();
-
-  // Leaving here commented, needed for test purposes only in local env
-  // will be removed after https://github.com/pagopa/io-growth/pull/117 is merged
-  // await create();
-  const create = useCreateOpportunity();
 
   const accessPoint = useAppSelector(selectAccessPoint);
   const nationwide = useAppSelector(selectNationwide);
@@ -83,17 +82,10 @@ export default function CreateBenefitPage() {
     return true;
   };
 
-  const buildDraftPayload = () => ({
-    localizedForm: {},
-    accessPoint,
-    nationwide,
-    selectedLocationIds,
-    selectedWebsiteIds,
-  });
-
   const handleSaveDraft = async () => {
     try {
-      await saveDraft(buildDraftPayload()).unwrap();
+      await createOpportunity();
+      dispatch(resetPlaces());
       showToast('Bozza salvata con successo', 'success');
       navigate(APP_ROUTES.HOME);
     } catch {
@@ -120,9 +112,6 @@ export default function CreateBenefitPage() {
     if (currentStep === STEPS.length - 1) {
       setSubmitReviewOpen(true);
     } else {
-      // Leaving here commented, needed for test purposes only in local env
-      // will be removed after https://github.com/pagopa/io-growth/pull/117 is merged
-      await create();
       setAttempted(false);
       setCurrentStep((s) => s + 1);
     }
@@ -132,6 +121,7 @@ export default function CreateBenefitPage() {
     setSubmitReviewOpen(false);
 
     if (!sourceOpportunityId) {
+      await createOpportunity();
       showToast(
         "Impossibile inviare in revisione senza un'opportunità esistente",
         'error',
@@ -140,7 +130,8 @@ export default function CreateBenefitPage() {
     }
 
     try {
-      await requestApproval(sourceOpportunityId).unwrap();
+      await requestApproval(sourceOpportunityId!).unwrap();
+      dispatch(resetPlaces());
       showToast('Richiesta di approvazione inviata con successo', 'success');
       navigate(APP_ROUTES.HOME);
     } catch {

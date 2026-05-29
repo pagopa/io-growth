@@ -1,4 +1,4 @@
-import { forwardRef, useImperativeHandle, useState } from 'react';
+import { forwardRef, useImperativeHandle, useRef, useState } from 'react';
 import { Box, FormControl, Typography, useTheme } from '@mui/material';
 import type { StepRef } from '../types';
 import {
@@ -33,6 +33,12 @@ const cascadeResets: Partial<Record<keyof FormState, Partial<FormState>>> = {
   hasDoc: { province: null, judgment: null, inps: null },
   province: { judgment: null, inps: null },
   judgment: { inps: null },
+};
+
+const scrollMap: Partial<Record<keyof FormState, keyof FormState>> = {
+  hasDoc: 'province',
+  province: 'judgment',
+  judgment: 'inps',
 };
 
 const itemSx = {
@@ -113,6 +119,9 @@ export const DocumentTypeStep = forwardRef<StepRef>(
     const [errors, setErrors] = useState<
       Partial<Record<keyof FormState, string>>
     >({});
+    const cardRefs = useRef<
+      Partial<Record<keyof FormState, HTMLDivElement | null>>
+    >({});
 
     const cards: {
       field: keyof FormState;
@@ -157,6 +166,16 @@ export const DocumentTypeStep = forwardRef<StepRef>(
           ({ ...prev, [field]: value, ...cascadeResets[field] }) as FormState,
       );
       setErrors((prev) => ({ ...prev, [field]: undefined }));
+
+      const scrollTarget = scrollMap[field];
+      if (scrollTarget) {
+        setTimeout(() => {
+          cardRefs.current[scrollTarget]?.scrollIntoView({
+            behavior: 'smooth',
+            block: 'start',
+          });
+        }, 0);
+      }
     };
 
     useImperativeHandle(ref, () => ({
@@ -177,15 +196,21 @@ export const DocumentTypeStep = forwardRef<StepRef>(
     const renderRadioCards = cards
       .filter((c) => c.visible)
       .map((c) => (
-        <RadioCard
+        <Box
           key={c.field}
-          title={c.title}
-          subtitle={c.subtitle}
-          value={form[c.field]}
-          options={c.options}
-          error={errors[c.field]}
-          onChange={(v) => handleChange(c.field, v)}
-        />
+          ref={(el: HTMLDivElement | null) => {
+            cardRefs.current[c.field] = el;
+          }}
+        >
+          <RadioCard
+            title={c.title}
+            subtitle={c.subtitle}
+            value={form[c.field]}
+            options={c.options}
+            error={errors[c.field]}
+            onChange={(v) => handleChange(c.field, v)}
+          />
+        </Box>
       ));
 
     return (

@@ -1,9 +1,10 @@
 import { useState, type ComponentType } from 'react';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { Box, Button, Container, Typography } from '@mui/material';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { APP_ROUTES } from '../../app/routeConfig';
 import { useSaveBenefitDraftMutation } from '../../features/benefits/api';
+import { useRequestApprovalMutation } from '../../features/opportunities/api';
 import {
   selectAccessPoint,
   selectNationwide,
@@ -18,6 +19,8 @@ import { WizardStepper } from './components/WizardStepper';
 import { StepOne } from './StepOne';
 import { StepTwo } from './StepTwo';
 import { useToast } from '../../contexts';
+import type { CreateBenefitNavigationState } from './types';
+import { useHydrateFromSourceOpportunity } from './hooks/useHydrateFromSourceOpportunity';
 
 export interface StepProps {
   attempted: boolean;
@@ -35,6 +38,13 @@ const STEPS: StepConfig[] = [
 
 export default function CreateBenefitPage() {
   const navigate = useNavigate();
+  const location = useLocation() as {
+    state: CreateBenefitNavigationState | null;
+  };
+
+  const sourceOpportunityId = location.state?.sourceOpportunityId ?? null;
+  useHydrateFromSourceOpportunity(sourceOpportunityId);
+
   const [currentStep, setCurrentStep] = useState(0);
   const [attempted, setAttempted] = useState(false);
   const [submitReviewOpen, setSubmitReviewOpen] = useState(false);
@@ -42,6 +52,8 @@ export default function CreateBenefitPage() {
 
   const [saveDraft, { isLoading: isSavingDraft }] =
     useSaveBenefitDraftMutation();
+  const [requestApproval, { isLoading: isRequestingApproval }] =
+    useRequestApprovalMutation();
 
   const accessPoint = useAppSelector(selectAccessPoint);
   const nationwide = useAppSelector(selectNationwide);
@@ -74,15 +86,17 @@ export default function CreateBenefitPage() {
     return true;
   };
 
+  const buildDraftPayload = () => ({
+    localizedForm: agreementState.localizedForm,
+    accessPoint,
+    nationwide,
+    selectedLocationIds,
+    selectedWebsiteIds,
+  });
+
   const handleSaveDraft = async () => {
     try {
-      await saveDraft({
-        localizedForm: agreementState.localizedForm,
-        accessPoint,
-        nationwide,
-        selectedLocationIds,
-        selectedWebsiteIds,
-      }).unwrap();
+      await saveDraft(buildDraftPayload()).unwrap();
       showToast('Bozza salvata con successo', 'success');
       navigate(APP_ROUTES.HOME);
     } catch {
@@ -114,9 +128,27 @@ export default function CreateBenefitPage() {
     }
   };
 
-  const handleConfirmSubmitReview = () => {
+  const handleConfirmSubmitReview = async () => {
     setSubmitReviewOpen(false);
-    navigate(-1);
+
+    if (!sourceOpportunityId) {
+      showToast(
+        "Impossibile inviare in revisione senza un'opportunità esistente",
+        'error',
+      );
+      return;
+    }
+
+    try {
+      await requestApproval(sourceOpportunityId).unwrap();
+      showToast('Richiesta di approvazione inviata con successo', 'success');
+      navigate(APP_ROUTES.HOME);
+    } catch {
+      showToast(
+        "Errore durante l'invio della richiesta di approvazione",
+        'error',
+      );
+    }
   };
 
   const CurrentStep = STEPS[currentStep]?.component ?? null;
@@ -183,6 +215,7 @@ export default function CreateBenefitPage() {
           variant="contained"
           fullWidth
           onClick={handleConfirmSubmitReview}
+          disabled={isSavingDraft || isRequestingApproval}
         >
           Invia in revisione
         </Button>

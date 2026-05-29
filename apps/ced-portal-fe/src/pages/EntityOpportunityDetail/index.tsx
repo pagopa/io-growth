@@ -108,7 +108,7 @@ export default function OpportunityDetailPage() {
         <Stack
           direction="row"
           justifyContent="space-between"
-          alignItems="flex-start"
+          alignItems="center"
         >
           <Box>
             <Stack direction="row" alignItems="center">
@@ -116,7 +116,7 @@ export default function OpportunityDetailPage() {
                 variant="h4"
                 sx={{ fontWeight: 700, fontSize: { xs: 28, md: 36 } }}
               >
-                {detail.name}
+                {detail.categoryTitle}
               </Typography>
               <Chip
                 {...getDetailChipConfig(detail)}
@@ -133,8 +133,11 @@ export default function OpportunityDetailPage() {
             </Typography>
           </Box>
         </Stack>
+        <Typography sx={{ color: 'text.secondary', fontSize: 16 }}>
+          Ecco i dettagli dell&apos;opportunità che hai creato
+        </Typography>
 
-        <OpportunityAlert status={detail.publication_status} />
+        <OpportunityAlert status={detail.status} />
 
         <OpportunityDetailCard detail={detail} />
 
@@ -167,7 +170,7 @@ export default function OpportunityDetailPage() {
           </Typography>
         </Stack>
 
-        <OpportunitiesCtas status={detail.publication_status} id={detail.id} />
+        <OpportunitiesCtas status={detail.status} id={detail.id} />
       </Stack>
     </Box>
   );

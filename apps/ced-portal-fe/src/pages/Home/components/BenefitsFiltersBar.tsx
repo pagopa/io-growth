@@ -1,9 +1,9 @@
 import FilterAltOutlined from '@mui/icons-material/FilterAltOutlined';
 import { Button, SelectChangeEvent, Stack } from '@mui/material';
-import { AppSelect, AppTextField } from '../../../components';
-import { OPPORTUNITY_STATUS_OPTIONS } from '../../../constants';
 import { useCallback } from 'react';
-import { OpportunitySummaryItemStatus } from '../../../core/api/generated/model';
+import { AppSelect, AppTextField } from '../../../components';
+import { STATE_OPTIONS } from '../../../constants';
+import type { OpportunitySummaryItemStatus } from '../../../core/api/generated/model';
 import type { OpportunityCategoryItem } from '../../../core/api/generated/model/opportunityCategoryItem';
 
 interface BenefitsFiltersBarProps {
@@ -87,7 +87,7 @@ export const BenefitsFiltersBar = ({
         sx={{ flex: 0.5 }}
         label="Stato"
         placeholder="Stato"
-        options={OPPORTUNITY_STATUS_OPTIONS}
+        options={STATE_OPTIONS}
         onChange={handleStatusChange}
       />
 

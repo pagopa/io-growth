@@ -1,34 +1,22 @@
-import { OpportunitySummaryItemStatus } from '../core/api/generated/model/opportunitySummaryItemStatus';
+import { ChipOwnProps } from '@mui/material';
+import { OpportunitySummaryItemStatus } from '../core/api/generated/model';
 
-export const STATE_OPTIONS = [
-  { value: 'Da_gestire', label: 'Da gestire' },
-  { value: 'In_attesa_di_modifiche', label: 'In attesa di modifiche' },
-  { value: 'Approvata', label: 'Approvata' },
-  { value: 'Non_attiva', label: 'Non attiva' },
-];
-
-export const OPPORTUNITY_STATUS_OPTIONS: {
+export const STATE_OPTIONS: {
   value: OpportunitySummaryItemStatus;
   label: string;
 }[] = [
   { value: OpportunitySummaryItemStatus.draft, label: 'Bozza' },
   { value: OpportunitySummaryItemStatus.test_pending, label: 'In test' },
+  { value: OpportunitySummaryItemStatus.test_rejected, label: 'Rifiutato' },
   { value: OpportunitySummaryItemStatus.test_passed, label: 'Test superato' },
   { value: OpportunitySummaryItemStatus.published, label: 'Pubblicata' },
   { value: OpportunitySummaryItemStatus.suspended, label: 'Sospesa' },
   { value: OpportunitySummaryItemStatus.deleted, label: 'Eliminata' },
 ];
 
-export type OpportunityStateColors =
-  | 'default'
-  | 'warning'
-  | 'success'
-  | 'info'
-  | 'error';
-
-export const OPPORTUNITY_STATUS_COLORS: Record<
+export const STATE_COLORS: Record<
   OpportunitySummaryItemStatus,
-  OpportunityStateColors
+  ChipOwnProps['color']
 > = {
   draft: 'default',
   test_pending: 'warning',

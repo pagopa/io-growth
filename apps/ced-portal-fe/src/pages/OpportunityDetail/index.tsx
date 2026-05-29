@@ -18,10 +18,7 @@ import { useToast } from '../../contexts';
 import { PublishModal } from '../../components/PublishModal';
 import { RequestChangesModal } from '../../components/RequestChangesModal';
 import { OpportunityDetailCard } from './components/OpportunityDetailCard';
-import {
-  ENTITY_STATE_COLORS,
-  STATE_OPTIONS,
-} from '../../constants/opportunityState';
+import { STATE_COLORS, STATE_OPTIONS } from '../../constants/opportunityState';
 
 export default function OpportunityDetailPage() {
   const theme = useTheme();
@@ -118,19 +115,18 @@ export default function OpportunityDetailPage() {
               variant="h4"
               sx={{ fontWeight: 700, fontSize: { xs: 28, md: 36 } }}
             >
-              {detail.name}
+              {detail.categoryTitle}
             </Typography>
             <Typography sx={{ mt: 0.5, color: 'text.secondary', fontSize: 16 }}>
-              Ecco i dettagli dell&apos;opportunità proposta da{' '}
-              {detail.organization_name}
+              Ecco i dettagli dell&apos;opportunità
             </Typography>
           </Box>
           <Chip
             label={
-              STATE_OPTIONS.find((o) => o.value === detail.approval_status)
-                ?.label ?? detail.approval_status
+              STATE_OPTIONS.find((o) => o.value === detail.status)?.label ??
+              detail.status
             }
-            color={ENTITY_STATE_COLORS[detail.approval_status] ?? 'default'}
+            color={STATE_COLORS[detail.status] ?? 'default'}
             size="small"
           />
         </Stack>
@@ -172,8 +168,8 @@ export default function OpportunityDetailPage() {
         }}
         count={1}
         publishDate={
-          detail?.validity_start
-            ? new Date(detail.validity_start).toLocaleDateString('it-IT')
+          detail?.dateFrom
+            ? new Date(detail.dateFrom).toLocaleDateString('it-IT')
             : undefined
         }
       />

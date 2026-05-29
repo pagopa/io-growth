@@ -1,6 +1,5 @@
 import DeleteIcon from '@mui/icons-material/DeleteOutlineOutlined';
-
-import { OpportunityDetail } from '../../../../features/opportunities/types';
+import type { OpportunityStatus } from '../../../../features/opportunities/types';
 
 import { OpportunitiesCtaItem, OpportunitiesCtasLayout } from './types';
 
@@ -19,15 +18,16 @@ const DELETE_CTA: OpportunitiesCtaItem = {
 };
 
 export const CTAS_BY_STATUS: Partial<
-  Record<OpportunityDetail['publication_status'], OpportunitiesCtasLayout>
+  Record<OpportunityStatus, OpportunitiesCtasLayout>
 > = {
-  DRAFT: {
-    ctas: [DELETE_CTA, MODIFY_CTA],
+  draft: {
+    leftCtas: [DELETE_CTA],
+    rightCtas: [MODIFY_CTA],
   },
-  CHANGES_REQUESTED: {
-    ctas: [MODIFY_CTA],
-  },
-  PUBLISHED: {
+  test_rejected: {},
+  test_pending: {},
+  test_passed: {},
+  published: {
     leftCtas: [DELETE_CTA],
     rightCtas: [
       MODIFY_CTA,
@@ -38,12 +38,8 @@ export const CTAS_BY_STATUS: Partial<
       },
     ],
   },
-  SCHEDULED_PUBLICATION: {
-    ctas: [MODIFY_CTA],
-  },
-  UNDER_REVIEW: {},
-  DELETED: {},
-  SUSPENDED: {
+  deleted: {},
+  suspended: {
     leftCtas: [DELETE_CTA],
     rightCtas: [
       {

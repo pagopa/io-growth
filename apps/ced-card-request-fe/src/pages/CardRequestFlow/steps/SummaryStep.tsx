@@ -11,6 +11,7 @@ import {
 } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import type { StepRef } from '../types';
+import { StepCard } from '../StepCard';
 
 const personalData = [
   { label: 'Nome', value: 'Anna' },
@@ -104,14 +105,7 @@ export const SummaryStep = forwardRef<StepRef, SummaryProps>(
 
     return (
       <Fragment>
-        <Box
-          sx={{
-            bgcolor: theme.palette.background.paper,
-            borderRadius: 3,
-            p: 3,
-            mb: 2,
-          }}
-        >
+        <StepCard sx={{ mb: 3 }}>
           <Typography
             variant="h3"
             sx={{ color: theme.palette.common.neutralBlack }}
@@ -133,7 +127,7 @@ export const SummaryStep = forwardRef<StepRef, SummaryProps>(
             mendaci comportano le conseguenze previste dagli artt. 75 e 76 del
             DPR 445/2000.
           </Typography>
-        </Box>
+        </StepCard>
 
         <Box sx={{ display: 'grid', gap: 2 }}>
           <Accordion

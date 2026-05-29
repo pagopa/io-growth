@@ -8,9 +8,7 @@ export function StepCard({
   sx?: SxProps<Theme>;
 }) {
   return (
-    <Box
-      sx={{ borderRadius: 3, bgcolor: 'background.paper', p: 3, pb: 4, ...sx }}
-    >
+    <Box sx={{ borderRadius: 3, bgcolor: 'background.paper', p: 3, ...sx }}>
       {children}
     </Box>
   );

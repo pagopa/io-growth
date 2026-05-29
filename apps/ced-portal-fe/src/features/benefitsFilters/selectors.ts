@@ -9,4 +9,4 @@ export const selectBenefitCategoryFilter = (state: RootState) =>
   state.benefitFilters.category;
 
 export const selectBenefitStatusFilter = (state: RootState) =>
-  state.benefitFilters.publication_status;
+  state.benefitFilters.status;

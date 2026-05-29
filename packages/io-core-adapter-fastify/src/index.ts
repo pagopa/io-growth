@@ -22,3 +22,4 @@ export {
   type HttpRequestPayload,
 } from "./validator/httpInputStandardSchemaValidator.js";
 export { withSession } from "./validator/withSession.js";
+export { default as multipart } from "@fastify/multipart";

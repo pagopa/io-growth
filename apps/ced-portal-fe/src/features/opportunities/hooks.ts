@@ -3,28 +3,33 @@ import { useGetOpportunitiesQuery } from './api';
 import type {
   Opportunity,
   OpportunityFilters,
-  OpportunityApprovalStatus,
+  OpportunityStatus,
 } from './types';
+import { OpportunityStatusEnum } from './types';
 
-const NEW_STATES: Set<OpportunityApprovalStatus> = new Set([
-  'Da_gestire',
-  'In_attesa_di_modifiche',
+const NEW_STATES: Set<OpportunityStatus> = new Set([
+  OpportunityStatusEnum.draft,
+  OpportunityStatusEnum.test_rejected,
 ]);
-const APPROVED_STATES: Set<OpportunityApprovalStatus> = new Set(['Approvata']);
-const INACTIVE_STATES: Set<OpportunityApprovalStatus> = new Set(['Non_attiva']);
+const APPROVED_STATES: Set<OpportunityStatus> = new Set([
+  OpportunityStatusEnum.test_pending,
+  OpportunityStatusEnum.test_passed,
+  OpportunityStatusEnum.published,
+]);
+const INACTIVE_STATES: Set<OpportunityStatus> = new Set([
+  OpportunityStatusEnum.suspended,
+  OpportunityStatusEnum.deleted,
+]);
 
 const matchesSearch = (item: Opportunity, search: string): boolean => {
   if (!search) return true;
   const q = search.toLowerCase();
-  return (
-    item.name.toLowerCase().includes(q) ||
-    item.organization_name.toLowerCase().includes(q)
-  );
+  return item.name.toLowerCase().includes(q);
 };
 
 const matchesState = (item: Opportunity, state: string): boolean => {
   if (!state) return true;
-  return item.approval_status === state;
+  return item.status === state;
 };
 
 export const useOpportunitiesData = (filters: OpportunityFilters) => {
@@ -32,7 +37,7 @@ export const useOpportunitiesData = (filters: OpportunityFilters) => {
     refetchOnMountOrArgChange: true,
   });
 
-  const items = useMemo(() => query.data ?? [], [query.data]);
+  const items = useMemo(() => query.data?.items ?? [], [query.data]);
 
   const filteredItems = useMemo(
     () =>
@@ -45,19 +50,17 @@ export const useOpportunitiesData = (filters: OpportunityFilters) => {
   );
 
   const newItems = useMemo(
-    () => filteredItems.filter((item) => NEW_STATES.has(item.approval_status)),
+    () => filteredItems.filter((item) => NEW_STATES.has(item.status)),
     [filteredItems],
   );
 
   const approvedItems = useMemo(
-    () =>
-      filteredItems.filter((item) => APPROVED_STATES.has(item.approval_status)),
+    () => filteredItems.filter((item) => APPROVED_STATES.has(item.status)),
     [filteredItems],
   );
 
   const inactiveItems = useMemo(
-    () =>
-      filteredItems.filter((item) => INACTIVE_STATES.has(item.approval_status)),
+    () => filteredItems.filter((item) => INACTIVE_STATES.has(item.status)),
     [filteredItems],
   );
 

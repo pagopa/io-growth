@@ -1,9 +1,18 @@
 import { Suspense } from 'react';
-import { Route, Routes } from 'react-router-dom';
+import { Route, Routes, Navigate } from 'react-router-dom';
 import { AppLayout } from '../layouts/AppLayout';
 import { ProtectedRoute } from '../core/auth/ProtectedRoute';
-import { APP_ROUTES, NotFoundPage, UnauthorizedPage } from './routeConfig';
-import HomePage from '../pages/Home';
+import {
+  APP_ROUTES,
+  ApplicationPage,
+  RequestErrorPage,
+  RequestSuccessPage,
+  ConsentPage,
+  HomePage,
+  LoadingPage,
+  NotFoundPage,
+  UnauthorizedPage,
+} from './routeConfig';
 
 export function AppRoutes() {
   return (
@@ -11,22 +20,25 @@ export function AppRoutes() {
       <Routes>
         <Route element={<AppLayout />}>
           <Route path={APP_ROUTES.HOME} element={<HomePage />} />
-          <Route element={<ProtectedRoute />}>
-            <Route
-              path="/app"
-              element={<div style={{ padding: 24 }}>App area</div>}
-            />
-          </Route>
-          <Route path={APP_ROUTES.NOT_FOUND} element={<NotFoundPage />} />
+          <Route path={APP_ROUTES.CONSENT} element={<ConsentPage />} />
+          <Route path={APP_ROUTES.LOADING} element={<LoadingPage />} />
+          <Route path={APP_ROUTES.APPLICATION} element={<ApplicationPage />} />
+          <Route
+            path={APP_ROUTES.REQUEST_SUCCESS}
+            element={<RequestSuccessPage />}
+          />
+          <Route
+            path={APP_ROUTES.REQUEST_ERROR}
+            element={<RequestErrorPage />}
+          />
+          <Route element={<ProtectedRoute />} />
         </Route>
         <Route path={APP_ROUTES.UNAUTHORIZED} element={<UnauthorizedPage />} />
-        <Route element={<ProtectedRoute />}>
-          <Route
-            path="/app"
-            element={<div style={{ padding: 24 }}>App area</div>}
-          />
-        </Route>
         <Route path={APP_ROUTES.NOT_FOUND} element={<NotFoundPage />} />
+        <Route
+          path="*"
+          element={<Navigate replace to={APP_ROUTES.NOT_FOUND} />}
+        />
       </Routes>
     </Suspense>
   );

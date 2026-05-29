@@ -1,12 +1,17 @@
-export enum PublicationStatus {
-  SUSPENDED = 'Sospesa',
-  DELETED = 'Eliminata',
-  SCHEDULED_PUBLICATION = 'Pubblicazione programmata',
-  DRAFT = 'In bozza',
-  PUBLISHED = 'Pubblicata su IO',
-  CHANGES_REQUESTED = 'Modifiche richieste',
-  UNDER_REVIEW = 'In revisione',
-}
+import type { OpportunitySummaryItemStatus } from '../../core/api/generated/model';
+
+export const publicationStatusLabels: Record<
+  OpportunitySummaryItemStatus,
+  string
+> = {
+  draft: 'In bozza',
+  test_rejected: 'Rifiutato',
+  test_pending: 'In fase di test',
+  test_passed: 'Test superato',
+  published: 'Pubblicata su IO',
+  suspended: 'Sospesa',
+  deleted: 'Eliminata',
+};
 
 export enum BenefitCategory {
   CULTURE_LEISURE = 'Cultura e tempo libero',
@@ -23,6 +28,6 @@ export enum BenefitCategory {
 
 export type BenefitFiltersState = {
   name: string | null;
-  publication_status: keyof typeof PublicationStatus | null;
+  status: OpportunitySummaryItemStatus | null;
   category: BenefitCategory | null;
 };

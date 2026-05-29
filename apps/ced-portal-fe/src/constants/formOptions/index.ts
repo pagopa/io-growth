@@ -1,4 +1,4 @@
-import { PublicationStatus } from '../../features/benefitsFilters/types';
+import { publicationStatusLabels } from '../../features/benefitsFilters/types';
 import { benefitTypeMap, discountTypeMap } from './types';
 
 const generateOptions = <T extends string>(
@@ -9,6 +9,6 @@ const generateOptions = <T extends string>(
     label,
   }));
 
-export const statusOptions = generateOptions(PublicationStatus);
+export const statusOptions = generateOptions(publicationStatusLabels);
 export const benefitTypeOptions = generateOptions(benefitTypeMap);
 export const fixedPriceBenefitTypeOptions = generateOptions(discountTypeMap);

@@ -1,46 +1,12 @@
-import { PublicationStatus } from '../benefitsFilters/types';
+export type { LocalizedMetadataItem } from '../../core/api/generated/model/localizedMetadataItem';
+export type { OpportunityDetailResponse as OpportunityDetail } from '../../core/api/generated/model/opportunityDetailResponse';
+export type { OpportunityListResponse as OpportunitiesResponse } from '../../core/api/generated/model/opportunityListResponse';
+export type { OpportunitySummaryItem as Opportunity } from '../../core/api/generated/model/opportunitySummaryItem';
+export { OpportunitySummaryItemStatus as OpportunityStatusEnum } from '../../core/api/generated/model/opportunitySummaryItemStatus';
+export type { OpportunitySummaryItemStatus as OpportunityStatus } from '../../core/api/generated/model/opportunitySummaryItemStatus';
 
-export type OpportunityApprovalStatus =
-  | 'Da_gestire'
-  | 'In_attesa_di_modifiche'
-  | 'Approvata'
-  | 'Non_attiva';
-
-export interface Opportunity {
-  id: string;
-  name: string;
-  organization_name: string;
-  created_at: string;
-  approval_status: OpportunityApprovalStatus;
-}
-
-export type OpportunitiesResponse = Opportunity[];
-
+// UI-only filter state
 export interface OpportunityFilters {
   search: string;
   state: string;
-}
-
-export interface CompanionDetails {
-  enabled: boolean;
-  discount_type: string;
-  discount_value: number;
-}
-
-export interface OpportunityDetail {
-  id: string;
-  name: string;
-  organization_name: string;
-  approval_status: OpportunityApprovalStatus;
-  opportunity_type: string;
-  discount_type: string;
-  discount_value: number;
-  description: string;
-  category: string;
-  validity_start: string;
-  validity_end: string;
-  conditions: string;
-  companion: CompanionDetails;
-  createdAt: string;
-  publication_status: keyof typeof PublicationStatus;
 }

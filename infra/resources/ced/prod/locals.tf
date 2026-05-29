@@ -34,6 +34,9 @@ locals {
       REDIS_ENDPOINT  = module.redis_dx.endpoint
       REDIS_TLS       = "true"
       AZURE_CLIENT_ID = module.common_container_app_environment.user_assigned_identity.client_id
+
+      CED_PORTAL_FE_BASE_URL = "https://${module.portal_fe_static_web_app.default_hostname}"
+      CED_PRODUCT_ID         = "prod-ced"
     }
 
     startup_probe_path   = "/api/info/startup"

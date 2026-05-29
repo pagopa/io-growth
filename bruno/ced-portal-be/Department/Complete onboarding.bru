@@ -1,0 +1,19 @@
+meta {
+  name: Complete onboarding
+  type: http
+  seq: 3
+}
+
+put {
+  url: {{baseUrl}}/department/onboardings/{{onboardingId}}/complete
+  body: multipartForm
+  auth: inherit
+}
+
+body:multipart-form {
+  contract: @file(/path/to/contract.pdf)
+}
+
+vars:pre-request {
+  onboardingId: some-onboarding-id
+}

@@ -1,8 +1,8 @@
 import CancelRoundedIcon from '@mui/icons-material/CancelRounded';
 import { Menu, MenuItem, useTheme } from '@mui/material';
+import { useCallback } from 'react';
 import { generatePath, useNavigate } from 'react-router-dom';
 import { APP_ROUTES } from '../../../app/routeConfig';
-import { useCallback } from 'react';
 
 type ActionsMenuProps = {
   anchor: null | HTMLElement;
@@ -31,9 +31,11 @@ export const ActionsMenu = ({
     navigate(generatePath(APP_ROUTES.ENTITY_OPPORTUNITY_DETAIL, { id }));
   };
 
-  // const onEdit = async (id: string) => {
-  // TODO[IEG-2660][OUT OF MVP SCOPE]: confirm UX - inline edit or prefilled create page including { id }.
-  // };
+  const onEdit = async (id: string) => {
+    navigate(APP_ROUTES.CREATE_BENEFIT, {
+      state: { sourceOpportunityId: id },
+    });
+  };
 
   // const onSuspend = async (id: string) => {
   // TODO[IEG-2721][SCOPE - RELEASE IN OCTOBER]: call suspend opportunity API with { id }.
@@ -77,7 +79,7 @@ export const ActionsMenu = ({
       <MenuItem onClick={() => handleAction(onDuplicate)} sx={menuItemsSx}>
         Duplica
       </MenuItem>
-      <MenuItem onClick={() => handleAction(() => null)} sx={menuItemsSx}>
+      <MenuItem onClick={() => handleAction(onEdit)} sx={menuItemsSx}>
         Modifica
       </MenuItem>
       <MenuItem onClick={() => handleAction(() => null)} sx={menuItemsSx}>

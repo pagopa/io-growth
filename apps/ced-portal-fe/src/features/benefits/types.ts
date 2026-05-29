@@ -1,12 +1,23 @@
-import type { OpportunitySummaryItemStatus } from '../../core/api/generated/model/opportunitySummaryItemStatus';
+import type { OpportunitySummaryItemStatus } from '../../core/api/generated/model';
 
 export interface Benefit {
   id: string;
   name: string;
-  status: OpportunitySummaryItemStatus;
   categoryTitle: string;
   dateFrom: string;
-  dateTo: string | null;
+  dateTo?: string | null;
+  status: OpportunitySummaryItemStatus;
+}
+
+export interface BenefitsResponse {
+  items: Benefit[];
+  total: number;
+}
+
+export interface SaveBenefitDraftResponse {
+  id: string;
+  status: OpportunitySummaryItemStatus;
+  createdAt: string;
 }
 
 export interface OpportunityCategory {
@@ -23,15 +34,4 @@ export interface BenefitsQueryParams {
   search?: string;
   sortBy?: 'createdAt' | 'updatedAt';
   sortOrder?: 'asc' | 'desc';
-}
-
-export interface BenefitsResponse {
-  items: Benefit[];
-  total: number;
-}
-
-export interface SaveBenefitDraftResponse {
-  id: string;
-  publication_status: OpportunitySummaryItemStatus;
-  createdAt: string;
 }

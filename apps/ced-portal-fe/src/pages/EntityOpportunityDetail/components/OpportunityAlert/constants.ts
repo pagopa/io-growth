@@ -1,6 +1,6 @@
 import { AlertProps } from '@mui/material';
 import { theme } from '../../../../core/theme';
-import { PublicationStatus } from '../../../../features/benefitsFilters/types';
+import type { OpportunityStatus } from '../../../../features/opportunities/types';
 
 const baseSx = {
   borderRadius: 2,
@@ -17,7 +17,7 @@ const baseSx = {
 
 export const opportunityAlertMap: Partial<
   Record<
-    keyof typeof PublicationStatus,
+    OpportunityStatus,
     {
       title: string;
       description: string;
@@ -28,7 +28,7 @@ export const opportunityAlertMap: Partial<
     }
   >
 > = {
-  UNDER_REVIEW: {
+  test_pending: {
     title: 'In revisione',
     description:
       "Il processo di revisione potrebbe richiedere un po' di tempo. Riceverai un'email con gli aggiornamenti.",
@@ -41,21 +41,10 @@ export const opportunityAlertMap: Partial<
       ...baseSx,
     },
   },
-  CHANGES_REQUESTED: {
-    title: 'É richiesta una modifica',
-    description: '{value modifica da opportunity detail}',
-    severity: 'warning',
-    color: theme.palette.warning[850],
-    icon: 'warning',
-    sx: {
-      color: theme.palette.warning[850],
-      border: '1px solid #FFC107',
-      ...baseSx,
-    },
-  },
-  SCHEDULED_PUBLICATION: {
-    title: 'Pubblicazione programmata',
-    description: 'L’opportunità sarà disponibile su IO dal {01/03/2026}.',
+  // TODO: confirm if we need to handle with this state
+  test_rejected: {
+    title: 'In fase di test',
+    description: "L'opportunità è in fase di test.",
     severity: 'info',
     color: theme.palette.info[850],
     icon: 'info',

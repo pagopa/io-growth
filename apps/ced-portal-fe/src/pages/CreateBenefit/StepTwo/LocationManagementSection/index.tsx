@@ -7,8 +7,10 @@ import {
   Switch,
   Typography,
 } from '@mui/material';
+import { useMemo } from 'react';
 import { SectionCard } from '../../../../components';
-import { useGetLocationsQuery } from '../../../../features/location/api';
+import { useGetPlacesQuery } from '../../../../features/places/api';
+
 import {
   selectAccessPoint,
   selectNationwide,
@@ -29,11 +31,16 @@ export function LocationManagementSection() {
     accessPoint === 'territory' || accessPoint === 'both';
 
   const selectedLocationIds = useAppSelector(selectSelectedLocationIds);
-  const { data: availableLocations = [] } = useGetLocationsQuery(undefined, {
+  const { data: allPlaces = [] } = useGetPlacesQuery(undefined, {
     skip: !showTerritorySection,
   });
-  const selectedLocations = availableLocations.filter((s) =>
-    selectedLocationIds.includes(s.id),
+  const availableLocations = useMemo(
+    () => allPlaces.filter((p) => p.type === 'offline'),
+    [allPlaces],
+  );
+  const selectedLocations = useMemo(
+    () => availableLocations.filter((s) => selectedLocationIds.includes(s.id)),
+    [availableLocations, selectedLocationIds],
   );
 
   const {
@@ -119,7 +126,6 @@ export function LocationManagementSection() {
           onClose={handleAddClose}
           onConfirm={handleAddConfirm}
           onBack={modal === 'add-from-select' ? handleBack : undefined}
-          existingLocations={availableLocations}
         />
       )}
     </>

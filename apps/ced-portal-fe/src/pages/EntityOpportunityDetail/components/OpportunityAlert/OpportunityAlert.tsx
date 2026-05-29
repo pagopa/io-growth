@@ -1,11 +1,11 @@
 import InfoIcon from '@mui/icons-material/InfoRounded';
 import WarningIcon from '@mui/icons-material/WarningRounded';
 import { Alert, Typography } from '@mui/material';
-import { PublicationStatus } from '../../../../features/benefitsFilters/types';
+import type { OpportunityStatus } from '../../../../features/opportunities/types';
 import { opportunityAlertMap } from './constants';
 
 type OpportunityAlertProps = {
-  status: keyof typeof PublicationStatus;
+  status: OpportunityStatus;
 };
 
 export const OpportunityAlert = ({ status }: OpportunityAlertProps) => {

@@ -1,0 +1,15 @@
+meta {
+  name: Get signed contract
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{baseUrl}}/department/onboardings/{{onboardingId}}/contract
+  body: none
+  auth: inherit
+}
+
+vars:pre-request {
+  onboardingId: some-onboarding-id
+}

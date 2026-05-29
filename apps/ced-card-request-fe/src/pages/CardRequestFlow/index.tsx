@@ -81,7 +81,7 @@ export default function CardRequestFlowPage() {
     setTimeout(() => {
       // after simulated submit, navigate to success route
       setIsSubmitting(false);
-      navigate(APP_ROUTES.CARD_REQUEST_SUCCESS);
+      navigate(APP_ROUTES.REQUEST_SUCCESS);
     }, 2000);
   };
 

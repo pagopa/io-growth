@@ -5,8 +5,8 @@ import { ProtectedRoute } from '../core/auth/ProtectedRoute';
 import {
   APP_ROUTES,
   ApplicationPage,
-  CardRequestErrorPage,
-  CardRequestSuccessPage,
+  RequestErrorPage,
+  RequestSuccessPage,
   ConsentPage,
   HomePage,
   LoadingPage,
@@ -24,12 +24,12 @@ export function AppRoutes() {
           <Route path={APP_ROUTES.LOADING} element={<LoadingPage />} />
           <Route path={APP_ROUTES.APPLICATION} element={<ApplicationPage />} />
           <Route
-            path={APP_ROUTES.CARD_REQUEST_SUCCESS}
-            element={<CardRequestSuccessPage />}
+            path={APP_ROUTES.REQUEST_SUCCESS}
+            element={<RequestSuccessPage />}
           />
           <Route
-            path={APP_ROUTES.CARD_REQUEST_ERROR}
-            element={<CardRequestErrorPage />}
+            path={APP_ROUTES.REQUEST_ERROR}
+            element={<RequestErrorPage />}
           />
           <Route element={<ProtectedRoute />} />
         </Route>

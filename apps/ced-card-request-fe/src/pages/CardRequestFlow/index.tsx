@@ -7,12 +7,13 @@ import {
 } from '@mui/material';
 import { useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { APP_ROUTES } from '../../app/routeConfig';
 import { PageHeader, Stepper } from '../../components';
 import { AddressStep } from './steps/AddressStep';
 import { ApplicantDataStep } from './steps/ApplicantDataStep';
 import { PhotoUploadStep } from './steps/PhotoUploadStep';
-import { Step4Placeholder } from './steps/Step4Placeholder';
-import { APP_ROUTES } from '../../app/routeConfig';
+import { DocumentTypeStep } from './steps/DocumentTypeStep';
+import { SavedDraftDialog } from './SavedDraftDialog';
 import type { StepRef } from './types';
 import SummaryStep from './steps/SummaryStep';
 
@@ -36,10 +37,10 @@ const steps = [
     cancelLabel: 'Riprendi più tardi',
   },
   {
-    title: 'Step 4',
-    content: Step4Placeholder,
+    title: 'Indica il tipo di documento',
+    content: DocumentTypeStep,
     confirmLabel: 'Continua',
-    cancelLabel: undefined,
+    cancelLabel: 'Riprendi più tardi',
   },
   { title: 'Riepilogo e invio', content: SummaryStep },
 ];
@@ -50,8 +51,10 @@ export default function CardRequestFlowPage() {
   const navigate = useNavigate();
   const theme = useTheme();
   const [currentStep, setCurrentStep] = useState(0);
+  const [draftSaved, setDraftSaved] = useState(false);
   const stepRef = useRef<StepRef | null>(null);
   const [photoPreview, setPhotoPreview] = useState<string>('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const {
     title,
@@ -60,10 +63,18 @@ export default function CardRequestFlowPage() {
     cancelLabel,
   } = steps[currentStep];
   const isLastStep = currentStep === steps.length - 1;
-  const isSummary = StepContent === SummaryStep;
   const actionLabel = isLastStep
     ? 'Invia richiesta'
     : (confirmLabel ?? 'Conferma');
+
+  if (draftSaved) {
+    return (
+      <SavedDraftDialog
+        onClose={() => navigate(APP_ROUTES.HOME)}
+        onResume={() => setDraftSaved(false)}
+      />
+    );
+  }
 
   const handleNext = async () => {
     if (stepRef.current) {
@@ -84,8 +95,6 @@ export default function CardRequestFlowPage() {
       navigate(APP_ROUTES.REQUEST_SUCCESS);
     }, 2000);
   };
-
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleBack = () => {
     if (currentStep > 0) {
@@ -133,23 +142,23 @@ export default function CardRequestFlowPage() {
 
         <Stepper activeStep={currentStep} totalSteps={TOTAL_STEPS} />
 
-        <Box
+        {/* <Box
           sx={{
             borderRadius: 3,
             bgcolor: isSummary ? 'transparent' : theme.palette.background.paper,
             p: 3,
             pb: 4,
           }}
-        >
-          <StepContent
-            ref={stepRef}
-            onEditApplicant={() => setCurrentStep(0)}
-            onEditAddress={() => setCurrentStep(1)}
-            onEditPhoto={() => setCurrentStep(2)}
-            onPhotoPreviewChange={(url: string) => setPhotoPreview(url)}
-            photoPreview={photoPreview}
-          />
-        </Box>
+        > */}
+        <StepContent
+          ref={stepRef}
+          onEditApplicant={() => setCurrentStep(0)}
+          onEditAddress={() => setCurrentStep(1)}
+          onEditPhoto={() => setCurrentStep(2)}
+          onPhotoPreviewChange={(url: string) => setPhotoPreview(url)}
+          photoPreview={photoPreview}
+        />
+        {/* </Box> */}
 
         {isSubmitting && (
           <Box
@@ -218,7 +227,11 @@ export default function CardRequestFlowPage() {
           <Button
             fullWidth
             variant="text"
-            onClick={handleBack}
+            onClick={
+              cancelLabel === 'Riprendi più tardi'
+                ? () => setDraftSaved(true)
+                : handleBack
+            }
             sx={{
               mt: 1,
               color: theme.palette.common.primaryButton,

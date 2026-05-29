@@ -11,9 +11,9 @@ import {
 } from '@mui/material';
 import { useMemo, useState } from 'react';
 import type { Benefit } from '../../../features/benefits/types';
-import { benefitsTableColumns } from './BenefitsTable.config';
 import { useTableSort } from '../../../hooks/useTableSort';
 import { ActionsMenu } from './ActionsMenu';
+import { benefitsTableColumns } from './BenefitsTable.config';
 
 interface BenefitsTableProps {
   items: Benefit[];
@@ -23,6 +23,7 @@ export const BenefitsTable = ({ items }: BenefitsTableProps) => {
   const theme = useTheme();
   const [menuAnchor, setMenuAnchor] = useState<null | HTMLElement>(null);
   const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
+
   const { sortedItems, sortBy, sortDirection, handleSort } = useTableSort({
     items,
     columns: benefitsTableColumns,

@@ -19,43 +19,23 @@ export const OpportunityDetailCard = ({
   detail,
 }: Readonly<OpportunityDetailCardProps>) => {
   const mainFields = [
-    { label: 'Tipo di opportunità', value: detail.opportunity_type },
-    { label: 'Modalità di sconto', value: detail.discount_type },
-    {
-      label: 'Valore dello sconto',
-      value: String(detail.discount_value),
-    },
-    { label: 'Descrizione', value: detail.description },
-    { label: 'Categoria', value: detail.category },
+    { label: 'Categoria', value: detail.categoryTitle },
     {
       label: 'Inizio validità',
-      value: new Date(detail.validity_start).toLocaleDateString('it-IT'),
+      value: new Date(detail.dateFrom).toLocaleDateString('it-IT'),
     },
-    {
-      label: 'Fine validità',
-      value: new Date(detail.validity_end).toLocaleDateString('it-IT'),
-    },
-    { label: 'Condizioni', value: detail.conditions },
-  ];
-
-  const companionFields = [
-    {
-      label: 'Opportunità per accompagnatore',
-      value: detail.companion.enabled ? 'Sì' : 'No',
-    },
-    ...(detail.companion.enabled
+    ...(detail.dateTo
       ? [
           {
-            label: 'Modalità di sconto',
-            value: detail.companion.discount_type,
-          },
-          {
-            label: 'Valore dello sconto',
-            value: `€ ${detail.companion.discount_value}`,
+            label: 'Fine validità',
+            value: new Date(detail.dateTo).toLocaleDateString('it-IT'),
           },
         ]
       : []),
+    ...(detail.url ? [{ label: 'URL', value: detail.url }] : []),
   ];
+
+  const hasCaregiver = !!detail.caregiverBenefit;
 
   return (
     <Accordion defaultExpanded elevation={0} sx={{ borderRadius: 2 }}>
@@ -73,7 +53,7 @@ export const OpportunityDetailCard = ({
         <Divider />
         <DetailSection fields={mainFields} />
 
-        {detail.companion.enabled && (
+        {hasCaregiver && (
           <>
             <Divider />
             <Box sx={{ py: 2, px: 3 }}>
@@ -89,7 +69,14 @@ export const OpportunityDetailCard = ({
               </Typography>
             </Box>
             <Divider />
-            <DetailSection fields={companionFields} />
+            <DetailSection
+              fields={[
+                {
+                  label: 'Beneficio accompagnatore',
+                  value: detail.caregiverBenefit?.type ?? '',
+                },
+              ]}
+            />
           </>
         )}
       </AccordionDetails>

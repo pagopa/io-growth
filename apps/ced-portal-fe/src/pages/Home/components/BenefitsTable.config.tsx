@@ -1,9 +1,10 @@
 import MoreVertIcon from '@mui/icons-material/MoreVert';
-import { format, parseISO } from 'date-fns';
 import { Chip, IconButton } from '@mui/material';
 import type { Theme } from '@mui/material/styles';
+import { format, parseISO } from 'date-fns';
 import type { MouseEvent, ReactNode } from 'react';
 import type { Benefit } from '../../../features/benefits/types';
+import { publicationStatusLabels } from '../../../features/benefitsFilters/types';
 import { getChipConfig } from './utils';
 
 export interface BenefitsTableColumn {
@@ -46,7 +47,7 @@ export const benefitsTableColumns: BenefitsTableColumn[] = [
     id: 'status',
     label: 'Stato',
     sortable: true,
-    sortAccessor: (item) => item.status,
+    sortAccessor: (item) => publicationStatusLabels[item.status],
     renderCell: (item) => <Chip {...getChipConfig(item)} />,
   },
   {

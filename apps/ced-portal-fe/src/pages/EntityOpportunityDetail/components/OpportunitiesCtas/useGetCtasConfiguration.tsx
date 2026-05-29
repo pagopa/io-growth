@@ -1,7 +1,7 @@
 import { useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { APP_ROUTES } from '../../../../app/routeConfig';
-import { OpportunityDetail } from '../../../../features/opportunities/types';
+import type { OpportunityStatus } from '../../../../features/opportunities/types';
 import { CTAS_BY_STATUS } from './constants';
 import { OpportunitiesCtaItem, OpportunitiesCtasLayout } from './types';
 
@@ -14,8 +14,10 @@ export const useGetCtasConfiguration = (id: string) => {
   }, [id, navigate]);
 
   const handleModify = useCallback(() => {
-    // TODO[IEG-2660][OUT OF MVP SCOPE]: confirm UX - inline edit or prefilled create page including { id }.
-  }, [id]);
+    navigate(APP_ROUTES.CREATE_BENEFIT, {
+      state: { sourceOpportunityId: id },
+    });
+  }, [id, navigate]);
 
   const handleSuspension = useCallback(() => {
     // TODO[IEG-2721][SCOPE - RELEASE IN OCTOBER]: call suspend opportunity API with { id }.
@@ -47,20 +49,20 @@ export const useGetCtasConfiguration = (id: string) => {
     [actionsMap],
   );
 
-  return useMemo(
+  const ctasConfig = useMemo(
     () =>
       Object.fromEntries(
         Object.entries(CTAS_BY_STATUS).map(([key, layout]) => [
           key,
           {
-            ctas: withActions(layout.ctas),
-            leftCtas: withActions(layout.leftCtas),
-            rightCtas: withActions(layout.rightCtas),
+            ctas: withActions(layout?.ctas),
+            leftCtas: withActions(layout?.leftCtas),
+            rightCtas: withActions(layout?.rightCtas),
           } satisfies OpportunitiesCtasLayout,
         ]),
-      ) as Partial<
-        Record<OpportunityDetail['publication_status'], OpportunitiesCtasLayout>
-      >,
+      ) as Partial<Record<OpportunityStatus, OpportunitiesCtasLayout>>,
     [withActions],
   );
+
+  return { ctasConfig };
 };

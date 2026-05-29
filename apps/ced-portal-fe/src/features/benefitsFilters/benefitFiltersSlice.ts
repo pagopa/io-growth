@@ -4,7 +4,7 @@ import type { BenefitFiltersState } from './types';
 const initialState: BenefitFiltersState = {
   name: null,
   category: null,
-  publication_status: null,
+  status: null,
 };
 
 const benefitFiltersSlice = createSlice({
@@ -25,9 +25,9 @@ const benefitFiltersSlice = createSlice({
     },
     setBenefitStatusFilter(
       state,
-      action: PayloadAction<BenefitFiltersState['publication_status']>,
+      action: PayloadAction<BenefitFiltersState['status']>,
     ) {
-      state.publication_status = action.payload;
+      state.status = action.payload;
     },
     resetBenefitFilters() {
       return initialState;

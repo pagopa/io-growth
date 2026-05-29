@@ -18,8 +18,9 @@ const renderCta = (cta: OpportunitiesCtaItem) => (
 );
 
 export const OpportunitiesCtas = ({ status, id }: OpportunitiesCtasProps) => {
-  const ctasByStatus = useGetCtasConfiguration(id);
-  const layout = ctasByStatus[status];
+  const { ctasConfig } = useGetCtasConfiguration(id);
+
+  const layout = ctasConfig[status];
   const ctas = layout?.ctas;
   const leftCtas = layout?.leftCtas;
   const rightCtas = layout?.rightCtas;
@@ -29,37 +30,39 @@ export const OpportunitiesCtas = ({ status, id }: OpportunitiesCtasProps) => {
     (leftCtas?.length ?? 0) > 0 ||
     (rightCtas?.length ?? 0) > 0;
 
-  if (!hasAnyCta) {
+  const canRequestApproval = status === 'draft';
+
+  if (!hasAnyCta && !canRequestApproval) {
     return null;
   }
 
-  if (!hasSplitLayout) {
-    return (
-      <Stack
-        direction="row"
-        spacing={2}
-        justifyContent="flex-end"
-        sx={{ pt: 2, pb: 4 }}
-      >
-        {ctas?.map((cta) => renderCta(cta))}
-      </Stack>
-    );
-  }
-
   return (
-    <Stack
-      direction="row"
-      spacing={2}
-      justifyContent="space-between"
-      alignItems="center"
-      sx={{ pt: 2, pb: 4 }}
-    >
-      <Stack direction="row" spacing={2}>
-        {leftCtas?.map((cta) => renderCta(cta))}
-      </Stack>
-      <Stack direction="row" spacing={2}>
-        {rightCtas?.map((cta) => renderCta(cta))}
-      </Stack>
-    </Stack>
+    <>
+      {hasSplitLayout ? (
+        <Stack
+          direction="row"
+          spacing={2}
+          justifyContent="space-between"
+          alignItems="center"
+          sx={{ pt: 2, pb: 4 }}
+        >
+          <Stack direction="row" spacing={2}>
+            {leftCtas?.map((cta) => renderCta(cta))}
+          </Stack>
+          <Stack direction="row" spacing={2}>
+            {rightCtas?.map((cta) => renderCta(cta))}
+          </Stack>
+        </Stack>
+      ) : (
+        <Stack
+          direction="row"
+          spacing={2}
+          justifyContent="flex-end"
+          sx={{ pt: 2, pb: 4 }}
+        >
+          {ctas?.map((cta) => renderCta(cta))}
+        </Stack>
+      )}
+    </>
   );
 };

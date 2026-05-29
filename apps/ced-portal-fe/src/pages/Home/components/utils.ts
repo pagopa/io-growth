@@ -1,6 +1,6 @@
 import { ChipProps } from '@mui/material';
+import type { OpportunityDetailResponse } from '../../../core/api/generated/model';
 import type { Benefit } from '../../../features/benefits/types';
-import { PublicationStatus } from '../../../features/benefitsFilters/types';
 import { benefitStateLabelMap, opportunityStatusLabelMap } from './constants';
 
 export const getChipConfig = (item: Benefit): ChipProps => {
@@ -23,12 +23,12 @@ export const getChipConfig = (item: Benefit): ChipProps => {
   };
 };
 
-export const getDetailChipConfig = (item: {
-  publication_status: keyof typeof PublicationStatus;
-}): ChipProps => {
-  const config = benefitStateLabelMap[item.publication_status];
+export const getDetailChipConfig = (
+  item: OpportunityDetailResponse,
+): ChipProps => {
+  const config = benefitStateLabelMap[item.status];
   const color = config?.color ?? 'default';
-  const label = config?.text ?? item.publication_status;
+  const label = config?.text ?? item.status;
 
   return {
     size: 'small',

@@ -2,6 +2,7 @@ import { forwardRef, useImperativeHandle, useState } from 'react';
 import { Box, Typography, useTheme } from '@mui/material';
 import { AppSelect, AppTextField } from '../../../components';
 import type { StepRef } from '../types';
+import { StepCard } from '../StepCard';
 
 interface AddressFormState {
   provincia: string;
@@ -85,7 +86,7 @@ export const AddressStep = forwardRef<StepRef>(function AddressStep(_, ref) {
   };
 
   return (
-    <>
+    <StepCard>
       <Typography
         variant="h3"
         component="h3"
@@ -163,6 +164,6 @@ export const AddressStep = forwardRef<StepRef>(function AddressStep(_, ref) {
           onChange={(e) => handleChange('altriDettagli', e.target.value)}
         />
       </Box>
-    </>
+    </StepCard>
   );
 });

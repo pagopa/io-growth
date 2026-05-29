@@ -1,20 +1,20 @@
 import DeleteIcon from '@mui/icons-material/Delete';
 import { Box, IconButton, useTheme } from '@mui/material';
 import { AppSelect, AppTextField } from '../../../../components';
-import type { Contact } from '../../../../features/location/types';
+import type { SupportContactCreateRequest } from '../../../../core/api/generated/model';
 
 const CONTACT_TYPE_OPTIONS = [
-  { label: 'Telefono', value: 'TELEPHONE' },
-  { label: 'Sito web', value: 'WEB' },
+  { label: 'Email', value: 'email' },
+  { label: 'Sito web', value: 'website' },
 ];
 
 interface ContactRowProps {
-  contact: Contact;
+  contact: SupportContactCreateRequest;
   index: number;
   onRemove: (index: number) => void;
   onChange: (params: {
     index: number;
-    field: keyof Contact;
+    field: keyof SupportContactCreateRequest;
     value: string;
   }) => void;
 }
@@ -33,7 +33,7 @@ export function ContactRow({
         display: 'flex',
         flexWrap: { xs: 'wrap', sm: 'nowrap' },
         alignItems: 'flex-start',
-        gap: 1,
+        gap: 2,
       }}
     >
       <Box
@@ -55,7 +55,7 @@ export function ContactRow({
         <AppSelect
           label="Tipo di contatto"
           options={CONTACT_TYPE_OPTIONS}
-          value={contact.type || undefined}
+          value={contact.type}
           onChange={(e) =>
             onChange({ index, field: 'type', value: e.target.value as string })
           }

@@ -1,10 +1,10 @@
 import LocationOnIcon from '@mui/icons-material/LocationOn';
-import type { Location } from '../../../../features/location/types';
+import type { OfflinePlaceResponse } from '../../../../core/api/generated/model';
 import { SelectItemModal } from '../components/SelectItemModal';
 
 interface SelectLocationModalProps {
   open: boolean;
-  locations: Location[];
+  locations: OfflinePlaceResponse[];
   selected: string[];
   onSelectedChange: (ids: string[]) => void;
   onClose: () => void;
@@ -34,10 +34,11 @@ export function SelectLocationModal({
       description="Se non è presente nell'elenco, aggiungi una nuova sede."
       label="Seleziona una o più sedi"
       addNewLabel="Aggiungi nuova sede"
+      emptySelectionError="Seleziona almeno una sede"
       icon={
         <LocationOnIcon sx={{ fontSize: 16, color: 'common.decorativeIcon' }} />
       }
-      getSubtitle={(loc) => loc.address}
+      getSubtitle={(loc) => loc.address.street}
     />
   );
 }

@@ -1,16 +1,16 @@
 import AddIcon from '@mui/icons-material/Add';
 import { Box, Typography, useTheme } from '@mui/material';
 import { ButtonNaked } from '@pagopa/mui-italia';
-import type { Contact } from '../../../../features/location/types';
+import type { SupportContactCreateRequest } from '../../../../core/api/generated/model';
 import { ContactRow } from './ContactRow';
 
 interface ContactsSectionProps {
-  contacts: Contact[];
+  contacts: SupportContactCreateRequest[];
   onAdd: () => void;
   onRemove: (index: number) => void;
   onChange: (params: {
     index: number;
-    field: keyof Contact;
+    field: keyof SupportContactCreateRequest;
     value: string;
   }) => void;
 }

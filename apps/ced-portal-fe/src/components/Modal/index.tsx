@@ -56,41 +56,40 @@ export function AppModal({
             flex: 1,
           }}
         >
-          <Box
-            sx={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'flex-start',
-            }}
-          >
-            {onBack && (
-              <IconButton
-                onClick={onBack}
-                size="small"
-                sx={{ mt: -0.5, ml: -0.5, color: '#0E0F13' }}
-              >
-                <ArrowBackIcon sx={{ fontSize: 24 }} />
-              </IconButton>
-            )}
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
             <Box
-              sx={{ display: 'flex', flexDirection: 'column', gap: 1, flex: 1 }}
+              sx={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                gap: 2,
+              }}
             >
-              <Typography variant="h6" fontWeight={700}>
+              {onBack && (
+                <IconButton
+                  onClick={onBack}
+                  size="small"
+                  sx={{ mt: -0.5, color: 'common.neutralBlack' }}
+                >
+                  <ArrowBackIcon sx={{ fontSize: 24 }} />
+                </IconButton>
+              )}
+              <Typography variant="h6" fontWeight={700} sx={{ flex: 1 }}>
                 {title}
               </Typography>
-              {description && (
-                <Typography variant="body2" color="text.secondary">
-                  {description}
-                </Typography>
-              )}
+              <IconButton
+                onClick={onClose}
+                size="small"
+                sx={{ mt: -0.5, mr: -0.5, color: 'common.neutralBlack' }}
+              >
+                <CloseIcon sx={{ fontSize: 24 }} />
+              </IconButton>
             </Box>
-            <IconButton
-              onClick={onClose}
-              size="small"
-              sx={{ mt: -0.5, mr: -0.5, color: '#0E0F13' }}
-            >
-              <CloseIcon sx={{ fontSize: 24 }} />
-            </IconButton>
+            {description && (
+              <Typography variant="body2" color="text.secondary">
+                {description}
+              </Typography>
+            )}
           </Box>
 
           {children}

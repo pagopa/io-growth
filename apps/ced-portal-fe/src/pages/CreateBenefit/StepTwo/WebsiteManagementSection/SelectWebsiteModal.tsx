@@ -1,10 +1,10 @@
 import LanguageIcon from '@mui/icons-material/Language';
-import type { Website } from '../../../../features/website/types';
+import type { OnlinePlaceResponse } from '../../../../core/api/generated/model';
 import { SelectItemModal } from '../components/SelectItemModal';
 
 interface SelectWebsiteModalProps {
   open: boolean;
-  websites: Website[];
+  websites: OnlinePlaceResponse[];
   selected: string[];
   onSelectedChange: (ids: string[]) => void;
   onClose: () => void;
@@ -34,10 +34,11 @@ export function SelectWebsiteModal({
       description="Se non è presente nell'elenco, aggiungi un nuovo sito web."
       label="Seleziona uno o più siti web"
       addNewLabel="Aggiungi nuovo sito web"
+      emptySelectionError="Seleziona almeno un sito web"
       icon={
         <LanguageIcon sx={{ fontSize: 16, color: 'common.decorativeIcon' }} />
       }
-      getSubtitle={(site) => site.url}
+      getSubtitle={(site) => site.website.url}
     />
   );
 }

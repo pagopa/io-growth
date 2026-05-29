@@ -13,8 +13,12 @@ import { PhotoGuidelinesDrawer } from './PhotoGuidelinesDrawer';
 
 type UploadState = 'idle' | 'loading' | 'preview';
 
-export const PhotoUploadStep = forwardRef<StepRef>(
-  function PhotoUploadStep(_, ref) {
+interface PhotoUploadProps {
+  onPhotoPreviewChange?: (url: string) => void;
+}
+
+export const PhotoUploadStep = forwardRef<StepRef, PhotoUploadProps>(
+  function PhotoUploadStep({ onPhotoPreviewChange }, ref) {
     const theme = useTheme();
     const [photo, setPhoto] = useState<File | null>(null);
     const [preview, setPreview] = useState<string | null>(null);
@@ -43,8 +47,10 @@ export const PhotoUploadStep = forwardRef<StepRef>(
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
       const file = e.target.files?.[0];
       if (file) {
+        const url = URL.createObjectURL(file);
         setPhoto(file);
-        setPreview(URL.createObjectURL(file));
+        setPreview(url);
+        onPhotoPreviewChange?.(url);
         setError(false);
         setUploadState('loading');
         setTimeout(() => {
@@ -56,6 +62,7 @@ export const PhotoUploadStep = forwardRef<StepRef>(
     const handleChangePhoto = () => {
       setPhoto(null);
       setPreview(null);
+      onPhotoPreviewChange?.('');
       setUploadState('idle');
     };
 

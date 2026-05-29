@@ -1,5 +1,4 @@
 import { Box, Button, Typography, useTheme } from '@mui/material';
-import { useNavigate } from 'react-router-dom';
 import { useCallback } from 'react';
 import { PriorityHigh } from '@mui/icons-material';
 
@@ -10,17 +9,16 @@ interface Props {
 
 export default function SubmissionError({ onRetry, onClose }: Props) {
   const theme = useTheme();
-  const navigate = useNavigate();
 
   const handleRetry = useCallback(() => {
     if (onRetry) return onRetry();
     // default fallback: go back one step
-    navigate(-1);
-  }, [onRetry, navigate]);
+  }, [onRetry]);
 
   const handleClose = () => {
-    if (onClose) return onClose();
-    navigate(-1);
+    if (onClose) {
+      onClose();
+    }
   };
 
   return (

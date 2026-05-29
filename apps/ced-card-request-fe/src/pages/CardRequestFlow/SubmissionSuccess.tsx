@@ -1,6 +1,5 @@
 import { Box, Button, Typography, useTheme } from '@mui/material';
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { Check, ContentCopy } from '@mui/icons-material';
 import { copyTextToClipboard } from '../../utils';
 
@@ -11,7 +10,6 @@ interface Props {
 
 export default function SubmissionSuccess({ requestNumber, onClose }: Props) {
   const theme = useTheme();
-  const navigate = useNavigate();
   const [copied, setCopied] = useState(false);
 
   const number = requestNumber ?? '91238000001184';
@@ -28,8 +26,9 @@ export default function SubmissionSuccess({ requestNumber, onClose }: Props) {
   };
 
   const handleClose = () => {
-    if (onClose) return onClose();
-    navigate(-1);
+    if (onClose) {
+      onClose();
+    }
   };
 
   return (

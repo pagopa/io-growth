@@ -96,7 +96,6 @@ export default function CardRequestFlowPage() {
     }, 2000);
   };
 
-
   const handleBack = () => {
     if (currentStep > 0) {
       setCurrentStep((s) => s - 1);

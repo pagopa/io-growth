@@ -1,8 +1,10 @@
 import AddIcon from '@mui/icons-material/Add';
 import LanguageIcon from '@mui/icons-material/Language';
 import { Box, Button, Typography } from '@mui/material';
+import { useMemo } from 'react';
 import { SectionCard } from '../../../../components';
-import { useGetWebsitesQuery } from '../../../../features/website/api';
+import { useGetPlacesQuery } from '../../../../features/places/api';
+
 import {
   selectAccessPoint,
   selectSelectedWebsiteIds,
@@ -18,11 +20,16 @@ export function WebsiteManagementSection() {
   const showWebsiteSection = accessPoint === 'online' || accessPoint === 'both';
 
   const selectedWebsiteIds = useAppSelector(selectSelectedWebsiteIds);
-  const { data: availableWebsites = [] } = useGetWebsitesQuery(undefined, {
+  const { data: allPlaces = [] } = useGetPlacesQuery(undefined, {
     skip: !showWebsiteSection,
   });
-  const selectedWebsites = availableWebsites.filter((w) =>
-    selectedWebsiteIds.includes(w.id),
+  const availableWebsites = useMemo(
+    () => allPlaces.filter((p) => p.type === 'online'),
+    [allPlaces],
+  );
+  const selectedWebsites = useMemo(
+    () => availableWebsites.filter((w) => selectedWebsiteIds.includes(w.id)),
+    [availableWebsites, selectedWebsiteIds],
   );
 
   const {

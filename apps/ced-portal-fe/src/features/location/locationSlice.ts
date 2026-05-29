@@ -1,10 +1,11 @@
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
 import type { RootState } from '../../core/store';
-import type { AddressOption, Contact, LocationFormState } from './types';
+import type { LocationFormState } from './types';
+import type { SupportContactCreateRequest } from '../../core/api/generated/model';
 
-const createEmptyContact = (): Contact => ({
-  type: null,
-  value: null,
+const createEmptyContact = (): SupportContactCreateRequest => ({
+  type: 'email',
+  value: '',
 });
 
 const createInitialState = (): LocationFormState => ({
@@ -33,12 +34,6 @@ const locationSlice = createSlice({
         state.province = null;
       }
     },
-    setLocationAddressFromOption(state, action: PayloadAction<AddressOption>) {
-      state.address = action.payload.label;
-      state.city = action.payload.city;
-      state.postalCode = action.payload.postalCode;
-      state.province = action.payload.province;
-    },
     setLocationCity(state, action: PayloadAction<string | null>) {
       state.city = action.payload;
     },
@@ -58,13 +53,13 @@ const locationSlice = createSlice({
       state,
       action: PayloadAction<{
         index: number;
-        field: keyof Contact;
-        value: string | null;
+        field: keyof SupportContactCreateRequest;
+        value: string;
       }>,
     ) {
       const { index, field, value } = action.payload;
       if (state.contacts[index]) {
-        state.contacts[index][field] = value;
+        state.contacts[index] = { ...state.contacts[index], [field]: value };
       }
     },
     resetLocationForm() {
@@ -76,7 +71,6 @@ const locationSlice = createSlice({
 export const {
   setLocationName,
   setLocationAddress,
-  setLocationAddressFromOption,
   setLocationCity,
   setLocationPostalCode,
   setLocationProvince,

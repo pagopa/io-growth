@@ -1,15 +1,15 @@
 import { useState } from 'react';
 import { Button } from '@mui/material';
 import { AppModal } from '../../../../components';
+import type { PlaceResponse } from '../../../../core/api/generated/model';
 import { useWebsiteSubmit } from '../../../../features/website/hooks';
-import type { Website } from '../../../../features/website/types';
 import { WebsiteContactsSection } from './WebsiteContactsSection';
 import { WebsiteFields } from './WebsiteFields';
 
 interface AddWebsiteModalProps {
   open: boolean;
   onClose: () => void;
-  onConfirm: (newWebsite?: Website) => void;
+  onConfirm: (newWebsite?: PlaceResponse) => void;
   onBack?: () => void;
 }
 

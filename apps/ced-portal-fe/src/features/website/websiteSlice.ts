@@ -1,13 +1,18 @@
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
 import type { RootState } from '../../core/store';
-import type { Contact } from '../location/types';
-
-import type { WebsiteFormState } from './types';
 import { isValidHttpsUrl } from '../../utils';
+import type { SupportContactCreateRequest } from '../../core/api/generated/model';
 
-const createEmptyContact = (): Contact => ({
-  type: null,
-  value: null,
+interface WebsiteFormState {
+  name: string | null;
+  url: string | null;
+  urlError: string | null;
+  contacts: SupportContactCreateRequest[];
+}
+
+const createEmptyContact = (): SupportContactCreateRequest => ({
+  type: 'email',
+  value: '',
 });
 
 const createInitialState = (): WebsiteFormState => ({
@@ -46,13 +51,13 @@ const websiteSlice = createSlice({
       state,
       action: PayloadAction<{
         index: number;
-        field: keyof Contact;
-        value: string | null;
+        field: keyof SupportContactCreateRequest;
+        value: string;
       }>,
     ) {
       const { index, field, value } = action.payload;
       if (state.contacts[index]) {
-        state.contacts[index][field] = value;
+        state.contacts[index] = { ...state.contacts[index], [field]: value };
       }
     },
     resetWebsiteForm() {

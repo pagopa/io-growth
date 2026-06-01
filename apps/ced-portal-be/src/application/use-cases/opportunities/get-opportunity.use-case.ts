@@ -15,6 +15,7 @@ import { validateUseCaseInput } from "../utils/validate-use-case-input.js";
 
 const GetOpportunityInputSchema = z.object({
   opportunityId: z.ulid(),
+  // kept for future per-userType branching (e.g. test_user vs admin behaviour)
   userType: z.enum(["admin", "operator", "test_user"]),
 });
 

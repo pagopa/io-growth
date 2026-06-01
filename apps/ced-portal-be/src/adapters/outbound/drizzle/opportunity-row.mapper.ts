@@ -132,7 +132,7 @@ export const mapOpportunityDetailRow = (
       value: lm.value,
     })),
     nationalTerritory: row.nationalTerritory,
-    operatorName: row.operator?.name ?? "",
+    operatorName: row.operator?.name,
     placeIds: row.opportunityPlaces.map((op) => op.placeId),
     status: row.status,
     updatedAt: row.updatedAt.toISOString(),

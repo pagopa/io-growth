@@ -25,6 +25,7 @@ describe("makeAuthorizeUseCase", () => {
       operatorName: "Op Name",
       referentExternalId: "ref-id",
       role: "OPERATOR",
+      userType: "operator",
     };
 
     (
@@ -43,6 +44,7 @@ describe("makeAuthorizeUseCase", () => {
         last_name: "Rossi",
         operator_name: "Op Name",
         session_token: sessionToken,
+        user_type: "operator",
       }),
     );
   });

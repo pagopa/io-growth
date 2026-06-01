@@ -1463,7 +1463,6 @@ components:
         - placeIds
         - createdAt
         - updatedAt
-        - operatorName
       properties:
         id:
           type: string

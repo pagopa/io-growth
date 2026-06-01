@@ -88,7 +88,6 @@ describe("mapOpportunityDetailRow", () => {
           value: "Sconto 20%",
         },
       ],
-      operatorName: "",
       placeIds: ["01JVMK3N8XQZP5T6G2WYHAB4CE"],
       status: "draft",
       updatedAt: "2026-01-02T00:00:00.000Z",

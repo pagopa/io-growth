@@ -5,7 +5,13 @@ const configSchema = arConfigSchema.extend({
   ADMIN_FISCAL_CODES: z
     .string()
     .optional()
-    .transform((v) => v?.split(",").map((s) => s.trim()) ?? []),
+    .transform(
+      (v) =>
+        v
+          ?.split(",")
+          .map((s) => s.trim())
+          .filter(Boolean) ?? [],
+    ),
   AZURE_CLIENT_ID: z.string().optional(),
   CED_PORTAL_FE_BASE_URL: z.string().min(1),
   CED_PRODUCT_ID: z.string().min(1),
@@ -29,7 +35,13 @@ const configSchema = arConfigSchema.extend({
   TEST_USER_FISCAL_CODES: z
     .string()
     .optional()
-    .transform((v) => v?.split(",").map((s) => s.trim()) ?? []),
+    .transform(
+      (v) =>
+        v
+          ?.split(",")
+          .map((s) => s.trim())
+          .filter(Boolean) ?? [],
+    ),
 });
 
 export type AppConfig = z.infer<typeof configSchema>;

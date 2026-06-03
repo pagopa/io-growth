@@ -5,7 +5,10 @@ import { err, ok, ResultAsync } from "neverthrow";
 import { ulid } from "ulid";
 import { z } from "zod";
 
-import type { Benefit } from "../../../domain/entities/opportunity.js";
+import type {
+  Benefit,
+  OpportunityDetail,
+} from "../../../domain/entities/opportunity.js";
 import type { OperatorRepository } from "../../../domain/ports/outbound/persistence/operator.repository.js";
 import type { OpportunityCategoryRepository } from "../../../domain/ports/outbound/persistence/opportunity-category.repository.js";
 import type { OpportunityRepository } from "../../../domain/ports/outbound/persistence/opportunity.repository.js";
@@ -65,12 +68,14 @@ export type CreateOperatorOpportunityInput = z.infer<
 
 export type CreateOperatorOpportunityUseCase = UseCase<
   CreateOperatorOpportunityInput,
-  void,
+  OpportunityDetail,
   BaseError
 >;
 
-const addBenefitId = (input: z.infer<typeof BenefitInputSchema>): Benefit =>
-  ({ ...input, id: ulid() }) as Benefit;
+const addBenefitId = (input: z.infer<typeof BenefitInputSchema>): Benefit => ({
+  ...input,
+  id: ulid(),
+});
 
 export const makeCreateOperatorOpportunityUseCase =
   (deps: {

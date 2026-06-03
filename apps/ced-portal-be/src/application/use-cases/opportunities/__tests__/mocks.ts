@@ -34,6 +34,28 @@ export const mockCreateOpportunityInput = {
   url: "https://example.org/promo",
 };
 
+export const mockOpportunityDetail = {
+  beneficiaryBenefit: {
+    discountType: "percentage" as const,
+    type: "discount" as const,
+    value: 20,
+  },
+  caregiverBenefit: {
+    type: "free" as const,
+  },
+  categoryId: mockCreateOpportunityInput.categoryId,
+  categoryTitle: "title",
+  createdAt: "2026-01-01T00:00:00.000Z",
+  dateFrom: mockCreateOpportunityInput.dateFrom,
+  dateTo: mockCreateOpportunityInput.dateTo,
+  id: "01KRJXEYD44B58700GT982CCYZ",
+  localizedMetadata: mockCreateOpportunityInput.localizedMetadata,
+  placeIds: mockCreateOpportunityInput.placeIds,
+  status: "draft" as const,
+  updatedAt: "2026-01-01T00:00:00.000Z",
+  url: mockCreateOpportunityInput.url,
+};
+
 export const createMockOpportunityRepository = (
   overrides?: Partial<OpportunityRepository>,
 ): OpportunityRepository => ({

@@ -9,10 +9,16 @@ import { BenefitsFiltersBar } from './components/BenefitsFiltersBar';
 import { BenefitsTabs } from './components/BenefitsTabs';
 import { MainContentHeader } from './components/MainContentHeader';
 import { OpportunitySummaryItemStatus } from '../../core/api/generated/model';
+import { trackBrowserEvent } from '../../mixpanel/trackEvent';
 
 const DEFAULT_ROWS_PER_PAGE = 20;
 
 export const MainContent = () => {
+  // TODO: for test only
+  trackBrowserEvent('HomePage_MainContent_Rendered', {
+    event_category: 'UX',
+    event_type: 'screen_view',
+  });
   const theme = useTheme();
   const [activeTab, setActiveTab] = useState(0);
 

@@ -9,6 +9,7 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? '/api';
 const DEV_ASSERTION_TOKEN = import.meta.env.VITE_DEV_ASSERTION_TOKEN;
 const SESSION_EXCHANGE_KEY = 'ced-portal-last-session-exchange-id';
 const ACS_EXCHANGE_KEY = 'ced-portal-last-acs-assertion-token';
+const DEVICE_MEASUREMENT_KEY = 'ced-portal-last-device-measurement';
 
 export const useGetSession = () => {
   const { search } = useLocation();
@@ -22,6 +23,7 @@ export const useGetSession = () => {
     const retrieveSession = async () => {
       const params = new URLSearchParams(search);
       const redirectToken = params.get('id');
+      const deviceId = params.get('device');
       const assertionToken = params.get('token') ?? params.get('jwt');
 
       if (!redirectToken) {
@@ -71,7 +73,8 @@ export const useGetSession = () => {
 
       try {
         window.sessionStorage.setItem(SESSION_EXCHANGE_KEY, redirectToken);
-        await authorize(redirectToken);
+        window.sessionStorage.setItem(DEVICE_MEASUREMENT_KEY, deviceId ?? '');
+        await authorize(redirectToken, deviceId);
 
         if (!isMounted) {
           return;

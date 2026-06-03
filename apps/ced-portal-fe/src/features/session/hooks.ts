@@ -10,7 +10,7 @@ export function useAuthorize() {
   const [trigger, result] = useLazyGetSessionQuery();
 
   const authorize = useCallback(
-    async (id: string) => {
+    async (id: string, deviceId: string | null) => {
       const response = await trigger(id).unwrap();
       dispatch(
         setCredentials({
@@ -21,6 +21,7 @@ export function useAuthorize() {
             email: '',
             role: response.role,
           },
+          deviceId,
         }),
       );
       showToast('Session restored', 'success');

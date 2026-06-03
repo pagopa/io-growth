@@ -1,6 +1,5 @@
 import type {
   OpportunityCreateRequest,
-  BenefitRequest,
   LocalizedMetadataItemLanguage,
   LocalizedMetadataItemKey,
 } from '../../core/api/generated/model';
@@ -49,13 +48,11 @@ export const selectPlaceIds = (state: {
 
 export const selectBeneficiaryBenefit = (state: {
   opportunityCreation: OpportunityCreationState;
-}) =>
-  baseSelectOpportunityForm(state).beneficiaryBenefit as BenefitRequest | null;
+}) => baseSelectOpportunityForm(state).beneficiaryBenefit;
 
 export const selectCaregiverBenefit = (state: {
   opportunityCreation: OpportunityCreationState;
-}) =>
-  baseSelectOpportunityForm(state).caregiverBenefit as BenefitRequest | null;
+}) => baseSelectOpportunityForm(state).caregiverBenefit;
 
 export const selectLocalizedMetadata = (state: {
   opportunityCreation: OpportunityCreationState;

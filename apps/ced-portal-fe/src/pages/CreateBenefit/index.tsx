@@ -127,7 +127,7 @@ export default function CreateBenefitPage() {
     }
 
     try {
-      await requestApproval(sourceOpportunityId!).unwrap();
+      await requestApproval(sourceOpportunityId).unwrap();
       dispatch(resetPlaces());
       showToast('Richiesta di approvazione inviata con successo', 'success');
       navigate(APP_ROUTES.HOME);

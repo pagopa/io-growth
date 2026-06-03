@@ -11,13 +11,13 @@ import {
 import {
   selectActiveFormLanguage,
   selectBeneficiaryBenefit,
+  selectFormValueByPath,
 } from '../../../../../features/opportunityCreation/selectors';
 import { FieldWithIcon } from './FieldWithIcon';
 import {
   BenefitDiscountDiscountType,
   BenefitDiscountType,
 } from '../../../../../core/api/generated/model';
-import { selectFormValueByPath } from '../../../../../features/opportunityCreation/selectors';
 import { setBenefit } from '../../../../../features/opportunityCreation/opportunityCreationSlice';
 
 export const FixedPriceBenefitFields = () => {

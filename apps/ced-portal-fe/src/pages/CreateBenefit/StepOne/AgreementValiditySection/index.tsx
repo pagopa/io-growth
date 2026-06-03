@@ -24,14 +24,14 @@ export function AgreementValiditySection({
   const dateFrom = useAppSelector(selectDateFrom);
   const dateTo = useAppSelector(selectDateTo);
 
-  const [hasEndDate, setHasEndDateLocal] = useState(!!dateTo);
+  const [hasEndDateLocal, setHasEndDateLocal] = useState(!!dateTo);
 
   const activeLanguage = useAppSelector(selectActiveFormLanguage);
   const copy = getAgreementCopy(activeLanguage).additionalSections.validity;
   const startDateError = attempted && !dateFrom.trim();
 
   const renderEndDateField = useCallback(() => {
-    if (!hasEndDate) {
+    if (!hasEndDateLocal) {
       return <Box sx={{ display: { xs: 'none', sm: 'block' } }} />;
     }
 
@@ -57,7 +57,13 @@ export function AgreementValiditySection({
         </Typography>
       </Box>
     );
-  }, [copy.dateHelperText, copy.endDateLabel, dateTo, dispatch, hasEndDate]);
+  }, [
+    copy.dateHelperText,
+    copy.endDateLabel,
+    dateTo,
+    dispatch,
+    hasEndDateLocal,
+  ]);
 
   return (
     <Paper elevation={0} sx={{ borderRadius: 2.5, p: { xs: 2, md: 3 } }}>
@@ -69,7 +75,7 @@ export function AgreementValiditySection({
 
         <Stack direction="row" alignItems="center" spacing={1}>
           <Switch
-            checked={hasEndDate}
+            checked={hasEndDateLocal}
             onChange={(_, checked) => setHasEndDateLocal(checked)}
             inputProps={{ 'aria-label': copy.setEndDateAriaLabel }}
           />

@@ -12,6 +12,7 @@ import {
   MOCK_OPERATOR_ID,
   MOCK_PLACE_ID,
   mockCreateOpportunityInput,
+  mockOpportunityDetail,
 } from "./mocks.js";
 
 const createMockOperatorRepository = (
@@ -71,7 +72,7 @@ const makeDeps = (overrides?: {
     overrides?.opportunityCategoryRepository,
   ),
   opportunityRepository: createMockOpportunityRepository({
-    create: vi.fn().mockResolvedValue(ok(undefined)),
+    create: vi.fn().mockResolvedValue(ok(mockOpportunityDetail)),
     ...overrides?.opportunityRepository,
   }),
   placeRepository: createMockPlaceRepository(overrides?.placeRepository),
@@ -84,7 +85,7 @@ describe("makeCreateOperatorOpportunityUseCase - success", () => {
 
     const result = await useCase(mockCreateOpportunityInput);
 
-    expect(result).toEqual(ok(undefined));
+    expect(result).toEqual(ok(mockOpportunityDetail));
     expect(deps.opportunityRepository.create).toHaveBeenCalledWith(
       expect.objectContaining({
         operatorId: mockCreateOpportunityInput.operatorId,
@@ -177,7 +178,7 @@ describe("makeCreateOperatorOpportunityUseCase - success", () => {
     };
     const result = await useCase(inputWithoutOptionals);
 
-    expect(result).toEqual(ok(undefined));
+    expect(result).toEqual(ok(mockOpportunityDetail));
     expect(deps.opportunityRepository.create).toHaveBeenCalledWith(
       expect.objectContaining({
         opportunity: expect.objectContaining({
@@ -200,7 +201,7 @@ describe("makeCreateOperatorOpportunityUseCase - success", () => {
     };
     const result = await useCase(input);
 
-    expect(result).toEqual(ok(undefined));
+    expect(result).toEqual(ok(mockOpportunityDetail));
     expect(deps.opportunityRepository.create).toHaveBeenCalledWith(
       expect.objectContaining({
         opportunity: expect.objectContaining({
@@ -225,7 +226,7 @@ describe("makeCreateOperatorOpportunityUseCase - success", () => {
     };
     const result = await useCase(input);
 
-    expect(result).toEqual(ok(undefined));
+    expect(result).toEqual(ok(mockOpportunityDetail));
     expect(deps.opportunityRepository.create).toHaveBeenCalledWith(
       expect.objectContaining({
         opportunity: expect.objectContaining({

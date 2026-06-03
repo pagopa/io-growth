@@ -9,7 +9,7 @@ import type { Profile } from "../../../entities/profile.js";
 export interface ProfileRepository {
   readonly create: (
     input: Profile,
-  ) => Promise<Result<void, ConflictError | GenericError>>;
+  ) => Promise<Result<Profile, ConflictError | GenericError>>;
   readonly getByOperatorId: (
     operatorId: string,
   ) => Promise<Result<Profile | undefined, GenericError>>;

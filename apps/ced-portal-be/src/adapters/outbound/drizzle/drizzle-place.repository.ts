@@ -16,13 +16,18 @@ import { place, supportContact } from "./schema/tables.js";
 export const createDrizzlePlaceRepository = (
   db: TypedDbClient<typeof schema>,
 ): PlaceRepository => ({
-  create: async (input): Promise<Result<void, GenericError>> => {
+  create: async (input): Promise<Result<Place, GenericError>> => {
     try {
+      let created!: Place;
       await db.transaction(async (tx) => {
-        await createPlaceInTransaction(tx, input.operatorId, input.place);
+        created = await createPlaceInTransaction(
+          tx,
+          input.operatorId,
+          input.place,
+        );
       });
 
-      return ok(undefined);
+      return ok(created);
     } catch (error) {
       return err(
         new GenericError(`Failed to create operator place: ${String(error)}`),

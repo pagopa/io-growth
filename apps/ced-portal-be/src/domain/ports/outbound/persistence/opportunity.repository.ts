@@ -37,7 +37,7 @@ export interface OpportunityRepository {
   ) => Promise<Result<ReadonlyMap<string, number>, GenericError>>;
   readonly create: (
     input: CreateOpportunityInput,
-  ) => Promise<Result<void, GenericError>>;
+  ) => Promise<Result<OpportunityDetail, GenericError>>;
   readonly getById: (
     input: GetOpportunityByIdInput,
   ) => Promise<Result<OpportunityDetail | undefined, GenericError>>;

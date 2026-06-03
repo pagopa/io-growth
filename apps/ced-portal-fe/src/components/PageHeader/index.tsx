@@ -6,7 +6,11 @@ import { productsList, partyList, partyRoleMap } from './constants';
 import { useAppDispatch, useAppSelector } from '../../hooks';
 import { setCredentials } from '../../core/auth/authSlice';
 import { APP_ROUTES } from '../../app/routeConfig';
-import { selectToken, selectUser } from '../../core/auth/authSelectors';
+import {
+  selectDeviceId,
+  selectToken,
+  selectUser,
+} from '../../core/auth/authSelectors';
 
 export const PageHeader = () => {
   const dispatch = useAppDispatch();
@@ -14,6 +18,7 @@ export const PageHeader = () => {
 
   const user = useAppSelector(selectUser);
   const token = useAppSelector(selectToken);
+  const deviceId = useAppSelector(selectDeviceId);
   const handlePartyChange = useCallback(
     (party: { id: string; name: string }) => {
       // Keep the session token issued by /authorize: auto-initializing with mock data here
@@ -27,6 +32,7 @@ export const PageHeader = () => {
       dispatch(
         setCredentials({
           token,
+          deviceId,
           user: {
             id: party.id,
             name: party.name,
@@ -38,7 +44,7 @@ export const PageHeader = () => {
 
       navigate(isAdmin ? APP_ROUTES.OPPORTUNITIES : APP_ROUTES.HOME);
     },
-    [dispatch, navigate, token],
+    [dispatch, navigate, token, deviceId],
   );
 
   if (!user) {

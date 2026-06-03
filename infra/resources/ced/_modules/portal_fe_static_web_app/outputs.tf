@@ -17,3 +17,8 @@ output "resource_group_name" {
   value       = var.resource_group_name
   description = "The resource group name."
 }
+
+output "custom_domain" {
+  value       = var.custom_domain
+  description = "The custom domain of the Azure Static Web App."
+}

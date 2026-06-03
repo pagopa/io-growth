@@ -1,8 +1,8 @@
 import {
   removeSelectedLocationId,
-  selectSelectedLocationIds,
   setSelectedLocationIds,
-} from '../../../../features/wizard/slice';
+} from '../../../../features/places/placesSlice';
+import { selectSelectedLocationIds } from '../../../../features/places/selectors';
 import { useAppDispatch, useAppSelector } from '../../../../hooks/store';
 import { useSelectionFlow } from './useSelectionFlow';
 

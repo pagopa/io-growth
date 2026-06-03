@@ -48,7 +48,9 @@ export const benefitsTableColumns: BenefitsTableColumn[] = [
     label: 'Stato',
     sortable: true,
     sortAccessor: (item) => publicationStatusLabels[item.status],
-    renderCell: (item) => <Chip {...getChipConfig(item)} />,
+    renderCell: (item) => (
+      <Chip {...getChipConfig({ item, role: 'operator' })} />
+    ),
   },
   {
     id: 'actions',

@@ -1,12 +1,10 @@
 import { Box, Typography } from '@mui/material';
 import { AppRadioList, SectionCard } from '../../../components';
-import type { AccessPoint } from '../../../features/wizard/types';
-import {
-  selectAccessPoint,
-  setAccessPoint,
-} from '../../../features/wizard/slice';
+import type { AccessPoint } from '../../../features/places/types';
+import { setAccessPoint } from '../../../features/places/placesSlice';
 import { useAppDispatch, useAppSelector } from '../../../hooks/store';
 import { ACCESS_POINT_OPTIONS } from './constants';
+import { selectAccessPoint } from '../../../features/places/selectors';
 
 export function AccessPointSection() {
   const dispatch = useAppDispatch();

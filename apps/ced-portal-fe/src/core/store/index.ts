@@ -2,11 +2,11 @@ import { configureStore } from '@reduxjs/toolkit';
 import { baseApi } from '../api/baseApi';
 import { authReducer } from '../auth/authSlice';
 import type { AuthState } from '../auth/types';
-import { wizardReducer } from '../../features/wizard/slice';
 import { locationReducer } from '../../features/location/locationSlice';
 import { websiteReducer } from '../../features/website/websiteSlice';
 import { benefitFiltersReducer } from '../../features/benefitsFilters/benefitFiltersSlice';
 import { opportunityCreationReducer } from '../../features/opportunityCreation/opportunityCreationSlice';
+import { placesReducer } from '../../features/places/placesSlice';
 
 const AUTH_STORAGE_KEY = 'ced-portal-auth';
 
@@ -37,7 +37,7 @@ export const store = configureStore({
   },
   reducer: {
     auth: authReducer,
-    wizard: wizardReducer,
+    places: placesReducer,
     location: locationReducer,
     website: websiteReducer,
     benefitFilters: benefitFiltersReducer,

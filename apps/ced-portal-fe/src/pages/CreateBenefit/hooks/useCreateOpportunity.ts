@@ -11,10 +11,9 @@ import { APP_ROUTES } from '../../../app/routeConfig';
 import { useToast } from '../../../contexts';
 import { useCallback } from 'react';
 import {
-  removeSelectedWebsiteId,
   selectSelectedLocationIds,
   selectSelectedWebsiteIds,
-} from '../../../features/wizard/slice';
+} from '../../../features/places/selectors';
 
 const typedObjectEntries = <T extends Record<PropertyKey, unknown>>(
   object: T,

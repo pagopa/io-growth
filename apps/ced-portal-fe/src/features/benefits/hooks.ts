@@ -6,9 +6,9 @@ import type { BenefitsQueryParams } from './types';
 const IN_MANAGEMENT_STATES: Set<OpportunitySummaryItemStatus> = new Set([
   'draft',
   'test_rejected',
+  'test_pending',
 ]);
 const APPROVED_STATES: Set<OpportunitySummaryItemStatus> = new Set([
-  'test_pending',
   'test_passed',
   'published',
 ]);

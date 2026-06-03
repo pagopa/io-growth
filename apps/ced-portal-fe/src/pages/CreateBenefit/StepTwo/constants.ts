@@ -1,4 +1,4 @@
-import type { AccessPoint } from '../../../features/wizard/types';
+import type { AccessPoint } from '../../../features/places/types';
 
 export type ModalState = 'none' | 'select' | 'add' | 'add-from-select';
 

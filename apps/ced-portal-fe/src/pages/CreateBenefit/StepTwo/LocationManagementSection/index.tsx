@@ -15,8 +15,8 @@ import {
   selectAccessPoint,
   selectNationwide,
   selectSelectedLocationIds,
-  setNationwide,
-} from '../../../../features/wizard/slice';
+} from '../../../../features/places/selectors';
+import { setNationwide } from '../../../../features/places/placesSlice';
 import { useAppDispatch, useAppSelector } from '../../../../hooks/store';
 import { useLocationSelectionFlow } from '../hooks/useLocationSelectionFlow';
 import { AddLocationModal } from './AddLocationModal';

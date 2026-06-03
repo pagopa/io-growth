@@ -7,6 +7,18 @@ import {
   setBenefit,
   setLocalizedValue,
 } from '../../../features/opportunityCreation/opportunityCreationSlice';
+import {
+  setAccessPoint,
+  setSelectedLocationIds,
+  setSelectedWebsiteIds,
+} from '../../../features/places/placesSlice';
+import { useGetPlacesQuery } from '../../../features/places/api';
+import { AccessPoint } from '../../../features/places/types';
+
+type PlacesMap = {
+  locations: Array<string>;
+  websites: Array<string>;
+};
 
 export const useHydrateFromSourceOpportunity = (
   sourceOpportunityId:
@@ -22,6 +34,8 @@ export const useHydrateFromSourceOpportunity = (
       skip: !sourceOpportunityId,
     },
   );
+
+  const { data: places } = useGetPlacesQuery();
 
   const {
     beneficiaryBenefit,
@@ -53,6 +67,34 @@ export const useHydrateFromSourceOpportunity = (
     dispatch(setField({ field: 'categoryId', value: categoryId }));
     dispatch(setField({ field: 'placeIds', value: placeIds }));
 
+    const placesIdsMapped = placeIds?.reduce<PlacesMap>(
+      (acc, placeId) => {
+        const place = places?.find(({ id }) => id === placeId);
+        const newLocation = place?.type === 'offline' ? place.id : '';
+        const newWebsite = place?.type === 'online' ? place.id : '';
+        return {
+          locations: [...acc.locations, newLocation].filter(Boolean),
+          websites: [...acc.websites, newWebsite].filter(Boolean),
+        };
+      },
+      {
+        locations: [],
+        websites: [],
+      },
+    );
+
+    if (placesIdsMapped?.locations.length || placesIdsMapped?.websites.length) {
+      dispatch(setSelectedLocationIds(placesIdsMapped?.locations ?? []));
+      dispatch(setSelectedWebsiteIds(placesIdsMapped?.websites ?? []));
+
+      const accessPoint: AccessPoint = placesIdsMapped?.websites.length
+        ? 'online'
+        : placesIdsMapped?.locations.length
+          ? 'territory'
+          : 'both';
+      dispatch(setAccessPoint(accessPoint));
+    }
+
     localizedMetadata?.map((payload) => dispatch(setLocalizedValue(payload)));
 
     if (caregiverBenefit) {
@@ -83,6 +125,7 @@ export const useHydrateFromSourceOpportunity = (
     dispatch,
     localizedMetadata,
     placeIds,
+    places,
     sourceOpportunityDetail,
     sourceOpportunityId,
     url,

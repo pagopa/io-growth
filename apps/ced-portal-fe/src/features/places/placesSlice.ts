@@ -1,40 +1,15 @@
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
-import type {
-  AccessPoint,
-  Language,
-  TranslatedFields,
-  WizardFormState,
-} from './types';
-import { LANGUAGES } from './types';
-import type { RootState } from '../../core/store';
+import { AccessPoint, PlacesState } from './types';
 
-const emptyTranslation: TranslatedFields = {
-  name: '',
-  description: '',
-  conditions: '',
-};
-
-const initialState: WizardFormState = {
-  translations: Object.fromEntries(
-    LANGUAGES.map((l) => [l, { ...emptyTranslation }]),
-  ) as Record<Language, TranslatedFields>,
-  benefitType: '',
-  discountType: 'percentage',
-  discountPercentage: '',
-  category: '',
-  startDate: '',
-  endDate: '',
-  endDateEnabled: false,
-  companionEnabled: false,
-  link: '',
-  accessPoint: '',
+const initialState: PlacesState = {
+  accessPoint: null,
   nationwide: false,
   selectedLocationIds: [],
   selectedWebsiteIds: [],
 };
 
-const wizardSlice = createSlice({
-  name: 'wizard',
+const placesSlice = createSlice({
+  name: 'places',
   initialState,
   reducers: {
     setAccessPoint(state, action: PayloadAction<AccessPoint>) {
@@ -59,10 +34,11 @@ const wizardSlice = createSlice({
         (id) => id !== action.payload,
       );
     },
-
     resetPlaces(state) {
-      state.selectedLocationIds = [];
-      state.selectedWebsiteIds = [];
+      state.accessPoint = initialState.accessPoint;
+      state.nationwide = initialState.nationwide;
+      state.selectedLocationIds = initialState.selectedLocationIds;
+      state.selectedWebsiteIds = initialState.selectedWebsiteIds;
     },
   },
 });
@@ -75,13 +51,6 @@ export const {
   setSelectedWebsiteIds,
   removeSelectedWebsiteId,
   resetPlaces,
-} = wizardSlice.actions;
+} = placesSlice.actions;
 
-export const wizardReducer = wizardSlice.reducer;
-
-export const selectAccessPoint = (state: RootState) => state.wizard.accessPoint;
-export const selectNationwide = (state: RootState) => state.wizard.nationwide;
-export const selectSelectedLocationIds = (state: RootState) =>
-  state.wizard.selectedLocationIds;
-export const selectSelectedWebsiteIds = (state: RootState) =>
-  state.wizard.selectedWebsiteIds;
+export const placesReducer = placesSlice.reducer;

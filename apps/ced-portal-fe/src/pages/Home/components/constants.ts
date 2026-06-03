@@ -23,8 +23,8 @@ export const benefitStateLabelMap: Record<
 > = {
   draft: { text: 'In bozza', color: 'default' },
   test_rejected: { text: 'Rifiutato', color: 'error' },
-  test_pending: { text: 'In fase di test', color: 'warning' },
-  test_passed: { text: 'Test superato', color: 'info' },
+  test_pending: { text: 'In revisione', color: 'info' },
+  test_passed: { text: 'Pubblicazione programmata', color: 'info' },
   published: { text: 'Pubblicata su IO', color: 'success' },
   suspended: { text: 'Sospesa', color: 'default' },
   deleted: { text: 'Eliminata', color: 'error' },

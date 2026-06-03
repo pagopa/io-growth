@@ -1,7 +1,7 @@
 import type { BenefitRequest } from '../../core/api/generated/model/benefitRequest';
 import type { LocalizedMetadataItemLanguage } from '../../core/api/generated/model/localizedMetadataItemLanguage';
 import type { OpportunityDetailResponse } from '../../core/api/generated/model/opportunityDetailResponse';
-import type { AccessPoint } from '../../features/wizard/types';
+import type { AccessPoint } from '../../features/places/types';
 
 export interface CreateBenefitNavigationState {
   sourceOpportunityId?: OpportunityDetailResponse['id'];

@@ -5,7 +5,7 @@ import {
   selectNationwide,
   selectSelectedLocationIds,
   selectSelectedWebsiteIds,
-} from '../../../features/wizard/slice';
+} from '../../../features/places/selectors';
 import type { StepProps } from '../index';
 import { WizardAlert } from '../components/WizardAlert';
 import { AccessPointSection } from './AccessPointSection';

@@ -5,13 +5,13 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { APP_ROUTES } from '../../app/routeConfig';
 import { useSaveBenefitDraftMutation } from '../../features/benefits/api';
 import { useRequestApprovalMutation } from '../../features/opportunities/api';
+import { resetPlaces } from '../../features/places/placesSlice';
 import {
-  resetPlaces,
   selectAccessPoint,
   selectNationwide,
   selectSelectedLocationIds,
   selectSelectedWebsiteIds,
-} from '../../features/wizard/slice';
+} from '../../features/places/selectors';
 import { useAppDispatch, useAppSelector } from '../../hooks/store';
 import { AppModal } from '../../components';
 import { WizardFooter } from './components/WizardFooter';
@@ -44,7 +44,6 @@ export default function CreateBenefitPage() {
   const location = useLocation() as {
     state: CreateBenefitNavigationState | null;
   };
-  console.log('🚀 ~ CreateBenefitPage ~ location:', location);
 
   const sourceOpportunityId = location.state?.sourceOpportunityId ?? null;
   useHydrateFromSourceOpportunity(sourceOpportunityId);

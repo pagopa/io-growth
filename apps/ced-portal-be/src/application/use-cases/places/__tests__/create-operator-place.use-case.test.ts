@@ -8,13 +8,21 @@ import { createMockPlaceRepository, mockCreatePlaceInput } from "./mocks.js";
 describe("makeCreateOperatorPlaceUseCase", () => {
   it("should create an operator place", async () => {
     const placeRepository = createMockPlaceRepository({
-      create: vi.fn().mockResolvedValue(ok(undefined)),
+      create: vi.fn().mockImplementation(async ({ place }) => ok(place)),
     });
     const useCase = makeCreateOperatorPlaceUseCase(placeRepository);
 
     const result = await useCase(mockCreatePlaceInput);
 
-    expect(result).toEqual(ok(undefined));
+    expect(result).toEqual(
+      ok(
+        expect.objectContaining({
+          id: expect.stringMatching(/^[0-9A-HJKMNP-TV-Z]{26}$/),
+          name: mockCreatePlaceInput.place.name,
+          type: mockCreatePlaceInput.place.type,
+        }),
+      ),
+    );
     expect(placeRepository.create).toHaveBeenCalledWith(
       expect.objectContaining({
         operatorId: mockCreatePlaceInput.operatorId,

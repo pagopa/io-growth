@@ -131,6 +131,10 @@ paths:
       responses:
         "201":
           description: Operator profile created successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OperatorProfileResponse"
         "401":
           description: Invalid or missing JWT
           content:
@@ -233,6 +237,10 @@ paths:
       responses:
         "201":
           description: Place created successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PlaceResponse"
         "400":
           description: Invalid place payload
           content:
@@ -535,6 +543,10 @@ paths:
       responses:
         "201":
           description: Opportunity created successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OpportunityDetailResponse"
         "400":
           description: Invalid opportunity payload
           content:

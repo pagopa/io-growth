@@ -9,6 +9,7 @@ import { err, ResultAsync } from "neverthrow";
 import { ulid } from "ulid";
 import { z } from "zod";
 
+import type { Profile } from "../../../domain/entities/profile.js";
 import type { ProfileRepository } from "../../../domain/ports/outbound/persistence/profile.repository.js";
 
 import { validateUseCaseInput } from "../utils/validate-use-case-input.js";
@@ -57,7 +58,7 @@ export type CreateOperatorProfileInput = z.infer<
 
 export type CreateOperatorProfileUseCase = UseCase<
   CreateOperatorProfileInput,
-  void,
+  Profile,
   ConflictError | GenericError | ValidationError
 >;
 

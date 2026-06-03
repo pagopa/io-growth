@@ -41,6 +41,7 @@ export const createMockPlaceRepository = (
 ): PlaceRepository => ({
   create: vi.fn(),
   getById: vi.fn(),
+  getIdsByOperator: vi.fn(),
   listByOperatorId: vi.fn(),
   ...overrides,
 });

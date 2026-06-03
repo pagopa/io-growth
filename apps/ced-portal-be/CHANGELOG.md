@@ -1,5 +1,11 @@
 # ced-portal-be
 
+## 0.0.12
+
+### Patch Changes
+
+- 38c22fa: added payload to create requests
+
 ## 0.0.11
 
 ### Patch Changes

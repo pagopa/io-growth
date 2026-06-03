@@ -21,7 +21,7 @@ export interface GetPlaceIdsByOperatorInput {
 export interface PlaceRepository {
   readonly create: (
     input: CreatePlaceInput,
-  ) => Promise<Result<void, GenericError>>;
+  ) => Promise<Result<Place, GenericError>>;
   readonly getById: (
     input: GetPlaceByIdInput,
   ) => Promise<Result<Place | undefined, GenericError>>;

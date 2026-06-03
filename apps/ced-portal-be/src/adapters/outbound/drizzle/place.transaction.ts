@@ -18,17 +18,19 @@ export const createPlaceInTransaction = async (
   operatorId: string,
   input: Place,
 ): Promise<Place> => {
-  const placeRow = (
-    await tx
-      .insert(place)
-      .values({
-        id: input.id,
-        name: input.name,
-        operatorId,
-        type: input.type,
-      })
-      .returning({ id: place.id, name: place.name, type: place.type })
-  )[0]!;
+  const [placeRow] = await tx
+    .insert(place)
+    .values({
+      id: input.id,
+      name: input.name,
+      operatorId,
+      type: input.type,
+    })
+    .returning({ id: place.id, name: place.name, type: place.type });
+
+  if (!placeRow) {
+    throw new Error("Failed to insert place");
+  }
 
   const returnedSupportContacts =
     input.supportContacts.length > 0
@@ -50,25 +52,27 @@ export const createPlaceInTransaction = async (
       : [];
 
   if (input.type === "offline") {
-    const addressRow = (
-      await tx
-        .insert(address)
-        .values({
-          city: input.address.city,
-          country: input.address.country,
-          placeId: input.id,
-          postalCode: input.address.postalCode,
-          state: input.address.state,
-          street: input.address.street,
-        })
-        .returning({
-          city: address.city,
-          country: address.country,
-          postalCode: address.postalCode,
-          state: address.state,
-          street: address.street,
-        })
-    )[0]!;
+    const [addressRow] = await tx
+      .insert(address)
+      .values({
+        city: input.address.city,
+        country: input.address.country,
+        placeId: input.id,
+        postalCode: input.address.postalCode,
+        state: input.address.state,
+        street: input.address.street,
+      })
+      .returning({
+        city: address.city,
+        country: address.country,
+        postalCode: address.postalCode,
+        state: address.state,
+        street: address.street,
+      });
+
+    if (!addressRow) {
+      throw new Error("Failed to insert address");
+    }
 
     return {
       address: addressRow,
@@ -79,15 +83,17 @@ export const createPlaceInTransaction = async (
     };
   }
 
-  const websiteRow = (
-    await tx
-      .insert(website)
-      .values({
-        placeId: input.id,
-        url: input.website.url,
-      })
-      .returning({ url: website.url })
-  )[0]!;
+  const [websiteRow] = await tx
+    .insert(website)
+    .values({
+      placeId: input.id,
+      url: input.website.url,
+    })
+    .returning({ url: website.url });
+
+  if (!websiteRow) {
+    throw new Error("Failed to insert website");
+  }
 
   return {
     id: placeRow.id,

@@ -3,7 +3,6 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { Box, Button, Container, Typography } from '@mui/material';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { APP_ROUTES } from '../../app/routeConfig';
-import { useSaveBenefitDraftMutation } from '../../features/benefits/api';
 import { useRequestApprovalMutation } from '../../features/opportunities/api';
 import { resetPlaces } from '../../features/places/placesSlice';
 import {
@@ -52,10 +51,9 @@ export default function CreateBenefitPage() {
   const [attempted, setAttempted] = useState(false);
   const [submitReviewOpen, setSubmitReviewOpen] = useState(false);
   const { showToast } = useToast();
-  const createOpportunity = useCreateOpportunity();
+  const [createOpportunity, { isLoading: isCreatingOpportunity }] =
+    useCreateOpportunity();
 
-  const [saveDraft, { isLoading: isSavingDraft }] =
-    useSaveBenefitDraftMutation();
   const [requestApproval, { isLoading: isRequestingApproval }] =
     useRequestApprovalMutation();
 
@@ -191,7 +189,7 @@ export default function CreateBenefitPage() {
             onBack={handleBack}
             onNext={handleNext}
             onSaveDraft={handleSaveDraft}
-            isSavingDraft={isSavingDraft}
+            isSavingDraft={isCreatingOpportunity}
           />
         </Container>
       </Box>
@@ -205,7 +203,7 @@ export default function CreateBenefitPage() {
           variant="contained"
           fullWidth
           onClick={handleConfirmSubmitReview}
-          disabled={isSavingDraft || isRequestingApproval}
+          disabled={isCreatingOpportunity || isRequestingApproval}
         >
           Invia in revisione
         </Button>

@@ -25,7 +25,7 @@ export const useCreateOpportunity = () => {
   const dispatch = useAppDispatch();
   const { showToast } = useToast();
 
-  const [createOpportunity] = useCreateOpportunityMutation();
+  const [createOpportunity, { isLoading }] = useCreateOpportunityMutation();
   const opportunity: OpportunityCreationForm = useAppSelector(
     selectOpportunityForm,
   );
@@ -80,5 +80,5 @@ export const useCreateOpportunity = () => {
     websiteIds,
   ]);
 
-  return handleCreation;
+  return [handleCreation, { isLoading }] as const;
 };

@@ -46,55 +46,55 @@ declare module '@mui/material/styles' {
 export const createAppTheme = () =>
   createTheme(muiItaliaTheme, {
     typography: {
-      fontFamily: '"Titillium Web", Arial, sans-serif',
+      fontFamily: '"Titillio", Arial, sans-serif',
       fontWeightLight: 300,
       fontWeightRegular: 400,
       fontWeightMedium: 600,
       fontWeightBold: 700,
       h1: {
-        fontFamily: '"Titillium Web", Arial, sans-serif',
+        fontFamily: '"Titillio", Arial, sans-serif',
         fontSize: '28px',
         lineHeight: '42px',
         letterSpacing: '0px',
         fontWeight: 600,
       },
       h2: {
-        fontFamily: '"Titillium Web", Arial, sans-serif',
+        fontFamily: '"Titillio", Arial, sans-serif',
         fontSize: '22px',
         lineHeight: '33px',
         letterSpacing: '0px',
         fontWeight: 600,
       },
       h3: {
-        fontFamily: '"Titillium Web", Arial, sans-serif',
+        fontFamily: '"Titillio", Arial, sans-serif',
         fontSize: '20px',
         lineHeight: '30px',
         letterSpacing: '0px',
         fontWeight: 600,
       },
       h4: {
-        fontFamily: '"Titillium Web", Arial, sans-serif',
+        fontFamily: '"Titillio", Arial, sans-serif',
         fontSize: '18px',
         lineHeight: '27px',
         letterSpacing: '0px',
         fontWeight: 600,
       },
       h5: {
-        fontFamily: '"Titillium Web", Arial, sans-serif',
+        fontFamily: '"Titillio", Arial, sans-serif',
         fontSize: '16px',
         lineHeight: '24px',
         letterSpacing: '0px',
         fontWeight: 600,
       },
       h6: {
-        fontFamily: '"Titillium Web", Arial, sans-serif',
+        fontFamily: '"Titillio", Arial, sans-serif',
         fontSize: '16px',
         lineHeight: '24px',
         letterSpacing: '0px',
         fontWeight: 600,
       },
       button: {
-        fontFamily: '"Titillium Web", Arial, sans-serif',
+        fontFamily: '"Titillio", Arial, sans-serif',
         fontSize: '16px',
         lineHeight: '22px',
         letterSpacing: '0px',
@@ -102,7 +102,7 @@ export const createAppTheme = () =>
         textTransform: 'none',
       },
       allVariants: {
-        fontFamily: '"Titillium Web", Arial, sans-serif',
+        fontFamily: '"Titillio", Arial, sans-serif',
       },
     },
     palette: {
@@ -129,17 +129,17 @@ export const createAppTheme = () =>
       MuiCssBaseline: {
         styleOverrides: {
           body: {
-            fontFamily: '"Titillium Web", Arial, sans-serif',
+            fontFamily: '"Titillio", Arial, sans-serif',
           },
           'input, button, textarea, select': {
-            fontFamily: '"Titillium Web", Arial, sans-serif',
+            fontFamily: '"Titillio", Arial, sans-serif',
           },
         },
       },
       MuiTypography: {
         styleOverrides: {
           root: {
-            fontFamily: '"Titillium Web", Arial, sans-serif',
+            fontFamily: '"Titillio", Arial, sans-serif',
           },
         },
       },

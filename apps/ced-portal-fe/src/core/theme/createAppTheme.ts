@@ -31,9 +31,9 @@ declare module '@mui/material/styles' {
 export const createAppTheme = () =>
   createTheme(muiItaliaTheme, {
     typography: {
-      fontFamily: '"Titillium Web", Arial, sans-serif',
+      fontFamily: '"Titillio", Arial, sans-serif',
       allVariants: {
-        fontFamily: '"Titillium Web", Arial, sans-serif',
+        fontFamily: '"Titillio", Arial, sans-serif',
       },
     },
     palette: {
@@ -54,17 +54,17 @@ export const createAppTheme = () =>
       MuiCssBaseline: {
         styleOverrides: {
           body: {
-            fontFamily: '"Titillium Web", Arial, sans-serif',
+            fontFamily: '"Titillio", Arial, sans-serif',
           },
           'input, button, textarea, select': {
-            fontFamily: '"Titillium Web", Arial, sans-serif',
+            fontFamily: '"Titillio", Arial, sans-serif',
           },
         },
       },
       MuiTypography: {
         styleOverrides: {
           root: {
-            fontFamily: '"Titillium Web", Arial, sans-serif',
+            fontFamily: '"Titillio", Arial, sans-serif',
           },
         },
       },

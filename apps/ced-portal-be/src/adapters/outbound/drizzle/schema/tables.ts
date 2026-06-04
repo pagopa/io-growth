@@ -1,4 +1,5 @@
 import {
+  boolean,
   date,
   integer,
   jsonb,
@@ -144,6 +145,7 @@ export const opportunity = pgTable("opportunity", {
   id: text()
     .primaryKey()
     .$defaultFn(() => ulid()),
+  nationalTerritory: boolean("national_territory").notNull().default(false),
   operatorId: text("operator_id")
     .notNull()
     .references(() => operator.id),

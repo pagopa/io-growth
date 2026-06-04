@@ -4,6 +4,7 @@ import {
   type AutocompleteProps as MuiAutocompleteProps,
 } from '@mui/material';
 import { AppTextField } from '../TextField';
+import { ExpandMore } from '@mui/icons-material';
 
 export interface AutocompleteOption {
   label: string;
@@ -52,6 +53,7 @@ export function AppAutocomplete<T extends AutocompleteOption>({
           onSelect?.(selectedOption as T);
         }
       }}
+      popupIcon={<ExpandMore color="action" />}
       renderOption={(props, option: T | string) => (
         <MenuItem
           {...props}

@@ -124,6 +124,7 @@ CREATE TABLE opportunity (
   date_from DATE NOT NULL,
   date_to DATE,
   url TEXT,
+  national_territory BOOLEAN NOT NULL DEFAULT false,
   rejection_message TEXT,
   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT now()

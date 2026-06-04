@@ -54,7 +54,8 @@ export const OpportunitySchema = z.object({
   dateTo: z.iso.date().optional(),
   id: z.ulid(),
   localizedMetadata: z.array(localizedMetadataSchema).min(1),
-  placeIds: z.array(z.ulid()).min(1),
+  nationalTerritory: z.boolean(),
+  placeIds: z.array(z.ulid()),
   status: z.enum([
     "draft",
     "test_pending",
@@ -124,6 +125,7 @@ export const OpportunityDetailSchema = z.object({
   dateTo: z.string().nullable(),
   id: z.ulid(),
   localizedMetadata: z.array(localizedMetadataSummarySchema),
+  nationalTerritory: z.boolean(),
   placeIds: z.array(z.ulid()),
   status: z.enum([
     "draft",

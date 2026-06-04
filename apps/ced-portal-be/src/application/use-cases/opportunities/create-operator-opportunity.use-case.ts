@@ -50,17 +50,23 @@ const LocalizedMetadataListInputSchema = z
     },
   );
 
-const CreateOperatorOpportunityInputSchema = z.object({
-  beneficiaryBenefit: BenefitInputSchema,
-  caregiverBenefit: BenefitInputSchema.optional(),
-  categoryId: z.ulid(),
-  dateFrom: z.iso.date(),
-  dateTo: z.iso.date().optional(),
-  localizedMetadata: LocalizedMetadataListInputSchema,
-  operatorId: z.ulid(),
-  placeIds: z.array(z.ulid()).min(1),
-  url: z.url().optional(),
-});
+const CreateOperatorOpportunityInputSchema = z
+  .object({
+    beneficiaryBenefit: BenefitInputSchema,
+    caregiverBenefit: BenefitInputSchema.optional(),
+    categoryId: z.ulid(),
+    dateFrom: z.iso.date(),
+    dateTo: z.iso.date().optional(),
+    localizedMetadata: LocalizedMetadataListInputSchema,
+    nationalTerritory: z.boolean().default(false),
+    operatorId: z.ulid(),
+    placeIds: z.array(z.ulid()),
+    url: z.url().optional(),
+  })
+  .refine((input) => input.nationalTerritory || input.placeIds.length > 0, {
+    message: "placeIds cannot be empty unless nationalTerritory is true",
+    path: ["placeIds"],
+  });
 
 export type CreateOperatorOpportunityInput = z.infer<
   typeof CreateOperatorOpportunityInputSchema
@@ -108,6 +114,7 @@ export const makeCreateOperatorOpportunityUseCase =
               ...lm,
               id: ulid(),
             })),
+            nationalTerritory: validatedInput.nationalTerritory,
             placeIds: validatedInput.placeIds,
             status: "draft" as const,
             url: validatedInput.url,
@@ -145,10 +152,12 @@ const validateExistence = (
     Promise.all([
       input.operatorRepository.getById(input.operatorId),
       input.opportunityCategoryRepository.getById(input.categoryId),
-      input.placeRepository.getIdsByOperator({
-        operatorId: input.operatorId,
-        placeIds: input.placeIds,
-      }),
+      input.placeIds.length === 0
+        ? Promise.resolve(ok([]))
+        : input.placeRepository.getIdsByOperator({
+            operatorId: input.operatorId,
+            placeIds: input.placeIds,
+          }),
     ]),
   ).andThen(([operatorResult, categoryResult, placeIdsResult]) => {
     if (operatorResult.isErr()) {

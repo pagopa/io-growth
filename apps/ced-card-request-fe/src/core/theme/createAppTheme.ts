@@ -506,6 +506,20 @@ export const createAppTheme = () =>
           },
         },
       },
+      MuiAccordion: {
+        styleOverrides: {
+          root: {
+            '&.MuiAccordion-root': {
+              borderRadius: 12,
+              border: 'none',
+              boxShadow: 'none',
+              '&:before': {
+                display: 'none',
+              },
+            },
+          },
+        },
+      },
     },
   });
 

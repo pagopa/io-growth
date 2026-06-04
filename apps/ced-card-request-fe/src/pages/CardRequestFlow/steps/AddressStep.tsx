@@ -1,6 +1,6 @@
 import { forwardRef, useImperativeHandle, useState } from 'react';
 import { Box, Typography, useTheme } from '@mui/material';
-import { AppSelect, AppTextField } from '../../../components';
+import { AppAutocomplete, AppSelect, AppTextField } from '../../../components';
 import type { StepRef } from '../types';
 import { StepCard } from '../StepCard';
 
@@ -110,32 +110,35 @@ export const AddressStep = forwardRef<StepRef>(function AddressStep(_, ref) {
       </Typography>
 
       <Box sx={{ mt: 3, display: 'grid', gap: 2.25 }}>
-        <AppSelect
+        <AppAutocomplete
           label="Provincia"
           required
           options={provinceOptions}
-          value={form.provincia}
+          inputValue={form.provincia}
           error={!!errors.provincia}
           helperText={errors.provincia}
-          onChange={(e) => handleChange('provincia', e.target.value as string)}
+          onValueChange={(value) => handleChange('provincia', value)}
+          onSelect={(option) => handleChange('provincia', option.label)}
         />
-        <AppSelect
+        <AppAutocomplete
           label="Comune"
           required
           options={comuneOptions}
-          value={form.comune}
+          inputValue={form.comune}
           error={!!errors.comune}
           helperText={errors.comune}
-          onChange={(e) => handleChange('comune', e.target.value as string)}
+          onValueChange={(value) => handleChange('comune', value)}
+          onSelect={(option) => handleChange('comune', option.label)}
         />
-        <AppSelect
+        <AppAutocomplete
           label="CAP"
           required
           options={capOptions}
-          value={form.cap}
+          inputValue={form.cap}
           error={!!errors.cap}
           helperText={errors.cap}
-          onChange={(e) => handleChange('cap', e.target.value as string)}
+          onValueChange={(value) => handleChange('cap', value)}
+          onSelect={(option) => handleChange('cap', option.label)}
         />
         <AppTextField
           label="Indirizzo"

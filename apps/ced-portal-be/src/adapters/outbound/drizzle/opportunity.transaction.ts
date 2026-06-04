@@ -49,17 +49,20 @@ export const createOpportunityInTransaction = async (
     dateFrom: input.dateFrom,
     dateTo: input.dateTo,
     id: input.id,
+    nationalTerritory: input.nationalTerritory,
     operatorId,
     status: input.status,
     url: input.url,
   });
 
-  await tx.insert(opportunityPlace).values(
-    input.placeIds.map((placeId) => ({
-      opportunityId: input.id,
-      placeId,
-    })),
-  );
+  if (input.placeIds.length > 0) {
+    await tx.insert(opportunityPlace).values(
+      input.placeIds.map((placeId) => ({
+        opportunityId: input.id,
+        placeId,
+      })),
+    );
+  }
 
   await tx
     .insert(beneficiaryBenefit)

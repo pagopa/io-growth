@@ -3,6 +3,7 @@ import { Box, Button, useTheme } from '@mui/material';
 import { useEffect, useState } from 'react';
 import { SpinnerLoader } from '../../components/Loader';
 import { Body, Title } from '../../components/Typography';
+import { VSpacer } from '../../layouts/Spacer';
 
 interface SavedDraftDialogProps {
   onClose: () => void;
@@ -57,38 +58,49 @@ export function SavedDraftDialog({
           sx={{ fontSize: 32, color: theme.palette.common.primaryButton }}
         />
       </Box>
+      <VSpacer size={8} />
 
-      <Title
-        text="Abbiamo salvato una bozza della tua richiesta"
-        variant="SM"
-      />
-      <Body>Torna più tardi e riparti da dove avevi lasciato.</Body>
+      <Box sx={{ maxWidth: 270, textAlign: 'center' }}>
+        <Title
+          text="Abbiamo salvato una bozza della tua richiesta"
+          variant="MD"
+        />
+        <VSpacer size={8} />
+        <Body>Torna più tardi e riparti da dove avevi lasciato.</Body>
+      </Box>
+      <VSpacer size={32} />
 
-      <Button
-        fullWidth
-        variant="contained"
-        onClick={onClose}
+      <Box
         sx={{
-          mt: 4,
-          height: 52,
-          borderRadius: '10px',
-          bgcolor: theme.palette.common.primaryButton,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          gap: 2,
         }}
       >
-        Ok, chiudi
-      </Button>
+        <Button
+          variant="contained"
+          size="medium"
+          onClick={onClose}
+          sx={{
+            borderRadius: '10px',
+            bgcolor: theme.palette.common.primaryButton,
+          }}
+        >
+          Ok, chiudi
+        </Button>
 
-      <Button
-        fullWidth
-        variant="text"
-        onClick={onResume}
-        sx={{
-          mt: 1,
-          color: theme.palette.common.primaryButton,
-        }}
-      >
-        Riprendi la richiesta
-      </Button>
+        <Button
+          fullWidth
+          variant="text"
+          onClick={onResume}
+          sx={{
+            color: theme.palette.common.primaryButton,
+          }}
+        >
+          Riprendi la richiesta
+        </Button>
+      </Box>
     </Box>
   );
 }

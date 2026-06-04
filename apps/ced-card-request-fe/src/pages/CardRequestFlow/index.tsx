@@ -129,6 +129,7 @@ export default function CardRequestFlowPage() {
         />
         {isSubmitting && (
           <SpinnerLoader
+            fullscreen
             title="Stiamo elaborando la tua richiesta"
             description="Attendi qualche secondo"
           />

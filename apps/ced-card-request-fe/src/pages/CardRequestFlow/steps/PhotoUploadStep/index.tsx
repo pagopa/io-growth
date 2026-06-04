@@ -73,6 +73,7 @@ export const PhotoUploadStep = forwardRef<StepRef, PhotoUploadProps>(
     if (uploadState === 'loading') {
       return (
         <SpinnerLoader
+          fullscreen
           title="Stiamo caricando la foto"
           description="Attendi qualche secondo"
         />

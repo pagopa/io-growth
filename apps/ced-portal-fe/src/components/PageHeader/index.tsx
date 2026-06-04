@@ -45,33 +45,19 @@ export const PageHeader = () => {
     return <Navigate replace to={APP_ROUTES.AUTHORIZE} />;
   }
 
-  if (import.meta.env.VITE_APP_ENV === 'development') {
-    const selectedPartyId =
-      partyList.find((party) => party.id === user.id)?.id ?? partyList[0]?.id;
-    const selectedProductId = productsList[0]?.id;
-    if (!selectedPartyId || !selectedProductId) {
-      return null;
-    }
-    return (
-      <Box sx={{ '& .MuiContainer-root': { px: { xs: 2, md: 3 } } }}>
-        <HeaderProduct
-          productsList={productsList}
-          productId={selectedProductId}
-          partyList={partyList}
-          partyId={selectedPartyId}
-          onSelectedParty={handlePartyChange}
-        />
-      </Box>
-    );
+  const selectedPartyId =
+    partyList.find((party) => party.id === user.id)?.id ?? partyList[0]?.id;
+  const selectedProductId = productsList[0]?.id;
+  if (!selectedPartyId || !selectedProductId) {
+    return null;
   }
-
   return (
     <Box sx={{ '& .MuiContainer-root': { px: { xs: 2, md: 3 } } }}>
       <HeaderProduct
         productsList={productsList}
-        productId={productsList[0]?.id}
-        partyList={[user]}
-        partyId={user.id}
+        productId={selectedProductId}
+        partyList={partyList}
+        partyId={selectedPartyId}
         onSelectedParty={handlePartyChange}
       />
     </Box>

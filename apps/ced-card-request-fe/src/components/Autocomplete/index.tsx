@@ -67,6 +67,7 @@ export function AppAutocomplete<T extends AutocompleteOption>({
           required={required}
           error={error}
           helperText={helperText}
+          hideErrorIcon
         />
       )}
     />

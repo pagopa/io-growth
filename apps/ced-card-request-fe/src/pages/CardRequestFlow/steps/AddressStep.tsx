@@ -1,6 +1,6 @@
 import { forwardRef, useImperativeHandle, useState } from 'react';
 import { Box, Typography, useTheme } from '@mui/material';
-import { AppAutocomplete, AppSelect, AppTextField } from '../../../components';
+import { AppAutocomplete, AppTextField } from '../../../components';
 import type { StepRef } from '../types';
 import { StepCard } from '../StepCard';
 

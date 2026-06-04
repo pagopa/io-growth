@@ -8,6 +8,7 @@ const renderInline = (text: string): React.ReactNode[] => {
   const linkRegex = /\[([^\]]+)\]\(([^)]+)\)/g;
   const boldRegex = /\*\*(.*?)\*\*/g;
   const italicRegex = /\*(.*?)\*/g;
+  const smallRegex = /\^\^(.*?)\^\^/g;
   const imageRegex = /!\[([^\]]*)\]\(([^)]+)\)/g;
 
   const nodes: React.ReactNode[] = [];
@@ -15,7 +16,7 @@ const renderInline = (text: string): React.ReactNode[] => {
   let lastIndex = 0;
 
   const combinedRegex = new RegExp(
-    `${imageRegex.source}|${linkRegex.source}|${boldRegex.source}|${italicRegex.source}`,
+    `${imageRegex.source}|${linkRegex.source}|${boldRegex.source}|${italicRegex.source}|${smallRegex.source}`,
     'g',
   );
 
@@ -37,7 +38,7 @@ const renderInline = (text: string): React.ReactNode[] => {
           src={match[2]}
           alt={match[1]}
           sx={{
-            minWidth: '100%',
+            maxWidth: '100%',
             height: 'auto',
             display: 'block',
             borderRadius: 1,
@@ -56,14 +57,16 @@ const renderInline = (text: string): React.ReactNode[] => {
           {match[3]}
         </Link>,
       );
-    }
-    // **bold**
-    else if (match[5]) {
+    } else if (match[5]) {
       nodes.push(<strong key={match.index}>{match[5]}</strong>);
-    }
-    // *italic*
-    else if (match[6]) {
+    } else if (match[6]) {
       nodes.push(<em key={match.index}>{match[6]}</em>);
+    } else if (match[7]) {
+      nodes.push(
+        <Body key={match.index} fontSize="14px">
+          {renderInline(match[7])}
+        </Body>,
+      );
     }
 
     lastIndex = combinedRegex.lastIndex;

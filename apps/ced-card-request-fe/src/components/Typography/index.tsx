@@ -1,12 +1,7 @@
 // eslint-disable-next-line no-restricted-imports
-import { Typography } from '@mui/material';
+import { Typography, useTheme } from '@mui/material';
 
-type TitleFontSizes = '36px' | '32px' | '28px' | '24px' | '20px' | '18px';
-
-const titleStyles: Record<
-  string,
-  { size: TitleFontSizes; lineHeight: string }
-> = {
+const titleStyles = {
   XXL: {
     size: '36px',
     lineHeight: '50px',
@@ -31,7 +26,7 @@ const titleStyles: Record<
     size: '18px',
     lineHeight: '28px',
   },
-};
+} as const;
 
 type Variant = keyof typeof titleStyles;
 
@@ -40,17 +35,21 @@ type TitleProps = {
   variant: Variant;
 };
 
-export const Title = ({ text, variant }: TitleProps) => (
-  <Typography
-    sx={{
-      fontWeight: 600,
-      fontSize: titleStyles[variant].size,
-      lineHeight: titleStyles[variant].lineHeight,
-    }}
-  >
-    {text}
-  </Typography>
-);
+export const Title = ({ text, variant }: TitleProps) => {
+  const theme = useTheme();
+  return (
+    <Typography
+      sx={{
+        fontWeight: 600,
+        fontSize: titleStyles[variant].size,
+        lineHeight: titleStyles[variant].lineHeight,
+        color: theme.palette.common.neutralBlack,
+      }}
+    >
+      {text}
+    </Typography>
+  );
+};
 
 const fontWeights = {
   Thin: '200',
@@ -72,28 +71,79 @@ type BodyFontSizes =
   | '28px'
   | '32px';
 
-type BodyProps = {
+type BaseBodyProps = {
   fontWeight?: keyof typeof fontWeights;
   fontSize?: BodyFontSizes;
-  asLink?: boolean;
   children?: React.ReactNode;
 };
+
+type BodyProps =
+  | (BaseBodyProps & {
+      asLink: true;
+      onClick: () => void;
+    })
+  | (BaseBodyProps & {
+      asLink?: false;
+      onClick?: never;
+    });
 
 export const Body = ({
   children,
   fontWeight = 'Regular',
   fontSize = '16px',
   asLink = false,
+  onClick,
 }: BodyProps) => (
   <Typography
+    onClick={onClick}
     sx={{
       fontSize,
       lineHeight: '24px',
       fontWeight: fontWeights[fontWeight],
-      color: asLink ? '#007BFF' : '#555C70',
+      color: asLink
+        ? '#007BFF'
+        : fontWeight === 'Regular'
+          ? '#555C70'
+          : '#0E0F13',
       textDecoration: asLink ? 'underline' : 'none',
     }}
   >
     {children}
   </Typography>
 );
+
+export const ErrorBody = (props: Omit<BodyProps, 'asLink'>) => {
+  const theme = useTheme();
+
+  return (
+    <Typography
+      sx={{
+        fontSize: props.fontSize || '16px',
+        lineHeight: '24px',
+        fontWeight: fontWeights[props.fontWeight || 'Regular'],
+        color: theme.palette.error.main,
+      }}
+    >
+      {props.children}
+    </Typography>
+  );
+};
+
+export const LabelCaption = ({ children }: { children?: React.ReactNode }) => {
+  const theme = useTheme();
+
+  return (
+    <Typography
+      sx={{
+        fontWeight: 600,
+        fontSize: '14px',
+        lineHeight: '100%',
+        letterSpacing: '0px',
+        textTransform: 'uppercase',
+        color: theme.palette.common.neutralDarkGray,
+      }}
+    >
+      {children}
+    </Typography>
+  );
+};

@@ -1,19 +1,18 @@
-import { useEffect, useState } from 'react';
-import {
-  Box,
-  Button,
-  CircularProgress,
-  Typography,
-  useTheme,
-} from '@mui/material';
 import CheckRoundedIcon from '@mui/icons-material/CheckRounded';
+import { Box, Button, useTheme } from '@mui/material';
+import { useEffect, useState } from 'react';
+import { SpinnerLoader } from '../../components/Loader';
+import { Body, Title } from '../../components/Typography';
 
 interface SavedDraftDialogProps {
   onClose: () => void;
   onResume: () => void;
 }
 
-export function SavedDraftDialog({ onClose, onResume }: SavedDraftDialogProps) {
+export function SavedDraftDialog({
+  onClose,
+  onResume,
+}: Readonly<SavedDraftDialogProps>) {
   const theme = useTheme();
   const [saved, setSaved] = useState(false);
 
@@ -24,37 +23,10 @@ export function SavedDraftDialog({ onClose, onResume }: SavedDraftDialogProps) {
 
   if (!saved) {
     return (
-      <Box
-        sx={{
-          minHeight: '100dvh',
-          bgcolor: theme.palette.common.neutralGray,
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'center',
-          gap: 3,
-        }}
-      >
-        <CircularProgress
-          size={64}
-          sx={{ color: theme.palette.common.primaryButton }}
-        />
-        <Typography
-          variant="h3"
-          component="p"
-          sx={{ color: theme.palette.common.neutralBlack, mt: 2 }}
-        >
-          Stiamo salvando la bozza
-        </Typography>
-        <Typography
-          sx={{
-            color: theme.palette.common.neutralDarkGray,
-            fontSize: 17,
-          }}
-        >
-          Attendi qualche secondo
-        </Typography>
-      </Box>
+      <SpinnerLoader
+        title="Stiamo salvando la bozza"
+        description="Attendi qualche secondo"
+      />
     );
   }
 
@@ -86,26 +58,11 @@ export function SavedDraftDialog({ onClose, onResume }: SavedDraftDialogProps) {
         />
       </Box>
 
-      <Typography
-        variant="h2"
-        component="h2"
-        textAlign="center"
-        sx={{ mt: 3, color: theme.palette.common.neutralBlack }}
-      >
-        Abbiamo salvato una bozza della tua richiesta
-      </Typography>
-
-      <Typography
-        textAlign="center"
-        sx={{
-          mt: 2,
-          color: theme.palette.common.neutralDarkGray,
-          fontSize: 17,
-          lineHeight: 1.45,
-        }}
-      >
-        Torna più tardi e riparti da dove avevi lasciato.
-      </Typography>
+      <Title
+        text="Abbiamo salvato una bozza della tua richiesta"
+        variant="SM"
+      />
+      <Body>Torna più tardi e riparti da dove avevi lasciato.</Body>
 
       <Button
         fullWidth

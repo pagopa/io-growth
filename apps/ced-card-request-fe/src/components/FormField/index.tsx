@@ -1,5 +1,6 @@
-import { Box, Typography } from '@mui/material';
+import { Box } from '@mui/material';
 import { ChangeEvent, cloneElement, isValidElement, ReactElement } from 'react';
+import { Body } from '../Typography';
 
 export type FormFieldProps = {
   children: ReactElement<Record<string, unknown>>;
@@ -47,16 +48,9 @@ export const FormField = ({
 
   return (
     <Box>
-      {title && (
-        <Typography sx={{ fontWeight: 600, mb: 0.75 }}>{title}</Typography>
-      )}
-
+      {title && <Body>{title}</Body>}
       {updatedChild}
-      {helperText && (
-        <Typography sx={{ mt: 0.5, fontSize: 12, color: 'text.secondary' }}>
-          {helperText}
-        </Typography>
-      )}
+      {helperText && <Body>{helperText}</Body>}
     </Box>
   );
 };

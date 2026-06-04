@@ -1,22 +1,25 @@
-import { forwardRef, useImperativeHandle, useState } from 'react';
-import {
-  Box,
-  Button,
-  CircularProgress,
-  Link,
-  Typography,
-  useTheme,
-} from '@mui/material';
 import FileUploadOutlinedIcon from '@mui/icons-material/FileUploadOutlined';
+import { Box, Button, useTheme } from '@mui/material';
+import { forwardRef, useImperativeHandle, useState } from 'react';
+import { SpinnerLoader } from '../../../../components/Loader';
+import { Body, ErrorBody, Title } from '../../../../components/Typography';
+import { MarkdownRenderer } from '../../../../components/Typography/MarkdownRender';
+import { VSpacer } from '../../../../layouts/Spacer';
+import { StepCard } from '../../StepCard';
 import type { StepRef } from '../../types';
 import { PhotoGuidelinesModal } from './PhotoGuidelinesModal';
-import { StepCard } from '../../StepCard';
 
 type UploadState = 'idle' | 'loading' | 'preview';
 
 interface PhotoUploadProps {
   onPhotoPreviewChange?: (url: string) => void;
 }
+
+const markdownContent = `L'immagine deve:
+- essere nitida e ben illuminata;
+- mostrare bene il tuo volto;
+- avere sfondo neutro.
+`;
 
 export const PhotoUploadStep = forwardRef<StepRef, PhotoUploadProps>(
   function PhotoUploadStep({ onPhotoPreviewChange }, ref) {
@@ -69,63 +72,19 @@ export const PhotoUploadStep = forwardRef<StepRef, PhotoUploadProps>(
 
     if (uploadState === 'loading') {
       return (
-        <Box
-          sx={{
-            position: 'fixed',
-            inset: 0,
-            zIndex: 1300,
-            bgcolor: theme.palette.common.neutralGray,
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: 3,
-          }}
-        >
-          <CircularProgress
-            size={64}
-            sx={{ color: theme.palette.common.primaryButton }}
-          />
-          <Typography
-            variant="h3"
-            component="p"
-            sx={{ color: theme.palette.common.neutralBlack, mt: 2 }}
-          >
-            Stiamo caricando la foto
-          </Typography>
-          <Typography
-            sx={{
-              color: theme.palette.common.neutralDarkGray,
-              fontSize: 17,
-            }}
-          >
-            Attendi qualche secondo
-          </Typography>
-        </Box>
+        <SpinnerLoader
+          title="Stiamo caricando la foto"
+          description="Attendi qualche secondo"
+        />
       );
     }
 
     if (uploadState === 'preview' && preview) {
       return (
         <StepCard>
-          <Typography
-            variant="h3"
-            component="h3"
-            sx={{ color: theme.palette.common.neutralBlack }}
-          >
-            Ecco un&apos;anteprima della foto
-          </Typography>
-
-          <Typography
-            sx={{
-              mt: 1,
-              color: theme.palette.common.neutralDarkGray,
-              fontSize: 17,
-              lineHeight: 1.45,
-            }}
-          >
-            Verrà stampata sulla tua carta.
-          </Typography>
+          <Title variant="SM" text="Ecco un'anteprima della foto" />
+          <VSpacer />
+          <Body>Verrà stampata sulla tua carta.</Body>
 
           <Box
             sx={{
@@ -168,56 +127,16 @@ export const PhotoUploadStep = forwardRef<StepRef, PhotoUploadProps>(
 
     return (
       <StepCard>
-        <Typography
-          variant="h3"
-          component="h3"
-          sx={{
-            color: theme.palette.common.neutralBlack,
-          }}
-        >
-          Scatta o carica dalla libreria una tua foto in primo piano
-        </Typography>
-
-        <Typography
-          sx={{
-            mt: 2,
-            color: theme.palette.common.neutralDarkGray,
-            fontSize: 17,
-            lineHeight: 1.45,
-          }}
-        >
-          L&apos;immagine deve:
-        </Typography>
-
-        <Box
-          component="ul"
-          sx={{
-            mt: 1,
-            pl: 2.5,
-            color: theme.palette.common.neutralDarkGray,
-            fontSize: 17,
-            lineHeight: 1.8,
-          }}
-        >
-          <li>essere nitida e ben illuminata;</li>
-          <li>mostrare bene il tuo volto;</li>
-          <li>avere sfondo neutro.</li>
-        </Box>
-
-        <Link
-          onClick={() => setGuidelinesOpen(true)}
-          underline="always"
-          sx={{
-            display: 'inline-block',
-            mt: 1.5,
-            color: theme.palette.common.primaryButton,
-            fontSize: 17,
-            fontWeight: 600,
-            cursor: 'pointer',
-          }}
-        >
+        <Title
+          variant="SM"
+          text="Scatta o carica dalla libreria una tua foto in primo piano"
+        />
+        <VSpacer />
+        <MarkdownRenderer content={markdownContent} />
+        <VSpacer size={4} />
+        <Body asLink onClick={() => setGuidelinesOpen(true)}>
           Leggi le indicazioni complete
-        </Link>
+        </Body>
 
         <PhotoGuidelinesModal
           open={guidelinesOpen}
@@ -238,19 +157,9 @@ export const PhotoUploadStep = forwardRef<StepRef, PhotoUploadProps>(
           }}
         >
           <FileUploadOutlinedIcon
-            sx={{ fontSize: 32, color: theme.palette.common.neutralDarkGray }}
+            sx={{ fontSize: 32, color: theme.palette.common.neutralBlack }}
           />
-
-          <Typography
-            sx={{
-              color: theme.palette.common.neutralBlack,
-              fontSize: 16,
-              fontWeight: 600,
-            }}
-          >
-            Aggiungi una foto
-          </Typography>
-
+          <Body fontWeight="Semibold">Aggiungi una foto</Body>
           <Button
             variant="contained"
             component="label"
@@ -271,15 +180,9 @@ export const PhotoUploadStep = forwardRef<StepRef, PhotoUploadProps>(
         </Box>
 
         {error && (
-          <Typography
-            sx={{
-              mt: 1,
-              color: theme.palette.error.main,
-              fontSize: 14,
-            }}
-          >
+          <ErrorBody fontSize="14px">
             *Devi caricare una foto per continuare
-          </Typography>
+          </ErrorBody>
         )}
       </StepCard>
     );

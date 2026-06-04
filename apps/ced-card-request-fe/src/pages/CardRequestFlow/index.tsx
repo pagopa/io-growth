@@ -1,21 +1,18 @@
-import {
-  Box,
-  Button,
-  Typography,
-  useTheme,
-  CircularProgress,
-} from '@mui/material';
+import { Box, Button, useTheme } from '@mui/material';
 import { useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { APP_ROUTES } from '../../app/routeConfig';
 import { PageHeader, Stepper } from '../../components';
+import { SpinnerLoader } from '../../components/Loader';
+import { Body } from '../../components/Typography';
+import { VSpacer } from '../../layouts/Spacer';
+import { SavedDraftDialog } from './SavedDraftDialog';
 import { AddressStep } from './steps/AddressStep';
 import { ApplicantDataStep } from './steps/ApplicantDataStep';
-import { PhotoUploadStep } from './steps/PhotoUploadStep';
 import { DocumentTypeStep } from './steps/DocumentTypeStep';
-import { SavedDraftDialog } from './SavedDraftDialog';
-import type { StepRef } from './types';
+import { PhotoUploadStep } from './steps/PhotoUploadStep';
 import SummaryStep from './steps/SummaryStep';
+import type { StepRef } from './types';
 
 const steps = [
   {
@@ -113,33 +110,13 @@ export default function CardRequestFlowPage() {
     >
       <PageHeader
         title="Richiesta Carta Europea della Disabilità"
-        subtitle={
-          <Typography
-            sx={{
-              color: theme.palette.common.neutralDarkGray,
-              fontSize: 17,
-              lineHeight: 1.45,
-              mt: 2,
-            }}
-          >
-            Completa i passaggi e invia la richiesta.
-          </Typography>
-        }
+        subtitle={<Body>Completa i passaggi e invia la richiesta.</Body>}
         onBack={handleBack}
       />
 
+      <VSpacer size={8} />
       <Box sx={{ px: 3 }}>
-        <Typography
-          variant="h2"
-          component="h2"
-          sx={{
-            mt: 0.5,
-            color: theme.palette.common.neutralBlack,
-          }}
-        >
-          {title}
-        </Typography>
-
+        <Body fontWeight="Semibold">{title}</Body>
         <Stepper activeStep={currentStep} totalSteps={TOTAL_STEPS} />
         <StepContent
           ref={stepRef}
@@ -151,35 +128,10 @@ export default function CardRequestFlowPage() {
           photoPreview={photoPreview}
         />
         {isSubmitting && (
-          <Box
-            sx={{
-              position: 'fixed',
-              inset: 0,
-              zIndex: 1400,
-              bgcolor: 'background.paper',
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: 3,
-            }}
-          >
-            <CircularProgress
-              size={64}
-              sx={{ color: theme.palette.primary.main }}
-            />
-            <Typography
-              variant="h2"
-              sx={{ color: theme.palette.common.neutralBlack }}
-            >
-              Stiamo elaborando la tua richiesta
-            </Typography>
-            <Typography
-              sx={{ color: theme.palette.common.neutralDarkGray, fontSize: 17 }}
-            >
-              Attendi qualche secondo
-            </Typography>
-          </Box>
+          <SpinnerLoader
+            title="Stiamo elaborando la tua richiesta"
+            description="Attendi qualche secondo"
+          />
         )}
       </Box>
 

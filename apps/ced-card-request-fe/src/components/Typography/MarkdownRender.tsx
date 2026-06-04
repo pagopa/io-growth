@@ -144,7 +144,7 @@ export const MarkdownRenderer = ({ content }: MarkdownRendererProps) => {
               }}
             >
               <Body>•</Body>
-              {renderInline(trimmed.slice(2))}
+              <Body>{renderInline(trimmed.slice(2))}</Body>
             </Box>
           );
         }

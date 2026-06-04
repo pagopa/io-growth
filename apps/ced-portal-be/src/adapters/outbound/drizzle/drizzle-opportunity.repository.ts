@@ -47,6 +47,7 @@ const getOpportunityDetailById = async (
         dateFrom: true,
         dateTo: true,
         id: true,
+        nationalTerritory: true,
         status: true,
         updatedAt: true,
         url: true,

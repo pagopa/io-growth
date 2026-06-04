@@ -1,17 +1,17 @@
-import { forwardRef, useImperativeHandle, useState, Fragment } from 'react';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import {
-  Box,
-  Typography,
-  useTheme,
   Accordion,
-  AccordionSummary,
   AccordionDetails,
+  AccordionSummary,
+  Box,
   Button,
   Divider,
+  Typography,
+  useTheme,
 } from '@mui/material';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import type { StepRef } from '../types';
+import { forwardRef, Fragment, useImperativeHandle } from 'react';
 import { StepCard } from '../StepCard';
+import type { StepRef } from '../types';
 
 const personalData = [
   { label: 'Nome', value: 'Anna' },
@@ -32,6 +32,21 @@ const addressData = [
   { label: 'Comune', value: 'Alessandria' },
 ];
 
+const judgmentData = [
+  {
+    label: 'Provincia',
+    value: 'Milano',
+  },
+  {
+    label: 'Comune',
+    value: 'Milano',
+  },
+  {
+    label: 'Data di rilascio',
+    value: '15/06/2023',
+  },
+];
+
 interface SummaryProps {
   onEditApplicant?: () => void;
   onEditAddress?: () => void;
@@ -46,7 +61,6 @@ export const SummaryStep = forwardRef<StepRef, SummaryProps>(
     ref,
   ) {
     const theme = useTheme();
-    const [expanded, setExpanded] = useState<string | false>('personal');
 
     useImperativeHandle(ref, () => ({
       validate: () => true,
@@ -130,29 +144,22 @@ export const SummaryStep = forwardRef<StepRef, SummaryProps>(
         </StepCard>
 
         <Box sx={{ display: 'grid', gap: 2 }}>
-          <Accordion
-            expanded={expanded === 'personal'}
-            onChange={() =>
-              setExpanded((s) => (s === 'personal' ? false : 'personal'))
-            }
-            sx={accordionSx}
-          >
+          <Accordion sx={accordionSx} defaultExpanded>
             <AccordionSummary expandIcon={<ExpandMoreIcon />} sx={summarySx}>
               <Box sx={{ display: 'flex', flexDirection: 'column' }}>
                 <Typography sx={{ fontWeight: 600, fontSize: 18 }}>
                   Dati anagrafici
                 </Typography>
-                {expanded === 'personal' && (
-                  <Typography
-                    sx={{
-                      color: theme.palette.common.neutralDarkGray,
-                      fontSize: 15,
-                      mt: 0.5,
-                    }}
-                  >
-                    Di chi è la carta.
-                  </Typography>
-                )}
+
+                <Typography
+                  sx={{
+                    color: theme.palette.common.neutralDarkGray,
+                    fontSize: 15,
+                    mt: 0.5,
+                  }}
+                >
+                  Di chi è la carta.
+                </Typography>
               </Box>
             </AccordionSummary>
             <AccordionDetails sx={detailsSx}>
@@ -169,29 +176,22 @@ export const SummaryStep = forwardRef<StepRef, SummaryProps>(
             </AccordionDetails>
           </Accordion>
 
-          <Accordion
-            expanded={expanded === 'address'}
-            onChange={() =>
-              setExpanded((s) => (s === 'address' ? false : 'address'))
-            }
-            sx={accordionSx}
-          >
+          <Accordion sx={accordionSx} defaultExpanded>
             <AccordionSummary expandIcon={<ExpandMoreIcon />} sx={summarySx}>
               <Box sx={{ display: 'flex', flexDirection: 'column' }}>
                 <Typography sx={{ fontWeight: 600, fontSize: 18 }}>
                   Indirizzo di spedizione
                 </Typography>
-                {expanded === 'address' && (
-                  <Typography
-                    sx={{
-                      color: theme.palette.common.neutralDarkGray,
-                      fontSize: 15,
-                      mt: 0.5,
-                    }}
-                  >
-                    Dove ricevere la carta.
-                  </Typography>
-                )}
+
+                <Typography
+                  sx={{
+                    color: theme.palette.common.neutralDarkGray,
+                    fontSize: 15,
+                    mt: 0.5,
+                  }}
+                >
+                  Dove ricevere la carta.
+                </Typography>
               </Box>
             </AccordionSummary>
             <AccordionDetails sx={detailsSx}>
@@ -222,29 +222,22 @@ export const SummaryStep = forwardRef<StepRef, SummaryProps>(
             </AccordionDetails>
           </Accordion>
 
-          <Accordion
-            expanded={expanded === 'photo'}
-            onChange={() =>
-              setExpanded((s) => (s === 'photo' ? false : 'photo'))
-            }
-            sx={accordionSx}
-          >
+          <Accordion sx={accordionSx} defaultExpanded>
             <AccordionSummary expandIcon={<ExpandMoreIcon />} sx={summarySx}>
               <Box sx={{ display: 'flex', flexDirection: 'column' }}>
                 <Typography sx={{ fontWeight: 600, fontSize: 18 }}>
                   Foto
                 </Typography>
-                {expanded === 'photo' && (
-                  <Typography
-                    sx={{
-                      color: theme.palette.common.neutralDarkGray,
-                      fontSize: 15,
-                      mt: 0.5,
-                    }}
-                  >
-                    Sarà stampata sulla carta.
-                  </Typography>
-                )}
+
+                <Typography
+                  sx={{
+                    color: theme.palette.common.neutralDarkGray,
+                    fontSize: 15,
+                    mt: 0.5,
+                  }}
+                >
+                  Sarà stampata sulla carta.
+                </Typography>
               </Box>
             </AccordionSummary>
             <AccordionDetails sx={{ padding: '12px 16px 16px' }}>
@@ -280,33 +273,34 @@ export const SummaryStep = forwardRef<StepRef, SummaryProps>(
             </AccordionDetails>
           </Accordion>
 
-          <Accordion
-            expanded={expanded === 'judgment'}
-            onChange={() =>
-              setExpanded((s) => (s === 'judgment' ? false : 'judgment'))
-            }
-            sx={accordionSx}
-          >
+          <Accordion sx={accordionSx} defaultExpanded>
             <AccordionSummary expandIcon={<ExpandMoreIcon />} sx={summarySx}>
               <Box sx={{ display: 'flex', flexDirection: 'column' }}>
                 <Typography sx={{ fontWeight: 600, fontSize: 18 }}>
                   Sentenza giudiziaria
                 </Typography>
-                {expanded === 'judgment' && (
-                  <Typography
-                    sx={{
-                      color: theme.palette.common.neutralDarkGray,
-                      fontSize: 15,
-                      mt: 0.5,
-                    }}
-                  >
-                    Informazioni sulla sentenza giudiziaria.
-                  </Typography>
-                )}
+
+                <Typography
+                  sx={{
+                    color: theme.palette.common.neutralDarkGray,
+                    fontSize: 15,
+                    mt: 0.5,
+                  }}
+                >
+                  Attesta la tua condizione.
+                </Typography>
               </Box>
             </AccordionSummary>
             <AccordionDetails sx={detailsSx}>
               <Box sx={{ display: 'grid', gap: 0.75 }}>
+                {judgmentData.map((f, i) => (
+                  <Row
+                    key={f.label}
+                    label={f.label}
+                    value={f.value}
+                    showDivider={i < judgmentData.length - 1}
+                  />
+                ))}
                 <Box sx={{ ml: -2.5, mt: -2 }}>
                   <Button
                     size="small"
@@ -317,7 +311,7 @@ export const SummaryStep = forwardRef<StepRef, SummaryProps>(
                     }}
                     onClick={() => onEditJudgment?.()}
                   >
-                    Modifica sentenza
+                    Modifica dati
                   </Button>
                 </Box>
               </Box>

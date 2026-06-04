@@ -9,7 +9,7 @@ import {
 } from '@mui/material';
 import FileUploadOutlinedIcon from '@mui/icons-material/FileUploadOutlined';
 import type { StepRef } from '../../types';
-import { PhotoGuidelinesDrawer } from './PhotoGuidelinesDrawer';
+import { PhotoGuidelinesModal } from './PhotoGuidelinesModal';
 import { StepCard } from '../../StepCard';
 
 type UploadState = 'idle' | 'loading' | 'preview';
@@ -219,7 +219,7 @@ export const PhotoUploadStep = forwardRef<StepRef, PhotoUploadProps>(
           Leggi le indicazioni complete
         </Link>
 
-        <PhotoGuidelinesDrawer
+        <PhotoGuidelinesModal
           open={guidelinesOpen}
           onClose={() => setGuidelinesOpen(false)}
         />

@@ -13,20 +13,20 @@ import { useGetPlacesQuery } from '../../../../features/places/api';
 
 import {
   selectAccessPoint,
-  selectNationwide,
   selectSelectedLocationIds,
 } from '../../../../features/places/selectors';
-import { setNationwide } from '../../../../features/places/placesSlice';
 import { useAppDispatch, useAppSelector } from '../../../../hooks/store';
 import { useLocationSelectionFlow } from '../hooks/useLocationSelectionFlow';
 import { AddLocationModal } from './AddLocationModal';
 import { LocationList } from './LocationList';
 import { SelectLocationModal } from './SelectLocationModal';
+import { setField } from '../../../../features/opportunityCreation/opportunityCreationSlice';
+import { selectNationalTerritory } from '../../../../features/opportunityCreation/selectors';
 
 export function LocationManagementSection() {
   const dispatch = useAppDispatch();
   const accessPoint = useAppSelector(selectAccessPoint);
-  const nationwide = useAppSelector(selectNationwide);
+  const nationwide = useAppSelector(selectNationalTerritory);
   const showTerritorySection =
     accessPoint === 'offline' || accessPoint === 'both';
 
@@ -78,7 +78,14 @@ export function LocationManagementSection() {
             <Switch
               checked={nationwide}
               size="medium"
-              onChange={(e) => dispatch(setNationwide(e.target.checked))}
+              onChange={(e) =>
+                dispatch(
+                  setField({
+                    field: 'nationalTerritory',
+                    value: e.target.checked,
+                  }),
+                )
+              }
             />
           }
           label={

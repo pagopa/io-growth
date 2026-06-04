@@ -50,6 +50,10 @@ export const selectBeneficiaryBenefit = (state: {
   opportunityCreation: OpportunityCreationState;
 }) => baseSelectOpportunityForm(state).beneficiaryBenefit;
 
+export const selectNationalTerritory = (state: {
+  opportunityCreation: OpportunityCreationState;
+}) => baseSelectOpportunityForm(state).nationalTerritory;
+
 export const selectCaregiverBenefit = (state: {
   opportunityCreation: OpportunityCreationState;
 }) => baseSelectOpportunityForm(state).caregiverBenefit;

@@ -2,7 +2,6 @@ import { RootState } from '../../core/store';
 import { placesApi } from './api';
 
 export const selectAccessPoint = (state: RootState) => state.places.accessPoint;
-export const selectNationwide = (state: RootState) => state.places.nationwide;
 export const selectSelectedLocationIds = (state: RootState) =>
   state.places.selectedLocationIds;
 export const selectSelectedWebsiteIds = (state: RootState) =>

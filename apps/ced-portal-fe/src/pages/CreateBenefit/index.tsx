@@ -7,7 +7,6 @@ import { useRequestApprovalMutation } from '../../features/opportunities/api';
 import { resetPlaces } from '../../features/places/placesSlice';
 import {
   selectAccessPoint,
-  selectNationwide,
   selectSelectedLocationIds,
   selectSelectedWebsiteIds,
 } from '../../features/places/selectors';
@@ -22,6 +21,7 @@ import { useGetFirstStepValidation } from './hooks/useGetFirstStepValidation';
 import { useCreateOpportunity } from './hooks/useCreateOpportunity';
 import type { CreateBenefitNavigationState } from './types';
 import { useHydrateFromSourceOpportunity } from './hooks/useHydrateFromSourceOpportunity';
+import { selectNationalTerritory } from '../../features/opportunityCreation/selectors';
 
 export interface StepProps {
   attempted: boolean;
@@ -58,7 +58,7 @@ export default function CreateBenefitPage() {
     useRequestApprovalMutation();
 
   const accessPoint = useAppSelector(selectAccessPoint);
-  const nationwide = useAppSelector(selectNationwide);
+  const nationwide = useAppSelector(selectNationalTerritory);
   const selectedLocationIds = useAppSelector(selectSelectedLocationIds);
   const selectedWebsiteIds = useAppSelector(selectSelectedWebsiteIds);
 

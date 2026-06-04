@@ -8,19 +8,15 @@ import {
 } from '../../core/api/generated/model';
 
 // A simplified form state that avoids deep nesting while keeping small objects
-export interface OpportunityCreationForm {
-  dateFrom: string;
-  dateTo?: string;
-  url?: string;
-  categoryId: string;
-  placeIds: string[];
-  beneficiaryBenefit: BenefitRequest;
-  caregiverBenefit?: BenefitRequest;
+export type OpportunityCreationForm = Omit<
+  OpportunityCreateRequest,
+  'localizedMetadata'
+> & {
   localizedMetadata: Record<
     LocalizedMetadataItemLanguage,
     Record<LocalizedMetadataItemKey, string>
   >;
-}
+};
 
 export interface OpportunityCreationState {
   form: OpportunityCreationForm;
@@ -36,6 +32,7 @@ const createEmptyForm = (): OpportunityCreationForm => ({
   placeIds: [],
   beneficiaryBenefit: {} as BenefitRequest,
   caregiverBenefit: undefined,
+  nationalTerritory: undefined,
   localizedMetadata: {
     de: {},
     en: {},
@@ -72,12 +69,11 @@ const opportunityCreationSlice = createSlice({
       state,
       action: PayloadAction<{
         field: keyof OpportunityCreationForm;
-        value: any;
+        value: OpportunityCreationForm[keyof OpportunityCreationForm];
       }>,
     ) => {
       const { field, value } = action.payload;
-
-      state.form[field] = value;
+      state.form = { ...state.form, [field]: value };
     },
 
     setPlaceIds: (state, action: PayloadAction<string[]>) => {

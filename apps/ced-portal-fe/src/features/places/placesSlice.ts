@@ -3,7 +3,6 @@ import { PlacesState } from './types';
 
 const initialState: PlacesState = {
   accessPoint: null,
-  nationwide: false,
   selectedLocationIds: [],
   selectedWebsiteIds: [],
 };
@@ -14,9 +13,6 @@ const placesSlice = createSlice({
   reducers: {
     setAccessPoint(state, action: PayloadAction<PlacesState['accessPoint']>) {
       state.accessPoint = action.payload;
-    },
-    setNationwide(state, action: PayloadAction<boolean>) {
-      state.nationwide = action.payload;
     },
     setSelectedLocationIds(
       state,
@@ -42,7 +38,6 @@ const placesSlice = createSlice({
     },
     resetPlaces(state) {
       state.accessPoint = initialState.accessPoint;
-      state.nationwide = initialState.nationwide;
       state.selectedLocationIds = initialState.selectedLocationIds;
       state.selectedWebsiteIds = initialState.selectedWebsiteIds;
     },
@@ -51,7 +46,6 @@ const placesSlice = createSlice({
 
 export const {
   setAccessPoint,
-  setNationwide,
   setSelectedLocationIds,
   removeSelectedLocationId,
   setSelectedWebsiteIds,

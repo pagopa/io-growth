@@ -2,7 +2,6 @@ import { Box } from '@mui/material';
 import { useAppSelector } from '../../../hooks/store';
 import {
   selectAccessPoint,
-  selectNationwide,
   selectSelectedLocationIds,
   selectSelectedWebsiteIds,
 } from '../../../features/places/selectors';
@@ -11,10 +10,11 @@ import { WizardAlert } from '../components/WizardAlert';
 import { AccessPointSection } from './AccessPointSection';
 import { LocationManagementSection } from './LocationManagementSection';
 import { WebsiteManagementSection } from './WebsiteManagementSection';
+import { selectNationalTerritory } from '../../../features/opportunityCreation/selectors';
 
 export function StepTwo({ attempted }: StepProps) {
   const accessPoint = useAppSelector(selectAccessPoint);
-  const nationwide = useAppSelector(selectNationwide);
+  const nationwide = useAppSelector(selectNationalTerritory);
   const selectedLocationIds = useAppSelector(selectSelectedLocationIds);
   const selectedWebsiteIds = useAppSelector(selectSelectedWebsiteIds);
 

@@ -5,6 +5,7 @@ import {
   setField,
   setLocalizedValue,
   setBenefit,
+  OpportunityCreationForm,
 } from '../../../../features/opportunityCreation/opportunityCreationSlice';
 import {
   selectActiveFormLanguage,
@@ -66,8 +67,8 @@ export function AgreementDetailsSection({
 
   const handleFieldChange = useCallback(
     (
-      field: keyof OpportunityCreateRequest,
-      value: string | number | Record<string, unknown>,
+      field: keyof OpportunityCreationForm,
+      value: OpportunityCreationForm[keyof OpportunityCreationForm],
     ) => {
       dispatch(setField({ field, value }));
     },
@@ -173,7 +174,7 @@ export function AgreementDetailsSection({
             onChange={(event) =>
               handleFieldChange('beneficiaryBenefit', {
                 type: BenefitReducedFixedPriceType.reduced_fixed_price,
-                value: event.target.value,
+                value: Number(event.target.value),
               })
             }
           >
@@ -181,7 +182,7 @@ export function AgreementDetailsSection({
               onChange={(event) =>
                 handleFieldChange('beneficiaryBenefit', {
                   type: BenefitReducedFixedPriceType.reduced_fixed_price,
-                  value: event.target.value,
+                  value: Number(event.target.value),
                 })
               }
               icon={<EuroRoundedIcon sx={{ fontSize: 18 }} />}

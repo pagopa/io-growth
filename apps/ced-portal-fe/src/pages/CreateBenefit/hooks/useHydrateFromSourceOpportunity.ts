@@ -13,7 +13,7 @@ import {
   setSelectedWebsiteIds,
 } from '../../../features/places/placesSlice';
 import { useGetPlacesQuery } from '../../../features/places/api';
-import { AccessPoint } from '../../../features/places/types';
+import { PlaceBaseType } from '../../../core/api/generated/model';
 
 type PlacesMap = {
   locations: Array<string>;
@@ -87,10 +87,11 @@ export const useHydrateFromSourceOpportunity = (
       dispatch(setSelectedLocationIds(placesIdsMapped?.locations ?? []));
       dispatch(setSelectedWebsiteIds(placesIdsMapped?.websites ?? []));
 
-      const accessPoint: AccessPoint = placesIdsMapped?.websites.length
+      const accessPoint: PlaceBaseType | 'both' = placesIdsMapped?.websites
+        .length
         ? 'online'
         : placesIdsMapped?.locations.length
-          ? 'territory'
+          ? 'offline'
           : 'both';
       dispatch(setAccessPoint(accessPoint));
     }

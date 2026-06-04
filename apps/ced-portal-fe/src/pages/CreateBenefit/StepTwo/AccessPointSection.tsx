@@ -1,10 +1,10 @@
 import { Box, Typography } from '@mui/material';
 import { AppRadioList, SectionCard } from '../../../components';
-import type { AccessPoint } from '../../../features/places/types';
 import { setAccessPoint } from '../../../features/places/placesSlice';
 import { useAppDispatch, useAppSelector } from '../../../hooks/store';
 import { ACCESS_POINT_OPTIONS } from './constants';
 import { selectAccessPoint } from '../../../features/places/selectors';
+import { PlaceBaseType } from '../../../core/api/generated/model';
 
 export function AccessPointSection() {
   const dispatch = useAppDispatch();
@@ -23,7 +23,9 @@ export function AccessPointSection() {
       <AppRadioList
         options={ACCESS_POINT_OPTIONS}
         value={accessPoint}
-        onChange={(value) => dispatch(setAccessPoint(value as AccessPoint))}
+        onChange={(value) =>
+          dispatch(setAccessPoint(value as PlaceBaseType | 'both'))
+        }
         itemMaxWidth="100%"
         sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}
       />

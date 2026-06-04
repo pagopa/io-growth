@@ -28,7 +28,7 @@ export function LocationManagementSection() {
   const accessPoint = useAppSelector(selectAccessPoint);
   const nationwide = useAppSelector(selectNationwide);
   const showTerritorySection =
-    accessPoint === 'territory' || accessPoint === 'both';
+    accessPoint === 'offline' || accessPoint === 'both';
 
   const selectedLocationIds = useAppSelector(selectSelectedLocationIds);
   const { data: allPlaces = [] } = useGetPlacesQuery(undefined, {

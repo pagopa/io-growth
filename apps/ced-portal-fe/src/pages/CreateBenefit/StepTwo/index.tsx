@@ -20,7 +20,7 @@ export function StepTwo({ attempted }: StepProps) {
 
   const needsLocation =
     attempted &&
-    (accessPoint === 'territory' || accessPoint === 'both') &&
+    (accessPoint === 'offline' || accessPoint === 'both') &&
     !nationwide &&
     selectedLocationIds.length === 0;
 

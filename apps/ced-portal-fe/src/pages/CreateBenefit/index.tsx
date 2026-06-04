@@ -67,8 +67,7 @@ export default function CreateBenefitPage() {
   const isStepValid = (step: number): boolean => {
     if (step === 0) return isFirstStepValid;
     if (step === 1) {
-      const hasTerritory =
-        accessPoint === 'territory' || accessPoint === 'both';
+      const hasTerritory = accessPoint === 'offline' || accessPoint === 'both';
       const hasOnline = accessPoint === 'online' || accessPoint === 'both';
       return (
         !!accessPoint &&

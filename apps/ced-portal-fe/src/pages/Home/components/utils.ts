@@ -1,10 +1,12 @@
 import { ChipProps } from '@mui/material';
-import type { OpportunityDetailResponse } from '../../../core/api/generated/model';
-import type { Benefit } from '../../../features/benefits/types';
+import type {
+  OpportunityDetailResponse,
+  OpportunitySummaryItem,
+} from '../../../core/api/generated/model';
 import { benefitStateLabelMap, opportunityStatusLabelMap } from './constants';
 
 type ChipConfig = {
-  item: Benefit;
+  item: OpportunitySummaryItem;
   role: 'admin' | 'operator';
 };
 

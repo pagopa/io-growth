@@ -1,5 +1,5 @@
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
-import { AccessPoint, PlacesState } from './types';
+import { PlacesState } from './types';
 
 const initialState: PlacesState = {
   accessPoint: null,
@@ -12,13 +12,16 @@ const placesSlice = createSlice({
   name: 'places',
   initialState,
   reducers: {
-    setAccessPoint(state, action: PayloadAction<AccessPoint>) {
+    setAccessPoint(state, action: PayloadAction<PlacesState['accessPoint']>) {
       state.accessPoint = action.payload;
     },
     setNationwide(state, action: PayloadAction<boolean>) {
       state.nationwide = action.payload;
     },
-    setSelectedLocationIds(state, action: PayloadAction<string[]>) {
+    setSelectedLocationIds(
+      state,
+      action: PayloadAction<PlacesState['selectedLocationIds']>,
+    ) {
       state.selectedLocationIds = action.payload;
     },
     removeSelectedLocationId(state, action: PayloadAction<string>) {
@@ -26,7 +29,10 @@ const placesSlice = createSlice({
         (id) => id !== action.payload,
       );
     },
-    setSelectedWebsiteIds(state, action: PayloadAction<string[]>) {
+    setSelectedWebsiteIds(
+      state,
+      action: PayloadAction<PlacesState['selectedWebsiteIds']>,
+    ) {
       state.selectedWebsiteIds = action.payload;
     },
     removeSelectedWebsiteId(state, action: PayloadAction<string>) {

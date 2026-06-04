@@ -3,7 +3,7 @@ import { Chip, IconButton } from '@mui/material';
 import type { Theme } from '@mui/material/styles';
 import { format, parseISO } from 'date-fns';
 import type { MouseEvent, ReactNode } from 'react';
-import type { Benefit } from '../../../features/benefits/types';
+import type { OpportunitySummaryItem } from '../../../core/api/generated/model';
 import { publicationStatusLabels } from '../../../features/benefitsFilters/types';
 import { getChipConfig } from './utils';
 
@@ -13,9 +13,9 @@ export interface BenefitsTableColumn {
   width?: number;
   align?: 'left' | 'center' | 'right';
   sortable?: boolean;
-  sortAccessor?: (item: Benefit) => string | number;
+  sortAccessor?: (item: OpportunitySummaryItem) => string | number;
   renderCell: (
-    item: Benefit,
+    item: OpportunitySummaryItem,
     theme: Theme,
     action: (event: MouseEvent<HTMLElement>, itemId: string) => void,
   ) => ReactNode;

@@ -1,8 +1,11 @@
-export type AccessPoint = 'territory' | 'online' | 'both';
+import type {
+  PlaceBaseType,
+  PlaceResponseBase,
+} from '../../core/api/generated/model';
 
 export interface PlacesState {
-  accessPoint: AccessPoint | null;
+  accessPoint: PlaceBaseType | 'both' | null;
   nationwide: boolean;
-  selectedLocationIds: string[];
-  selectedWebsiteIds: string[];
+  selectedLocationIds: Array<PlaceResponseBase['id']>;
+  selectedWebsiteIds: Array<PlaceResponseBase['id']>;
 }

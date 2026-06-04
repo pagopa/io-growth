@@ -1,13 +1,16 @@
 import { TextField, InputAdornment, type TextFieldProps } from '@mui/material';
 import ErrorIcon from '@mui/icons-material/Error';
 
-type AppTextFieldProps = TextFieldProps;
+type AppTextFieldProps = TextFieldProps & {
+  hideErrorIcon?: boolean;
+};
 
 export const AppTextField = ({
   sx,
   fullWidth = true,
   error,
   InputProps,
+  hideErrorIcon,
   ...props
 }: AppTextFieldProps) => {
   return (
@@ -29,16 +32,17 @@ export const AppTextField = ({
       }}
       InputProps={{
         ...InputProps,
-        ...(error && {
-          endAdornment: (
-            <>
-              {InputProps?.endAdornment}
-              <InputAdornment position="end" sx={{ flexShrink: 0 }}>
-                <ErrorIcon color="error" />
-              </InputAdornment>
-            </>
-          ),
-        }),
+        ...(error &&
+          !hideErrorIcon && {
+            endAdornment: (
+              <>
+                {InputProps?.endAdornment}
+                <InputAdornment position="end" sx={{ flexShrink: 0 }}>
+                  <ErrorIcon color="error" />
+                </InputAdornment>
+              </>
+            ),
+          }),
       }}
       {...props}
     />

@@ -128,7 +128,7 @@ export default function CardRequestFlowPage() {
         onBack={handleBack}
       />
 
-      <Box sx={{ px: 3, pb: 3 }}>
+      <Box sx={{ px: 3 }}>
         <Typography
           variant="h2"
           component="h2"
@@ -141,25 +141,15 @@ export default function CardRequestFlowPage() {
         </Typography>
 
         <Stepper activeStep={currentStep} totalSteps={TOTAL_STEPS} />
-
-        {/* <Box
-          sx={{
-            borderRadius: 3,
-            bgcolor: isSummary ? 'transparent' : theme.palette.background.paper,
-            p: 3,
-            pb: 4,
-          }}
-        > */}
         <StepContent
           ref={stepRef}
           onEditApplicant={() => setCurrentStep(0)}
           onEditAddress={() => setCurrentStep(1)}
           onEditPhoto={() => setCurrentStep(2)}
+          onEditJudgment={() => setCurrentStep(3)}
           onPhotoPreviewChange={(url: string) => setPhotoPreview(url)}
           photoPreview={photoPreview}
         />
-        {/* </Box> */}
-
         {isSubmitting && (
           <Box
             sx={{
@@ -191,22 +181,12 @@ export default function CardRequestFlowPage() {
             </Typography>
           </Box>
         )}
-
-        <Box sx={{ pb: 'calc(140px + env(safe-area-inset-bottom, 0px))' }} />
       </Box>
 
       <Box
         sx={{
-          position: 'fixed',
-          left: 0,
-          right: 0,
-          bottom: 0,
-          zIndex: 10,
-          bgcolor: theme.palette.common.neutralGray,
-          borderTop: `1px solid ${theme.palette.divider}`,
-          maxWidth: '100%',
           px: 3,
-          pt: 2,
+          mt: 3,
           pb: 'calc(24px + env(safe-area-inset-bottom, 0px))',
         }}
       >

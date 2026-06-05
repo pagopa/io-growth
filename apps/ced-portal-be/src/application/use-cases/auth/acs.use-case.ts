@@ -1,6 +1,7 @@
 import type { UseCase } from "@pagopa/io-core-domain";
 import type { BaseError } from "@pagopa/io-core-domain/errors";
 
+import { hashFiscalCode } from "@pagopa/io-core-adapter-fims";
 import { emitCustomEvent } from "@pagopa/io-core-adapter-tracing";
 import { ValidationError } from "@pagopa/io-core-domain/errors";
 import { decodeJwt } from "jose";
@@ -56,7 +57,9 @@ export const makeAcsUseCase =
 
     const userType =
       organization.fiscal_code !== undefined &&
-      config.ADMIN_FISCAL_CODES.includes(organization.fiscal_code)
+      config.ADMIN_FISCAL_CODES.includes(
+        hashFiscalCode(organization.fiscal_code),
+      )
         ? "admin"
         : "operator";
 

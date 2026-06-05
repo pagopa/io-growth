@@ -586,7 +586,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/OpportunityDetailGlobalResponse"
+                $ref: "#/components/schemas/OpportunityDetailAdminResponse"
         "401":
           description: Invalid or missing JWT
           content:
@@ -1449,7 +1449,7 @@ components:
         updatedAt:
           type: string
           format: date-time
-    OpportunityDetailGlobalResponse:
+    OpportunityDetailAdminResponse:
       type: object
       additionalProperties: false
       required:
@@ -1460,6 +1460,7 @@ components:
         - categoryTitle
         - beneficiaryBenefit
         - localizedMetadata
+        - operatorName
         - placeIds
         - createdAt
         - updatedAt
@@ -1548,7 +1549,7 @@ components:
       required:
         - first_name
         - last_name
-        - institution_name
+        - operator_name
         - session_token
         - user_type
       properties:
@@ -1556,7 +1557,7 @@ components:
           type: string
         last_name:
           type: string
-        institution_name:
+        operator_name:
           type: string
         session_token:
           type: string

@@ -6,10 +6,11 @@ import {
   Box,
   Button,
   Divider,
-  Typography,
   useTheme,
 } from '@mui/material';
 import { forwardRef, Fragment, useImperativeHandle } from 'react';
+import { Body, Title } from '../../../components/Typography';
+import { VSpacer } from '../../../layouts/Spacer';
 import { StepCard } from '../StepCard';
 import type { StepRef } from '../types';
 
@@ -98,21 +99,8 @@ export const SummaryStep = forwardRef<StepRef, SummaryProps>(
       showDivider?: boolean;
     }) => (
       <Box sx={{ pb: 1 }}>
-        <Typography
-          sx={{ color: theme.palette.common.neutralDarkGray, fontSize: 14 }}
-        >
-          {label}
-        </Typography>
-        <Typography
-          sx={{
-            fontWeight: 600,
-            fontSize: 16,
-            color: theme.palette.common.neutralBlack,
-            mb: 1.5,
-          }}
-        >
-          {value}
-        </Typography>
+        <Body>{label}</Body>
+        <Body fontWeight="Semibold">{value}</Body>
         {showDivider && <Divider sx={{ borderColor: theme.palette.divider }} />}
       </Box>
     );
@@ -120,46 +108,23 @@ export const SummaryStep = forwardRef<StepRef, SummaryProps>(
     return (
       <Fragment>
         <StepCard sx={{ mb: 3 }}>
-          <Typography
-            variant="h3"
-            sx={{ color: theme.palette.common.neutralBlack }}
-          >
-            Riepilogo dei dati
-          </Typography>
-
-          <Typography
-            sx={{
-              mt: 1,
-              color: theme.palette.common.neutralDarkGray,
-              fontSize: 17,
-              lineHeight: 1.45,
-            }}
-          >
+          <Title variant="SM" text="Riepilogo dei dati" />
+          <VSpacer />
+          <Body>
             Confermi, ai sensi degli artt. 46 e 47 del DPR n. 445/2000, che i
             dati inseriti e la documentazione allegata sono completi, veritieri
             e conformi alla documentazione in tuo possesso. Le dichiarazioni
             mendaci comportano le conseguenze previste dagli artt. 75 e 76 del
             DPR 445/2000.
-          </Typography>
+          </Body>
         </StepCard>
 
         <Box sx={{ display: 'grid', gap: 2 }}>
           <Accordion sx={accordionSx} defaultExpanded>
             <AccordionSummary expandIcon={<ExpandMoreIcon />} sx={summarySx}>
               <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-                <Typography sx={{ fontWeight: 600, fontSize: 18 }}>
-                  Dati anagrafici
-                </Typography>
-
-                <Typography
-                  sx={{
-                    color: theme.palette.common.neutralDarkGray,
-                    fontSize: 15,
-                    mt: 0.5,
-                  }}
-                >
-                  Di chi è la carta.
-                </Typography>
+                <Title variant="XS" text="Dati anagrafici" />
+                <Body>Di chi è la carta.</Body>
               </Box>
             </AccordionSummary>
             <AccordionDetails sx={detailsSx}>
@@ -179,19 +144,8 @@ export const SummaryStep = forwardRef<StepRef, SummaryProps>(
           <Accordion sx={accordionSx} defaultExpanded>
             <AccordionSummary expandIcon={<ExpandMoreIcon />} sx={summarySx}>
               <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-                <Typography sx={{ fontWeight: 600, fontSize: 18 }}>
-                  Indirizzo di spedizione
-                </Typography>
-
-                <Typography
-                  sx={{
-                    color: theme.palette.common.neutralDarkGray,
-                    fontSize: 15,
-                    mt: 0.5,
-                  }}
-                >
-                  Dove ricevere la carta.
-                </Typography>
+                <Title variant="XS" text="Indirizzo di spedizione" />
+                <Body>Dove ricevere la carta.</Body>
               </Box>
             </AccordionSummary>
             <AccordionDetails sx={detailsSx}>
@@ -225,19 +179,9 @@ export const SummaryStep = forwardRef<StepRef, SummaryProps>(
           <Accordion sx={accordionSx} defaultExpanded>
             <AccordionSummary expandIcon={<ExpandMoreIcon />} sx={summarySx}>
               <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-                <Typography sx={{ fontWeight: 600, fontSize: 18 }}>
-                  Foto
-                </Typography>
+                <Title variant="XS" text="Foto" />
 
-                <Typography
-                  sx={{
-                    color: theme.palette.common.neutralDarkGray,
-                    fontSize: 15,
-                    mt: 0.5,
-                  }}
-                >
-                  Sarà stampata sulla carta.
-                </Typography>
+                <Body>Sarà stampata sulla carta.</Body>
               </Box>
             </AccordionSummary>
             <AccordionDetails sx={{ padding: '12px 16px 16px' }}>
@@ -276,19 +220,8 @@ export const SummaryStep = forwardRef<StepRef, SummaryProps>(
           <Accordion sx={accordionSx} defaultExpanded>
             <AccordionSummary expandIcon={<ExpandMoreIcon />} sx={summarySx}>
               <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-                <Typography sx={{ fontWeight: 600, fontSize: 18 }}>
-                  Sentenza giudiziaria
-                </Typography>
-
-                <Typography
-                  sx={{
-                    color: theme.palette.common.neutralDarkGray,
-                    fontSize: 15,
-                    mt: 0.5,
-                  }}
-                >
-                  Attesta la tua condizione.
-                </Typography>
+                <Title variant="XS" text="Sentenza giudiziaria" />
+                <Body>Attesta la tua condizione.</Body>
               </Box>
             </AccordionSummary>
             <AccordionDetails sx={detailsSx}>

@@ -46,6 +46,24 @@ export default tseslint.config(
         { allowConstantExport: true },
       ],
       'prettier/prettier': ['error', { singleQuote: true }],
+      'no-restricted-imports': [
+        'error',
+        {
+          paths: [
+            {
+              name: '@mui/material',
+              importNames: ['Typography'],
+              message:
+                'Do not use MUI Typography. Use Title, Body, or BodySmall from ./Typography instead.',
+            },
+            {
+              name: '@mui/material/Typography',
+              message:
+                'Do not use MUI Typography. Use Title, Body, or BodySmall from ./Typography instead.',
+            },
+          ],
+        },
+      ],
     },
   },
 );

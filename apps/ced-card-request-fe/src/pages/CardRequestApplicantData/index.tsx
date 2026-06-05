@@ -1,7 +1,8 @@
-import { Box, Button, Typography, useTheme } from '@mui/material';
+import { Box, Button, useTheme } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { AppTextField, Stepper, PageHeader } from '../../components';
 import { APP_ROUTES } from '../../app/routeConfig';
+import { Body, Title } from '../../components/Typography';
 
 export default function CardRequestApplicantDataPage() {
   const navigate = useNavigate();
@@ -28,31 +29,11 @@ export default function CardRequestApplicantDataPage() {
     >
       <PageHeader
         title="Richiesta Carta Europea della Disabilita"
-        subtitle={
-          <Typography
-            sx={{
-              color: theme.palette.common.neutralDarkGray,
-              fontSize: 17,
-              lineHeight: 1.45,
-              mt: 2,
-            }}
-          >
-            Completa i passaggi e invia la richiesta.
-          </Typography>
-        }
+        subtitle={<Body>Completa i passaggi e invia la richiesta.</Body>}
       />
 
       <Box sx={{ px: 3, pb: 3 }}>
-        <Typography
-          variant="h2"
-          component="h2"
-          sx={{
-            mt: 0.5,
-            color: theme.palette.common.neutralBlack,
-          }}
-        >
-          Conferma i tuoi dati
-        </Typography>
+        <Title text="Conferma i tuoi dati" variant="h2" />
 
         <Stepper activeStep={0} totalSteps={6} />
 
@@ -64,26 +45,12 @@ export default function CardRequestApplicantDataPage() {
             pb: 4,
           }}
         >
-          <Typography
+          <Title
+            text="Ecco a chi verrà assegnata la carta"
             variant="h3"
-            component="h3"
-            sx={{
-              color: theme.palette.common.neutralBlack,
-            }}
-          >
-            Ecco a chi verrà assegnata la carta
-          </Typography>
+          ></Title>
 
-          <Typography
-            sx={{
-              mt: 1,
-              color: theme.palette.common.neutralDarkGray,
-              fontSize: 17,
-              lineHeight: 1.45,
-            }}
-          >
-            Conferma i tuoi dati anagrafici.
-          </Typography>
+          <Body>Conferma i tuoi dati anagrafici.</Body>
 
           <Box sx={{ mt: 3, display: 'grid', gap: 2.25 }}>
             {personalData.map((field) => (

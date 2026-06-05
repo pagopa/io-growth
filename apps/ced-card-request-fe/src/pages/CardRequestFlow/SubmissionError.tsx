@@ -1,6 +1,8 @@
-import { Box, Button, Typography, useTheme } from '@mui/material';
-import { useCallback } from 'react';
 import { PriorityHigh } from '@mui/icons-material';
+import { Box, Button, useTheme } from '@mui/material';
+import { useCallback } from 'react';
+import { Body, Title } from '../../components/Typography';
+import { VSpacer } from '../../layouts/Spacer';
 
 interface Props {
   onRetry?: () => void;
@@ -57,23 +59,10 @@ export default function SubmissionError({ onRetry, onClose }: Props) {
             sx={{ color: theme.palette.primary.main, fontSize: 32 }}
           />
         </Box>
-
-        <Typography variant="h2" sx={{ fontWeight: 700, mb: 2, fontSize: 24 }}>
-          Non è stato possibile salvare i dati
-        </Typography>
-
-        <Typography
-          sx={{
-            color: theme.palette.common.neutralDarkGray,
-            textAlign: 'center',
-            mb: 3,
-            fontSize: 16,
-            lineHeight: 1.5,
-          }}
-        >
-          Se il problema persiste, riprova in un secondo momento.
-        </Typography>
-
+        <Title variant="MD" text="Non è stato possibile salvare i dati" />
+        <VSpacer size={8} />
+        <Body>Se il problema persiste, riprova in un secondo momento.</Body>
+        <VSpacer size={32} />
         <Box
           sx={{
             display: 'flex',

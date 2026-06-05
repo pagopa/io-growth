@@ -1,12 +1,6 @@
 import CloseIcon from '@mui/icons-material/Close';
-import {
-  Box,
-  Button,
-  IconButton,
-  Modal,
-  Typography,
-  useTheme,
-} from '@mui/material';
+import { Box, Button, IconButton, Modal, useTheme } from '@mui/material';
+import { Body, Title } from '../../../../components/Typography';
 
 interface Props {
   open: boolean;
@@ -37,9 +31,10 @@ export const PhotoGuidelinesModal = ({ open, onClose }: Props) => {
             alignItems: 'flex-start',
           }}
         >
-          <Typography variant="h3" component="h2" sx={{ fontWeight: 700 }}>
-            Rispetta tutti i requisiti obbligatori per la foto
-          </Typography>
+          <Title
+            text="Rispetta tutti i requisiti obbligatori per la foto"
+            variant="XS"
+          />
           <IconButton aria-label="Chiudi" onClick={onClose}>
             <CloseIcon sx={{ color: 'black' }} />
           </IconButton>
@@ -70,9 +65,7 @@ export const PhotoGuidelinesModal = ({ open, onClose }: Props) => {
           </li>
         </Box>
 
-        <Typography sx={{ mt: 3, fontSize: 16 }}>
-          Ecco un esempio di foto accettata:
-        </Typography>
+        <Body>Ecco un esempio di foto accettata:</Body>
 
         <Box
           sx={{

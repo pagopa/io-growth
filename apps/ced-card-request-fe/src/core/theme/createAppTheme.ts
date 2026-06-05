@@ -22,6 +22,7 @@ const DECORATIVE_BLUE = '#CED8F9';
 const DECORATIVE_CYAN = '#AAEEEF';
 const BADGE_BG = '#DBF9FA';
 const BADGE_TEXT = '#003B3D';
+const LINK_COLOR = '#007BFF';
 
 declare module '@mui/material/styles' {
   interface CommonColors {
@@ -41,6 +42,7 @@ declare module '@mui/material/styles' {
     neutral500: string;
     badgeBg: string;
     badgeText: string;
+    linkColor: string;
   }
 }
 
@@ -48,52 +50,6 @@ export const createAppTheme = () =>
   createTheme(muiItaliaTheme, {
     typography: {
       fontFamily: '"Titillio", Arial, sans-serif',
-      fontWeightLight: 300,
-      fontWeightRegular: 400,
-      fontWeightMedium: 600,
-      fontWeightBold: 700,
-      h1: {
-        fontFamily: '"Titillio", Arial, sans-serif',
-        fontSize: '28px',
-        lineHeight: '42px',
-        letterSpacing: '0px',
-        fontWeight: 600,
-      },
-      h2: {
-        fontFamily: '"Titillio", Arial, sans-serif',
-        fontSize: '22px',
-        lineHeight: '33px',
-        letterSpacing: '0px',
-        fontWeight: 600,
-      },
-      h3: {
-        fontFamily: '"Titillio", Arial, sans-serif',
-        fontSize: '20px',
-        lineHeight: '30px',
-        letterSpacing: '0px',
-        fontWeight: 600,
-      },
-      h4: {
-        fontFamily: '"Titillio", Arial, sans-serif',
-        fontSize: '18px',
-        lineHeight: '27px',
-        letterSpacing: '0px',
-        fontWeight: 600,
-      },
-      h5: {
-        fontFamily: '"Titillio", Arial, sans-serif',
-        fontSize: '16px',
-        lineHeight: '24px',
-        letterSpacing: '0px',
-        fontWeight: 600,
-      },
-      h6: {
-        fontFamily: '"Titillio", Arial, sans-serif',
-        fontSize: '16px',
-        lineHeight: '24px',
-        letterSpacing: '0px',
-        fontWeight: 600,
-      },
       button: {
         fontFamily: '"Titillio", Arial, sans-serif',
         fontSize: '16px',
@@ -124,6 +80,7 @@ export const createAppTheme = () =>
         neutral500: NEUTRAL_500,
         badgeBg: BADGE_BG,
         badgeText: BADGE_TEXT,
+        linkColor: LINK_COLOR,
       },
     },
     components: {

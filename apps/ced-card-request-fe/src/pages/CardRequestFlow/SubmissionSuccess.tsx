@@ -1,6 +1,9 @@
-import { Box, Button, Typography, useTheme } from '@mui/material';
-import { useState } from 'react';
 import { Check, ContentCopy } from '@mui/icons-material';
+import { Box, Button, useTheme } from '@mui/material';
+import { useState } from 'react';
+import { Title } from '../../components/Typography';
+import { MarkdownRenderer } from '../../components/Typography/MarkdownRender';
+import { VSpacer } from '../../layouts/Spacer';
 import { copyTextToClipboard } from '../../utils';
 
 interface Props {
@@ -8,7 +11,10 @@ interface Props {
   onClose?: () => void;
 }
 
-export default function SubmissionSuccess({ requestNumber, onClose }: Props) {
+export default function SubmissionSuccess({
+  requestNumber,
+  onClose,
+}: Readonly<Props>) {
   const theme = useTheme();
   const [copied, setCopied] = useState(false);
 
@@ -30,6 +36,10 @@ export default function SubmissionSuccess({ requestNumber, onClose }: Props) {
       onClose();
     }
   };
+
+  const markdownContent = `Riceverai un messaggio su IO con gli aggiornamenti sulla tua richiesta.
+Per identificare la tua richiesta in caso di problemi, salva questo codice:
+Numero Domus: **${number}**.`;
 
   return (
     <Box
@@ -68,76 +78,41 @@ export default function SubmissionSuccess({ requestNumber, onClose }: Props) {
           />
         </Box>
 
-        <Typography variant="h2" sx={{ fontWeight: 700, mb: 2, fontSize: 24 }}>
-          Richiesta inviata!
-        </Typography>
-
-        <Typography
-          sx={{
-            color: theme.palette.common.neutralDarkGray,
-            textAlign: 'center',
-            mb: 2,
-            fontSize: 16,
-            lineHeight: 1.5,
-          }}
-        >
-          Riceverai un messaggio su IO con gli aggiornamenti sulla tua
-          richiesta.
-        </Typography>
-
-        <Typography
-          sx={{
-            color: theme.palette.common.neutralDarkGray,
-            textAlign: 'center',
-            mb: 1,
-            fontSize: 16,
-            lineHeight: 1.5,
-          }}
-        >
-          Per identificare la tua richiesta in caso di problemi, salva questo
-          codice:
-        </Typography>
-
+        <Title variant="MD" text="Richiesta inviata!" />
+        <VSpacer size={8} />
+        <MarkdownRenderer content={markdownContent} />
+        <VSpacer size={32} />
         <Box
           sx={{
             display: 'flex',
-            justifyContent: 'center',
-            gap: 1,
-            mb: 3,
+            flexDirection: 'column',
+            alignItems: 'center',
+            gap: 2,
           }}
         >
-          <Typography sx={{ color: theme.palette.common.neutralDarkGray }}>
-            Numero Domus:
-          </Typography>
-          <Typography sx={{ fontWeight: 600 }}>{number}</Typography>
+          <Button
+            size="medium"
+            variant="contained"
+            onClick={handleCopy}
+            startIcon={<ContentCopy />}
+            sx={{
+              bgcolor: theme.palette.common.primaryButton,
+              textTransform: 'none',
+              borderRadius: 2,
+              '& .MuiButton-startIcon': { color: 'inherit' },
+            }}
+            aria-label="Copia numero domus"
+          >
+            {copied ? 'Copiato' : 'Copia numero'}
+          </Button>
+          <Button
+            variant="text"
+            onClick={handleClose}
+            sx={{ color: theme.palette.common.primaryButton, fontSize: 16 }}
+          >
+            Chiudi
+          </Button>
         </Box>
-
-        <Button
-          fullWidth
-          size="medium"
-          variant="contained"
-          onClick={handleCopy}
-          startIcon={<ContentCopy />}
-          sx={{
-            mb: 2,
-            bgcolor: theme.palette.common.primaryButton,
-            textTransform: 'none',
-            borderRadius: 2,
-            py: 1.5,
-            '& .MuiButton-startIcon': { color: 'inherit' },
-          }}
-          aria-label="Copia numero domus"
-        >
-          {copied ? 'Copiato' : 'Copia numero'}
-        </Button>
-
-        <Button
-          variant="text"
-          onClick={handleClose}
-          sx={{ color: theme.palette.common.primaryButton, fontSize: 16 }}
-        >
-          Chiudi
-        </Button>
       </Box>
     </Box>
   );

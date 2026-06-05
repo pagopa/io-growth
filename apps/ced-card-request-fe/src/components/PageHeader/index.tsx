@@ -1,5 +1,5 @@
 import { ArrowBack } from '@mui/icons-material';
-import { Box, ButtonBase } from '@mui/material';
+import { Box, ButtonBase, useTheme } from '@mui/material';
 import type { ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Title } from '../Typography';
@@ -18,7 +18,7 @@ export function PageHeader({
   onBack,
 }: Readonly<PageHeaderProps>) {
   const navigate = useNavigate();
-
+  const theme = useTheme();
   return (
     <Box sx={{ px: 3, pt: 3, pb: 2 }}>
       <ButtonBase
@@ -28,7 +28,7 @@ export function PageHeader({
           alignItems: 'center',
           justifyContent: 'center',
           gap: 0.5,
-          color: '#0E0F13',
+          color: theme.palette.common.neutralBlack,
           fontSize: 16,
           fontWeight: 600,
           mb: 3,

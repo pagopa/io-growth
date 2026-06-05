@@ -165,9 +165,8 @@ export function AgreementDetailsSection({
 
           <DetailFormField
             hide={
-              benefitTypeMap[
-                benefitType?.type as keyof typeof benefitTypeMap
-              ] !== benefitTypeMap['reduced_fixed_price']
+              benefitTypeMap[benefitType?.type] !==
+              benefitTypeMap['reduced_fixed_price']
             }
             name={'fixedPrice'}
             path={'beneficiaryBenefit.value'}
@@ -191,11 +190,7 @@ export function AgreementDetailsSection({
           </DetailFormField>
 
           <DetailFormField
-            hide={
-              benefitTypeMap[
-                benefitType?.type as keyof typeof benefitTypeMap
-              ] !== benefitTypeMap['other']
-            }
+            hide={benefitTypeMap[benefitType?.type] !== benefitTypeMap['other']}
             name={'otherBenefitTypeDescription'}
             path={'beneficiaryBenefit.description'}
             onChange={(event) =>

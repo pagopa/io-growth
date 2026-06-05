@@ -36,7 +36,6 @@ export const store = configureStore({
     auth: loadPersistedAuthState() ?? {
       token: null,
       user: null,
-      deviceId: null,
     },
   },
   reducer: {

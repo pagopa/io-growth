@@ -12,7 +12,10 @@ export const opportunitiesApi = baseApi.injectEndpoints({
       query: (id) => `/operator/opportunities/${id}`,
       providesTags: (_result, _error, id) => [{ type: 'Opportunities', id }],
     }),
-    createOpportunity: builder.mutation<any, OpportunityCreateRequest>({
+    createOpportunity: builder.mutation<
+      OpportunityDetail,
+      OpportunityCreateRequest
+    >({
       query: (opportunity: OpportunityCreateRequest) => ({
         url: '/operator/opportunities',
         method: 'POST',

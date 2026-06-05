@@ -58,18 +58,18 @@ export const useCreateOpportunity = () => {
       localizedMetadata,
     };
 
-    const { error } = await createOpportunity(payload);
-
-    if (!error) {
-      showToast('Fatto!', 'success');
-      dispatch(resetForm());
-    }
+    const { data, error } = await createOpportunity(payload);
 
     if (error) {
       navigate(APP_ROUTES.HOME);
       showToast('Errore durante la creazione', 'error');
       dispatch(resetForm());
+      return;
     }
+
+    showToast('Fatto!', 'success');
+    dispatch(resetForm());
+    return data;
   }, [
     createOpportunity,
     dispatch,

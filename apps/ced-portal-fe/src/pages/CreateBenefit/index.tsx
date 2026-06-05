@@ -113,20 +113,9 @@ export default function CreateBenefitPage() {
     }
   };
 
-  const handleConfirmSubmitReview = async () => {
-    setSubmitReviewOpen(false);
-
-    if (!sourceOpportunityId) {
-      await createOpportunity();
-      showToast(
-        "Impossibile inviare in revisione senza un'opportunità esistente",
-        'error',
-      );
-      return;
-    }
-
+  const handleRequestApproval = async (opportunityId: string) => {
     try {
-      await requestApproval(sourceOpportunityId).unwrap();
+      await requestApproval(opportunityId).unwrap();
       dispatch(resetPlaces());
       showToast('Richiesta di approvazione inviata con successo', 'success');
       navigate(APP_ROUTES.HOME);
@@ -136,6 +125,25 @@ export default function CreateBenefitPage() {
         'error',
       );
     }
+  };
+
+  const handleConfirmSubmitReview = async () => {
+    setSubmitReviewOpen(false);
+
+    if (!sourceOpportunityId) {
+      const result = await createOpportunity();
+      if (!result || !result.id) {
+        showToast(
+          "Impossibile inviare in revisione senza un'opportunità esistente",
+          'error',
+        );
+        return;
+      }
+      handleRequestApproval(result.id);
+      return;
+    }
+
+    handleRequestApproval(sourceOpportunityId);
   };
 
   const CurrentStep = STEPS[currentStep]?.component ?? null;

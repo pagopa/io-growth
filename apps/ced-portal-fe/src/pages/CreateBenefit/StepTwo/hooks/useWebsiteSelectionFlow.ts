@@ -1,8 +1,8 @@
 import {
   removeSelectedWebsiteId,
-  selectSelectedWebsiteIds,
   setSelectedWebsiteIds,
-} from '../../../../features/wizard/slice';
+} from '../../../../features/places/placesSlice';
+import { selectSelectedWebsiteIds } from '../../../../features/places/selectors';
 import { useAppDispatch, useAppSelector } from '../../../../hooks/store';
 import { useSelectionFlow } from './useSelectionFlow';
 

@@ -5,6 +5,7 @@ import { ConflictError, GenericError } from "@pagopa/io-core-domain/errors";
 import { and, count, eq, ilike, inArray, sql } from "drizzle-orm";
 import { err, ok } from "neverthrow";
 
+import type { OpportunityDetail } from "../../../domain/entities/opportunity.js";
 import type {
   GetOpportunityByIdInput,
   ListOpportunitiesInput,
@@ -25,10 +26,73 @@ import {
   opportunityCategory,
 } from "./schema/tables.js";
 
+type DbOrTxClient = TransactionClient | TypedDbClient<typeof schema>;
+
+type TransactionClient = Parameters<
+  Parameters<TypedDbClient<typeof schema>["transaction"]>[0]
+>[0];
+
 const escapeIlikePattern = (value: string): string =>
   value.replace(/\\/g, "\\\\").replace(/%/g, "\\%").replace(/_/g, "\\_");
 
-// eslint-disable-next-line max-lines-per-function
+const getOpportunityDetailById = async (
+  db: DbOrTxClient,
+  input: GetOpportunityByIdInput,
+): Promise<Result<OpportunityDetail | undefined, GenericError>> => {
+  try {
+    const row = await db.query.opportunity.findFirst({
+      columns: {
+        categoryId: true,
+        createdAt: true,
+        dateFrom: true,
+        dateTo: true,
+        id: true,
+        nationalTerritory: true,
+        status: true,
+        updatedAt: true,
+        url: true,
+      },
+      where: and(
+        eq(opportunity.id, input.opportunityId),
+        eq(opportunity.operatorId, input.operatorId),
+      ),
+      with: {
+        beneficiaryBenefit: {
+          columns: {
+            description: true,
+            discountType: true,
+            type: true,
+            value: true,
+          },
+        },
+        caregiverBenefit: {
+          columns: {
+            description: true,
+            discountType: true,
+            type: true,
+            value: true,
+          },
+        },
+        category: { columns: { title: true } },
+        localizedMetadata: {
+          columns: { key: true, language: true, value: true },
+        },
+        opportunityPlaces: { columns: { placeId: true } },
+      },
+    });
+
+    if (!row) {
+      return ok(undefined);
+    }
+
+    return mapOpportunityDetailRow(row);
+  } catch (error) {
+    return err(
+      new GenericError(`Failed to get operator opportunity: ${String(error)}`),
+    );
+  }
+};
+
 export const createDrizzleOpportunityRepository = (
   db: TypedDbClient<typeof schema>,
 ): OpportunityRepository => ({
@@ -59,17 +123,34 @@ export const createDrizzleOpportunityRepository = (
     }
   },
 
-  create: async (input): Promise<Result<void, GenericError>> => {
+  create: async (input): Promise<Result<OpportunityDetail, GenericError>> => {
     try {
-      await db.transaction(async (tx) => {
+      const created = await db.transaction(async (tx) => {
         await createOpportunityInTransaction(
           tx,
           input.operatorId,
           input.opportunity,
         );
+
+        return await getOpportunityDetailById(tx, {
+          operatorId: input.operatorId,
+          opportunityId: input.opportunity.id,
+        });
       });
 
-      return ok(undefined);
+      if (created.isErr()) {
+        return err(created.error);
+      }
+
+      if (!created.value) {
+        return err(
+          new GenericError(
+            `Failed to read created operator opportunity ${input.opportunity.id}`,
+          ),
+        );
+      }
+
+      return ok(created.value);
     } catch (error) {
       return err(
         new GenericError(
@@ -79,61 +160,8 @@ export const createDrizzleOpportunityRepository = (
     }
   },
 
-  getById: async (input: GetOpportunityByIdInput) => {
-    try {
-      const row = await db.query.opportunity.findFirst({
-        columns: {
-          categoryId: true,
-          createdAt: true,
-          dateFrom: true,
-          dateTo: true,
-          id: true,
-          status: true,
-          updatedAt: true,
-          url: true,
-        },
-        where: and(
-          eq(opportunity.id, input.opportunityId),
-          eq(opportunity.operatorId, input.operatorId),
-        ),
-        with: {
-          beneficiaryBenefit: {
-            columns: {
-              description: true,
-              discountType: true,
-              type: true,
-              value: true,
-            },
-          },
-          caregiverBenefit: {
-            columns: {
-              description: true,
-              discountType: true,
-              type: true,
-              value: true,
-            },
-          },
-          category: { columns: { title: true } },
-          localizedMetadata: {
-            columns: { key: true, language: true, value: true },
-          },
-          opportunityPlaces: { columns: { placeId: true } },
-        },
-      });
-
-      if (!row) {
-        return ok(undefined);
-      }
-
-      return mapOpportunityDetailRow(row);
-    } catch (error) {
-      return err(
-        new GenericError(
-          `Failed to get operator opportunity: ${String(error)}`,
-        ),
-      );
-    }
-  },
+  getById: async (input: GetOpportunityByIdInput) =>
+    getOpportunityDetailById(db, input),
 
   list: async (
     input: ListOpportunitiesInput,

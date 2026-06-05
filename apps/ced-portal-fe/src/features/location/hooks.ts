@@ -1,4 +1,4 @@
-import { useCreatePlaceMutation, useGetPlacesQuery } from '../places/api';
+import { useCreatePlaceMutation } from '../places/api';
 import type { PlaceResponse } from '../../core/api/generated/model';
 import { useAppDispatch, useAppSelector } from '../../hooks/store';
 import { resetLocationForm, selectLocationForm } from './locationSlice';
@@ -12,7 +12,6 @@ export function useLocationSubmit(
   const dispatch = useAppDispatch();
   const locationForm = useAppSelector(selectLocationForm);
   const [createPlace, { isLoading }] = useCreatePlaceMutation();
-  const { refetch: refetchPlaces } = useGetPlacesQuery();
   const { showToast } = useToast();
 
   const handleConfirm = async () => {
@@ -46,10 +45,7 @@ export function useLocationSubmit(
 
     if ('error' in result)
       return showToast('Errore durante il salvataggio del luogo', 'error');
-    const placesResult = await refetchPlaces();
-    if (placesResult.error)
-      return showToast('Errore durante il recupero dei luoghi', 'error');
-    const newPlace = placesResult.data?.slice(-1)[0];
+    const newPlace = result.data;
     dispatch(resetLocationForm());
     onConfirm(newPlace);
   };

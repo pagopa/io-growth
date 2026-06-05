@@ -1,63 +1,127 @@
+import EuroRoundedIcon from '@mui/icons-material/EuroRounded';
 import { Divider, Paper, Stack, Typography } from '@mui/material';
 import { useAppDispatch, useAppSelector } from '../../../../hooks';
-import { setLocalizedField } from '../../../../features/agreementDetailCreation/agreementDetailCreationSlice';
+import {
+  setField,
+  setLocalizedValue,
+  setBenefit,
+  OpportunityCreationForm,
+} from '../../../../features/opportunityCreation/opportunityCreationSlice';
+import {
+  selectActiveFormLanguage,
+  selectBeneficiaryBenefit,
+} from '../../../../features/opportunityCreation/selectors';
 import { AgreementLanguageTabs } from './components/AgreementLanguageTabs';
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 import { AgreementDetailHeading } from './components/AgreementDetailHeading';
 import { AppSelect, AppTextField } from '../../../../components';
 import { FixedPriceBenefitFields } from './components/FixedPriceBenefitFields';
-import {
-  selectActiveAgreementLanguage,
-  selectFieldActiveAgreementLanguageForm,
-} from '../../../../features/agreementDetailCreation/selectors';
 import { DetailFormField } from './components/DetailFormField';
-import { AgreementDetailsFieldKey } from '../../../../features/agreementDetailCreation/types';
+import { benefitTypeOptions, getAgreementCopy } from '../../../../constants';
 import {
-  benefitTypeOptions,
-  categoriesDropdownDescriptions,
-  categoriesOptions,
-  getAgreementCopy,
-} from '../../../../constants';
-import { BenefitType } from '../../../../constants/formOptions/types';
+  BenefitDiscountDiscountType,
+  BenefitOtherType,
+  BenefitReducedFixedPriceType,
+  BenefitRequest,
+  OpportunityCreateRequest,
+} from '../../../../core/api/generated/model';
+import { FieldWithIcon } from './components/FieldWithIcon';
+import { benefitTypeMap } from '../../../../constants/formOptions/types';
+import { selectOpportunityCategories } from '../../../../features/benefits/selectors';
 
 export function AgreementDetailsSection({
   attempted,
 }: Readonly<{ attempted: boolean }>) {
   const dispatch = useAppDispatch();
-  const activeLanguage = useAppSelector(selectActiveAgreementLanguage);
+  const activeLanguage = useAppSelector(selectActiveFormLanguage);
   const copy = getAgreementCopy(activeLanguage);
 
-  const benefitType = useAppSelector(
-    selectFieldActiveAgreementLanguageForm('benefitType'),
+  const benefitType = useAppSelector(selectBeneficiaryBenefit);
+
+  const categories = useAppSelector(selectOpportunityCategories);
+
+  const categoriesOptions = useMemo(
+    () =>
+      categories.map(({ id, title }) => ({
+        value: id,
+        label: title,
+      })),
+    [categories],
   );
 
-  const handleFieldChange = useCallback(
-    (field: AgreementDetailsFieldKey, value: string | number) => {
+  const handleLocalizedFieldChange = useCallback(
+    (
+      field: OpportunityCreateRequest['localizedMetadata'][number]['key'],
+      value: string | number,
+    ) => {
       dispatch(
-        setLocalizedField({
-          languageId: activeLanguage,
-          field,
+        setLocalizedValue({
+          language: activeLanguage,
+          key: field,
           value: String(value),
         }),
       );
     },
-    [activeLanguage, dispatch],
+    [dispatch, activeLanguage],
+  );
+
+  const handleFieldChange = useCallback(
+    (
+      field: keyof OpportunityCreationForm,
+      value: OpportunityCreationForm[keyof OpportunityCreationForm],
+    ) => {
+      dispatch(setField({ field, value }));
+    },
+    [dispatch],
   );
 
   const handleBenefitTypeChange = useCallback(
-    (field: AgreementDetailsFieldKey, value: string | number) => {
-      handleFieldChange(field, value);
-
-      if (
-        BenefitType[value as keyof typeof BenefitType] !==
-        BenefitType.FIXED_PRICE
-      ) {
-        handleFieldChange('benefitDiscountValue', '');
-        handleFieldChange('benefitDiscountValueType', '');
-        handleFieldChange('otherBenefitTypeDescription', '');
+    (type: BenefitRequest['type']) => {
+      switch (type) {
+        case 'discount':
+          dispatch(
+            setBenefit({
+              which: 'beneficiaryBenefit',
+              value: {
+                type,
+                discountType: BenefitDiscountDiscountType.percentage,
+                value: 0,
+              },
+            }),
+          );
+          break;
+        case 'reduced_fixed_price':
+          dispatch(
+            setBenefit({
+              which: 'beneficiaryBenefit',
+              value: {
+                type,
+                value: 0,
+              },
+            }),
+          );
+          break;
+        case 'other':
+          dispatch(
+            setBenefit({
+              which: 'beneficiaryBenefit',
+              value: {
+                type,
+                description: '',
+              },
+            }),
+          );
+          break;
+        default:
+          dispatch(
+            setBenefit({
+              which: 'beneficiaryBenefit',
+              value: { type },
+            }),
+          );
       }
     },
-    [handleFieldChange],
+    [dispatch],
   );
 
   return (
@@ -73,19 +137,25 @@ export function AgreementDetailsSection({
         <Stack spacing={2}>
           <DetailFormField
             name={'name'}
+            path={`localizedMetadata.${activeLanguage}.name`}
             required
             attempted={attempted}
-            onChange={(event) => handleFieldChange('name', event.target.value)}
+            onChange={(event) =>
+              handleLocalizedFieldChange('name', event.target.value)
+            }
           >
             <AppTextField fullWidth inputProps={{ maxLength: 50 }} />
           </DetailFormField>
 
           <DetailFormField
             name={'benefitType'}
+            path={'beneficiaryBenefit.type'}
             required
             attempted={attempted}
             onChange={(event) =>
-              handleBenefitTypeChange('benefitType', event.target.value)
+              handleBenefitTypeChange(
+                event.target.value as BenefitRequest['type'],
+              )
             }
           >
             <AppSelect options={benefitTypeOptions} />
@@ -95,15 +165,39 @@ export function AgreementDetailsSection({
 
           <DetailFormField
             hide={
-              benefitType !==
-              copy.additionalSections.companion.benefitTypeOptions.other
+              benefitTypeMap[benefitType?.type] !==
+              benefitTypeMap['reduced_fixed_price']
             }
-            name={'otherBenefitTypeDescription'}
+            name={'fixedPrice'}
+            path={'beneficiaryBenefit.value'}
             onChange={(event) =>
-              handleFieldChange(
-                'otherBenefitTypeDescription',
-                event.target.value,
-              )
+              handleFieldChange('beneficiaryBenefit', {
+                type: BenefitReducedFixedPriceType.reduced_fixed_price,
+                value: Number(event.target.value),
+              })
+            }
+          >
+            <FieldWithIcon
+              onChange={(event) =>
+                handleFieldChange('beneficiaryBenefit', {
+                  type: BenefitReducedFixedPriceType.reduced_fixed_price,
+                  value: Number(event.target.value),
+                })
+              }
+              icon={<EuroRoundedIcon sx={{ fontSize: 18 }} />}
+              label={copy.detailsForm.fixedPriceLabel}
+            />
+          </DetailFormField>
+
+          <DetailFormField
+            hide={benefitTypeMap[benefitType?.type] !== benefitTypeMap['other']}
+            name={'otherBenefitTypeDescription'}
+            path={'beneficiaryBenefit.description'}
+            onChange={(event) =>
+              handleFieldChange('beneficiaryBenefit', {
+                type: BenefitOtherType.other,
+                description: event.target.value,
+              })
             }
           >
             <AppTextField fullWidth />
@@ -111,10 +205,11 @@ export function AgreementDetailsSection({
 
           <DetailFormField
             name={'description'}
+            path={`localizedMetadata.${activeLanguage}.description`}
             required
             attempted={attempted}
             onChange={(event) =>
-              handleFieldChange('description', event.target.value)
+              handleLocalizedFieldChange('description', event.target.value)
             }
           >
             <AppTextField fullWidth inputProps={{ maxLength: 250 }} />
@@ -122,15 +217,16 @@ export function AgreementDetailsSection({
 
           <DetailFormField
             name={'category'}
+            path={'categoryId'}
             required
             attempted={attempted}
             onChange={(event) =>
-              handleFieldChange('category', event.target.value)
+              handleFieldChange('categoryId', event.target.value)
             }
           >
             <AppSelect
               options={categoriesOptions}
-              renderCustomOptions={({ label, value, lastElement }) => (
+              renderCustomOptions={({ label, lastElement, index }) => (
                 <Stack
                   direction="column"
                   spacing={0.5}
@@ -145,11 +241,7 @@ export function AgreementDetailsSection({
                     color="text.secondary"
                     component="span"
                   >
-                    {
-                      categoriesDropdownDescriptions[
-                        value as keyof typeof categoriesDropdownDescriptions
-                      ]
-                    }
+                    {categories[index].description}
                   </Typography>
                   {!lastElement && <Divider sx={{ width: '100%' }} />}
                 </Stack>
@@ -159,8 +251,9 @@ export function AgreementDetailsSection({
 
           <DetailFormField
             name={'conditions'}
+            path={`localizedMetadata.${activeLanguage}.condition`}
             onChange={(event) =>
-              handleFieldChange('conditions', event.target.value)
+              handleLocalizedFieldChange('condition', event.target.value)
             }
           >
             <AppTextField fullWidth inputProps={{ maxLength: 200 }} />

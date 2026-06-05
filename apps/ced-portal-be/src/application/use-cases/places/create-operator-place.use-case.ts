@@ -8,6 +8,7 @@ import { ResultAsync } from "neverthrow";
 import { ulid } from "ulid";
 import { z } from "zod";
 
+import type { Place } from "../../../domain/entities/place.js";
 import type { PlaceRepository } from "../../../domain/ports/outbound/persistence/place.repository.js";
 
 import { validateUseCaseInput } from "../utils/validate-use-case-input.js";
@@ -55,7 +56,7 @@ export type CreateOperatorPlaceInput = z.infer<
 
 export type CreateOperatorPlaceUseCase = UseCase<
   CreateOperatorPlaceInput,
-  void,
+  Place,
   GenericError | ValidationError
 >;
 

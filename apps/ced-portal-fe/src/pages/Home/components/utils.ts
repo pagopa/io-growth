@@ -1,10 +1,19 @@
 import { ChipProps } from '@mui/material';
-import type { OpportunityDetailResponse } from '../../../core/api/generated/model';
-import type { Benefit } from '../../../features/benefits/types';
+import type {
+  OpportunityDetailResponse,
+  OpportunitySummaryItem,
+} from '../../../core/api/generated/model';
 import { benefitStateLabelMap, opportunityStatusLabelMap } from './constants';
 
-export const getChipConfig = (item: Benefit): ChipProps => {
-  const config = opportunityStatusLabelMap[item.status];
+type ChipConfig = {
+  item: OpportunitySummaryItem;
+  role: 'admin' | 'operator';
+};
+
+export const getChipConfig = ({ item, role }: ChipConfig): ChipProps => {
+  const config = (
+    role === 'admin' ? opportunityStatusLabelMap : benefitStateLabelMap
+  )[item.status];
   const color = config?.color ?? 'default';
   const label = config?.text ?? item.status;
 

@@ -131,6 +131,10 @@ paths:
       responses:
         "201":
           description: Operator profile created successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OperatorProfileResponse"
         "401":
           description: Invalid or missing JWT
           content:
@@ -233,6 +237,10 @@ paths:
       responses:
         "201":
           description: Place created successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PlaceResponse"
         "400":
           description: Invalid place payload
           content:
@@ -535,6 +543,10 @@ paths:
       responses:
         "201":
           description: Opportunity created successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OpportunityDetailResponse"
         "400":
           description: Invalid opportunity payload
           content:
@@ -1061,9 +1073,12 @@ components:
         categoryId:
           type: string
           pattern: "^[0-9A-HJKMNP-TV-Z]{26}$"
+        nationalTerritory:
+          type: boolean
+          default: false
         placeIds:
           type: array
-          minItems: 1
+          minItems: 0
           items:
             type: string
             pattern: "^[0-9A-HJKMNP-TV-Z]{26}$"
@@ -1237,6 +1252,7 @@ components:
         - dateFrom
         - categoryId
         - categoryTitle
+        - nationalTerritory
         - beneficiaryBenefit
         - localizedMetadata
         - placeIds
@@ -1267,6 +1283,8 @@ components:
           type: string
           format: uri
           nullable: true
+        nationalTerritory:
+          type: boolean
         categoryId:
           type: string
           pattern: "^[0-9A-HJKMNP-TV-Z]{26}$"

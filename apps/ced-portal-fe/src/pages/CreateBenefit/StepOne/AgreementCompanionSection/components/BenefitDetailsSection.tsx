@@ -1,37 +1,83 @@
 import { AppSelect, AppTextField } from '../../../../../components';
-import { useAppSelector } from '../../../../../hooks';
-import {
-  selectActiveAgreementLanguage,
-  selectFieldActiveAgreementLanguageCompanionForm,
-} from '../../../../../features/agreementDetailCreation/selectors';
-import { AgreementLocalizedFormState } from '../../../../../features/agreementDetailCreation/types';
+import { useAppDispatch, useAppSelector } from '../../../../../hooks';
 import { FixedPriceFields } from './FixedPriceFields';
 import { ViewSameConditions } from './ViewSameConditions';
 import { CompanionFormField } from './CompanionFormField';
 import { benefitTypeOptions, getAgreementCopy } from '../../../../../constants';
+import {
+  selectActiveFormLanguage,
+  selectCaregiverBenefit,
+} from '../../../../../features/opportunityCreation/selectors';
+import { setBenefit } from '../../../../../features/opportunityCreation/opportunityCreationSlice';
+import {
+  BenefitDiscountDiscountType,
+  BenefitRequest,
+} from '../../../../../core/api/generated/model';
+import { useCallback } from 'react';
 
 type BenefitDetailsSectionProps = {
-  handleFieldChange: (
-    field: keyof AgreementLocalizedFormState['companion'],
-    value: string | number,
-  ) => void;
+  isSameAsOwner: boolean;
 };
 
 export const BenefitDetailsSection = ({
-  handleFieldChange,
+  isSameAsOwner,
 }: BenefitDetailsSectionProps) => {
-  const sameConditionAsOwner = useAppSelector(
-    selectFieldActiveAgreementLanguageCompanionForm('isSameConditionAsOwner'),
-  );
-  const companionBenefitType = useAppSelector(
-    selectFieldActiveAgreementLanguageCompanionForm('companionBenefitType'),
-  );
+  const dispatch = useAppDispatch();
+  const caregiverBenefit = useAppSelector(selectCaregiverBenefit);
 
-  const activeLanguage = useAppSelector(selectActiveAgreementLanguage);
+  const activeLanguage = useAppSelector(selectActiveFormLanguage);
   const companionCopy =
     getAgreementCopy(activeLanguage).additionalSections.companion;
 
-  if (sameConditionAsOwner) {
+  const handleBenefitTypeChange = useCallback(
+    (type: BenefitRequest['type']) => {
+      switch (type) {
+        case 'discount':
+          dispatch(
+            setBenefit({
+              which: 'caregiverBenefit',
+              value: {
+                type,
+                discountType: BenefitDiscountDiscountType.percentage,
+                value: 0,
+              },
+            }),
+          );
+          break;
+        case 'reduced_fixed_price':
+          dispatch(
+            setBenefit({
+              which: 'caregiverBenefit',
+              value: {
+                type,
+                value: 0,
+              },
+            }),
+          );
+          break;
+        case 'other':
+          dispatch(
+            setBenefit({
+              which: 'caregiverBenefit',
+              value: {
+                type,
+                description: '',
+              },
+            }),
+          );
+          break;
+        default:
+          dispatch(
+            setBenefit({
+              which: 'beneficiaryBenefit',
+              value: { type },
+            }),
+          );
+      }
+    },
+    [dispatch],
+  );
+  if (isSameAsOwner) {
     return <ViewSameConditions />;
   }
 
@@ -39,21 +85,29 @@ export const BenefitDetailsSection = ({
     <>
       <CompanionFormField
         name={'companionBenefitType'}
+        path="caregiverBenefit.type"
         onChange={(event) =>
-          handleFieldChange('companionBenefitType', event.target.value)
+          handleBenefitTypeChange(event.target.value as BenefitRequest['type'])
         }
       >
         <AppSelect options={benefitTypeOptions} />
       </CompanionFormField>
-      <FixedPriceFields />
-
+      {caregiverBenefit?.type === 'discount' && (
+        <FixedPriceFields benefit={caregiverBenefit} />
+      )}
       <CompanionFormField
-        hide={companionBenefitType !== companionCopy.benefitTypeOptions.other}
+        hide={caregiverBenefit?.type !== companionCopy.benefitTypeOptions.other}
         name={'companionOtherBenefitTypeDescription'}
+        path="caregiverBenefit.description"
         onChange={(event) =>
-          handleFieldChange(
-            'companionOtherBenefitTypeDescription',
-            event.target.value,
+          dispatch(
+            setBenefit({
+              which: 'caregiverBenefit',
+              value: {
+                type: 'other',
+                description: event.target.value,
+              },
+            }),
           )
         }
       >

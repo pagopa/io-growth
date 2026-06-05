@@ -7,13 +7,13 @@ import {
   Typography,
   useTheme,
 } from '@mui/material';
-import type { Benefit } from '../../../features/benefits/types';
 import { BenefitsTable } from './BenefitsTable';
+import type { OpportunitySummaryItem } from '../../../core/api/generated/model';
 
 interface BenefitsContentStateProps {
   isLoading: boolean;
   isError: boolean;
-  items: Benefit[];
+  items: OpportunitySummaryItem[];
   activeTab: number;
   onRetry: () => void;
 }

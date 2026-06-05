@@ -1,8 +1,7 @@
+import { PlaceBaseType } from '../../core/api/generated/model';
+import type { BenefitRequest } from '../../core/api/generated/model/benefitRequest';
 import type { LocalizedMetadataItemLanguage } from '../../core/api/generated/model/localizedMetadataItemLanguage';
 import type { OpportunityDetailResponse } from '../../core/api/generated/model/opportunityDetailResponse';
-import type { BenefitDiscountValueType } from '../../features/agreementDetailCreation/types';
-import type { BenefitCategory } from '../../features/benefitsFilters/types';
-import type { AccessPoint } from '../../features/wizard/types';
 
 export interface CreateBenefitNavigationState {
   sourceOpportunityId?: OpportunityDetailResponse['id'];
@@ -10,30 +9,23 @@ export interface CreateBenefitNavigationState {
 
 export type CreateBenefitLanguageId = LocalizedMetadataItemLanguage;
 
-export interface BenefitFormValues {
-  benefitType: string;
-  benefitDiscountValueType: BenefitDiscountValueType;
-  benefitDiscountValue: string;
-  otherBenefitTypeDescription: string;
-}
-
 export interface LocalizedFormTexts {
   name: string;
   description: string;
-  conditions: string;
+  condition: string;
 }
 
 export interface OpportunityPrefillData {
   preselectedLocationIds: string[];
   preselectedWebsiteIds: string[];
-  accessPoint: AccessPoint;
+  accessPoint: PlaceBaseType | 'both' | null;
   hasEndDate: boolean;
   startDate: string;
   endDate: string;
   benefitUrl: string;
-  category: keyof typeof BenefitCategory | '';
-  beneficiaryValues: BenefitFormValues;
-  caregiverValues: BenefitFormValues | null;
+  categoryId: string;
+  beneficiaryBenefit: BenefitRequest;
+  caregiverBenefit: BenefitRequest | null;
   localizedByLanguage: Partial<
     Record<CreateBenefitLanguageId, LocalizedFormTexts>
   >;

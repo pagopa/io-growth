@@ -12,6 +12,7 @@ import {
   MOCK_OPERATOR_ID,
   MOCK_PLACE_ID,
   mockCreateOpportunityInput,
+  mockOpportunityDetail,
 } from "./mocks.js";
 
 const createMockOperatorRepository = (
@@ -71,7 +72,7 @@ const makeDeps = (overrides?: {
     overrides?.opportunityCategoryRepository,
   ),
   opportunityRepository: createMockOpportunityRepository({
-    create: vi.fn().mockResolvedValue(ok(undefined)),
+    create: vi.fn().mockResolvedValue(ok(mockOpportunityDetail)),
     ...overrides?.opportunityRepository,
   }),
   placeRepository: createMockPlaceRepository(overrides?.placeRepository),
@@ -84,7 +85,7 @@ describe("makeCreateOperatorOpportunityUseCase - success", () => {
 
     const result = await useCase(mockCreateOpportunityInput);
 
-    expect(result).toEqual(ok(undefined));
+    expect(result).toEqual(ok(mockOpportunityDetail));
     expect(deps.opportunityRepository.create).toHaveBeenCalledWith(
       expect.objectContaining({
         operatorId: mockCreateOpportunityInput.operatorId,
@@ -177,7 +178,7 @@ describe("makeCreateOperatorOpportunityUseCase - success", () => {
     };
     const result = await useCase(inputWithoutOptionals);
 
-    expect(result).toEqual(ok(undefined));
+    expect(result).toEqual(ok(mockOpportunityDetail));
     expect(deps.opportunityRepository.create).toHaveBeenCalledWith(
       expect.objectContaining({
         opportunity: expect.objectContaining({
@@ -200,7 +201,7 @@ describe("makeCreateOperatorOpportunityUseCase - success", () => {
     };
     const result = await useCase(input);
 
-    expect(result).toEqual(ok(undefined));
+    expect(result).toEqual(ok(mockOpportunityDetail));
     expect(deps.opportunityRepository.create).toHaveBeenCalledWith(
       expect.objectContaining({
         opportunity: expect.objectContaining({
@@ -225,7 +226,7 @@ describe("makeCreateOperatorOpportunityUseCase - success", () => {
     };
     const result = await useCase(input);
 
-    expect(result).toEqual(ok(undefined));
+    expect(result).toEqual(ok(mockOpportunityDetail));
     expect(deps.opportunityRepository.create).toHaveBeenCalledWith(
       expect.objectContaining({
         opportunity: expect.objectContaining({
@@ -255,12 +256,13 @@ describe("makeCreateOperatorOpportunityUseCase - validation", () => {
     expect(deps.opportunityRepository.create).not.toHaveBeenCalled();
   });
 
-  it("should return ValidationError when placeIds is empty", async () => {
+  it("should return ValidationError when placeIds is empty and nationalTerritory is false", async () => {
     const deps = makeDeps();
     const useCase = makeCreateOperatorOpportunityUseCase(deps);
 
     const result = await useCase({
       ...mockCreateOpportunityInput,
+      nationalTerritory: false,
       placeIds: [],
     });
 
@@ -268,6 +270,46 @@ describe("makeCreateOperatorOpportunityUseCase - validation", () => {
       err(expect.objectContaining({ kind: "ValidationError" })),
     );
     expect(deps.opportunityRepository.create).not.toHaveBeenCalled();
+  });
+
+  it("should create opportunity when placeIds is empty and nationalTerritory is true", async () => {
+    const deps = makeDeps({
+      placeRepository: { getIdsByOperator: vi.fn().mockResolvedValue(ok([])) },
+    });
+    const useCase = makeCreateOperatorOpportunityUseCase(deps);
+
+    const result = await useCase({
+      ...mockCreateOpportunityInput,
+      nationalTerritory: true,
+      placeIds: [],
+    });
+
+    expect(result).toEqual(ok(mockOpportunityDetail));
+    expect(deps.placeRepository.getIdsByOperator).not.toHaveBeenCalled();
+    expect(deps.opportunityRepository.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        opportunity: expect.objectContaining({
+          nationalTerritory: true,
+          placeIds: [],
+        }),
+      }),
+    );
+  });
+
+  it("should default nationalTerritory to false when omitted", async () => {
+    const deps = makeDeps();
+    const useCase = makeCreateOperatorOpportunityUseCase(deps);
+
+    const { nationalTerritory, ...inputWithoutFlag } =
+      mockCreateOpportunityInput;
+    void nationalTerritory;
+    await useCase(inputWithoutFlag);
+
+    expect(deps.opportunityRepository.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        opportunity: expect.objectContaining({ nationalTerritory: false }),
+      }),
+    );
   });
 
   it("should return ValidationError when localizedMetadata is empty", async () => {

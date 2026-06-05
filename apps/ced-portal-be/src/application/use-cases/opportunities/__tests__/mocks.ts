@@ -29,9 +29,33 @@ export const mockCreateOpportunityInput = {
       value: "Sconto del 20% su tutti i servizi",
     },
   ],
+  nationalTerritory: false,
   operatorId: MOCK_OPERATOR_ID,
   placeIds: [MOCK_PLACE_ID],
   url: "https://example.org/promo",
+};
+
+export const mockOpportunityDetail = {
+  beneficiaryBenefit: {
+    discountType: "percentage" as const,
+    type: "discount" as const,
+    value: 20,
+  },
+  caregiverBenefit: {
+    type: "free" as const,
+  },
+  categoryId: mockCreateOpportunityInput.categoryId,
+  categoryTitle: "title",
+  createdAt: "2026-01-01T00:00:00.000Z",
+  dateFrom: mockCreateOpportunityInput.dateFrom,
+  dateTo: mockCreateOpportunityInput.dateTo,
+  id: "01KRJXEYD44B58700GT982CCYZ",
+  localizedMetadata: mockCreateOpportunityInput.localizedMetadata,
+  nationalTerritory: false,
+  placeIds: mockCreateOpportunityInput.placeIds,
+  status: "draft" as const,
+  updatedAt: "2026-01-01T00:00:00.000Z",
+  url: mockCreateOpportunityInput.url,
 };
 
 export const createMockOpportunityRepository = (

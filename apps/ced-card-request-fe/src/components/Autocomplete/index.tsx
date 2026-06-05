@@ -1,10 +1,10 @@
-import { useState } from 'react';
 import {
   Autocomplete,
-  type AutocompleteProps as MuiAutocompleteProps,
   MenuItem,
+  type AutocompleteProps as MuiAutocompleteProps,
 } from '@mui/material';
 import { AppTextField } from '../TextField';
+import { ExpandMore } from '@mui/icons-material';
 
 export interface AutocompleteOption {
   label: string;
@@ -16,9 +16,9 @@ type BaseMuiProps<T> = MuiAutocompleteProps<T | string, false, false, true>;
 export interface AppAutocompleteProps<
   T extends AutocompleteOption,
 > extends Pick<BaseMuiProps<T>, 'sx' | 'open'> {
+  inputValue?: string;
   label?: string;
   options: T[];
-  inputValue: string;
   required?: boolean;
   error?: boolean;
   helperText?: string;
@@ -27,51 +27,33 @@ export interface AppAutocompleteProps<
 }
 
 export function AppAutocomplete<T extends AutocompleteOption>({
-  label,
   inputValue,
+  label,
   options,
-  open,
   required,
   error,
   helperText,
   onValueChange,
   onSelect,
-}: AppAutocompleteProps<T>) {
-  const [isFocused, setIsFocused] = useState(false);
-  const [selectionMade, setSelectionMade] = useState(false);
-  const hasResults = options.length > 0;
-  const isOpen = open ?? (hasResults && isFocused && !selectionMade);
-
+}: Readonly<AppAutocompleteProps<T>>) {
   return (
     <Autocomplete
-      freeSolo
-      open={isOpen}
-      onFocus={() => setIsFocused(true)}
-      onBlur={() => setIsFocused(false)}
-      filterOptions={(x) => x}
-      options={options}
-      getOptionLabel={(option: T | string) =>
-        typeof option === 'string' ? option : option.label
-      }
       inputValue={inputValue}
-      onInputChange={(_event, value) => {
-        setSelectionMade(false);
-        onValueChange?.(value);
-      }}
-      onChange={
-        onSelect
-          ? (_event, value) => {
-              if (value && typeof value !== 'string') {
-                setSelectionMade(true);
-                onSelect(value);
-              }
-            }
-          : undefined
-      }
+      selectOnFocus
+      options={options}
       slotProps={{
         popper: { disablePortal: false },
         paper: { elevation: 8 },
       }}
+      onInputChange={(_, value) => onValueChange?.(value)}
+      onChange={(_, option) => {
+        if (option) {
+          const selectedOption =
+            typeof option === 'string' ? { label: option } : option;
+          onSelect?.(selectedOption as T);
+        }
+      }}
+      popupIcon={<ExpandMore color="action" />}
       renderOption={(props, option: T | string) => (
         <MenuItem
           {...props}
@@ -87,6 +69,7 @@ export function AppAutocomplete<T extends AutocompleteOption>({
           required={required}
           error={error}
           helperText={helperText}
+          hideErrorIcon
         />
       )}
     />

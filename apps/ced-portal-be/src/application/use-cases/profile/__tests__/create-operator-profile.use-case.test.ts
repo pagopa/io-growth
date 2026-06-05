@@ -13,14 +13,26 @@ import {
 describe("makeCreateOperatorProfileUseCase", () => {
   it("should create operator profile when no profile exists", async () => {
     const profileRepository = createMockProfileRepository({
-      create: vi.fn().mockResolvedValue(ok(undefined)),
+      create: vi.fn().mockImplementation(async (profile) => ok(profile)),
       getByOperatorId: vi.fn().mockResolvedValue(ok(undefined)),
     });
     const useCase = makeCreateOperatorProfileUseCase(profileRepository);
 
     const result = await useCase(mockCreateProfileInput);
 
-    expect(result).toEqual(ok(undefined));
+    expect(result).toEqual(
+      ok(
+        expect.objectContaining({
+          displayName: mockCreateProfileInput.displayName,
+          operatorId: mockCreateProfileInput.operatorId,
+          place: expect.objectContaining({
+            id: expect.stringMatching(/^[0-9A-HJKMNP-TV-Z]{26}$/),
+            name: mockCreateProfileInput.place.name,
+            type: mockCreateProfileInput.place.type,
+          }),
+        }),
+      ),
+    );
     expect(profileRepository.getByOperatorId).toHaveBeenCalledWith(
       MOCK_OPERATOR_ID,
     );

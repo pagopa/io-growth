@@ -54,11 +54,9 @@ export const PageHeader = () => {
   const selectedPartyId =
     partyList.find((party) => party.id === user.id)?.id ?? partyList[0]?.id;
   const selectedProductId = productsList[0]?.id;
-
   if (!selectedPartyId || !selectedProductId) {
     return null;
   }
-
   return (
     <Box sx={{ '& .MuiContainer-root': { px: { xs: 2, md: 3 } } }}>
       <HeaderProduct

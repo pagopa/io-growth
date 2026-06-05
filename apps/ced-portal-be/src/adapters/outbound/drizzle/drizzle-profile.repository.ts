@@ -18,12 +18,17 @@ export const createDrizzleProfileRepository = (
 ): ProfileRepository => ({
   create: async (
     input: Profile,
-  ): Promise<Result<void, ConflictError | GenericError>> => {
+  ): Promise<Result<Profile, ConflictError | GenericError>> => {
     try {
+      let created!: Profile;
       await db.transaction(async (tx) => {
-        await createPlaceInTransaction(tx, input.operatorId, input.place);
+        const returnedPlace = await createPlaceInTransaction(
+          tx,
+          input.operatorId,
+          input.place,
+        );
 
-        const createdProfiles = await tx
+        const [createdProfile] = await tx
           .insert(profile)
           .values({
             displayName: input.displayName,
@@ -31,14 +36,23 @@ export const createDrizzleProfileRepository = (
             placeId: input.place.id,
           })
           .onConflictDoNothing({ target: profile.operatorId })
-          .returning({ id: profile.id });
+          .returning({
+            displayName: profile.displayName,
+            operatorId: profile.operatorId,
+          });
 
-        if (createdProfiles.length === 0) {
+        if (!createdProfile) {
           throw new ConflictError("Operator profile already exists");
         }
+
+        created = {
+          displayName: createdProfile.displayName,
+          operatorId: createdProfile.operatorId,
+          place: returnedPlace,
+        };
       });
 
-      return ok(undefined);
+      return ok(created);
     } catch (error) {
       if (error instanceof ConflictError) {
         return err(error);

@@ -1,4 +1,4 @@
-import { useCreatePlaceMutation, useGetPlacesQuery } from '../places/api';
+import { useCreatePlaceMutation } from '../places/api';
 import type { PlaceResponse } from '../../core/api/generated/model';
 import { useAppDispatch, useAppSelector } from '../../hooks/store';
 import {
@@ -16,7 +16,6 @@ export function useWebsiteSubmit(
   const dispatch = useAppDispatch();
   const websiteForm = useAppSelector(selectWebsiteForm);
   const [createPlace, { isLoading }] = useCreatePlaceMutation();
-  const { refetch: refetchPlaces } = useGetPlacesQuery();
   const { showToast } = useToast();
 
   const handleConfirm = async () => {
@@ -37,10 +36,7 @@ export function useWebsiteSubmit(
 
     if ('error' in result)
       return showToast('Errore durante il salvataggio del sito', 'error');
-    const placesResult = await refetchPlaces();
-    if ('error' in placesResult)
-      return showToast('Errore durante il recupero dei siti', 'error');
-    const newWebsite = placesResult.data?.slice(-1)[0];
+    const newWebsite = result.data;
     dispatch(resetWebsiteForm());
     onConfirm(newWebsite);
   };

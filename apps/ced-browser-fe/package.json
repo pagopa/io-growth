@@ -16,6 +16,7 @@
   },
   "dependencies": {
     "swiper": "^12.1.0",
+    "@pagopa/io-mixpanel": "workspace:^",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.1",
     "@mui/icons-material": "^5.18.0",

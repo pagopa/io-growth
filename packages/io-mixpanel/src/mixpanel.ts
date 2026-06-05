@@ -37,6 +37,15 @@ export const initAnalytics = (
     ANALYTICS_TOKEN,
   }: CONFIG,
 ): void => {
+  console.log('Initializing analytics with deviceId:', {
+    deviceId,
+    ANALYTICS_API_HOST,
+    ANALYTICS_DEBUG,
+    ANALYTICS_LOG_IP,
+    ANALYTICS_ENABLE,
+    ANALYTICS_PERSISTENCE,
+    ANALYTICS_TOKEN,
+  });
   if (ANALYTICS_ENABLE && !(window as WindowMPValues).initMixPanel && !!deviceId) {
     mixpanel.init(ANALYTICS_TOKEN, {
       api_host: ANALYTICS_API_HOST,

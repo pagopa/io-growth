@@ -9,7 +9,6 @@ import { BenefitsFiltersBar } from './components/BenefitsFiltersBar';
 import { BenefitsTabs } from './components/BenefitsTabs';
 import { MainContentHeader } from './components/MainContentHeader';
 import { OpportunitySummaryItemStatus } from '../../core/api/generated/model';
-import { trackBrowserEvent } from '../../mixpanel/trackEvent';
 
 const DEFAULT_ROWS_PER_PAGE = 20;
 

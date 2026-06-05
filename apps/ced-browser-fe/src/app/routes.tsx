@@ -4,6 +4,7 @@ import { AppLayout } from '../layouts/AppLayout';
 import { ProtectedRoute } from '../core/auth/ProtectedRoute';
 import {
   APP_ROUTES,
+  AuthorizePage,
   EntityAccessPointDetailPage,
   EntityAccessPointsPage,
   EntityDetailPage,
@@ -32,6 +33,7 @@ export function AppRoutes() {
       <Routes>
         <Route element={<AppLayout />}>
           <Route index element={<HomePage />} />
+          <Route path={APP_ROUTES.AUTHORIZE} element={<AuthorizePage />} />
           <Route
             path={APP_ROUTES.ENTITY_DETAIL}
             element={<EntityDetailPage />}

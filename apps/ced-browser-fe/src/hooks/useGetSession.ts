@@ -41,8 +41,7 @@ export const useGetSession = () => {
     }
 
     if (
-      cachedSession &&
-      cachedSession.redirectToken &&
+      cachedSession?.redirectToken &&
       redirectToken === cachedSession.redirectToken
     ) {
       if (isChachedSessionValid) return navigate(APP_ROUTES.HOME);
@@ -57,7 +56,7 @@ export const useGetSession = () => {
       isError: sessionError,
       error: sessionErrorMsg,
       data,
-    } = await getSession(redirectToken!);
+    } = await getSession(redirectToken);
 
     if (sessionError && isFetchBaseQueryError(sessionErrorMsg)) {
       if (isChachedSessionValid && cachedSession) {
@@ -81,7 +80,6 @@ export const useGetSession = () => {
       );
 
       navigate(APP_ROUTES.HOME);
-      return;
     }
     return;
   }, [

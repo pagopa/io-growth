@@ -61,7 +61,6 @@ export const initAnalytics = (
 
     (window as WindowMPValues).initMixPanel = true;
   }
-  return;
 };
 
 /**

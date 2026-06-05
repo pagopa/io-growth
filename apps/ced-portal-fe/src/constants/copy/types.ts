@@ -44,4 +44,5 @@ export interface AgreementDetailsFormCopy {
   conditionsLabel: string;
   conditionsPlaceholder: string;
   conditionsHelperText: string;
+  fixedPriceLabel: string;
 }

@@ -1,20 +1,24 @@
 import { useMemo } from 'react';
-import type { OpportunitySummaryItemStatus } from '../../core/api/generated/model';
+import type {
+  ListOperatorOpportunitiesParams,
+  OpportunitySummaryItemStatus,
+} from '../../core/api/generated/model';
 import { useGetBenefitsQuery } from './api';
-import type { BenefitsQueryParams } from './types';
 
 const IN_MANAGEMENT_STATES: Set<OpportunitySummaryItemStatus> = new Set([
   'draft',
   'test_rejected',
+  'test_pending',
 ]);
 const APPROVED_STATES: Set<OpportunitySummaryItemStatus> = new Set([
-  'test_pending',
   'test_passed',
   'published',
 ]);
 
-export const useBenefitsData = (params: BenefitsQueryParams) => {
-  const query = useGetBenefitsQuery(params);
+export const useBenefitsData = (params: ListOperatorOpportunitiesParams) => {
+  const query = useGetBenefitsQuery(params, {
+    refetchOnMountOrArgChange: true,
+  });
 
   const items = useMemo(() => query.data?.items ?? [], [query.data]);
 

@@ -10,13 +10,13 @@ import {
   useTheme,
 } from '@mui/material';
 import { useMemo, useState } from 'react';
-import type { Benefit } from '../../../features/benefits/types';
 import { useTableSort } from '../../../hooks/useTableSort';
 import { ActionsMenu } from './ActionsMenu';
 import { benefitsTableColumns } from './BenefitsTable.config';
+import { OpportunitySummaryItem } from '../../../core/api/generated/model/opportunitySummaryItem';
 
 interface BenefitsTableProps {
-  items: Benefit[];
+  items: OpportunitySummaryItem[];
 }
 
 export const BenefitsTable = ({ items }: BenefitsTableProps) => {
@@ -99,7 +99,7 @@ export const BenefitsTable = ({ items }: BenefitsTableProps) => {
     [sortBy, sortDirection, theme, handleSort],
   );
 
-  const renderTableRow = (item: Benefit, index: number) => (
+  const renderTableRow = (item: OpportunitySummaryItem, index: number) => (
     <TableRow
       key={item.id}
       sx={{

@@ -1,37 +1,24 @@
 import { useEffect, useRef } from 'react';
 import { useGetOpportunityDetailQuery } from '../../../features/opportunities/api';
+import { useAppDispatch } from '../../../hooks/store';
+import type { CreateBenefitNavigationState } from '../types';
+import {
+  setField,
+  setBenefit,
+  setLocalizedValue,
+} from '../../../features/opportunityCreation/opportunityCreationSlice';
 import {
   setAccessPoint,
-  setNationwide,
   setSelectedLocationIds,
   setSelectedWebsiteIds,
-} from '../../../features/wizard/slice';
-import {
-  resetAgreementDetailCreationForm,
-  setActiveLanguage,
-  setBenefitUrl,
-  setCompanionBenefitEnabled,
-  setCompanionBenefitType,
-  setCompanionDiscountValue,
-  setCompanionDiscountValueType,
-  setCompanionOtherBenefitTypeDescription,
-  setEndDate,
-  setHasEndDate,
-  setLocalizedField,
-  setSameConditionAsOwner,
-  setStartDate,
-} from '../../../features/agreementDetailCreation/agreementDetailCreationSlice';
-import { useAppDispatch } from '../../../hooks/store';
-import {
-  AGREEMENT_LANGUAGE_TABS,
-  DEFAULT_AGREEMENT_LANGUAGE,
-} from '../StepOne/AgreementCompanionSection/utils/agreementLanguageTabs.config';
-import type {
-  CreateBenefitLanguageId,
-  CreateBenefitNavigationState,
-} from '../types';
-import { buildOpportunityPrefillData } from '../utils/opportunityPrefill';
+} from '../../../features/places/placesSlice';
 import { useGetPlacesQuery } from '../../../features/places/api';
+import { PlaceBaseType } from '../../../core/api/generated/model';
+
+type PlacesMap = {
+  locations: Array<string>;
+  websites: Array<string>;
+};
 
 export const useHydrateFromSourceOpportunity = (
   sourceOpportunityId:
@@ -48,26 +35,23 @@ export const useHydrateFromSourceOpportunity = (
     },
   );
 
-  const { data: places = [], isLoading: isPlacesLoading } = useGetPlacesQuery(
-    undefined,
-    {
-      skip: !sourceOpportunityId,
-    },
-  );
+  const { data: places } = useGetPlacesQuery();
 
-  const availableLocations = places.filter(({ type }) => type === 'offline');
-  const availableWebsites = places.filter(({ type }) => type === 'online');
+  const {
+    beneficiaryBenefit,
+    categoryId,
+    dateFrom,
+    placeIds,
+    localizedMetadata,
+    url,
+    dateTo,
+    caregiverBenefit,
+    nationalTerritory,
+  } = sourceOpportunityDetail ?? {};
 
   useEffect(() => {
-    dispatch(resetAgreementDetailCreationForm());
-    dispatch(setActiveLanguage(DEFAULT_AGREEMENT_LANGUAGE));
-    dispatch(setNationwide(false));
-    dispatch(setAccessPoint(''));
-    dispatch(setSelectedLocationIds([]));
-    dispatch(setSelectedWebsiteIds([]));
-
     hydratedSourceRef.current = null;
-  }, [dispatch, sourceOpportunityId]);
+  }, [sourceOpportunityId]);
 
   useEffect(() => {
     if (!sourceOpportunityId || !sourceOpportunityDetail) {
@@ -78,143 +62,82 @@ export const useHydrateFromSourceOpportunity = (
       return;
     }
 
-    if (isPlacesLoading) {
-      return;
-    }
-
-    const prefillData = buildOpportunityPrefillData(
-      sourceOpportunityDetail,
-      availableLocations.map(({ id }) => id),
-      availableWebsites.map(({ id }) => id),
+    dispatch(setField({ field: 'dateFrom', value: dateFrom }));
+    dispatch(setField({ field: 'dateTo', value: dateTo ?? '' }));
+    dispatch(setField({ field: 'url', value: url ?? '' }));
+    dispatch(setField({ field: 'categoryId', value: categoryId }));
+    dispatch(setField({ field: 'placeIds', value: placeIds }));
+    dispatch(
+      setField({ field: 'nationalTerritory', value: nationalTerritory }),
     );
 
-    dispatch(setActiveLanguage(AGREEMENT_LANGUAGE_TABS[0].id));
-    dispatch(setNationwide(false));
-    dispatch(setAccessPoint(prefillData.accessPoint));
-    dispatch(setSelectedLocationIds(prefillData.preselectedLocationIds));
-    dispatch(setSelectedWebsiteIds(prefillData.preselectedWebsiteIds));
+    const placesIdsMapped = placeIds?.reduce<PlacesMap>(
+      (acc, placeId) => {
+        const place = places?.find(({ id }) => id === placeId);
+        const newLocation = place?.type === 'offline' ? place.id : '';
+        const newWebsite = place?.type === 'online' ? place.id : '';
+        return {
+          locations: [...acc.locations, newLocation].filter(Boolean),
+          websites: [...acc.websites, newWebsite].filter(Boolean),
+        };
+      },
+      {
+        locations: [],
+        websites: [],
+      },
+    );
 
-    const applyCompanionPrefill = (languageId: CreateBenefitLanguageId) => {
-      if (!prefillData.caregiverValues) {
-        dispatch(
-          setCompanionBenefitEnabled({
-            languageId,
-            value: false,
-          }),
-        );
-        return;
-      }
+    if (
+      placesIdsMapped?.locations.length ||
+      placesIdsMapped?.websites.length ||
+      nationalTerritory
+    ) {
+      dispatch(setSelectedLocationIds(placesIdsMapped?.locations ?? []));
+      dispatch(setSelectedWebsiteIds(placesIdsMapped?.websites ?? []));
 
-      dispatch(
-        setCompanionBenefitEnabled({
-          languageId,
-          value: true,
-        }),
-      );
-      dispatch(
-        setSameConditionAsOwner({
-          languageId,
-          value: false,
-        }),
-      );
-      dispatch(
-        setCompanionBenefitType({
-          languageId,
-          value: prefillData.caregiverValues.benefitType,
-        }),
-      );
-      dispatch(
-        setCompanionDiscountValueType({
-          languageId,
-          value: prefillData.caregiverValues.benefitDiscountValueType,
-        }),
-      );
-      dispatch(
-        setCompanionDiscountValue({
-          languageId,
-          value: prefillData.caregiverValues.benefitDiscountValue,
-        }),
-      );
-      dispatch(
-        setCompanionOtherBenefitTypeDescription({
-          languageId,
-          value: prefillData.caregiverValues.otherBenefitTypeDescription,
-        }),
-      );
-    };
+      const accessPoint: PlaceBaseType | 'both' = placesIdsMapped?.websites
+        .length
+        ? 'online'
+        : placesIdsMapped?.locations.length || nationalTerritory
+          ? 'offline'
+          : 'both';
+      dispatch(setAccessPoint(accessPoint));
+    }
 
-    const applyDetailPrefill = (languageId: CreateBenefitLanguageId) => {
-      const localizedValues = prefillData.localizedByLanguage[languageId];
+    localizedMetadata?.map((payload) => dispatch(setLocalizedValue(payload)));
 
-      const detailFieldValues = [
-        ['name', localizedValues?.name ?? ''],
-        ['description', localizedValues?.description ?? ''],
-        ['conditions', localizedValues?.conditions ?? ''],
-        ['benefitType', prefillData.beneficiaryValues.benefitType],
-        [
-          'benefitDiscountValueType',
-          prefillData.beneficiaryValues.benefitDiscountValueType,
-        ],
-        [
-          'benefitDiscountValue',
-          prefillData.beneficiaryValues.benefitDiscountValue,
-        ],
-        [
-          'otherBenefitTypeDescription',
-          prefillData.beneficiaryValues.otherBenefitTypeDescription,
-        ],
-        ['category', prefillData.category],
-      ] as const;
-
-      detailFieldValues.forEach(([field, value]) => {
-        dispatch(
-          setLocalizedField({
-            languageId,
-            field,
-            value,
-          }),
-        );
-      });
-
+    if (caregiverBenefit) {
       dispatch(
-        setStartDate({
-          languageId,
-          value: prefillData.startDate,
+        setBenefit({
+          which: 'caregiverBenefit',
+          value: caregiverBenefit ?? null,
         }),
       );
-      dispatch(
-        setHasEndDate({
-          languageId,
-          value: prefillData.hasEndDate,
-        }),
-      );
-      dispatch(
-        setEndDate({
-          languageId,
-          value: prefillData.endDate,
-        }),
-      );
-      dispatch(
-        setBenefitUrl({
-          languageId,
-          value: prefillData.benefitUrl,
-        }),
-      );
-    };
+    }
 
-    AGREEMENT_LANGUAGE_TABS.forEach(({ id: languageId }) => {
-      const typedLanguageId = languageId as CreateBenefitLanguageId;
-      applyDetailPrefill(typedLanguageId);
-      applyCompanionPrefill(typedLanguageId);
-    });
+    if (beneficiaryBenefit) {
+      dispatch(
+        setBenefit({
+          which: 'beneficiaryBenefit',
+          value: beneficiaryBenefit ?? null,
+        }),
+      );
+    }
 
     hydratedSourceRef.current = sourceOpportunityId;
   }, [
-    availableLocations,
-    availableWebsites,
+    beneficiaryBenefit,
+    caregiverBenefit,
+    categoryId,
+    dateFrom,
+    dateTo,
     dispatch,
-    isPlacesLoading,
+    localizedMetadata,
+    nationalTerritory,
+    placeIds,
+    places,
     sourceOpportunityDetail,
     sourceOpportunityId,
+    url,
   ]);
 };

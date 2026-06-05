@@ -1,171 +1,110 @@
-import { Box, Stack } from '@mui/material';
-import { AppTextField } from '../../../../../components';
+import { Stack } from '@mui/material';
 import { useAppDispatch, useAppSelector } from '../../../../../hooks';
-import { setLocalizedField } from '../../../../../features/agreementDetailCreation/agreementDetailCreationSlice';
 import { useCallback, useMemo } from 'react';
 import PercentRoundedIcon from '@mui/icons-material/PercentRounded';
 import EuroRoundedIcon from '@mui/icons-material/EuroRounded';
 import { AppRadioGroup } from '../../../../../components/RadioGroup';
 import {
-  selectActiveAgreementLanguage,
-  selectFieldActiveAgreementLanguageForm,
-} from '../../../../../features/agreementDetailCreation/selectors';
-import { AgreementDetailsFieldKey } from '../../../../../features/agreementDetailCreation/types';
-import {
   fixedPriceBenefitTypeOptions,
   getAgreementCopy,
 } from '../../../../../constants';
-import { BenefitType } from '../../../../../constants/formOptions/types';
+import {
+  selectActiveFormLanguage,
+  selectBeneficiaryBenefit,
+  selectFormValueByPath,
+} from '../../../../../features/opportunityCreation/selectors';
+import { FieldWithIcon } from './FieldWithIcon';
+import {
+  BenefitDiscountDiscountType,
+  BenefitDiscountType,
+} from '../../../../../core/api/generated/model';
+import { setBenefit } from '../../../../../features/opportunityCreation/opportunityCreationSlice';
 
 export const FixedPriceBenefitFields = () => {
   const dispatch = useAppDispatch();
-
-  const activeLanguage = useAppSelector(selectActiveAgreementLanguage);
-  const copy = getAgreementCopy(activeLanguage);
-
-  const fixedPriceBenefitType =
-    copy.additionalSections.companion.benefitTypeOptions.fixedPrice;
-
-  const otherBenefitType =
-    copy.additionalSections.companion.benefitTypeOptions.other;
-
-  const benefitType = useAppSelector(
-    selectFieldActiveAgreementLanguageForm('benefitType'),
+  const activeLanguage = useAppSelector(selectActiveFormLanguage);
+  const benefit = useAppSelector(selectBeneficiaryBenefit);
+  const benefitDiscountType = useAppSelector(
+    selectFormValueByPath<BenefitDiscountDiscountType>(
+      'beneficiaryBenefit.discountType',
+    ),
   );
 
-  const isFixedPriceBenefit =
-    BenefitType[benefitType as keyof typeof BenefitType] ===
-    BenefitType.FIXED_PRICE;
-
-  const discountType = useAppSelector(
-    selectFieldActiveAgreementLanguageForm('benefitDiscountValueType'),
+  const benefitDiscountValue = useAppSelector(
+    selectFormValueByPath<number>('beneficiaryBenefit.value'),
   );
-
-  const discountValue = useAppSelector(
-    selectFieldActiveAgreementLanguageForm('benefitDiscountValue'),
-  );
-
-  const benefitOptionalField: AgreementDetailsFieldKey = useMemo(() => {
-    if (discountType === 'percentage') {
-      return 'benefitDiscountValue';
-    }
-
-    return 'benefitDiscountValue';
-  }, [discountType]);
 
   const handleBenefitTypeChange = useCallback(
     (value: string) => {
       dispatch(
-        setLocalizedField({
-          languageId: activeLanguage,
-          field: 'benefitDiscountValueType',
-          value,
+        setBenefit({
+          which: 'beneficiaryBenefit',
+          value: {
+            type: BenefitDiscountType.discount,
+            discountType: value as BenefitDiscountDiscountType,
+            value: 0,
+          },
         }),
       );
-
-      if (value !== fixedPriceBenefitType) {
-        dispatch(
-          setLocalizedField({
-            languageId: activeLanguage,
-            field: 'benefitDiscountValue',
-            value: '',
-          }),
-        );
-      }
-
-      if (value !== otherBenefitType) {
-        dispatch(
-          setLocalizedField({
-            languageId: activeLanguage,
-            field: 'otherBenefitTypeDescription',
-            value: '',
-          }),
-        );
-      }
     },
-    [activeLanguage, dispatch, fixedPriceBenefitType, otherBenefitType],
+    [dispatch],
   );
 
   const handleChange = useCallback(
-    (field: AgreementDetailsFieldKey, value: string | number) => {
+    (value: number) => {
       dispatch(
-        setLocalizedField({
-          languageId: activeLanguage,
-          field,
-          value: String(value),
+        setBenefit({
+          which: 'beneficiaryBenefit',
+          value: {
+            type: BenefitDiscountType.discount,
+            discountType: benefitDiscountType as BenefitDiscountDiscountType,
+            value,
+          },
         }),
       );
     },
-    [activeLanguage, dispatch],
+    [benefitDiscountType, dispatch],
   );
 
   const discountIcon = useMemo(
     () =>
-      discountType === 'PERCENTAGE' ? (
+      benefitDiscountType === 'percentage' ? (
         <PercentRoundedIcon sx={{ fontSize: 18 }} />
       ) : (
         <EuroRoundedIcon sx={{ fontSize: 18 }} />
       ),
-    [discountType],
+    [benefitDiscountType],
   );
-  if (!isFixedPriceBenefit) {
+
+  const copy = getAgreementCopy(activeLanguage);
+
+  const isDiscountBenefit = benefit?.type === BenefitDiscountType.discount;
+
+  if (!isDiscountBenefit) {
     return null;
   }
 
   const benefitPercentageError =
-    discountType === 'percentage' &&
-    discountValue !== '' &&
-    Number(discountValue) < 10;
+    benefitDiscountType === 'percentage' &&
+    !!benefitDiscountValue &&
+    benefitDiscountValue < 10;
 
   return (
     <Stack spacing={1.25}>
       <AppRadioGroup
-        value={discountType}
+        value={benefitDiscountType}
         options={fixedPriceBenefitTypeOptions}
         onChange={(event) => handleBenefitTypeChange(event.target.value)}
       />
 
-      <Stack direction="row" spacing={1} alignItems="stretch">
-        <Box
-          sx={{
-            width: 56,
-            height: 56,
-            border: '1px solid',
-            borderColor: 'divider',
-            borderRadius: 1,
-            display: 'grid',
-            placeItems: 'center',
-            color: 'text.secondary',
-            fontSize: 16,
-            flexShrink: 0,
-          }}
-        >
-          {discountIcon}
-        </Box>
-        <AppTextField
-          label={copy.detailsForm.discountValueLabel}
-          value={discountValue}
-          error={benefitPercentageError}
-          helperText={
-            benefitPercentageError
-              ? copy.detailsForm.discountValueError
-              : undefined
-          }
-          onChange={(event) =>
-            handleChange(benefitOptionalField, event.target.value)
-          }
-          fullWidth
-        />
-      </Stack>
-
-      {/* <Stack direction="row" spacing={1} alignItems="stretch">
-        <AppTextField
-          label={copy.otherBenefitTypeLabel}
-          value={otherBenefitTypeDescription}
-          onChange={onChange}
-          fullWidth
-        />
-      </Stack> */}
+      <FieldWithIcon
+        onChange={(event) => handleChange(Number(event.target.value))}
+        icon={discountIcon}
+        label={copy.detailsForm.discountValueLabel}
+        value={benefitDiscountValue || ''}
+        error={benefitPercentageError}
+        errorMessage={copy.detailsForm.discountValueError}
+      />
     </Stack>
   );
 };

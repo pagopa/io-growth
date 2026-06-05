@@ -3,24 +3,25 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { Box, Button, Container, Typography } from '@mui/material';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { APP_ROUTES } from '../../app/routeConfig';
-import { useSaveBenefitDraftMutation } from '../../features/benefits/api';
 import { useRequestApprovalMutation } from '../../features/opportunities/api';
+import { resetPlaces } from '../../features/places/placesSlice';
 import {
   selectAccessPoint,
-  selectNationwide,
   selectSelectedLocationIds,
   selectSelectedWebsiteIds,
-} from '../../features/wizard/slice';
-import { selectAgreementDetailCreationState } from '../../features/agreementDetailCreation/selectors';
-import { useAppSelector } from '../../hooks/store';
+} from '../../features/places/selectors';
+import { useAppDispatch, useAppSelector } from '../../hooks/store';
 import { AppModal } from '../../components';
 import { WizardFooter } from './components/WizardFooter';
 import { WizardStepper } from './components/WizardStepper';
 import { StepOne } from './StepOne';
 import { StepTwo } from './StepTwo';
 import { useToast } from '../../contexts';
+import { useGetFirstStepValidation } from './hooks/useGetFirstStepValidation';
+import { useCreateOpportunity } from './hooks/useCreateOpportunity';
 import type { CreateBenefitNavigationState } from './types';
 import { useHydrateFromSourceOpportunity } from './hooks/useHydrateFromSourceOpportunity';
+import { selectNationalTerritory } from '../../features/opportunityCreation/selectors';
 
 export interface StepProps {
   attempted: boolean;
@@ -37,6 +38,7 @@ const STEPS: StepConfig[] = [
 ];
 
 export default function CreateBenefitPage() {
+  const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const location = useLocation() as {
     state: CreateBenefitNavigationState | null;
@@ -49,33 +51,23 @@ export default function CreateBenefitPage() {
   const [attempted, setAttempted] = useState(false);
   const [submitReviewOpen, setSubmitReviewOpen] = useState(false);
   const { showToast } = useToast();
+  const [createOpportunity, { isLoading: isCreatingOpportunity }] =
+    useCreateOpportunity();
 
-  const [saveDraft, { isLoading: isSavingDraft }] =
-    useSaveBenefitDraftMutation();
   const [requestApproval, { isLoading: isRequestingApproval }] =
     useRequestApprovalMutation();
 
   const accessPoint = useAppSelector(selectAccessPoint);
-  const nationwide = useAppSelector(selectNationwide);
+  const nationwide = useAppSelector(selectNationalTerritory);
   const selectedLocationIds = useAppSelector(selectSelectedLocationIds);
   const selectedWebsiteIds = useAppSelector(selectSelectedWebsiteIds);
-  const agreementState = useAppSelector(selectAgreementDetailCreationState);
+
+  const isFirstStepValid = useGetFirstStepValidation();
 
   const isStepValid = (step: number): boolean => {
-    if (step === 0) {
-      const activeForm =
-        agreementState.localizedForm[agreementState.activeLanguage];
-      return (
-        activeForm.details.name.trim().length > 0 &&
-        activeForm.details.benefitType.trim().length > 0 &&
-        activeForm.details.description.trim().length > 0 &&
-        activeForm.details.category.trim().length > 0 &&
-        activeForm.startDate.trim().length > 0
-      );
-    }
+    if (step === 0) return isFirstStepValid;
     if (step === 1) {
-      const hasTerritory =
-        accessPoint === 'territory' || accessPoint === 'both';
+      const hasTerritory = accessPoint === 'offline' || accessPoint === 'both';
       const hasOnline = accessPoint === 'online' || accessPoint === 'both';
       return (
         !!accessPoint &&
@@ -86,17 +78,10 @@ export default function CreateBenefitPage() {
     return true;
   };
 
-  const buildDraftPayload = () => ({
-    localizedForm: agreementState.localizedForm,
-    accessPoint,
-    nationwide,
-    selectedLocationIds,
-    selectedWebsiteIds,
-  });
-
   const handleSaveDraft = async () => {
     try {
-      await saveDraft(buildDraftPayload()).unwrap();
+      await createOpportunity();
+      dispatch(resetPlaces());
       showToast('Bozza salvata con successo', 'success');
       navigate(APP_ROUTES.HOME);
     } catch {
@@ -113,7 +98,7 @@ export default function CreateBenefitPage() {
     }
   };
 
-  const handleNext = () => {
+  const handleNext = async () => {
     if (currentStep === 1 && !accessPoint) {
       showToast('Indica il punto di accesso per continuare', 'error');
       return;
@@ -128,19 +113,10 @@ export default function CreateBenefitPage() {
     }
   };
 
-  const handleConfirmSubmitReview = async () => {
-    setSubmitReviewOpen(false);
-
-    if (!sourceOpportunityId) {
-      showToast(
-        "Impossibile inviare in revisione senza un'opportunità esistente",
-        'error',
-      );
-      return;
-    }
-
+  const handleRequestApproval = async (opportunityId: string) => {
     try {
-      await requestApproval(sourceOpportunityId).unwrap();
+      await requestApproval(opportunityId).unwrap();
+      dispatch(resetPlaces());
       showToast('Richiesta di approvazione inviata con successo', 'success');
       navigate(APP_ROUTES.HOME);
     } catch {
@@ -149,6 +125,25 @@ export default function CreateBenefitPage() {
         'error',
       );
     }
+  };
+
+  const handleConfirmSubmitReview = async () => {
+    setSubmitReviewOpen(false);
+
+    if (!sourceOpportunityId) {
+      const result = await createOpportunity();
+      if (!result || !result.id) {
+        showToast(
+          "Impossibile inviare in revisione senza un'opportunità esistente",
+          'error',
+        );
+        return;
+      }
+      handleRequestApproval(result.id);
+      return;
+    }
+
+    handleRequestApproval(sourceOpportunityId);
   };
 
   const CurrentStep = STEPS[currentStep]?.component ?? null;
@@ -201,7 +196,7 @@ export default function CreateBenefitPage() {
             onBack={handleBack}
             onNext={handleNext}
             onSaveDraft={handleSaveDraft}
-            isSavingDraft={isSavingDraft}
+            isSavingDraft={isCreatingOpportunity}
           />
         </Container>
       </Box>
@@ -215,7 +210,7 @@ export default function CreateBenefitPage() {
           variant="contained"
           fullWidth
           onClick={handleConfirmSubmitReview}
-          disabled={isSavingDraft || isRequestingApproval}
+          disabled={isCreatingOpportunity || isRequestingApproval}
         >
           Invia in revisione
         </Button>

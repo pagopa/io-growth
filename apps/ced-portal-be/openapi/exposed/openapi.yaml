@@ -328,6 +328,128 @@ paths:
               example:
                 statusCode: 404
                 message: Place not found
+    put:
+      tags:
+        - Places
+      summary: Update a place for the authenticated operator
+      description: |
+        Updates the name, address/website, or support contacts of an existing place.
+        The place must belong to the authenticated operator and must not have an
+        associated operator profile.
+      operationId: updateOperatorPlace
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: placeId
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: "^[0-9A-HJKMNP-TV-Z]{26}$"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - $ref: "#/components/schemas/UpdateOfflinePlace"
+                - $ref: "#/components/schemas/UpdateOnlinePlace"
+      responses:
+        "204":
+          description: Place updated successfully
+        "400":
+          description: Invalid place payload
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 400
+                message: Validation error
+        "401":
+          description: Invalid or missing JWT
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 401
+                message: Unauthorized
+        "404":
+          description: Place not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 404
+                message: Place not found
+        "409":
+          description: Conflict — place has an associated operator profile
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 409
+                message: cannot update a place with an associated operator profile
+    delete:
+      tags:
+        - Places
+      summary: Delete a place for the authenticated operator
+      description: |
+        Removes a place and all its associated data (address, website, support contacts).
+        The place must belong to the authenticated operator and must not have an
+        associated operator profile or be linked to an opportunity.
+      operationId: deleteOperatorPlace
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: placeId
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: "^[0-9A-HJKMNP-TV-Z]{26}$"
+      responses:
+        "204":
+          description: Place deleted successfully
+        "401":
+          description: Invalid or missing JWT
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 401
+                message: Unauthorized
+        "404":
+          description: Place not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 404
+                message: Place not found
+        "400":
+          description: Invalid request body or path parameter
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 400
+                message: Bad Request
+        "409":
+          description: Conflict — place has an associated operator profile or is linked to an opportunity
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 409
+                message: cannot delete a place with associated data
   /operator/opportunities/{opportunityId}:
     get:
       tags:
@@ -1042,6 +1164,67 @@ components:
             - website
         value:
           type: string
+    UpdateSupportContact:
+      type: object
+      additionalProperties: false
+      required:
+        - type
+        - value
+      properties:
+        type:
+          type: string
+          enum:
+            - email
+            - phone
+            - website
+        value:
+          type: string
+    UpdateOfflinePlace:
+      type: object
+      additionalProperties: false
+      required:
+        - type
+        - name
+        - address
+      properties:
+        type:
+          type: string
+          enum:
+            - offline
+          example: offline
+        name:
+          type: string
+          minLength: 1
+          example: "Sportello centrale aggiornato"
+        address:
+          $ref: "#/components/schemas/Address"
+        supportContacts:
+          type: array
+          items:
+            $ref: "#/components/schemas/UpdateSupportContact"
+    UpdateOnlinePlace:
+      type: object
+      additionalProperties: false
+      required:
+        - type
+        - name
+        - website
+      properties:
+        type:
+          type: string
+          enum:
+            - online
+          example: online
+        name:
+          type: string
+          minLength: 1
+          example: "Sportello remoto aggiornato"
+        website:
+          $ref: "#/components/schemas/Website"
+        supportContacts:
+          type: array
+          items:
+            $ref: "#/components/schemas/UpdateSupportContact"
     Website:
       type: object
       additionalProperties: false

@@ -1,6 +1,12 @@
 import type { TypedDbClient } from "@pagopa/io-core-adapter-drizzle";
 
+import { and, eq } from "drizzle-orm";
+
 import type { Place } from "../../../domain/entities/place.js";
+import type {
+  DeletePlaceInput,
+  UpdatePlaceInput,
+} from "../../../domain/ports/outbound/persistence/place.repository.js";
 
 import * as schema from "./schema/index.js";
 import { address, place, supportContact, website } from "./schema/tables.js";
@@ -102,4 +108,92 @@ export const createPlaceInTransaction = async (
     type: "online",
     website: { url: websiteRow.url },
   };
+};
+
+export const doPlaceUpdate = async (
+  tx: TransactionClient,
+  input: UpdatePlaceInput,
+): Promise<void> => {
+  await tx
+    .update(place)
+    .set({
+      name: input.place.name,
+      type: input.place.type,
+      updatedAt: new Date(),
+    })
+    .where(
+      and(eq(place.id, input.placeId), eq(place.operatorId, input.operatorId)),
+    );
+
+  if (input.place.type === "offline") {
+    await tx
+      .insert(address)
+      .values({
+        city: input.place.address.city,
+        country: input.place.address.country,
+        placeId: input.placeId,
+        postalCode: input.place.address.postalCode,
+        state: input.place.address.state,
+        street: input.place.address.street,
+      })
+      .onConflictDoUpdate({
+        set: {
+          city: input.place.address.city,
+          country: input.place.address.country,
+          postalCode: input.place.address.postalCode,
+          state: input.place.address.state,
+          street: input.place.address.street,
+          updatedAt: new Date(),
+        },
+        target: address.placeId,
+      });
+
+    // current type is offline — drop any stale website row
+    await tx.delete(website).where(eq(website.placeId, input.placeId));
+  }
+
+  if (input.place.type === "online") {
+    await tx
+      .insert(website)
+      .values({ placeId: input.placeId, url: input.place.website.url })
+      .onConflictDoUpdate({
+        set: { updatedAt: new Date(), url: input.place.website.url },
+        target: website.placeId,
+      });
+
+    // current type is online — drop any stale address row
+    await tx.delete(address).where(eq(address.placeId, input.placeId));
+  }
+
+  await tx
+    .delete(supportContact)
+    .where(eq(supportContact.placeId, input.placeId));
+  if (input.place.supportContacts.length > 0) {
+    await tx.insert(supportContact).values(
+      input.place.supportContacts.map((sc) => ({
+        id: sc.id,
+        placeId: input.placeId,
+        type: sc.type,
+        value: sc.value,
+      })),
+    );
+  }
+};
+
+export const doPlaceDelete = async (
+  tx: TransactionClient,
+  input: DeletePlaceInput,
+): Promise<void> => {
+  // no CASCADE in DB — delete children before the place row
+  await tx
+    .delete(supportContact)
+    .where(eq(supportContact.placeId, input.placeId));
+  await tx.delete(address).where(eq(address.placeId, input.placeId));
+  await tx.delete(website).where(eq(website.placeId, input.placeId));
+
+  await tx
+    .delete(place)
+    .where(
+      and(eq(place.id, input.placeId), eq(place.operatorId, input.operatorId)),
+    );
 };

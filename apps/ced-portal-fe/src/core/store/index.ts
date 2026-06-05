@@ -33,10 +33,7 @@ const loadPersistedAuthState = (): AuthState | undefined => {
 
 export const store = configureStore({
   preloadedState: {
-    auth: loadPersistedAuthState() ?? {
-      token: null,
-      user: null,
-    },
+    auth: loadPersistedAuthState() ?? { token: null, user: null },
   },
   reducer: {
     auth: authReducer,

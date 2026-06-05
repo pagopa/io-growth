@@ -18,14 +18,13 @@ export const useGetFirstStepValidation = () => {
     ([lang, metadata]) => {
       const name = metadata?.name?.trim();
       const description = metadata?.description?.trim();
-      const condition = metadata?.condition?.trim();
-      const filledCount = [name, description, condition].filter(Boolean).length;
+      const filledCount = [name, description].filter(Boolean).length;
 
       if (lang === 'it') {
-        return filledCount === 3;
+        return filledCount === 2;
       }
 
-      return filledCount === 0 || filledCount === 3;
+      return filledCount === 0 || filledCount === 2;
     },
   );
 

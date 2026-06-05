@@ -92,8 +92,9 @@ export const BenefitDetailsSection = ({
       >
         <AppSelect options={benefitTypeOptions} />
       </CompanionFormField>
-      <FixedPriceFields />
-
+      {caregiverBenefit?.type === 'discount' && (
+        <FixedPriceFields benefit={caregiverBenefit} />
+      )}
       <CompanionFormField
         hide={caregiverBenefit?.type !== companionCopy.benefitTypeOptions.other}
         name={'companionOtherBenefitTypeDescription'}

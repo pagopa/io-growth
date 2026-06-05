@@ -21,7 +21,7 @@ import { setBenefit } from '../../../../../features/opportunityCreation/opportun
 
 type FixedPriceFieldsProps = {
   sameValues?: boolean;
-  benefit?: BenefitDiscount;
+  benefit: BenefitDiscount;
 };
 export const FixedPriceFields = ({
   sameValues,
@@ -55,15 +55,13 @@ export const FixedPriceFields = ({
         setBenefit({
           which: 'caregiverBenefit',
           value: {
-            type: BenefitDiscountType.discount,
-            discountType:
-              companionDiscountValueType as BenefitDiscountDiscountType,
+            ...benefit,
             value,
           },
         }),
       );
     },
-    [companionDiscountValueType, dispatch],
+    [benefit, dispatch],
   );
 
   const handleBenefitTypeChange = useCallback(
@@ -85,7 +83,11 @@ export const FixedPriceFields = ({
   if (sameValues) {
     return (
       <Stack spacing={1.25} sx={{ mt: 1.25 }}>
-        <RadioGroup row value={companionDiscountValueType}>
+        <RadioGroup
+          row
+          value={companionDiscountValueType}
+          sx={{ flexWrap: 'nowrap' }}
+        >
           <FormControlLabel
             value="percentage"
             disabled

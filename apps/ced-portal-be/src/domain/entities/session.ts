@@ -1,3 +1,5 @@
+import type { UserType } from "./user-type.js";
+
 export interface Session {
   readonly firstName: string;
   readonly lastName: string;
@@ -5,5 +7,5 @@ export interface Session {
   readonly operatorName: string;
   readonly referentExternalId: string;
   readonly role: string;
-  readonly userType: "admin" | "operator" | "test_user";
+  readonly userType: UserType;
 }

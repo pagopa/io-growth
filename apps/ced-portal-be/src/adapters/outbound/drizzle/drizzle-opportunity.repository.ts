@@ -37,7 +37,7 @@ type TransactionClient = Parameters<
 const escapeIlikePattern = (value: string): string =>
   value.replace(/\\/g, "\\\\").replace(/%/g, "\\%").replace(/_/g, "\\_");
 
-const getOpportunityDetailById = async (
+const getOpportunityDetailsByIdAndOperatorId = async (
   db: DbOrTxClient,
   input: GetOpportunityByIdInput,
 ): Promise<Result<OpportunityDetail | undefined, GenericError>> => {
@@ -94,7 +94,7 @@ const getOpportunityDetailById = async (
     );
   }
 };
-const getByIdGlobal =
+const getOpportunityDetailsById =
   (db: TypedDbClient<typeof schema>) =>
   async (
     input: GetOpportunityByIdGlobalInput,
@@ -107,6 +107,7 @@ const getByIdGlobal =
           dateFrom: true,
           dateTo: true,
           id: true,
+          nationalTerritory: true,
           status: true,
           updatedAt: true,
           url: true,
@@ -218,7 +219,7 @@ export const createDrizzleOpportunityRepository = (
           input.opportunity,
         );
 
-        return await getOpportunityDetailById(tx, {
+        return await getOpportunityDetailsByIdAndOperatorId(tx, {
           operatorId: input.operatorId,
           opportunityId: input.opportunity.id,
         });
@@ -246,10 +247,11 @@ export const createDrizzleOpportunityRepository = (
     }
   },
 
-  getById: async (input: GetOpportunityByIdInput) =>
-    getOpportunityDetailById(db, input),
+  getOpportunityDetailsById: getOpportunityDetailsById(db),
 
-  getByIdGlobal: getByIdGlobal(db),
+  getOpportunityDetailsByIdAndOperatorId: async (
+    input: GetOpportunityByIdInput,
+  ) => getOpportunityDetailsByIdAndOperatorId(db, input),
 
   list: async (
     input: ListOpportunitiesInput,

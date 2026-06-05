@@ -42,7 +42,6 @@ const createMockSessionRepository = (): SessionRepository => ({
 
 const mockConfig = {
   ADMIN_FISCAL_CODES: [] as string[],
-  TEST_USER_FISCAL_CODES: [] as string[],
 };
 
 const createMockOperatorRepository = (

@@ -32,7 +32,9 @@ const mockDraftOpportunityDetail: OpportunityDetail = {
 describe("makeOperatorRequestOpportunityTestUseCase", () => {
   it("should update status to test_pending when opportunity is in draft", async () => {
     const repository = createMockOpportunityRepository({
-      getById: vi.fn().mockResolvedValue(ok(mockDraftOpportunityDetail)),
+      getOpportunityDetailsByIdAndOperatorId: vi
+        .fn()
+        .mockResolvedValue(ok(mockDraftOpportunityDetail)),
       updateStatus: vi.fn().mockResolvedValue(ok(undefined)),
     });
     const useCase = makeOperatorRequestOpportunityTestUseCase(repository);
@@ -43,7 +45,9 @@ describe("makeOperatorRequestOpportunityTestUseCase", () => {
     });
 
     expect(result).toEqual(ok(undefined));
-    expect(repository.getById).toHaveBeenCalledWith({
+    expect(
+      repository.getOpportunityDetailsByIdAndOperatorId,
+    ).toHaveBeenCalledWith({
       operatorId: MOCK_OPERATOR_ID,
       opportunityId: MOCK_OPPORTUNITY_ID,
     });
@@ -57,7 +61,9 @@ describe("makeOperatorRequestOpportunityTestUseCase", () => {
 
   it("should return NotFoundError when opportunity does not exist", async () => {
     const repository = createMockOpportunityRepository({
-      getById: vi.fn().mockResolvedValue(ok(undefined)),
+      getOpportunityDetailsByIdAndOperatorId: vi
+        .fn()
+        .mockResolvedValue(ok(undefined)),
     });
     const useCase = makeOperatorRequestOpportunityTestUseCase(repository);
 
@@ -82,7 +88,9 @@ describe("makeOperatorRequestOpportunityTestUseCase", () => {
       status: "published",
     };
     const repository = createMockOpportunityRepository({
-      getById: vi.fn().mockResolvedValue(ok(publishedOpportunity)),
+      getOpportunityDetailsByIdAndOperatorId: vi
+        .fn()
+        .mockResolvedValue(ok(publishedOpportunity)),
     });
     const useCase = makeOperatorRequestOpportunityTestUseCase(repository);
 
@@ -103,10 +111,12 @@ describe("makeOperatorRequestOpportunityTestUseCase", () => {
     expect(repository.updateStatus).not.toHaveBeenCalled();
   });
 
-  it("should propagate repository errors from getById", async () => {
+  it("should propagate repository errors from getOpportunityDetailsByIdAndOperatorId", async () => {
     const repoError = new GenericError("DB connection failed");
     const repository = createMockOpportunityRepository({
-      getById: vi.fn().mockResolvedValue(err(repoError)),
+      getOpportunityDetailsByIdAndOperatorId: vi
+        .fn()
+        .mockResolvedValue(err(repoError)),
     });
     const useCase = makeOperatorRequestOpportunityTestUseCase(repository);
 
@@ -122,7 +132,9 @@ describe("makeOperatorRequestOpportunityTestUseCase", () => {
   it("should propagate repository errors from updateStatus", async () => {
     const repoError = new GenericError("DB update failed");
     const repository = createMockOpportunityRepository({
-      getById: vi.fn().mockResolvedValue(ok(mockDraftOpportunityDetail)),
+      getOpportunityDetailsByIdAndOperatorId: vi
+        .fn()
+        .mockResolvedValue(ok(mockDraftOpportunityDetail)),
       updateStatus: vi.fn().mockResolvedValue(err(repoError)),
     });
     const useCase = makeOperatorRequestOpportunityTestUseCase(repository);
@@ -140,7 +152,9 @@ describe("makeOperatorRequestOpportunityTestUseCase", () => {
       "Opportunity status was modified concurrently",
     );
     const repository = createMockOpportunityRepository({
-      getById: vi.fn().mockResolvedValue(ok(mockDraftOpportunityDetail)),
+      getOpportunityDetailsByIdAndOperatorId: vi
+        .fn()
+        .mockResolvedValue(ok(mockDraftOpportunityDetail)),
       updateStatus: vi.fn().mockResolvedValue(err(conflictError)),
     });
     const useCase = makeOperatorRequestOpportunityTestUseCase(repository);
@@ -171,7 +185,9 @@ describe("makeOperatorRequestOpportunityTestUseCase", () => {
     expect(result).toEqual(
       err(expect.objectContaining({ kind: "ValidationError" })),
     );
-    expect(repository.getById).not.toHaveBeenCalled();
+    expect(
+      repository.getOpportunityDetailsByIdAndOperatorId,
+    ).not.toHaveBeenCalled();
   });
 
   it("should return ValidationError when opportunityId is invalid", async () => {
@@ -186,6 +202,8 @@ describe("makeOperatorRequestOpportunityTestUseCase", () => {
     expect(result).toEqual(
       err(expect.objectContaining({ kind: "ValidationError" })),
     );
-    expect(repository.getById).not.toHaveBeenCalled();
+    expect(
+      repository.getOpportunityDetailsByIdAndOperatorId,
+    ).not.toHaveBeenCalled();
   });
 });

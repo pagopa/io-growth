@@ -26,10 +26,6 @@ const configSchema = arConfigSchema.extend({
     .string()
     .optional()
     .transform((v) => v === "true"),
-  TEST_USER_FISCAL_CODES: z
-    .string()
-    .optional()
-    .transform((v) => v?.split(",").map((s) => s.trim()) ?? []),
 });
 
 export type AppConfig = z.infer<typeof configSchema>;

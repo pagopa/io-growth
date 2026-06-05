@@ -42,11 +42,11 @@ export interface OpportunityRepository {
   readonly create: (
     input: CreateOpportunityInput,
   ) => Promise<Result<OpportunityDetail, GenericError>>;
-  readonly getById: (
-    input: GetOpportunityByIdInput,
-  ) => Promise<Result<OpportunityDetail | undefined, GenericError>>;
-  readonly getByIdGlobal: (
+  readonly getOpportunityDetailsById: (
     input: GetOpportunityByIdGlobalInput,
+  ) => Promise<Result<OpportunityDetail | undefined, GenericError>>;
+  readonly getOpportunityDetailsByIdAndOperatorId: (
+    input: GetOpportunityByIdInput,
   ) => Promise<Result<OpportunityDetail | undefined, GenericError>>;
   readonly list: (
     input: ListOpportunitiesInput,

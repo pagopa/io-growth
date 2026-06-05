@@ -3,6 +3,7 @@ import type { BaseError } from "@pagopa/io-core-domain/errors";
 
 import { ResultAsync } from "neverthrow";
 
+import type { UserType } from "../../../domain/entities/user-type.js";
 import type { SessionRepository } from "../../../domain/ports/outbound/persistence/session.repository.js";
 
 export interface AuthorizeInput {
@@ -11,10 +12,10 @@ export interface AuthorizeInput {
 
 export interface AuthorizeOutput {
   readonly first_name: string;
+  readonly institution_name: string;
   readonly last_name: string;
-  readonly operator_name: string;
   readonly session_token: string;
-  readonly user_type: "admin" | "operator" | "test_user";
+  readonly user_type: UserType;
 }
 
 export const makeAuthorizeUseCase =
@@ -27,8 +28,8 @@ export const makeAuthorizeUseCase =
     ).andThen((token) =>
       new ResultAsync(sessionRepository.getSession(token)).map((session) => ({
         first_name: session.firstName,
+        institution_name: session.operatorName,
         last_name: session.lastName,
-        operator_name: session.operatorName,
         session_token: token,
         user_type: session.userType,
       })),

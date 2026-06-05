@@ -39,7 +39,7 @@ export const makeAcsUseCase =
   (
     sessionRepository: SessionRepository,
     operatorRepository: OperatorRepository,
-    config: Pick<AppConfig, "ADMIN_FISCAL_CODES" | "TEST_USER_FISCAL_CODES">,
+    config: Pick<AppConfig, "ADMIN_FISCAL_CODES">,
   ): UseCase<AcsInput, AcsOutput, BaseError> =>
   async (input) => {
     const token = input.token;
@@ -58,15 +58,12 @@ export const makeAcsUseCase =
       organization.fiscal_code !== undefined &&
       config.ADMIN_FISCAL_CODES.includes(organization.fiscal_code)
         ? "admin"
-        : organization.fiscal_code !== undefined &&
-            config.TEST_USER_FISCAL_CODES.includes(organization.fiscal_code)
-          ? "test_user"
-          : "operator";
+        : "operator";
 
     const sessionToken = randomBytes(32).toString("hex");
     const sessionId = randomBytes(32).toString("hex");
 
-    if (userType === "admin" || userType === "test_user") {
+    if (userType === "admin") {
       return new ResultAsync(
         sessionRepository.createSession(sessionToken, {
           firstName: name,
@@ -74,7 +71,7 @@ export const makeAcsUseCase =
           operatorId: "",
           operatorName: "",
           referentExternalId: uid,
-          role: "",
+          role: "admin",
           userType,
         }),
       )

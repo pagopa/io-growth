@@ -45,21 +45,23 @@ const validInput = {
 describe("makeGetOpportunityUseCase", () => {
   it("should return opportunity detail when found", async () => {
     const repository = createMockOpportunityRepository({
-      getByIdGlobal: vi.fn().mockResolvedValue(ok(mockOpportunityDetail)),
+      getOpportunityDetailsById: vi
+        .fn()
+        .mockResolvedValue(ok(mockOpportunityDetail)),
     });
     const useCase = makeGetOpportunityUseCase(repository);
 
     const result = await useCase(validInput);
 
     expect(result).toEqual(ok(mockOpportunityDetail));
-    expect(repository.getByIdGlobal).toHaveBeenCalledWith({
+    expect(repository.getOpportunityDetailsById).toHaveBeenCalledWith({
       opportunityId: MOCK_OPPORTUNITY_ID,
     });
   });
 
   it("should return NotFoundError when opportunity does not exist", async () => {
     const repository = createMockOpportunityRepository({
-      getByIdGlobal: vi.fn().mockResolvedValue(ok(undefined)),
+      getOpportunityDetailsById: vi.fn().mockResolvedValue(ok(undefined)),
     });
     const useCase = makeGetOpportunityUseCase(repository);
 
@@ -73,7 +75,7 @@ describe("makeGetOpportunityUseCase", () => {
   it("should propagate repository errors", async () => {
     const repoError = new GenericError("DB connection failed");
     const repository = createMockOpportunityRepository({
-      getByIdGlobal: vi.fn().mockResolvedValue(err(repoError)),
+      getOpportunityDetailsById: vi.fn().mockResolvedValue(err(repoError)),
     });
     const useCase = makeGetOpportunityUseCase(repository);
 
@@ -94,7 +96,7 @@ describe("makeGetOpportunityUseCase", () => {
     expect(result).toEqual(
       err(expect.objectContaining({ kind: "ValidationError" })),
     );
-    expect(repository.getByIdGlobal).not.toHaveBeenCalled();
+    expect(repository.getOpportunityDetailsById).not.toHaveBeenCalled();
   });
 
   it("should return ValidationError when userType is invalid", async () => {
@@ -109,16 +111,18 @@ describe("makeGetOpportunityUseCase", () => {
     expect(result).toEqual(
       err(expect.objectContaining({ kind: "ValidationError" })),
     );
-    expect(repository.getByIdGlobal).not.toHaveBeenCalled();
+    expect(repository.getOpportunityDetailsById).not.toHaveBeenCalled();
   });
 
-  it("should work with test_user userType", async () => {
+  it("should work with test_admin userType", async () => {
     const repository = createMockOpportunityRepository({
-      getByIdGlobal: vi.fn().mockResolvedValue(ok(mockOpportunityDetail)),
+      getOpportunityDetailsById: vi
+        .fn()
+        .mockResolvedValue(ok(mockOpportunityDetail)),
     });
     const useCase = makeGetOpportunityUseCase(repository);
 
-    const result = await useCase({ ...validInput, userType: "test_user" });
+    const result = await useCase({ ...validInput, userType: "test_admin" });
 
     expect(result).toEqual(ok(mockOpportunityDetail));
   });

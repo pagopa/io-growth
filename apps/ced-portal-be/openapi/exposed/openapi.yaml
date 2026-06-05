@@ -1548,17 +1548,25 @@ components:
       required:
         - first_name
         - last_name
-        - operator_name
+        - institution_name
         - session_token
+        - user_type
       properties:
         first_name:
           type: string
         last_name:
           type: string
-        operator_name:
+        institution_name:
           type: string
         session_token:
           type: string
+        user_type:
+          type: string
+          enum:
+            - admin
+            - operator
+            - test_admin
+            - test_operator
     PendingOnboardingsResponse:
       type: object
       required:

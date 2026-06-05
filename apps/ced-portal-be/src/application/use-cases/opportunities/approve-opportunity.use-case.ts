@@ -14,13 +14,14 @@ import { z } from "zod";
 
 import type { OpportunityRepository } from "../../../domain/ports/outbound/persistence/opportunity.repository.js";
 
+import { USER_TYPES } from "../../../domain/entities/user-type.js";
 import { validateUseCaseInput } from "../utils/validate-use-case-input.js";
 
 const ApproveOpportunityInputSchema = z.object({
   dateFrom: z.iso.date().optional(),
   opportunityId: z.ulid(),
-  // kept for future per-userType branching (e.g. test_user vs admin behaviour)
-  userType: z.enum(["admin", "operator", "test_user"]),
+  // kept for future per-userType branching
+  userType: z.enum(USER_TYPES),
 });
 
 export type ApproveOpportunityInput = z.infer<
@@ -43,7 +44,7 @@ export const makeApproveOpportunityUseCase =
     validateUseCaseInput(ApproveOpportunityInputSchema, input).andThen(
       (validatedInput) =>
         new ResultAsync(
-          opportunityRepository.getByIdGlobal({
+          opportunityRepository.getOpportunityDetailsById({
             opportunityId: validatedInput.opportunityId,
           }),
         ).andThen((data) => {

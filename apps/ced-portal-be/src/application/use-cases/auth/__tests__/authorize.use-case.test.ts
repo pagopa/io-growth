@@ -41,8 +41,8 @@ describe("makeAuthorizeUseCase", () => {
     expect(result).toEqual(
       ok({
         first_name: "Mario",
+        institution_name: "Op Name",
         last_name: "Rossi",
-        operator_name: "Op Name",
         session_token: sessionToken,
         user_type: "operator",
       }),

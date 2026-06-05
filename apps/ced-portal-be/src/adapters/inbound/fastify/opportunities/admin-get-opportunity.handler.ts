@@ -10,7 +10,7 @@ import { z } from "zod";
 
 import type { GetOpportunityUseCase } from "../../../../application/use-cases/opportunities/get-opportunity.use-case.js";
 
-import { AdminSessionSchema } from "../auth/session.js";
+import { UserTypeSessionSchema } from "../auth/session.js";
 import { withUserTypeAuthorization } from "../auth/utils/authorization.js";
 import {
   GetOpportunityParams,
@@ -23,7 +23,7 @@ const getOpportunityHttpSchema = z.object({
 
 const getOpportunityValidator = withUserTypeAuthorization(
   withSession(
-    AdminSessionSchema,
+    UserTypeSessionSchema,
     createHttpRequestValidator(getOpportunityHttpSchema),
     (session, { path }) => ({
       opportunityId: path.opportunityId,

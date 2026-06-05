@@ -50,6 +50,7 @@ interface AgreementDetailsFormCopy {
   conditionsLabel: string;
   conditionsPlaceholder: string;
   conditionsHelperText: string;
+  fixedPriceLabel: string;
 }
 
 export interface AgreementCopy {
@@ -79,10 +80,11 @@ export const AGREEMENT_COPY_CONFIG: Record<string, AgreementCopy> = {
       conditionsLabel: 'Condizioni',
       conditionsPlaceholder: "Specifica eventuali limitazioni dell'opportunità",
       conditionsHelperText: 'Inserisci un testo di max 200 caratteri',
+      fixedPriceLabel: 'Importo del prezzo fisso agevolato',
     },
     additionalSections: {
       companion: {
-        title: 'opportunità per accompagnatore',
+        title: 'Opportunità per accompagnatore',
         toggleAriaLabel: 'Attiva opportunità per accompagnatore',
         sameConditionLabel: 'Stessa condizione del titolare',
         benefitTypePlaceholder: 'Seleziona una tipologia',
@@ -100,7 +102,7 @@ export const AGREEMENT_COPY_CONFIG: Record<string, AgreementCopy> = {
         otherBenefitTypeLabel: 'Scrivi il tipo di opportunità che vuoi offrire',
       },
       validity: {
-        title: 'Periodo di validita',
+        title: 'Periodo di validità',
         setEndDateLabel: 'Imposta una data di fine',
         setEndDateAriaLabel: 'Imposta una data di fine',
         startDateLabel: 'Data inizio',
@@ -135,6 +137,7 @@ export const AGREEMENT_COPY_CONFIG: Record<string, AgreementCopy> = {
       conditionsLabel: 'Conditions',
       conditionsPlaceholder: 'Specify any benefit limitations',
       conditionsHelperText: 'Enter a text up to 200 characters',
+      fixedPriceLabel: 'Fixed price amount',
     },
     additionalSections: {
       companion: {

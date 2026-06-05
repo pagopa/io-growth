@@ -1,8 +1,4 @@
 import { AgreementDetailsFormCopy } from '../../../../../constants';
-import {
-  AgreementDetailsCompanionFieldKey,
-  AgreementDetailsFieldKey,
-} from '../../../../../features/agreementDetailCreation/types';
 
 export const benefitDiscountValueTypeOptions = [
   { label: 'Percentage', value: 'percentage' },
@@ -16,14 +12,8 @@ type FormFieldConfig = {
 };
 
 type FormConfigObject = {
-  detail: Record<AgreementDetailsFieldKey, FormFieldConfig>;
-  companion: Record<
-    Exclude<
-      AgreementDetailsCompanionFieldKey,
-      'isSameConditionAsOwner' | 'isCompanionBenefit'
-    >,
-    FormFieldConfig
-  >;
+  detail: Record<string, FormFieldConfig>;
+  companion: Record<string, FormFieldConfig>;
 };
 
 export const getFormConfig = (
@@ -69,6 +59,11 @@ export const getFormConfig = (
       helperText: copy.conditionsHelperText,
       placeholder: copy.conditionsPlaceholder,
     },
+    fixedPrice: {
+      title: '',
+      helperText: '',
+      placeholder: copy.fixedPriceLabel,
+    },
   },
   companion: {
     companionBenefitType: {
@@ -92,14 +87,3 @@ export const getFormConfig = (
     },
   },
 });
-
-export const formFields: AgreementDetailsFieldKey[] = [
-  'name',
-  'benefitType',
-  'benefitDiscountValue',
-  'benefitDiscountValueType',
-  'otherBenefitTypeDescription',
-  'description',
-  'category',
-  'conditions',
-];

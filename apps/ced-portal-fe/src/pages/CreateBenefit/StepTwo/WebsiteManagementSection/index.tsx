@@ -8,7 +8,7 @@ import { useGetPlacesQuery } from '../../../../features/places/api';
 import {
   selectAccessPoint,
   selectSelectedWebsiteIds,
-} from '../../../../features/wizard/slice';
+} from '../../../../features/places/selectors';
 import { useAppSelector } from '../../../../hooks/store';
 import { useWebsiteSelectionFlow } from '../hooks/useWebsiteSelectionFlow';
 import { AddWebsiteModal } from './AddWebsiteModal';

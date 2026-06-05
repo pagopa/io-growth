@@ -2,9 +2,16 @@ import AddIcon from '@mui/icons-material/Add';
 import { Box, Button, Stack, Typography } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { APP_ROUTES } from '../../../app/routeConfig';
+import { useAppDispatch } from '../../../hooks';
+import { resetForm } from '../../../features/opportunityCreation/opportunityCreationSlice';
 
 export function MainContentHeader() {
+  const dispatch = useAppDispatch();
   const navigate = useNavigate();
+  const handleCreateOpportunity = () => {
+    dispatch(resetForm());
+    navigate(APP_ROUTES.CREATE_BENEFIT);
+  };
 
   return (
     <Stack
@@ -30,7 +37,7 @@ export function MainContentHeader() {
         color="primary"
         size="large"
         startIcon={<AddIcon />}
-        onClick={() => navigate(APP_ROUTES.CREATE_BENEFIT)}
+        onClick={handleCreateOpportunity}
         sx={{
           borderRadius: 2,
           px: 3,

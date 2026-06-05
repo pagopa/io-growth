@@ -68,7 +68,6 @@ export const useCreateOpportunity = () => {
     }
 
     showToast('Fatto!', 'success');
-    dispatch(resetForm());
     return data;
   }, [
     createOpportunity,

@@ -46,6 +46,7 @@ export const useHydrateFromSourceOpportunity = (
     url,
     dateTo,
     caregiverBenefit,
+    nationalTerritory,
   } = sourceOpportunityDetail ?? {};
 
   useEffect(() => {
@@ -66,6 +67,9 @@ export const useHydrateFromSourceOpportunity = (
     dispatch(setField({ field: 'url', value: url ?? '' }));
     dispatch(setField({ field: 'categoryId', value: categoryId }));
     dispatch(setField({ field: 'placeIds', value: placeIds }));
+    dispatch(
+      setField({ field: 'nationalTerritory', value: nationalTerritory }),
+    );
 
     const placesIdsMapped = placeIds?.reduce<PlacesMap>(
       (acc, placeId) => {
@@ -83,14 +87,18 @@ export const useHydrateFromSourceOpportunity = (
       },
     );
 
-    if (placesIdsMapped?.locations.length || placesIdsMapped?.websites.length) {
+    if (
+      placesIdsMapped?.locations.length ||
+      placesIdsMapped?.websites.length ||
+      nationalTerritory
+    ) {
       dispatch(setSelectedLocationIds(placesIdsMapped?.locations ?? []));
       dispatch(setSelectedWebsiteIds(placesIdsMapped?.websites ?? []));
 
       const accessPoint: PlaceBaseType | 'both' = placesIdsMapped?.websites
         .length
         ? 'online'
-        : placesIdsMapped?.locations.length
+        : placesIdsMapped?.locations.length || nationalTerritory
           ? 'offline'
           : 'both';
       dispatch(setAccessPoint(accessPoint));
@@ -125,6 +133,7 @@ export const useHydrateFromSourceOpportunity = (
     dateTo,
     dispatch,
     localizedMetadata,
+    nationalTerritory,
     placeIds,
     places,
     sourceOpportunityDetail,

@@ -4,13 +4,14 @@ import { Body, Title } from '.';
 type MarkdownRendererProps = {
   content: string;
 };
-const renderInline = (text: string): React.ReactNode[] => {
-  const linkRegex = /\[([^\]]+)\]\(([^)]+)\)/g;
-  const boldRegex = /\*\*(.*?)\*\*/g;
-  const italicRegex = /\*(.*?)\*/g;
-  const smallRegex = /\^\^(.*?)\^\^/g;
-  const imageRegex = /!\[([^\]]*)\]\(([^)]+)\)/g;
 
+const linkRegex = /\[([^\]]+)\]\(([^)]+)\)/g;
+const boldRegex = /\*\*(.*?)\*\*/g;
+const italicRegex = /\*(.*?)\*/g;
+const smallRegex = /\^\^(.*?)\^\^/g;
+const imageRegex = /!\[([^\]]*)\]\(([^)]+)\)/g;
+
+const renderInline = (text: string): React.ReactNode[] => {
   const nodes: React.ReactNode[] = [];
 
   let lastIndex = 0;

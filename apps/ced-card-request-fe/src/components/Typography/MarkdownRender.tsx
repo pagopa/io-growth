@@ -5,11 +5,11 @@ type MarkdownRendererProps = {
   content: string;
 };
 
-const linkRegex = /\[([^\]]+)\]\(([^)]+)\)/g;
-const boldRegex = /\*\*(.*?)\*\*/g;
-const italicRegex = /\*(.*?)\*/g;
-const smallRegex = /\^\^(.*?)\^\^/g;
-const imageRegex = /!\[([^\]]*)\]\(([^)]+)\)/g;
+const linkRegex = /\[([^\]]+)\]\(([^)]+)\)/;
+const boldRegex = /\*\*(.*?)\*\*/;
+const italicRegex = /\*(.*?)\*/;
+const smallRegex = /\^\^(.*?)\^\^/;
+const imageRegex = /!\[([^\]]*)\]\(([^)]+)\)/;
 
 const renderInline = (text: string): React.ReactNode[] => {
   const nodes: React.ReactNode[] = [];

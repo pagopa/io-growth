@@ -1,107 +1,89 @@
 -- Custom SQL migration: Initial schema based on ER diagram
---> statement-breakpoint
 
 CREATE TYPE operator_status AS ENUM ('active', 'suspended', 'revoked');
---> statement-breakpoint
 
 CREATE TYPE place_type AS ENUM ('online', 'offline');
---> statement-breakpoint
 
 CREATE TYPE support_contact_type AS ENUM ('email', 'phone', 'website');
---> statement-breakpoint
 
 CREATE TYPE opportunity_status AS ENUM ('draft', 'test_pending', 'test_rejected', 'test_passed', 'published', 'suspended', 'deleted');
---> statement-breakpoint
 
 CREATE TYPE benefit_type AS ENUM ('free', 'reduced_fixed_price', 'priority', 'discount', 'other');
---> statement-breakpoint
 
 CREATE TYPE benefit_discount_type AS ENUM ('percentage', 'fixed_amount');
---> statement-breakpoint
 
 CREATE TYPE localized_metadata_key AS ENUM ('name', 'description', 'condition');
---> statement-breakpoint
 
 CREATE TYPE localized_metadata_language AS ENUM ('en', 'fr', 'de', 'sl', 'it');
---> statement-breakpoint
 
 CREATE TYPE change_audit_entity_type AS ENUM ('opportunity', 'place', 'support_contact', 'profile', 'address', 'website', 'beneficiary_benefit', 'caregiver_benefit', 'localized_metadata', 'opportunity_category');
---> statement-breakpoint
 
 CREATE TYPE change_audit_change_type AS ENUM ('create', 'update');
---> statement-breakpoint
 
 CREATE TABLE operator (
-  id TEXT PRIMARY KEY,
+  id CHAR(26) PRIMARY KEY,
   external_id UUID NOT NULL,
-  name TEXT NOT NULL,
+  name VARCHAR(512) NOT NULL,
   status operator_status NOT NULL,
   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
---> statement-breakpoint
 
 CREATE TABLE place (
-  id TEXT PRIMARY KEY,
-  operator_id TEXT NOT NULL REFERENCES operator(id),
-  name TEXT NOT NULL,
+  id CHAR(26) PRIMARY KEY,
+  operator_id CHAR(26) NOT NULL REFERENCES operator(id) ON DELETE CASCADE,
+  name VARCHAR(512) NOT NULL,
   type place_type NOT NULL,
   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
---> statement-breakpoint
 
 CREATE TABLE profile (
-  id TEXT PRIMARY KEY,
-  operator_id TEXT NOT NULL REFERENCES operator(id),
-  place_id TEXT NOT NULL REFERENCES place(id),
-  display_name TEXT NOT NULL,
+  id CHAR(26) PRIMARY KEY,
+  operator_id CHAR(26) NOT NULL REFERENCES operator(id) ON DELETE CASCADE,
+  place_id CHAR(26) NOT NULL REFERENCES place(id),
+  display_name VARCHAR(512) NOT NULL,
   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   UNIQUE (operator_id)
 );
---> statement-breakpoint
 
 CREATE TABLE website (
-  id TEXT PRIMARY KEY,
-  place_id TEXT NOT NULL REFERENCES place(id),
-  url TEXT NOT NULL,
+  id CHAR(26) PRIMARY KEY,
+  place_id CHAR(26) NOT NULL REFERENCES place(id) ON DELETE CASCADE,
+  url VARCHAR(2048) NOT NULL,
   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   UNIQUE (place_id)
 );
---> statement-breakpoint
 
 CREATE TABLE address (
-  id TEXT PRIMARY KEY,
-  place_id TEXT NOT NULL REFERENCES place(id),
-  street TEXT NOT NULL,
-  city TEXT NOT NULL,
-  state TEXT NOT NULL,
-  postal_code TEXT NOT NULL,
-  country TEXT NOT NULL,
+  id CHAR(26) PRIMARY KEY,
+  place_id CHAR(26) NOT NULL REFERENCES place(id) ON DELETE CASCADE,
+  street VARCHAR(512) NOT NULL,
+  city VARCHAR(64) NOT NULL,
+  state VARCHAR(64) NOT NULL,
+  postal_code VARCHAR(64) NOT NULL,
+  country VARCHAR(64) NOT NULL,
   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   UNIQUE (place_id)
 );
---> statement-breakpoint
 
 CREATE TABLE support_contact (
-  id TEXT PRIMARY KEY,
-  place_id TEXT NOT NULL REFERENCES place(id),
+  id CHAR(26) PRIMARY KEY,
+  place_id CHAR(26) NOT NULL REFERENCES place(id) ON DELETE CASCADE,
   type support_contact_type NOT NULL,
-  value TEXT NOT NULL,
+  value VARCHAR(2048) NOT NULL,
   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
---> statement-breakpoint
 
 CREATE TABLE opportunity_category (
-  id TEXT PRIMARY KEY,
-  title TEXT NOT NULL,
-  description TEXT NOT NULL
+  id CHAR(26) PRIMARY KEY,
+  title VARCHAR(64) NOT NULL,
+  description VARCHAR(512) NOT NULL
 );
---> statement-breakpoint
 
 INSERT INTO opportunity_category (id, title, description) VALUES
   ('01KRJXEYD44B58700GT982CCYY', 'Cultura e tempo libero',   'Libri, teatro, cinema, concerti, CD, dischi, cibo, bevande, ristoranti, shopping'),
@@ -114,74 +96,68 @@ INSERT INTO opportunity_category (id, title, description) VALUES
   ('01KRJXEYD7SSFPE6BP90C7GG5K', 'Viaggi e Trasporti',       'Agenzie di viaggio, compagnie di trasporti, ecc...'),
   ('01KRJXEYD7S0XYAQS96F7HKJFE', 'Mobilità sostenibile',     'Servizi per muoversi in città, car sharing, monopattini, bici, trasporti green'),
   ('01KRJXEYD7B8F56F38DGF1KFYV', 'Lavoro e tirocini',        'Concorsi, offerte di lavoro');
---> statement-breakpoint
 
 CREATE TABLE opportunity (
-  id TEXT PRIMARY KEY,
-  operator_id TEXT NOT NULL REFERENCES operator(id),
-  category_id TEXT NOT NULL REFERENCES opportunity_category(id),
+  id CHAR(26) PRIMARY KEY,
+  operator_id CHAR(26) NOT NULL REFERENCES operator(id) ON DELETE CASCADE,
+  category_id CHAR(26) NOT NULL REFERENCES opportunity_category(id),
   status opportunity_status NOT NULL,
   date_from DATE NOT NULL,
   date_to DATE,
-  url TEXT,
+  url VARCHAR(2048),
   national_territory BOOLEAN NOT NULL DEFAULT false,
-  rejection_message TEXT,
+  rejection_message VARCHAR(4096),
   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
---> statement-breakpoint
 
 CREATE TABLE opportunity_place (
-  opportunity_id TEXT NOT NULL REFERENCES opportunity(id),
-  place_id TEXT NOT NULL REFERENCES place(id),
+  opportunity_id CHAR(26) NOT NULL REFERENCES opportunity(id) ON DELETE CASCADE,
+  place_id CHAR(26) NOT NULL REFERENCES place(id) ON DELETE CASCADE,
   PRIMARY KEY (opportunity_id, place_id)
 );
---> statement-breakpoint
 
 CREATE TABLE beneficiary_benefit (
-  id TEXT PRIMARY KEY,
-  opportunity_id TEXT NOT NULL REFERENCES opportunity(id),
+  id CHAR(26) PRIMARY KEY,
+  opportunity_id CHAR(26) NOT NULL REFERENCES opportunity(id) ON DELETE CASCADE,
   type benefit_type NOT NULL,
   value INTEGER,
   discount_type benefit_discount_type,
-  description TEXT,
+  description VARCHAR(4096),
   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   UNIQUE (opportunity_id)
 );
---> statement-breakpoint
 
 CREATE TABLE caregiver_benefit (
-  id TEXT PRIMARY KEY,
-  opportunity_id TEXT NOT NULL REFERENCES opportunity(id),
+  id CHAR(26) PRIMARY KEY,
+  opportunity_id CHAR(26) NOT NULL REFERENCES opportunity(id) ON DELETE CASCADE,
   type benefit_type NOT NULL,
   value INTEGER,
   discount_type benefit_discount_type,
-  description TEXT,
+  description VARCHAR(4096),
   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   UNIQUE (opportunity_id)
 );
---> statement-breakpoint
 
 CREATE TABLE localized_metadata (
-  id TEXT PRIMARY KEY,
-  opportunity_id TEXT NOT NULL REFERENCES opportunity(id),
+  id CHAR(26) PRIMARY KEY,
+  opportunity_id CHAR(26) NOT NULL REFERENCES opportunity(id) ON DELETE CASCADE,
   key localized_metadata_key NOT NULL,
   language localized_metadata_language NOT NULL,
   value TEXT NOT NULL,
   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
---> statement-breakpoint
 
 CREATE TABLE change_audit (
-  id TEXT PRIMARY KEY,
-  operator_id TEXT NOT NULL REFERENCES operator(id),
-  referent_external_id TEXT NOT NULL,
-  referent_fullname TEXT NOT NULL,
+  id CHAR(26) PRIMARY KEY,
+  operator_id CHAR(26) NOT NULL,
+  referent_external_id VARCHAR(512) NOT NULL,
+  referent_fullname VARCHAR(512) NOT NULL,
   entity_type change_audit_entity_type NOT NULL,
-  entity_id TEXT NOT NULL,
+  entity_id CHAR(26) NOT NULL,
   change_type change_audit_change_type NOT NULL,
   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   value JSONB NOT NULL

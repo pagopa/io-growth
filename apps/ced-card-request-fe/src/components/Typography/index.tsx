@@ -93,24 +93,27 @@ export const Body = ({
   fontSize = '16px',
   asLink = false,
   onClick,
-}: BodyProps) => (
-  <Typography
-    onClick={onClick}
-    sx={{
-      fontSize,
-      lineHeight: '24px',
-      fontWeight: fontWeights[fontWeight],
-      color: asLink
-        ? '#007BFF'
-        : fontWeight === 'Regular'
-          ? '#555C70'
-          : '#0E0F13',
-      textDecoration: asLink ? 'underline' : 'none',
-    }}
-  >
-    {children}
-  </Typography>
-);
+}: BodyProps) => {
+  const { palette } = useTheme();
+  return (
+    <Typography
+      onClick={onClick}
+      sx={{
+        fontSize,
+        lineHeight: '24px',
+        fontWeight: fontWeights[fontWeight],
+        color: asLink
+          ? palette.common.linkColor
+          : fontWeight === 'Regular'
+            ? palette.common.neutralDarkGray
+            : palette.common.neutralBlack,
+        textDecoration: asLink ? 'underline' : 'none',
+      }}
+    >
+      {children}
+    </Typography>
+  );
+};
 
 export const ErrorBody = (props: Omit<BodyProps, 'asLink'>) => {
   const theme = useTheme();

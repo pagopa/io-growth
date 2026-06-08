@@ -875,6 +875,7 @@ components:
       properties:
         displayName:
           type: string
+          maxLength: 512
         place:
           $ref: "#/components/schemas/PlaceCreateRequest"
     PlaceBase:
@@ -892,6 +893,7 @@ components:
             - offline
         name:
           type: string
+          maxLength: 512
         supportContacts:
           type: array
           items:
@@ -944,6 +946,7 @@ components:
             - offline
         name:
           type: string
+          maxLength: 512
         supportContacts:
           type: array
           items:
@@ -986,6 +989,7 @@ components:
       properties:
         displayName:
           type: string
+          maxLength: 512
         place:
           $ref: "#/components/schemas/PlaceResponse"
     Address:
@@ -1000,14 +1004,19 @@ components:
       properties:
         street:
           type: string
+          maxLength: 512
         city:
           type: string
+          maxLength: 64
         state:
           type: string
+          maxLength: 64
         postalCode:
           type: string
+          maxLength: 64
         country:
           type: string
+          maxLength: 64
     SupportContactCreateRequest:
       type: object
       additionalProperties: false
@@ -1023,6 +1032,7 @@ components:
             - website
         value:
           type: string
+          maxLength: 2048
     SupportContactResponse:
       type: object
       additionalProperties: false
@@ -1042,6 +1052,7 @@ components:
             - website
         value:
           type: string
+          maxLength: 2048
     Website:
       type: object
       additionalProperties: false
@@ -1051,6 +1062,7 @@ components:
         url:
           type: string
           format: uri
+          maxLength: 2048
     OpportunityCreateRequest:
       type: object
       additionalProperties: false
@@ -1070,6 +1082,7 @@ components:
         url:
           type: string
           format: uri
+          maxLength: 2048
         categoryId:
           type: string
           pattern: "^[0-9A-HJKMNP-TV-Z]{26}$"
@@ -1171,6 +1184,7 @@ components:
             - other
         description:
           type: string
+          maxLength: 4096
     LocalizedMetadataItem:
       type: object
       additionalProperties: false
@@ -1282,6 +1296,7 @@ components:
         url:
           type: string
           format: uri
+          maxLength: 2048
           nullable: true
         nationalTerritory:
           type: boolean

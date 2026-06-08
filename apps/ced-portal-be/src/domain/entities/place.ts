@@ -3,24 +3,24 @@ import { z } from "zod";
 const supportContactSchema = z.object({
   id: z.ulid(),
   type: z.enum(["email", "phone", "website"]),
-  value: z.string().min(1),
+  value: z.string().min(1).max(2048),
 });
 
 const addressSchema = z.object({
-  city: z.string().min(1),
-  country: z.string().min(1),
-  postalCode: z.string().min(1),
-  state: z.string().min(1),
-  street: z.string().min(1),
+  city: z.string().min(1).max(64),
+  country: z.string().min(1).max(64),
+  postalCode: z.string().min(1).max(64),
+  state: z.string().min(1).max(64),
+  street: z.string().min(1).max(512),
 });
 
 const websiteSchema = z.object({
-  url: z.url(),
+  url: z.url().max(2048),
 });
 
 const placeBaseSchema = z.object({
   id: z.ulid(),
-  name: z.string().min(1),
+  name: z.string().min(1).max(512),
   supportContacts: z.array(supportContactSchema),
 });
 

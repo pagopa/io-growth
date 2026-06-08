@@ -29,7 +29,7 @@ const BenefitInputSchema = z.discriminatedUnion("type", [
     value: z.number().int(),
   }),
   z.object({
-    description: z.string().min(1),
+    description: z.string().min(1).max(4096),
     type: z.literal("other"),
   }),
 ]);
@@ -61,7 +61,7 @@ const CreateOperatorOpportunityInputSchema = z
     nationalTerritory: z.boolean().default(false),
     operatorId: z.ulid(),
     placeIds: z.array(z.ulid()),
-    url: z.url().optional(),
+    url: z.url().max(2048).optional(),
   })
   .refine((input) => input.nationalTerritory || input.placeIds.length > 0, {
     message: "placeIds cannot be empty unless nationalTerritory is true",

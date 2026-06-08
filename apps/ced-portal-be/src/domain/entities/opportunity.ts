@@ -24,7 +24,7 @@ const BenefitDiscountSchema = z.object({
 });
 
 const BenefitOtherSchema = z.object({
-  description: z.string().min(1),
+  description: z.string().min(1).max(4096),
   id: z.ulid(),
   type: z.literal("other"),
 });
@@ -65,7 +65,7 @@ export const OpportunitySchema = z.object({
     "suspended",
     "deleted",
   ]),
-  url: z.url().optional(),
+  url: z.url().max(2048).optional(),
 });
 
 export type Opportunity = z.infer<typeof OpportunitySchema>;
@@ -83,7 +83,7 @@ export const BenefitSummarySchema = z.discriminatedUnion("type", [
     value: z.number().int(),
   }),
   z.object({
-    description: z.string(),
+    description: z.string().max(4096),
     type: z.literal("other"),
   }),
 ]);
@@ -137,7 +137,7 @@ export const OpportunityDetailSchema = z.object({
     "deleted",
   ]),
   updatedAt: z.string(),
-  url: z.url().nullable(),
+  url: z.url().max(2048).nullable(),
 });
 
 export type OpportunityDetail = z.infer<typeof OpportunityDetailSchema>;

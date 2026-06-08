@@ -72,7 +72,7 @@ export const makeAcsUseCase =
           firstName: name,
           lastName: family_name,
           operatorId: "",
-          operatorName: "",
+          operatorName: organization.name,
           referentExternalId: uid,
           role: "admin",
           userType,

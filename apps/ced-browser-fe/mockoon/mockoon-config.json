@@ -59,7 +59,7 @@
       "streamingInterval": 0
     },
     {
-      "uuid": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+      "uuid": "6fea340e-9a61-4cc1-b9d6-f5f663a59b4e",
       "type": "http",
       "documentation": "Ricerca indirizzi",
       "method": "get",
@@ -699,6 +699,37 @@
       "responseMode": null,
       "streamingMode": null,
       "streamingInterval": 0
+    },
+    {
+      "uuid": "e1132d01-d684-43c2-bbcb-bde3653f14b8",
+      "type": "http",
+      "documentation": "",
+      "method": "get",
+      "endpoint": "api/authorize",
+      "responses": [
+        {
+          "uuid": "d02a4940-e3d6-4a69-83e7-7ea5861090ee",
+          "body": "{\n  \"token\": \"eyasjdjashdas19fhe893j181hf9\"\n}",
+          "latency": 0,
+          "statusCode": 200,
+          "label": "",
+          "headers": [],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": true,
+          "crudKey": "id",
+          "callbacks": []
+        }
+      ],
+      "responseMode": null,
+      "streamingMode": null,
+      "streamingInterval": 0
     }
   ],
   "rootChildren": [
@@ -708,7 +739,7 @@
     },
     {
       "type": "route",
-      "uuid": "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+      "uuid": "6fea340e-9a61-4cc1-b9d6-f5f663a59b4e"
     },
     {
       "type": "route",
@@ -761,6 +792,10 @@
     {
       "type": "route",
       "uuid": "e61f5015-d36c-45ff-9186-0c0e5628c290"
+    },
+    {
+      "type": "route",
+      "uuid": "e1132d01-d684-43c2-bbcb-bde3653f14b8"
     }
   ],
   "proxyMode": false,

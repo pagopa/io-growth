@@ -1,0 +1,42 @@
+{
+    "name": "@pagopa/io-mixpanel",
+    "private": true,
+    "version": "1.0.3",
+    "type": "module",
+    "main": "dist/mixpanel-lib.umd.js",
+    "module": "dist/mixpanel-lib.es.js",
+    "types": "dist/index.d.ts",
+    "scripts": {
+        "dev": "vite",
+        "build": "vite build && tsc",
+        "preview": "vite preview",
+        "lint": "eslint .",
+        "lint:fix": "eslint . --fix",
+        "format": "prettier --check .",
+        "format:fix": "prettier --write ."
+    },
+    "dependencies": {
+        "mixpanel-browser": "^2.47.0"
+    },
+    "devDependencies": {
+        "@eslint/js": "^9.24.0",
+        "@pagopa/eslint-config": "^6.0.2",
+        "@rollup/plugin-typescript": "^12.1.2",
+        "@types/node": "^22.13.11",
+        "@typescript-eslint/eslint-plugin": "^8.32.1",
+        "@typescript-eslint/parser": "^8.32.1",
+        "eslint": "^9.24.0",
+        "eslint-config-next": "14.2.5",
+        "eslint-config-prettier": "^10.1.5",
+        "eslint-plugin-prettier": "^5.4.0",
+        "globals": "^16.0.0",
+        "prettier": "^3.5.3",
+        "tslib": "^2.8.1",
+        "typescript": "^5.8.2",
+        "typescript-eslint": "^8.26.1",
+        "vite": "^6.0.0",
+        "vite-plugin-typescript": "^1.0.4",
+        "vite-tsconfig-paths": "^5.0.1",
+        "vitest": "^3.2.4"
+    }
+}

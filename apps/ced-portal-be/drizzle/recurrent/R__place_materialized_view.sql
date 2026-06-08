@@ -6,7 +6,9 @@ DROP MATERIALIZED VIEW IF EXISTS place_materialized_view;
 CREATE MATERIALIZED VIEW place_materialized_view AS
 SELECT
   p.id,
-  op.opportunity_id,
+  pf.display_name AS profile_display_name,
+  pf.id AS profile_id,
+  p.operator_id,
   p.name,
   p.type,
   a.street,
@@ -15,16 +17,29 @@ SELECT
   a.postal_code,
   a.country,
   w.url,
-  to_tsvector('simple',
-    coalesce(p.name, '') || ' ' ||
-    coalesce(a.city, '') || ' ' ||
-    coalesce(a.state, '')
-  ) AS search_vector
+  to_tsvector('italian',
+    coalesce(p.name, '')
+  ) AS search_vector_name,
+   to_tsvector('italian',
+    coalesce(a.city, '')
+  ) AS search_vector_city,
+   to_tsvector('italian',
+    coalesce(pf.display_name, '')
+  ) AS search_vector_display_name
 FROM place p
-JOIN opportunity_place op ON op.place_id = p.id
+LEFT JOIN profile pf ON pf.place_id = p.id
 LEFT JOIN address a ON a.place_id = p.id
-LEFT JOIN website w ON w.place_id = p.id;
+LEFT JOIN website w ON w.place_id = p.id
+LEFT JOIN opportunity_place opp_p ON opp_p.place_id = p.id
+JOIN opportunity o ON o.id = opp_p.opportunity_id
+WHERE
+  pf.id IS NOT NULL OR
+  o.status = 'published' AND
+  CURRENT_DATE >= o.date_from AND
+  CURRENT_DATE <= coalesce(o.date_to, 'infinity'::date)
+;
 
-CREATE UNIQUE INDEX idx_place_mv_id_opp ON place_materialized_view (id, opportunity_id);
-CREATE INDEX idx_place_mv_opportunity ON place_materialized_view (opportunity_id);
-CREATE INDEX idx_place_mv_search ON place_materialized_view USING gin(search_vector);
+CREATE INDEX idx_place_mv_operator ON place_materialized_view (operator_id);
+CREATE INDEX idx_place_mv_search_name ON place_materialized_view USING gin(search_vector_name);
+CREATE INDEX idx_place_mv_search_city ON place_materialized_view USING gin(search_vector_city);
+CREATE INDEX idx_place_mv_search_display_name ON place_materialized_view USING gin(search_vector_display_name);

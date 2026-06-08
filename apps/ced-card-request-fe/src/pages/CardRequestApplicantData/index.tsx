@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { AppTextField, Stepper, PageHeader } from '../../components';
 import { APP_ROUTES } from '../../app/routeConfig';
 import { Body, Title } from '../../components/Typography';
+import { VSpacer } from '../../layouts/Spacer';
 
 export default function CardRequestApplicantDataPage() {
   const navigate = useNavigate();
@@ -33,7 +34,7 @@ export default function CardRequestApplicantDataPage() {
       />
 
       <Box sx={{ px: 3, pb: 3 }}>
-        <Title text="Conferma i tuoi dati" variant="h2" />
+        <Title text="Conferma i tuoi dati" variant="MD" />
 
         <Stepper activeStep={0} totalSteps={6} />
 
@@ -45,11 +46,8 @@ export default function CardRequestApplicantDataPage() {
             pb: 4,
           }}
         >
-          <Title
-            text="Ecco a chi verrà assegnata la carta"
-            variant="h3"
-          ></Title>
-
+          <Title text="Ecco a chi verrà assegnata la carta" variant="SM" />
+          <VSpacer />
           <Body>Conferma i tuoi dati anagrafici.</Body>
 
           <Box sx={{ mt: 3, display: 'grid', gap: 2.25 }}>

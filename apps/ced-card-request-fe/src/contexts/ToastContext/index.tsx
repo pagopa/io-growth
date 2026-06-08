@@ -1,24 +1,19 @@
 import { useCallback, useMemo, useState, type PropsWithChildren } from 'react';
-import {
-  Box,
-  Typography,
-  IconButton,
-  keyframes,
-  useTheme,
-} from '@mui/material';
+import { Box, IconButton, keyframes, useTheme } from '@mui/material';
 import ReportIcon from '@mui/icons-material/Report';
 import InfoIcon from '@mui/icons-material/Info';
 import CloseIcon from '@mui/icons-material/Close';
 import CheckRoundedIcon from '@mui/icons-material/CheckRounded';
 import { ToastState, ToastVariant } from './types';
 import { ToastContext } from './context';
+import { Body } from '../../components/Typography';
 
 const slideUp = keyframes`
   from { opacity: 0; transform: translateY(20px); }
   to { opacity: 1; transform: translateY(0); }
 `;
 
-export function ToastProvider({ children }: PropsWithChildren) {
+export function ToastProvider({ children }: Readonly<PropsWithChildren>) {
   const [toast, setToast] = useState<ToastState | null>(null);
 
   const showToast = useCallback(
@@ -117,16 +112,7 @@ export function ToastProvider({ children }: PropsWithChildren) {
             />
           </Box>
 
-          <Typography
-            sx={{
-              flex: 1,
-              fontWeight: 500,
-              fontSize: '16px',
-              lineHeight: '24px',
-            }}
-          >
-            {toast.message}
-          </Typography>
+          <Body fontWeight="Medium">{toast.message}</Body>
 
           <IconButton
             size="small"

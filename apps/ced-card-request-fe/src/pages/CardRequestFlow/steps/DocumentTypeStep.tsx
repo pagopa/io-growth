@@ -1,11 +1,13 @@
+import { Box, FormControl } from '@mui/material';
 import { forwardRef, useImperativeHandle, useRef, useState } from 'react';
-import { Box, FormControl, Typography, useTheme } from '@mui/material';
-import type { StepRef } from '../types';
 import {
   AppRadioList,
   type RadioListOption,
 } from '../../../components/RadioList';
+import { Body, ErrorBody, Title } from '../../../components/Typography';
 import { StepCard } from '../StepCard';
+import type { StepRef } from '../types';
+import { VSpacer } from '../../../layouts/Spacer';
 
 type YesNo = 'yes' | 'no' | null;
 type Province = 'trento' | 'bolzano' | 'aosta' | 'other' | null;
@@ -54,39 +56,24 @@ function RadioCard({
   options,
   error,
   onChange,
-}: {
-  title: React.ReactNode;
+}: Readonly<{
+  title: string;
   subtitle?: string;
   value: string | null;
   options: RadioListOption[];
   error?: string;
   onChange: (v: string) => void;
-}) {
-  const theme = useTheme();
-
+}>) {
   return (
     <StepCard>
-      <Typography
-        variant="h3"
-        component="h3"
-        sx={{ color: theme.palette.common.neutralBlack }}
-      >
-        {title}
-      </Typography>
+      <Title text={title} variant="SM" />
 
       {subtitle && (
-        <Typography
-          sx={{
-            mt: 1,
-            color: theme.palette.common.neutralDarkGray,
-            fontSize: 17,
-            lineHeight: 1.45,
-          }}
-        >
-          {subtitle}
-        </Typography>
+        <>
+          <VSpacer />
+          <Body>{subtitle}</Body>
+        </>
       )}
-
       <FormControl
         error={!!error}
         sx={{ mt: 3, width: '100%', bgcolor: 'transparent' }}
@@ -98,11 +85,7 @@ function RadioCard({
           divider
           itemSx={itemSx}
         />
-        {error && (
-          <Typography sx={{ mt: 0.5, fontSize: 14, color: 'error.main' }}>
-            {error}
-          </Typography>
-        )}
+        {error && <ErrorBody>{error}</ErrorBody>}
       </FormControl>
     </StepCard>
   );
@@ -161,10 +144,7 @@ export const DocumentTypeStep = forwardRef<StepRef>(
     ];
 
     const handleChange = (field: keyof FormState, value: string) => {
-      setForm(
-        (prev) =>
-          ({ ...prev, [field]: value, ...cascadeResets[field] }) as FormState,
-      );
+      setForm((prev) => ({ ...prev, [field]: value, ...cascadeResets[field] }));
       setErrors((prev) => ({ ...prev, [field]: undefined }));
 
       const scrollTarget = scrollMap[field];

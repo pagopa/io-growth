@@ -1,13 +1,12 @@
-import { Box, CircularProgress, Typography, useTheme } from '@mui/material';
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { APP_ROUTES } from '../../app/routeConfig';
+import { SpinnerLoader } from '../../components/Loader';
 
 const REDIRECT_DELAY_MS = 2000;
 
 export default function CardRequestLoadingPage() {
   const navigate = useNavigate();
-  const theme = useTheme();
 
   useEffect(() => {
     const timeoutId = globalThis.setTimeout(() => {
@@ -19,33 +18,5 @@ export default function CardRequestLoadingPage() {
     };
   }, [navigate]);
 
-  return (
-    <Box
-      sx={{
-        minHeight: '100dvh',
-        bgcolor: theme.palette.common.neutralGray,
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        px: 3,
-      }}
-    >
-      <CircularProgress size={40} thickness={5} />
-      <Typography
-        component="h1"
-        sx={{
-          mt: 6,
-          textAlign: 'center',
-          color: theme.palette.common.neutralBlack,
-          fontSize: '24px',
-          lineHeight: '36px',
-          fontWeight: 600,
-          letterSpacing: '0px',
-        }}
-      >
-        Attendi qualche secondo
-      </Typography>
-    </Box>
-  );
+  return <SpinnerLoader title="Attendi qualche secondo" />;
 }

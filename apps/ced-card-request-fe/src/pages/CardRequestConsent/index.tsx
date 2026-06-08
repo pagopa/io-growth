@@ -1,7 +1,10 @@
 import CheckIcon from '@mui/icons-material/Check';
-import { Box, Button, Link, Typography, useTheme } from '@mui/material';
+import { Box, Button, useTheme } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { APP_ROUTES } from '../../app/routeConfig';
+import { Body, LabelCaption, Title } from '../../components/Typography';
+import { MarkdownRenderer } from '../../components/Typography/MarkdownRender';
+import { VSpacer } from '../../layouts/Spacer';
 
 const PRIVACY_URL = 'https://www.google.com/';
 
@@ -27,84 +30,31 @@ export default function CardRequestConsentPage() {
           pb: 3,
         }}
       >
-        <Typography
-          variant="h1"
-          component="h1"
-          sx={{
-            color: theme.palette.common.neutralBlack,
-          }}
-        >
-          Ci dai il tuo consenso?
-        </Typography>
-
-        <Typography
-          sx={{
-            mt: 2,
-            color: theme.palette.common.neutralDarkGray,
-            fontSize: 17,
-            lineHeight: 1.45,
-          }}
-        >
+        <Title text="Ci dai il tuo consenso?" variant="LG" />
+        <VSpacer />
+        <Body>
           Per poter richiedere la Carta Europa della Disabilita abbiamo bisogno
           di fornire alcuni tuoi dati all&apos;INPS.
-        </Typography>
+        </Body>
 
-        <Typography
-          sx={{
-            mt: 5,
-            color: theme.palette.common.neutralDarkGray,
-            fontSize: 14,
-            lineHeight: '100%',
-            letterSpacing: '0px',
-            fontWeight: 600,
-            textTransform: 'uppercase',
-          }}
-        >
-          Dati necessari
-        </Typography>
-
+        <VSpacer />
+        <LabelCaption>Dati necessari</LabelCaption>
+        <VSpacer />
         <Box
           sx={{
-            mt: 2,
             py: 2.5,
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
           }}
         >
-          <Typography
-            sx={{
-              color: theme.palette.common.neutralBlack,
-              fontSize: 16,
-              lineHeight: '22px',
-              letterSpacing: '0px',
-              fontWeight: 600,
-            }}
-          >
-            Codice fiscale
-          </Typography>
-          <CheckIcon sx={{ color: '#2B2E38', fontSize: 24 }} />
+          <Body fontWeight="Semibold">Codice fiscale</Body>
+          <CheckIcon sx={{ color: '#2B2E38', fontSize: 20 }} />
         </Box>
-
-        <Typography
-          sx={{
-            mt: 3,
-            color: theme.palette.common.neutralDarkGray,
-            fontSize: 17,
-            lineHeight: 1.45,
-            pb: 'calc(140px + env(safe-area-inset-bottom, 0px))',
-          }}
-        >
-          Per maggiori informazioni, leggi l{' '}
-          <Link
-            href={PRIVACY_URL}
-            target="_blank"
-            rel="noreferrer"
-            sx={{ color: theme.palette.common.primaryButton, fontWeight: 600 }}
-          >
-            Informativa sulla Privacy
-          </Link>
-        </Typography>
+        <VSpacer />
+        <MarkdownRenderer
+          content={`^^Per maggiori informazioni, leggi l'[Informativa sulla Privacy](${PRIVACY_URL})^^`}
+        />
       </Box>
 
       <Box

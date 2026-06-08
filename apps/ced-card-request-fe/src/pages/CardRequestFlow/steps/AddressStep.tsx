@@ -1,8 +1,10 @@
+import { Box } from '@mui/material';
 import { forwardRef, useImperativeHandle, useState } from 'react';
-import { Box, Typography, useTheme } from '@mui/material';
 import { AppAutocomplete, AppTextField } from '../../../components';
-import type { StepRef } from '../types';
+import { Body, Title } from '../../../components/Typography';
+import { VSpacer } from '../../../layouts/Spacer';
 import { StepCard } from '../StepCard';
+import type { StepRef } from '../types';
 
 interface AddressFormState {
   provincia: string;
@@ -40,7 +42,6 @@ const capOptions = [
 ];
 
 export const AddressStep = forwardRef<StepRef>(function AddressStep(_, ref) {
-  const theme = useTheme();
   const [form, setForm] = useState<AddressFormState>({
     provincia: '',
     comune: '',
@@ -87,27 +88,12 @@ export const AddressStep = forwardRef<StepRef>(function AddressStep(_, ref) {
 
   return (
     <StepCard>
-      <Typography
-        variant="h3"
-        component="h3"
-        sx={{
-          color: theme.palette.common.neutralBlack,
-        }}
-      >
-        Dove vuoi ricevere la carta?
-      </Typography>
-
-      <Typography
-        sx={{
-          mt: 1,
-          color: theme.palette.common.neutralDarkGray,
-          fontSize: 17,
-          lineHeight: 1.45,
-        }}
-      >
+      <Title variant="SM" text="Dove vuoi ricevere la carta?" />
+      <VSpacer />
+      <Body>
         Puoi indicare anche un indirizzo diverso da quello di residenza o
         domicilio.
-      </Typography>
+      </Body>
 
       <Box sx={{ mt: 3, display: 'grid', gap: 2.25 }}>
         <AppAutocomplete

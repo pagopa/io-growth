@@ -1,5 +1,12 @@
 # ced-portal-be
 
+## 0.0.13
+
+### Patch Changes
+
+- ce65442: add national territory flag
+- 206fbe1: align api to database schema
+
 ## 0.0.12
 
 ### Patch Changes

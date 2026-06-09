@@ -10,13 +10,13 @@ import {
   Typography,
 } from '@mui/material';
 import { useState } from 'react';
-import { EntityDetail } from '../../../features/entities/types';
 
 interface Props {
   open: boolean;
   onClose: () => void;
   onConfirm: (message: string) => void;
-  detail: EntityDetail;
+  entityName: string;
+  productName: string;
 }
 
 const MAX_LENGTH = 200;
@@ -25,7 +25,8 @@ export function RejectEntityModal({
   open,
   onClose,
   onConfirm,
-  detail,
+  entityName,
+  productName,
 }: Readonly<Props>) {
   const [message, setMessage] = useState('');
   const [error, setError] = useState(false);
@@ -68,9 +69,9 @@ export function RejectEntityModal({
           </Typography>
 
           <Typography sx={{ color: 'text.secondary', fontSize: 16 }}>
-            Spiega all’ente <strong>{detail.name}</strong> perché hai rifiutato
+            Spiega all’ente <strong>{entityName}</strong> perché hai rifiutato
             la sua richiesta di convenzionamento a{' '}
-            <strong>{detail.product}</strong>. Fornisci una motivazione chiara,
+            <strong>{productName}</strong>. Fornisci una motivazione chiara,
             così che l’ente possa comprenderne le ragioni.
           </Typography>
 

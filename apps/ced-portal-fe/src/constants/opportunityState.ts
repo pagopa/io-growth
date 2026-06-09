@@ -1,5 +1,6 @@
 import { ChipOwnProps } from '@mui/material';
 import { OpportunitySummaryItemStatus } from '../core/api/generated/model';
+import { ListOnboardingsStatus } from '../core/api/generated/model';
 
 export const STATE_OPTIONS: {
   value: OpportunitySummaryItemStatus;
@@ -28,20 +29,45 @@ export const STATE_COLORS: Record<
 };
 
 export const ENTITY_STATE_OPTIONS = [
-  { value: 'Da_gestire', label: 'Da gestire' },
-  { value: 'Rifiutata', label: 'Rifiutata' },
-  { value: 'Attivo', label: 'Attivo' },
-  { value: 'Inattivo', label: 'Inattivo' },
-  { value: 'Cessato', label: 'Cessato' },
+  { value: ListOnboardingsStatus.REQUEST, label: 'Richiesta' },
+  { value: ListOnboardingsStatus.TOBEVALIDATED, label: 'Da validare' },
+  { value: ListOnboardingsStatus.PENDING, label: 'In lavorazione' },
+  {
+    value: ListOnboardingsStatus.PENDING_IN_REVIEW,
+    label: 'Da gestire',
+  },
+  { value: ListOnboardingsStatus.COMPLETED, label: 'Attivo' },
+  { value: ListOnboardingsStatus.FAILED, label: 'Fallito' },
+  { value: ListOnboardingsStatus.REJECTED, label: 'Rifiutato' },
+  { value: ListOnboardingsStatus.DELETED, label: 'Cessato' },
 ];
+
+export const ENTITY_REQUEST_STATE_OPTIONS = ENTITY_STATE_OPTIONS.filter(
+  ({ value }) =>
+    value === ListOnboardingsStatus.REQUEST ||
+    value === ListOnboardingsStatus.TOBEVALIDATED ||
+    value === ListOnboardingsStatus.PENDING ||
+    value === ListOnboardingsStatus.PENDING_IN_REVIEW,
+);
+
+export const ENTITY_MANAGED_STATE_OPTIONS = ENTITY_STATE_OPTIONS.filter(
+  ({ value }) =>
+    value === ListOnboardingsStatus.COMPLETED ||
+    value === ListOnboardingsStatus.FAILED ||
+    value === ListOnboardingsStatus.REJECTED ||
+    value === ListOnboardingsStatus.DELETED,
+);
 
 export const ENTITY_STATE_COLORS: Record<
   string,
   'default' | 'warning' | 'success' | 'info' | 'error'
 > = {
-  Da_gestire: 'warning',
-  Rifiutata: 'default',
-  Attivo: 'success',
-  Inattivo: 'warning',
-  Cessato: 'default',
+  [ListOnboardingsStatus.REQUEST]: 'default',
+  [ListOnboardingsStatus.TOBEVALIDATED]: 'warning',
+  [ListOnboardingsStatus.PENDING]: 'warning',
+  [ListOnboardingsStatus.PENDING_IN_REVIEW]: 'warning',
+  [ListOnboardingsStatus.COMPLETED]: 'success',
+  [ListOnboardingsStatus.FAILED]: 'error',
+  [ListOnboardingsStatus.REJECTED]: 'default',
+  [ListOnboardingsStatus.DELETED]: 'default',
 };

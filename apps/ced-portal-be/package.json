@@ -26,6 +26,7 @@
   },
   "dependencies": {
     "@pagopa/io-core-adapter-ar": "workspace:^",
+    "@pagopa/io-core-adapter-azure-tracing": "workspace:^",
     "@pagopa/io-core-adapter-drizzle": "workspace:^",
     "@pagopa/io-core-adapter-fastify": "workspace:^",
     "@pagopa/io-core-adapter-redis": "workspace:^",

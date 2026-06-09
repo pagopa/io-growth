@@ -1,6 +1,7 @@
 import type { UseCase } from "@pagopa/io-core-domain";
 import type { BaseError } from "@pagopa/io-core-domain/errors";
 
+import { emitCustomEvent } from "@pagopa/io-core-adapter-azure-tracing";
 import { ValidationError } from "@pagopa/io-core-domain/errors";
 import { decodeJwt } from "jose";
 import { err, okAsync, ResultAsync } from "neverthrow";
@@ -10,6 +11,8 @@ import { z } from "zod";
 
 import type { OperatorRepository } from "../../../domain/ports/outbound/persistence/operator.repository.js";
 import type { SessionRepository } from "../../../domain/ports/outbound/persistence/session.repository.js";
+
+const CALLER = "AcsUseCase";
 
 const TokenPayloadSchema = z.object({
   family_name: z.string(),
@@ -62,7 +65,16 @@ export const makeAcsUseCase =
                 name: organization.name,
                 status: "active",
               }),
-            ),
+            ).map((operator) => {
+              emitCustomEvent("operator_created", {
+                caller: CALLER,
+                data: JSON.stringify({
+                  operatorId: operator.id,
+                  operatorName: operator.name,
+                }),
+              })(CALLER);
+              return operator;
+            }),
       )
       .andThen((operator) =>
         new ResultAsync(

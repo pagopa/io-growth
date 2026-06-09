@@ -9,16 +9,16 @@ import { z } from "zod";
  */
 export const azureTracingConfigSchema = z.object({
   /**
+   * Application Insights instrumentation key. When omitted, telemetry falls
+   * back to the console adapter, which is convenient for local development and
+   * tests.
+   */
+  APPINSIGHTS_INSTRUMENTATION_KEY: z.string().uuid().optional(),
+  /**
    * Percentage of traces (0-100) forwarded to Application Insights.
    * Defaults to 5, matching the `@pagopa/azure-tracing` default.
    */
   APPINSIGHTS_SAMPLING_PERCENTAGE: z.coerce.number().min(0).max(100).default(5),
-  /**
-   * Application Insights connection string. When omitted, telemetry is
-   * disabled (the adapter becomes a safe no-op), which is convenient for local
-   * development and tests.
-   */
-  APPLICATIONINSIGHTS_CONNECTION_STRING: z.string().min(1).optional(),
   /**
    * Enable Microsoft Entra ID authentication via `DefaultAzureCredential`
    * instead of connection-string-only auth (recommended for production).
@@ -34,7 +34,10 @@ export const azureTracingConfigSchema = z.object({
  * `initTelemetry`. Built from the validated environment variables.
  */
 export interface AzureTracingConfig {
-  /** Application Insights connection string; `undefined` disables telemetry. */
+  /**
+   * Application Insights connection string derived from the instrumentation key.
+   * `undefined` when no key is configured — triggers the console fallback.
+   */
   readonly connectionString?: string;
   /** When `true`, authenticate with `DefaultAzureCredential` (Entra ID). */
   readonly entraIdAuthEnabled: boolean;
@@ -57,7 +60,9 @@ export const buildAzureTracingConfig = (
   env: AzureTracingEnvConfig,
   serviceName?: string,
 ): AzureTracingConfig => ({
-  connectionString: env.APPLICATIONINSIGHTS_CONNECTION_STRING,
+  connectionString: env.APPINSIGHTS_INSTRUMENTATION_KEY
+    ? `InstrumentationKey=${env.APPINSIGHTS_INSTRUMENTATION_KEY}`
+    : undefined,
   entraIdAuthEnabled: env.APPLICATIONINSIGHTS_ENTRA_ID_AUTH_ENABLED ?? false,
   samplingRatio: env.APPINSIGHTS_SAMPLING_PERCENTAGE / 100,
   serviceName,

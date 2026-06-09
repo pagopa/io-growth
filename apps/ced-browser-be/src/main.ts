@@ -1,5 +1,7 @@
 import { DefaultAzureCredential } from "@azure/identity";
 import { BlobServiceClient } from "@azure/storage-blob";
+import { createTypedDbClient } from "@pagopa/io-core-adapter-drizzle";
+import { createAuthenticationPreHandler } from "@pagopa/io-core-adapter-fastify";
 import {
   buildFimsConfig,
   createBlobAuditLogger,
@@ -14,14 +16,30 @@ import Fastify from "fastify";
 import {
   mountInfoReadinessHandler,
   mountInfoStartupHandler,
+  mountSearchAccessPointsHandler,
 } from "./adapters/inbound/fastify/index.js";
+import { createDrizzlePlaceRepository } from "./adapters/outbound/drizzle/drizzle-place.repository.js";
+import * as schema from "./adapters/outbound/drizzle/schema/index.js";
 import { createRedisHealthCheckRepository } from "./adapters/outbound/redis/redis-health-check.repository.js";
 import { createRedisSessionRepository } from "./adapters/outbound/redis/redis-session.repository.js";
 import { makeGetInfoReadinessUseCase } from "./application/use-cases/health/info-readiness.use-case.js";
 import { makeGetInfoStartupUseCase } from "./application/use-cases/health/info-startup.use-case.js";
+import { makeSearchAccessPointsUseCase } from "./application/use-cases/places/search-access-points.use-case.js";
 import { parseConfig } from "./config.js";
 
 const config = parseConfig();
+
+const dbClient = createTypedDbClient(
+  {
+    database: config.POSTGRES_DB,
+    host: config.POSTGRES_HOST,
+    password: config.POSTGRES_PASSWORD,
+    port: config.POSTGRES_PORT,
+    ssl: config.POSTGRES_SSL,
+    user: config.POSTGRES_USER,
+  },
+  schema,
+);
 
 const redisClient = await createResilientRedisClient({
   endpoint: config.REDIS_ENDPOINT,
@@ -34,6 +52,7 @@ const redisClient = await createResilientRedisClient({
 const redisHealthCheckRepository =
   createRedisHealthCheckRepository(redisClient);
 const sessionStore = createRedisSessionRepository(redisClient);
+const placeRepository = createDrizzlePlaceRepository(dbClient);
 
 const containerClient = new BlobServiceClient(
   config.FIMS_AUDIT_BLOB_URI,
@@ -65,8 +84,21 @@ mountInfoReadinessHandler(
 
 mountFimsHandlers(app, fimsAuthFlow);
 
+// Authenticated citizen routes scope
+const citizenAuthPreHandler = createAuthenticationPreHandler(
+  sessionStore.getSession,
+);
+app.register(async (citizenApp) => {
+  citizenApp.addHook("preHandler", citizenAuthPreHandler);
+  mountSearchAccessPointsHandler(
+    citizenApp,
+    makeSearchAccessPointsUseCase(placeRepository),
+  );
+});
+
 app.addHook("onClose", async () => {
   await redisClient.closeConnection();
+  await dbClient.closeConnection();
 });
 
 await app.listen({ host: config.HOST, port: config.PORT });

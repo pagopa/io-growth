@@ -19,11 +19,7 @@ const REQUEST_STATUSES = new Set<DepartmentOnboardingStatus>([
   ListOnboardingsStatus.PENDING_IN_REVIEW,
 ]);
 
-const REQUEST_STATUS_VALUES = new Set<string>(
-  Array.from(REQUEST_STATUSES.values()),
-);
-
-const UNFILTERED_ENTITIES_FETCH_SIZE = 50;
+const UNFILTERED_TAB_FETCH_SIZE = 50;
 
 const parseOnboardingStatus = (
   status: string | undefined,
@@ -69,9 +65,7 @@ const toEntityItem = (
     state: status,
   };
 
-  const isRequest = REQUEST_STATUS_VALUES.has(item.status ?? '')
-    ? REQUEST_STATUSES.has(status)
-    : defaultTab === 'requests';
+  const isRequest = REQUEST_STATUSES.has(status);
 
   if (isRequest) {
     return {
@@ -97,20 +91,15 @@ export const useEntitiesData = ({
 }: UseEntitiesDataInput) => {
   const pageIndex = Math.max(0, page - 1);
   const name = filters.search || undefined;
-  const defaultStatus =
-    activeTab === 0 ? ListOnboardingsStatus.PENDING_IN_REVIEW : undefined;
-
-  const selectedStatus = filters.state || defaultStatus;
-  const shouldClientPaginateEntities = activeTab === 1 && !filters.state;
+  const selectedStatus = filters.state || undefined;
+  const shouldClientPaginateByTab = !filters.state;
   const defaultTab: 'requests' | 'entities' =
     activeTab === 0 ? 'requests' : 'entities';
 
   const query = useListDepartmentOnboardingsQuery({
     name,
-    page: shouldClientPaginateEntities ? 0 : pageIndex,
-    size: shouldClientPaginateEntities
-      ? UNFILTERED_ENTITIES_FETCH_SIZE
-      : rowsPerPage,
+    page: shouldClientPaginateByTab ? 0 : pageIndex,
+    size: shouldClientPaginateByTab ? UNFILTERED_TAB_FETCH_SIZE : rowsPerPage,
     status: selectedStatus,
   });
 
@@ -125,27 +114,27 @@ export const useEntitiesData = ({
   );
 
   const tabItems = useMemo(() => {
-    if (!shouldClientPaginateEntities) {
+    if (!shouldClientPaginateByTab) {
       return items;
     }
 
-    return items.filter((item) => item.tab === 'entities');
-  }, [items, shouldClientPaginateEntities]);
+    return items.filter((item) => item.tab === defaultTab);
+  }, [defaultTab, items, shouldClientPaginateByTab]);
 
   const paginatedTabItems = useMemo(() => {
-    if (!shouldClientPaginateEntities) {
+    if (!shouldClientPaginateByTab) {
       return [] as EntityItem[];
     }
 
     const start = pageIndex * rowsPerPage;
     return tabItems.slice(start, start + rowsPerPage);
-  }, [tabItems, pageIndex, rowsPerPage, shouldClientPaginateEntities]);
+  }, [tabItems, pageIndex, rowsPerPage, shouldClientPaginateByTab]);
 
   return {
     isError: query.isError,
     isLoading: query.isLoading || query.isFetching,
-    items: shouldClientPaginateEntities ? paginatedTabItems : items,
-    total: shouldClientPaginateEntities
+    items: shouldClientPaginateByTab ? paginatedTabItems : items,
+    total: shouldClientPaginateByTab
       ? tabItems.length
       : (query.data?.count ?? 0),
   };

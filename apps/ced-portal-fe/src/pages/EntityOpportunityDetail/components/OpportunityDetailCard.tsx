@@ -10,6 +10,8 @@ import {
 } from '@mui/material';
 import type { OpportunityDetail } from '../../../features/opportunities/types';
 import { DetailSection } from './DetailSection';
+import { getLocalizedMetadataDetailsMultipleKeys } from '../utils/getLocalizedMetadataDetails';
+import { getBenefitsDetailData } from '../utils/getBenefitsDetailData';
 
 interface OpportunityDetailCardProps {
   detail: OpportunityDetail;
@@ -18,7 +20,23 @@ interface OpportunityDetailCardProps {
 export const OpportunityDetailCard = ({
   detail,
 }: Readonly<OpportunityDetailCardProps>) => {
+  const [description, condition] = getLocalizedMetadataDetailsMultipleKeys(
+    detail.localizedMetadata,
+    ['description', 'condition'],
+  );
+
+  const beneficiaryBenefitFields = getBenefitsDetailData(
+    detail.beneficiaryBenefit,
+  );
+
+  const caregiverBenefitFields = getBenefitsDetailData(detail.caregiverBenefit);
+
   const mainFields = [
+    ...(beneficiaryBenefitFields ?? []),
+    {
+      label: 'Descrizione',
+      value: description,
+    },
     { label: 'Categoria', value: detail.categoryTitle },
     {
       label: 'Inizio validità',
@@ -32,6 +50,7 @@ export const OpportunityDetailCard = ({
           },
         ]
       : []),
+    ...(condition ? [{ label: 'Condizioni', value: condition }] : []),
     ...(detail.url ? [{ label: 'URL', value: detail.url }] : []),
   ];
 
@@ -69,14 +88,7 @@ export const OpportunityDetailCard = ({
               </Typography>
             </Box>
             <Divider />
-            <DetailSection
-              fields={[
-                {
-                  label: 'Beneficio accompagnatore',
-                  value: detail.caregiverBenefit?.type ?? '',
-                },
-              ]}
-            />
+            <DetailSection fields={caregiverBenefitFields ?? []} />
           </>
         )}
       </AccordionDetails>

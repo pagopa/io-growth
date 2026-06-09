@@ -4,10 +4,6 @@ import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { APP_ROUTES } from '../../app/routeConfig';
 import { FiltersBar, PageTabs, ResultsPagination } from '../../components';
-import {
-  ENTITY_MANAGED_STATE_OPTIONS,
-  ENTITY_REQUEST_STATE_OPTIONS,
-} from '../../constants/opportunityState';
 import { useEntitiesData } from '../../features/entities/hooks.js';
 import type {
   EntityFilters,
@@ -20,6 +16,17 @@ const INITIAL_FILTERS: EntityFilters = {
   state: '',
 };
 
+const REQUEST_STATE_OPTIONS = [
+  { value: 'Da_gestire', label: 'Da gestire' },
+  { value: 'Rifiutata', label: 'Rifiutata' },
+];
+
+const ENTITY_STATE_OPTIONS = [
+  { value: 'Attivo', label: 'Attivo' },
+  { value: 'Inattivo', label: 'Inattivo' },
+  { value: 'Cessato', label: 'Cessato' },
+];
+
 export default function EntitiesPage() {
   const theme = useTheme();
   const navigate = useNavigate();
@@ -30,26 +37,24 @@ export default function EntitiesPage() {
   const [page, setPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(5);
 
-  const { items, total, isLoading, isError } = useEntitiesData({
-    activeTab,
-    filters,
-    page,
-    rowsPerPage,
-  });
+  const { requestItems, entityItems, isLoading, isError } =
+    useEntitiesData(filters);
 
   const isRequestsTab = activeTab === 0;
 
   const displayedItems = useMemo(
-    () =>
-      items.filter((item) =>
-        isRequestsTab ? item.tab === 'requests' : item.tab === 'entities',
-      ),
-    [isRequestsTab, items],
+    () => (isRequestsTab ? requestItems : entityItems),
+    [isRequestsTab, entityItems, requestItems],
   );
 
+  const paginatedItems = useMemo(() => {
+    const start = (page - 1) * rowsPerPage;
+    return displayedItems.slice(start, start + rowsPerPage);
+  }, [displayedItems, page, rowsPerPage]);
+
   const stateOptions = isRequestsTab
-    ? ENTITY_REQUEST_STATE_OPTIONS
-    : ENTITY_MANAGED_STATE_OPTIONS;
+    ? REQUEST_STATE_OPTIONS
+    : ENTITY_STATE_OPTIONS;
 
   const handleTabChange = (_event: SyntheticEvent, newValue: number) => {
     setActiveTab(newValue);
@@ -58,16 +63,8 @@ export default function EntitiesPage() {
     setFilters(INITIAL_FILTERS);
   };
 
-  const handleFilterChange = (
-    partial: Partial<{ search: string; state: string }>,
-  ) => {
-    setDraftFilters((current) => ({
-      ...current,
-      ...(partial.search !== undefined ? { search: partial.search } : {}),
-      ...(partial.state !== undefined
-        ? { state: partial.state as EntityFilters['state'] }
-        : {}),
-    }));
+  const handleFilterChange = (partial: Partial<EntityFilters>) => {
+    setDraftFilters((current) => ({ ...current, ...partial }));
   };
 
   const handleFilter = () => {
@@ -125,13 +122,13 @@ export default function EntitiesPage() {
           />
           <EntitiesTable
             activeTab={activeTab}
-            items={displayedItems}
+            items={paginatedItems}
             isLoading={isLoading}
             isError={isError}
             onRowOpen={handleOpenDetail}
           />
           <ResultsPagination
-            totalItems={total}
+            totalItems={displayedItems.length}
             page={page}
             rowsPerPage={rowsPerPage}
             onPageChange={setPage}

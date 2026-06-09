@@ -1,6 +1,5 @@
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import FileDownloadOutlinedIcon from '@mui/icons-material/FileDownloadOutlined';
 import WarningAmberRoundedIcon from '@mui/icons-material/WarningAmberRounded';
 import {
   Accordion,
@@ -15,21 +14,16 @@ import {
   Typography,
   useTheme,
 } from '@mui/material';
-import { skipToken } from '@reduxjs/toolkit/query';
 import { useState, type ReactNode } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { APP_ROUTES } from '../../app/routeConfig';
-import { UploadDropzone, UploadState } from '../../components';
+import { DownloadItem, UploadDropzone, UploadState } from '../../components';
 import {
   ENTITY_STATE_COLORS,
   ENTITY_STATE_OPTIONS,
 } from '../../constants/opportunityState';
 import { useToast } from '../../contexts';
-import {
-  useCompleteOnboardingMutation,
-  useGetContractSignedMutation,
-  useGetDepartmentOnboardingQuery,
-} from '../../features/entities/api';
+import { useGetEntityDetailQuery } from '../../features/entities/api';
 import { DetailSection } from '../OpportunityDetail/components/DetailSection';
 import { PublishEntityModal } from './components/PublishEntityModal';
 import { RejectEntityModal } from './components/RejectEntityModal';
@@ -58,63 +52,20 @@ export default function EntityDetailPage() {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
   const {
-    data: onboarding,
+    data: detail,
     isLoading,
     isError,
     refetch,
-  } = useGetDepartmentOnboardingQuery(id ?? skipToken);
-  const [getContractSigned, { isLoading: isDownloadingContract }] =
-    useGetContractSignedMutation();
-  const [completeOnboarding, { isLoading: isCompletingOnboarding }] =
-    useCompleteOnboardingMutation();
+  } = useGetEntityDetailQuery(id ?? '');
 
   const { showToast } = useToast();
 
   const [uploadState, setUploadState] = useState<UploadState>('idle');
-  const [uploadedFile, setUploadedFile] = useState<File | null>(null);
+  const [uploadedFile, setUploadedFile] = useState<string | null>(null);
   const [openPublishModal, setOpenPublishModal] = useState(false);
   const [openRejectModal, setOpenRejectModal] = useState(false);
-
-  const handleDownloadContract = async () => {
-    if (!id) {
-      return;
-    }
-
-    try {
-      const blob = await getContractSigned({ onboardingId: id }).unwrap();
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `contratto-${id}.pdf`;
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      URL.revokeObjectURL(url);
-    } catch {
-      showToast('Errore durante il download del contratto', 'error');
-    }
-  };
-
-  const handleApprove = async () => {
-    if (!id || !uploadedFile) {
-      return;
-    }
-
-    try {
-      await completeOnboarding({
-        onboardingId: id,
-        contract: uploadedFile,
-      }).unwrap();
-      setOpenPublishModal(false);
-      showToast('Ente approvato con successo', 'success');
-      navigate(APP_ROUTES.ENTITIES);
-    } catch {
-      showToast('Errore durante l’approvazione della richiesta', 'error');
-    }
-  };
-
   const handlePublish = () => {
-    if (!uploadedFile || uploadState !== 'success') {
+    if (!uploadedFile) {
       showToast(
         'Carica la richiesta di convenzionamento controfirmata prima di approvare',
         'error',
@@ -124,53 +75,58 @@ export default function EntityDetailPage() {
     setOpenPublishModal(true);
   };
 
-  const entityName = onboarding?.institution?.description ?? 'Ente senza nome';
-
-  const entityFields = onboarding
+  const entityFields = detail
     ? [
-        { label: 'ID Onboarding', value: onboarding.id ?? '-' },
-        { label: 'Prodotto', value: onboarding.productId ?? '-' },
+        { label: 'Prodotto', value: detail.product },
         {
-          label: 'Workflow',
-          value: onboarding.workflowType ?? '-',
+          label: 'Tipologia di soggetto aderente',
+          value: detail.adherent_type,
         },
-        { label: 'Nome ente', value: entityName },
+        { label: 'Ragione sociale', value: detail.business_name },
+        { label: 'Sede legale', value: detail.legal_headquarters },
+        { label: 'CAP', value: detail.cap },
+        { label: 'Email PEC', value: detail.pec_email },
+        { label: 'Partita IVA', value: detail.vat_number },
+        { label: 'La P IVA e di gruppo', value: detail.is_group_vat },
+        { label: 'Codice SDI', value: detail.sdi_code },
         {
-          label: 'Codice fiscale',
-          value: onboarding.institution?.taxCode ?? '-',
+          label: 'Luogo di iscrizione al Registro delle Imprese',
+          value: detail.business_registry_place,
         },
+        { label: 'REA (facoltativo)', value: detail.rea },
         {
-          label: 'PEC / Indirizzo digitale',
-          value: onboarding.institution?.digitalAddress ?? '-',
+          label: 'Indirizzo email visibile ai cittadini',
+          value: detail.public_email,
         },
       ]
     : [];
 
-  const geographicFields = onboarding
+  const geographicFields = detail
     ? [
-        { label: 'Città', value: onboarding.institution?.city ?? '-' },
-        { label: 'Provincia', value: onboarding.institution?.county ?? '-' },
+        {
+          label: 'Area di competenza',
+          value: detail.geographic.competence_area,
+        },
+        {
+          label: 'Area geografica',
+          value: detail.geographic.areas.join(', '),
+        },
       ]
     : [];
 
-  const legalRepresentativeFields = onboarding
+  const legalRepresentativeFields = detail
     ? [
-        { label: 'Stato onboarding', value: onboarding.status ?? '-' },
         {
-          label: 'Creato il',
-          value: onboarding.createdAt
-            ? new Intl.DateTimeFormat('it-IT').format(
-                new Date(onboarding.createdAt),
-              )
-            : '-',
+          label: 'Nome e cognome',
+          value: detail.legal_representative.full_name,
         },
         {
-          label: 'Aggiornato il',
-          value: onboarding.updatedAt
-            ? new Intl.DateTimeFormat('it-IT').format(
-                new Date(onboarding.updatedAt),
-              )
-            : '-',
+          label: 'Indirizzo email',
+          value: detail.legal_representative.email,
+        },
+        {
+          label: 'Numero di telefono',
+          value: detail.legal_representative.phone,
         },
       ]
     : [];
@@ -197,7 +153,7 @@ export default function EntityDetailPage() {
     );
   }
 
-  if (isError || !onboarding) {
+  if (isError || !detail) {
     return (
       <Box
         sx={{
@@ -267,16 +223,16 @@ export default function EntityDetailPage() {
             </Typography>
             <Typography sx={{ mt: 0.5, color: 'text.secondary', fontSize: 16 }}>
               Ecco i dettagli della richiesta di convenzionamento di{' '}
-              {entityName}.
+              {detail.name}.
             </Typography>
           </Box>
           <Chip
             label={
               ENTITY_STATE_OPTIONS.find(
-                (option) => option.value === onboarding.status,
-              )?.label ?? onboarding.status
+                (option) => option.value === detail.state,
+              )?.label ?? detail.state
             }
-            color={ENTITY_STATE_COLORS[onboarding.status ?? ''] ?? 'default'}
+            color={ENTITY_STATE_COLORS[detail.state] ?? 'default'}
             size="small"
           />
         </Stack>
@@ -304,49 +260,31 @@ export default function EntityDetailPage() {
 
         <SectionCard title="Convenzione">
           <Box sx={{ py: 2, px: 3 }}>
-            <Stack
-              direction={{ xs: 'column', sm: 'row' }}
-              spacing={2}
-              justifyContent="space-between"
-              alignItems={{ xs: 'flex-start', sm: 'center' }}
-            >
-              <Box>
-                <Typography variant="caption" color="text.secondary">
-                  Richiesta di convenzionamento
-                </Typography>
-                <Typography sx={{ fontWeight: 700, fontSize: 15 }}>
-                  contratto-{onboarding.id}.pdf
-                </Typography>
-              </Box>
-              <Button
-                startIcon={<FileDownloadOutlinedIcon />}
-                onClick={handleDownloadContract}
-                disabled={isDownloadingContract}
-              >
-                {isDownloadingContract
-                  ? 'Download in corso...'
-                  : 'Scarica e firma'}
-              </Button>
-            </Stack>
+            <DownloadItem
+              label="Richiesta di convenzionamento"
+              fileName={detail.convention.request_file.name}
+              downloadUrl={detail.convention.request_file.url}
+            />
           </Box>
           <Divider sx={{ ml: 3, mr: 3 }} />
           <Box sx={{ py: 2, px: 3 }}>
             <UploadDropzone
               title="Trascina qui la richiesta di convenzionamento controfirmata"
-              subtitle="Formato PDF"
+              subtitle="Dimensione massima 300 x 300px - Formato PDF"
               onFileSelect={(file) => {
                 if (file) {
-                  setUploadedFile(file);
-                  setUploadState('success');
-                } else {
-                  setUploadedFile(null);
-                  setUploadState('idle');
+                  setUploadState('loading');
+                  // Simulate upload...
+                  setTimeout(() => {
+                    setUploadedFile(file.name);
+                    setUploadState('success');
+                  }, 2000);
                 }
               }}
-              isLoading={uploadState === 'loading' || isCompletingOnboarding}
+              isLoading={uploadState === 'loading'}
               isError={uploadState === 'error'}
               isSuccess={uploadState === 'success'}
-              uploadedFileName={uploadedFile?.name}
+              uploadedFileName={uploadedFile || undefined}
               uploadedFileLabel="Richiesta di convenzionamento controfirmata"
               onRetry={() => setUploadState('idle')}
               onDelete={() => {
@@ -394,14 +332,15 @@ export default function EntityDetailPage() {
               navigate(APP_ROUTES.ENTITIES);
               showToast('Fatto', 'success');
             }}
-            entityName={entityName}
-            productName={onboarding.productId ?? '-'}
+            detail={detail}
           />
           <PublishEntityModal
             open={openPublishModal}
             onClose={() => setOpenPublishModal(false)}
-            onPublish={handleApprove}
-            isLoading={isCompletingOnboarding}
+            onPublish={() => {
+              navigate(APP_ROUTES.ENTITIES);
+              showToast('Ente pubblicato con successo', 'success');
+            }}
           />
         </Stack>
       </Stack>

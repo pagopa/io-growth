@@ -1,6 +1,8 @@
 import { ChipOwnProps } from '@mui/material';
-import { OpportunitySummaryItemStatus } from '../core/api/generated/model';
-import { ListOnboardingsStatus } from '../core/api/generated/model';
+import {
+  OpportunitySummaryItemStatus,
+  ListOnboardingsStatus,
+} from '../core/api/generated/model';
 
 export const STATE_OPTIONS: {
   value: OpportunitySummaryItemStatus;

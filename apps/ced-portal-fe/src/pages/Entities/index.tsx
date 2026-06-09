@@ -63,10 +63,10 @@ export default function EntitiesPage() {
   ) => {
     setDraftFilters((current) => ({
       ...current,
-      ...(partial.search !== undefined ? { search: partial.search } : {}),
-      ...(partial.state !== undefined
-        ? { state: partial.state as EntityFilters['state'] }
-        : {}),
+      ...(partial.search === undefined ? {} : { search: partial.search }),
+      ...(partial.state === undefined
+        ? {}
+        : { state: partial.state as EntityFilters['state'] }),
     }));
   };
 

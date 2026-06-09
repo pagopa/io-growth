@@ -56,7 +56,6 @@ export function PublishEntityModal({
           <Button
             variant="text"
             onClick={onClose}
-            disabled={isLoading}
             sx={{ fontWeight: 700, borderRadius: 2, px: 5 }}
           >
             Annulla
@@ -65,7 +64,6 @@ export function PublishEntityModal({
             variant="contained"
             color="primary"
             onClick={onPublish}
-            disabled={isLoading}
             sx={{ fontWeight: 700, borderRadius: 2, px: 5 }}
           >
             {isLoading ? 'Conferma in corso...' : 'Conferma'}

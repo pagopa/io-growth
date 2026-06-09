@@ -7,8 +7,6 @@ import type {
 
 export type DepartmentOnboardingStatus = ListOnboardingsStatus;
 
-export type EntityState = DepartmentOnboardingStatus;
-
 export type OnboardingInstitution = OnboardingItemInstitution;
 
 export type DepartmentOnboardingItem = OnboardingItem & {
@@ -28,14 +26,14 @@ export interface BaseEntityItem {
 export interface EntityRequestItem extends BaseEntityItem {
   tab: 'requests';
   created_at: string;
-  state: EntityState;
+  state: DepartmentOnboardingStatus;
 }
 
 export interface ManagedEntityItem extends BaseEntityItem {
   tab: 'entities';
   opportunities_count: number;
   active_from: string;
-  state: EntityState;
+  state: DepartmentOnboardingStatus;
 }
 
 export type EntityItem = EntityRequestItem | ManagedEntityItem;

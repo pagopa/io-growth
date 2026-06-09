@@ -30,3 +30,9 @@ export const OperatorSessionSchema = SessionSchema.pick({
 export const UserTypeSessionSchema = SessionSchema.pick({
   userType: true,
 });
+
+export const CitizenSessionSchema = z.object({
+  familyName: z.string(),
+  fiscalCode: z.string(),
+  givenName: z.string(),
+});

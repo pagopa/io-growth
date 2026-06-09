@@ -2,6 +2,8 @@
 // before any instrumented library (Fastify, PostgreSQL, Redis, fetch) loads.
 import "./telemetry.js";
 
+import { DefaultAzureCredential } from "@azure/identity";
+import { BlobServiceClient } from "@azure/storage-blob";
 import {
   createDocumentContentClient,
   createInstitutionClient,
@@ -13,6 +15,14 @@ import {
   getSessionFromRequest,
   multipart,
 } from "@pagopa/io-core-adapter-fastify";
+import {
+  buildFimsConfig,
+  createBlobAuditLogger,
+  createFimsAuthFlow,
+  createLollipopVerifier,
+  createOidcClient,
+  mountFimsHandlers,
+} from "@pagopa/io-core-adapter-fims";
 import { createResilientRedisClient } from "@pagopa/io-core-adapter-redis";
 import {
   emitCustomEvent,
@@ -52,6 +62,7 @@ import { createDrizzlePlaceRepository } from "./adapters/outbound/drizzle/drizzl
 import { createDrizzleProfileRepository } from "./adapters/outbound/drizzle/drizzle-profile.repository.js";
 import { createDrizzleHealthCheckRepository } from "./adapters/outbound/drizzle/health-check.repository.js";
 import * as schema from "./adapters/outbound/drizzle/schema/index.js";
+import { createRedisCitizenSessionRepository } from "./adapters/outbound/redis/redis-citizen-session.repository.js";
 import { createRedisHealthCheckRepository } from "./adapters/outbound/redis/redis-health-check.repository.js";
 import { createRedisSessionRepository } from "./adapters/outbound/redis/redis-session.repository.js";
 import { makeAcsUseCase } from "./application/use-cases/auth/acs.use-case.js";
@@ -134,6 +145,30 @@ const opportunityCategoryRepository =
 const opportunityRepository = createDrizzleOpportunityRepository(dbClient);
 const placeRepository = createDrizzlePlaceRepository(dbClient);
 const profileRepository = createDrizzleProfileRepository(dbClient);
+const citizenSessionStore = createRedisCitizenSessionRepository(redisClient);
+// Azurite (dev) rejects DefaultAzureCredential on HTTP — use connection string when available
+const blobServiceClient = process.env.AZURE_STORAGE_CONNECTION_STRING
+  ? BlobServiceClient.fromConnectionString(
+      process.env.AZURE_STORAGE_CONNECTION_STRING,
+    )
+  : new BlobServiceClient(
+      config.FIMS_AUDIT_BLOB_URI,
+      new DefaultAzureCredential(),
+    );
+const containerClient = blobServiceClient.getContainerClient(
+  config.FIMS_AUDIT_CONTAINER,
+);
+await containerClient.createIfNotExists();
+
+const { fimsFlowConfig, oidcConfig } = buildFimsConfig(config);
+const fimsAuthFlow = createFimsAuthFlow(
+  createOidcClient(oidcConfig),
+  citizenSessionStore,
+  createBlobAuditLogger(containerClient),
+  createLollipopVerifier(),
+  fimsFlowConfig,
+);
+
 const arOnboardingRepository = createArOnboardingRepository(
   createInstitutionClient(arClientConfig),
   createOnboardingClient(arClientConfig),
@@ -161,6 +196,19 @@ mountAcsHandler(
   makeAcsUseCase(sessionRepository, operatorRepository, config),
 );
 mountAuthorizeHandler(app, makeAuthorizeUseCase(sessionRepository));
+
+// Public — FIMS citizen flow
+mountFimsHandlers(app, fimsAuthFlow);
+
+// Citizen authenticated scope
+const citizenAuthPreHandler = createAuthenticationPreHandler(
+  citizenSessionStore.getSession,
+);
+app.register(async (app) => {
+  app.addHook("preHandler", citizenAuthPreHandler);
+  // IEG-2868: mountSearchEntitiesHandler
+  // IEG-2954: mountGetAccessPointDetailHandler
+});
 
 // Authenticated routes scope
 const authPreHandler = createAuthenticationPreHandler(

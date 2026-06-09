@@ -1,7 +1,8 @@
 import { arConfigSchema } from "@pagopa/io-core-adapter-ar";
+import { fimsConfigSchema } from "@pagopa/io-core-adapter-fims";
 import { z } from "zod";
 
-const configSchema = arConfigSchema.extend({
+const configSchema = arConfigSchema.merge(fimsConfigSchema).extend({
   ADMIN_FISCAL_CODES: z
     .string()
     .optional()

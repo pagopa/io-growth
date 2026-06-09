@@ -441,6 +441,12 @@ importers:
 
   apps/ced-portal-be:
     dependencies:
+      '@azure/identity':
+        specifier: ^4.13.1
+        version: 4.13.1
+      '@azure/storage-blob':
+        specifier: ^12.31.0
+        version: 12.31.0
       '@pagopa/io-core-adapter-ar':
         specifier: workspace:^
         version: link:../../packages/io-core-adapter-ar
@@ -450,6 +456,9 @@ importers:
       '@pagopa/io-core-adapter-fastify':
         specifier: workspace:^
         version: link:../../packages/io-core-adapter-fastify
+      '@pagopa/io-core-adapter-fims':
+        specifier: workspace:^
+        version: link:../../packages/io-core-adapter-fims
       '@pagopa/io-core-adapter-redis':
         specifier: workspace:^
         version: link:../../packages/io-core-adapter-redis

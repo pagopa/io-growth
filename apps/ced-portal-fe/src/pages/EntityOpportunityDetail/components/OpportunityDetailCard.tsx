@@ -10,8 +10,10 @@ import {
 } from '@mui/material';
 import type { OpportunityDetail } from '../../../features/opportunities/types';
 import { DetailSection } from './DetailSection';
-import { getLocalizedMetadataDetailsMultipleKeys } from '../utils/getLocalizedMetadataDetails';
-import { getBenefitsDetailData } from '../utils/getBenefitsDetailData';
+import {
+  getBenefitsDetailData,
+  getLocalizedMetadataDetailsMultipleKeys,
+} from '../../../utils';
 
 interface OpportunityDetailCardProps {
   detail: OpportunityDetail;

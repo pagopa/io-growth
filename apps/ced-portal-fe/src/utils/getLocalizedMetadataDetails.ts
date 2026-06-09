@@ -1,4 +1,4 @@
-import { LocalizedMetadataItem } from '../../../core/api/generated/model';
+import { LocalizedMetadataItem } from '../features/opportunities/types';
 
 export const getLocalizedMetadataDetailsMultipleKeys = (
   localizedMetadata: LocalizedMetadataItem[],

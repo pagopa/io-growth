@@ -1,8 +1,8 @@
 import {
   benefitTypeMap,
   discountTypeMap,
-} from '../../../constants/formOptions/types';
-import { BenefitRequest } from '../../../core/api/generated/model';
+} from '../constants/formOptions/types';
+import { BenefitRequest } from '../core/api/generated/model';
 
 export const getBenefitsDetailData = (
   benefit: BenefitRequest | null | undefined,

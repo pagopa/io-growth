@@ -53,4 +53,9 @@ export const placesApi = baseApi.injectEndpoints({
   }),
 });
 
-export const { useGetPlacesQuery, useCreatePlaceMutation } = placesApi;
+export const {
+  useGetPlacesQuery,
+  useGetPlaceByIdQuery,
+  useGetPlacesByIdsQuery,
+  useCreatePlaceMutation,
+} = placesApi;

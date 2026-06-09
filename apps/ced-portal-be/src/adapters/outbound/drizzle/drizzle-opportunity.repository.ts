@@ -257,12 +257,16 @@ export const createDrizzleOpportunityRepository = (
         conditions.push(eq(opportunity.status, input.expectedStatus));
       }
 
-      const result = await db
-        .update(opportunity)
-        .set({ status: input.status, updatedAt: new Date() })
-        .where(and(...conditions));
+      let updateCount = 0;
+      await db.transaction(async (tx) => {
+        const result = await tx
+          .update(opportunity)
+          .set({ status: input.status, updatedAt: new Date() })
+          .where(and(...conditions));
+        updateCount = result.count;
+      });
 
-      if (result.count === 0) {
+      if (updateCount === 0) {
         return err(
           new ConflictError("Opportunity status was modified concurrently"),
         );

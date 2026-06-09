@@ -4,11 +4,16 @@ import {
   createOnboardingClient,
 } from "@pagopa/io-core-adapter-ar";
 import { createTypedDbClient } from "@pagopa/io-core-adapter-drizzle";
-import { multipart } from "@pagopa/io-core-adapter-fastify";
-import { createAuthenticationPreHandler } from "@pagopa/io-core-adapter-fastify";
+import {
+  createAuthenticationPreHandler,
+  getSessionFromRequest,
+  multipart,
+} from "@pagopa/io-core-adapter-fastify";
 import { createResilientRedisClient } from "@pagopa/io-core-adapter-redis";
+import { sql as drizzleSql } from "drizzle-orm";
 import Fastify from "fastify";
 
+import { SessionSchema } from "./adapters/inbound/fastify/auth/session.js";
 import {
   mountAcsHandler,
   mountAuthorizeHandler,
@@ -57,6 +62,7 @@ import { makeGetOperatorPlaceUseCase } from "./application/use-cases/places/get-
 import { makeListOperatorPlacesUseCase } from "./application/use-cases/places/list-operator-places.use-case.js";
 import { makeCreateOperatorProfileUseCase } from "./application/use-cases/profile/create-operator-profile.use-case.js";
 import { makeGetOperatorProfileUseCase } from "./application/use-cases/profile/get-operator-profile.use-case.js";
+import { auditData } from "./audit-context.js";
 import { parseConfig } from "./config.js";
 
 const config = parseConfig();
@@ -71,6 +77,13 @@ const dbClient = createTypedDbClient(
     database: config.POSTGRES_DB,
     host: config.POSTGRES_HOST,
     max: config.POSTGRES_MAX_CONNECTIONS,
+    onTransaction: async (tx) => {
+      const audit = auditData.getStore();
+      if (!audit) return;
+      await tx.execute(
+        drizzleSql`SELECT set_config('app.referent_fullname', ${audit.referentFullname}, true), set_config('app.operator_id', ${audit.operatorId}, true), set_config('app.referent_external_id', ${audit.referentExternalId}, true)`,
+      );
+    },
     password: config.POSTGRES_PASSWORD,
     port: config.POSTGRES_PORT,
     ssl: config.POSTGRES_SSL,
@@ -126,6 +139,25 @@ const authPreHandler = createAuthenticationPreHandler(
 
 app.register(async (app) => {
   app.addHook("preHandler", authPreHandler);
+
+  // Populate audit context from session to DB
+  app.addHook("preHandler", (request, _reply, done) => {
+    getSessionFromRequest(request, SessionSchema)
+      .then((result) => {
+        if (result.isOk()) {
+          const { firstName, lastName, operatorId, referentExternalId } =
+            result.value;
+          auditData.enterWith({
+            operatorId,
+            referentExternalId,
+            referentFullname: `${lastName} ${firstName}`,
+          });
+        }
+        done();
+      })
+      .catch((e) => done(e as Error));
+  });
+
   // Mount authenticated route handlers here
   mountGetOperatorProfileHandler(
     app,

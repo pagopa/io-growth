@@ -10,12 +10,14 @@ export type AppRadioGroupProps = {
   value?: string;
   onChange?: (event: ChangeEvent<HTMLInputElement>) => void;
   options: { label: string; value: string }[];
+  disabled?: boolean;
 } & RadioGroupProps;
 
 export const AppRadioGroup = ({
   value,
   onChange,
   options,
+  disabled,
   ...radioGroupProps
 }: AppRadioGroupProps) => {
   return (
@@ -32,6 +34,7 @@ export const AppRadioGroup = ({
           value={option.value}
           control={<Radio />}
           label={option.label}
+          disabled={disabled}
         />
       ))}
     </RadioGroup>

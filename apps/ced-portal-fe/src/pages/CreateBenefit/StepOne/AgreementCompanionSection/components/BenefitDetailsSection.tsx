@@ -3,7 +3,10 @@ import { useAppDispatch, useAppSelector } from '../../../../../hooks';
 import { FixedPriceFields } from './FixedPriceFields';
 import { ViewSameConditions } from './ViewSameConditions';
 import { CompanionFormField } from './CompanionFormField';
-import { benefitTypeOptions, getAgreementCopy } from '../../../../../constants';
+import {
+  getBenefitTypeOptions,
+  getAgreementCopy,
+} from '../../../../../constants';
 import {
   selectActiveFormLanguage,
   selectCaregiverBenefit,
@@ -13,7 +16,7 @@ import {
   BenefitDiscountDiscountType,
   BenefitRequest,
 } from '../../../../../core/api/generated/model';
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 
 type BenefitDetailsSectionProps = {
   isSameAsOwner: boolean;
@@ -26,6 +29,10 @@ export const BenefitDetailsSection = ({
   const caregiverBenefit = useAppSelector(selectCaregiverBenefit);
 
   const activeLanguage = useAppSelector(selectActiveFormLanguage);
+  const benefitTypeOptions = useMemo(
+    () => getBenefitTypeOptions(activeLanguage),
+    [activeLanguage],
+  );
   const companionCopy =
     getAgreementCopy(activeLanguage).additionalSections.companion;
 

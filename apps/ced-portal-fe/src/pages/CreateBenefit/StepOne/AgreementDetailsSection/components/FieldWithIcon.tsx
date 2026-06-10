@@ -8,6 +8,7 @@ type FieldWithIconProps = {
   value?: string | number;
   error?: boolean;
   errorMessage?: string;
+  disabled?: boolean;
 };
 
 export const FieldWithIcon = ({
@@ -17,6 +18,7 @@ export const FieldWithIcon = ({
   error,
   errorMessage,
   onChange,
+  disabled,
 }: FieldWithIconProps) => {
   return (
     <Stack direction="row" spacing={1} alignItems="stretch">
@@ -43,6 +45,7 @@ export const FieldWithIcon = ({
         helperText={error ? errorMessage : undefined}
         onChange={onChange}
         fullWidth
+        disabled={disabled}
       />
     </Stack>
   );

@@ -17,7 +17,7 @@ import { AgreementDetailHeading } from './components/AgreementDetailHeading';
 import { AppSelect, AppTextField } from '../../../../components';
 import { FixedPriceBenefitFields } from './components/FixedPriceBenefitFields';
 import { DetailFormField } from './components/DetailFormField';
-import { benefitTypeOptions, getAgreementCopy } from '../../../../constants';
+import { getBenefitTypeOptions, getAgreementCopy } from '../../../../constants';
 import {
   BenefitDiscountDiscountType,
   BenefitOtherType,
@@ -34,6 +34,9 @@ export function AgreementDetailsSection({
 }: Readonly<{ attempted: boolean }>) {
   const dispatch = useAppDispatch();
   const activeLanguage = useAppSelector(selectActiveFormLanguage);
+
+  const disabledNotLocalizedField = activeLanguage !== 'it';
+
   const copy = getAgreementCopy(activeLanguage);
 
   const benefitType = useAppSelector(selectBeneficiaryBenefit);
@@ -47,6 +50,11 @@ export function AgreementDetailsSection({
         label: title,
       })),
     [categories],
+  );
+
+  const benefitTypeOptions = useMemo(
+    () => getBenefitTypeOptions(activeLanguage),
+    [activeLanguage],
   );
 
   const handleLocalizedFieldChange = useCallback(
@@ -150,6 +158,7 @@ export function AgreementDetailsSection({
           <DetailFormField
             name={'benefitType'}
             path={'beneficiaryBenefit.type'}
+            disabled={disabledNotLocalizedField}
             required
             attempted={attempted}
             onChange={(event) =>
@@ -165,9 +174,10 @@ export function AgreementDetailsSection({
 
           <DetailFormField
             hide={
-              benefitTypeMap[benefitType?.type] !==
-              benefitTypeMap['reduced_fixed_price']
+              benefitTypeMap[activeLanguage][benefitType?.type] !==
+              benefitTypeMap[activeLanguage]['reduced_fixed_price']
             }
+            disabled={disabledNotLocalizedField}
             name={'fixedPrice'}
             path={'beneficiaryBenefit.value'}
             onChange={(event) =>
@@ -190,8 +200,12 @@ export function AgreementDetailsSection({
           </DetailFormField>
 
           <DetailFormField
-            hide={benefitTypeMap[benefitType?.type] !== benefitTypeMap['other']}
+            hide={
+              benefitTypeMap[activeLanguage][benefitType?.type] !==
+              benefitTypeMap[activeLanguage]['other']
+            }
             name={'otherBenefitTypeDescription'}
+            disabled={disabledNotLocalizedField}
             path={'beneficiaryBenefit.description'}
             onChange={(event) =>
               handleFieldChange('beneficiaryBenefit', {
@@ -218,6 +232,7 @@ export function AgreementDetailsSection({
           <DetailFormField
             name={'category'}
             path={'categoryId'}
+            disabled={disabledNotLocalizedField}
             required
             attempted={attempted}
             onChange={(event) =>

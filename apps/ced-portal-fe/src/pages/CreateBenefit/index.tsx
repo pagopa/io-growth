@@ -1,4 +1,4 @@
-import { useState, type ComponentType } from 'react';
+import { useCallback, useState, type ComponentType } from 'react';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { Box, Button, Container, Typography } from '@mui/material';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -79,14 +79,9 @@ export default function CreateBenefitPage() {
   };
 
   const handleSaveDraft = async () => {
-    try {
-      await createOpportunity();
-      dispatch(resetPlaces());
-      showToast('Bozza salvata con successo', 'success');
-      navigate(APP_ROUTES.HOME);
-    } catch {
-      showToast('Errore durante il salvataggio della bozza', 'error');
-    }
+    await createOpportunity({ isDraft: true });
+    dispatch(resetPlaces());
+    navigate(APP_ROUTES.HOME);
   };
 
   const handleBack = () => {
@@ -131,20 +126,29 @@ export default function CreateBenefitPage() {
     setSubmitReviewOpen(false);
 
     if (!sourceOpportunityId) {
-      const result = await createOpportunity();
-      if (!result || !result.id) {
-        showToast(
-          "Impossibile inviare in revisione senza un'opportunità esistente",
-          'error',
-        );
+      try {
+        const result = await createOpportunity();
+        if (!result || !result.id) {
+          showToast(
+            "Impossibile inviare in revisione senza un'opportunità esistente",
+            'error',
+          );
+          return;
+        }
+        handleRequestApproval(result.id);
+      } catch {
         return;
       }
-      handleRequestApproval(result.id);
       return;
     }
 
     handleRequestApproval(sourceOpportunityId);
   };
+
+  const handleBackButton = useCallback(() => {
+    if (currentStep === 0) return navigate(-1);
+    setCurrentStep(currentStep - 1);
+  }, [currentStep, navigate]);
 
   const CurrentStep = STEPS[currentStep]?.component ?? null;
 
@@ -162,7 +166,7 @@ export default function CreateBenefitPage() {
         <Container maxWidth={false} sx={{ maxWidth: 760 }}>
           <Button
             startIcon={<ArrowBackIcon sx={{ width: 24, height: 24 }} />}
-            onClick={() => navigate(-1)}
+            onClick={handleBackButton}
             sx={{
               mb: 2,
               color: 'common.neutralBlack',
@@ -170,7 +174,7 @@ export default function CreateBenefitPage() {
               p: 0,
             }}
           >
-            Esci
+            {currentStep === 0 ? 'Esci' : 'Indietro'}
           </Button>
           <Typography variant="h6" fontWeight={700} gutterBottom>
             Crea opportunità

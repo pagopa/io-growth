@@ -7,13 +7,13 @@ import {
   createInstitutionClient,
   createOnboardingClient,
 } from "@pagopa/io-core-adapter-ar";
-import { tracingPlugin } from "@pagopa/io-core-adapter-tracing";
 import { createTypedDbClient } from "@pagopa/io-core-adapter-drizzle";
 import {
   createAuthenticationPreHandler,
   multipart,
 } from "@pagopa/io-core-adapter-fastify";
 import { createResilientRedisClient } from "@pagopa/io-core-adapter-redis";
+import { tracingPlugin } from "@pagopa/io-core-adapter-tracing";
 import Fastify from "fastify";
 
 import {

@@ -128,50 +128,64 @@ export default function EntityDetailPage() {
 
   const entityFields = onboarding
     ? [
-        { label: 'ID Onboarding', value: onboarding.id ?? '-' },
-        { label: 'Prodotto', value: onboarding.productId ?? '-' },
+        { label: 'Ragione sociale', value: entityName },
         {
-          label: 'Workflow',
-          value: onboarding.workflowType ?? '-',
+          label: 'Tipologia di soggetto aderente',
+          value: onboarding.institution?.institutionType ?? 'XXX',
         },
-        { label: 'Nome ente', value: entityName },
+        { label: 'Prodotto', value: onboarding.productId ?? 'XXX' },
         {
-          label: 'Codice fiscale',
-          value: onboarding.institution?.taxCode ?? '-',
+          label: 'Sede legale',
+          value: onboarding.institution?.address ?? 'XXX',
+        },
+        { label: 'CAP', value: onboarding.institution?.zipCode ?? 'XXX' },
+        {
+          label: 'Email PEC',
+          value: onboarding.institution?.digitalAddress ?? 'XXX',
         },
         {
-          label: 'PEC / Indirizzo digitale',
-          value: onboarding.institution?.digitalAddress ?? '-',
+          label: 'Partita IVA',
+          value: onboarding.institution?.taxCode ?? 'XXX',
+        },
+        { label: 'La P IVA è di gruppo', value: 'XXX' },
+        {
+          label: 'Codice SDI',
+          value: onboarding.institution?.originId ?? 'XXX',
+        },
+        {
+          label: 'Luogo di iscrizione al Registro delle Imprese',
+          value: onboarding.institution?.origin ?? 'XXX',
+        },
+        { label: 'REA (facoltativo)', value: 'XXX' },
+        {
+          label: 'Indirizzo email visibile ai cittadini',
+          value: 'XXX',
         },
       ]
     : [];
 
   const geographicFields = onboarding
     ? [
-        { label: 'Città', value: onboarding.institution?.city ?? '-' },
-        { label: 'Provincia', value: onboarding.institution?.county ?? '-' },
+        {
+          label: 'Area di competenza',
+          value: onboarding.workflowType ?? 'XXX',
+        },
+        {
+          label: 'Area geografica',
+          value:
+            onboarding.institution?.geographicTaxonomies
+              ?.map(({ desc }) => desc)
+              .filter((desc): desc is string => Boolean(desc))
+              .join(', ') ?? 'XXX',
+        },
       ]
     : [];
 
   const legalRepresentativeFields = onboarding
     ? [
-        { label: 'Stato onboarding', value: onboarding.status ?? '-' },
-        {
-          label: 'Creato il',
-          value: onboarding.createdAt
-            ? new Intl.DateTimeFormat('it-IT').format(
-                new Date(onboarding.createdAt),
-              )
-            : '-',
-        },
-        {
-          label: 'Aggiornato il',
-          value: onboarding.updatedAt
-            ? new Intl.DateTimeFormat('it-IT').format(
-                new Date(onboarding.updatedAt),
-              )
-            : '-',
-        },
+        { label: 'Nome e cognome', value: 'XXX' },
+        { label: 'Indirizzo email', value: 'XXX' },
+        { label: 'Numero di telefono', value: 'XXX' },
       ]
     : [];
 

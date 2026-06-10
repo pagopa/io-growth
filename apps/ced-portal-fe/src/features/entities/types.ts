@@ -9,6 +9,25 @@ export type DepartmentOnboardingStatus = ListOnboardingsStatus;
 
 export type OnboardingInstitution = OnboardingItemInstitution;
 
+export type EntityDetailInstitution = OnboardingInstitution & {
+  institutionType?: string;
+  origin?: string;
+  originId?: string;
+  address?: string;
+  zipCode?: string;
+  country?: string;
+  geographicTaxonomies?: Array<{
+    code?: string;
+    desc?: string;
+  }>;
+};
+
+export type EntityDetailUser = {
+  id?: string;
+  role?: string;
+  productRole?: string;
+};
+
 export type DepartmentOnboardingItem = OnboardingItem & {
   id: string;
   status?: DepartmentOnboardingStatus;
@@ -38,7 +57,17 @@ export interface ManagedEntityItem extends BaseEntityItem {
 
 export type EntityItem = EntityRequestItem | ManagedEntityItem;
 
-export type EntityDetail = OnboardingItem;
+export type EntityDetail = OnboardingItem & {
+  billing?: {
+    publicServices?: boolean;
+  };
+  expiringDate?: string;
+  institution?: EntityDetailInstitution;
+  userRequester?: {
+    userRequestUid?: string;
+  };
+  users?: EntityDetailUser[];
+};
 
 export interface EntityFilters {
   search: string;

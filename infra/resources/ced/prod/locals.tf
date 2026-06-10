@@ -26,7 +26,6 @@ locals {
     image = "ghcr.io/pagopa/io-growth/ced-portal-be:latest"
 
     app_settings = {
-      APPINSIGHTS_INSTRUMENTATION_KEY           = module.azure_core_values.application_insights.instrumentation_key
       APPLICATIONINSIGHTS_ENTRA_ID_AUTH_ENABLED = "true"
       APPINSIGHTS_SAMPLING_PERCENTAGE           = "100"
 

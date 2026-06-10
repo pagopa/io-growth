@@ -1,7 +1,7 @@
 import type { UseCase } from "@pagopa/io-core-domain";
 import type { BaseError } from "@pagopa/io-core-domain/errors";
 
-import { emitCustomEvent } from "@pagopa/io-core-adapter-azure-tracing";
+import { emitCustomEvent } from "@pagopa/io-core-adapter-tracing";
 import { ValidationError } from "@pagopa/io-core-domain/errors";
 import { decodeJwt } from "jose";
 import { err, okAsync, ResultAsync } from "neverthrow";
@@ -38,27 +38,27 @@ export const makeAcsUseCase =
     sessionRepository: SessionRepository,
     operatorRepository: OperatorRepository,
   ): UseCase<AcsInput, AcsOutput, BaseError> =>
-  async (input) => {
-    const token = input.token;
+    async (input) => {
+      const token = input.token;
 
-    // TODO: verify token signature — for now every token is considered valid
+      // TODO: verify token signature — for now every token is considered valid
 
-    const rawPayload = decodeJwt(token);
-    const parsed = TokenPayloadSchema.safeParse(rawPayload);
-    if (!parsed.success) {
-      return err(new ValidationError(parsed.error.message));
-    }
+      const rawPayload = decodeJwt(token);
+      const parsed = TokenPayloadSchema.safeParse(rawPayload);
+      if (!parsed.success) {
+        return err(new ValidationError(parsed.error.message));
+      }
 
-    const { family_name, name, organization, uid } = parsed.data;
+      const { family_name, name, organization, uid } = parsed.data;
 
-    const sessionToken = randomBytes(32).toString("hex");
-    const sessionId = randomBytes(32).toString("hex");
+      const sessionToken = randomBytes(32).toString("hex");
+      const sessionId = randomBytes(32).toString("hex");
 
-    return new ResultAsync(operatorRepository.getByExternalId(organization.id))
-      .andThen((existingOperator) =>
-        existingOperator
-          ? okAsync(existingOperator)
-          : new ResultAsync(
+      return new ResultAsync(operatorRepository.getByExternalId(organization.id))
+        .andThen((existingOperator) =>
+          existingOperator
+            ? okAsync(existingOperator)
+            : new ResultAsync(
               operatorRepository.create({
                 externalId: organization.id,
                 id: ulid(),
@@ -75,27 +75,27 @@ export const makeAcsUseCase =
               })(CALLER);
               return operator;
             }),
-      )
-      .andThen((operator) =>
-        new ResultAsync(
-          sessionRepository.createSession(sessionToken, {
-            firstName: name,
-            lastName: family_name,
-            operatorId: operator.id,
-            operatorName: operator.name,
-            referentExternalId: uid,
-            role: organization.roles[0].partyRole,
-          }),
-        ).andThen(
-          () =>
-            new ResultAsync(
-              sessionRepository.createOneTimeSessionId(
-                sessionId,
-                sessionToken,
-                60,
+        )
+        .andThen((operator) =>
+          new ResultAsync(
+            sessionRepository.createSession(sessionToken, {
+              firstName: name,
+              lastName: family_name,
+              operatorId: operator.id,
+              operatorName: operator.name,
+              referentExternalId: uid,
+              role: organization.roles[0].partyRole,
+            }),
+          ).andThen(
+            () =>
+              new ResultAsync(
+                sessionRepository.createOneTimeSessionId(
+                  sessionId,
+                  sessionToken,
+                  60,
+                ),
               ),
-            ),
-        ),
-      )
-      .map(() => ({ sessionId }));
-  };
+          ),
+        )
+        .map(() => ({ sessionId }));
+    };

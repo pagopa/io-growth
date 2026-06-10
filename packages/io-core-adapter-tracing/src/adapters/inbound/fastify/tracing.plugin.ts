@@ -16,12 +16,20 @@ export interface TracingPluginOptions {
 }
 
 /**
+ * Strip the query string from a URL, returning only the path.
+ */
+const stripQueryParams = (url: string): string => {
+  const idx = url.indexOf("?");
+  return idx === -1 ? url : url.slice(0, idx);
+};
+
+/**
  * Resolve the route pattern (e.g. `/operators/:id`) so telemetry is aggregated
- * per route rather than per concrete URL. Falls back to the raw URL when no
- * route matched (e.g. 404s).
+ * per route rather than per concrete URL. Falls back to the raw URL (without
+ * query params) when no route matched (e.g. 404s).
  */
 const resolveRoute = (url: string | undefined, rawUrl: string): string =>
-  url ?? rawUrl;
+  url ?? stripQueryParams(rawUrl);
 
 const plugin: FastifyPluginCallback<TracingPluginOptions> = (
   app,
@@ -39,7 +47,7 @@ const plugin: FastifyPluginCallback<TracingPluginOptions> = (
       route: resolveRoute(request.routeOptions.url, request.url),
       statusCode: reply.statusCode,
       success: reply.statusCode < 500,
-      url: request.url,
+      url: stripQueryParams(request.url),
     });
     hookDone();
   });
@@ -50,7 +58,7 @@ const plugin: FastifyPluginCallback<TracingPluginOptions> = (
       error,
       method: request.method,
       route: resolveRoute(request.routeOptions.url, request.url),
-      url: request.url,
+      url: stripQueryParams(request.url),
     });
     hookDone();
   });
@@ -72,5 +80,5 @@ const plugin: FastifyPluginCallback<TracingPluginOptions> = (
  */
 export const tracingPlugin = fp<TracingPluginOptions>(plugin, {
   fastify: "5.x",
-  name: "io-core-azure-tracing",
+  name: "io-core-tracing",
 });

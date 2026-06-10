@@ -2,7 +2,7 @@ import {
   azureTracingConfigSchema,
   buildAzureTracingConfig,
   initTelemetry,
-} from "@pagopa/io-core-adapter-azure-tracing";
+} from "@pagopa/io-core-adapter-tracing";
 
 /**
  * Telemetry bootstrap.

@@ -7,7 +7,7 @@ import {
   createInstitutionClient,
   createOnboardingClient,
 } from "@pagopa/io-core-adapter-ar";
-import { tracingPlugin } from "@pagopa/io-core-adapter-azure-tracing";
+import { tracingPlugin } from "@pagopa/io-core-adapter-tracing";
 import { createTypedDbClient } from "@pagopa/io-core-adapter-drizzle";
 import {
   createAuthenticationPreHandler,

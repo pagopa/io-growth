@@ -1,4 +1,4 @@
-# @pagopa/io-core-adapter-azure-tracing
+# @pagopa/io-core-adapter-tracing
 
 Cross-cutting tracing and telemetry adapter for the io-growth monorepo. It wraps
 [`@pagopa/azure-tracing`](https://www.npmjs.com/package/@pagopa/azure-tracing)
@@ -44,7 +44,7 @@ import {
   azureTracingConfigSchema,
   buildAzureTracingConfig,
   initTelemetry,
-} from "@pagopa/io-core-adapter-azure-tracing";
+} from "@pagopa/io-core-adapter-tracing";
 
 const env = azureTracingConfigSchema.parse(process.env);
 initTelemetry(buildAzureTracingConfig(env, "my-service"));
@@ -56,7 +56,7 @@ preload `NODE_OPTIONS=--import @pagopa/azure-tracing`.
 ### 2. Auto-track every endpoint (Fastify)
 
 ```ts
-import { tracingPlugin } from "@pagopa/io-core-adapter-azure-tracing";
+import { tracingPlugin } from "@pagopa/io-core-adapter-tracing";
 
 const app = Fastify();
 await app.register(tracingPlugin); // tracks duration, status code, exceptions
@@ -65,7 +65,7 @@ await app.register(tracingPlugin); // tracks duration, status code, exceptions
 ### 3. Emit custom events from business logic
 
 ```ts
-import { emitCustomEvent } from "@pagopa/io-core-adapter-azure-tracing";
+import { emitCustomEvent } from "@pagopa/io-core-adapter-tracing";
 
 emitCustomEvent(eventName, { caller, data: JSON.stringify(data) })(caller);
 ```

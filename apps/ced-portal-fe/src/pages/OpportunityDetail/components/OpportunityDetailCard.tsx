@@ -14,6 +14,8 @@ import {
   getBenefitsDetailData,
   getLocalizedMetadataDetailsMultipleKeys,
 } from '../../../utils';
+import { useAppSelector } from '../../../hooks';
+import { selectActiveFormLanguage } from '../../../features/opportunityCreation/selectors';
 
 interface OpportunityDetailCardProps {
   detail: OpportunityDetail;
@@ -27,11 +29,17 @@ export const OpportunityDetailCard = ({
     ['description', 'condition'],
   );
 
+  const activeLanguage = useAppSelector(selectActiveFormLanguage);
+
   const beneficiaryBenefitFields = getBenefitsDetailData(
     detail.beneficiaryBenefit,
+    activeLanguage,
   );
 
-  const caregiverBenefitFields = getBenefitsDetailData(detail.caregiverBenefit);
+  const caregiverBenefitFields = getBenefitsDetailData(
+    detail.caregiverBenefit,
+    activeLanguage,
+  );
 
   const mainFields = [
     ...(beneficiaryBenefitFields ?? []),

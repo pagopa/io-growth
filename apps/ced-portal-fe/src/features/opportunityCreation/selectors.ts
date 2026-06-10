@@ -1,4 +1,3 @@
-import { createSelector } from '@reduxjs/toolkit/react';
 import type {
   OpportunityCreateRequest,
   LocalizedMetadataItemLanguage,

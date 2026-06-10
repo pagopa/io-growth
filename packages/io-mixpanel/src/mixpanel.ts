@@ -100,7 +100,6 @@ const trackEventThroughAnalyticTool = (
           called = true;
           callback();
         } catch (reason) {
-          // eslint-disable-next-line no-console
           console.error(
             `Something gone wrong while calling trackEvent ${event_name} callback`,
             reason,
@@ -118,7 +117,6 @@ const trackEventThroughAnalyticTool = (
       wrappedCallback,
     );
   } catch (reason) {
-    // eslint-disable-next-line no-console
     console.error('Something gone wrong while sending data to mixpanel:', reason);
 
     if (wrappedCallback && !called) {

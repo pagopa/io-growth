@@ -145,11 +145,6 @@ export default function CreateBenefitPage() {
     handleRequestApproval(sourceOpportunityId);
   };
 
-  const handleBackButton = useCallback(() => {
-    if (currentStep === 0) return navigate(-1);
-    setCurrentStep(currentStep - 1);
-  }, [currentStep, navigate]);
-
   const CurrentStep = STEPS[currentStep]?.component ?? null;
 
   return (
@@ -166,7 +161,7 @@ export default function CreateBenefitPage() {
         <Container maxWidth={false} sx={{ maxWidth: 760 }}>
           <Button
             startIcon={<ArrowBackIcon sx={{ width: 24, height: 24 }} />}
-            onClick={handleBackButton}
+            onClick={() => navigate(-1)}
             sx={{
               mb: 2,
               color: 'common.neutralBlack',
@@ -174,7 +169,7 @@ export default function CreateBenefitPage() {
               p: 0,
             }}
           >
-            {currentStep === 0 ? 'Esci' : 'Indietro'}
+            Esci
           </Button>
           <Typography variant="h6" fontWeight={700} gutterBottom>
             Crea opportunità

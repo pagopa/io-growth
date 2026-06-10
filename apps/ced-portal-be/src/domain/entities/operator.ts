@@ -3,7 +3,7 @@ import { z } from "zod";
 export const OperatorSchema = z.object({
   externalId: z.uuid(),
   id: z.ulid(),
-  name: z.string().min(1),
+  name: z.string().min(1).max(512),
   status: z.enum(["active", "suspended", "revoked"]),
 });
 

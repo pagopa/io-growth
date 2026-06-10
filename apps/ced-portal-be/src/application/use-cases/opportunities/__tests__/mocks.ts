@@ -59,11 +59,11 @@ export const mockOpportunityDetail = {
 };
 
 export const createMockOpportunityRepository = (
-  overrides?: Partial<OpportunityRepository>,
+  overrides: Partial<OpportunityRepository> = {},
 ): OpportunityRepository => ({
-  create: vi.fn(),
-  getById: vi.fn(),
-  list: vi.fn(),
-  updateStatus: vi.fn(),
-  ...overrides,
+  countByOperatorIds: overrides.countByOperatorIds ?? vi.fn(),
+  create: overrides.create ?? vi.fn(),
+  getById: overrides.getById ?? vi.fn(),
+  list: overrides.list ?? vi.fn(),
+  updateStatus: overrides.updateStatus ?? vi.fn(),
 });

@@ -15,30 +15,30 @@ import { validateUseCaseInput } from "../utils/validate-use-case-input.js";
 
 const CreateOperatorPlaceSupportContactSchema = z.object({
   type: z.enum(["email", "phone", "website"]),
-  value: z.string().min(1),
+  value: z.string().min(1).max(2048),
 });
 
 const CreateOperatorPlaceAddressSchema = z.object({
-  city: z.string().min(1),
-  country: z.string().min(1),
-  postalCode: z.string().min(1),
-  state: z.string().min(1),
-  street: z.string().min(1),
+  city: z.string().min(1).max(64),
+  country: z.string().min(1).max(64),
+  postalCode: z.string().min(1).max(64),
+  state: z.string().min(1).max(64),
+  street: z.string().min(1).max(512),
 });
 
 const CreateOperatorPlaceWebsiteSchema = z.object({
-  url: z.url(),
+  url: z.url().max(2048),
 });
 
 const CreateOperatorPlacePlaceSchema = z.discriminatedUnion("type", [
   z.object({
     address: CreateOperatorPlaceAddressSchema,
-    name: z.string().min(1),
+    name: z.string().min(1).max(512),
     supportContacts: z.array(CreateOperatorPlaceSupportContactSchema),
     type: z.literal("offline"),
   }),
   z.object({
-    name: z.string().min(1),
+    name: z.string().min(1).max(512),
     supportContacts: z.array(CreateOperatorPlaceSupportContactSchema),
     type: z.literal("online"),
     website: CreateOperatorPlaceWebsiteSchema,

@@ -11,6 +11,7 @@ export const APP_ROUTES = {
   EUROPEAN_OPPORTUNITIES: '/european-opportunities',
   OPPORTUNITIES_LIST: '/opportunities',
   NOT_FOUND: '/not-found',
+  AUTHORIZE: '/authorize',
   UNAUTHORIZED: '/unauthorized',
 } as const;
 
@@ -34,6 +35,7 @@ export const toEntityDetailRoute = (entityId: string) =>
   });
 
 export const HomePage = lazy(() => import('../pages/Home'));
+export const AuthorizePage = lazy(() => import('../pages/Authorize'));
 export const EntityDetailPage = lazy(() => import('../pages/EntityDetail'));
 export const EntityOpportunitiesPage = lazy(
   () => import('../pages/EntityOpportunities'),

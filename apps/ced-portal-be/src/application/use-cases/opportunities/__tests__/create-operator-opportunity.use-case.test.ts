@@ -173,6 +173,7 @@ describe("makeCreateOperatorOpportunityUseCase - success", () => {
       categoryId: mockCreateOpportunityInput.categoryId,
       dateFrom: mockCreateOpportunityInput.dateFrom,
       localizedMetadata: mockCreateOpportunityInput.localizedMetadata,
+      nationalTerritory: false,
       operatorId: mockCreateOpportunityInput.operatorId,
       placeIds: mockCreateOpportunityInput.placeIds,
     };
@@ -300,10 +301,12 @@ describe("makeCreateOperatorOpportunityUseCase - validation", () => {
     const deps = makeDeps();
     const useCase = makeCreateOperatorOpportunityUseCase(deps);
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { nationalTerritory, ...inputWithoutFlag } =
       mockCreateOpportunityInput;
-    void nationalTerritory;
-    await useCase(inputWithoutFlag);
+    await useCase(
+      inputWithoutFlag as unknown as typeof mockCreateOpportunityInput,
+    );
 
     expect(deps.opportunityRepository.create).toHaveBeenCalledWith(
       expect.objectContaining({

@@ -16,30 +16,30 @@ import { validateUseCaseInput } from "../utils/validate-use-case-input.js";
 
 const CreateOperatorProfileSupportContactSchema = z.object({
   type: z.enum(["email", "phone", "website"]),
-  value: z.string().min(1),
+  value: z.string().min(1).max(2048),
 });
 
 const CreateOperatorProfileAddressSchema = z.object({
-  city: z.string().min(1),
-  country: z.string().min(1),
-  postalCode: z.string().min(1),
-  state: z.string().min(1),
-  street: z.string().min(1),
+  city: z.string().min(1).max(64),
+  country: z.string().min(1).max(64),
+  postalCode: z.string().min(1).max(64),
+  state: z.string().min(1).max(64),
+  street: z.string().min(1).max(512),
 });
 
 const CreateOperatorProfileWebsiteSchema = z.object({
-  url: z.url(),
+  url: z.url().max(2048),
 });
 
 const CreateOperatorProfilePlaceSchema = z.discriminatedUnion("type", [
   z.object({
     address: CreateOperatorProfileAddressSchema,
-    name: z.string().min(1),
+    name: z.string().min(1).max(512),
     supportContacts: z.array(CreateOperatorProfileSupportContactSchema),
     type: z.literal("offline"),
   }),
   z.object({
-    name: z.string().min(1),
+    name: z.string().min(1).max(512),
     supportContacts: z.array(CreateOperatorProfileSupportContactSchema),
     type: z.literal("online"),
     website: CreateOperatorProfileWebsiteSchema,
@@ -47,7 +47,7 @@ const CreateOperatorProfilePlaceSchema = z.discriminatedUnion("type", [
 ]);
 
 const CreateOperatorProfileInputSchema = z.object({
-  displayName: z.string().min(1),
+  displayName: z.string().min(1).max(512),
   operatorId: z.ulid(),
   place: CreateOperatorProfilePlaceSchema,
 });

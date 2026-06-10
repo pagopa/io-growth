@@ -2,6 +2,9 @@ import { Box, Button, useTheme } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { APP_ROUTES } from '../../app/routeConfig';
 import { MarkdownRenderer } from '../../components/Typography/MarkdownRender';
+import CED_hero from '../../../public/CED_hero.png';
+import CED_frame1 from '../../../public/CED_frame1.png';
+import CED_frame2 from '../../../public/CED_frame2.png';
 
 const REQUEST_CARD_URL = 'https://www.google.com/';
 const CATEGORIES_URL = REQUEST_CARD_URL;
@@ -16,10 +19,11 @@ export default function CardRequestInfoPage() {
   const handleContinue = () => navigate(APP_ROUTES.CONSENT);
 
   const markdownContent = `
+  \n![alt](${CED_hero})
   ## Carta Europea della Disabilità: cos’è e come funziona\n
   La Carta Europea della Disabilità è il documento che permette alle persone con disabilità di accedere a diverse opportunità su beni e servizi, pubblici o privati, in Italia e in Europa.
   \nLa richiesta della carta è **gratuita** e non ci sono **limiti di utilizzo**.
-  \n![alt](https://placehold.co/600x268/AAEEEF/AAEEEF)
+  \n![alt](${CED_frame1})
   ##### Chi può richiederla?
   Le persone con disabilita in possesso di un documento ufficiale che attesti la propria condizione.
   \n[Consulta le categorie di aventi diritto](${CATEGORIES_URL}).
@@ -28,7 +32,7 @@ export default function CardRequestInfoPage() {
   Ti basta premere su "Richiedi la Carta" e in pochi passaggi puoi inviare la richiesta all'INPS.
   \nTi servirà **una foto in primo piano** e potrebbe esserti richiesto anche il **documento che attesta l'invalidita**.
   \nDopo il rilascio, potrai anche aggiungere la versione digitale della carta al Portafoglio.
-  ![alt](https://placehold.co/600x268/AAEEEF/AAEEEF)
+  ![alt](${CED_frame2})
   ##### Come si usa
   **Nei punti di accesso fisici e online** dei partner, mostra la tua carta per usufruire delle opportunità su trasporti, spettacoli, attività culturali e molto altro.
   \nPer saperne di più, [vai al sito della Carta Europea della Disabilità](${INFO_URL}).
@@ -43,12 +47,6 @@ export default function CardRequestInfoPage() {
         bgcolor: theme.palette.common.neutralGray,
       }}
     >
-      <Box
-        sx={{
-          height: 268,
-          bgcolor: theme.palette.common.decorativeCyan,
-        }}
-      />
       <Box
         sx={{
           px: 3,

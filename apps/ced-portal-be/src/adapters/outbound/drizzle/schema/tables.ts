@@ -1,5 +1,6 @@
 import {
   boolean,
+  char,
   date,
   integer,
   jsonb,
@@ -8,6 +9,7 @@ import {
   text,
   timestamp,
   uuid,
+  varchar,
 } from "drizzle-orm/pg-core";
 import { ulid } from "ulid";
 
@@ -29,8 +31,8 @@ export const operator = pgTable("operator", {
     .notNull()
     .defaultNow(),
   externalId: uuid("external_id").notNull(),
-  id: text().primaryKey(),
-  name: text().notNull(),
+  id: char({ length: 26 }).primaryKey(),
+  name: varchar({ length: 512 }).notNull(),
   status: operatorStatusEnum().notNull(),
   updatedAt: timestamp("updated_at", { withTimezone: true })
     .notNull()
@@ -41,11 +43,11 @@ export const place = pgTable("place", {
   createdAt: timestamp("created_at", { withTimezone: true })
     .notNull()
     .defaultNow(),
-  id: text().primaryKey(),
-  name: text().notNull(),
-  operatorId: text("operator_id")
+  id: char({ length: 26 }).primaryKey(),
+  name: varchar({ length: 512 }).notNull(),
+  operatorId: char("operator_id", { length: 26 })
     .notNull()
-    .references(() => operator.id),
+    .references(() => operator.id, { onDelete: "cascade" }),
   type: placeTypeEnum().notNull(),
   updatedAt: timestamp("updated_at", { withTimezone: true })
     .notNull()
@@ -56,15 +58,15 @@ export const profile = pgTable("profile", {
   createdAt: timestamp("created_at", { withTimezone: true })
     .notNull()
     .defaultNow(),
-  displayName: text("display_name").notNull(),
-  id: text()
+  displayName: varchar("display_name", { length: 512 }).notNull(),
+  id: char({ length: 26 })
     .primaryKey()
     .$defaultFn(() => ulid()),
-  operatorId: text("operator_id")
+  operatorId: char("operator_id", { length: 26 })
     .notNull()
-    .references(() => operator.id)
+    .references(() => operator.id, { onDelete: "cascade" })
     .unique(),
-  placeId: text("place_id")
+  placeId: char("place_id", { length: 26 })
     .notNull()
     .references(() => place.id),
   updatedAt: timestamp("updated_at", { withTimezone: true })
@@ -76,35 +78,35 @@ export const website = pgTable("website", {
   createdAt: timestamp("created_at", { withTimezone: true })
     .notNull()
     .defaultNow(),
-  id: text()
+  id: char({ length: 26 })
     .primaryKey()
     .$defaultFn(() => ulid()),
-  placeId: text("place_id")
+  placeId: char("place_id", { length: 26 })
     .notNull()
-    .references(() => place.id)
+    .references(() => place.id, { onDelete: "cascade" })
     .unique(),
   updatedAt: timestamp("updated_at", { withTimezone: true })
     .notNull()
     .defaultNow(),
-  url: text().notNull(),
+  url: varchar({ length: 2048 }).notNull(),
 });
 
 export const address = pgTable("address", {
-  city: text().notNull(),
-  country: text().notNull(),
+  city: varchar({ length: 64 }).notNull(),
+  country: varchar({ length: 64 }).notNull(),
   createdAt: timestamp("created_at", { withTimezone: true })
     .notNull()
     .defaultNow(),
-  id: text()
+  id: char({ length: 26 })
     .primaryKey()
     .$defaultFn(() => ulid()),
-  placeId: text("place_id")
+  placeId: char("place_id", { length: 26 })
     .notNull()
-    .references(() => place.id)
+    .references(() => place.id, { onDelete: "cascade" })
     .unique(),
-  postalCode: text("postal_code").notNull(),
-  state: text().notNull(),
-  street: text().notNull(),
+  postalCode: varchar("postal_code", { length: 64 }).notNull(),
+  state: varchar({ length: 64 }).notNull(),
+  street: varchar({ length: 512 }).notNull(),
   updatedAt: timestamp("updated_at", { withTimezone: true })
     .notNull()
     .defaultNow(),
@@ -114,27 +116,27 @@ export const supportContact = pgTable("support_contact", {
   createdAt: timestamp("created_at", { withTimezone: true })
     .notNull()
     .defaultNow(),
-  id: text().primaryKey(),
-  placeId: text("place_id")
+  id: char({ length: 26 }).primaryKey(),
+  placeId: char("place_id", { length: 26 })
     .notNull()
-    .references(() => place.id),
+    .references(() => place.id, { onDelete: "cascade" }),
   type: supportContactTypeEnum().notNull(),
   updatedAt: timestamp("updated_at", { withTimezone: true })
     .notNull()
     .defaultNow(),
-  value: text().notNull(),
+  value: varchar({ length: 2048 }).notNull(),
 });
 
 export const opportunityCategory = pgTable("opportunity_category", {
-  description: text().notNull(),
-  id: text()
+  description: varchar({ length: 512 }).notNull(),
+  id: char({ length: 26 })
     .primaryKey()
     .$defaultFn(() => ulid()),
-  title: text().notNull(),
+  title: varchar({ length: 64 }).notNull(),
 });
 
 export const opportunity = pgTable("opportunity", {
-  categoryId: text("category_id")
+  categoryId: char("category_id", { length: 26 })
     .notNull()
     .references(() => opportunityCategory.id),
   createdAt: timestamp("created_at", { withTimezone: true })
@@ -142,30 +144,30 @@ export const opportunity = pgTable("opportunity", {
     .defaultNow(),
   dateFrom: date("date_from").notNull(),
   dateTo: date("date_to"),
-  id: text()
+  id: char({ length: 26 })
     .primaryKey()
     .$defaultFn(() => ulid()),
   nationalTerritory: boolean("national_territory").notNull().default(false),
-  operatorId: text("operator_id")
+  operatorId: char("operator_id", { length: 26 })
     .notNull()
-    .references(() => operator.id),
-  rejectionMessage: text("rejection_message"),
+    .references(() => operator.id, { onDelete: "cascade" }),
+  rejectionMessage: varchar("rejection_message", { length: 4096 }),
   status: opportunityStatusEnum().notNull(),
   updatedAt: timestamp("updated_at", { withTimezone: true })
     .notNull()
     .defaultNow(),
-  url: text(),
+  url: varchar({ length: 2048 }),
 });
 
 export const opportunityPlace = pgTable(
   "opportunity_place",
   {
-    opportunityId: text("opportunity_id")
+    opportunityId: char("opportunity_id", { length: 26 })
       .notNull()
-      .references(() => opportunity.id),
-    placeId: text("place_id")
+      .references(() => opportunity.id, { onDelete: "cascade" }),
+    placeId: char("place_id", { length: 26 })
       .notNull()
-      .references(() => place.id),
+      .references(() => place.id, { onDelete: "cascade" }),
   },
   (table) => [primaryKey({ columns: [table.opportunityId, table.placeId] })],
 );
@@ -174,14 +176,14 @@ export const beneficiaryBenefit = pgTable("beneficiary_benefit", {
   createdAt: timestamp("created_at", { withTimezone: true })
     .notNull()
     .defaultNow(),
-  description: text(),
+  description: varchar({ length: 4096 }),
   discountType: benefitDiscountTypeEnum("discount_type"),
-  id: text()
+  id: char({ length: 26 })
     .primaryKey()
     .$defaultFn(() => ulid()),
-  opportunityId: text("opportunity_id")
+  opportunityId: char("opportunity_id", { length: 26 })
     .notNull()
-    .references(() => opportunity.id)
+    .references(() => opportunity.id, { onDelete: "cascade" })
     .unique(),
   type: benefitTypeEnum().notNull(),
   updatedAt: timestamp("updated_at", { withTimezone: true })
@@ -194,14 +196,14 @@ export const caregiverBenefit = pgTable("caregiver_benefit", {
   createdAt: timestamp("created_at", { withTimezone: true })
     .notNull()
     .defaultNow(),
-  description: text(),
+  description: varchar({ length: 4096 }),
   discountType: benefitDiscountTypeEnum("discount_type"),
-  id: text()
+  id: char({ length: 26 })
     .primaryKey()
     .$defaultFn(() => ulid()),
-  opportunityId: text("opportunity_id")
+  opportunityId: char("opportunity_id", { length: 26 })
     .notNull()
-    .references(() => opportunity.id)
+    .references(() => opportunity.id, { onDelete: "cascade" })
     .unique(),
   type: benefitTypeEnum().notNull(),
   updatedAt: timestamp("updated_at", { withTimezone: true })
@@ -214,14 +216,14 @@ export const localizedMetadata = pgTable("localized_metadata", {
   createdAt: timestamp("created_at", { withTimezone: true })
     .notNull()
     .defaultNow(),
-  id: text()
+  id: char({ length: 26 })
     .primaryKey()
     .$defaultFn(() => ulid()),
   key: localizedMetadataKeyEnum().notNull(),
   language: localizedMetadataLanguageEnum().notNull(),
-  opportunityId: text("opportunity_id")
+  opportunityId: char("opportunity_id", { length: 26 })
     .notNull()
-    .references(() => opportunity.id),
+    .references(() => opportunity.id, { onDelete: "cascade" }),
   updatedAt: timestamp("updated_at", { withTimezone: true })
     .notNull()
     .defaultNow(),
@@ -233,15 +235,17 @@ export const changeAudit = pgTable("change_audit", {
   createdAt: timestamp("created_at", { withTimezone: true })
     .notNull()
     .defaultNow(),
-  entityId: text("entity_id").notNull(),
+  entityId: char("entity_id", { length: 26 }).notNull(),
   entityType: changeAuditEntityTypeEnum("entity_type").notNull(),
-  id: text()
+  id: char({ length: 26 })
     .primaryKey()
     .$defaultFn(() => ulid()),
-  operatorId: text("operator_id")
+  operatorId: char("operator_id", { length: 26 })
     .notNull()
     .references(() => operator.id),
-  referentExternalId: text("referent_external_id").notNull(),
-  referentFullname: text("referent_fullname").notNull(),
+  referentExternalId: varchar("referent_external_id", {
+    length: 512,
+  }).notNull(),
+  referentFullname: varchar("referent_fullname", { length: 512 }).notNull(),
   value: jsonb().notNull(),
 });

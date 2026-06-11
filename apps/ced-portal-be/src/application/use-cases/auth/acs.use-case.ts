@@ -2,7 +2,6 @@ import type { UseCase } from "@pagopa/io-core-domain";
 import type { BaseError } from "@pagopa/io-core-domain/errors";
 
 import { hashFiscalCode } from "@pagopa/io-core-adapter-fims";
-import { emitCustomEvent } from "@pagopa/io-core-adapter-tracing";
 import { ValidationError } from "@pagopa/io-core-domain/errors";
 import { decodeJwt } from "jose";
 import { err, okAsync, ResultAsync } from "neverthrow";
@@ -14,8 +13,6 @@ import type { AppConfig } from "../../../config.js";
 import type { Operator } from "../../../domain/entities/operator.js";
 import type { OperatorRepository } from "../../../domain/ports/outbound/persistence/operator.repository.js";
 import type { SessionRepository } from "../../../domain/ports/outbound/persistence/session.repository.js";
-
-const CALLER = "AcsUseCase";
 
 const TokenPayloadSchema = z.object({
   family_name: z.string(),

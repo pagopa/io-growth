@@ -9,7 +9,6 @@ export const getLocalizedMetadataDetailsMultipleKeys = (
       localizedMetadata.find(
         ({ key: metadataKey, language }) =>
           key === metadataKey && language === 'it',
-        {},
       )?.value || '',
   );
 };

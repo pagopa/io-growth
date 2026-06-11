@@ -114,7 +114,7 @@ export const BenefitDetailsSection = ({
         hide={
           !caregiverBenefit ||
           benefitTypeMap[activeLanguage][caregiverBenefit.type] !==
-            benefitTypeMap[activeLanguage]['other']
+            benefitTypeMap[activeLanguage].other
         }
         disabled={disabledNotLocalizedField}
         name={'companionOtherBenefitTypeDescription'}
@@ -138,7 +138,7 @@ export const BenefitDetailsSection = ({
         hide={
           !caregiverBenefit ||
           benefitTypeMap[activeLanguage][caregiverBenefit.type] !==
-            benefitTypeMap[activeLanguage]['reduced_fixed_price']
+            benefitTypeMap[activeLanguage].reduced_fixed_price
         }
         disabled={disabledNotLocalizedField}
         name={'companionFixedPrice'}

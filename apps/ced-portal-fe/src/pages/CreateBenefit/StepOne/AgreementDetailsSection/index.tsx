@@ -175,7 +175,7 @@ export function AgreementDetailsSection({
           <DetailFormField
             hide={
               benefitTypeMap[activeLanguage][benefitType?.type] !==
-              benefitTypeMap[activeLanguage]['reduced_fixed_price']
+              benefitTypeMap[activeLanguage].reduced_fixed_price
             }
             disabled={disabledNotLocalizedField}
             name={'fixedPrice'}
@@ -196,7 +196,7 @@ export function AgreementDetailsSection({
           <DetailFormField
             hide={
               benefitTypeMap[activeLanguage][benefitType?.type] !==
-              benefitTypeMap[activeLanguage]['other']
+              benefitTypeMap[activeLanguage].other
             }
             name={'otherBenefitTypeDescription'}
             disabled={disabledNotLocalizedField}

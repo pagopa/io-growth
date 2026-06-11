@@ -21,7 +21,6 @@ import {
   cloneOwnerBenefitToCompanion,
   setCaregiverEnabled,
 } from '../../../../features/opportunityCreation/opportunityCreationSlice';
-import { CompanionFormField } from './components/CompanionFormField';
 
 export const AgreementCompanionSection = () => {
   const dispatch = useAppDispatch();

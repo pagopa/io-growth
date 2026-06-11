@@ -15,7 +15,6 @@ export type EntityDetailInstitution = OnboardingInstitution & {
   originId?: string;
   address?: string;
   zipCode?: string;
-  country?: string;
   geographicTaxonomies?: Array<{
     code?: string;
     desc?: string;

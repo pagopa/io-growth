@@ -22,7 +22,7 @@ import {
 import WarningAmberRoundedIcon from '@mui/icons-material/WarningAmberRounded';
 import { useCallback, useMemo, useState } from 'react';
 import { generatePath, useNavigate } from 'react-router-dom';
-import type { AdminOpportunity } from '../../../features/opportunities/types';
+import type { Opportunity } from '../../../features/opportunities/types';
 import {
   STATE_OPTIONS,
   STATE_COLORS,
@@ -32,7 +32,7 @@ import { APP_ROUTES } from '../../../app/routeConfig';
 type SortDirection = 'asc' | 'desc';
 
 interface OpportunitiesTableProps {
-  items: AdminOpportunity[];
+  items: Opportunity[];
   isLoading: boolean;
   isError: boolean;
   onRetry: () => void;
@@ -95,8 +95,8 @@ export const OpportunitiesTable = ({
 
   const sortedItems = useMemo(() => {
     return [...items].sort((a, b) => {
-      const aVal = a[sortBy as keyof AdminOpportunity] ?? '';
-      const bVal = b[sortBy as keyof AdminOpportunity] ?? '';
+      const aVal = a[sortBy as keyof Opportunity] ?? '';
+      const bVal = b[sortBy as keyof Opportunity] ?? '';
       const result = String(aVal).localeCompare(String(bVal), 'it', {
         sensitivity: 'base',
       });
@@ -216,7 +216,7 @@ export const OpportunitiesTable = ({
             <TableCell>Ente</TableCell>
             <TableCell>
               <TableSortLabel
-                active={sortBy === 'created_at'}
+                active={sortBy === 'dateFrom'}
                 direction={sortBy === 'dateFrom' ? sortDirection : 'asc'}
                 onClick={() => handleSort('dateFrom')}
               >
@@ -245,7 +245,7 @@ export const OpportunitiesTable = ({
                 />
               </TableCell>
               <TableCell>{item.name}</TableCell>
-              <TableCell>{item.operatorName ?? '-'}</TableCell>
+              <TableCell>{item.categoryTitle}</TableCell>
               <TableCell>
                 {new Date(item.dateFrom).toLocaleDateString('it-IT')}
               </TableCell>

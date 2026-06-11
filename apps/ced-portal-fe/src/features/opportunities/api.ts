@@ -1,5 +1,9 @@
 import { baseApi } from '../../core/api/baseApi';
 import { OpportunityCreateRequest } from '../../core/api/generated/model';
+import {
+  getApproveOpportunityUrl,
+  getGetOpportunityUrl,
+} from '../../core/api/generated/endpoints/opportunities/opportunities';
 import type {
   AdminOpportunitiesResponse,
   AdminOpportunityDetail,
@@ -27,10 +31,6 @@ const getListAdminOpportunitiesUrl = (
     : '/opportunities';
 };
 
-const getAdminOpportunityDetailUrl = (id: string) => `/opportunities/${id}`;
-
-const getApproveOpportunityUrl = (id: string) => `/opportunities/${id}/approve`;
-
 export const opportunitiesApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     getOpportunities: builder.query<OpportunitiesResponse, void>({
@@ -49,7 +49,7 @@ export const opportunitiesApi = baseApi.injectEndpoints({
       providesTags: ['Opportunities'],
     }),
     getAdminOpportunityDetail: builder.query<AdminOpportunityDetail, string>({
-      query: (id) => getAdminOpportunityDetailUrl(id),
+      query: (id) => getGetOpportunityUrl(id),
       providesTags: (_result, _error, id) => [{ type: 'Opportunities', id }],
     }),
     createOpportunity: builder.mutation<

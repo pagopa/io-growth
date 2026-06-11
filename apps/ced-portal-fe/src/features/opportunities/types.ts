@@ -1,5 +1,7 @@
+import type { ApproveOpportunityBody } from '../../core/api/generated/model/approveOpportunityBody';
 import type { ListOperatorOpportunitiesStatus } from '../../core/api/generated/model/listOperatorOpportunitiesStatus';
 import type { LocalizedMetadataItem } from '../../core/api/generated/model/localizedMetadataItem';
+import type { OpportunityDetailAdminResponse } from '../../core/api/generated/model/opportunityDetailAdminResponse';
 import type { OpportunityDetailResponse } from '../../core/api/generated/model/opportunityDetailResponse';
 import type { OpportunityListResponse } from '../../core/api/generated/model/opportunityListResponse';
 import type { OpportunitySummaryItem } from '../../core/api/generated/model/opportunitySummaryItem';
@@ -11,19 +13,9 @@ export type Opportunity = OpportunitySummaryItem;
 export { OpportunitySummaryItemStatus as OpportunityStatusEnum } from '../../core/api/generated/model/opportunitySummaryItemStatus';
 export type { OpportunitySummaryItemStatus as OpportunityStatus } from '../../core/api/generated/model/opportunitySummaryItemStatus';
 
-export interface AdminOpportunity extends Opportunity {
-  operatorName?: string;
-}
-
-export interface AdminOpportunitiesResponse {
-  items: AdminOpportunity[];
-  total: number;
-}
-
-export interface AdminOpportunityDetail extends OpportunityDetail {
-  operatorName?: string;
-  nationalTerritory?: boolean;
-}
+export type AdminOpportunity = OpportunitySummaryItem;
+export type AdminOpportunitiesResponse = OpportunityListResponse;
+export type AdminOpportunityDetail = OpportunityDetailAdminResponse;
 
 export interface ListAdminOpportunitiesParams {
   offset?: number;
@@ -38,9 +30,7 @@ export interface ListAdminOpportunitiesParams {
   dateTo?: string;
 }
 
-export interface ApproveOpportunityPayload {
-  dateFrom?: string;
-}
+export type ApproveOpportunityPayload = ApproveOpportunityBody;
 
 // UI-only filter state
 export interface OpportunityFilters {

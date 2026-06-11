@@ -63,7 +63,7 @@ resource "azurerm_application_gateway" "this" {
     content {
       enabled          = true
       firewall_mode    = "Prevention"
-      rule_set_version = "3.1"
+      rule_set_version = "3.2"
       rule_set_type    = "OWASP"
 
       dynamic "disabled_rule_group" {
@@ -71,6 +71,10 @@ resource "azurerm_application_gateway" "this" {
           {
             rule_group_name = "REQUEST-920-PROTOCOL-ENFORCEMENT"
             rules           = ["920300"]
+          },
+          {
+            rule_group_name = "REQUEST-931-APPLICATION-ATTACK-RFI"
+            rules           = ["931130"]
           }
         ]
         content {

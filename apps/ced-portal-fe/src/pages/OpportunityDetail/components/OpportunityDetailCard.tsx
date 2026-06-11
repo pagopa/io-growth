@@ -8,17 +8,20 @@ import {
   Divider,
   Typography,
 } from '@mui/material';
-import type { OpportunityDetail } from '../../../features/opportunities/types';
+import type { AdminOpportunityDetail } from '../../../features/opportunities/types';
 import { DetailSection } from './DetailSection';
 
 interface OpportunityDetailCardProps {
-  detail: OpportunityDetail;
+  detail: AdminOpportunityDetail;
 }
 
 export const OpportunityDetailCard = ({
   detail,
 }: Readonly<OpportunityDetailCardProps>) => {
   const mainFields = [
+    ...(detail.operatorName
+      ? [{ label: 'Ente', value: detail.operatorName }]
+      : []),
     { label: 'Categoria', value: detail.categoryTitle },
     {
       label: 'Inizio validità',

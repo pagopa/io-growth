@@ -22,7 +22,7 @@ import {
 import WarningAmberRoundedIcon from '@mui/icons-material/WarningAmberRounded';
 import { useCallback, useMemo, useState } from 'react';
 import { generatePath, useNavigate } from 'react-router-dom';
-import type { Opportunity } from '../../../features/opportunities/types';
+import type { AdminOpportunity } from '../../../features/opportunities/types';
 import {
   STATE_OPTIONS,
   STATE_COLORS,
@@ -32,7 +32,7 @@ import { APP_ROUTES } from '../../../app/routeConfig';
 type SortDirection = 'asc' | 'desc';
 
 interface OpportunitiesTableProps {
-  items: Opportunity[];
+  items: AdminOpportunity[];
   isLoading: boolean;
   isError: boolean;
   onRetry: () => void;
@@ -95,8 +95,8 @@ export const OpportunitiesTable = ({
 
   const sortedItems = useMemo(() => {
     return [...items].sort((a, b) => {
-      const aVal = a[sortBy as keyof Opportunity] ?? '';
-      const bVal = b[sortBy as keyof Opportunity] ?? '';
+      const aVal = a[sortBy as keyof AdminOpportunity] ?? '';
+      const bVal = b[sortBy as keyof AdminOpportunity] ?? '';
       const result = String(aVal).localeCompare(String(bVal), 'it', {
         sensitivity: 'base',
       });
@@ -217,17 +217,17 @@ export const OpportunitiesTable = ({
             <TableCell>
               <TableSortLabel
                 active={sortBy === 'created_at'}
-                direction={sortBy === 'created_at' ? sortDirection : 'asc'}
-                onClick={() => handleSort('created_at')}
+                direction={sortBy === 'dateFrom' ? sortDirection : 'asc'}
+                onClick={() => handleSort('dateFrom')}
               >
                 Creato il
               </TableSortLabel>
             </TableCell>
             <TableCell>
               <TableSortLabel
-                active={sortBy === 'state'}
-                direction={sortBy === 'state' ? sortDirection : 'asc'}
-                onClick={() => handleSort('state')}
+                active={sortBy === 'status'}
+                direction={sortBy === 'status' ? sortDirection : 'asc'}
+                onClick={() => handleSort('status')}
               >
                 Stato
               </TableSortLabel>
@@ -245,7 +245,7 @@ export const OpportunitiesTable = ({
                 />
               </TableCell>
               <TableCell>{item.name}</TableCell>
-              <TableCell>{item.categoryTitle}</TableCell>
+              <TableCell>{item.operatorName ?? '-'}</TableCell>
               <TableCell>
                 {new Date(item.dateFrom).toLocaleDateString('it-IT')}
               </TableCell>

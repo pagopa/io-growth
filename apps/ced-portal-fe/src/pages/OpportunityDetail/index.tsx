@@ -12,7 +12,10 @@ import {
 import WarningAmberRoundedIcon from '@mui/icons-material/WarningAmberRounded';
 import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { useGetOpportunityDetailQuery } from '../../features/opportunities/api';
+import {
+  useApproveOpportunityMutation,
+  useGetAdminOpportunityDetailQuery,
+} from '../../features/opportunities/api';
 import { APP_ROUTES } from '../../app/routeConfig';
 import { useToast } from '../../contexts';
 import { PublishModal } from '../../components/PublishModal';
@@ -29,7 +32,9 @@ export default function OpportunityDetailPage() {
     data: detail,
     isLoading,
     isError,
-  } = useGetOpportunityDetailQuery(id ?? '');
+  } = useGetAdminOpportunityDetailQuery(id ?? '');
+  const [approveOpportunity, { isLoading: isApproving }] =
+    useApproveOpportunityMutation();
   const [publishModalOpen, setPublishModalOpen] = useState(false);
   const [requestChangesOpen, setRequestChangesOpen] = useState(false);
 
@@ -161,10 +166,27 @@ export default function OpportunityDetailPage() {
       <PublishModal
         open={publishModalOpen}
         onClose={() => setPublishModalOpen(false)}
-        onPublish={() => {
-          setPublishModalOpen(false);
-          navigate(APP_ROUTES.OPPORTUNITIES);
-          showToast('Fatto!', 'success');
+        onPublish={async () => {
+          if (!id || isApproving) {
+            return;
+          }
+
+          try {
+            await approveOpportunity({
+              id,
+              payload: detail?.dateFrom
+                ? { dateFrom: detail.dateFrom }
+                : undefined,
+            }).unwrap();
+            setPublishModalOpen(false);
+            navigate(APP_ROUTES.OPPORTUNITIES);
+            showToast('Opportunità approvata con successo', 'success');
+          } catch {
+            showToast(
+              "Errore durante l'approvazione dell'opportunità",
+              'error',
+            );
+          }
         }}
         count={1}
         publishDate={

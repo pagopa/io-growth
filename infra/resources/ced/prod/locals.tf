@@ -26,7 +26,7 @@ locals {
     image = "ghcr.io/pagopa/io-growth/ced-portal-be:latest"
 
     app_settings = {
-      APPLICATIONINSIGHTS_ENTRA_ID_AUTH_ENABLED = "true"
+      APPLICATIONINSIGHTS_ENTRA_ID_AUTH_ENABLED = "false"
       APPINSIGHTS_SAMPLING_PERCENTAGE           = "100"
 
       PORT            = "8080"

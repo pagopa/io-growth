@@ -1,5 +1,13 @@
 # ced-portal-be
 
+## 0.0.14
+
+### Patch Changes
+
+- 15c464d: Added azure tracing adapter with hooks for fastify.
+- Updated dependencies [15c464d]
+  - @pagopa/io-core-adapter-tracing@0.0.1
+
 ## 0.0.13
 
 ### Patch Changes

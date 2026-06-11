@@ -1460,7 +1460,6 @@ components:
         - categoryTitle
         - beneficiaryBenefit
         - localizedMetadata
-        - operatorName
         - placeIds
         - createdAt
         - updatedAt

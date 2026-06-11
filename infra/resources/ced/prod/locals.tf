@@ -19,26 +19,26 @@ locals {
 
   secrets_id_template = "${data.azurerm_key_vault.common.vault_uri}secrets/%s"
 
+  portal_be_container_app_name = provider::dx::resource_name({
+    prefix          = local.prefix
+    environment     = local.env_short
+    location        = local.location
+    domain          = local.domain
+    name            = "portal-be"
+    instance_number = 1
+    resource_type   = "container_app"
+  })
+
   # Portal BE Container App configuration
   portal_be = {
     target_port = 8080
 
     image = "ghcr.io/pagopa/io-growth/ced-portal-be:latest"
 
-    container_app_name = provider::dx::resource_name({
-      prefix          = local.prefix
-      environment     = local.env_short
-      location        = local.location
-      domain          = local.domain
-      name            = "portal-be"
-      instance_number = 1
-      resource_type   = "container_app"
-    })
-
     app_settings = {
       APPLICATIONINSIGHTS_ENTRA_ID_AUTH_ENABLED = "false"
       APPINSIGHTS_SAMPLING_PERCENTAGE           = "100"
-      TELEMETRY_SERVICE_NAME                    = local.portal_be.container_app_name
+      TELEMETRY_SERVICE_NAME                    = local.portal_be_container_app_name
 
       AZURE_LOG_LEVEL = "error"
 

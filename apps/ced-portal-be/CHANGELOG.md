@@ -1,5 +1,13 @@
 # ced-portal-be
 
+## 0.0.15
+
+### Patch Changes
+
+- c92a9f0: Abstracted service name into infra
+- Updated dependencies [c92a9f0]
+  - @pagopa/io-core-adapter-tracing@0.0.2
+
 ## 0.0.14
 
 ### Patch Changes

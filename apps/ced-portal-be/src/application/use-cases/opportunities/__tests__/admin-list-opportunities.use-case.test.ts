@@ -4,7 +4,7 @@ import { describe, expect, it, vi } from "vitest";
 
 import type { PaginatedOpportunities } from "../../../../domain/ports/outbound/persistence/opportunity.repository.js";
 
-import { makeListOpportunitiesUseCase } from "../list-opportunities.use-case.js";
+import { makeListOpportunitiesUseCase } from "../admin-list-opportunities.use-case.js";
 import { createMockOpportunityRepository } from "./mocks.js";
 
 const mockPaginatedResult: PaginatedOpportunities = {
@@ -33,7 +33,7 @@ const validInput = {
 describe("makeListOpportunitiesUseCase", () => {
   it("should return paginated opportunities for admin role", async () => {
     const repository = createMockOpportunityRepository({
-      list: vi.fn().mockResolvedValue(ok(mockPaginatedResult)),
+      findAll: vi.fn().mockResolvedValue(ok(mockPaginatedResult)),
     });
     const useCase = makeListOpportunitiesUseCase(repository);
 
@@ -44,7 +44,7 @@ describe("makeListOpportunitiesUseCase", () => {
 
   it("should pass optional filters to repository", async () => {
     const repository = createMockOpportunityRepository({
-      list: vi.fn().mockResolvedValue(ok({ items: [], total: 0 })),
+      findAll: vi.fn().mockResolvedValue(ok({ items: [], total: 0 })),
     });
     const useCase = makeListOpportunitiesUseCase(repository);
 
@@ -58,7 +58,7 @@ describe("makeListOpportunitiesUseCase", () => {
 
     await useCase(inputWithFilters);
 
-    expect(repository.list).toHaveBeenCalledWith(
+    expect(repository.findAll).toHaveBeenCalledWith(
       expect.objectContaining({
         categoryId: inputWithFilters.categoryId,
         operatorId: inputWithFilters.operatorId,
@@ -71,7 +71,7 @@ describe("makeListOpportunitiesUseCase", () => {
   it("should propagate repository errors", async () => {
     const repoError = new GenericError("DB connection failed");
     const repository = createMockOpportunityRepository({
-      list: vi.fn().mockResolvedValue(err(repoError)),
+      findAll: vi.fn().mockResolvedValue(err(repoError)),
     });
     const useCase = makeListOpportunitiesUseCase(repository);
 
@@ -89,6 +89,24 @@ describe("makeListOpportunitiesUseCase", () => {
     expect(result).toEqual(
       err(expect.objectContaining({ kind: "ValidationError" })),
     );
-    expect(repository.list).not.toHaveBeenCalled();
+    expect(repository.findAll).not.toHaveBeenCalled();
+  });
+
+  it("should forward default pagination and sorting values to repository", async () => {
+    const repository = createMockOpportunityRepository({
+      findAll: vi.fn().mockResolvedValue(ok({ items: [], total: 0 })),
+    });
+    const useCase = makeListOpportunitiesUseCase(repository);
+
+    await useCase(validInput);
+
+    expect(repository.findAll).toHaveBeenCalledWith(
+      expect.objectContaining({
+        limit: 20,
+        offset: 0,
+        sortBy: "createdAt",
+        sortOrder: "desc",
+      }),
+    );
   });
 });

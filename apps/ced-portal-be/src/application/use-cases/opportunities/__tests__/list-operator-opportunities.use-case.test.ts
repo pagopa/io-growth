@@ -32,19 +32,19 @@ const validInput = {
 describe("makeListOperatorOpportunitiesUseCase", () => {
   it("should return paginated opportunities", async () => {
     const repository = createMockOpportunityRepository({
-      list: vi.fn().mockResolvedValue(ok(mockPaginatedResult)),
+      findAll: vi.fn().mockResolvedValue(ok(mockPaginatedResult)),
     });
     const useCase = makeListOperatorOpportunitiesUseCase(repository);
 
     const result = await useCase(validInput);
 
     expect(result).toEqual(ok(mockPaginatedResult));
-    expect(repository.list).toHaveBeenCalledWith(validInput);
+    expect(repository.findAll).toHaveBeenCalledWith(validInput);
   });
 
   it("should pass optional filters to repository", async () => {
     const repository = createMockOpportunityRepository({
-      list: vi.fn().mockResolvedValue(ok({ items: [], total: 0 })),
+      findAll: vi.fn().mockResolvedValue(ok({ items: [], total: 0 })),
     });
     const useCase = makeListOperatorOpportunitiesUseCase(repository);
 
@@ -56,12 +56,12 @@ describe("makeListOperatorOpportunitiesUseCase", () => {
 
     await useCase(inputWithFilters);
 
-    expect(repository.list).toHaveBeenCalledWith(inputWithFilters);
+    expect(repository.findAll).toHaveBeenCalledWith(inputWithFilters);
   });
 
   it("should pass categoryId filter to repository", async () => {
     const repository = createMockOpportunityRepository({
-      list: vi.fn().mockResolvedValue(ok({ items: [], total: 0 })),
+      findAll: vi.fn().mockResolvedValue(ok({ items: [], total: 0 })),
     });
     const useCase = makeListOperatorOpportunitiesUseCase(repository);
 
@@ -72,13 +72,13 @@ describe("makeListOperatorOpportunitiesUseCase", () => {
 
     await useCase(inputWithCategory);
 
-    expect(repository.list).toHaveBeenCalledWith(inputWithCategory);
+    expect(repository.findAll).toHaveBeenCalledWith(inputWithCategory);
   });
 
   it("should propagate repository errors", async () => {
     const repoError = new GenericError("DB connection failed");
     const repository = createMockOpportunityRepository({
-      list: vi.fn().mockResolvedValue(err(repoError)),
+      findAll: vi.fn().mockResolvedValue(err(repoError)),
     });
     const useCase = makeListOperatorOpportunitiesUseCase(repository);
 
@@ -96,12 +96,12 @@ describe("makeListOperatorOpportunitiesUseCase", () => {
     expect(result).toEqual(
       err(expect.objectContaining({ kind: "ValidationError" })),
     );
-    expect(repository.list).not.toHaveBeenCalled();
+    expect(repository.findAll).not.toHaveBeenCalled();
   });
 
   it("should apply default values for limit, offset, sortBy, sortOrder", async () => {
     const repository = createMockOpportunityRepository({
-      list: vi.fn().mockResolvedValue(ok({ items: [], total: 0 })),
+      findAll: vi.fn().mockResolvedValue(ok({ items: [], total: 0 })),
     });
     const useCase = makeListOperatorOpportunitiesUseCase(repository);
 
@@ -113,7 +113,7 @@ describe("makeListOperatorOpportunitiesUseCase", () => {
       sortOrder: "desc",
     });
 
-    expect(repository.list).toHaveBeenCalledWith({
+    expect(repository.findAll).toHaveBeenCalledWith({
       limit: 20,
       offset: 0,
       operatorId: MOCK_OPERATOR_ID,

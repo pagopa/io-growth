@@ -44,15 +44,15 @@ export interface OpportunityRepository {
   readonly create: (
     input: CreateOpportunityInput,
   ) => Promise<Result<OpportunityDetail, GenericError>>;
+  readonly findAll: (
+    input: ListOpportunitiesInput,
+  ) => Promise<Result<PaginatedOpportunities, GenericError>>;
   readonly findById: (
     input: FindByIdInput,
   ) => Promise<Result<OpportunityDetail | undefined, GenericError>>;
   readonly findByIdAndOperatorId: (
     input: FindByIdAndOperatorIdInput,
   ) => Promise<Result<OpportunityDetail | undefined, GenericError>>;
-  readonly list: (
-    input: ListOpportunitiesInput,
-  ) => Promise<Result<PaginatedOpportunities, GenericError>>;
   readonly updateStatusById: (
     input: UpdateOpportunityStatusByIdInput,
   ) => Promise<Result<void, ConflictError | GenericError>>;

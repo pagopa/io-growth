@@ -12,6 +12,7 @@ import type {
   PaginatedOpportunities,
 } from "../../../domain/ports/outbound/persistence/opportunity.repository.js";
 
+import { USER_TYPES } from "../../../domain/entities/user-type.js";
 import { validateUseCaseInput } from "../utils/validate-use-case-input.js";
 
 const ListOpportunitiesInputSchema = z.object({
@@ -35,7 +36,8 @@ const ListOpportunitiesInputSchema = z.object({
       "deleted",
     ])
     .optional(),
-  userType: z.enum(["admin", "operator", "test_user"]),
+  // kept for future per-userType branching
+  userType: z.enum(USER_TYPES),
 });
 
 export type ListOpportunitiesInput = z.infer<
@@ -54,7 +56,7 @@ export const makeListOpportunitiesUseCase =
     validateUseCaseInput(ListOpportunitiesInputSchema, input).andThen(
       (validatedInput) =>
         new ResultAsync(
-          opportunityRepository.list({
+          opportunityRepository.findAll({
             categoryId: validatedInput.categoryId,
             dateFrom: validatedInput.dateFrom,
             dateTo: validatedInput.dateTo,

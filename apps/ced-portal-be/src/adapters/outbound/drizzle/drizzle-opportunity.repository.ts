@@ -248,12 +248,7 @@ export const createDrizzleOpportunityRepository = (
     }
   },
 
-  findById: findById(db),
-
-  findByIdAndOperatorId: async (input: FindByIdAndOperatorIdInput) =>
-    findByIdAndOperatorId(db, input),
-
-  list: async (
+  findAll: async (
     input: ListOpportunitiesInput,
   ): Promise<Result<PaginatedOpportunities, GenericError>> => {
     try {
@@ -336,6 +331,11 @@ export const createDrizzleOpportunityRepository = (
       );
     }
   },
+
+  findById: findById(db),
+
+  findByIdAndOperatorId: async (input: FindByIdAndOperatorIdInput) =>
+    findByIdAndOperatorId(db, input),
 
   updateStatusById: updateStatusById(db),
 

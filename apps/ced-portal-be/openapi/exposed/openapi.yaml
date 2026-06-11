@@ -570,7 +570,7 @@ paths:
       tags:
         - Opportunities
       summary: List all opportunities across all operators (department only)
-      operationId: listGlobalOpportunities
+      operationId: listAdminOpportunities
       security:
         - bearerAuth: []
       parameters:
@@ -655,7 +655,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/OpportunityListResponse"
+                $ref: "#/components/schemas/AdminOpportunityListResponse"
         "401":
           description: Invalid or missing JWT
           content:
@@ -1457,7 +1457,55 @@ components:
         total:
           type: integer
           minimum: 0
+    AdminOpportunityListResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - items
+        - total
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/AdminOpportunitySummaryItem"
+        total:
+          type: integer
+          minimum: 0
     OpportunitySummaryItem:
+      type: object
+      additionalProperties: false
+      required:
+        - id
+        - status
+        - name
+        - categoryTitle
+        - dateFrom
+      properties:
+        id:
+          type: string
+          pattern: "^[0-9A-HJKMNP-TV-Z]{26}$"
+        status:
+          type: string
+          enum:
+            - draft
+            - test_pending
+            - test_rejected
+            - test_passed
+            - published
+            - suspended
+            - deleted
+        name:
+          type: string
+        categoryTitle:
+          type: string
+        dateFrom:
+          type: string
+          format: date
+        dateTo:
+          type: string
+          format: date
+          nullable: true
+    AdminOpportunitySummaryItem:
       type: object
       additionalProperties: false
       required:

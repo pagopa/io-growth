@@ -126,6 +126,7 @@ export const OpportunityDetailSchema = z.object({
   id: z.ulid(),
   localizedMetadata: z.array(localizedMetadataSummarySchema),
   nationalTerritory: z.boolean(),
+  operatorName: z.string().optional(),
   placeIds: z.array(z.ulid()),
   status: z.enum([
     "draft",

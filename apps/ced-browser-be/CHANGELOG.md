@@ -1,5 +1,12 @@
 # ced-browser-be
 
+## 0.0.8
+
+### Patch Changes
+
+- Updated dependencies [d146483]
+  - @pagopa/io-core-adapter-redis@0.0.7
+
 ## 0.0.7
 
 ### Patch Changes

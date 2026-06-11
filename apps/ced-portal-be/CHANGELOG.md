@@ -1,5 +1,15 @@
 # ced-portal-be
 
+## 0.0.17
+
+### Patch Changes
+
+- d146483: integrated error logging and audits
+- Updated dependencies [d146483]
+  - @pagopa/io-core-adapter-drizzle@0.0.3
+  - @pagopa/io-core-adapter-tracing@0.0.3
+  - @pagopa/io-core-adapter-redis@0.0.7
+
 ## 0.0.16
 
 ### Patch Changes

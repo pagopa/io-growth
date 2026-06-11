@@ -11,32 +11,32 @@ import { z } from "zod";
 import type { OpportunityDetail } from "../../../domain/entities/opportunity.js";
 import type { OpportunityRepository } from "../../../domain/ports/outbound/persistence/opportunity.repository.js";
 
+import { USER_TYPES } from "../../../domain/entities/user-type.js";
 import { validateUseCaseInput } from "../utils/validate-use-case-input.js";
 
-const GetOperatorOpportunityInputSchema = z.object({
-  operatorId: z.ulid(),
+const GetOpportunityInputSchema = z.object({
   opportunityId: z.ulid(),
+  // kept for future per-userType branching
+  userType: z.enum(USER_TYPES),
 });
 
-export type GetOperatorOpportunityInput = z.infer<
-  typeof GetOperatorOpportunityInputSchema
->;
+export type GetOpportunityInput = z.infer<typeof GetOpportunityInputSchema>;
 
-export type GetOperatorOpportunityUseCase = UseCase<
-  GetOperatorOpportunityInput,
+export type GetOpportunityUseCase = UseCase<
+  GetOpportunityInput,
   OpportunityDetail,
   GenericError | NotFoundError | ValidationError
 >;
 
-export const makeGetOperatorOpportunityUseCase =
-  (
-    opportunityRepository: OpportunityRepository,
-  ): GetOperatorOpportunityUseCase =>
+export const makeGetOpportunityUseCase =
+  (opportunityRepository: OpportunityRepository): GetOpportunityUseCase =>
   async (input) =>
-    validateUseCaseInput(GetOperatorOpportunityInputSchema, input).andThen(
+    validateUseCaseInput(GetOpportunityInputSchema, input).andThen(
       (validatedInput) =>
         new ResultAsync(
-          opportunityRepository.findByIdAndOperatorId(validatedInput),
+          opportunityRepository.findById({
+            opportunityId: validatedInput.opportunityId,
+          }),
         ).andThen((data) =>
           data ? ok(data) : err(new NotFoundError("Opportunity", "not found")),
         ),

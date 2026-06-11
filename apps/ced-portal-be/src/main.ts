@@ -92,7 +92,7 @@ const dbClient = createTypedDbClient(
     onNotice: (notice) => {
       emitCustomEvent("database.notice", {
         caller: "DrizzleClient",
-        data: JSON.stringify({ message: notice.message }),
+        data: { message: notice.message },
       })("DrizzleClient");
     },
     onTransaction: async (tx) => {
@@ -118,9 +118,7 @@ const redisClient = await createResilientRedisClient({
   onError: (error) => {
     emitCustomEvent("redis.connection.error", {
       caller: "RedisClient",
-      data: JSON.stringify({
-        message: error instanceof Error ? error.message : String(error),
-      }),
+      data: { message: error instanceof Error ? error.message : String(error) },
     })("RedisClient");
   },
   tls: config.REDIS_TLS,

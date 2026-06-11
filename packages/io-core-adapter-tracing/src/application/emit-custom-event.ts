@@ -20,7 +20,7 @@ import { getTelemetryClient } from "./telemetry-registry.js";
  * @returns a function accepting the caller context that performs the emission.
  */
 export const emitCustomEvent =
-  (eventName: string, payload: CustomEventPayload) =>
+  <T>(eventName: string, payload: CustomEventPayload<T>) =>
   (callerContext?: string): void => {
     getTelemetryClient().trackEvent({
       caller: callerContext ?? payload.caller,

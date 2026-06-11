@@ -1,4 +1,4 @@
-import { hashFiscalCode } from "@pagopa/io-core-adapter-fims";
+import { hashUppercasedString } from "@pagopa/io-core-domain/utilities";
 import { SignJWT } from "jose";
 import { ok } from "neverthrow";
 import { describe, expect, it, vi } from "vitest";
@@ -46,7 +46,7 @@ describe("makeAcsUseCase — admin path", () => {
     const operatorRepository = createMockOperatorRepository();
     const adminConfig = {
       ADMIN_FISCAL_CODES: [
-        hashFiscalCode(validPayload.organization.fiscal_code),
+        hashUppercasedString(validPayload.organization.fiscal_code),
       ],
     };
     const useCase = makeAcsUseCase(

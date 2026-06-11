@@ -36,6 +36,7 @@ export interface OpportunityDetailRow {
     readonly value: string;
   }[];
   readonly nationalTerritory: boolean;
+  readonly operator?: null | { readonly name: string };
   readonly opportunityPlaces: readonly { readonly placeId: string }[];
   readonly status: OpportunitySummary["status"];
   readonly updatedAt: Date;
@@ -131,6 +132,7 @@ export const mapOpportunityDetailRow = (
       value: lm.value,
     })),
     nationalTerritory: row.nationalTerritory,
+    operatorName: row.operator?.name,
     placeIds: row.opportunityPlaces.map((op) => op.placeId),
     status: row.status,
     updatedAt: row.updatedAt.toISOString(),

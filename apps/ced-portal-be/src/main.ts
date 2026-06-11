@@ -1,3 +1,7 @@
+// Side-effect import: must stay FIRST so tracing instrumentation is installed
+// before any instrumented library (Fastify, PostgreSQL, Redis, fetch) loads.
+import "./telemetry.js";
+
 import {
   createDocumentContentClient,
   createInstitutionClient,
@@ -10,6 +14,7 @@ import {
   multipart,
 } from "@pagopa/io-core-adapter-fastify";
 import { createResilientRedisClient } from "@pagopa/io-core-adapter-redis";
+import { tracingPlugin } from "@pagopa/io-core-adapter-tracing";
 import { sql as drizzleSql } from "drizzle-orm";
 import Fastify from "fastify";
 
@@ -117,6 +122,9 @@ const arOnboardingRepository = createArOnboardingRepository(
 );
 
 const app = Fastify();
+
+// Register telemetry plugin to auto-track every endpoint result and exception.
+await app.register(tracingPlugin);
 
 await app.register(multipart);
 

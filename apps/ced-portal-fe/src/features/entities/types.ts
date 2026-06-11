@@ -29,9 +29,7 @@ export type EntityDetailUser = {
 };
 
 export type DepartmentOnboardingItem = OnboardingItem & {
-  id: string;
   status?: DepartmentOnboardingStatus;
-  institution?: OnboardingInstitution;
 };
 
 export type DepartmentOnboardingsResponse = PendingOnboardingsResponse;

@@ -1,7 +1,7 @@
 import { createAuditStorage } from "@pagopa/io-core-adapter-drizzle";
 
 export interface AuditContext {
-  readonly operatorId: string;
+  readonly operatorExternalId: string;
   readonly referentExternalId: string;
   readonly referentFullname: string;
 }

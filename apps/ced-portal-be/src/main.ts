@@ -99,7 +99,7 @@ const dbClient = createTypedDbClient(
       const audit = auditData.getStore();
       if (!audit) return;
       await tx.execute(
-        drizzleSql`SELECT set_config('app.referent_fullname', ${audit.referentFullname}, true), set_config('app.operator_id', ${audit.operatorId}, true), set_config('app.referent_external_id', ${audit.referentExternalId}, true)`,
+        drizzleSql`SELECT set_config('app.referent_fullname', ${audit.referentFullname}, true), set_config('app.operator_external_id', ${audit.operatorExternalId}, true), set_config('app.referent_external_id', ${audit.referentExternalId}, true)`,
       );
     },
     password: config.POSTGRES_PASSWORD,
@@ -177,10 +177,14 @@ app.register(async (app) => {
     getSessionFromRequest(request, SessionSchema)
       .then((result) => {
         if (result.isOk()) {
-          const { firstName, lastName, operatorId, referentExternalId } =
-            result.value;
+          const {
+            firstName,
+            lastName,
+            operatorExternalId,
+            referentExternalId,
+          } = result.value;
           auditData.enterWith({
-            operatorId,
+            operatorExternalId,
             referentExternalId,
             referentFullname: `${lastName} ${firstName}`,
           });

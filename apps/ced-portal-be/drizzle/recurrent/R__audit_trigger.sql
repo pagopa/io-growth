@@ -3,11 +3,11 @@ CREATE OR REPLACE FUNCTION process_audit()
 RETURNS TRIGGER AS $$
 DECLARE
     op_type TEXT;
-    operator_id TEXT;
+    operator_external_id TEXT;
     referent_external_id TEXT;
     referent_fullname TEXT;
 BEGIN
-    operator_id := current_setting('app.operator_id', true);
+    operator_external_id := current_setting('app.operator_external_id', true);
     referent_external_id := current_setting('app.referent_external_id', true);
     referent_fullname := current_setting('app.referent_fullname', true);
 
@@ -19,14 +19,14 @@ BEGIN
 
     -- Skip audit if no authenticated session context is available
     -- (e.g., direct admin queries, migrations, or context propagation gaps).
-    IF operator_id IS NULL OR operator_id = '' THEN
+    IF operator_external_id IS NULL OR operator_external_id = '' THEN
         RETURN NEW;
     END IF;
 
     BEGIN
-        INSERT INTO change_audit (operator_id, referent_external_id, referent_fullname, entity_type, entity_id, change_type, value)
+        INSERT INTO change_audit (operator_external_id, referent_external_id, referent_fullname, entity_type, entity_id, change_type, value)
         VALUES (
-            operator_id,
+            operator_external_id,
             referent_external_id,
             referent_fullname,
             TG_TABLE_NAME::text::change_audit_entity_type,

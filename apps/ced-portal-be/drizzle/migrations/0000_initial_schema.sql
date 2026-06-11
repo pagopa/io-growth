@@ -153,7 +153,7 @@ CREATE TABLE localized_metadata (
 
 CREATE TABLE change_audit (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  operator_id CHAR(26) NOT NULL,
+  operator_external_id VARCHAR(512) NOT NULL,
   referent_external_id VARCHAR(512) NOT NULL,
   referent_fullname VARCHAR(512) NOT NULL,
   entity_type change_audit_entity_type NOT NULL,

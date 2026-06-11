@@ -42,14 +42,14 @@ const buildEntraIdCredentialsProvider = () =>
 
 const makeNodeAddressMap =
   (redisHostName: string) =>
-    (incomingAddress: string): { host: string; port: number } => {
-      const [hostNameOrIp = redisHostName, port = "10000"] =
-        incomingAddress.split(":");
-      return {
-        host: net.isIP(hostNameOrIp) !== 0 ? redisHostName : hostNameOrIp,
-        port: Number(port),
-      };
+  (incomingAddress: string): { host: string; port: number } => {
+    const [hostNameOrIp = redisHostName, port = "10000"] =
+      incomingAddress.split(":");
+    return {
+      host: net.isIP(hostNameOrIp) !== 0 ? redisHostName : hostNameOrIp,
+      port: Number(port),
     };
+  };
 
 export const createRedisClient = async (
   config: RedisClientConfig,

@@ -25,7 +25,7 @@ export const SessionSchema = z.object({
  */
 export const OperatorSessionSchema = SessionSchema.pick({
   operatorId: true,
-});
+}).required();
 
 export const UserTypeSessionSchema = SessionSchema.pick({
   userType: true,

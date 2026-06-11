@@ -25,7 +25,7 @@ const createOperatorProfileValidator = withSession(
   createHttpRequestValidator(createProfileHttpSchema),
   (session, { body }) => ({
     displayName: body.displayName,
-    operatorId: session.operatorId ?? "",
+    operatorId: session.operatorId,
     place: body.place,
   }),
 );

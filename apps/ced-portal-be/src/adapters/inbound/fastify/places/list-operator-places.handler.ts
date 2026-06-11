@@ -15,7 +15,7 @@ import { ListOperatorPlacesResponse } from "../contracts/places/places.js";
 const listOperatorPlacesValidator = withSession(
   OperatorSessionSchema,
   emptyValidator,
-  (session) => ({ operatorId: session.operatorId ?? "" }),
+  (session) => ({ operatorId: session.operatorId }),
 );
 
 const listOperatorPlacesFormatter = createHttpResponseFormatter(

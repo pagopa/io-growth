@@ -24,7 +24,7 @@ const createOperatorPlaceValidator = withSession(
   OperatorSessionSchema,
   createHttpRequestValidator(createOperatorPlaceHttpSchema),
   (session, { body }) => ({
-    operatorId: session.operatorId ?? "",
+    operatorId: session.operatorId,
     place: body,
   }),
 );

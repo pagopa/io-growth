@@ -61,6 +61,7 @@ describe("makeAcsUseCase — admin path", () => {
     expect(result).toEqual(
       ok({ sessionId: expect.stringMatching(/^[a-f0-9]{64}$/) }),
     );
+    expect(operatorRepository.create).not.toHaveBeenCalled();
     expect(operatorRepository.getByExternalId).not.toHaveBeenCalled();
     expect(sessionRepository.createSession).toHaveBeenCalledOnce();
     const [, session] = (

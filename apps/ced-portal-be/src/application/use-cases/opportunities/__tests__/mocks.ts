@@ -63,7 +63,10 @@ export const createMockOpportunityRepository = (
 ): OpportunityRepository => ({
   countByOperatorIds: overrides.countByOperatorIds ?? vi.fn(),
   create: overrides.create ?? vi.fn(),
-  getById: overrides.getById ?? vi.fn(),
+  findById: overrides.findById ?? vi.fn(),
+  findByIdAndOperatorId: overrides.findByIdAndOperatorId ?? vi.fn(),
   list: overrides.list ?? vi.fn(),
-  updateStatus: overrides.updateStatus ?? vi.fn(),
+  updateStatusById: overrides.updateStatusById ?? vi.fn(),
+  updateStatusByIdAndOperatorId:
+    overrides.updateStatusByIdAndOperatorId ?? vi.fn(),
 });

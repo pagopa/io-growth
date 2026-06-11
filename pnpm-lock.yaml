@@ -450,6 +450,9 @@ importers:
       '@pagopa/io-core-adapter-fastify':
         specifier: workspace:^
         version: link:../../packages/io-core-adapter-fastify
+      '@pagopa/io-core-adapter-fims':
+        specifier: workspace:^
+        version: link:../../packages/io-core-adapter-fims
       '@pagopa/io-core-adapter-redis':
         specifier: workspace:^
         version: link:../../packages/io-core-adapter-redis

@@ -44,26 +44,26 @@ export const makeOperatorRequestOpportunityTestUseCase =
       OperatorRequestOpportunityTestInputSchema,
       input,
     ).andThen((validatedInput) =>
-      new ResultAsync(opportunityRepository.getById(validatedInput)).andThen(
-        (data) => {
-          if (!data) {
-            return errAsync(new NotFoundError("Opportunity", "not found"));
-          }
-          if (data.status !== "draft") {
-            return errAsync(
-              new PreconditionFailedError(
-                "Opportunity must be in draft status to request testing",
-              ),
-            );
-          }
-          return new ResultAsync(
-            opportunityRepository.updateStatus({
-              expectedStatus: "draft",
-              operatorId: validatedInput.operatorId,
-              opportunityId: validatedInput.opportunityId,
-              status: "test_pending",
-            }),
+      new ResultAsync(
+        opportunityRepository.findByIdAndOperatorId(validatedInput),
+      ).andThen((data) => {
+        if (!data) {
+          return errAsync(new NotFoundError("Opportunity", "not found"));
+        }
+        if (data.status !== "draft") {
+          return errAsync(
+            new PreconditionFailedError(
+              "Opportunity must be in draft status to request testing",
+            ),
           );
-        },
-      ),
+        }
+        return new ResultAsync(
+          opportunityRepository.updateStatusByIdAndOperatorId({
+            expectedStatus: "draft",
+            operatorId: validatedInput.operatorId,
+            opportunityId: validatedInput.opportunityId,
+            status: "test_pending",
+          }),
+        );
+      }),
     );

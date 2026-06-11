@@ -7,11 +7,13 @@ import { err, ok } from "neverthrow";
 
 import type { OpportunityDetail } from "../../../domain/entities/opportunity.js";
 import type {
-  GetOpportunityByIdInput,
+  FindByIdAndOperatorIdInput,
+  FindByIdInput,
   ListOpportunitiesInput,
   OpportunityRepository,
   PaginatedOpportunities,
-  UpdateOpportunityStatusInput,
+  UpdateOpportunityStatusByIdAndOperatorIdInput,
+  UpdateOpportunityStatusByIdInput,
 } from "../../../domain/ports/outbound/persistence/opportunity.repository.js";
 
 import {
@@ -35,9 +37,9 @@ type TransactionClient = Parameters<
 const escapeIlikePattern = (value: string): string =>
   value.replace(/\\/g, "\\\\").replace(/%/g, "\\%").replace(/_/g, "\\_");
 
-const getOpportunityDetailById = async (
+const findByIdAndOperatorId = async (
   db: DbOrTxClient,
-  input: GetOpportunityByIdInput,
+  input: FindByIdAndOperatorIdInput,
 ): Promise<Result<OpportunityDetail | undefined, GenericError>> => {
   try {
     const row = await db.query.opportunity.findFirst({
@@ -92,6 +94,91 @@ const getOpportunityDetailById = async (
     );
   }
 };
+const findById =
+  (db: TypedDbClient<typeof schema>) =>
+  async (
+    input: FindByIdInput,
+  ): Promise<Result<OpportunityDetail | undefined, GenericError>> => {
+    try {
+      const row = await db.query.opportunity.findFirst({
+        columns: {
+          categoryId: true,
+          createdAt: true,
+          dateFrom: true,
+          dateTo: true,
+          id: true,
+          nationalTerritory: true,
+          status: true,
+          updatedAt: true,
+          url: true,
+        },
+        where: eq(opportunity.id, input.opportunityId),
+        with: {
+          beneficiaryBenefit: {
+            columns: {
+              description: true,
+              discountType: true,
+              type: true,
+              value: true,
+            },
+          },
+          caregiverBenefit: {
+            columns: {
+              description: true,
+              discountType: true,
+              type: true,
+              value: true,
+            },
+          },
+          category: { columns: { title: true } },
+          localizedMetadata: {
+            columns: { key: true, language: true, value: true },
+          },
+          operator: { columns: { name: true } },
+          opportunityPlaces: { columns: { placeId: true } },
+        },
+      });
+      if (!row) return ok(undefined);
+      return mapOpportunityDetailRow(row);
+    } catch (error) {
+      return err(
+        new GenericError(`Failed to get opportunity: ${String(error)}`),
+      );
+    }
+  };
+
+const updateStatusById =
+  (db: TypedDbClient<typeof schema>) =>
+  async (
+    input: UpdateOpportunityStatusByIdInput,
+  ): Promise<Result<void, ConflictError | GenericError>> => {
+    try {
+      const result = await db
+        .update(opportunity)
+        .set({
+          ...(input.dateFrom ? { dateFrom: input.dateFrom } : {}),
+          status: input.status,
+          updatedAt: new Date(),
+        })
+        .where(
+          and(
+            eq(opportunity.id, input.opportunityId),
+            inArray(opportunity.status, input.expectedStatuses),
+          ),
+        );
+      if (result.count === 0)
+        return err(
+          new ConflictError("Opportunity status was modified concurrently"),
+        );
+      return ok(undefined);
+    } catch (error) {
+      return err(
+        new GenericError(
+          `Failed to update opportunity status: ${String(error)}`,
+        ),
+      );
+    }
+  };
 
 export const createDrizzleOpportunityRepository = (
   db: TypedDbClient<typeof schema>,
@@ -132,7 +219,7 @@ export const createDrizzleOpportunityRepository = (
           input.opportunity,
         );
 
-        return await getOpportunityDetailById(tx, {
+        return await findByIdAndOperatorId(tx, {
           operatorId: input.operatorId,
           opportunityId: input.opportunity.id,
         });
@@ -160,8 +247,10 @@ export const createDrizzleOpportunityRepository = (
     }
   },
 
-  getById: async (input: GetOpportunityByIdInput) =>
-    getOpportunityDetailById(db, input),
+  findById: findById(db),
+
+  findByIdAndOperatorId: async (input: FindByIdAndOperatorIdInput) =>
+    findByIdAndOperatorId(db, input),
 
   list: async (
     input: ListOpportunitiesInput,
@@ -244,8 +333,10 @@ export const createDrizzleOpportunityRepository = (
     }
   },
 
-  updateStatus: async (
-    input: UpdateOpportunityStatusInput,
+  updateStatusById: updateStatusById(db),
+
+  updateStatusByIdAndOperatorId: async (
+    input: UpdateOpportunityStatusByIdAndOperatorIdInput,
   ): Promise<Result<void, ConflictError | GenericError>> => {
     try {
       const conditions = [

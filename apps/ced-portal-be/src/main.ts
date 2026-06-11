@@ -24,6 +24,7 @@ import Fastify from "fastify";
 import { SessionSchema } from "./adapters/inbound/fastify/auth/session.js";
 import {
   mountAcsHandler,
+  mountApproveOpportunityHandler,
   mountAuthorizeHandler,
   mountCompleteOnboardingHandler,
   mountCreateOperatorOpportunityHandler,
@@ -34,6 +35,7 @@ import {
   mountGetOperatorOpportunityHandler,
   mountGetOperatorPlaceHandler,
   mountGetOperatorProfileHandler,
+  mountGetOpportunityHandler,
   mountInfoReadinessHandler,
   mountInfoStartupHandler,
   mountListOperatorOpportunitiesHandler,
@@ -60,8 +62,10 @@ import { makeGetOnboardingUseCase } from "./application/use-cases/department/get
 import { makeListOnboardingsUseCase } from "./application/use-cases/department/list-onboardings.use-case.js";
 import { makeGetInfoReadinessUseCase } from "./application/use-cases/health/info-readiness.use-case.js";
 import { makeGetInfoStartupUseCase } from "./application/use-cases/health/info-startup.use-case.js";
+import { makeApproveOpportunityUseCase } from "./application/use-cases/opportunities/approve-opportunity.use-case.js";
 import { makeCreateOperatorOpportunityUseCase } from "./application/use-cases/opportunities/create-operator-opportunity.use-case.js";
 import { makeGetOperatorOpportunityUseCase } from "./application/use-cases/opportunities/get-operator-opportunity.use-case.js";
+import { makeGetOpportunityUseCase } from "./application/use-cases/opportunities/get-opportunity.use-case.js";
 import { makeListOperatorOpportunitiesUseCase } from "./application/use-cases/opportunities/list-operator-opportunities.use-case.js";
 import { makeListOpportunityCategoriesUseCase } from "./application/use-cases/opportunities/list-opportunity-categories.use-case.js";
 import { makeOperatorRequestOpportunityTestUseCase } from "./application/use-cases/opportunities/operator-request-opportunity-test.use-case.js";
@@ -154,7 +158,10 @@ const getInfoReadinessUseCase = makeGetInfoReadinessUseCase({
 // Inbound adapters — public routes
 mountInfoStartupHandler(app, makeGetInfoStartupUseCase);
 mountInfoReadinessHandler(app, getInfoReadinessUseCase);
-mountAcsHandler(app, makeAcsUseCase(sessionRepository, operatorRepository));
+mountAcsHandler(
+  app,
+  makeAcsUseCase(sessionRepository, operatorRepository, config),
+);
 mountAuthorizeHandler(app, makeAuthorizeUseCase(sessionRepository));
 
 // Authenticated routes scope
@@ -248,6 +255,14 @@ app.register(async (app) => {
   mountGetOnboardingHandler(
     app,
     makeGetOnboardingUseCase(arOnboardingRepository),
+  );
+  mountGetOpportunityHandler(
+    app,
+    makeGetOpportunityUseCase(opportunityRepository),
+  );
+  mountApproveOpportunityHandler(
+    app,
+    makeApproveOpportunityUseCase(opportunityRepository),
   );
 });
 

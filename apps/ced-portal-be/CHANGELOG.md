@@ -1,5 +1,11 @@
 # ced-portal-be
 
+## 0.0.16
+
+### Patch Changes
+
+- 2287080: add @pagopa/io-core-adapter-fims dependency for fiscal code hashing
+
 ## 0.0.15
 
 ### Patch Changes

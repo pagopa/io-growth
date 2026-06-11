@@ -128,12 +128,12 @@ export default function EntityDetailPage() {
 
   const entityFields = onboarding
     ? [
-        { label: 'Ragione sociale', value: entityName },
+        { label: 'Prodotto', value: onboarding.productId ?? 'XXX' },
         {
           label: 'Tipologia di soggetto aderente',
           value: onboarding.institution?.institutionType ?? 'XXX',
         },
-        { label: 'Prodotto', value: onboarding.productId ?? 'XXX' },
+        { label: 'Ragione sociale', value: entityName },
         {
           label: 'Sede legale',
           value: onboarding.institution?.address ?? 'XXX',

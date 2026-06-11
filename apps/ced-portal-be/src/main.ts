@@ -14,7 +14,10 @@ import {
   multipart,
 } from "@pagopa/io-core-adapter-fastify";
 import { createResilientRedisClient } from "@pagopa/io-core-adapter-redis";
-import { tracingPlugin } from "@pagopa/io-core-adapter-tracing";
+import {
+  emitCustomEvent,
+  tracingPlugin,
+} from "@pagopa/io-core-adapter-tracing";
 import { sql as drizzleSql } from "drizzle-orm";
 import Fastify from "fastify";
 
@@ -82,6 +85,12 @@ const dbClient = createTypedDbClient(
     database: config.POSTGRES_DB,
     host: config.POSTGRES_HOST,
     max: config.POSTGRES_MAX_CONNECTIONS,
+    onNotice: (notice) => {
+      emitCustomEvent("database.notice", {
+        caller: "DrizzleClient",
+        data: JSON.stringify({ message: notice.message }),
+      })("DrizzleClient");
+    },
     onTransaction: async (tx) => {
       const audit = auditData.getStore();
       if (!audit) return;
@@ -102,6 +111,14 @@ const redisClient = await createResilientRedisClient({
   entraId: config.AZURE_CLIENT_ID
     ? { clientId: config.AZURE_CLIENT_ID }
     : undefined,
+  onError: (error) => {
+    emitCustomEvent("redis.connection.error", {
+      caller: "RedisClient",
+      data: JSON.stringify({
+        message: error instanceof Error ? error.message : String(error),
+      }),
+    })("RedisClient");
+  },
   tls: config.REDIS_TLS,
 });
 

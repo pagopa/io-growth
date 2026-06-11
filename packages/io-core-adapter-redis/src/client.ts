@@ -17,6 +17,7 @@ export type RedisClient = RedisClientInstance & {
 export interface RedisClientConfig {
   readonly endpoint: string;
   readonly entraId?: EntraIdConfig;
+  readonly onError?: (error: unknown) => void;
   readonly tls?: boolean;
 }
 
@@ -41,14 +42,14 @@ const buildEntraIdCredentialsProvider = () =>
 
 const makeNodeAddressMap =
   (redisHostName: string) =>
-  (incomingAddress: string): { host: string; port: number } => {
-    const [hostNameOrIp = redisHostName, port = "10000"] =
-      incomingAddress.split(":");
-    return {
-      host: net.isIP(hostNameOrIp) !== 0 ? redisHostName : hostNameOrIp,
-      port: Number(port),
+    (incomingAddress: string): { host: string; port: number } => {
+      const [hostNameOrIp = redisHostName, port = "10000"] =
+        incomingAddress.split(":");
+      return {
+        host: net.isIP(hostNameOrIp) !== 0 ? redisHostName : hostNameOrIp,
+        port: Number(port),
+      };
     };
-  };
 
 export const createRedisClient = async (
   config: RedisClientConfig,
@@ -84,8 +85,7 @@ export const createResilientRedisClient = async (
   config: RedisClientConfig,
 ): Promise<ResilientRedisClient> => {
   const onError = (error: unknown) => {
-    // TODO: send this log through OpenTelemetry instead of console.error.
-    console.error("Redis client error:", error);
+    config.onError?.(error);
   };
 
   let client = await createRedisClient(config);

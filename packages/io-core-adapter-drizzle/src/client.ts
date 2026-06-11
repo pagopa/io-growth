@@ -41,6 +41,7 @@ export interface TypedDbClientConfig<
   TSchema extends Record<string, unknown> = Record<string, never>,
 > extends RawSqlClientConfig {
   readonly max?: number;
+  readonly onNotice?: (notice: { message: string }) => void;
   readonly onTransaction?: OnTransactionHook<TSchema>;
 }
 
@@ -65,9 +66,8 @@ export const createTypedDbClient = <
     database: config.database,
     host: config.host,
     max: config.max ?? 10,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     onnotice: (notice) => {
-      // TODO: integrate with custom event to log notice.message
+      config.onNotice?.(notice as { message: string });
     },
     password: config.password,
     port: config.port,

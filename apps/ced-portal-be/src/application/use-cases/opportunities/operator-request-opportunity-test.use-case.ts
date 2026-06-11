@@ -45,9 +45,7 @@ export const makeOperatorRequestOpportunityTestUseCase =
       input,
     ).andThen((validatedInput) =>
       new ResultAsync(
-        opportunityRepository.getOpportunityDetailsByIdAndOperatorId(
-          validatedInput,
-        ),
+        opportunityRepository.findByIdAndOperatorId(validatedInput),
       ).andThen((data) => {
         if (!data) {
           return errAsync(new NotFoundError("Opportunity", "not found"));
@@ -60,7 +58,7 @@ export const makeOperatorRequestOpportunityTestUseCase =
           );
         }
         return new ResultAsync(
-          opportunityRepository.updateStatus({
+          opportunityRepository.updateStatusByIdAndOperatorId({
             expectedStatus: "draft",
             operatorId: validatedInput.operatorId,
             opportunityId: validatedInput.opportunityId,

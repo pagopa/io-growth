@@ -20,7 +20,7 @@ const operatorRequestOpportunityTestValidator = withSession(
   OperatorSessionSchema,
   createHttpRequestValidator(operatorRequestOpportunityTestHttpSchema),
   (session, { path }) => ({
-    operatorId: session.operatorId,
+    operatorId: session.operatorId ?? "",
     opportunityId: path.opportunityId,
   }),
 );

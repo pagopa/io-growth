@@ -44,7 +44,7 @@ export const makeApproveOpportunityUseCase =
     validateUseCaseInput(ApproveOpportunityInputSchema, input).andThen(
       (validatedInput) =>
         new ResultAsync(
-          opportunityRepository.getOpportunityDetailsById({
+          opportunityRepository.findById({
             opportunityId: validatedInput.opportunityId,
           }),
         ).andThen((data) => {
@@ -57,7 +57,7 @@ export const makeApproveOpportunityUseCase =
               ),
             );
           return new ResultAsync(
-            opportunityRepository.updateStatusGlobal({
+            opportunityRepository.updateStatusById({
               dateFrom: validatedInput.dateFrom,
               expectedStatuses: ["test_pending", "test_rejected"],
               opportunityId: validatedInput.opportunityId,

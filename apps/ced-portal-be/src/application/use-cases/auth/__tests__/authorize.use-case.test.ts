@@ -21,6 +21,7 @@ describe("makeAuthorizeUseCase", () => {
     const session: Session = {
       firstName: "Mario",
       lastName: "Rossi",
+      operatorExternalId: "ext-id",
       operatorId: "op-id",
       operatorName: "Op Name",
       referentExternalId: "ref-id",
@@ -41,8 +42,8 @@ describe("makeAuthorizeUseCase", () => {
     expect(result).toEqual(
       ok({
         first_name: "Mario",
-        institution_name: "Op Name",
         last_name: "Rossi",
+        operator_name: "Op Name",
         session_token: sessionToken,
         user_type: "operator",
       }),

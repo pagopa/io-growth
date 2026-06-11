@@ -7,13 +7,13 @@ import { err, ok } from "neverthrow";
 
 import type { OpportunityDetail } from "../../../domain/entities/opportunity.js";
 import type {
-  GetOpportunityByIdGlobalInput,
-  GetOpportunityByIdInput,
+  FindByIdAndOperatorIdInput,
+  FindByIdInput,
   ListOpportunitiesInput,
   OpportunityRepository,
   PaginatedOpportunities,
-  UpdateOpportunityStatusGlobalInput,
-  UpdateOpportunityStatusInput,
+  UpdateOpportunityStatusByIdAndOperatorIdInput,
+  UpdateOpportunityStatusByIdInput,
 } from "../../../domain/ports/outbound/persistence/opportunity.repository.js";
 
 import {
@@ -37,9 +37,9 @@ type TransactionClient = Parameters<
 const escapeIlikePattern = (value: string): string =>
   value.replace(/\\/g, "\\\\").replace(/%/g, "\\%").replace(/_/g, "\\_");
 
-const getOpportunityDetailsByIdAndOperatorId = async (
+const findByIdAndOperatorId = async (
   db: DbOrTxClient,
-  input: GetOpportunityByIdInput,
+  input: FindByIdAndOperatorIdInput,
 ): Promise<Result<OpportunityDetail | undefined, GenericError>> => {
   try {
     const row = await db.query.opportunity.findFirst({
@@ -94,10 +94,10 @@ const getOpportunityDetailsByIdAndOperatorId = async (
     );
   }
 };
-const getOpportunityDetailsById =
+const findById =
   (db: TypedDbClient<typeof schema>) =>
   async (
-    input: GetOpportunityByIdGlobalInput,
+    input: FindByIdInput,
   ): Promise<Result<OpportunityDetail | undefined, GenericError>> => {
     try {
       const row = await db.query.opportunity.findFirst({
@@ -147,10 +147,10 @@ const getOpportunityDetailsById =
     }
   };
 
-const updateStatusGlobal =
+const updateStatusById =
   (db: TypedDbClient<typeof schema>) =>
   async (
-    input: UpdateOpportunityStatusGlobalInput,
+    input: UpdateOpportunityStatusByIdInput,
   ): Promise<Result<void, ConflictError | GenericError>> => {
     try {
       const result = await db
@@ -219,7 +219,7 @@ export const createDrizzleOpportunityRepository = (
           input.opportunity,
         );
 
-        return await getOpportunityDetailsByIdAndOperatorId(tx, {
+        return await findByIdAndOperatorId(tx, {
           operatorId: input.operatorId,
           opportunityId: input.opportunity.id,
         });
@@ -247,11 +247,10 @@ export const createDrizzleOpportunityRepository = (
     }
   },
 
-  getOpportunityDetailsById: getOpportunityDetailsById(db),
+  findById: findById(db),
 
-  getOpportunityDetailsByIdAndOperatorId: async (
-    input: GetOpportunityByIdInput,
-  ) => getOpportunityDetailsByIdAndOperatorId(db, input),
+  findByIdAndOperatorId: async (input: FindByIdAndOperatorIdInput) =>
+    findByIdAndOperatorId(db, input),
 
   list: async (
     input: ListOpportunitiesInput,
@@ -334,8 +333,10 @@ export const createDrizzleOpportunityRepository = (
     }
   },
 
-  updateStatus: async (
-    input: UpdateOpportunityStatusInput,
+  updateStatusById: updateStatusById(db),
+
+  updateStatusByIdAndOperatorId: async (
+    input: UpdateOpportunityStatusByIdAndOperatorIdInput,
   ): Promise<Result<void, ConflictError | GenericError>> => {
     try {
       const conditions = [
@@ -367,6 +368,4 @@ export const createDrizzleOpportunityRepository = (
       );
     }
   },
-
-  updateStatusGlobal: updateStatusGlobal(db),
 });

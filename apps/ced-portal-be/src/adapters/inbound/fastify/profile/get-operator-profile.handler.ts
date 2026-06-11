@@ -15,7 +15,7 @@ import { GetOperatorProfileResponse } from "../contracts/profile/profile.js";
 const getOperatorProfileValidator = withSession(
   OperatorSessionSchema,
   emptyValidator,
-  (session) => ({ operatorId: session.operatorId }),
+  (session) => ({ operatorId: session.operatorId ?? "" }),
 );
 
 const getOperatorProfileFormatter = createHttpResponseFormatter(

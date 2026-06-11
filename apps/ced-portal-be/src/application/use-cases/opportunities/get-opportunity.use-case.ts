@@ -34,7 +34,7 @@ export const makeGetOpportunityUseCase =
     validateUseCaseInput(GetOpportunityInputSchema, input).andThen(
       (validatedInput) =>
         new ResultAsync(
-          opportunityRepository.getOpportunityDetailsById({
+          opportunityRepository.findById({
             opportunityId: validatedInput.opportunityId,
           }),
         ).andThen((data) =>

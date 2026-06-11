@@ -15,12 +15,12 @@ export interface CreateOpportunityInput {
   opportunity: Opportunity;
 }
 
-export interface GetOpportunityByIdGlobalInput {
+export interface FindByIdAndOperatorIdInput {
+  operatorId: string;
   opportunityId: string;
 }
 
-export interface GetOpportunityByIdInput {
-  operatorId: string;
+export interface FindByIdInput {
   opportunityId: string;
 }
 
@@ -42,20 +42,20 @@ export interface OpportunityRepository {
   readonly create: (
     input: CreateOpportunityInput,
   ) => Promise<Result<OpportunityDetail, GenericError>>;
-  readonly getOpportunityDetailsById: (
-    input: GetOpportunityByIdGlobalInput,
+  readonly findById: (
+    input: FindByIdInput,
   ) => Promise<Result<OpportunityDetail | undefined, GenericError>>;
-  readonly getOpportunityDetailsByIdAndOperatorId: (
-    input: GetOpportunityByIdInput,
+  readonly findByIdAndOperatorId: (
+    input: FindByIdAndOperatorIdInput,
   ) => Promise<Result<OpportunityDetail | undefined, GenericError>>;
   readonly list: (
     input: ListOpportunitiesInput,
   ) => Promise<Result<PaginatedOpportunities, GenericError>>;
-  readonly updateStatus: (
-    input: UpdateOpportunityStatusInput,
+  readonly updateStatusById: (
+    input: UpdateOpportunityStatusByIdInput,
   ) => Promise<Result<void, ConflictError | GenericError>>;
-  readonly updateStatusGlobal: (
-    input: UpdateOpportunityStatusGlobalInput,
+  readonly updateStatusByIdAndOperatorId: (
+    input: UpdateOpportunityStatusByIdAndOperatorIdInput,
   ) => Promise<Result<void, ConflictError | GenericError>>;
 }
 
@@ -64,16 +64,16 @@ export interface PaginatedOpportunities {
   total: number;
 }
 
-export interface UpdateOpportunityStatusGlobalInput {
-  dateFrom?: string;
-  expectedStatuses: OpportunitySummary["status"][];
-  opportunityId: string;
-  status: OpportunitySummary["status"];
-}
-
-export interface UpdateOpportunityStatusInput {
+export interface UpdateOpportunityStatusByIdAndOperatorIdInput {
   expectedStatus?: Opportunity["status"];
   operatorId: string;
   opportunityId: string;
   status: Opportunity["status"];
+}
+
+export interface UpdateOpportunityStatusByIdInput {
+  dateFrom?: string;
+  expectedStatuses: OpportunitySummary["status"][];
+  opportunityId: string;
+  status: OpportunitySummary["status"];
 }

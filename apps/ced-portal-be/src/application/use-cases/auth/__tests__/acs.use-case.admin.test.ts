@@ -65,8 +65,8 @@ describe("makeAcsUseCase — admin path", () => {
     expect(sessionRepository.createSession).toHaveBeenCalledOnce();
     const [, session] = (
       sessionRepository.createSession as ReturnType<typeof vi.fn>
-    ).mock.calls[0] as [string, { operatorId: string; userType: string }];
+    ).mock.calls[0] as [string, { operatorId?: string; userType: string }];
     expect(session.userType).toBe("admin");
-    expect(session.operatorId).toBe("");
+    expect(session.operatorId).toBeUndefined();
   });
 });

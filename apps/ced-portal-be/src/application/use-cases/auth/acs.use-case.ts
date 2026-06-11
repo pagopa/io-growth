@@ -11,6 +11,7 @@ import { ulid } from "ulid";
 import { z } from "zod";
 
 import type { AppConfig } from "../../../config.js";
+import type { Operator } from "../../../domain/entities/operator.js";
 import type { OperatorRepository } from "../../../domain/ports/outbound/persistence/operator.repository.js";
 import type { SessionRepository } from "../../../domain/ports/outbound/persistence/session.repository.js";
 
@@ -43,11 +44,7 @@ export const makeAcsUseCase =
     config: Pick<AppConfig, "ADMIN_FISCAL_CODES">,
   ): UseCase<AcsInput, AcsOutput, BaseError> =>
   async (input) => {
-    const token = input.token;
-
-    // TODO: verify token signature — for now every token is considered valid
-
-    const rawPayload = decodeJwt(token);
+    const rawPayload = decodeJwt(input.token);
     const parsed = TokenPayloadSchema.safeParse(rawPayload);
     if (!parsed.success) {
       return err(new ValidationError(parsed.error.message));
@@ -66,63 +63,36 @@ export const makeAcsUseCase =
     const sessionToken = randomBytes(32).toString("hex");
     const sessionId = randomBytes(32).toString("hex");
 
-    if (userType === "admin") {
-      return new ResultAsync(
-        sessionRepository.createSession(sessionToken, {
-          firstName: name,
-          lastName: family_name,
-          operatorId: "",
-          operatorName: organization.name,
-          referentExternalId: uid,
-          role: "admin",
-          userType,
-        }),
-      )
-        .andThen(
-          () =>
-            new ResultAsync(
-              sessionRepository.createOneTimeSessionId(
-                sessionId,
-                sessionToken,
-                60,
-              ),
-            ),
-        )
-        .map(() => ({ sessionId }));
-    }
+    const resolveOperator: ResultAsync<null | Operator, BaseError> =
+      userType === "operator"
+        ? new ResultAsync(
+            operatorRepository.getByExternalId(organization.id),
+          ).andThen((existing) =>
+            existing
+              ? okAsync(existing)
+              : new ResultAsync(
+                  operatorRepository.create({
+                    externalId: organization.id,
+                    id: ulid(),
+                    name: organization.name,
+                    status: "active",
+                  }),
+                ),
+          )
+        : okAsync(null);
 
-    return new ResultAsync(operatorRepository.getByExternalId(organization.id))
-      .andThen((existingOperator) =>
-        existingOperator
-          ? okAsync(existingOperator)
-          : new ResultAsync(
-              operatorRepository.create({
-                externalId: organization.id,
-                id: ulid(),
-                name: organization.name,
-                status: "active",
-              }),
-            ).map((operator) => {
-              emitCustomEvent("operator_created", {
-                caller: CALLER,
-                data: JSON.stringify({
-                  operatorId: operator.id,
-                  operatorName: operator.name,
-                }),
-              })(CALLER);
-              return operator;
-            }),
-      )
+    return resolveOperator
       .andThen((operator) =>
         new ResultAsync(
           sessionRepository.createSession(sessionToken, {
             firstName: name,
             lastName: family_name,
-            operatorId: operator.id,
-            operatorName: operator.name,
+            operatorExternalId: organization.id,
+            operatorId: operator?.id,
+            operatorName: operator?.name ?? organization.name,
             referentExternalId: uid,
-            role: organization.roles[0].partyRole,
-            userType: "operator",
+            role: operator ? organization.roles[0].partyRole : "admin",
+            userType,
           }),
         ).andThen(
           () =>

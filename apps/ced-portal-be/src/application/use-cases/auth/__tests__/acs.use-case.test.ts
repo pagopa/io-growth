@@ -94,6 +94,7 @@ describe("makeAcsUseCase", () => {
     expect(session).toEqual({
       firstName: "Mario",
       lastName: "Rossi",
+      operatorExternalId: "internalID",
       operatorId: "01JVMK3N8XQZP5T6G2WYHAB4CH",
       operatorName: "Organization legal name",
       referentExternalId: "uid_12345",

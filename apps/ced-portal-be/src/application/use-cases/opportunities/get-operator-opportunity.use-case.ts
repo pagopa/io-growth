@@ -36,9 +36,7 @@ export const makeGetOperatorOpportunityUseCase =
     validateUseCaseInput(GetOperatorOpportunityInputSchema, input).andThen(
       (validatedInput) =>
         new ResultAsync(
-          opportunityRepository.getOpportunityDetailsByIdAndOperatorId(
-            validatedInput,
-          ),
+          opportunityRepository.findByIdAndOperatorId(validatedInput),
         ).andThen((data) =>
           data ? ok(data) : err(new NotFoundError("Opportunity", "not found")),
         ),

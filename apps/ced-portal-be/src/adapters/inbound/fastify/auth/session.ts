@@ -12,7 +12,8 @@ import { USER_TYPES } from "../../../../domain/entities/user-type.js";
 export const SessionSchema = z.object({
   firstName: z.string(),
   lastName: z.string(),
-  operatorId: z.string(),
+  operatorExternalId: z.string(),
+  operatorId: z.string().optional(),
   operatorName: z.string(),
   referentExternalId: z.string(),
   role: z.string(),

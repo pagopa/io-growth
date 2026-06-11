@@ -46,7 +46,7 @@ const listOperatorOpportunitiesValidator = withSession(
     categoryId: query.categoryId,
     limit: query.limit,
     offset: query.offset,
-    operatorId: session.operatorId,
+    operatorId: session.operatorId ?? "",
     search: query.search,
     sortBy: query.sortBy,
     sortOrder: query.sortOrder,

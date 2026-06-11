@@ -40,17 +40,15 @@ const validInput = {
 describe("makeApproveOpportunityUseCase", () => {
   it("should approve an opportunity in test_pending status", async () => {
     const repository = createMockOpportunityRepository({
-      getOpportunityDetailsById: vi
-        .fn()
-        .mockResolvedValue(ok(mockOpportunity("test_pending"))),
-      updateStatusGlobal: vi.fn().mockResolvedValue(ok(undefined)),
+      findById: vi.fn().mockResolvedValue(ok(mockOpportunity("test_pending"))),
+      updateStatusById: vi.fn().mockResolvedValue(ok(undefined)),
     });
     const useCase = makeApproveOpportunityUseCase(repository);
 
     const result = await useCase(validInput);
 
     expect(result).toEqual(ok(undefined));
-    expect(repository.updateStatusGlobal).toHaveBeenCalledWith({
+    expect(repository.updateStatusById).toHaveBeenCalledWith({
       dateFrom: undefined,
       expectedStatuses: ["test_pending", "test_rejected"],
       opportunityId: MOCK_OPPORTUNITY_ID,
@@ -60,40 +58,36 @@ describe("makeApproveOpportunityUseCase", () => {
 
   it("should approve an opportunity in test_rejected status", async () => {
     const repository = createMockOpportunityRepository({
-      getOpportunityDetailsById: vi
-        .fn()
-        .mockResolvedValue(ok(mockOpportunity("test_rejected"))),
-      updateStatusGlobal: vi.fn().mockResolvedValue(ok(undefined)),
+      findById: vi.fn().mockResolvedValue(ok(mockOpportunity("test_rejected"))),
+      updateStatusById: vi.fn().mockResolvedValue(ok(undefined)),
     });
     const useCase = makeApproveOpportunityUseCase(repository);
 
     const result = await useCase(validInput);
 
     expect(result).toEqual(ok(undefined));
-    expect(repository.updateStatusGlobal).toHaveBeenCalledWith(
+    expect(repository.updateStatusById).toHaveBeenCalledWith(
       expect.objectContaining({ status: "test_passed" }),
     );
   });
 
-  it("should pass dateFrom to updateStatusGlobal when provided", async () => {
+  it("should pass dateFrom to updateStatusById when provided", async () => {
     const repository = createMockOpportunityRepository({
-      getOpportunityDetailsById: vi
-        .fn()
-        .mockResolvedValue(ok(mockOpportunity("test_pending"))),
-      updateStatusGlobal: vi.fn().mockResolvedValue(ok(undefined)),
+      findById: vi.fn().mockResolvedValue(ok(mockOpportunity("test_pending"))),
+      updateStatusById: vi.fn().mockResolvedValue(ok(undefined)),
     });
     const useCase = makeApproveOpportunityUseCase(repository);
 
     await useCase({ ...validInput, dateFrom: "2026-09-01" });
 
-    expect(repository.updateStatusGlobal).toHaveBeenCalledWith(
+    expect(repository.updateStatusById).toHaveBeenCalledWith(
       expect.objectContaining({ dateFrom: "2026-09-01" }),
     );
   });
 
   it("should return NotFoundError when opportunity does not exist", async () => {
     const repository = createMockOpportunityRepository({
-      getOpportunityDetailsById: vi.fn().mockResolvedValue(ok(undefined)),
+      findById: vi.fn().mockResolvedValue(ok(undefined)),
     });
     const useCase = makeApproveOpportunityUseCase(repository);
 
@@ -102,7 +96,7 @@ describe("makeApproveOpportunityUseCase", () => {
     expect(result).toEqual(
       err(expect.objectContaining({ kind: "NotFoundError" })),
     );
-    expect(repository.updateStatusGlobal).not.toHaveBeenCalled();
+    expect(repository.updateStatusById).not.toHaveBeenCalled();
   });
 
   it.each([
@@ -115,9 +109,7 @@ describe("makeApproveOpportunityUseCase", () => {
     "should return PreconditionFailedError when status is %s",
     async (status) => {
       const repository = createMockOpportunityRepository({
-        getOpportunityDetailsById: vi
-          .fn()
-          .mockResolvedValue(ok(mockOpportunity(status))),
+        findById: vi.fn().mockResolvedValue(ok(mockOpportunity(status))),
       });
       const useCase = makeApproveOpportunityUseCase(repository);
 
@@ -126,17 +118,15 @@ describe("makeApproveOpportunityUseCase", () => {
       expect(result).toEqual(
         err(expect.objectContaining({ kind: "PreconditionFailedError" })),
       );
-      expect(repository.updateStatusGlobal).not.toHaveBeenCalled();
+      expect(repository.updateStatusById).not.toHaveBeenCalled();
     },
   );
 
   it("should return ConflictError on concurrent modification", async () => {
     const conflictError = new ConflictError("Concurrent modification");
     const repository = createMockOpportunityRepository({
-      getOpportunityDetailsById: vi
-        .fn()
-        .mockResolvedValue(ok(mockOpportunity("test_pending"))),
-      updateStatusGlobal: vi.fn().mockResolvedValue(err(conflictError)),
+      findById: vi.fn().mockResolvedValue(ok(mockOpportunity("test_pending"))),
+      updateStatusById: vi.fn().mockResolvedValue(err(conflictError)),
     });
     const useCase = makeApproveOpportunityUseCase(repository);
 
@@ -145,26 +135,24 @@ describe("makeApproveOpportunityUseCase", () => {
     expect(result).toEqual(err(conflictError));
   });
 
-  it("should propagate repository errors from getOpportunityDetailsById fetch", async () => {
+  it("should propagate repository errors from findById fetch", async () => {
     const repoError = new GenericError("DB connection failed");
     const repository = createMockOpportunityRepository({
-      getOpportunityDetailsById: vi.fn().mockResolvedValue(err(repoError)),
+      findById: vi.fn().mockResolvedValue(err(repoError)),
     });
     const useCase = makeApproveOpportunityUseCase(repository);
 
     const result = await useCase(validInput);
 
     expect(result).toEqual(err(repoError));
-    expect(repository.updateStatusGlobal).not.toHaveBeenCalled();
+    expect(repository.updateStatusById).not.toHaveBeenCalled();
   });
 
-  it("should propagate repository errors from updateStatusGlobal", async () => {
+  it("should propagate repository errors from updateStatusById", async () => {
     const repoError = new GenericError("DB update failed");
     const repository = createMockOpportunityRepository({
-      getOpportunityDetailsById: vi
-        .fn()
-        .mockResolvedValue(ok(mockOpportunity("test_pending"))),
-      updateStatusGlobal: vi.fn().mockResolvedValue(err(repoError)),
+      findById: vi.fn().mockResolvedValue(ok(mockOpportunity("test_pending"))),
+      updateStatusById: vi.fn().mockResolvedValue(err(repoError)),
     });
     const useCase = makeApproveOpportunityUseCase(repository);
 
@@ -185,7 +173,7 @@ describe("makeApproveOpportunityUseCase", () => {
     expect(result).toEqual(
       err(expect.objectContaining({ kind: "ValidationError" })),
     );
-    expect(repository.getOpportunityDetailsById).not.toHaveBeenCalled();
+    expect(repository.findById).not.toHaveBeenCalled();
   });
 
   it("should return ValidationError when dateFrom is not a valid date", async () => {
@@ -197,6 +185,6 @@ describe("makeApproveOpportunityUseCase", () => {
     expect(result).toEqual(
       err(expect.objectContaining({ kind: "ValidationError" })),
     );
-    expect(repository.getOpportunityDetailsById).not.toHaveBeenCalled();
+    expect(repository.findById).not.toHaveBeenCalled();
   });
 });

@@ -162,6 +162,30 @@ describe("makeAcsUseCase", () => {
     );
     expect(sessionRepository.createSession).not.toHaveBeenCalled();
   });
+});
+
+describe("makeAcsUseCase — error propagation", () => {
+  it("should propagate error when create operator fails", async () => {
+    const sessionRepository = createMockSessionRepository();
+    const { GenericError } = await import("@pagopa/io-core-domain/errors");
+    const operatorRepository = createMockOperatorRepository(undefined);
+    (operatorRepository.create as ReturnType<typeof vi.fn>).mockResolvedValue(
+      (await import("neverthrow")).err(new GenericError("db down")),
+    );
+    const useCase = makeAcsUseCase(
+      sessionRepository,
+      operatorRepository,
+      mockConfig,
+    );
+    const token = await makeToken(validPayload);
+
+    const result = await useCase({ token });
+
+    expect(result).toEqual(
+      err(expect.objectContaining({ kind: "GenericError" })),
+    );
+    expect(sessionRepository.createSession).not.toHaveBeenCalled();
+  });
 
   it("should propagate error when getByExternalId fails", async () => {
     const sessionRepository = createMockSessionRepository();

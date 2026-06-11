@@ -6,6 +6,8 @@ export { mountGetOnboardingHandler } from "./department/get-onboarding.handler.j
 export { mountListPendingOnboardingsHandler } from "./department/list-pending-onboardings.handler.js";
 export { mountInfoReadinessHandler } from "./health/info-readiness.handler.js";
 export { mountInfoStartupHandler } from "./health/info-startup.handler.js";
+export { mountApproveOpportunityHandler } from "./opportunities/admin-approve-opportunity.handler.js";
+export { mountGetOpportunityHandler } from "./opportunities/admin-get-opportunity.handler.js";
 export { mountCreateOperatorOpportunityHandler } from "./opportunities/create-operator-opportunity.handler.js";
 export { mountGetOperatorOpportunityHandler } from "./opportunities/get-operator-opportunity.handler.js";
 export { mountListOperatorOpportunitiesHandler } from "./opportunities/list-operator-opportunities.handler.js";

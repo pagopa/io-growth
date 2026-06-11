@@ -1,5 +1,7 @@
 import { z } from "zod";
 
+import { USER_TYPES } from "../../../../domain/entities/user-type.js";
+
 /**
  * Zod schema matching the Session entity stored by the authentication preHandler.
  * Used as a StandardSchema for runtime-validated session extraction in handlers.
@@ -10,10 +12,12 @@ import { z } from "zod";
 export const SessionSchema = z.object({
   firstName: z.string(),
   lastName: z.string(),
-  operatorId: z.string(),
+  operatorExternalId: z.string(),
+  operatorId: z.string().optional(),
   operatorName: z.string(),
   referentExternalId: z.string(),
   role: z.string(),
+  userType: z.enum(USER_TYPES),
 });
 
 /**
@@ -21,4 +25,8 @@ export const SessionSchema = z.object({
  */
 export const OperatorSessionSchema = SessionSchema.pick({
   operatorId: true,
+}).required();
+
+export const UserTypeSessionSchema = SessionSchema.pick({
+  userType: true,
 });

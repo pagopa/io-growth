@@ -12,7 +12,7 @@ export const getBenefitsDetailData = (
   activeLanguage: LocalizedMetadataItemLanguage,
 ) => {
   if (!benefit) {
-    return null;
+    return [];
   }
 
   switch (benefit.type) {
@@ -53,6 +53,6 @@ export const getBenefitsDetailData = (
         { label: 'Descrizione dello sconto', value: benefit.description },
       ];
     default:
-      return null;
+      return [];
   }
 };

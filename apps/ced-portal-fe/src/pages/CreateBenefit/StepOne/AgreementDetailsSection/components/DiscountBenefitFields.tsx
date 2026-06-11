@@ -5,7 +5,7 @@ import PercentRoundedIcon from '@mui/icons-material/PercentRounded';
 import EuroRoundedIcon from '@mui/icons-material/EuroRounded';
 import { AppRadioGroup } from '../../../../../components/RadioGroup';
 import {
-  getFixedPriceBenefitTypeOptions,
+  getLocalizedOptions,
   getAgreementCopy,
 } from '../../../../../constants';
 import {
@@ -20,7 +20,7 @@ import {
 } from '../../../../../core/api/generated/model';
 import { setBenefit } from '../../../../../features/opportunityCreation/opportunityCreationSlice';
 
-export const FixedPriceBenefitFields = () => {
+export const DiscountBenefitFields = () => {
   const dispatch = useAppDispatch();
   const activeLanguage = useAppSelector(selectActiveFormLanguage);
   const disabledNotLocalizedField = activeLanguage !== 'it';
@@ -80,7 +80,7 @@ export const FixedPriceBenefitFields = () => {
   const copy = getAgreementCopy(activeLanguage);
 
   const fixedPriceBenefitTypeOptions = useMemo(
-    () => getFixedPriceBenefitTypeOptions(activeLanguage),
+    () => getLocalizedOptions(activeLanguage, 'discount'),
     [activeLanguage],
   );
 

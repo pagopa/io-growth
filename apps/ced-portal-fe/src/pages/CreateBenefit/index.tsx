@@ -128,7 +128,7 @@ export default function CreateBenefitPage() {
     if (!sourceOpportunityId) {
       try {
         const result = await createOpportunity();
-        if (!result || !result.id) {
+        if (!result?.id) {
           showToast(
             "Impossibile inviare in revisione senza un'opportunità esistente",
             'error',

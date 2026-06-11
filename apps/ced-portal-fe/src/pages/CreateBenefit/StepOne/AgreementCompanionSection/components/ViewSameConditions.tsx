@@ -1,8 +1,8 @@
 import { AppSelect, AppTextField } from '../../../../../components';
 import { useAppSelector } from '../../../../../hooks';
-import { FixedPriceFields } from './FixedPriceFields';
+import { DiscountFields } from './DiscountFields';
 import { DetailFormField } from '../../AgreementDetailsSection/components/DetailFormField';
-import { getBenefitTypeOptions } from '../../../../../constants';
+import { getLocalizedOptions } from '../../../../../constants';
 import {
   selectActiveFormLanguage,
   selectBeneficiaryBenefit,
@@ -14,7 +14,7 @@ export const ViewSameConditions = () => {
   const activeLanguage = useAppSelector(selectActiveFormLanguage);
 
   const benefitTypeOptions = useMemo(
-    () => getBenefitTypeOptions(activeLanguage),
+    () => getLocalizedOptions(activeLanguage, 'benefit'),
     [activeLanguage],
   );
 
@@ -32,7 +32,7 @@ export const ViewSameConditions = () => {
       >
         <AppSelect options={benefitTypeOptions} />
       </DetailFormField>
-      {type === 'discount' && <FixedPriceFields sameValues benefit={benefit} />}
+      {type === 'discount' && <DiscountFields sameValues benefit={benefit} />}
 
       <DetailFormField
         hide={type !== 'other'}

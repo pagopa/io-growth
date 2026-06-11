@@ -42,7 +42,7 @@ export const OpportunityDetailCard = ({
   );
 
   const mainFields = [
-    ...(beneficiaryBenefitFields ?? []),
+    ...beneficiaryBenefitFields,
     {
       label: 'Descrizione',
       value: description,
@@ -98,7 +98,7 @@ export const OpportunityDetailCard = ({
               </Typography>
             </Box>
             <Divider />
-            <DetailSection fields={caregiverBenefitFields ?? []} />
+            <DetailSection fields={caregiverBenefitFields} />
           </>
         )}
       </AccordionDetails>

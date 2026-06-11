@@ -15,9 +15,9 @@ import { AgreementLanguageTabs } from './components/AgreementLanguageTabs';
 import { useCallback, useMemo } from 'react';
 import { AgreementDetailHeading } from './components/AgreementDetailHeading';
 import { AppSelect, AppTextField } from '../../../../components';
-import { FixedPriceBenefitFields } from './components/FixedPriceBenefitFields';
+import { DiscountBenefitFields } from './components/DiscountBenefitFields';
 import { DetailFormField } from './components/DetailFormField';
-import { getBenefitTypeOptions, getAgreementCopy } from '../../../../constants';
+import { getLocalizedOptions, getAgreementCopy } from '../../../../constants';
 import {
   BenefitDiscountDiscountType,
   BenefitOtherType,
@@ -53,7 +53,7 @@ export function AgreementDetailsSection({
   );
 
   const benefitTypeOptions = useMemo(
-    () => getBenefitTypeOptions(activeLanguage),
+    () => getLocalizedOptions(activeLanguage, 'benefit'),
     [activeLanguage],
   );
 
@@ -170,7 +170,7 @@ export function AgreementDetailsSection({
             <AppSelect options={benefitTypeOptions} />
           </DetailFormField>
 
-          <FixedPriceBenefitFields />
+          <DiscountBenefitFields />
 
           <DetailFormField
             hide={
@@ -188,12 +188,6 @@ export function AgreementDetailsSection({
             }
           >
             <FieldWithIcon
-              onChange={(event) =>
-                handleFieldChange('beneficiaryBenefit', {
-                  type: BenefitReducedFixedPriceType.reduced_fixed_price,
-                  value: Number(event.target.value),
-                })
-              }
               icon={<EuroRoundedIcon sx={{ fontSize: 18 }} />}
               label={copy.detailsForm.fixedPriceLabel}
             />

@@ -2,7 +2,7 @@ import { Box, Stack } from '@mui/material';
 import { AppTextField } from '../../../../../components';
 
 type FieldWithIconProps = {
-  onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  onChange?: (event: React.ChangeEvent<HTMLInputElement>) => void;
   icon: React.ReactNode;
   label: string;
   value?: string | number;

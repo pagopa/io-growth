@@ -25,6 +25,7 @@ export const useCreateOpportunity = () => {
   const opportunity: OpportunityCreationForm = useAppSelector(
     selectOpportunityForm,
   );
+  console.log('🚀 ~ useCreateOpportunity ~ opportunity:', opportunity);
 
   const locationsIds = useAppSelector(selectSelectedLocationIds);
   const websiteIds = useAppSelector(selectSelectedWebsiteIds);

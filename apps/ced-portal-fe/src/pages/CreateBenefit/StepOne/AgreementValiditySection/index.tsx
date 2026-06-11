@@ -7,7 +7,7 @@ import {
   Typography,
   Stack,
 } from '@mui/material';
-import { useCallback, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { useAppDispatch, useAppSelector } from '../../../../hooks';
 import { getAgreementCopy } from '../../../../constants';
 import {
@@ -28,6 +28,11 @@ export function AgreementValiditySection({
 
   const activeLanguage = useAppSelector(selectActiveFormLanguage);
   const copy = getAgreementCopy(activeLanguage).additionalSections.validity;
+  const disabledNotLocalizedField = useMemo(
+    () => activeLanguage !== 'it',
+    [activeLanguage],
+  );
+
   const startDateError = attempted && !dateFrom.trim();
 
   const renderEndDateField = useCallback(() => {
@@ -39,6 +44,7 @@ export function AgreementValiditySection({
       <Box sx={{ width: '100%' }}>
         <TextField
           type="date"
+          disabled={disabledNotLocalizedField}
           fullWidth
           label={copy.endDateLabel}
           value={dateTo}
@@ -61,6 +67,7 @@ export function AgreementValiditySection({
     copy.dateHelperText,
     copy.endDateLabel,
     dateTo,
+    disabledNotLocalizedField,
     dispatch,
     hasEndDateLocal,
   ]);
@@ -76,6 +83,7 @@ export function AgreementValiditySection({
         <Stack direction="row" alignItems="center" spacing={1}>
           <Switch
             checked={hasEndDateLocal}
+            disabled={disabledNotLocalizedField}
             onChange={(_, checked) => setHasEndDateLocal(checked)}
             inputProps={{ 'aria-label': copy.setEndDateAriaLabel }}
           />
@@ -96,6 +104,7 @@ export function AgreementValiditySection({
               type="date"
               fullWidth
               label={copy.startDateLabel}
+              disabled={disabledNotLocalizedField}
               required
               error={startDateError}
               helperText={startDateError ? 'Campo obbligatorio' : undefined}

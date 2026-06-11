@@ -2,9 +2,14 @@ import { LocalizedMetadataItemLanguage } from '../../core/api/generated/model';
 import { publicationStatusLabels } from '../../features/benefitsFilters/types';
 import { benefitTypeMap, discountTypeMap } from './types';
 
-const generateLocalizedOptions = <T extends string>(
+type LocalizedMap<T extends string> = Record<
+  LocalizedMetadataItemLanguage,
+  Record<T, string>
+>;
+
+export const generateLocalizedOptions = <T extends string>(
   language: LocalizedMetadataItemLanguage,
-  enumObj: Record<LocalizedMetadataItemLanguage, Record<T, string>>,
+  enumObj: LocalizedMap<T>,
 ): Array<{ value: T; label: string }> => {
   const localizedMap = enumObj[language];
   return Object.entries<string>(localizedMap).map(([key, label]) => ({
@@ -23,10 +28,11 @@ const generateOptions = <T extends string>(
 
 export const statusOptions = generateOptions(publicationStatusLabels);
 
-export const getBenefitTypeOptions = (
+export const getLocalizedOptions = (
   activeLanguage: LocalizedMetadataItemLanguage,
-) => generateLocalizedOptions(activeLanguage, benefitTypeMap);
-
-export const getFixedPriceBenefitTypeOptions = (
-  activeLanguage: LocalizedMetadataItemLanguage,
-) => generateLocalizedOptions(activeLanguage, discountTypeMap);
+  type: 'benefit' | 'discount',
+) => {
+  if (type === 'benefit')
+    return generateLocalizedOptions(activeLanguage, benefitTypeMap);
+  return generateLocalizedOptions(activeLanguage, discountTypeMap);
+};

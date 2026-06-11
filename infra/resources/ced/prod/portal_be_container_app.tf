@@ -40,6 +40,11 @@ module "portal_be_container_app" {
     {
       name                = "AR_ENDPOINT"
       key_vault_secret_id = format(local.secrets_id_template, "ced-p-itn-portal-be-ar-client-endpoint")
+    },
+    {
+      name                = "APPINSIGHTS_INSTRUMENTATION_KEY"
+      key_vault_secret_id = module.azure_core_values.application_insights.instrumentation_key_kv_secret_id
+
     }
   ]
 

@@ -1,6 +1,6 @@
 {
   "name": "ced-portal-be",
-  "version": "0.0.13",
+  "version": "0.0.14",
   "private": true,
   "type": "module",
   "main": "dist/main.js",
@@ -26,6 +26,7 @@
   },
   "dependencies": {
     "@pagopa/io-core-adapter-ar": "workspace:^",
+    "@pagopa/io-core-adapter-tracing": "workspace:^",
     "@pagopa/io-core-adapter-drizzle": "workspace:^",
     "@pagopa/io-core-adapter-fastify": "workspace:^",
     "@pagopa/io-core-adapter-redis": "workspace:^",

@@ -1,19 +1,19 @@
-import { defineConfig } from "vite";
-import path from "path";
+import { defineConfig } from 'vite';
+import path from 'path';
 
 export default defineConfig({
   build: {
     lib: {
-      entry: path.resolve(__dirname, "src/index.ts"),
-      name: "MixpanelLib",
+      entry: path.resolve(__dirname, 'src/index.ts'),
+      name: 'MixpanelLib',
       fileName: (format) => `mixpanel-lib.${format}.js`,
-      formats: ["es", "umd"],
+      formats: ['es', 'umd'],
     },
     rollupOptions: {
-      external: ["mixpanel-browser"], // non bundle di mixpanel
+      external: ['mixpanel-browser'], // non bundle di mixpanel
       output: {
         globals: {
-          "mixpanel-browser": "mixpanel",
+          'mixpanel-browser': 'mixpanel',
         },
       },
     },

@@ -26,6 +26,9 @@ locals {
     image = "ghcr.io/pagopa/io-growth/ced-portal-be:latest"
 
     app_settings = {
+      APPLICATIONINSIGHTS_ENTRA_ID_AUTH_ENABLED = "true"
+      APPINSIGHTS_SAMPLING_PERCENTAGE           = "100"
+
       PORT            = "8080"
       POSTGRES_HOST   = "${module.postgresql.postgres.name}.postgres.database.azure.com"
       POSTGRES_PORT   = "6432"

@@ -11,6 +11,8 @@ vi.mock("drizzle-orm/postgres-js", () => ({
   drizzle: vi.fn().mockReturnValue({}),
 }));
 
+import { drizzle } from "drizzle-orm/postgres-js";
+
 import { createTypedDbClient } from "../client.js";
 
 const baseConfig = {
@@ -58,5 +60,58 @@ describe("createTypedDbClient", () => {
     expect(mockPostgres).toHaveBeenCalledWith(
       expect.objectContaining({ max: 5 }),
     );
+  });
+});
+
+describe("createTypedDbClient — onTransaction hook", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mockPostgres.mockReturnValue({ end: mockEnd });
+  });
+
+  it("calls onTransaction hook before the user callback", async () => {
+    const mockTx = {};
+    const mockTransaction = vi
+      .fn()
+      .mockImplementation(async (fn: (tx: unknown) => Promise<unknown>) =>
+        fn(mockTx),
+      );
+
+    vi.mocked(drizzle).mockReturnValueOnce({
+      transaction: mockTransaction,
+    } as unknown as ReturnType<typeof drizzle>);
+
+    const onTransaction = vi.fn().mockResolvedValue(undefined);
+    const userCallbackSpy = vi.fn().mockResolvedValue(undefined);
+
+    const client = createTypedDbClient({ ...baseConfig, onTransaction });
+    await client.transaction(userCallbackSpy);
+
+    expect(onTransaction).toHaveBeenCalledOnce();
+    expect(userCallbackSpy).toHaveBeenCalledOnce();
+    expect(onTransaction.mock.invocationCallOrder[0]).toBeLessThan(
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      userCallbackSpy.mock.invocationCallOrder[0]!,
+    );
+  });
+
+  it("does not patch transaction when onTransaction is not provided", async () => {
+    const mockTx = {};
+    const userCallbackSpy = vi.fn().mockResolvedValue(undefined);
+    const mockTransaction = vi
+      .fn()
+      .mockImplementation(async (fn: (tx: unknown) => Promise<unknown>) =>
+        fn(mockTx),
+      );
+
+    vi.mocked(drizzle).mockReturnValueOnce({
+      transaction: mockTransaction,
+    } as unknown as ReturnType<typeof drizzle>);
+
+    const client = createTypedDbClient(baseConfig);
+    await client.transaction(userCallbackSpy);
+
+    expect(mockTransaction).toHaveBeenCalledWith(userCallbackSpy);
+    expect(userCallbackSpy).toHaveBeenCalledOnce();
   });
 });

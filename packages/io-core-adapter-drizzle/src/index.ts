@@ -1,5 +1,9 @@
+export { createAuditStorage } from "./audit-context.js";
+export type { AuditStorage } from "./audit-context.js";
+
 export { createRawSqlClient, createTypedDbClient } from "./client.js";
 export type {
+  OnTransactionHook,
   RawSqlClient,
   RawSqlClientConfig,
   TypedDatabase,

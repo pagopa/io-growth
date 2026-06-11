@@ -4,8 +4,8 @@ import { describe, expect, it, vi } from "vitest";
 
 import type { OpportunityDetail } from "../../../../domain/entities/opportunity.js";
 
-import { makeGetOperatorOpportunityUseCase } from "../get-operator-opportunity.use-case.js";
-import { createMockOpportunityRepository, MOCK_OPERATOR_ID } from "./mocks.js";
+import { makeGetOpportunityUseCase } from "../get-opportunity.use-case.js";
+import { createMockOpportunityRepository } from "./mocks.js";
 
 const MOCK_OPPORTUNITY_ID = "01JVMK3N8XQZP5T6G2WYHAB4CF";
 
@@ -30,95 +30,96 @@ const mockOpportunityDetail: OpportunityDetail = {
       value: "20% discount on all services",
     },
   ],
+  operatorName: "Comune di Roma",
   placeIds: ["01JVMK3N8XQZP5T6G2WYHAB4CD"],
-  status: "draft",
+  status: "test_pending",
   updatedAt: "2026-01-01T00:00:00.000Z",
   url: "https://example.org/promo",
 };
 
-describe("makeGetOperatorOpportunityUseCase", () => {
+const validInput = {
+  opportunityId: MOCK_OPPORTUNITY_ID,
+  userType: "admin" as const,
+};
+
+describe("makeGetOpportunityUseCase", () => {
   it("should return opportunity detail when found", async () => {
     const repository = createMockOpportunityRepository({
-      findByIdAndOperatorId: vi
-        .fn()
-        .mockResolvedValue(ok(mockOpportunityDetail)),
+      findById: vi.fn().mockResolvedValue(ok(mockOpportunityDetail)),
     });
-    const useCase = makeGetOperatorOpportunityUseCase(repository);
+    const useCase = makeGetOpportunityUseCase(repository);
 
-    const result = await useCase({
-      operatorId: MOCK_OPERATOR_ID,
-      opportunityId: MOCK_OPPORTUNITY_ID,
-    });
+    const result = await useCase(validInput);
 
     expect(result).toEqual(ok(mockOpportunityDetail));
-    expect(repository.findByIdAndOperatorId).toHaveBeenCalledWith({
-      operatorId: MOCK_OPERATOR_ID,
+    expect(repository.findById).toHaveBeenCalledWith({
       opportunityId: MOCK_OPPORTUNITY_ID,
     });
   });
 
   it("should return NotFoundError when opportunity does not exist", async () => {
     const repository = createMockOpportunityRepository({
-      findByIdAndOperatorId: vi.fn().mockResolvedValue(ok(undefined)),
+      findById: vi.fn().mockResolvedValue(ok(undefined)),
     });
-    const useCase = makeGetOperatorOpportunityUseCase(repository);
+    const useCase = makeGetOpportunityUseCase(repository);
 
-    const result = await useCase({
-      operatorId: MOCK_OPERATOR_ID,
-      opportunityId: MOCK_OPPORTUNITY_ID,
-    });
+    const result = await useCase(validInput);
 
     expect(result).toEqual(
-      err(
-        expect.objectContaining({
-          kind: "NotFoundError",
-        }),
-      ),
+      err(expect.objectContaining({ kind: "NotFoundError" })),
     );
   });
 
   it("should propagate repository errors", async () => {
     const repoError = new GenericError("DB connection failed");
     const repository = createMockOpportunityRepository({
-      findByIdAndOperatorId: vi.fn().mockResolvedValue(err(repoError)),
+      findById: vi.fn().mockResolvedValue(err(repoError)),
     });
-    const useCase = makeGetOperatorOpportunityUseCase(repository);
+    const useCase = makeGetOpportunityUseCase(repository);
 
-    const result = await useCase({
-      operatorId: MOCK_OPERATOR_ID,
-      opportunityId: MOCK_OPPORTUNITY_ID,
-    });
+    const result = await useCase(validInput);
 
     expect(result).toEqual(err(repoError));
   });
 
-  it("should return ValidationError when operatorId is invalid", async () => {
-    const repository = createMockOpportunityRepository();
-    const useCase = makeGetOperatorOpportunityUseCase(repository);
-
-    const result = await useCase({
-      operatorId: "invalid",
-      opportunityId: MOCK_OPPORTUNITY_ID,
-    });
-
-    expect(result).toEqual(
-      err(expect.objectContaining({ kind: "ValidationError" })),
-    );
-    expect(repository.findByIdAndOperatorId).not.toHaveBeenCalled();
-  });
-
   it("should return ValidationError when opportunityId is invalid", async () => {
     const repository = createMockOpportunityRepository();
-    const useCase = makeGetOperatorOpportunityUseCase(repository);
+    const useCase = makeGetOpportunityUseCase(repository);
 
     const result = await useCase({
-      operatorId: MOCK_OPERATOR_ID,
+      ...validInput,
       opportunityId: "not-a-ulid",
     });
 
     expect(result).toEqual(
       err(expect.objectContaining({ kind: "ValidationError" })),
     );
-    expect(repository.findByIdAndOperatorId).not.toHaveBeenCalled();
+    expect(repository.findById).not.toHaveBeenCalled();
+  });
+
+  it("should return ValidationError when userType is invalid", async () => {
+    const repository = createMockOpportunityRepository();
+    const useCase = makeGetOpportunityUseCase(repository);
+
+    const result = await useCase({
+      opportunityId: MOCK_OPPORTUNITY_ID,
+      userType: "superadmin" as never,
+    });
+
+    expect(result).toEqual(
+      err(expect.objectContaining({ kind: "ValidationError" })),
+    );
+    expect(repository.findById).not.toHaveBeenCalled();
+  });
+
+  it("should work with test_admin userType", async () => {
+    const repository = createMockOpportunityRepository({
+      findById: vi.fn().mockResolvedValue(ok(mockOpportunityDetail)),
+    });
+    const useCase = makeGetOpportunityUseCase(repository);
+
+    const result = await useCase({ ...validInput, userType: "test_admin" });
+
+    expect(result).toEqual(ok(mockOpportunityDetail));
   });
 });

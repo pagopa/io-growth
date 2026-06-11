@@ -27,6 +27,8 @@ export const azureTracingConfigSchema = z.object({
     .string()
     .optional()
     .transform((v) => v === "true"),
+  /** Logical cloud role name reported to Application Insights. Must be set. */
+  TELEMETRY_SERVICE_NAME: z.string().min(1),
 });
 
 /**
@@ -44,7 +46,7 @@ export interface AzureTracingConfig {
   /** Sampling ratio in the [0, 1] range derived from the percentage. */
   readonly samplingRatio: number;
   /** Logical cloud role name reported to Application Insights. */
-  readonly serviceName?: string;
+  readonly serviceName: string;
 }
 
 export type AzureTracingEnvConfig = z.infer<typeof azureTracingConfigSchema>;
@@ -54,16 +56,14 @@ export type AzureTracingEnvConfig = z.infer<typeof azureTracingConfigSchema>;
  * consumed by `initTelemetry`.
  *
  * @param env validated environment variables.
- * @param serviceName optional cloud role name (e.g. the app/service name).
  */
 export const buildAzureTracingConfig = (
   env: AzureTracingEnvConfig,
-  serviceName?: string,
 ): AzureTracingConfig => ({
   connectionString: env.APPINSIGHTS_INSTRUMENTATION_KEY
     ? `InstrumentationKey=${env.APPINSIGHTS_INSTRUMENTATION_KEY}`
     : undefined,
   entraIdAuthEnabled: env.APPLICATIONINSIGHTS_ENTRA_ID_AUTH_ENABLED ?? false,
   samplingRatio: env.APPINSIGHTS_SAMPLING_PERCENTAGE / 100,
-  serviceName,
+  serviceName: env.TELEMETRY_SERVICE_NAME,
 });

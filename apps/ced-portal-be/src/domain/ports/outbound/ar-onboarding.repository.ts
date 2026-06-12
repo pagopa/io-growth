@@ -5,7 +5,6 @@ import type {
 import type { Result } from "neverthrow";
 
 import type {
-  Onboarding,
   OnboardingDetail,
   OnboardingStatus,
   PaginatedOnboardings,

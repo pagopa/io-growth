@@ -148,8 +148,8 @@ importers:
         specifier: workspace:^
         version: link:../../packages/io-mixpanel
       '@pagopa/mui-italia':
-        specifier: 2.3.0
-        version: 2.3.0(f825435275b13ef911e4ce7b12cde815)
+        specifier: 2.4.1
+        version: 2.4.1(f825435275b13ef911e4ce7b12cde815)
       '@reduxjs/toolkit':
         specifier: ^2.7.0
         version: 2.11.2(react-redux@9.2.0(@types/react@18.3.28)(react@18.3.1)(redux@5.0.1))(react@18.3.1)
@@ -336,8 +336,8 @@ importers:
         specifier: ^6.20.2
         version: 6.20.2(@emotion/react@11.14.0(@types/react@18.3.28)(react@18.3.1))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@18.3.28)(react@18.3.1))(@types/react@18.3.28)(react@18.3.1))(@mui/material@5.18.0(@emotion/react@11.14.0(@types/react@18.3.28)(react@18.3.1))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@18.3.28)(react@18.3.1))(@types/react@18.3.28)(react@18.3.1))(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@mui/system@5.18.0(@emotion/react@11.14.0(@types/react@18.3.28)(react@18.3.1))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@18.3.28)(react@18.3.1))(@types/react@18.3.28)(react@18.3.1))(@types/react@18.3.28)(react@18.3.1))(@types/react@18.3.28)(date-fns@4.1.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@pagopa/mui-italia':
-        specifier: 2.3.0
-        version: 2.3.0(f825435275b13ef911e4ce7b12cde815)
+        specifier: 2.4.1
+        version: 2.4.1(f825435275b13ef911e4ce7b12cde815)
       '@reduxjs/toolkit':
         specifier: ^2.7.0
         version: 2.11.2(react-redux@9.2.0(@types/react@18.3.28)(react@18.3.1)(redux@5.0.1))(react@18.3.1)
@@ -539,8 +539,8 @@ importers:
         specifier: ^6.20.2
         version: 6.20.2(@emotion/react@11.14.0(@types/react@18.3.28)(react@18.3.1))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@18.3.28)(react@18.3.1))(@types/react@18.3.28)(react@18.3.1))(@mui/material@5.18.0(@emotion/react@11.14.0(@types/react@18.3.28)(react@18.3.1))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@18.3.28)(react@18.3.1))(@types/react@18.3.28)(react@18.3.1))(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@mui/system@5.18.0(@emotion/react@11.14.0(@types/react@18.3.28)(react@18.3.1))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@18.3.28)(react@18.3.1))(@types/react@18.3.28)(react@18.3.1))(@types/react@18.3.28)(react@18.3.1))(@types/react@18.3.28)(date-fns@4.1.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@pagopa/mui-italia':
-        specifier: 2.3.0
-        version: 2.3.0(f825435275b13ef911e4ce7b12cde815)
+        specifier: 2.4.1
+        version: 2.4.1(f825435275b13ef911e4ce7b12cde815)
       '@reduxjs/toolkit':
         specifier: ^2.7.0
         version: 2.11.2(react-redux@9.2.0(@types/react@18.3.28)(react@18.3.1)(redux@5.0.1))(react@18.3.1)
@@ -2682,9 +2682,9 @@ packages:
       eslint: ^10.0.0
       prettier: '>=3.0.0'
 
-  '@pagopa/mui-italia@2.3.0':
-    resolution: {integrity: sha512-c/qcIQ5/e8c91ILBLICN15SJAc9DE/CQKspBQtZjzZIeKNIIDYTdohd1SL/Qa/UgPXNkYGhX9Oq7zaq3RKOoQg==}
-    engines: {node: '>=14.x'}
+  '@pagopa/mui-italia@2.4.1':
+    resolution: {integrity: sha512-IqT7d6AWzN0xtUTRAEb/u9QGOni2Bkb0BTPPMcdZW/1j8mb9DtMk1imE+pG2XZQfV0zKp0v80L1pnAjkguF4ag==}
+    engines: {node: '>=22.x'}
     peerDependencies:
       '@emotion/react': ^11.14.0
       '@emotion/styled': ^11.14.1
@@ -8254,7 +8254,7 @@ snapshots:
       - supports-color
       - vitest
 
-  '@pagopa/mui-italia@2.3.0(f825435275b13ef911e4ce7b12cde815)':
+  '@pagopa/mui-italia@2.4.1(f825435275b13ef911e4ce7b12cde815)':
     dependencies:
       '@emotion/react': 11.14.0(@types/react@18.3.28)(react@18.3.1)
       '@emotion/styled': 11.14.1(@emotion/react@11.14.0(@types/react@18.3.28)(react@18.3.1))(@types/react@18.3.28)(react@18.3.1)

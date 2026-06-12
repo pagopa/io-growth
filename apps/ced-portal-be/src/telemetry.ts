@@ -20,4 +20,4 @@ import {
  */
 const env = azureTracingConfigSchema.parse(process.env);
 
-initTelemetry(buildAzureTracingConfig(env));
+await initTelemetry(buildAzureTracingConfig(env));

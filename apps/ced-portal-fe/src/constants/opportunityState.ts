@@ -1,7 +1,7 @@
 import { ChipOwnProps } from '@mui/material';
 import {
+  ListOnboardingsStatusesItem,
   OpportunitySummaryItemStatus,
-  ListOnboardingsStatus,
 } from '../core/api/generated/model';
 
 export const STATE_OPTIONS: {
@@ -31,43 +31,45 @@ export const STATE_COLORS: Record<
 };
 
 export const ENTITY_STATE_OPTIONS = [
-  { value: ListOnboardingsStatus.REQUEST, label: 'Richiesta' },
-  { value: ListOnboardingsStatus.TOBEVALIDATED, label: 'Da validare' },
-  { value: ListOnboardingsStatus.PENDING, label: 'In lavorazione' },
+  { value: ListOnboardingsStatusesItem.REQUEST, label: 'Richiesta' },
   {
-    value: ListOnboardingsStatus.PENDING_IN_REVIEW,
+    value: ListOnboardingsStatusesItem.TOBEVALIDATED,
+    label: 'Da validare',
+  },
+  { value: ListOnboardingsStatusesItem.PENDING, label: 'In lavorazione' },
+  {
+    value: ListOnboardingsStatusesItem.PENDING_IN_REVIEW,
     label: 'Da gestire',
   },
-  { value: ListOnboardingsStatus.COMPLETED, label: 'Attivo' },
-  { value: ListOnboardingsStatus.FAILED, label: 'Fallito' },
-  { value: ListOnboardingsStatus.REJECTED, label: 'Rifiutato' },
-  { value: ListOnboardingsStatus.DELETED, label: 'Cessato' },
+  { value: ListOnboardingsStatusesItem.COMPLETED, label: 'Attivo' },
+  { value: ListOnboardingsStatusesItem.FAILED, label: 'Inattivo' },
+  { value: ListOnboardingsStatusesItem.REJECTED, label: 'Rifiutato' },
+  { value: ListOnboardingsStatusesItem.DELETED, label: 'Cessato' },
 ];
 
 export const ENTITY_REQUEST_STATE_OPTIONS = ENTITY_STATE_OPTIONS.filter(
   ({ value }) =>
-    value === ListOnboardingsStatus.PENDING_IN_REVIEW ||
-    value === ListOnboardingsStatus.REJECTED,
+    value === ListOnboardingsStatusesItem.PENDING_IN_REVIEW ||
+    value === ListOnboardingsStatusesItem.REJECTED,
 );
 
 export const ENTITY_MANAGED_STATE_OPTIONS = ENTITY_STATE_OPTIONS.filter(
   ({ value }) =>
-    value === ListOnboardingsStatus.COMPLETED ||
-    value === ListOnboardingsStatus.FAILED ||
-    value === ListOnboardingsStatus.REJECTED ||
-    value === ListOnboardingsStatus.DELETED,
+    value === ListOnboardingsStatusesItem.COMPLETED ||
+    value === ListOnboardingsStatusesItem.FAILED ||
+    value === ListOnboardingsStatusesItem.DELETED,
 );
 
 export const ENTITY_STATE_COLORS: Record<
   string,
   'default' | 'warning' | 'success' | 'info' | 'error'
 > = {
-  [ListOnboardingsStatus.REQUEST]: 'default',
-  [ListOnboardingsStatus.TOBEVALIDATED]: 'warning',
-  [ListOnboardingsStatus.PENDING]: 'warning',
-  [ListOnboardingsStatus.PENDING_IN_REVIEW]: 'warning',
-  [ListOnboardingsStatus.COMPLETED]: 'success',
-  [ListOnboardingsStatus.FAILED]: 'error',
-  [ListOnboardingsStatus.REJECTED]: 'default',
-  [ListOnboardingsStatus.DELETED]: 'default',
+  [ListOnboardingsStatusesItem.REQUEST]: 'default',
+  [ListOnboardingsStatusesItem.TOBEVALIDATED]: 'warning',
+  [ListOnboardingsStatusesItem.PENDING]: 'warning',
+  [ListOnboardingsStatusesItem.PENDING_IN_REVIEW]: 'warning',
+  [ListOnboardingsStatusesItem.COMPLETED]: 'success',
+  [ListOnboardingsStatusesItem.FAILED]: 'error',
+  [ListOnboardingsStatusesItem.REJECTED]: 'default',
+  [ListOnboardingsStatusesItem.DELETED]: 'default',
 };

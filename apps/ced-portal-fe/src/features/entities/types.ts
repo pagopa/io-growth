@@ -1,11 +1,11 @@
 import type {
-  ListOnboardingsStatus,
+  ListOnboardingsStatusesItem,
   OnboardingItem,
   OnboardingItemInstitution,
   PendingOnboardingsResponse,
 } from '../../core/api/generated/model';
 
-export type DepartmentOnboardingStatus = ListOnboardingsStatus;
+export type DepartmentOnboardingStatus = ListOnboardingsStatusesItem;
 
 export type OnboardingInstitution = OnboardingItemInstitution;
 

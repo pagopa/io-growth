@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { ListOnboardingsStatus } from '../../core/api/generated/model';
+import { ListOnboardingsStatusesItem } from '../../core/api/generated/model';
 import { useListDepartmentOnboardingsQuery } from './api.js';
 import type {
   DepartmentOnboardingStatus,
@@ -9,13 +9,23 @@ import type {
 import type { OnboardingItem } from '../../core/api/generated/model';
 
 const ONBOARDING_STATUSES = new Set<string>(
-  Object.values(ListOnboardingsStatus),
+  Object.values(ListOnboardingsStatusesItem),
 );
 
-const REQUEST_STATUSES = new Set<DepartmentOnboardingStatus>([
-  ListOnboardingsStatus.REJECTED,
-  ListOnboardingsStatus.PENDING_IN_REVIEW,
-]);
+const REQUEST_TAB_STATUSES: DepartmentOnboardingStatus[] = [
+  ListOnboardingsStatusesItem.PENDING_IN_REVIEW,
+  ListOnboardingsStatusesItem.REJECTED,
+];
+
+const MANAGED_TAB_STATUSES: DepartmentOnboardingStatus[] = [
+  ListOnboardingsStatusesItem.COMPLETED,
+  ListOnboardingsStatusesItem.FAILED,
+  ListOnboardingsStatusesItem.DELETED,
+];
+
+const REQUEST_STATUSES = new Set<DepartmentOnboardingStatus>(
+  REQUEST_TAB_STATUSES,
+);
 
 const parseOnboardingStatus = (
   status: string | undefined,
@@ -51,8 +61,8 @@ const toEntityItem = (
 ): EntityItem => {
   const fallbackStatus =
     defaultTab === 'requests'
-      ? ListOnboardingsStatus.REQUEST
-      : ListOnboardingsStatus.COMPLETED;
+      ? ListOnboardingsStatusesItem.PENDING_IN_REVIEW
+      : ListOnboardingsStatusesItem.COMPLETED;
   const status = parseOnboardingStatus(item.status, fallbackStatus);
   const base = {
     city: item.institution?.city ?? item.institution?.county ?? '-',
@@ -89,13 +99,17 @@ export const useEntitiesData = ({
   const name = filters.search || undefined;
   const defaultTab: 'requests' | 'entities' =
     activeTab === 0 ? 'requests' : 'entities';
-  const selectedStatus = filters.state || undefined;
+  const statuses: DepartmentOnboardingStatus[] = filters.state
+    ? [filters.state]
+    : defaultTab === 'requests'
+      ? REQUEST_TAB_STATUSES
+      : MANAGED_TAB_STATUSES;
 
   const query = useListDepartmentOnboardingsQuery({
     name,
     page: pageIndex,
     size: rowsPerPage,
-    status: selectedStatus,
+    statuses,
   });
 
   const items = useMemo(

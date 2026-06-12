@@ -1,5 +1,13 @@
 # ced-portal-be
 
+## 0.0.20
+
+### Patch Changes
+
+- 7b0924a: Support multi-status filtering for onboarding list API.Expand onboarding detail payload with full AR-backed fields.
+- Updated dependencies [7b0924a]
+  - @pagopa/io-core-adapter-ar@0.0.5
+
 ## 0.0.19
 
 ### Patch Changes

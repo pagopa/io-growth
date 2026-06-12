@@ -6,6 +6,8 @@ import type { AzureTracingConfig } from "../../config.js";
 // vi.resetModules() before each test so every dynamic import gets a fresh
 // module instance, guaranteeing isolation between tests.
 
+const serviceName = "test-service";
+
 describe("Telemetry Registry", () => {
   beforeEach(() => {
     vi.resetModules();
@@ -58,6 +60,7 @@ describe("Telemetry Registry", () => {
         connectionString: undefined,
         entraIdAuthEnabled: false,
         samplingRatio: 0.05,
+        serviceName,
       };
 
       const returned = initTelemetry(config);
@@ -78,6 +81,7 @@ describe("Telemetry Registry", () => {
         connectionString: undefined,
         entraIdAuthEnabled: false,
         samplingRatio: 0.1,
+        serviceName,
       };
 
       initTelemetry(config);
@@ -94,6 +98,7 @@ describe("Telemetry Registry", () => {
         connectionString: undefined,
         entraIdAuthEnabled: false,
         samplingRatio: 0.05,
+        serviceName,
       };
 
       const first = initTelemetry(config);

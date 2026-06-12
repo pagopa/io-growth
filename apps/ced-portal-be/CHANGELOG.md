@@ -1,5 +1,40 @@
 # ced-portal-be
 
+## 0.0.18
+
+### Patch Changes
+
+- 40aaab7: Added string utils
+- Updated dependencies [40aaab7]
+  - @pagopa/io-core-domain@0.0.4
+  - @pagopa/io-core-adapter-ar@0.0.4
+  - @pagopa/io-core-adapter-fastify@0.0.5
+  - @pagopa/io-core-adapter-redis@0.0.8
+
+## 0.0.17
+
+### Patch Changes
+
+- d146483: integrated error logging and audits
+- Updated dependencies [d146483]
+  - @pagopa/io-core-adapter-drizzle@0.0.3
+  - @pagopa/io-core-adapter-tracing@0.0.3
+  - @pagopa/io-core-adapter-redis@0.0.7
+
+## 0.0.16
+
+### Patch Changes
+
+- 2287080: add @pagopa/io-core-adapter-fims dependency for fiscal code hashing
+
+## 0.0.15
+
+### Patch Changes
+
+- c92a9f0: Abstracted service name into infra
+- Updated dependencies [c92a9f0]
+  - @pagopa/io-core-adapter-tracing@0.0.2
+
 ## 0.0.14
 
 ### Patch Changes

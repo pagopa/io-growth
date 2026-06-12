@@ -565,6 +565,129 @@ paths:
               example:
                 statusCode: 401
                 message: Unauthorized
+  /opportunities/{opportunityId}:
+    get:
+      tags:
+        - Opportunities
+      summary: Get a single opportunity (department only)
+      operationId: getOpportunity
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: opportunityId
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: "^[0-9A-HJKMNP-TV-Z]{26}$"
+      responses:
+        "200":
+          description: Opportunity detail
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OpportunityDetailAdminResponse"
+        "401":
+          description: Invalid or missing JWT
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 401
+                message: Unauthorized
+        "403":
+          description: Forbidden — operator userType not allowed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 403
+                message: Forbidden
+        "404":
+          description: Opportunity not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 404
+                message: Opportunity not found
+  /opportunities/{opportunityId}/approve:
+    patch:
+      tags:
+        - Opportunities
+      summary: Approve an opportunity for publication (department only)
+      operationId: approveOpportunity
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: opportunityId
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: "^[0-9A-HJKMNP-TV-Z]{26}$"
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              properties:
+                dateFrom:
+                  type: string
+                  format: date
+      responses:
+        "204":
+          description: Opportunity approved
+        "401":
+          description: Invalid or missing JWT
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 401
+                message: Unauthorized
+        "403":
+          description: Forbidden — operator userType not allowed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 403
+                message: Forbidden
+        "404":
+          description: Opportunity not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 404
+                message: Opportunity not found
+        "409":
+          description: Concurrent status modification
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 409
+                message: Conflict
+        "412":
+          description: Opportunity not in test_pending or test_rejected status
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 412
+                message: Precondition Failed
   /opportunity-categories:
     get:
       tags:
@@ -1326,6 +1449,73 @@ components:
         updatedAt:
           type: string
           format: date-time
+    OpportunityDetailAdminResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - id
+        - status
+        - dateFrom
+        - categoryId
+        - categoryTitle
+        - beneficiaryBenefit
+        - localizedMetadata
+        - placeIds
+        - createdAt
+        - updatedAt
+      properties:
+        id:
+          type: string
+          pattern: "^[0-9A-HJKMNP-TV-Z]{26}$"
+        status:
+          type: string
+          enum:
+            - draft
+            - test_pending
+            - test_rejected
+            - test_passed
+            - published
+            - suspended
+            - deleted
+        dateFrom:
+          type: string
+          format: date
+        dateTo:
+          type: string
+          format: date
+          nullable: true
+        url:
+          type: string
+          format: uri
+          nullable: true
+        categoryId:
+          type: string
+          pattern: "^[0-9A-HJKMNP-TV-Z]{26}$"
+        categoryTitle:
+          type: string
+        beneficiaryBenefit:
+          $ref: "#/components/schemas/BenefitRequest"
+        caregiverBenefit:
+          nullable: true
+          allOf:
+            - $ref: "#/components/schemas/BenefitRequest"
+        localizedMetadata:
+          type: array
+          items:
+            $ref: "#/components/schemas/LocalizedMetadataItem"
+        placeIds:
+          type: array
+          items:
+            type: string
+            pattern: "^[0-9A-HJKMNP-TV-Z]{26}$"
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        operatorName:
+          type: string
     ErrorResponse:
       type: object
       additionalProperties: false
@@ -1360,6 +1550,7 @@ components:
         - last_name
         - operator_name
         - session_token
+        - user_type
       properties:
         first_name:
           type: string
@@ -1369,6 +1560,13 @@ components:
           type: string
         session_token:
           type: string
+        user_type:
+          type: string
+          enum:
+            - admin
+            - operator
+            - test_admin
+            - test_operator
     PendingOnboardingsResponse:
       type: object
       required:

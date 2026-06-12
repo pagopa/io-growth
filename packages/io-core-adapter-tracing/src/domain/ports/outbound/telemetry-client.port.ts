@@ -18,7 +18,7 @@ import type {
  */
 export interface TelemetryClient {
   /** Emit an application-level custom event. */
-  readonly trackEvent: (event: CustomEvent) => void;
+  readonly trackEvent: <T>(event: CustomEvent<T>) => void;
   /** Emit telemetry for a thrown, request-scoped exception. */
   readonly trackException: (exception: ExceptionTelemetry) => void;
   /** Emit telemetry for a completed inbound HTTP request. */

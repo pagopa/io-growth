@@ -32,8 +32,10 @@ const mockDraftOpportunityDetail: OpportunityDetail = {
 describe("makeOperatorRequestOpportunityTestUseCase", () => {
   it("should update status to test_pending when opportunity is in draft", async () => {
     const repository = createMockOpportunityRepository({
-      getById: vi.fn().mockResolvedValue(ok(mockDraftOpportunityDetail)),
-      updateStatus: vi.fn().mockResolvedValue(ok(undefined)),
+      findByIdAndOperatorId: vi
+        .fn()
+        .mockResolvedValue(ok(mockDraftOpportunityDetail)),
+      updateStatusByIdAndOperatorId: vi.fn().mockResolvedValue(ok(undefined)),
     });
     const useCase = makeOperatorRequestOpportunityTestUseCase(repository);
 
@@ -43,11 +45,11 @@ describe("makeOperatorRequestOpportunityTestUseCase", () => {
     });
 
     expect(result).toEqual(ok(undefined));
-    expect(repository.getById).toHaveBeenCalledWith({
+    expect(repository.findByIdAndOperatorId).toHaveBeenCalledWith({
       operatorId: MOCK_OPERATOR_ID,
       opportunityId: MOCK_OPPORTUNITY_ID,
     });
-    expect(repository.updateStatus).toHaveBeenCalledWith({
+    expect(repository.updateStatusByIdAndOperatorId).toHaveBeenCalledWith({
       expectedStatus: "draft",
       operatorId: MOCK_OPERATOR_ID,
       opportunityId: MOCK_OPPORTUNITY_ID,
@@ -57,7 +59,7 @@ describe("makeOperatorRequestOpportunityTestUseCase", () => {
 
   it("should return NotFoundError when opportunity does not exist", async () => {
     const repository = createMockOpportunityRepository({
-      getById: vi.fn().mockResolvedValue(ok(undefined)),
+      findByIdAndOperatorId: vi.fn().mockResolvedValue(ok(undefined)),
     });
     const useCase = makeOperatorRequestOpportunityTestUseCase(repository);
 
@@ -73,7 +75,7 @@ describe("makeOperatorRequestOpportunityTestUseCase", () => {
         }),
       ),
     );
-    expect(repository.updateStatus).not.toHaveBeenCalled();
+    expect(repository.updateStatusByIdAndOperatorId).not.toHaveBeenCalled();
   });
 
   it("should return PreconditionFailedError when opportunity is not in draft status", async () => {
@@ -82,7 +84,9 @@ describe("makeOperatorRequestOpportunityTestUseCase", () => {
       status: "published",
     };
     const repository = createMockOpportunityRepository({
-      getById: vi.fn().mockResolvedValue(ok(publishedOpportunity)),
+      findByIdAndOperatorId: vi
+        .fn()
+        .mockResolvedValue(ok(publishedOpportunity)),
     });
     const useCase = makeOperatorRequestOpportunityTestUseCase(repository);
 
@@ -100,13 +104,13 @@ describe("makeOperatorRequestOpportunityTestUseCase", () => {
         }),
       ),
     );
-    expect(repository.updateStatus).not.toHaveBeenCalled();
+    expect(repository.updateStatusByIdAndOperatorId).not.toHaveBeenCalled();
   });
 
-  it("should propagate repository errors from getById", async () => {
+  it("should propagate repository errors from findByIdAndOperatorId", async () => {
     const repoError = new GenericError("DB connection failed");
     const repository = createMockOpportunityRepository({
-      getById: vi.fn().mockResolvedValue(err(repoError)),
+      findByIdAndOperatorId: vi.fn().mockResolvedValue(err(repoError)),
     });
     const useCase = makeOperatorRequestOpportunityTestUseCase(repository);
 
@@ -116,14 +120,16 @@ describe("makeOperatorRequestOpportunityTestUseCase", () => {
     });
 
     expect(result).toEqual(err(repoError));
-    expect(repository.updateStatus).not.toHaveBeenCalled();
+    expect(repository.updateStatusByIdAndOperatorId).not.toHaveBeenCalled();
   });
 
-  it("should propagate repository errors from updateStatus", async () => {
+  it("should propagate repository errors from updateStatusByIdAndOperatorId", async () => {
     const repoError = new GenericError("DB update failed");
     const repository = createMockOpportunityRepository({
-      getById: vi.fn().mockResolvedValue(ok(mockDraftOpportunityDetail)),
-      updateStatus: vi.fn().mockResolvedValue(err(repoError)),
+      findByIdAndOperatorId: vi
+        .fn()
+        .mockResolvedValue(ok(mockDraftOpportunityDetail)),
+      updateStatusByIdAndOperatorId: vi.fn().mockResolvedValue(err(repoError)),
     });
     const useCase = makeOperatorRequestOpportunityTestUseCase(repository);
 
@@ -140,8 +146,12 @@ describe("makeOperatorRequestOpportunityTestUseCase", () => {
       "Opportunity status was modified concurrently",
     );
     const repository = createMockOpportunityRepository({
-      getById: vi.fn().mockResolvedValue(ok(mockDraftOpportunityDetail)),
-      updateStatus: vi.fn().mockResolvedValue(err(conflictError)),
+      findByIdAndOperatorId: vi
+        .fn()
+        .mockResolvedValue(ok(mockDraftOpportunityDetail)),
+      updateStatusByIdAndOperatorId: vi
+        .fn()
+        .mockResolvedValue(err(conflictError)),
     });
     const useCase = makeOperatorRequestOpportunityTestUseCase(repository);
 
@@ -171,7 +181,7 @@ describe("makeOperatorRequestOpportunityTestUseCase", () => {
     expect(result).toEqual(
       err(expect.objectContaining({ kind: "ValidationError" })),
     );
-    expect(repository.getById).not.toHaveBeenCalled();
+    expect(repository.findByIdAndOperatorId).not.toHaveBeenCalled();
   });
 
   it("should return ValidationError when opportunityId is invalid", async () => {
@@ -186,6 +196,6 @@ describe("makeOperatorRequestOpportunityTestUseCase", () => {
     expect(result).toEqual(
       err(expect.objectContaining({ kind: "ValidationError" })),
     );
-    expect(repository.getById).not.toHaveBeenCalled();
+    expect(repository.findByIdAndOperatorId).not.toHaveBeenCalled();
   });
 });

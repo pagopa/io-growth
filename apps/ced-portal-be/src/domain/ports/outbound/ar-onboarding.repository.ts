@@ -6,6 +6,7 @@ import type { Result } from "neverthrow";
 
 import type {
   Onboarding,
+  OnboardingDetail,
   OnboardingStatus,
   PaginatedOnboardings,
 } from "../../entities/onboarding.js";
@@ -17,7 +18,7 @@ export interface ArOnboardingRepository {
 
   readonly getById: (
     onboardingId: string,
-  ) => Promise<Result<Onboarding, GenericError | NotFoundError>>;
+  ) => Promise<Result<OnboardingDetail, GenericError | NotFoundError>>;
 
   readonly getContractSigned: (
     onboardingId: string,
@@ -38,5 +39,5 @@ export interface ListOnboardingsInput {
   readonly page: number;
   readonly productId: string;
   readonly size: number;
-  readonly status?: OnboardingStatus;
+  readonly statuses?: OnboardingStatus[];
 }

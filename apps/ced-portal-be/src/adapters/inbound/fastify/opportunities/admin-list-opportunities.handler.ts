@@ -8,42 +8,42 @@ import {
 } from "@pagopa/io-core-adapter-fastify";
 import { z as zod } from "zod";
 
-import type { ListOpportunitiesUseCase } from "../../../../application/use-cases/opportunities/admin-list-opportunities.use-case.js";
+import type { AdminListOpportunitiesUseCase } from "../../../../application/use-cases/opportunities/admin-list-opportunities.use-case.js";
 
 import { UserTypeSessionSchema } from "../auth/session.js";
 import { withUserTypeAuthorization } from "../auth/utils/authorization.js";
 import {
-  listAdminOpportunitiesQueryLimitDefault,
-  listAdminOpportunitiesQueryLimitMax,
-  listAdminOpportunitiesQueryOffsetDefault,
-  listAdminOpportunitiesQueryOffsetMin,
-  ListAdminOpportunitiesQueryParams,
-  ListAdminOpportunitiesResponse,
+  adminListOpportunitiesQueryLimitDefault,
+  adminListOpportunitiesQueryLimitMax,
+  adminListOpportunitiesQueryOffsetDefault,
+  adminListOpportunitiesQueryOffsetMin,
+  AdminListOpportunitiesQueryParams,
+  AdminListOpportunitiesResponse,
 } from "../contracts/opportunities/opportunities.js";
 
-const listAdminOpportunitiesQuerySchema =
-  ListAdminOpportunitiesQueryParams.extend({
+const adminListOpportunitiesQuerySchema =
+  AdminListOpportunitiesQueryParams.extend({
     limit: zod.coerce
       .number()
       .int()
       .min(1)
-      .max(listAdminOpportunitiesQueryLimitMax)
-      .default(listAdminOpportunitiesQueryLimitDefault),
+      .max(adminListOpportunitiesQueryLimitMax)
+      .default(adminListOpportunitiesQueryLimitDefault),
     offset: zod.coerce
       .number()
       .int()
-      .min(listAdminOpportunitiesQueryOffsetMin)
-      .default(listAdminOpportunitiesQueryOffsetDefault),
+      .min(adminListOpportunitiesQueryOffsetMin)
+      .default(adminListOpportunitiesQueryOffsetDefault),
   });
 
-const listAdminOpportunitiesHttpSchema = zod.object({
-  query: listAdminOpportunitiesQuerySchema,
+const adminListOpportunitiesHttpSchema = zod.object({
+  query: adminListOpportunitiesQuerySchema,
 });
 
-const listAdminOpportunitiesValidator = withUserTypeAuthorization(
+const adminListOpportunitiesValidator = withUserTypeAuthorization(
   withSession(
     UserTypeSessionSchema,
-    createHttpRequestValidator(listAdminOpportunitiesHttpSchema),
+    createHttpRequestValidator(adminListOpportunitiesHttpSchema),
     (session, { query }) => ({
       categoryId: query.categoryId,
       dateFrom: query.dateFrom,
@@ -60,21 +60,21 @@ const listAdminOpportunitiesValidator = withUserTypeAuthorization(
   ),
 );
 
-const listAdminOpportunitiesFormatter = createHttpResponseFormatter(
-  ListAdminOpportunitiesResponse,
+const adminListOpportunitiesFormatter = createHttpResponseFormatter(
+  AdminListOpportunitiesResponse,
 );
 
-export const mountListAdminOpportunitiesHandler = (
+export const mountAdminListOpportunitiesHandler = (
   fastify: FastifyInstance,
-  useCase: ListOpportunitiesUseCase,
+  useCase: AdminListOpportunitiesUseCase,
 ) => {
   fastify.get(
     "/api/opportunities",
     createHttpHandler(
       useCase,
-      listAdminOpportunitiesValidator,
+      adminListOpportunitiesValidator,
       { successCode: 200 },
-      listAdminOpportunitiesFormatter,
+      adminListOpportunitiesFormatter,
     ),
   );
 };

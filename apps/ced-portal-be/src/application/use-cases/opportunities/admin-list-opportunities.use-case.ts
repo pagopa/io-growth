@@ -15,7 +15,7 @@ import type {
 import { USER_TYPES } from "../../../domain/entities/user-type.js";
 import { validateUseCaseInput } from "../utils/validate-use-case-input.js";
 
-const ListOpportunitiesInputSchema = z.object({
+const AdminListOpportunitiesInputSchema = z.object({
   categoryId: z.string().ulid().optional(),
   dateFrom: z.string().date().optional(),
   dateTo: z.string().date().optional(),
@@ -40,20 +40,22 @@ const ListOpportunitiesInputSchema = z.object({
   userType: z.enum(USER_TYPES),
 });
 
-export type ListOpportunitiesInput = z.infer<
-  typeof ListOpportunitiesInputSchema
+export type AdminListOpportunitiesInput = z.infer<
+  typeof AdminListOpportunitiesInputSchema
 >;
 
-export type ListOpportunitiesUseCase = UseCase<
-  ListOpportunitiesInput,
+export type AdminListOpportunitiesUseCase = UseCase<
+  AdminListOpportunitiesInput,
   PaginatedOpportunities,
   GenericError | ValidationError
 >;
 
-export const makeListOpportunitiesUseCase =
-  (opportunityRepository: OpportunityRepository): ListOpportunitiesUseCase =>
+export const makeAdminListOpportunitiesUseCase =
+  (
+    opportunityRepository: OpportunityRepository,
+  ): AdminListOpportunitiesUseCase =>
   async (input) =>
-    validateUseCaseInput(ListOpportunitiesInputSchema, input).andThen(
+    validateUseCaseInput(AdminListOpportunitiesInputSchema, input).andThen(
       (validatedInput) =>
         new ResultAsync(
           opportunityRepository.findAll({

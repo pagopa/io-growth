@@ -4,7 +4,7 @@ import { describe, expect, it, vi } from "vitest";
 
 import type { PaginatedOpportunities } from "../../../../domain/ports/outbound/persistence/opportunity.repository.js";
 
-import { makeListOpportunitiesUseCase } from "../admin-list-opportunities.use-case.js";
+import { makeAdminListOpportunitiesUseCase } from "../admin-list-opportunities.use-case.js";
 import { createMockOpportunityRepository } from "./mocks.js";
 
 const mockPaginatedResult: PaginatedOpportunities = {
@@ -30,12 +30,12 @@ const validInput = {
   userType: "admin" as const,
 };
 
-describe("makeListOpportunitiesUseCase", () => {
+describe("makeAdminListOpportunitiesUseCase", () => {
   it("should return paginated opportunities for admin role", async () => {
     const repository = createMockOpportunityRepository({
       findAll: vi.fn().mockResolvedValue(ok(mockPaginatedResult)),
     });
-    const useCase = makeListOpportunitiesUseCase(repository);
+    const useCase = makeAdminListOpportunitiesUseCase(repository);
 
     const result = await useCase(validInput);
 
@@ -46,7 +46,7 @@ describe("makeListOpportunitiesUseCase", () => {
     const repository = createMockOpportunityRepository({
       findAll: vi.fn().mockResolvedValue(ok({ items: [], total: 0 })),
     });
-    const useCase = makeListOpportunitiesUseCase(repository);
+    const useCase = makeAdminListOpportunitiesUseCase(repository);
 
     const inputWithFilters = {
       ...validInput,
@@ -73,7 +73,7 @@ describe("makeListOpportunitiesUseCase", () => {
     const repository = createMockOpportunityRepository({
       findAll: vi.fn().mockResolvedValue(err(repoError)),
     });
-    const useCase = makeListOpportunitiesUseCase(repository);
+    const useCase = makeAdminListOpportunitiesUseCase(repository);
 
     const result = await useCase(validInput);
 
@@ -82,7 +82,7 @@ describe("makeListOpportunitiesUseCase", () => {
 
   it("should return ValidationError when operatorId is not a valid ULID", async () => {
     const repository = createMockOpportunityRepository();
-    const useCase = makeListOpportunitiesUseCase(repository);
+    const useCase = makeAdminListOpportunitiesUseCase(repository);
 
     const result = await useCase({ ...validInput, operatorId: "invalid-id" });
 
@@ -96,7 +96,7 @@ describe("makeListOpportunitiesUseCase", () => {
     const repository = createMockOpportunityRepository({
       findAll: vi.fn().mockResolvedValue(ok({ items: [], total: 0 })),
     });
-    const useCase = makeListOpportunitiesUseCase(repository);
+    const useCase = makeAdminListOpportunitiesUseCase(repository);
 
     await useCase(validInput);
 

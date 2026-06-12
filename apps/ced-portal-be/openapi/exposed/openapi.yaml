@@ -570,7 +570,7 @@ paths:
       tags:
         - Opportunities
       summary: List all opportunities across all operators (department only)
-      operationId: listAdminOpportunities
+      operationId: adminListOpportunities
       security:
         - bearerAuth: []
       parameters:

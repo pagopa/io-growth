@@ -1,11 +1,7 @@
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import FileDownloadOutlinedIcon from '@mui/icons-material/FileDownloadOutlined';
 import WarningAmberRoundedIcon from '@mui/icons-material/WarningAmberRounded';
 import {
-  Accordion,
-  AccordionDetails,
-  AccordionSummary,
   Box,
   Button,
   Chip,
@@ -16,7 +12,7 @@ import {
   useTheme,
 } from '@mui/material';
 import { skipToken } from '@reduxjs/toolkit/query';
-import { useState, type ReactNode } from 'react';
+import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { APP_ROUTES } from '../../app/routeConfig';
 import { UploadDropzone, UploadState } from '../../components';
@@ -33,25 +29,13 @@ import {
 import { DetailSection } from '../OpportunityDetail/components/DetailSection';
 import { PublishEntityModal } from './components/PublishEntityModal';
 import { RejectEntityModal } from './components/RejectEntityModal';
-
-type SectionCardProps = {
-  title: string;
-  children: ReactNode;
-};
-
-const SectionCard = ({ title, children }: SectionCardProps) => {
-  return (
-    <Accordion defaultExpanded elevation={0} sx={{ borderRadius: 2 }}>
-      <AccordionSummary
-        expandIcon={<ExpandMoreIcon color="primary" />}
-        sx={{ px: 3, py: 1 }}
-      >
-        <Typography sx={{ fontWeight: 700, fontSize: 18 }}>{title}</Typography>
-      </AccordionSummary>
-      <AccordionDetails sx={{ p: 0 }}>{children}</AccordionDetails>
-    </Accordion>
-  );
-};
+import { SectionCard } from './components/SectionCard.js';
+import {
+  getEntityFields,
+  getEntityName,
+  getGeographicFields,
+  getLegalRepresentativeFields,
+} from './utils.js';
 
 export default function EntityDetailPage() {
   const theme = useTheme();
@@ -124,70 +108,10 @@ export default function EntityDetailPage() {
     setOpenPublishModal(true);
   };
 
-  const entityName = onboarding?.institution?.description ?? 'Ente senza nome';
-
-  const entityFields = onboarding
-    ? [
-        { label: 'Prodotto', value: onboarding.productId ?? 'XXX' },
-        {
-          label: 'Tipologia di soggetto aderente',
-          value: onboarding.institution?.institutionType ?? 'XXX',
-        },
-        { label: 'Ragione sociale', value: entityName },
-        {
-          label: 'Sede legale',
-          value: onboarding.institution?.address ?? 'XXX',
-        },
-        { label: 'CAP', value: onboarding.institution?.zipCode ?? 'XXX' },
-        {
-          label: 'Email PEC',
-          value: onboarding.institution?.digitalAddress ?? 'XXX',
-        },
-        {
-          label: 'Partita IVA',
-          value: onboarding.institution?.taxCode ?? 'XXX',
-        },
-        { label: 'La P IVA è di gruppo', value: 'XXX' },
-        {
-          label: 'Codice SDI',
-          value: onboarding.institution?.originId ?? 'XXX',
-        },
-        {
-          label: 'Luogo di iscrizione al Registro delle Imprese',
-          value: onboarding.institution?.origin ?? 'XXX',
-        },
-        { label: 'REA (facoltativo)', value: 'XXX' },
-        {
-          label: 'Indirizzo email visibile ai cittadini',
-          value: 'XXX',
-        },
-      ]
-    : [];
-
-  const geographicFields = onboarding
-    ? [
-        {
-          label: 'Area di competenza',
-          value: onboarding.workflowType ?? 'XXX',
-        },
-        {
-          label: 'Area geografica',
-          value:
-            onboarding.institution?.geographicTaxonomies
-              ?.map(({ desc }) => desc)
-              .filter((desc): desc is string => Boolean(desc))
-              .join(', ') ?? 'XXX',
-        },
-      ]
-    : [];
-
-  const legalRepresentativeFields = onboarding
-    ? [
-        { label: 'Nome e cognome', value: 'XXX' },
-        { label: 'Indirizzo email', value: 'XXX' },
-        { label: 'Numero di telefono', value: 'XXX' },
-      ]
-    : [];
+  const entityName = getEntityName(onboarding);
+  const entityFields = getEntityFields(onboarding);
+  const geographicFields = getGeographicFields(onboarding);
+  const legalRepresentativeFields = getLegalRepresentativeFields(onboarding);
 
   if (isLoading) {
     return (

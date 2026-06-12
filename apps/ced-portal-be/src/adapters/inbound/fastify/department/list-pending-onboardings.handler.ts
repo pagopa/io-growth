@@ -10,7 +10,10 @@ import { z as zod } from "zod";
 
 import type { ListOnboardingsUseCase } from "../../../../application/use-cases/department/list-onboardings.use-case.js";
 
-import { PaginatedOnboardingsSchema } from "../../../../domain/entities/onboarding.js";
+import {
+  OnboardingStatusSchema,
+  PaginatedOnboardingsSchema,
+} from "../../../../domain/entities/onboarding.js";
 import { SessionSchema } from "../auth/session.js";
 import {
   listOnboardingsQueryPageDefault,
@@ -31,6 +34,12 @@ const listPendingOnboardingsQuerySchema = ListOnboardingsQueryParams.extend({
     .min(1)
     .max(listOnboardingsQuerySizeMax)
     .default(listOnboardingsQuerySizeDefault),
+  statuses: zod
+    .union([OnboardingStatusSchema, zod.array(OnboardingStatusSchema)])
+    .optional()
+    .transform((value) =>
+      value === undefined ? undefined : Array.isArray(value) ? value : [value],
+    ),
 });
 
 const listPendingOnboardingsHttpSchema = zod.object({

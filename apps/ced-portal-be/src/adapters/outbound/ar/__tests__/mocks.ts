@@ -2,6 +2,7 @@ import type {
   DocumentContentRepository,
   InstitutionRepository,
   OnboardingRepository,
+  UserRepository,
 } from "@pagopa/io-core-adapter-ar";
 
 import { vi } from "vitest";
@@ -84,6 +85,13 @@ export const mockArOnboardingDetailItem = {
     },
   ],
   workflowType: "ONBOARDING",
+};
+
+export const mockArUserResponse = {
+  email: "operator@example.org",
+  id: "user-2",
+  name: "Mario",
+  surname: "Rossi",
 };
 
 export const mockOnboardingDetail: OnboardingDetail = {
@@ -204,3 +212,10 @@ export const createMockDocumentContentRepository = (
   ({
     getContractSigned: overrides.getContractSigned ?? vi.fn(),
   }) as DocumentContentRepository;
+
+export const createMockUserRepository = (
+  overrides: Partial<UserRepository> = {},
+): UserRepository =>
+  ({
+    getUserById: overrides.getUserById ?? vi.fn(),
+  }) as UserRepository;

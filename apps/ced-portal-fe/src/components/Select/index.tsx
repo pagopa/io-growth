@@ -38,6 +38,7 @@ export const AppSelect = ({
   onOpen,
   onClose,
   renderCustomOptions,
+  disabled,
   ...props
 }: AppSelectProps) => {
   const [open, setOpen] = useState(false);
@@ -83,8 +84,22 @@ export const AppSelect = ({
   }, [options, renderCustomOptions]);
 
   return (
-    <FormControl error={error} sx={sx} required={props.required}>
-      <InputLabel shrink={shrink}>{label}</InputLabel>
+    <FormControl
+      error={error}
+      disabled={disabled}
+      sx={sx}
+      required={props.required}
+    >
+      <InputLabel
+        shrink={shrink}
+        sx={{
+          ...(disabled && {
+            color: 'text.disabled',
+          }),
+        }}
+      >
+        {label}
+      </InputLabel>
       <Select
         label={label}
         value={isControlled ? value : undefined}
@@ -106,6 +121,7 @@ export const AppSelect = ({
         }}
         notched={shrink}
         error={error}
+        disabled={disabled}
         MenuProps={{
           anchorOrigin: {
             vertical: 'bottom',

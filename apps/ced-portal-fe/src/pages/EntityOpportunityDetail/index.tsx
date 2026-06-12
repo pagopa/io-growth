@@ -12,6 +12,7 @@ import {
   useTheme,
 } from '@mui/material';
 import WarningAmberRoundedIcon from '@mui/icons-material/WarningAmberRounded';
+import { useMemo } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useGetOpportunityDetailQuery } from '../../features/opportunities/api';
 import { APP_ROUTES } from '../../app/routeConfig';
@@ -20,7 +21,7 @@ import { getDetailChipConfig } from '../Home/components/utils';
 import { OpportunitiesCtas } from './components/OpportunitiesCtas/OpportunitiesCtas';
 import { OpportunityAlert } from './components/OpportunityAlert/OpportunityAlert';
 import { OpportunityDetailListSection } from './components/OpportunityDetailListSection';
-import { PLACES, WEBSITES } from './components/constants';
+import { useGetPlacesByIdsQuery } from '../../features/places/api';
 
 export default function OpportunityDetailPage() {
   const theme = useTheme();
@@ -31,6 +32,25 @@ export default function OpportunityDetailPage() {
     isLoading,
     isError,
   } = useGetOpportunityDetailQuery(id ?? '');
+  const { data: places } = useGetPlacesByIdsQuery(detail?.placeIds ?? [], {
+    skip: !detail?.placeIds || detail.placeIds.length === 0,
+  });
+
+  const locationIds = useMemo(
+    () =>
+      places?.filter(
+        ({ id, type }) => type === 'offline' && detail?.placeIds.includes(id),
+      ) ?? [],
+    [detail?.placeIds, places],
+  );
+
+  const websiteIds = useMemo(
+    () =>
+      places?.filter(
+        ({ id, type }) => type === 'online' && detail?.placeIds.includes(id),
+      ) ?? [],
+    [detail?.placeIds, places],
+  );
 
   if (isLoading) {
     return (
@@ -110,8 +130,12 @@ export default function OpportunityDetailPage() {
           justifyContent="space-between"
           alignItems="center"
         >
-          <Box>
-            <Stack direction="row" alignItems="center">
+          <Box width="100%">
+            <Stack
+              direction="row"
+              alignItems="center"
+              justifyContent="space-between"
+            >
               <Typography
                 variant="h4"
                 sx={{ fontWeight: 700, fontSize: { xs: 28, md: 36 } }}
@@ -133,9 +157,6 @@ export default function OpportunityDetailPage() {
             </Typography>
           </Box>
         </Stack>
-        <Typography sx={{ color: 'text.secondary', fontSize: 16 }}>
-          Ecco i dettagli dell&apos;opportunità che hai creato
-        </Typography>
 
         <OpportunityAlert status={detail.status} />
 
@@ -144,13 +165,13 @@ export default function OpportunityDetailPage() {
         <OpportunityDetailListSection
           title="Sedi"
           icon={<Place sx={{ color: 'text.secondary', fontSize: 20 }} />}
-          rows={PLACES}
+          places={locationIds}
         />
 
         <OpportunityDetailListSection
           title="Siti web"
           icon={<WebOutlined sx={{ color: 'text.secondary', fontSize: 20 }} />}
-          rows={WEBSITES}
+          places={websiteIds}
         />
 
         <Stack

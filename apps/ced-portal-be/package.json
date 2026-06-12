@@ -27,9 +27,6 @@
   "dependencies": {
     "@pagopa/io-core-adapter-ar": "workspace:^",
     "@pagopa/io-core-adapter-tracing": "workspace:^",
-    "@azure/identity": "^4.13.1",
-    "@azure/storage-blob": "^12.31.0",
-    "@pagopa/io-core-adapter-fims": "workspace:^",
     "@pagopa/io-core-adapter-drizzle": "workspace:^",
     "@pagopa/io-core-adapter-fastify": "workspace:^",
     "@pagopa/io-core-adapter-redis": "workspace:^",

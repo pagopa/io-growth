@@ -1,0 +1,104 @@
+import type {
+  AccessPointBenefit,
+  AccessPointDetail,
+} from "../../../domain/ports/outbound/persistence/place.repository.js";
+
+interface OpportunityRow {
+  benefitDiscountType: null | string;
+  benefitType: null | string;
+  benefitValue: null | number;
+  opportunityId: null | string;
+  title: null | string;
+}
+
+interface PlaceRow {
+  address?: null | {
+    city: string;
+    postalCode: string;
+    state: string;
+    street: string;
+  };
+  id: string;
+  name: string;
+  operator?: null | { profile?: null | { displayName: string } };
+  operatorId: string;
+  supportContacts: { type: string; value: string }[];
+  type: string;
+  website?: null | { url: string };
+}
+
+interface RelatedRow {
+  address?: null | {
+    city: string;
+    postalCode: string;
+    state: string;
+    street: string;
+  };
+  id: string;
+  name: string;
+}
+
+export const mapAccessPointDetailRow = (
+  placeRow: PlaceRow,
+  opportunityRows: OpportunityRow[],
+  relatedRows: RelatedRow[],
+): AccessPointDetail => {
+  const phone = placeRow.supportContacts.find(
+    (sc) => sc.type === "phone",
+  )?.value;
+  const website =
+    placeRow.type === "online"
+      ? (placeRow.website?.url ?? undefined)
+      : placeRow.supportContacts.find((sc) => sc.type === "website")?.value;
+
+  return {
+    address: placeRow.address
+      ? {
+          city: placeRow.address.city,
+          postalCode: placeRow.address.postalCode,
+          state: placeRow.address.state,
+          street: placeRow.address.street,
+        }
+      : null,
+    contacts: {
+      ...(phone !== undefined ? { phone } : {}),
+      ...(website !== undefined ? { website } : {}),
+    },
+    entityId: placeRow.operatorId,
+    entityName: placeRow.operator?.profile?.displayName ?? "",
+    id: placeRow.id,
+    opportunities: opportunityRows
+      .filter(
+        (
+          row,
+        ): row is OpportunityRow & {
+          benefitType: string;
+          opportunityId: string;
+        } => row.opportunityId !== null && row.benefitType !== null,
+      )
+      .map((row) => ({
+        benefit: {
+          discountType:
+            (row.benefitDiscountType as AccessPointBenefit["discountType"]) ??
+            null,
+          type: row.benefitType as AccessPointBenefit["type"],
+          value: row.benefitValue ?? null,
+        },
+        id: row.opportunityId,
+        title: row.title ?? "",
+      })),
+    relatedAccessPoints: relatedRows.map((row) => ({
+      address: row.address
+        ? {
+            city: row.address.city,
+            postalCode: row.address.postalCode,
+            state: row.address.state,
+            street: row.address.street,
+          }
+        : null,
+      id: row.id,
+      title: row.name,
+    })),
+    title: placeRow.name,
+  };
+};

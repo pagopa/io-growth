@@ -14,6 +14,7 @@ import { createResilientRedisClient } from "@pagopa/io-core-adapter-redis";
 import Fastify from "fastify";
 
 import {
+  mountGetAccessPointDetailHandler,
   mountInfoReadinessHandler,
   mountInfoStartupHandler,
   mountSearchAccessPointsHandler,
@@ -24,6 +25,7 @@ import { createRedisHealthCheckRepository } from "./adapters/outbound/redis/redi
 import { createRedisSessionRepository } from "./adapters/outbound/redis/redis-session.repository.js";
 import { makeGetInfoReadinessUseCase } from "./application/use-cases/health/info-readiness.use-case.js";
 import { makeGetInfoStartupUseCase } from "./application/use-cases/health/info-startup.use-case.js";
+import { makeGetAccessPointDetailUseCase } from "./application/use-cases/places/get-access-point-detail.use-case.js";
 import { makeSearchAccessPointsUseCase } from "./application/use-cases/places/search-access-points.use-case.js";
 import { parseConfig } from "./config.js";
 
@@ -93,6 +95,10 @@ app.register(async (citizenApp) => {
   mountSearchAccessPointsHandler(
     citizenApp,
     makeSearchAccessPointsUseCase(placeRepository),
+  );
+  mountGetAccessPointDetailHandler(
+    citizenApp,
+    makeGetAccessPointDetailUseCase(placeRepository),
   );
 });
 

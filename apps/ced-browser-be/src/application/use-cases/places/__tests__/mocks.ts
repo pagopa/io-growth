@@ -32,5 +32,6 @@ export const createMockPlaceRepository = (
   overrides?: Partial<PlaceRepository>,
 ): PlaceRepository => ({
   findAllByFullText: vi.fn(),
+  findById: vi.fn(),
   ...overrides,
 });

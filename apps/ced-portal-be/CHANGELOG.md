@@ -1,5 +1,13 @@
 # ced-portal-be
 
+## 0.0.19
+
+### Patch Changes
+
+- 5ec384d: fixed telemetry init
+- Updated dependencies [5ec384d]
+  - @pagopa/io-core-adapter-tracing@0.0.4
+
 ## 0.0.18
 
 ### Patch Changes

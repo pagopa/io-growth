@@ -44,7 +44,7 @@ const listPendingOnboardingsValidator = withSession(
     name: query.name,
     page: query.page,
     size: query.size,
-    status: query.status,
+    statuses: query.statuses,
   }),
 );
 

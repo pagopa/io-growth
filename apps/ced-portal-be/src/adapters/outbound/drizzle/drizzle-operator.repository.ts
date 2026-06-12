@@ -17,11 +17,13 @@ export const createDrizzleOperatorRepository = (
 ): OperatorRepository => ({
   create: async (input: Operator): Promise<Result<Operator, BaseError>> => {
     try {
-      await db.insert(operator).values({
-        externalId: input.externalId,
-        id: input.id,
-        name: input.name,
-        status: input.status,
+      await db.transaction(async (tx) => {
+        await tx.insert(operator).values({
+          externalId: input.externalId,
+          id: input.id,
+          name: input.name,
+          status: input.status,
+        });
       });
       return ok(input);
     } catch (error) {

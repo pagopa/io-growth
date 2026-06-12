@@ -6,6 +6,8 @@ import type { AzureTracingConfig } from "../../config.js";
 // vi.resetModules() before each test so every dynamic import gets a fresh
 // module instance, guaranteeing isolation between tests.
 
+const serviceName = "test-service";
+
 describe("Telemetry Registry", () => {
   beforeEach(() => {
     vi.resetModules();
@@ -58,9 +60,10 @@ describe("Telemetry Registry", () => {
         connectionString: undefined,
         entraIdAuthEnabled: false,
         samplingRatio: 0.05,
+        serviceName,
       };
 
-      const returned = initTelemetry(config);
+      const returned = await initTelemetry(config);
 
       expect(returned).toBeDefined();
       // getTelemetryClient() must return exactly the same object
@@ -78,9 +81,10 @@ describe("Telemetry Registry", () => {
         connectionString: undefined,
         entraIdAuthEnabled: false,
         samplingRatio: 0.1,
+        serviceName,
       };
 
-      initTelemetry(config);
+      await initTelemetry(config);
 
       // Must be the exact consoleTelemetryClient singleton, not the noop
       expect(getTelemetryClient()).toBe(consoleTelemetryClient);
@@ -94,12 +98,13 @@ describe("Telemetry Registry", () => {
         connectionString: undefined,
         entraIdAuthEnabled: false,
         samplingRatio: 0.05,
+        serviceName,
       };
 
-      const first = initTelemetry(config);
+      const first = await initTelemetry(config);
       expect(getTelemetryClient()).toBe(first);
 
-      const second = initTelemetry(config);
+      const second = await initTelemetry(config);
       expect(getTelemetryClient()).toBe(second);
     });
   });

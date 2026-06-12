@@ -5,7 +5,7 @@ import PercentRoundedIcon from '@mui/icons-material/PercentRounded';
 import EuroRoundedIcon from '@mui/icons-material/EuroRounded';
 import { AppRadioGroup } from '../../../../../components/RadioGroup';
 import {
-  fixedPriceBenefitTypeOptions,
+  getLocalizedOptions,
   getAgreementCopy,
 } from '../../../../../constants';
 import {
@@ -20,9 +20,10 @@ import {
 } from '../../../../../core/api/generated/model';
 import { setBenefit } from '../../../../../features/opportunityCreation/opportunityCreationSlice';
 
-export const FixedPriceBenefitFields = () => {
+export const DiscountBenefitFields = () => {
   const dispatch = useAppDispatch();
   const activeLanguage = useAppSelector(selectActiveFormLanguage);
+  const disabledNotLocalizedField = activeLanguage !== 'it';
   const benefit = useAppSelector(selectBeneficiaryBenefit);
   const benefitDiscountType = useAppSelector(
     selectFormValueByPath<BenefitDiscountDiscountType>(
@@ -78,6 +79,11 @@ export const FixedPriceBenefitFields = () => {
 
   const copy = getAgreementCopy(activeLanguage);
 
+  const fixedPriceBenefitTypeOptions = useMemo(
+    () => getLocalizedOptions(activeLanguage, 'discount'),
+    [activeLanguage],
+  );
+
   const isDiscountBenefit = benefit?.type === BenefitDiscountType.discount;
 
   if (!isDiscountBenefit) {
@@ -94,10 +100,12 @@ export const FixedPriceBenefitFields = () => {
       <AppRadioGroup
         value={benefitDiscountType}
         options={fixedPriceBenefitTypeOptions}
+        disabled={disabledNotLocalizedField}
         onChange={(event) => handleBenefitTypeChange(event.target.value)}
       />
 
       <FieldWithIcon
+        disabled={disabledNotLocalizedField}
         onChange={(event) => handleChange(Number(event.target.value))}
         icon={discountIcon}
         label={copy.detailsForm.discountValueLabel}

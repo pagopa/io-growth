@@ -1,5 +1,18 @@
 # @pagopa/io-core-adapter-redis
 
+## 0.0.8
+
+### Patch Changes
+
+- Updated dependencies [40aaab7]
+  - @pagopa/io-core-domain@0.0.4
+
+## 0.0.7
+
+### Patch Changes
+
+- d146483: integrated error logging and audits
+
 ## 0.0.6
 
 ### Patch Changes

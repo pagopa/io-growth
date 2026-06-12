@@ -1,8 +1,9 @@
 import type { UseCase } from "@pagopa/io-core-domain";
 import type { BaseError } from "@pagopa/io-core-domain/errors";
 
-import { hashFiscalCode } from "@pagopa/io-core-adapter-fims";
+import { emitCustomEvent } from "@pagopa/io-core-adapter-tracing";
 import { ValidationError } from "@pagopa/io-core-domain/errors";
+import { hashUppercasedString } from "@pagopa/io-core-domain/utilities";
 import { decodeJwt } from "jose";
 import { err, okAsync, ResultAsync } from "neverthrow";
 import { randomBytes } from "node:crypto";
@@ -13,6 +14,8 @@ import type { AppConfig } from "../../../config.js";
 import type { Operator } from "../../../domain/entities/operator.js";
 import type { OperatorRepository } from "../../../domain/ports/outbound/persistence/operator.repository.js";
 import type { SessionRepository } from "../../../domain/ports/outbound/persistence/session.repository.js";
+
+const CALLER = "AcsUseCase";
 
 const TokenPayloadSchema = z.object({
   family_name: z.string(),
@@ -52,7 +55,7 @@ export const makeAcsUseCase =
     const userType =
       organization.fiscal_code !== undefined &&
       config.ADMIN_FISCAL_CODES.includes(
-        hashFiscalCode(organization.fiscal_code),
+        hashUppercasedString(organization.fiscal_code),
       )
         ? "admin"
         : "operator";
@@ -74,7 +77,16 @@ export const makeAcsUseCase =
                     name: organization.name,
                     status: "active",
                   }),
-                ),
+                ).map((operator) => {
+                  emitCustomEvent("operator_created", {
+                    caller: CALLER,
+                    data: {
+                      operatorId: operator.id,
+                      operatorName: operator.name,
+                    },
+                  })(CALLER);
+                  return operator;
+                }),
           )
         : okAsync(null);
 

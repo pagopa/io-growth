@@ -63,8 +63,8 @@ export const useHydrateFromSourceOpportunity = (
     }
 
     dispatch(setField({ field: 'dateFrom', value: dateFrom }));
-    dispatch(setField({ field: 'dateTo', value: dateTo ?? '' }));
-    dispatch(setField({ field: 'url', value: url ?? '' }));
+    dispatch(setField({ field: 'dateTo', value: dateTo }));
+    dispatch(setField({ field: 'url', value: url }));
     dispatch(setField({ field: 'categoryId', value: categoryId }));
     dispatch(setField({ field: 'placeIds', value: placeIds }));
     dispatch(

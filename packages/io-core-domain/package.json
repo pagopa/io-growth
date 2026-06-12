@@ -1,6 +1,6 @@
 {
   "name": "@pagopa/io-core-domain",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "type": "module",
   "files": [
     "dist"
@@ -17,6 +17,10 @@
     "./value-objects": {
       "import": "./dist/value-objects/index.js",
       "types": "./dist/value-objects/index.d.ts"
+    },
+    "./utilities": {
+      "import": "./dist/utilities/index.js",
+      "types": "./dist/utilities/index.d.ts"
     }
   },
   "scripts": {

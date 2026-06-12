@@ -28,7 +28,7 @@ const statusColour = (code: number): ((s: string) => string) => {
  * status codes and thrown exceptions without requiring any Azure configuration.
  */
 export const consoleTelemetryClient: TelemetryClient = {
-  trackEvent: (event: CustomEvent): void => {
+  trackEvent: <T>(event: CustomEvent<T>): void => {
     const caller = event.caller ?? event.payload.caller;
     console.log(
       PREFIX,

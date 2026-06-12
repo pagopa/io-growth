@@ -1,5 +1,17 @@
 # @pagopa/io-core-adapter-tracing
 
+## 0.0.4
+
+### Patch Changes
+
+- 5ec384d: fixed telemetry init
+
+## 0.0.3
+
+### Patch Changes
+
+- d146483: integrated error logging and audits
+
 ## 0.0.2
 
 ### Patch Changes

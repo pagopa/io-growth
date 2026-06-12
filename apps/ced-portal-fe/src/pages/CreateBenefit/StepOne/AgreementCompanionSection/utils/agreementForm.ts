@@ -85,5 +85,10 @@ export const getFormConfig = (
       helperText: '',
       placeholder: copy.otherBenefitTypeLabel,
     },
+    companionFixedPrice: {
+      title: '',
+      helperText: '',
+      placeholder: copy.fixedPriceLabel,
+    },
   },
 });

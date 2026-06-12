@@ -1,9 +1,13 @@
+import EuroRoundedIcon from '@mui/icons-material/EuroRounded';
 import { AppSelect, AppTextField } from '../../../../../components';
 import { useAppDispatch, useAppSelector } from '../../../../../hooks';
-import { FixedPriceFields } from './FixedPriceFields';
+import { DiscountFields } from './DiscountFields';
 import { ViewSameConditions } from './ViewSameConditions';
 import { CompanionFormField } from './CompanionFormField';
-import { benefitTypeOptions, getAgreementCopy } from '../../../../../constants';
+import {
+  getAgreementCopy,
+  getLocalizedOptions,
+} from '../../../../../constants';
 import {
   selectActiveFormLanguage,
   selectCaregiverBenefit,
@@ -11,9 +15,12 @@ import {
 import { setBenefit } from '../../../../../features/opportunityCreation/opportunityCreationSlice';
 import {
   BenefitDiscountDiscountType,
+  BenefitReducedFixedPriceType,
   BenefitRequest,
 } from '../../../../../core/api/generated/model';
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
+import { benefitTypeMap } from '../../../../../constants/formOptions/types';
+import { FieldWithIcon } from '../../AgreementDetailsSection/components/FieldWithIcon';
 
 type BenefitDetailsSectionProps = {
   isSameAsOwner: boolean;
@@ -26,8 +33,15 @@ export const BenefitDetailsSection = ({
   const caregiverBenefit = useAppSelector(selectCaregiverBenefit);
 
   const activeLanguage = useAppSelector(selectActiveFormLanguage);
-  const companionCopy =
-    getAgreementCopy(activeLanguage).additionalSections.companion;
+  const copy = getAgreementCopy(activeLanguage);
+  const disabledNotLocalizedField = useMemo(
+    () => activeLanguage !== 'it',
+    [activeLanguage],
+  );
+  const benefitTypeOptions = useMemo(
+    () => getLocalizedOptions(activeLanguage, 'benefit'),
+    [activeLanguage],
+  );
 
   const handleBenefitTypeChange = useCallback(
     (type: BenefitRequest['type']) => {
@@ -69,7 +83,7 @@ export const BenefitDetailsSection = ({
         default:
           dispatch(
             setBenefit({
-              which: 'beneficiaryBenefit',
+              which: 'caregiverBenefit',
               value: { type },
             }),
           );
@@ -85,6 +99,7 @@ export const BenefitDetailsSection = ({
     <>
       <CompanionFormField
         name={'companionBenefitType'}
+        disabled={disabledNotLocalizedField}
         path="caregiverBenefit.type"
         onChange={(event) =>
           handleBenefitTypeChange(event.target.value as BenefitRequest['type'])
@@ -93,10 +108,15 @@ export const BenefitDetailsSection = ({
         <AppSelect options={benefitTypeOptions} />
       </CompanionFormField>
       {caregiverBenefit?.type === 'discount' && (
-        <FixedPriceFields benefit={caregiverBenefit} />
+        <DiscountFields benefit={caregiverBenefit} />
       )}
       <CompanionFormField
-        hide={caregiverBenefit?.type !== companionCopy.benefitTypeOptions.other}
+        hide={
+          !caregiverBenefit ||
+          benefitTypeMap[activeLanguage][caregiverBenefit.type] !==
+            benefitTypeMap[activeLanguage].other
+        }
+        disabled={disabledNotLocalizedField}
         name={'companionOtherBenefitTypeDescription'}
         path="caregiverBenefit.description"
         onChange={(event) =>
@@ -112,6 +132,33 @@ export const BenefitDetailsSection = ({
         }
       >
         <AppTextField fullWidth />
+      </CompanionFormField>
+
+      <CompanionFormField
+        hide={
+          !caregiverBenefit ||
+          benefitTypeMap[activeLanguage][caregiverBenefit.type] !==
+            benefitTypeMap[activeLanguage].reduced_fixed_price
+        }
+        disabled={disabledNotLocalizedField}
+        name={'companionFixedPrice'}
+        path={'caregiverBenefit.value'}
+        onChange={(event) =>
+          dispatch(
+            setBenefit({
+              which: 'caregiverBenefit',
+              value: {
+                type: BenefitReducedFixedPriceType.reduced_fixed_price,
+                value: Number(event.target.value),
+              },
+            }),
+          )
+        }
+      >
+        <FieldWithIcon
+          icon={<EuroRoundedIcon sx={{ fontSize: 18 }} />}
+          label={copy.detailsForm.fixedPriceLabel}
+        />
       </CompanionFormField>
     </>
   );

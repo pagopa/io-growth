@@ -7,7 +7,10 @@ import type {
 import { GenericError, NotFoundError } from "@pagopa/io-core-domain/errors";
 import { err, ok } from "neverthrow";
 
-import type { Onboarding } from "../../../domain/entities/onboarding.js";
+import type {
+  Onboarding,
+  OnboardingDetail,
+} from "../../../domain/entities/onboarding.js";
 import type {
   ArOnboardingRepository,
   ListOnboardingsInput,
@@ -16,6 +19,8 @@ import type {
 import { OnboardingStatusSchema } from "../../../domain/entities/onboarding.js";
 
 const toOnboarding = (item: {
+  city?: string;
+  county?: string;
   createdAt?: string;
   description?: string;
   institutionId?: string;
@@ -32,6 +37,8 @@ const toOnboarding = (item: {
   };
 
   return {
+    city: item.city,
+    county: item.county,
     createdAt: item.createdAt,
     id: item.onboardingId,
     institution: Object.values(institution).some((value) => value !== undefined)
@@ -71,26 +78,134 @@ export const createArOnboardingRepository = (
             ),
           );
         }
-        return ok({
+        const onboardingDetail: OnboardingDetail = {
+          activatedAt: item.activatedAt,
+          additionalInformations: item.additionalInformations
+            ? {
+                agentOfPublicService:
+                  item.additionalInformations.agentOfPublicService,
+                agentOfPublicServiceNote:
+                  item.additionalInformations.agentOfPublicServiceNote,
+                belongRegulatedMarket:
+                  item.additionalInformations.belongRegulatedMarket,
+                establishedByRegulatoryProvision:
+                  item.additionalInformations.establishedByRegulatoryProvision,
+                establishedByRegulatoryProvisionNote:
+                  item.additionalInformations
+                    .establishedByRegulatoryProvisionNote,
+                ipa: item.additionalInformations.ipa,
+                ipaCode: item.additionalInformations.ipaCode,
+                otherNote: item.additionalInformations.otherNote,
+                regulatedMarketNote:
+                  item.additionalInformations.regulatedMarketNote,
+              }
+            : undefined,
+          attachments: item.attachments,
+          billing: item.billing
+            ? {
+                publicServices: item.billing.publicServices,
+                recipientCode: item.billing.recipientCode,
+                vatNumber: item.billing.vatNumber,
+              }
+            : undefined,
           createdAt: item.createdAt,
+          expiringDate: item.expiringDate,
           id: item.id,
           institution: item.institution
             ? {
+                address: item.institution.address,
+                atecoCodes: item.institution.atecoCodes,
+                businessRegisterPlace: item.institution.businessRegisterPlace,
                 city: item.institution.city,
+                country: item.institution.country,
                 county: item.institution.county,
+                dataProtectionOfficer: item.institution.dataProtectionOfficer
+                  ? {
+                      address: item.institution.dataProtectionOfficer.address,
+                      email: item.institution.dataProtectionOfficer.email,
+                      pec: item.institution.dataProtectionOfficer.pec,
+                    }
+                  : undefined,
                 description: item.institution.description,
                 digitalAddress: item.institution.digitalAddress,
+                geographicTaxonomies:
+                  item.institution.geographicTaxonomies?.map((taxonomy) => ({
+                    code: taxonomy.code,
+                    desc: taxonomy.desc,
+                  })),
                 id: item.institution.id,
+                institutionType: item.institution.institutionType,
+                legalForm: item.institution.legalForm,
+                origin: item.institution.origin,
+                originId: item.institution.originId,
+                parentDescription: item.institution.parentDescription,
+                paymentServiceProvider: item.institution.paymentServiceProvider
+                  ? {
+                      abiCode: item.institution.paymentServiceProvider.abiCode,
+                      businessRegisterNumber:
+                        item.institution.paymentServiceProvider
+                          .businessRegisterNumber,
+                      contractId:
+                        item.institution.paymentServiceProvider.contractId,
+                      contractType:
+                        item.institution.paymentServiceProvider.contractType,
+                      legalRegisterName:
+                        item.institution.paymentServiceProvider
+                          .legalRegisterName,
+                      legalRegisterNumber:
+                        item.institution.paymentServiceProvider
+                          .legalRegisterNumber,
+                      longTermPayments:
+                        item.institution.paymentServiceProvider
+                          .longTermPayments,
+                      providerNames:
+                        item.institution.paymentServiceProvider.providerNames,
+                      vatNumberGroup:
+                        item.institution.paymentServiceProvider.vatNumberGroup,
+                    }
+                  : undefined,
+                rea: item.institution.rea,
+                shareCapital: item.institution.shareCapital,
+                subunitCode: item.institution.subunitCode,
+                subunitType: item.institution.subunitType,
+                supportEmail: item.institution.supportEmail,
+                supportPhone: item.institution.supportPhone,
                 taxCode: item.institution.taxCode,
+                taxCodeInvoicing: item.institution.taxCodeInvoicing,
+                zipCode: item.institution.zipCode,
               }
             : undefined,
+          payment: item.payment
+            ? {
+                holder: item.payment.holder,
+                iban: item.payment.iban,
+              }
+            : undefined,
+          pricingPlan: item.pricingPlan,
           productId: item.productId,
-          status: OnboardingStatusSchema.optional()
-            .catch(undefined)
-            .parse(item.status),
+          reasonForReject: item.reasonForReject,
+          signContract: item.signContract,
+          status: item.status,
           updatedAt: item.updatedAt,
+          userRequester: item.userRequester
+            ? {
+                userMailUuid: item.userRequester.userMailUuid,
+                userRequestUid: item.userRequester.userRequestUid,
+              }
+            : undefined,
+          users: item.users?.map((user) => ({
+            email: user.email,
+            id: user.id,
+            name: user.name,
+            productRole: user.productRole,
+            role: user.role,
+            surname: user.surname,
+            taxCode: user.taxCode,
+          })),
           workflowType: item.workflowType,
-        });
+        };
+
+        return ok(onboardingDetail);
       },
       (error) => err(new GenericError(error.message)),
     );
@@ -105,8 +220,8 @@ export const createArOnboardingRepository = (
       pageSize: input.size,
       products: [input.productId],
       ...(input.name ? { searchText: input.name } : {}),
-      ...(input.status && {
-        statuses: [input.status],
+      ...(input.statuses && {
+        statuses: input.statuses,
       }),
     });
 

@@ -63,7 +63,7 @@ describe("Telemetry Registry", () => {
         serviceName,
       };
 
-      const returned = initTelemetry(config);
+      const returned = await initTelemetry(config);
 
       expect(returned).toBeDefined();
       // getTelemetryClient() must return exactly the same object
@@ -84,7 +84,7 @@ describe("Telemetry Registry", () => {
         serviceName,
       };
 
-      initTelemetry(config);
+      await initTelemetry(config);
 
       // Must be the exact consoleTelemetryClient singleton, not the noop
       expect(getTelemetryClient()).toBe(consoleTelemetryClient);
@@ -101,10 +101,10 @@ describe("Telemetry Registry", () => {
         serviceName,
       };
 
-      const first = initTelemetry(config);
+      const first = await initTelemetry(config);
       expect(getTelemetryClient()).toBe(first);
 
-      const second = initTelemetry(config);
+      const second = await initTelemetry(config);
       expect(getTelemetryClient()).toBe(second);
     });
   });

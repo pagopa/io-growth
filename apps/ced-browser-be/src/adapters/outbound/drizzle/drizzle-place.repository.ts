@@ -72,9 +72,7 @@ export const createDrizzlePlaceRepository = (
         })),
       );
     } catch (error) {
-      return err(
-        new GenericError(`Failed to search places: ${String(error)}`),
-      );
+      return err(new GenericError(`Failed to search places: ${String(error)}`));
     }
   },
 

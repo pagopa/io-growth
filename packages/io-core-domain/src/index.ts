@@ -5,3 +5,4 @@ export * from "./errors/index.js";
 export type { InputValidator } from "./ports/inbound/inputValidator.js";
 export type { OutputFormatter } from "./ports/inbound/outputFormatter.js";
 export type { UseCase } from "./ports/inbound/use-case.inbound.js";
+export * from "./utilities/index.js";

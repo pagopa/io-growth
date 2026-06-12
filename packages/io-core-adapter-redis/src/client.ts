@@ -17,6 +17,7 @@ export type RedisClient = RedisClientInstance & {
 export interface RedisClientConfig {
   readonly endpoint: string;
   readonly entraId?: EntraIdConfig;
+  readonly onError?: (error: unknown) => void;
   readonly tls?: boolean;
 }
 
@@ -84,8 +85,7 @@ export const createResilientRedisClient = async (
   config: RedisClientConfig,
 ): Promise<ResilientRedisClient> => {
   const onError = (error: unknown) => {
-    // TODO: send this log through OpenTelemetry instead of console.error.
-    console.error("Redis client error:", error);
+    config.onError?.(error);
   };
 
   let client = await createRedisClient(config);

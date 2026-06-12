@@ -8,11 +8,11 @@
  */
 
 /** A named custom event together with its payload and optional caller context. */
-export interface CustomEvent {
+export interface CustomEvent<T> {
   /** Optional caller context, falls back to {@link CustomEventPayload.caller}. */
   readonly caller?: string;
   readonly name: string;
-  readonly payload: CustomEventPayload;
+  readonly payload: CustomEventPayload<T>;
 }
 
 /**
@@ -22,9 +22,9 @@ export interface CustomEvent {
  * - `data`: a serialized (typically `JSON.stringify`-ed) representation of the
  *   event-specific data.
  */
-export interface CustomEventPayload {
+export interface CustomEventPayload<T> {
   readonly caller: string;
-  readonly data: string;
+  readonly data: T;
 }
 
 /** Telemetry describing an exception thrown while serving a request. */

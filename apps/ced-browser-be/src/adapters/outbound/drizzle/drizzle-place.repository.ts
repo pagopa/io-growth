@@ -6,13 +6,13 @@ import { and, asc, eq, ne, or, sql } from "drizzle-orm";
 import { err, ok } from "neverthrow";
 
 import type {
-  AccessPointDetail,
-  AccessPointDetailInput,
-  AccessPointSearchItem,
+  PlaceDetail,
+  PlaceDetailInput,
   PlaceRepository,
+  PlaceSearchItem,
 } from "../../../domain/ports/outbound/persistence/place.repository.js";
 
-import { mapAccessPointDetailRow } from "./access-point-detail-row.mapper.js";
+import { mapPlaceDetailRow } from "./place-detail-row.mapper.js";
 import * as schema from "./schema/index.js";
 import {
   opportunityMaterializedView,
@@ -26,7 +26,7 @@ export const createDrizzlePlaceRepository = (
   findAllByFullText: async ({
     limit,
     query,
-  }): Promise<Result<AccessPointSearchItem[], GenericError>> => {
+  }): Promise<Result<PlaceSearchItem[], GenericError>> => {
     try {
       const tsQuery = sql`plainto_tsquery('italian', ${query})`;
       const rows = await db
@@ -73,7 +73,7 @@ export const createDrizzlePlaceRepository = (
       );
     } catch (error) {
       return err(
-        new GenericError(`Failed to search access points: ${String(error)}`),
+        new GenericError(`Failed to search places: ${String(error)}`),
       );
     }
   },
@@ -81,8 +81,8 @@ export const createDrizzlePlaceRepository = (
   findById: async ({
     language,
     placeId,
-  }: AccessPointDetailInput): Promise<
-    Result<AccessPointDetail | undefined, GenericError>
+  }: PlaceDetailInput): Promise<
+    Result<PlaceDetail | undefined, GenericError>
   > => {
     try {
       const placeRow = await db.query.place.findFirst({
@@ -144,12 +144,10 @@ export const createDrizzlePlaceRepository = (
         }),
       ]);
 
-      return ok(
-        mapAccessPointDetailRow(placeRow, opportunityRows, relatedRows),
-      );
+      return ok(mapPlaceDetailRow(placeRow, opportunityRows, relatedRows));
     } catch (error) {
       return err(
-        new GenericError(`Failed to get access point detail: ${String(error)}`),
+        new GenericError(`Failed to get place detail: ${String(error)}`),
       );
     }
   },

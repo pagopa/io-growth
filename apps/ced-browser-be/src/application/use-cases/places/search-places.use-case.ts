@@ -8,31 +8,29 @@ import { ResultAsync } from "neverthrow";
 import { z } from "zod";
 
 import type {
-  AccessPointSearchItem,
   PlaceRepository,
+  PlaceSearchItem,
 } from "../../../domain/ports/outbound/persistence/place.repository.js";
 
 import { validateUseCaseInput } from "../utils/validate-use-case-input.js";
 
-const SearchAccessPointsInputSchema = z.object({
+const SearchPlacesInputSchema = z.object({
   limit: z.number().int().positive().optional(),
   query: z.string().min(3),
 });
 
-export type SearchAccessPointsInput = z.infer<
-  typeof SearchAccessPointsInputSchema
->;
+export type SearchPlacesInput = z.infer<typeof SearchPlacesInputSchema>;
 
-export type SearchAccessPointsUseCase = UseCase<
-  SearchAccessPointsInput,
-  AccessPointSearchItem[],
+export type SearchPlacesUseCase = UseCase<
+  SearchPlacesInput,
+  PlaceSearchItem[],
   GenericError | ValidationError
 >;
 
-export const makeSearchAccessPointsUseCase =
-  (placeRepository: PlaceRepository): SearchAccessPointsUseCase =>
+export const makeSearchPlacesUseCase =
+  (placeRepository: PlaceRepository): SearchPlacesUseCase =>
   async (input) =>
-    validateUseCaseInput(SearchAccessPointsInputSchema, input).andThen(
+    validateUseCaseInput(SearchPlacesInputSchema, input).andThen(
       (validated) =>
         new ResultAsync(placeRepository.findAllByFullText(validated)),
     );

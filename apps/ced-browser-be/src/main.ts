@@ -14,10 +14,10 @@ import { createResilientRedisClient } from "@pagopa/io-core-adapter-redis";
 import Fastify from "fastify";
 
 import {
-  mountGetAccessPointDetailHandler,
+  mountGetPlaceDetailHandler,
   mountInfoReadinessHandler,
   mountInfoStartupHandler,
-  mountSearchAccessPointsHandler,
+  mountSearchPlacesHandler,
 } from "./adapters/inbound/fastify/index.js";
 import { createDrizzlePlaceRepository } from "./adapters/outbound/drizzle/drizzle-place.repository.js";
 import * as schema from "./adapters/outbound/drizzle/schema/index.js";
@@ -25,8 +25,8 @@ import { createRedisHealthCheckRepository } from "./adapters/outbound/redis/redi
 import { createRedisSessionRepository } from "./adapters/outbound/redis/redis-session.repository.js";
 import { makeGetInfoReadinessUseCase } from "./application/use-cases/health/info-readiness.use-case.js";
 import { makeGetInfoStartupUseCase } from "./application/use-cases/health/info-startup.use-case.js";
-import { makeGetAccessPointDetailUseCase } from "./application/use-cases/places/get-access-point-detail.use-case.js";
-import { makeSearchAccessPointsUseCase } from "./application/use-cases/places/search-access-points.use-case.js";
+import { makeGetPlaceDetailUseCase } from "./application/use-cases/places/get-place-detail.use-case.js";
+import { makeSearchPlacesUseCase } from "./application/use-cases/places/search-places.use-case.js";
 import { parseConfig } from "./config.js";
 
 const config = parseConfig();
@@ -92,13 +92,13 @@ const citizenAuthPreHandler = createAuthenticationPreHandler(
 );
 app.register(async (citizenApp) => {
   citizenApp.addHook("preHandler", citizenAuthPreHandler);
-  mountSearchAccessPointsHandler(
+  mountSearchPlacesHandler(
     citizenApp,
-    makeSearchAccessPointsUseCase(placeRepository),
+    makeSearchPlacesUseCase(placeRepository),
   );
-  mountGetAccessPointDetailHandler(
+  mountGetPlaceDetailHandler(
     citizenApp,
-    makeGetAccessPointDetailUseCase(placeRepository),
+    makeGetPlaceDetailUseCase(placeRepository),
   );
 });
 

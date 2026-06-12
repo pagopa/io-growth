@@ -4,7 +4,7 @@ import type { PlaceRepository } from "../../../../domain/ports/outbound/persiste
 
 export const MOCK_OPERATOR_ID = "01JVMK3N8XQZP5T6G2WYHAB4CD";
 
-export const mockAccessPointOffline = {
+export const mockPlaceOffline = {
   address: {
     city: "Alessandria",
     postalCode: "15121",
@@ -17,7 +17,7 @@ export const mockAccessPointOffline = {
   type: "profile" as const,
 };
 
-export const mockAccessPointOnline = {
+export const mockPlaceOnline = {
   address: null,
   entityId: MOCK_OPERATOR_ID,
   id: "01JVMK3N8XQZP5T6G2WYHAB4CF",
@@ -26,7 +26,7 @@ export const mockAccessPointOnline = {
   url: "https://flixbus.it",
 };
 
-export const mockAccessPoints = [mockAccessPointOffline, mockAccessPointOnline];
+export const mockPlaces = [mockPlaceOffline, mockPlaceOnline];
 
 export const createMockPlaceRepository = (
   overrides?: Partial<PlaceRepository>,

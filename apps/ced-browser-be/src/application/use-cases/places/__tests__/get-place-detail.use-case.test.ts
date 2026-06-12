@@ -2,12 +2,9 @@ import { GenericError } from "@pagopa/io-core-domain/errors";
 import { err, ok } from "neverthrow";
 import { describe, expect, it, vi } from "vitest";
 
-import type {
-  AccessPointBenefit,
-  AccessPointDetail,
-} from "../../../../domain/ports/outbound/persistence/place.repository.js";
+import type { PlaceDetail } from "../../../../domain/ports/outbound/persistence/place.repository.js";
 
-import { makeGetAccessPointDetailUseCase } from "../get-access-point-detail.use-case.js";
+import { makeGetPlaceDetailUseCase } from "../get-place-detail.use-case.js";
 import { createMockPlaceRepository } from "./mocks.js";
 
 const mockAddress = {
@@ -17,7 +14,7 @@ const mockAddress = {
   street: "Piazza della Libertà 1",
 };
 
-const mockDetail: AccessPointDetail = {
+const mockDetail: PlaceDetail = {
   address: mockAddress,
   contacts: { phone: "0131123456", website: "https://example.com" },
   entityId: "01JVMK3N8XQZP5T6G2WYHAB4CD",
@@ -30,7 +27,7 @@ const mockDetail: AccessPointDetail = {
       title: "Sconto 30%",
     },
   ],
-  relatedAccessPoints: [
+  relatedPlaces: [
     {
       address: mockAddress,
       id: "01JVMK3N8XQZP5T6G2WYHAB4CG",
@@ -41,16 +38,16 @@ const mockDetail: AccessPointDetail = {
 };
 
 const validInput = {
-  accessPointId: "01JVMK3N8XQZP5T6G2WYHAB4CE",
   language: "it" as const,
+  placeId: "01JVMK3N8XQZP5T6G2WYHAB4CE",
 };
 
-describe("makeGetAccessPointDetailUseCase", () => {
-  it("should return access point detail with computed badgeLabel", async () => {
+describe("makeGetPlaceDetailUseCase", () => {
+  it("should return place detail with raw benefit", async () => {
     const repository = createMockPlaceRepository({
       findById: vi.fn().mockResolvedValue(ok(mockDetail)),
     });
-    const useCase = makeGetAccessPointDetailUseCase(repository);
+    const useCase = makeGetPlaceDetailUseCase(repository);
 
     const result = await useCase(validInput);
 
@@ -63,12 +60,16 @@ describe("makeGetAccessPointDetailUseCase", () => {
         id: "01JVMK3N8XQZP5T6G2WYHAB4CE",
         opportunities: [
           {
-            badgeLabel: "-30%",
+            benefit: {
+              discountType: "percentage",
+              type: "discount",
+              value: 30,
+            },
             id: "01JVMK3N8XQZP5T6G2WYHAB4CF",
             title: "Sconto 30%",
           },
         ],
-        relatedAccessPoints: [
+        relatedPlaces: [
           {
             address: mockAddress,
             id: "01JVMK3N8XQZP5T6G2WYHAB4CG",
@@ -84,9 +85,9 @@ describe("makeGetAccessPointDetailUseCase", () => {
     const repository = createMockPlaceRepository({
       findById: vi.fn().mockResolvedValue(ok(mockDetail)),
     });
-    const useCase = makeGetAccessPointDetailUseCase(repository);
+    const useCase = makeGetPlaceDetailUseCase(repository);
 
-    await useCase({ accessPointId: validInput.accessPointId });
+    await useCase({ placeId: validInput.placeId });
 
     expect(repository.findById).toHaveBeenCalledWith(
       expect.objectContaining({ language: "it" }),
@@ -97,9 +98,9 @@ describe("makeGetAccessPointDetailUseCase", () => {
     const repository = createMockPlaceRepository({
       findById: vi.fn().mockResolvedValue(ok(mockDetail)),
     });
-    const useCase = makeGetAccessPointDetailUseCase(repository);
+    const useCase = makeGetPlaceDetailUseCase(repository);
 
-    await useCase({ accessPointId: validInput.accessPointId, language: "en" });
+    await useCase({ language: "en", placeId: validInput.placeId });
 
     expect(repository.findById).toHaveBeenCalledWith(
       expect.objectContaining({ language: "en" }),
@@ -110,7 +111,7 @@ describe("makeGetAccessPointDetailUseCase", () => {
     const repository = createMockPlaceRepository({
       findById: vi.fn().mockResolvedValue(ok(undefined)),
     });
-    const useCase = makeGetAccessPointDetailUseCase(repository);
+    const useCase = makeGetPlaceDetailUseCase(repository);
 
     const result = await useCase(validInput);
 
@@ -124,18 +125,18 @@ describe("makeGetAccessPointDetailUseCase", () => {
     const repository = createMockPlaceRepository({
       findById: vi.fn().mockResolvedValue(err(repoError)),
     });
-    const useCase = makeGetAccessPointDetailUseCase(repository);
+    const useCase = makeGetPlaceDetailUseCase(repository);
 
     const result = await useCase(validInput);
 
     expect(result).toEqual(err(repoError));
   });
 
-  it("should return ValidationError when accessPointId is empty", async () => {
+  it("should return ValidationError when placeId is empty", async () => {
     const repository = createMockPlaceRepository();
-    const useCase = makeGetAccessPointDetailUseCase(repository);
+    const useCase = makeGetPlaceDetailUseCase(repository);
 
-    const result = await useCase({ ...validInput, accessPointId: "" });
+    const result = await useCase({ ...validInput, placeId: "" });
 
     expect(result).toEqual(
       err(expect.objectContaining({ kind: "ValidationError" })),
@@ -145,7 +146,7 @@ describe("makeGetAccessPointDetailUseCase", () => {
 
   it("should return ValidationError for invalid language", async () => {
     const repository = createMockPlaceRepository();
-    const useCase = makeGetAccessPointDetailUseCase(repository);
+    const useCase = makeGetPlaceDetailUseCase(repository);
 
     const result = await useCase({ ...validInput, language: "xx" as never });
 
@@ -156,14 +157,14 @@ describe("makeGetAccessPointDetailUseCase", () => {
   });
 
   it("should pass contacts unchanged from repository", async () => {
-    const detailWithPhone: AccessPointDetail = {
+    const detailWithPhone: PlaceDetail = {
       ...mockDetail,
       contacts: { phone: "0101010101" },
     };
     const repository = createMockPlaceRepository({
       findById: vi.fn().mockResolvedValue(ok(detailWithPhone)),
     });
-    const useCase = makeGetAccessPointDetailUseCase(repository);
+    const useCase = makeGetPlaceDetailUseCase(repository);
 
     const result = await useCase(validInput);
 
@@ -172,8 +173,8 @@ describe("makeGetAccessPointDetailUseCase", () => {
     );
   });
 
-  it("should pass null address unchanged for online access points", async () => {
-    const onlineDetail: AccessPointDetail = {
+  it("should pass null address unchanged for online places", async () => {
+    const onlineDetail: PlaceDetail = {
       ...mockDetail,
       address: null,
       contacts: { website: "https://example.com" },
@@ -181,45 +182,41 @@ describe("makeGetAccessPointDetailUseCase", () => {
     const repository = createMockPlaceRepository({
       findById: vi.fn().mockResolvedValue(ok(onlineDetail)),
     });
-    const useCase = makeGetAccessPointDetailUseCase(repository);
+    const useCase = makeGetPlaceDetailUseCase(repository);
 
     const result = await useCase(validInput);
 
     expect(result).toEqual(ok(expect.objectContaining({ address: null })));
   });
 
-  describe("computeBadgeLabel", () => {
-    it.each<[AccessPointBenefit, string]>([
-      [{ discountType: null, type: "free", value: null }, "GRATIS"],
-      [{ discountType: null, type: "priority", value: null }, "PRIORITÀ"],
-      [{ discountType: null, type: "reduced_fixed_price", value: 5 }, "5€"],
-      [{ discountType: "percentage", type: "discount", value: 30 }, "-30%"],
-      [{ discountType: "fixed_amount", type: "discount", value: 10 }, "-10€"],
-      [{ discountType: null, type: "discount", value: null }, "ALTRO"],
-      [{ discountType: null, type: "other", value: null }, "ALTRO"],
-    ])("benefit %j → badgeLabel %s", async (benefit, expectedBadgeLabel) => {
-      const detail: AccessPointDetail = {
-        ...mockDetail,
-        opportunities: [
-          { benefit, id: "01JVMK3N8XQZP5T6G2WYHAB4CF", title: "Opportunità" },
-        ],
-      };
-      const repository = createMockPlaceRepository({
-        findById: vi.fn().mockResolvedValue(ok(detail)),
-      });
-      const useCase = makeGetAccessPointDetailUseCase(repository);
-
-      const result = await useCase(validInput);
-
-      expect(result).toEqual(
-        ok(
-          expect.objectContaining({
-            opportunities: [
-              expect.objectContaining({ badgeLabel: expectedBadgeLabel }),
-            ],
-          }),
-        ),
-      );
+  it("should pass benefit through unchanged from repository", async () => {
+    const detail: PlaceDetail = {
+      ...mockDetail,
+      opportunities: [
+        {
+          benefit: { discountType: null, type: "free", value: null },
+          id: "01JVMK3N8XQZP5T6G2WYHAB4CF",
+          title: "Opportunità",
+        },
+      ],
+    };
+    const repository = createMockPlaceRepository({
+      findById: vi.fn().mockResolvedValue(ok(detail)),
     });
+    const useCase = makeGetPlaceDetailUseCase(repository);
+
+    const result = await useCase(validInput);
+
+    expect(result).toEqual(
+      ok(
+        expect.objectContaining({
+          opportunities: [
+            expect.objectContaining({
+              benefit: { discountType: null, type: "free", value: null },
+            }),
+          ],
+        }),
+      ),
+    );
   });
 });

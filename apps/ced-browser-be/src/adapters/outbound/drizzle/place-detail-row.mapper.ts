@@ -1,6 +1,6 @@
 import type {
-  AccessPointBenefit,
-  AccessPointDetail,
+  PlaceBenefit,
+  PlaceDetail,
 } from "../../../domain/ports/outbound/persistence/place.repository.js";
 
 interface OpportunityRow {
@@ -38,11 +38,11 @@ interface RelatedRow {
   name: string;
 }
 
-export const mapAccessPointDetailRow = (
+export const mapPlaceDetailRow = (
   placeRow: PlaceRow,
   opportunityRows: OpportunityRow[],
   relatedRows: RelatedRow[],
-): AccessPointDetail => {
+): PlaceDetail => {
   const phone = placeRow.supportContacts.find(
     (sc) => sc.type === "phone",
   )?.value;
@@ -69,25 +69,20 @@ export const mapAccessPointDetailRow = (
     id: placeRow.id,
     opportunities: opportunityRows
       .filter(
-        (
-          row,
-        ): row is OpportunityRow & {
-          benefitType: string;
-          opportunityId: string;
-        } => row.opportunityId !== null && row.benefitType !== null,
+        (row): row is OpportunityRow & { opportunityId: string } =>
+          row.opportunityId !== null,
       )
       .map((row) => ({
         benefit: {
           discountType:
-            (row.benefitDiscountType as AccessPointBenefit["discountType"]) ??
-            null,
-          type: row.benefitType as AccessPointBenefit["type"],
+            (row.benefitDiscountType as PlaceBenefit["discountType"]) ?? null,
+          type: row.benefitType as PlaceBenefit["type"],
           value: row.benefitValue ?? null,
         },
         id: row.opportunityId,
         title: row.title ?? "",
       })),
-    relatedAccessPoints: relatedRows.map((row) => ({
+    relatedPlaces: relatedRows.map((row) => ({
       address: row.address
         ? {
             city: row.address.city,

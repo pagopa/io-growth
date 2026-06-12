@@ -2,25 +2,25 @@ import { GenericError } from "@pagopa/io-core-domain/errors";
 import { err, ok } from "neverthrow";
 import { describe, expect, it, vi } from "vitest";
 
-import { makeSearchAccessPointsUseCase } from "../search-access-points.use-case.js";
+import { makeSearchPlacesUseCase } from "../search-places.use-case.js";
 import {
   createMockPlaceRepository,
   MOCK_OPERATOR_ID,
-  mockAccessPointOffline,
-  mockAccessPointOnline,
-  mockAccessPoints,
+  mockPlaceOffline,
+  mockPlaceOnline,
+  mockPlaces,
 } from "./mocks.js";
 
-describe("makeSearchAccessPointsUseCase", () => {
-  it("should return access points matching the query", async () => {
+describe("makeSearchPlacesUseCase", () => {
+  it("should return places matching the query", async () => {
     const placeRepository = createMockPlaceRepository({
-      findAllByFullText: vi.fn().mockResolvedValue(ok(mockAccessPoints)),
+      findAllByFullText: vi.fn().mockResolvedValue(ok(mockPlaces)),
     });
-    const useCase = makeSearchAccessPointsUseCase(placeRepository);
+    const useCase = makeSearchPlacesUseCase(placeRepository);
 
     const result = await useCase({ query: "alessandria" });
 
-    expect(result).toEqual(ok(mockAccessPoints));
+    expect(result).toEqual(ok(mockPlaces));
     expect(placeRepository.findAllByFullText).toHaveBeenCalledWith({
       query: "alessandria",
     });
@@ -28,9 +28,9 @@ describe("makeSearchAccessPointsUseCase", () => {
 
   it("should pass limit when provided", async () => {
     const placeRepository = createMockPlaceRepository({
-      findAllByFullText: vi.fn().mockResolvedValue(ok(mockAccessPoints)),
+      findAllByFullText: vi.fn().mockResolvedValue(ok(mockPlaces)),
     });
-    const useCase = makeSearchAccessPointsUseCase(placeRepository);
+    const useCase = makeSearchPlacesUseCase(placeRepository);
 
     await useCase({ limit: 10, query: "alessandria" });
 
@@ -44,7 +44,7 @@ describe("makeSearchAccessPointsUseCase", () => {
     const placeRepository = createMockPlaceRepository({
       findAllByFullText: vi.fn().mockResolvedValue(ok([])),
     });
-    const useCase = makeSearchAccessPointsUseCase(placeRepository);
+    const useCase = makeSearchPlacesUseCase(placeRepository);
 
     const result = await useCase({ query: "nessunrisultato" });
 
@@ -56,7 +56,7 @@ describe("makeSearchAccessPointsUseCase", () => {
     const placeRepository = createMockPlaceRepository({
       findAllByFullText: vi.fn().mockResolvedValue(err(repoError)),
     });
-    const useCase = makeSearchAccessPointsUseCase(placeRepository);
+    const useCase = makeSearchPlacesUseCase(placeRepository);
 
     const result = await useCase({ query: "alessandria" });
 
@@ -65,7 +65,7 @@ describe("makeSearchAccessPointsUseCase", () => {
 
   it("should return ValidationError when query is shorter than 3 characters", async () => {
     const placeRepository = createMockPlaceRepository();
-    const useCase = makeSearchAccessPointsUseCase(placeRepository);
+    const useCase = makeSearchPlacesUseCase(placeRepository);
 
     const result = await useCase({ query: "al" });
 
@@ -75,13 +75,11 @@ describe("makeSearchAccessPointsUseCase", () => {
     expect(placeRepository.findAllByFullText).not.toHaveBeenCalled();
   });
 
-  it("should return items with type 'profile' and structured address for operator sede", async () => {
+  it("should return items with type 'profile' and structured address for operator profile", async () => {
     const placeRepository = createMockPlaceRepository({
-      findAllByFullText: vi
-        .fn()
-        .mockResolvedValue(ok([mockAccessPointOffline])),
+      findAllByFullText: vi.fn().mockResolvedValue(ok([mockPlaceOffline])),
     });
-    const useCase = makeSearchAccessPointsUseCase(placeRepository);
+    const useCase = makeSearchPlacesUseCase(placeRepository);
 
     const result = await useCase({ query: "comune" });
 
@@ -113,7 +111,7 @@ describe("makeSearchAccessPointsUseCase", () => {
     const placeRepository = createMockPlaceRepository({
       findAllByFullText: vi.fn().mockResolvedValue(ok([offlinePlace])),
     });
-    const useCase = makeSearchAccessPointsUseCase(placeRepository);
+    const useCase = makeSearchPlacesUseCase(placeRepository);
 
     const result = await useCase({ query: "sportello" });
 
@@ -126,9 +124,9 @@ describe("makeSearchAccessPointsUseCase", () => {
 
   it("should return items with type 'place', null address and url for online place", async () => {
     const placeRepository = createMockPlaceRepository({
-      findAllByFullText: vi.fn().mockResolvedValue(ok([mockAccessPointOnline])),
+      findAllByFullText: vi.fn().mockResolvedValue(ok([mockPlaceOnline])),
     });
-    const useCase = makeSearchAccessPointsUseCase(placeRepository);
+    const useCase = makeSearchPlacesUseCase(placeRepository);
 
     const result = await useCase({ query: "flixbus" });
 
@@ -141,7 +139,7 @@ describe("makeSearchAccessPointsUseCase", () => {
 
   it("should return ValidationError when limit is not a positive integer", async () => {
     const placeRepository = createMockPlaceRepository();
-    const useCase = makeSearchAccessPointsUseCase(placeRepository);
+    const useCase = makeSearchPlacesUseCase(placeRepository);
 
     const result = await useCase({ limit: -1, query: "alessandria" });
 

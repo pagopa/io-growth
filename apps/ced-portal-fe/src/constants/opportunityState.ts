@@ -46,10 +46,8 @@ export const ENTITY_STATE_OPTIONS = [
 
 export const ENTITY_REQUEST_STATE_OPTIONS = ENTITY_STATE_OPTIONS.filter(
   ({ value }) =>
-    value === ListOnboardingsStatus.REQUEST ||
-    value === ListOnboardingsStatus.TOBEVALIDATED ||
-    value === ListOnboardingsStatus.PENDING ||
-    value === ListOnboardingsStatus.PENDING_IN_REVIEW,
+    value === ListOnboardingsStatus.PENDING_IN_REVIEW ||
+    value === ListOnboardingsStatus.REJECTED,
 );
 
 export const ENTITY_MANAGED_STATE_OPTIONS = ENTITY_STATE_OPTIONS.filter(

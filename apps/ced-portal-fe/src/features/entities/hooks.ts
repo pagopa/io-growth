@@ -13,13 +13,9 @@ const ONBOARDING_STATUSES = new Set<string>(
 );
 
 const REQUEST_STATUSES = new Set<DepartmentOnboardingStatus>([
-  ListOnboardingsStatus.REQUEST,
-  ListOnboardingsStatus.TOBEVALIDATED,
-  ListOnboardingsStatus.PENDING,
+  ListOnboardingsStatus.REJECTED,
   ListOnboardingsStatus.PENDING_IN_REVIEW,
 ]);
-
-const UNFILTERED_TAB_FETCH_SIZE = 50;
 
 const parseOnboardingStatus = (
   status: string | undefined,
@@ -91,15 +87,14 @@ export const useEntitiesData = ({
 }: UseEntitiesDataInput) => {
   const pageIndex = Math.max(0, page - 1);
   const name = filters.search || undefined;
-  const selectedStatus = filters.state || undefined;
-  const shouldClientPaginateByTab = !filters.state;
   const defaultTab: 'requests' | 'entities' =
     activeTab === 0 ? 'requests' : 'entities';
+  const selectedStatus = filters.state || undefined;
 
   const query = useListDepartmentOnboardingsQuery({
     name,
-    page: shouldClientPaginateByTab ? 0 : pageIndex,
-    size: shouldClientPaginateByTab ? UNFILTERED_TAB_FETCH_SIZE : rowsPerPage,
+    page: pageIndex,
+    size: rowsPerPage,
     status: selectedStatus,
   });
 
@@ -113,29 +108,10 @@ export const useEntitiesData = ({
     [defaultTab, query.data?.items],
   );
 
-  const tabItems = useMemo(() => {
-    if (!shouldClientPaginateByTab) {
-      return items;
-    }
-
-    return items.filter((item) => item.tab === defaultTab);
-  }, [defaultTab, items, shouldClientPaginateByTab]);
-
-  const paginatedTabItems = useMemo(() => {
-    if (!shouldClientPaginateByTab) {
-      return [] as EntityItem[];
-    }
-
-    const start = pageIndex * rowsPerPage;
-    return tabItems.slice(start, start + rowsPerPage);
-  }, [tabItems, pageIndex, rowsPerPage, shouldClientPaginateByTab]);
-
   return {
     isError: query.isError,
     isLoading: query.isLoading || query.isFetching,
-    items: shouldClientPaginateByTab ? paginatedTabItems : items,
-    total: shouldClientPaginateByTab
-      ? tabItems.length
-      : (query.data?.count ?? 0),
+    items,
+    total: query.data?.count ?? 0,
   };
 };

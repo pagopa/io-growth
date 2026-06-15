@@ -1,5 +1,11 @@
 # ced-portal-be
 
+## 0.1.0
+
+### Minor Changes
+
+- 67efe9b: GET /api/opportunities admin list endpoint with full filtering (IEG-2827)
+
 ## 0.0.21
 
 ### Patch Changes

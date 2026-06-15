@@ -1,5 +1,11 @@
 # @pagopa/io-core-adapter-ar
 
+## 0.0.6
+
+### Patch Changes
+
+- 2870ce6: add onboarding manager info
+
 ## 0.0.5
 
 ### Patch Changes

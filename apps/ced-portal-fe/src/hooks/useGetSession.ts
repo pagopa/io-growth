@@ -1,20 +1,40 @@
 import { useLocation, useNavigate } from 'react-router-dom';
-import { useEffect } from 'react';
+import { useEffect, useCallback } from 'react';
 import { APP_ROUTES } from '../app/routeConfig';
 import { useAuthorize } from '../features/session/hooks';
 import { useAppSelector } from './store';
-import { selectToken } from '../core/auth/authSelectors';
-
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? '/api';
-const DEV_ASSERTION_TOKEN = import.meta.env.VITE_DEV_ASSERTION_TOKEN;
-const SESSION_EXCHANGE_KEY = 'ced-portal-last-session-exchange-id';
-const ACS_EXCHANGE_KEY = 'ced-portal-last-acs-assertion-token';
+import { selectToken, selectUser } from '../core/auth/authSelectors';
+import { partyRoleMap } from '../components/PageHeader/constants';
+import { devAuthStorage } from '../features/session/authDev/wrapper';
+import {
+  getDevAssertionToken,
+  getLandingRoute,
+  resolveRole,
+} from '../features/session/authDev/utils';
+import { API_BASE_URL } from '../features/session/authDev/constant';
 
 export const useGetSession = () => {
   const { search } = useLocation();
   const navigate = useNavigate();
   const { authorize } = useAuthorize();
   const token = useAppSelector(selectToken);
+  const user = useAppSelector(selectUser);
+
+  const getCurrentRole = useCallback(() => {
+    if (user?.role) {
+      return user.role;
+    }
+
+    const savedPartyId = devAuthStorage.getSelectedPartyId();
+    return savedPartyId ? (partyRoleMap[savedPartyId] ?? 'admin') : 'admin';
+  }, [user?.role]);
+
+  const navigateToLanding = useCallback(
+    (role?: 'admin' | 'operator') => {
+      navigate(getLandingRoute(role ?? getCurrentRole()), { replace: true });
+    },
+    [getCurrentRole, navigate],
+  );
 
   useEffect(() => {
     let isMounted = true;
@@ -26,65 +46,68 @@ export const useGetSession = () => {
 
       if (!redirectToken) {
         if (assertionToken) {
-          const lastAcsAssertionToken =
-            window.sessionStorage.getItem(ACS_EXCHANGE_KEY);
+          const lastAcsAssertionToken = devAuthStorage.getLastAcsToken();
+
           if (lastAcsAssertionToken === assertionToken) {
             return;
           }
 
-          window.sessionStorage.setItem(ACS_EXCHANGE_KEY, assertionToken);
+          devAuthStorage.setLastAcsToken(assertionToken);
           const acsUrl = `${API_BASE_URL}/acs?token=${encodeURIComponent(assertionToken)}`;
           window.location.replace(acsUrl);
           return;
         }
 
         if (token) {
-          navigate(APP_ROUTES.HOME, { replace: true });
+          navigateToLanding();
           return;
         }
 
-        if (import.meta.env.DEV && DEV_ASSERTION_TOKEN && !token) {
-          navigate(
-            `${APP_ROUTES.AUTHORIZE}?token=${encodeURIComponent(DEV_ASSERTION_TOKEN)}`,
-            { replace: true },
-          );
-          return;
+        if (import.meta.env.DEV && !token) {
+          const devToken = getDevAssertionToken(getCurrentRole());
+
+          if (devToken) {
+            navigate(
+              `${APP_ROUTES.AUTHORIZE}?token=${encodeURIComponent(devToken)}`,
+              { replace: true },
+            );
+            return;
+          }
         }
 
         navigate(APP_ROUTES.UNAUTHORIZED, { replace: true });
         return;
       }
 
-      const lastSessionExchangeId =
-        window.sessionStorage.getItem(SESSION_EXCHANGE_KEY);
+      const lastSessionExchangeId = devAuthStorage.getLastSessionExchangeId();
+
       if (lastSessionExchangeId === redirectToken) {
-        // If the user is already authenticated (normal navigation),
-        // redirect directly. If the store is empty (page refresh),
-        // clear the guard and repeat the exchange in the same cycle.
         if (token) {
-          navigate(APP_ROUTES.HOME, { replace: true });
+          navigateToLanding();
           return;
         }
 
-        window.sessionStorage.removeItem(SESSION_EXCHANGE_KEY);
+        devAuthStorage.removeLastSessionExchangeId();
       }
 
       try {
-        window.sessionStorage.setItem(SESSION_EXCHANGE_KEY, redirectToken);
-        await authorize(redirectToken);
+        devAuthStorage.setLastSessionExchangeId(redirectToken);
+        const response = await authorize(redirectToken);
 
         if (!isMounted) {
           return;
         }
 
-        navigate(APP_ROUTES.HOME, { replace: true });
+        const role = resolveRole(response.user_type ?? response.role);
+        navigate(getLandingRoute(role), { replace: true });
       } catch {
-        window.sessionStorage.removeItem(SESSION_EXCHANGE_KEY);
+        devAuthStorage.removeLastSessionExchangeId();
+
         if (isMounted) {
           navigate(APP_ROUTES.UNAUTHORIZED, { replace: true });
         }
       } finally {
-        window.sessionStorage.removeItem(ACS_EXCHANGE_KEY);
+        devAuthStorage.removeLastAcsToken();
       }
     };
 
@@ -93,5 +116,5 @@ export const useGetSession = () => {
     return () => {
       isMounted = false;
     };
-  }, [authorize, navigate, search, token]);
+  }, [authorize, getCurrentRole, navigate, navigateToLanding, search, token]);
 };

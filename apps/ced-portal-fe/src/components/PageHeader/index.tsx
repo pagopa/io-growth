@@ -1,56 +1,36 @@
 import { HeaderProduct } from '@pagopa/mui-italia';
 import { Box } from '@mui/material';
-import { useCallback } from 'react';
-import { Navigate, useNavigate } from 'react-router-dom';
+import { Navigate } from 'react-router-dom';
 import { productsList, partyList, partyRoleMap } from './constants';
-import { useAppDispatch, useAppSelector } from '../../hooks';
-import { setCredentials } from '../../core/auth/authSlice';
+import { useAppSelector } from '../../hooks';
 import { APP_ROUTES } from '../../app/routeConfig';
-import { selectToken, selectUser } from '../../core/auth/authSelectors';
+import { selectUser } from '../../core/auth/authSelectors';
+import { useDevRoleSwitcher } from '../../features/session/authDev/useDevRoleSwitcher';
+import { devAuthStorage } from '../../features/session/authDev/wrapper';
 
 export const PageHeader = () => {
-  const dispatch = useAppDispatch();
-  const navigate = useNavigate();
-
   const user = useAppSelector(selectUser);
-  const token = useAppSelector(selectToken);
-  const handlePartyChange = useCallback(
-    (party: { id: string; name: string }) => {
-      // Keep the session token issued by /authorize: auto-initializing with mock data here
-      // would overwrite the persisted auth state and break authenticated API calls.
-      if (!token) {
-        return;
-      }
-
-      const role = partyRoleMap[party.id] ?? 'operator';
-      const isAdmin = role === 'admin';
-      dispatch(
-        setCredentials({
-          token,
-          user: {
-            id: party.id,
-            name: party.name,
-            email: `${party.id}@test.it`,
-            role,
-          },
-        }),
-      );
-
-      navigate(isAdmin ? APP_ROUTES.OPPORTUNITIES : APP_ROUTES.HOME);
-    },
-    [dispatch, navigate, token],
-  );
+  const switchDevPartyContext = useDevRoleSwitcher(partyRoleMap);
 
   if (!user) {
     return <Navigate replace to={APP_ROUTES.AUTHORIZE} />;
   }
 
+  const savedPartyId = devAuthStorage.getSelectedPartyId();
   const selectedPartyId =
-    partyList.find((party) => party.id === user.id)?.id ?? partyList[0]?.id;
+    partyList.find((party) => party.id === user.id)?.id ??
+    partyList.find((party) => partyRoleMap[party.id] === user.role)?.id ??
+    (savedPartyId && partyList.some((party) => party.id === savedPartyId)
+      ? savedPartyId
+      : undefined) ??
+    partyList[0]?.id;
+
   const selectedProductId = productsList[0]?.id;
+
   if (!selectedPartyId || !selectedProductId) {
     return null;
   }
+
   return (
     <Box sx={{ '& .MuiContainer-root': { px: { xs: 2, md: 3 } } }}>
       <HeaderProduct
@@ -58,8 +38,9 @@ export const PageHeader = () => {
         productId={selectedProductId}
         partyList={partyList}
         partyId={selectedPartyId}
-        onSelectedParty={handlePartyChange}
+        onSelectedParty={switchDevPartyContext}
       />
     </Box>
   );
 };
+``;

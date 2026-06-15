@@ -81,13 +81,21 @@ export const getLegalRepresentativeFields = (
         buildField(
           'Nome e cognome',
           (() => {
-            const mainUser = onboarding.users?.[0];
+            const mainUser = onboarding.users?.find(
+              (u) => u.productRole === 'admin',
+            );
             const name = mainUser?.name ?? '';
             const surname = mainUser?.surname ?? '';
             const fullName = `${name} ${surname}`.trim();
             return fullName || undefined;
           })(),
         ),
-        buildField('Indirizzo email', onboarding.users?.[0]?.email),
+        buildField(
+          'Indirizzo email',
+          (
+            onboarding.users?.find((u) => u.productRole === 'admin') ??
+            onboarding.users?.[0]
+          )?.email,
+        ),
       ].filter((field): field is DetailField => Boolean(field))
     : [];

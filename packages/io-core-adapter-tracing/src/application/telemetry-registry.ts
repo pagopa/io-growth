@@ -1,7 +1,6 @@
 import type { AzureTracingConfig } from "../config.js";
 import type { TelemetryClient } from "../domain/ports/outbound/telemetry-client.port.js";
 
-import { createAzureTracingClient } from "../adapters/outbound/azure-monitor/azure-tracing.client.js";
 import { consoleTelemetryClient } from "../adapters/outbound/console/console-telemetry.client.js";
 
 /**
@@ -43,10 +42,16 @@ let activeClient: TelemetryClient = noopTelemetryClient;
  * @returns the active {@link TelemetryClient} (also retrievable via
  *   {@link getTelemetryClient}).
  */
-export const initTelemetry = (config: AzureTracingConfig): TelemetryClient => {
-  activeClient = config.connectionString
-    ? createAzureTracingClient(config)
-    : consoleTelemetryClient;
+export const initTelemetry = async (
+  config: AzureTracingConfig,
+): Promise<TelemetryClient> => {
+  if (config.connectionString) {
+    const { createAzureTracingClient } =
+      await import("../adapters/outbound/azure-monitor/azure-tracing.client.js");
+    activeClient = createAzureTracingClient(config);
+  } else {
+    activeClient = consoleTelemetryClient;
+  }
   return activeClient;
 };
 

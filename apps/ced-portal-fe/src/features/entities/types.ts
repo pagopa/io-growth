@@ -1,8 +1,36 @@
-export type EntityRequestState = 'Da_gestire' | 'Rifiutata';
+import type {
+  ListOnboardingsStatusesItem,
+  OnboardingDetail,
+  OnboardingInstitutionDetail,
+  OnboardingItem,
+  OnboardingItemInstitution,
+  OnboardingUser,
+  PendingOnboardingsResponse,
+} from '../../core/api/generated/model';
 
-export type ManagedEntityState = 'Attivo' | 'Inattivo' | 'Cessato';
+export type DepartmentOnboardingStatus = ListOnboardingsStatusesItem;
 
-export type EntityState = EntityRequestState | ManagedEntityState;
+export type OnboardingInstitution = OnboardingItemInstitution;
+
+export type EntityDetailInstitution = OnboardingInstitutionDetail & {
+  institutionType?: string;
+  origin?: string;
+  originId?: string;
+  address?: string;
+  zipCode?: string;
+  geographicTaxonomies?: Array<{
+    code?: string;
+    desc?: string;
+  }>;
+};
+
+export type EntityDetailUser = OnboardingUser;
+
+export type DepartmentOnboardingItem = OnboardingItem & {
+  status?: DepartmentOnboardingStatus;
+};
+
+export type DepartmentOnboardingsResponse = PendingOnboardingsResponse;
 
 export interface BaseEntityItem {
   id: string;
@@ -13,65 +41,31 @@ export interface BaseEntityItem {
 export interface EntityRequestItem extends BaseEntityItem {
   tab: 'requests';
   created_at: string;
-  state: EntityRequestState;
+  state: DepartmentOnboardingStatus;
 }
 
 export interface ManagedEntityItem extends BaseEntityItem {
   tab: 'entities';
   opportunities_count: number;
   active_from: string;
-  state: ManagedEntityState;
+  state: DepartmentOnboardingStatus;
 }
 
 export type EntityItem = EntityRequestItem | ManagedEntityItem;
 
-export type EntitiesResponse = EntityItem[];
-
-export interface EntityGeographicInfo {
-  competence_area: string;
-  areas: string[];
-}
-
-export interface EntityLegalRepresentative {
-  full_name: string;
-  email: string;
-  phone: string;
-}
-
-export interface EntityConventionFile {
-  name: string;
-  url: string;
-}
-
-export interface EntityConvention {
-  request_file: EntityConventionFile;
-  upload_hint: string;
-  upload_format_hint: string;
-  mandatory_hint: string;
-}
-
-export interface EntityDetail {
-  id: string;
-  name: string;
-  state: EntityState;
-  product: string;
-  adherent_type: string;
-  business_name: string;
-  legal_headquarters: string;
-  cap: string;
-  pec_email: string;
-  vat_number: string;
-  is_group_vat: string;
-  sdi_code: string;
-  business_registry_place: string;
-  rea: string;
-  public_email: string;
-  geographic: EntityGeographicInfo;
-  legal_representative: EntityLegalRepresentative;
-  convention: EntityConvention;
-}
+export type EntityDetail = OnboardingDetail & {
+  billing?: {
+    publicServices?: boolean;
+  };
+  expiringDate?: string;
+  institution?: EntityDetailInstitution;
+  userRequester?: {
+    userRequestUid?: string;
+  };
+  users?: EntityDetailUser[];
+};
 
 export interface EntityFilters {
   search: string;
-  state: string;
+  state: DepartmentOnboardingStatus | '';
 }

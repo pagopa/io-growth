@@ -10,7 +10,7 @@ import { z as zod } from "zod";
 
 import type { GetOnboardingUseCase } from "../../../../application/use-cases/department/get-onboarding.use-case.js";
 
-import { OnboardingSchema } from "../../../../domain/entities/onboarding.js";
+import { OnboardingDetailSchema } from "../../../../domain/entities/onboarding.js";
 import { SessionSchema } from "../auth/session.js";
 import { GetOnboardingParams } from "../contracts/department/department.js";
 
@@ -26,7 +26,9 @@ const getOnboardingValidator = withSession(
   }),
 );
 
-const getOnboardingFormatter = createHttpResponseFormatter(OnboardingSchema);
+const getOnboardingFormatter = createHttpResponseFormatter(
+  OnboardingDetailSchema,
+);
 
 export const mountGetOnboardingHandler = (
   fastify: FastifyInstance,

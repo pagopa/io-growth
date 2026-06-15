@@ -79,14 +79,9 @@ export default function CreateBenefitPage() {
   };
 
   const handleSaveDraft = async () => {
-    try {
-      await createOpportunity();
-      dispatch(resetPlaces());
-      showToast('Bozza salvata con successo', 'success');
-      navigate(APP_ROUTES.HOME);
-    } catch {
-      showToast('Errore durante il salvataggio della bozza', 'error');
-    }
+    await createOpportunity({ isDraft: true });
+    dispatch(resetPlaces());
+    navigate(APP_ROUTES.HOME);
   };
 
   const handleBack = () => {
@@ -131,15 +126,19 @@ export default function CreateBenefitPage() {
     setSubmitReviewOpen(false);
 
     if (!sourceOpportunityId) {
-      const result = await createOpportunity();
-      if (!result || !result.id) {
-        showToast(
-          "Impossibile inviare in revisione senza un'opportunità esistente",
-          'error',
-        );
+      try {
+        const result = await createOpportunity();
+        if (!result?.id) {
+          showToast(
+            "Impossibile inviare in revisione senza un'opportunità esistente",
+            'error',
+          );
+          return;
+        }
+        handleRequestApproval(result.id);
+      } catch {
         return;
       }
-      handleRequestApproval(result.id);
       return;
     }
 

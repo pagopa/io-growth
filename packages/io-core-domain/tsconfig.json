@@ -6,7 +6,8 @@
     "forceConsistentCasingInFileNames": true,
     "outDir": "dist",
     "rootDir": "src",
-    "declaration": true
+    "declaration": true,
+    "types": ["node"]
   },
   "exclude": [
     "dist",

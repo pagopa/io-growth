@@ -1,21 +1,31 @@
-import type {
-  DocumentContentRepository,
-  InstitutionRepository,
-  OnboardingRepository,
-} from "@pagopa/io-core-adapter-ar";
-
-import { ok } from "neverthrow";
+import { err, ok } from "neverthrow";
 import { describe, expect, it, vi } from "vitest";
 
 import { createArOnboardingRepository } from "../ar-onboarding.repository.js";
+import {
+  createMockDocumentContentRepository,
+  createMockInstitutionRepository,
+  createMockOnboardingRepository,
+  createMockUserRepository,
+  MOCK_MISSING_ONBOARDING_ID,
+  MOCK_ONBOARDING_ID,
+  MOCK_PRODUCT_ID,
+  mockArOnboardingDetailItem,
+  mockArSearchOnboardingsResponse,
+  mockArUserResponse,
+  mockOnboardingDetail,
+} from "./mocks.js";
 
-const createRepository = (searchOnboardings = vi.fn()) =>
+const createRepository = ({
+  getOnboardingWithFilter = vi.fn(),
+  getUserById = vi.fn().mockResolvedValue(ok(mockArUserResponse)),
+  searchOnboardings = vi.fn(),
+} = {}) =>
   createArOnboardingRepository(
-    {
-      searchOnboardings,
-    } as unknown as InstitutionRepository,
-    {} as OnboardingRepository,
-    {} as DocumentContentRepository,
+    createMockInstitutionRepository({ searchOnboardings }),
+    createMockOnboardingRepository({ getOnboardingWithFilter }),
+    createMockDocumentContentRepository(),
+    createMockUserRepository({ getUserById }),
   );
 
 describe("createArOnboardingRepository", () => {
@@ -26,14 +36,14 @@ describe("createArOnboardingRepository", () => {
         totalElements: 0,
       }),
     );
-    const repository = createRepository(searchOnboardings);
+    const repository = createRepository({ searchOnboardings });
 
     await repository.listByProduct({
       name: "Comune di Roma",
       page: 1,
-      productId: "prod-io-ced",
+      productId: MOCK_PRODUCT_ID,
       size: 10,
-      status: "REQUEST",
+      statuses: ["REQUEST"],
     });
 
     expect(searchOnboardings).toHaveBeenCalledWith({
@@ -46,26 +56,15 @@ describe("createArOnboardingRepository", () => {
   });
 
   it("should preserve institution data when institutionId is missing", async () => {
-    const repository = createRepository(
-      vi.fn().mockResolvedValue(
-        ok({
-          onboardings: [
-            {
-              description: "Comune di Roma",
-              onboardingId: "onb-1",
-              productId: "prod-io-ced",
-              status: "PENDING",
-              taxCode: "12345678901",
-            },
-          ],
-          totalElements: 1,
-        }),
-      ),
-    );
+    const repository = createRepository({
+      searchOnboardings: vi
+        .fn()
+        .mockResolvedValue(ok(mockArSearchOnboardingsResponse)),
+    });
 
     const result = await repository.listByProduct({
       page: 0,
-      productId: "prod-io-ced",
+      productId: MOCK_PRODUCT_ID,
       size: 20,
     });
 
@@ -83,6 +82,93 @@ describe("createArOnboardingRepository", () => {
               status: "PENDING",
             }),
           ],
+        }),
+      ),
+    );
+  });
+
+  it("should preserve full AR payload for getById", async () => {
+    const repository = createRepository({
+      getOnboardingWithFilter: vi.fn().mockResolvedValue(
+        ok({
+          items: [mockArOnboardingDetailItem],
+        }),
+      ),
+    });
+
+    const result = await repository.getById(MOCK_ONBOARDING_ID);
+
+    expect(result).toEqual(ok(mockOnboardingDetail));
+  });
+
+  it("should enrich manager user for getById", async () => {
+    const getUserById = vi.fn().mockResolvedValue(
+      ok({
+        ...mockArUserResponse,
+        email: "manager@example.org",
+        name: "Luigi",
+        surname: "Bianchi",
+      }),
+    );
+    const repository = createRepository({
+      getOnboardingWithFilter: vi.fn().mockResolvedValue(
+        ok({
+          items: [
+            {
+              ...mockArOnboardingDetailItem,
+              users: [
+                {
+                  ...mockArOnboardingDetailItem.users[0],
+                  email: "old@example.org",
+                  name: "Old",
+                  surname: "Value",
+                },
+              ],
+            },
+          ],
+        }),
+      ),
+      getUserById,
+    });
+
+    const result = await repository.getById(MOCK_ONBOARDING_ID);
+
+    expect(getUserById).toHaveBeenCalledWith("user-2");
+    expect(result).toEqual(
+      ok(
+        expect.objectContaining({
+          users: [
+            expect.objectContaining({
+              email: "manager@example.org",
+              id: "user-2",
+              name: "Luigi",
+              role: "MANAGER",
+              surname: "Bianchi",
+            }),
+          ],
+        }),
+      ),
+    );
+  });
+
+  it("should return NotFoundError when getById finds no AR item", async () => {
+    const repository = createRepository({
+      getOnboardingWithFilter: vi.fn().mockResolvedValue(
+        ok({
+          items: [],
+        }),
+      ),
+    });
+
+    const result = await repository.getById(MOCK_MISSING_ONBOARDING_ID);
+
+    expect(result).toEqual(
+      err(
+        expect.objectContaining({
+          entityName: "Onboarding",
+          kind: "NotFoundError",
+          message:
+            "Unable to find Onboarding: Onboarding not found: missing-onboarding",
         }),
       ),
     );

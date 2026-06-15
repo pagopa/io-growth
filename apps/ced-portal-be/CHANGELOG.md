@@ -1,5 +1,56 @@
 # ced-portal-be
 
+## 0.1.0
+
+### Minor Changes
+
+- 67efe9b: GET /api/opportunities admin list endpoint with full filtering (IEG-2827)
+
+## 0.0.21
+
+### Patch Changes
+
+- 2870ce6: add onboarding manager info
+- Updated dependencies [2870ce6]
+  - @pagopa/io-core-adapter-ar@0.0.6
+
+## 0.0.20
+
+### Patch Changes
+
+- 7b0924a: Support multi-status filtering for onboarding list API.Expand onboarding detail payload with full AR-backed fields.
+- Updated dependencies [7b0924a]
+  - @pagopa/io-core-adapter-ar@0.0.5
+
+## 0.0.19
+
+### Patch Changes
+
+- 5ec384d: fixed telemetry init
+- Updated dependencies [5ec384d]
+  - @pagopa/io-core-adapter-tracing@0.0.4
+
+## 0.0.18
+
+### Patch Changes
+
+- 40aaab7: Added string utils
+- Updated dependencies [40aaab7]
+  - @pagopa/io-core-domain@0.0.4
+  - @pagopa/io-core-adapter-ar@0.0.4
+  - @pagopa/io-core-adapter-fastify@0.0.5
+  - @pagopa/io-core-adapter-redis@0.0.8
+
+## 0.0.17
+
+### Patch Changes
+
+- d146483: integrated error logging and audits
+- Updated dependencies [d146483]
+  - @pagopa/io-core-adapter-drizzle@0.0.3
+  - @pagopa/io-core-adapter-tracing@0.0.3
+  - @pagopa/io-core-adapter-redis@0.0.7
+
 ## 0.0.16
 
 ### Patch Changes

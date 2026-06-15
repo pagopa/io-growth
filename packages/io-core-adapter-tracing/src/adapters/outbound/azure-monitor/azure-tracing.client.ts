@@ -73,10 +73,13 @@ export const createAzureTracingClient = (
   };
 
   return {
-    trackEvent: (event: CustomEvent) =>
+    trackEvent: <T>(event: CustomEvent<T>) =>
       emit(
         event.name,
-        { caller: event.payload.caller, data: event.payload.data },
+        {
+          caller: event.payload.caller,
+          data: JSON.stringify(event.payload.data),
+        },
         event.caller ?? event.payload.caller,
       ),
     trackException: (exception: ExceptionTelemetry) =>

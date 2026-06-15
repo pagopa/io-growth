@@ -16,7 +16,7 @@ CREATE TYPE localized_metadata_key AS ENUM ('name', 'description', 'condition');
 
 CREATE TYPE localized_metadata_language AS ENUM ('en', 'fr', 'de', 'sl', 'it');
 
-CREATE TYPE change_audit_entity_type AS ENUM ('opportunity', 'place', 'support_contact', 'profile', 'address', 'website', 'beneficiary_benefit', 'caregiver_benefit', 'localized_metadata', 'opportunity_category');
+CREATE TYPE change_audit_entity_type AS ENUM ('place', 'profile', 'website', 'address', 'support_contact', 'opportunity', 'beneficiary_benefit', 'caregiver_benefit', 'localized_metadata');
 
 CREATE TYPE change_audit_change_type AS ENUM ('create', 'update');
 
@@ -152,8 +152,8 @@ CREATE TABLE localized_metadata (
 );
 
 CREATE TABLE change_audit (
-  id CHAR(26) PRIMARY KEY,
-  operator_id CHAR(26) NOT NULL,
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  operator_external_id VARCHAR(512) NOT NULL,
   referent_external_id VARCHAR(512) NOT NULL,
   referent_fullname VARCHAR(512) NOT NULL,
   entity_type change_audit_entity_type NOT NULL,

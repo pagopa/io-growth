@@ -103,11 +103,56 @@ export const createAppTheme = () =>
         },
       },
 
+      MuiInputBase: {
+        styleOverrides: {
+          root: {
+            '&.Mui-disabled': {
+              backgroundColor: muiItaliaTheme.palette.common.neutralGray,
+              cursor: 'not-allowed',
+            },
+            '&.Mui-disabled input': { cursor: 'not-allowed' },
+          },
+        },
+      },
+
+      MuiOutlinedInput: {
+        styleOverrides: {
+          root: {
+            '&.Mui-disabled': {
+              backgroundColor: muiItaliaTheme.palette.common.neutralGray,
+              cursor: 'not-allowed',
+            },
+          },
+        },
+      },
+
+      MuiSelect: {
+        styleOverrides: {
+          root: {
+            '&.Mui-disabled': {
+              backgroundColor: muiItaliaTheme.palette.common.neutralGray,
+              cursor: 'not-allowed',
+              color: muiItaliaTheme.palette.text.disabled,
+            },
+            '& .MuiSelect-select.Mui-disabled': {
+              cursor: 'not-allowed',
+              color: muiItaliaTheme.palette.text.disabled,
+            },
+          },
+        },
+      },
+
       MuiCheckbox: {
         styleOverrides: {
           root: {
             color: muiItaliaTheme.palette.common.primaryButton,
             '&.Mui-checked': { color: 'common.primaryButton' },
+            '&.Mui-disabled': {
+              backgroundColor: muiItaliaTheme.palette.common.neutralGray,
+              cursor: 'not-allowed',
+              color: muiItaliaTheme.palette.text.disabled,
+            },
+            '& .MuiCheckbox-root.Mui-disabled': { cursor: 'not-allowed' },
             padding: 0,
             '& .MuiSvgIcon-root': { fontSize: 18 },
           },
@@ -120,6 +165,10 @@ export const createAppTheme = () =>
             '& .MuiOutlinedInput-root': {
               borderRadius: 2,
               minHeight: 56,
+            },
+            '& .MuiOutlinedInput-root.Mui-disabled': {
+              backgroundColor: muiItaliaTheme.palette.common.neutralGray,
+              cursor: 'not-allowed',
             },
             '& .MuiFormLabel-asterisk': {
               color: '#e53935',
@@ -138,6 +187,10 @@ export const createAppTheme = () =>
               borderRadius: 2,
               minHeight: 56,
             },
+            '& .MuiOutlinedInput-root.Mui-disabled': {
+              backgroundColor: muiItaliaTheme.palette.common.neutralGray,
+              cursor: 'not-allowed',
+            },
           },
         },
       },
@@ -153,6 +206,7 @@ export const createAppTheme = () =>
           root: {
             ml: 0,
             width: '100%',
+            '&.Mui-disabled': { cursor: 'not-allowed' },
             '& .MuiFormControlLabel-label': { fontSize: 16, fontWeight: 600 },
           },
         },
@@ -162,6 +216,25 @@ export const createAppTheme = () =>
           root: {
             p: 0,
             mr: 1,
+            '&.Mui-disabled': {
+              backgroundColor: muiItaliaTheme.palette.common.neutralGray,
+              cursor: 'not-allowed',
+              color: muiItaliaTheme.palette.text.disabled,
+            },
+            '& .MuiRadio-root.Mui-disabled': { cursor: 'not-allowed' },
+          },
+        },
+      },
+      MuiSwitch: {
+        styleOverrides: {
+          root: {
+            '&.Mui-disabled': {
+              backgroundColor: muiItaliaTheme.palette.common.neutralGray,
+              cursor: 'not-allowed',
+              color: muiItaliaTheme.palette.text.disabled,
+            },
+            '& .MuiSwitch-switchBase.Mui-disabled': { cursor: 'not-allowed' },
+            '& .MuiSwitch-track': { cursor: 'not-allowed' },
           },
         },
       },

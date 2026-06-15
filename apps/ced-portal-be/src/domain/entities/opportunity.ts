@@ -96,6 +96,7 @@ export const OpportunitySummarySchema = z.object({
   dateTo: z.string().nullable(),
   id: z.ulid(),
   name: z.string(),
+  operatorName: z.string(),
   status: z.enum([
     "draft",
     "test_pending",

@@ -6,18 +6,26 @@ import {
   createDocumentContentClient,
   createInstitutionClient,
   createOnboardingClient,
+  createUserClient,
 } from "@pagopa/io-core-adapter-ar";
 import { createTypedDbClient } from "@pagopa/io-core-adapter-drizzle";
 import {
   createAuthenticationPreHandler,
+  getSessionFromRequest,
   multipart,
 } from "@pagopa/io-core-adapter-fastify";
 import { createResilientRedisClient } from "@pagopa/io-core-adapter-redis";
-import { tracingPlugin } from "@pagopa/io-core-adapter-tracing";
+import {
+  emitCustomEvent,
+  tracingPlugin,
+} from "@pagopa/io-core-adapter-tracing";
+import { sql as drizzleSql } from "drizzle-orm";
 import Fastify from "fastify";
 
+import { SessionSchema } from "./adapters/inbound/fastify/auth/session.js";
 import {
   mountAcsHandler,
+  mountAdminListOpportunitiesHandler,
   mountApproveOpportunityHandler,
   mountAuthorizeHandler,
   mountCompleteOnboardingHandler,
@@ -56,6 +64,7 @@ import { makeGetOnboardingUseCase } from "./application/use-cases/department/get
 import { makeListOnboardingsUseCase } from "./application/use-cases/department/list-onboardings.use-case.js";
 import { makeGetInfoReadinessUseCase } from "./application/use-cases/health/info-readiness.use-case.js";
 import { makeGetInfoStartupUseCase } from "./application/use-cases/health/info-startup.use-case.js";
+import { makeAdminListOpportunitiesUseCase } from "./application/use-cases/opportunities/admin-list-opportunities.use-case.js";
 import { makeApproveOpportunityUseCase } from "./application/use-cases/opportunities/approve-opportunity.use-case.js";
 import { makeCreateOperatorOpportunityUseCase } from "./application/use-cases/opportunities/create-operator-opportunity.use-case.js";
 import { makeGetOperatorOpportunityUseCase } from "./application/use-cases/opportunities/get-operator-opportunity.use-case.js";
@@ -68,6 +77,7 @@ import { makeGetOperatorPlaceUseCase } from "./application/use-cases/places/get-
 import { makeListOperatorPlacesUseCase } from "./application/use-cases/places/list-operator-places.use-case.js";
 import { makeCreateOperatorProfileUseCase } from "./application/use-cases/profile/create-operator-profile.use-case.js";
 import { makeGetOperatorProfileUseCase } from "./application/use-cases/profile/get-operator-profile.use-case.js";
+import { auditData } from "./audit-context.js";
 import { parseConfig } from "./config.js";
 
 const config = parseConfig();
@@ -82,6 +92,19 @@ const dbClient = createTypedDbClient(
     database: config.POSTGRES_DB,
     host: config.POSTGRES_HOST,
     max: config.POSTGRES_MAX_CONNECTIONS,
+    onNotice: (notice) => {
+      emitCustomEvent("database.notice", {
+        caller: "DrizzleClient",
+        data: { message: notice.message },
+      })("DrizzleClient");
+    },
+    onTransaction: async (tx) => {
+      const audit = auditData.getStore();
+      if (!audit) return;
+      await tx.execute(
+        drizzleSql`SELECT set_config('app.referent_fullname', ${audit.referentFullname}, true), set_config('app.operator_external_id', ${audit.operatorExternalId}, true), set_config('app.referent_external_id', ${audit.referentExternalId}, true)`,
+      );
+    },
     password: config.POSTGRES_PASSWORD,
     port: config.POSTGRES_PORT,
     ssl: config.POSTGRES_SSL,
@@ -95,6 +118,12 @@ const redisClient = await createResilientRedisClient({
   entraId: config.AZURE_CLIENT_ID
     ? { clientId: config.AZURE_CLIENT_ID }
     : undefined,
+  onError: (error) => {
+    emitCustomEvent("redis.connection.error", {
+      caller: "RedisClient",
+      data: { message: error instanceof Error ? error.message : String(error) },
+    })("RedisClient");
+  },
   tls: config.REDIS_TLS,
 });
 
@@ -112,6 +141,7 @@ const arOnboardingRepository = createArOnboardingRepository(
   createInstitutionClient(arClientConfig),
   createOnboardingClient(arClientConfig),
   createDocumentContentClient(arClientConfig),
+  createUserClient(arClientConfig),
 );
 
 const app = Fastify();
@@ -143,6 +173,29 @@ const authPreHandler = createAuthenticationPreHandler(
 
 app.register(async (app) => {
   app.addHook("preHandler", authPreHandler);
+
+  // Populate audit context from session to DB
+  app.addHook("preHandler", (request, _reply, done) => {
+    getSessionFromRequest(request, SessionSchema)
+      .then((result) => {
+        if (result.isOk()) {
+          const {
+            firstName,
+            lastName,
+            operatorExternalId,
+            referentExternalId,
+          } = result.value;
+          auditData.enterWith({
+            operatorExternalId,
+            referentExternalId,
+            referentFullname: `${lastName} ${firstName}`,
+          });
+        }
+        done();
+      })
+      .catch((e) => done(e as Error));
+  });
+
   // Mount authenticated route handlers here
   mountGetOperatorProfileHandler(
     app,
@@ -176,6 +229,10 @@ app.register(async (app) => {
   mountGetOperatorOpportunityHandler(
     app,
     makeGetOperatorOpportunityUseCase(opportunityRepository),
+  );
+  mountAdminListOpportunitiesHandler(
+    app,
+    makeAdminListOpportunitiesUseCase(opportunityRepository),
   );
   mountListOperatorOpportunitiesHandler(
     app,

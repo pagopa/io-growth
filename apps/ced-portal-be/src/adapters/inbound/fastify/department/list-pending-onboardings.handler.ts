@@ -10,7 +10,10 @@ import { z as zod } from "zod";
 
 import type { ListOnboardingsUseCase } from "../../../../application/use-cases/department/list-onboardings.use-case.js";
 
-import { PaginatedOnboardingsSchema } from "../../../../domain/entities/onboarding.js";
+import {
+  OnboardingStatusSchema,
+  PaginatedOnboardingsSchema,
+} from "../../../../domain/entities/onboarding.js";
 import { SessionSchema } from "../auth/session.js";
 import {
   listOnboardingsQueryPageDefault,
@@ -31,6 +34,10 @@ const listPendingOnboardingsQuerySchema = ListOnboardingsQueryParams.extend({
     .min(1)
     .max(listOnboardingsQuerySizeMax)
     .default(listOnboardingsQuerySizeDefault),
+  statuses: zod.preprocess(
+    (val) => (typeof val === "string" ? [val] : val),
+    zod.array(OnboardingStatusSchema).optional(),
+  ),
 });
 
 const listPendingOnboardingsHttpSchema = zod.object({
@@ -44,7 +51,7 @@ const listPendingOnboardingsValidator = withSession(
     name: query.name,
     page: query.page,
     size: query.size,
-    status: query.status,
+    statuses: query.statuses,
   }),
 );
 

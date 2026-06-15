@@ -49,6 +49,7 @@ export interface OpportunitySummaryRow {
   readonly dateTo: null | string;
   readonly id: string;
   readonly name: null | string;
+  readonly operatorName: string;
   readonly status: OpportunitySummary["status"];
 }
 
@@ -148,5 +149,6 @@ export const mapOpportunitySummaryRow = (
   dateTo: row.dateTo,
   id: row.id,
   name: row.name ?? "",
+  operatorName: row.operatorName,
   status: row.status,
 });

@@ -6,7 +6,7 @@ import {
 
 export type Role = Extract<AuthorizeResponseUserType, 'admin' | 'operator'>;
 
-export const resolveRole = (value?: string): Role =>
+export const resolveRole = (value?: AuthorizeResponseUserType): Role =>
   value === 'admin' || value === 'test_admin' ? 'admin' : 'operator';
 
 export const getLandingRoute = (role: Role): string =>

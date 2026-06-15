@@ -6,22 +6,26 @@ import {
   createMockDocumentContentRepository,
   createMockInstitutionRepository,
   createMockOnboardingRepository,
+  createMockUserRepository,
   MOCK_MISSING_ONBOARDING_ID,
   MOCK_ONBOARDING_ID,
   MOCK_PRODUCT_ID,
   mockArOnboardingDetailItem,
   mockArSearchOnboardingsResponse,
+  mockArUserResponse,
   mockOnboardingDetail,
 } from "./mocks.js";
 
 const createRepository = ({
   getOnboardingWithFilter = vi.fn(),
+  getUserById = vi.fn().mockResolvedValue(ok(mockArUserResponse)),
   searchOnboardings = vi.fn(),
 } = {}) =>
   createArOnboardingRepository(
     createMockInstitutionRepository({ searchOnboardings }),
     createMockOnboardingRepository({ getOnboardingWithFilter }),
     createMockDocumentContentRepository(),
+    createMockUserRepository({ getUserById }),
   );
 
 describe("createArOnboardingRepository", () => {
@@ -95,6 +99,56 @@ describe("createArOnboardingRepository", () => {
     const result = await repository.getById(MOCK_ONBOARDING_ID);
 
     expect(result).toEqual(ok(mockOnboardingDetail));
+  });
+
+  it("should enrich manager user for getById", async () => {
+    const getUserById = vi.fn().mockResolvedValue(
+      ok({
+        ...mockArUserResponse,
+        email: "manager@example.org",
+        name: "Luigi",
+        surname: "Bianchi",
+      }),
+    );
+    const repository = createRepository({
+      getOnboardingWithFilter: vi.fn().mockResolvedValue(
+        ok({
+          items: [
+            {
+              ...mockArOnboardingDetailItem,
+              users: [
+                {
+                  ...mockArOnboardingDetailItem.users[0],
+                  email: "old@example.org",
+                  name: "Old",
+                  surname: "Value",
+                },
+              ],
+            },
+          ],
+        }),
+      ),
+      getUserById,
+    });
+
+    const result = await repository.getById(MOCK_ONBOARDING_ID);
+
+    expect(getUserById).toHaveBeenCalledWith("user-2");
+    expect(result).toEqual(
+      ok(
+        expect.objectContaining({
+          users: [
+            expect.objectContaining({
+              email: "manager@example.org",
+              id: "user-2",
+              name: "Luigi",
+              role: "MANAGER",
+              surname: "Bianchi",
+            }),
+          ],
+        }),
+      ),
+    );
   });
 
   it("should return NotFoundError when getById finds no AR item", async () => {

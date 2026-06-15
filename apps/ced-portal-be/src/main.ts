@@ -25,6 +25,7 @@ import Fastify from "fastify";
 import { SessionSchema } from "./adapters/inbound/fastify/auth/session.js";
 import {
   mountAcsHandler,
+  mountAdminListOpportunitiesHandler,
   mountApproveOpportunityHandler,
   mountAuthorizeHandler,
   mountCompleteOnboardingHandler,
@@ -63,6 +64,7 @@ import { makeGetOnboardingUseCase } from "./application/use-cases/department/get
 import { makeListOnboardingsUseCase } from "./application/use-cases/department/list-onboardings.use-case.js";
 import { makeGetInfoReadinessUseCase } from "./application/use-cases/health/info-readiness.use-case.js";
 import { makeGetInfoStartupUseCase } from "./application/use-cases/health/info-startup.use-case.js";
+import { makeAdminListOpportunitiesUseCase } from "./application/use-cases/opportunities/admin-list-opportunities.use-case.js";
 import { makeApproveOpportunityUseCase } from "./application/use-cases/opportunities/approve-opportunity.use-case.js";
 import { makeCreateOperatorOpportunityUseCase } from "./application/use-cases/opportunities/create-operator-opportunity.use-case.js";
 import { makeGetOperatorOpportunityUseCase } from "./application/use-cases/opportunities/get-operator-opportunity.use-case.js";
@@ -227,6 +229,10 @@ app.register(async (app) => {
   mountGetOperatorOpportunityHandler(
     app,
     makeGetOperatorOpportunityUseCase(opportunityRepository),
+  );
+  mountAdminListOpportunitiesHandler(
+    app,
+    makeAdminListOpportunitiesUseCase(opportunityRepository),
   );
   mountListOperatorOpportunitiesHandler(
     app,

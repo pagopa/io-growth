@@ -1,5 +1,13 @@
 # ced-portal-be
 
+## 0.0.21
+
+### Patch Changes
+
+- 2870ce6: add onboarding manager info
+- Updated dependencies [2870ce6]
+  - @pagopa/io-core-adapter-ar@0.0.6
+
 ## 0.0.20
 
 ### Patch Changes

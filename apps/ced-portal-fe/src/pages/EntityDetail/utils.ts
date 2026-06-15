@@ -92,10 +92,7 @@ export const getLegalRepresentativeFields = (
         ),
         buildField(
           'Indirizzo email',
-          (
-            onboarding.users?.find((u) => u.role === 'MANAGER') ??
-            onboarding.users?.[0]
-          )?.email,
+          onboarding.users?.find((u) => u.role === 'MANAGER')?.email,
         ),
       ].filter((field): field is DetailField => Boolean(field))
     : [];

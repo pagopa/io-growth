@@ -34,12 +34,10 @@ const listPendingOnboardingsQuerySchema = ListOnboardingsQueryParams.extend({
     .min(1)
     .max(listOnboardingsQuerySizeMax)
     .default(listOnboardingsQuerySizeDefault),
-  statuses: zod
-    .union([OnboardingStatusSchema, zod.array(OnboardingStatusSchema)])
-    .optional()
-    .transform((value) =>
-      value === undefined ? undefined : Array.isArray(value) ? value : [value],
-    ),
+  statuses: zod.preprocess(
+    (val) => (typeof val === "string" ? [val] : val),
+    zod.array(OnboardingStatusSchema).optional(),
+  ),
 });
 
 const listPendingOnboardingsHttpSchema = zod.object({

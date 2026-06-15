@@ -4,7 +4,7 @@ export interface SessionPayload {
   first_name: string;
   last_name: string;
   operator_name: string;
-  role?: 'admin' | 'operator';
+  role?: Extract<AuthorizeResponseUserType, 'admin' | 'operator'>;
   user_type?: AuthorizeResponseUserType;
   session_token: string;
 }

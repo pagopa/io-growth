@@ -1,5 +1,11 @@
 # @pagopa/io-core-adapter-ar
 
+## 0.0.5
+
+### Patch Changes
+
+- 7b0924a: Support multi-status filtering for onboarding list API.Expand onboarding detail payload with full AR-backed fields.
+
 ## 0.0.4
 
 ### Patch Changes

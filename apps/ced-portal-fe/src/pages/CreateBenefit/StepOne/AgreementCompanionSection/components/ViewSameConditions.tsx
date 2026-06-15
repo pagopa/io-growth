@@ -1,12 +1,22 @@
 import { AppSelect, AppTextField } from '../../../../../components';
 import { useAppSelector } from '../../../../../hooks';
-import { FixedPriceFields } from './FixedPriceFields';
+import { DiscountFields } from './DiscountFields';
 import { DetailFormField } from '../../AgreementDetailsSection/components/DetailFormField';
-import { benefitTypeOptions } from '../../../../../constants';
-import { selectBeneficiaryBenefit } from '../../../../../features/opportunityCreation/selectors';
+import { getLocalizedOptions } from '../../../../../constants';
+import {
+  selectActiveFormLanguage,
+  selectBeneficiaryBenefit,
+} from '../../../../../features/opportunityCreation/selectors';
+import { useMemo } from 'react';
 
 export const ViewSameConditions = () => {
   const benefit = useAppSelector(selectBeneficiaryBenefit);
+  const activeLanguage = useAppSelector(selectActiveFormLanguage);
+
+  const benefitTypeOptions = useMemo(
+    () => getLocalizedOptions(activeLanguage, 'benefit'),
+    [activeLanguage],
+  );
 
   if (!benefit) {
     return null;
@@ -15,10 +25,14 @@ export const ViewSameConditions = () => {
   const { type } = benefit;
   return (
     <>
-      <DetailFormField name={'benefitType'} path={'beneficiaryBenefit.type'}>
-        <AppSelect options={benefitTypeOptions} disabled />
+      <DetailFormField
+        name={'benefitType'}
+        path={'beneficiaryBenefit.type'}
+        disabled
+      >
+        <AppSelect options={benefitTypeOptions} />
       </DetailFormField>
-      {type === 'discount' && <FixedPriceFields sameValues benefit={benefit} />}
+      {type === 'discount' && <DiscountFields sameValues benefit={benefit} />}
 
       <DetailFormField
         hide={type !== 'other'}

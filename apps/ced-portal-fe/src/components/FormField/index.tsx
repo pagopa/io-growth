@@ -11,6 +11,7 @@ export type FormFieldProps = {
   helperText?: string;
   placeholder?: string;
   hide?: boolean;
+  disabled?: boolean;
   onChange?: (
     event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => void;
@@ -26,6 +27,7 @@ export const FormField = ({
   placeholder,
   error,
   children,
+  disabled,
   onChange,
 }: FormFieldProps) => {
   if (hide) return null;
@@ -42,6 +44,7 @@ export const FormField = ({
     value,
     onChange,
     placeholder,
+    disabled,
     sx: { ...(children.props.sx || {}), minWidth: '100%' },
   });
 

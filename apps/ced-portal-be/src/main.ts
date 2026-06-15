@@ -6,6 +6,7 @@ import {
   createDocumentContentClient,
   createInstitutionClient,
   createOnboardingClient,
+  createUserClient,
 } from "@pagopa/io-core-adapter-ar";
 import { createTypedDbClient } from "@pagopa/io-core-adapter-drizzle";
 import {
@@ -140,6 +141,7 @@ const arOnboardingRepository = createArOnboardingRepository(
   createInstitutionClient(arClientConfig),
   createOnboardingClient(arClientConfig),
   createDocumentContentClient(arClientConfig),
+  createUserClient(arClientConfig),
 );
 
 const app = Fastify();

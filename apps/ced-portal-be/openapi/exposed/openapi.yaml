@@ -922,20 +922,22 @@ paths:
             minimum: 1
             maximum: 100
             default: 20
-        - name: status
+        - name: statuses
           in: query
           required: false
           schema:
-            type: string
-            enum:
-              - REQUEST
-              - TOBEVALIDATED
-              - PENDING
-              - PENDING_IN_REVIEW
-              - COMPLETED
-              - FAILED
-              - REJECTED
-              - DELETED
+            type: array
+            items:
+              type: string
+              enum:
+                - REQUEST
+                - TOBEVALIDATED
+                - PENDING
+                - PENDING_IN_REVIEW
+                - COMPLETED
+                - FAILED
+                - REJECTED
+                - DELETED
         - name: name
           in: query
           required: false
@@ -981,7 +983,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/OnboardingItem"
+                $ref: "#/components/schemas/OnboardingDetail"
         "401":
           description: Unauthorized
           content:
@@ -1753,6 +1755,10 @@ components:
           type: string
         status:
           type: string
+        city:
+          type: string
+        county:
+          type: string
         createdAt:
           type: string
           format: date-time
@@ -1780,3 +1786,209 @@ components:
               type: string
             county:
               type: string
+    OnboardingGeographicTaxonomy:
+      type: object
+      properties:
+        code:
+          type: string
+        desc:
+          type: string
+    OnboardingPaymentServiceProvider:
+      type: object
+      properties:
+        businessRegisterNumber:
+          type: string
+        legalRegisterNumber:
+          type: string
+        legalRegisterName:
+          type: string
+        longTermPayments:
+          type: boolean
+        abiCode:
+          type: string
+        vatNumberGroup:
+          type: boolean
+        providerNames:
+          type: array
+          items:
+            type: string
+        contractType:
+          type: string
+        contractId:
+          type: string
+    OnboardingDataProtectionOfficer:
+      type: object
+      properties:
+        address:
+          type: string
+        email:
+          type: string
+        pec:
+          type: string
+    OnboardingInstitutionDetail:
+      type: object
+      properties:
+        id:
+          type: string
+        institutionType:
+          type: string
+        taxCode:
+          type: string
+        taxCodeInvoicing:
+          type: string
+        subunitCode:
+          type: string
+        subunitType:
+          type: string
+        origin:
+          type: string
+        originId:
+          type: string
+        city:
+          type: string
+        country:
+          type: string
+        county:
+          type: string
+        description:
+          type: string
+        digitalAddress:
+          type: string
+        address:
+          type: string
+        zipCode:
+          type: string
+        parentDescription:
+          type: string
+        geographicTaxonomies:
+          type: array
+          items:
+            $ref: "#/components/schemas/OnboardingGeographicTaxonomy"
+        rea:
+          type: string
+        shareCapital:
+          type: string
+        businessRegisterPlace:
+          type: string
+        supportEmail:
+          type: string
+        supportPhone:
+          type: string
+        paymentServiceProvider:
+          $ref: "#/components/schemas/OnboardingPaymentServiceProvider"
+        dataProtectionOfficer:
+          $ref: "#/components/schemas/OnboardingDataProtectionOfficer"
+        atecoCodes:
+          type: array
+          items:
+            type: string
+        legalForm:
+          type: string
+    OnboardingUser:
+      type: object
+      properties:
+        id:
+          type: string
+        taxCode:
+          type: string
+        name:
+          type: string
+        surname:
+          type: string
+        email:
+          type: string
+        role:
+          type: string
+        productRole:
+          type: string
+    OnboardingBilling:
+      type: object
+      properties:
+        vatNumber:
+          type: string
+        recipientCode:
+          type: string
+        publicServices:
+          type: boolean
+    OnboardingPayment:
+      type: object
+      properties:
+        iban:
+          type: string
+        holder:
+          type: string
+    OnboardingAdditionalInformations:
+      type: object
+      properties:
+        belongRegulatedMarket:
+          type: boolean
+        regulatedMarketNote:
+          type: string
+        ipa:
+          type: boolean
+        ipaCode:
+          type: string
+        establishedByRegulatoryProvision:
+          type: boolean
+        establishedByRegulatoryProvisionNote:
+          type: string
+        agentOfPublicService:
+          type: boolean
+        agentOfPublicServiceNote:
+          type: string
+        otherNote:
+          type: string
+    OnboardingUserRequester:
+      type: object
+      properties:
+        userMailUuid:
+          type: string
+        userRequestUid:
+          type: string
+    OnboardingDetail:
+      type: object
+      properties:
+        id:
+          type: string
+        productId:
+          type: string
+        workflowType:
+          type: string
+        institution:
+          $ref: "#/components/schemas/OnboardingInstitutionDetail"
+        users:
+          type: array
+          items:
+            $ref: "#/components/schemas/OnboardingUser"
+        pricingPlan:
+          type: string
+        billing:
+          $ref: "#/components/schemas/OnboardingBilling"
+        payment:
+          $ref: "#/components/schemas/OnboardingPayment"
+        signContract:
+          type: boolean
+        additionalInformations:
+          $ref: "#/components/schemas/OnboardingAdditionalInformations"
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        expiringDate:
+          type: string
+          format: date-time
+        activatedAt:
+          type: string
+          format: date-time
+        status:
+          type: string
+        userRequester:
+          $ref: "#/components/schemas/OnboardingUserRequester"
+        reasonForReject:
+          type: string
+        attachments:
+          type: array
+          items:
+            type: string

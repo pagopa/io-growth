@@ -17,15 +17,15 @@ import { SearchResultsSkeleton } from './SearchResultsSkeleton';
 import { useDebounce } from '../../../../hooks/useDebounce';
 import { APP_ROUTES } from '../../../../app/routeConfig';
 
-type OpportunitySearchProps = {
+type EntitiesSearchProps = {
   isSearchActive: boolean;
   setIsSearchActive: (value: boolean) => void;
 };
 
-export function OpportunitySearch({
+export function EntitiesSearch({
   isSearchActive,
   setIsSearchActive,
-}: OpportunitySearchProps) {
+}: EntitiesSearchProps) {
   const inputRef = useRef<HTMLInputElement>(null);
 
   const [query, setQuery] = useState('');

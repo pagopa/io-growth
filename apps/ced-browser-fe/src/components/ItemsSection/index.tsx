@@ -37,18 +37,17 @@ export function ItemsSection(props: ItemsSectionProps) {
 
   const renderedItems = useMemo(() => {
     if (variant === 'opportunity') {
-      return items
-        .slice(0, ITEMS_LIMIT)
-        .map(({ id, ...item }) => (
-          <DiscoveryListItem
-            key={id}
-            variant="opportunity"
-            {...item}
-            eyebrow={hideEyebrow ? undefined : item.eyebrow}
-            sx={{ px: 0, bgcolor: 'background.paper' }}
-            onClick={() => navigate(toOpportunityDetailRoute(id))}
-          />
-        ));
+      return items.slice(0, ITEMS_LIMIT).map(({ id, ...item }) => (
+        <DiscoveryListItem
+          key={id}
+          variant="opportunity"
+          {...item}
+          // TODO api does not return eyebrow text - for test api i'll use title for now
+          eyebrow={hideEyebrow ? undefined : item.title}
+          sx={{ px: 0, bgcolor: 'background.paper' }}
+          onClick={() => navigate(toOpportunityDetailRoute(id))}
+        />
+      ));
     }
 
     return items

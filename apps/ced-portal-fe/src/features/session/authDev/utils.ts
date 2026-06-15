@@ -1,4 +1,5 @@
 import { APP_ROUTES } from '../../../app/routeConfig';
+import { AuthorizeResponseUserType } from '../../../core/api/generated/model';
 import {
   DEV_ADMIN_ASSERTION_TOKEN,
   DEV_OPERATOR_ASSERTION_TOKEN,

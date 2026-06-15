@@ -4,10 +4,11 @@ import { useToast } from '../../contexts';
 import { useAppDispatch } from '../../hooks/store';
 import { useLazyGetSessionQuery } from './api';
 import { resolveRole } from './authDev/utils';
+import { AuthorizeResponseUserType } from '../../core/api/generated/model';
 
 const getRoleFromSessionResponse = (response: {
-  role?: string;
-  user_type?: string;
+  role?: AuthorizeResponseUserType;
+  user_type?: AuthorizeResponseUserType;
 }) => resolveRole(response.user_type ?? response.role);
 
 export function useAuthorize() {

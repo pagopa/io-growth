@@ -4,7 +4,7 @@ import {
   DEV_OPERATOR_ASSERTION_TOKEN,
 } from './constant';
 
-export type Role = 'admin' | 'operator';
+export type Role = Extract<AuthorizeResponseUserType, 'admin' | 'operator'>;
 
 export const resolveRole = (value?: string): Role =>
   value === 'admin' || value === 'test_admin' ? 'admin' : 'operator';

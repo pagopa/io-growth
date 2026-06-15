@@ -82,7 +82,7 @@ export const getLegalRepresentativeFields = (
           'Nome e cognome',
           (() => {
             const mainUser = onboarding.users?.find(
-              (u) => u.productRole === 'admin',
+              (u) => u.role === 'MANAGER',
             );
             const name = mainUser?.name ?? '';
             const surname = mainUser?.surname ?? '';
@@ -93,7 +93,7 @@ export const getLegalRepresentativeFields = (
         buildField(
           'Indirizzo email',
           (
-            onboarding.users?.find((u) => u.productRole === 'admin') ??
+            onboarding.users?.find((u) => u.role === 'MANAGER') ??
             onboarding.users?.[0]
           )?.email,
         ),

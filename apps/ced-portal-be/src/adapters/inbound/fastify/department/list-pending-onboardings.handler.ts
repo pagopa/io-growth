@@ -49,12 +49,12 @@ const listPendingOnboardingsValidator = withUserTypeAuthorization(
   withSession(
     SessionSchema,
     createHttpRequestValidator(listPendingOnboardingsHttpSchema),
-    (_session, { query }) => ({
+    (session, { query }) => ({
       name: query.name,
       page: query.page,
       size: query.size,
       statuses: query.statuses,
-      userType: _session.userType,
+      userType: session.userType,
     }),
   ),
 );

@@ -21,9 +21,9 @@ const getContractSignedValidator = withUserTypeAuthorization(
   withSession(
     SessionSchema,
     createHttpRequestValidator(getContractSignedHttpSchema),
-    (_session, { path }) => ({
+    (session, { path }) => ({
       onboardingId: path.onboardingId,
-      userType: _session.userType,
+      userType: session.userType,
     }),
   ),
 );

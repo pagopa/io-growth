@@ -23,9 +23,9 @@ const getOnboardingValidator = withUserTypeAuthorization(
   withSession(
     SessionSchema,
     createHttpRequestValidator(getOnboardingHttpSchema),
-    (_session, { path }) => ({
+    (session, { path }) => ({
       onboardingId: path.onboardingId,
-      userType: _session.userType,
+      userType: session.userType,
     }),
   ),
 );

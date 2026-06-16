@@ -53,9 +53,9 @@ const completeOnboardingValidator = withUserTypeAuthorization(
   withSession(
     SessionSchema,
     completeOnboardingInnerValidator,
-    (_session, input) => ({
+    (session, input) => ({
       ...input,
-      userType: _session.userType,
+      userType: session.userType,
     }),
   ),
 );

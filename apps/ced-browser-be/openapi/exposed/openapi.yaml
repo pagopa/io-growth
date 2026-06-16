@@ -399,8 +399,8 @@ components:
       type: http
       scheme: bearer
       description: |
-        FIMS session token obtained from `GET /authorize` after completing the
-        authentication flow. Pass as `Authorization: Bearer <token>`.
+        Opaque session token released by `GET /authorize` after the FIMS
+        authentication flow has been validated. Pass as `Authorization: Bearer <token>`.
     SessionAuth:
       type: apiKey
       in: header

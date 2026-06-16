@@ -43,6 +43,45 @@ module "agw_identity_roles" {
   ]
 }
 
+resource "azurerm_web_application_firewall_policy" "this" {
+  name                = "${var.project}-agw-waf-policy-01"
+  resource_group_name = var.resource_group_name
+  location            = var.location
+
+  policy_settings {
+    enabled                     = true
+    mode                        = "Prevention"
+    request_body_check          = true
+    file_upload_limit_in_mb     = 100
+    max_request_body_size_in_kb = 128
+  }
+
+  managed_rules {
+    managed_rule_set {
+      type    = "OWASP"
+      version = "3.2"
+
+      rule_group_override {
+        rule_group_name = "REQUEST-920-PROTOCOL-ENFORCEMENT"
+        rule {
+          id      = "920300"
+          enabled = false
+        }
+      }
+
+      rule_group_override {
+        rule_group_name = "REQUEST-931-APPLICATION-ATTACK-RFI"
+        rule {
+          id      = "931130"
+          enabled = false
+        }
+      }
+    }
+  }
+
+  tags = var.tags
+}
+
 resource "azurerm_application_gateway" "this" {
   name                = "${var.project}-agw-01"
   resource_group_name = var.resource_group_name
@@ -58,32 +97,7 @@ resource "azurerm_application_gateway" "this" {
     max_capacity = var.app_gateway_max_capacity
   }
 
-  dynamic "waf_configuration" {
-    for_each = var.sku.tier == "WAF_v2" ? [1] : []
-    content {
-      enabled          = true
-      firewall_mode    = "Prevention"
-      rule_set_version = "3.2"
-      rule_set_type    = "OWASP"
-
-      dynamic "disabled_rule_group" {
-        for_each = [
-          {
-            rule_group_name = "REQUEST-920-PROTOCOL-ENFORCEMENT"
-            rules           = ["920300"]
-          },
-          {
-            rule_group_name = "REQUEST-931-APPLICATION-ATTACK-RFI"
-            rules           = ["931130"]
-          }
-        ]
-        content {
-          rule_group_name = disabled_rule_group.value.rule_group_name
-          rules           = disabled_rule_group.value.rules
-        }
-      }
-    }
-  }
+  firewall_policy_id = azurerm_web_application_firewall_policy.this.id
 
   gateway_ip_configuration {
     name      = "gateway-ip-config"
@@ -169,6 +183,7 @@ resource "azurerm_application_gateway" "this" {
     host_name                      = var.api_hostname
     ssl_certificate_name           = var.app_gw_cert_name
     ssl_profile_name               = "${var.project}-ssl-profile"
+    firewall_policy_id             = azurerm_web_application_firewall_policy.this.id
   }
 
   request_routing_rule {

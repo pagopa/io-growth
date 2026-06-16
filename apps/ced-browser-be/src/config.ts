@@ -4,6 +4,7 @@ import { z } from "zod";
 const configSchema = fimsConfigSchema.merge(
   z.object({
     AZURE_CLIENT_ID: z.string().optional(),
+    AZURE_STORAGE_CONNECTION_STRING: z.string().optional(),
     HOST: z.string().default("0.0.0.0"),
     PORT: z.coerce.number().int().min(1).max(65535).default(8080),
     POSTGRES_DB: z.string().min(1),

@@ -56,10 +56,17 @@ const redisHealthCheckRepository =
 const sessionStore = createRedisSessionRepository(redisClient);
 const placeRepository = createDrizzlePlaceRepository(dbClient);
 
-const containerClient = new BlobServiceClient(
-  config.FIMS_AUDIT_BLOB_URI,
-  new DefaultAzureCredential(),
-).getContainerClient(config.FIMS_AUDIT_CONTAINER);
+const blobServiceClient = config.AZURE_STORAGE_CONNECTION_STRING
+  ? BlobServiceClient.fromConnectionString(
+      config.AZURE_STORAGE_CONNECTION_STRING,
+    )
+  : new BlobServiceClient(
+      config.FIMS_AUDIT_BLOB_URI,
+      new DefaultAzureCredential(),
+    );
+const containerClient = blobServiceClient.getContainerClient(
+  config.FIMS_AUDIT_CONTAINER,
+);
 const auditLogger = createBlobAuditLogger(containerClient);
 
 const { fimsFlowConfig, oidcConfig } = buildFimsConfig(config);

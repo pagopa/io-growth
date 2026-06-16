@@ -73,6 +73,7 @@ export const createHttpHandler =
     }
 
     if (options.successReplyHandler) {
+      reply.code(options.successCode);
       return options.successReplyHandler(reply, output, options.successCode);
     }
 

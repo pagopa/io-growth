@@ -8,7 +8,7 @@ import type { FastifyReply, FastifyRequest } from "fastify";
 
 import { sendErrorResponse } from "./errorMapper.js";
 
-export type HttpHandlerOptions<O = unknown> =
+export type HttpHandlerOptions<O = unknown, R = O> =
   | {
       redirect: true;
       redirectCode?: 301 | 302 | 303 | 307 | 308;
@@ -16,14 +16,23 @@ export type HttpHandlerOptions<O = unknown> =
     }
   | {
       redirect?: false;
-      successCode: 200 | 201 | 202 | 204;
+      successCode: HttpSuccessCode;
+      successReplyHandler?: HttpSuccessReplyHandler<R>;
     };
+
+export type HttpSuccessCode = 200 | 201 | 202 | 204;
+
+export type HttpSuccessReplyHandler<R = unknown> = (
+  reply: FastifyReply,
+  output: R,
+  successCode: HttpSuccessCode,
+) => Promise<unknown> | unknown;
 
 export const createHttpHandler =
   <TUseCaseInput extends object, O, E extends BaseError, R = O>(
     useCase: UseCase<TUseCaseInput, O, E>,
     inputValidator: InputValidator<FastifyRequest, TUseCaseInput>,
-    options: HttpHandlerOptions<O> = { successCode: 200 },
+    options: HttpHandlerOptions<O, R> = { successCode: 200 },
     outputFormatter?: OutputFormatter<O, R>,
   ) =>
   async (request: FastifyRequest, reply: FastifyReply) => {
@@ -49,7 +58,8 @@ export const createHttpHandler =
       return reply.redirect(url, options.redirectCode ?? 302);
     }
 
-    // Format output if a formatter is provided
+    let output: R;
+
     if (outputFormatter) {
       const formatted = await outputFormatter(result.value);
 
@@ -57,8 +67,14 @@ export const createHttpHandler =
         return sendErrorResponse(reply, formatted.error);
       }
 
-      return reply.code(options.successCode).send(formatted.value);
+      output = formatted.value;
+    } else {
+      output = result.value as unknown as R;
     }
 
-    return reply.code(options.successCode).send(result.value);
+    if (options.successReplyHandler) {
+      return options.successReplyHandler(reply, output, options.successCode);
+    }
+
+    return reply.code(options.successCode).send(output);
   };

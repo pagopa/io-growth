@@ -15,6 +15,7 @@ export {
 export {
   createHttpHandler,
   type HttpHandlerOptions,
+  type HttpSuccessReplyHandler,
 } from "./httpHandlerBuilder.js";
 export {
   createHttpRequestValidator,

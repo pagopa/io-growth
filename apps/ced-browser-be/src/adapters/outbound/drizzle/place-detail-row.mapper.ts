@@ -77,7 +77,7 @@ export const mapPlaceDetailRow = (
         benefit: {
           discountType:
             (row.benefitDiscountType as PlaceBenefit["discountType"]) ?? null,
-          type: row.benefitType,
+          type: row.benefitType as PlaceBenefit["type"],
           value: row.benefitValue ?? null,
         },
         id: row.opportunityId,

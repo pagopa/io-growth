@@ -5,7 +5,7 @@ import {
   createHttpRequestValidator,
   withSession,
 } from "@pagopa/io-core-adapter-fastify";
-import zod from "zod";
+import { z as zod } from "zod";
 
 import type { GetContractSignedUseCase } from "../../../../application/use-cases/department/get-contract-signed.use-case.js";
 

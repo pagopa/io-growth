@@ -2,6 +2,7 @@
 export { createDocumentContentClient } from "./adapters/outbound/document-content.js";
 export { createInstitutionClient } from "./adapters/outbound/institution.js";
 export { createOnboardingClient } from "./adapters/outbound/onboarding.js";
+export { createUserClient } from "./adapters/outbound/user.js";
 
 // Configuration
 export {
@@ -14,3 +15,4 @@ export type { DocumentContentRepository } from "./domain/ports/outbound/document
 export type { InstitutionRepository } from "./domain/ports/outbound/institution.repository.js";
 
 export type { OnboardingRepository } from "./domain/ports/outbound/onboarding.repository.js";
+export type { UserRepository } from "./domain/ports/outbound/user.repository.js";

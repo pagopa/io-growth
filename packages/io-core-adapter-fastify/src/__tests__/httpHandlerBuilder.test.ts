@@ -37,6 +37,10 @@ const createReplyMock = () => {
       state.statusCode = statusCode;
       return reply;
     },
+    type: (value: string) => {
+      state.headers["content-type"] = value;
+      return reply;
+    },
   };
 
   return {
@@ -97,6 +101,37 @@ describe("createHttpHandler", () => {
       await handler(emptyRequest, reply);
 
       expect(state.statusCode).toBe(500);
+    });
+
+    it("should delegate success response to successReplyHandler", async () => {
+      const blob = new Blob(["contract"], {
+        type: "application/pdf",
+      });
+      const useCase = vi.fn().mockResolvedValue(ok(blob));
+      const validator = vi.fn().mockResolvedValue(ok({}));
+      const { reply, state } = createReplyMock();
+      const successReplyHandler = vi.fn(
+        async (innerReply, output, successCode) =>
+          innerReply
+            .code(successCode)
+            .type(output.type)
+            .send(Buffer.from(await output.arrayBuffer())),
+      );
+
+      const handler = createHttpHandler(useCase, validator, {
+        successCode: 202,
+        successReplyHandler,
+      });
+      await handler(emptyRequest, reply);
+
+      expect(successReplyHandler).toHaveBeenCalledExactlyOnceWith(
+        reply,
+        blob,
+        202,
+      );
+      expect(state.statusCode).toBe(202);
+      expect(state.headers["content-type"]).toBe("application/pdf");
+      expect(state.payload).toEqual(Buffer.from("contract"));
     });
   });
 

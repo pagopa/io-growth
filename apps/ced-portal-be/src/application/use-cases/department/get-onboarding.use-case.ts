@@ -8,7 +8,7 @@ import type {
 import { ResultAsync } from "neverthrow";
 import { z } from "zod";
 
-import type { Onboarding } from "../../../domain/entities/onboarding.js";
+import type { OnboardingDetail } from "../../../domain/entities/onboarding.js";
 import type { ArOnboardingRepository } from "../../../domain/ports/outbound/ar-onboarding.repository.js";
 
 import { validateUseCaseInput } from "../utils/validate-use-case-input.js";
@@ -21,7 +21,7 @@ export type GetOnboardingInput = z.infer<typeof GetOnboardingInputSchema>;
 
 export type GetOnboardingUseCase = UseCase<
   GetOnboardingInput,
-  Onboarding,
+  OnboardingDetail,
   GenericError | NotFoundError | ValidationError
 >;
 

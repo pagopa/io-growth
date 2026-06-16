@@ -52,5 +52,5 @@ export const makeListOperatorOpportunitiesUseCase =
   async (input) =>
     validateUseCaseInput(ListOperatorOpportunitiesInputSchema, input).andThen(
       (validatedInput) =>
-        new ResultAsync(opportunityRepository.list(validatedInput)),
+        new ResultAsync(opportunityRepository.findAll(validatedInput)),
     );

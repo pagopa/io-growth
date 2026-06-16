@@ -21,7 +21,7 @@ const ListOnboardingsInputSchema = z.object({
   name: z.string().optional(),
   page: z.number().int().min(0).default(0),
   size: z.number().int().min(1).max(100).default(20),
-  status: OnboardingStatusSchema.optional(),
+  statuses: z.array(OnboardingStatusSchema).optional(),
 });
 
 export type ListOnboardingsInput = z.infer<typeof ListOnboardingsInputSchema>;
@@ -85,7 +85,7 @@ export const makeListOnboardingsUseCase =
               page: validatedInput.page,
               productId,
               size: validatedInput.size,
-              status: validatedInput.status,
+              statuses: validatedInput.statuses,
             }),
           ),
       )

@@ -1,5 +1,35 @@
 # ced-portal-be
 
+## 0.1.1
+
+### Patch Changes
+
+- 1e199aa: manage non json replies and add admin auth on department api
+- Updated dependencies [1e199aa]
+  - @pagopa/io-core-adapter-fastify@0.0.6
+
+## 0.1.0
+
+### Minor Changes
+
+- 67efe9b: GET /api/opportunities admin list endpoint with full filtering (IEG-2827)
+
+## 0.0.21
+
+### Patch Changes
+
+- 2870ce6: add onboarding manager info
+- Updated dependencies [2870ce6]
+  - @pagopa/io-core-adapter-ar@0.0.6
+
+## 0.0.20
+
+### Patch Changes
+
+- 7b0924a: Support multi-status filtering for onboarding list API.Expand onboarding detail payload with full AR-backed fields.
+- Updated dependencies [7b0924a]
+  - @pagopa/io-core-adapter-ar@0.0.5
+
 ## 0.0.19
 
 ### Patch Changes

@@ -10,8 +10,12 @@ import { z as zod } from "zod";
 
 import type { ListOnboardingsUseCase } from "../../../../application/use-cases/department/list-onboardings.use-case.js";
 
-import { PaginatedOnboardingsSchema } from "../../../../domain/entities/onboarding.js";
+import {
+  OnboardingStatusSchema,
+  PaginatedOnboardingsSchema,
+} from "../../../../domain/entities/onboarding.js";
 import { SessionSchema } from "../auth/session.js";
+import { withUserTypeAuthorization } from "../auth/utils/authorization.js";
 import {
   listOnboardingsQueryPageDefault,
   ListOnboardingsQueryParams,
@@ -31,21 +35,28 @@ const listPendingOnboardingsQuerySchema = ListOnboardingsQueryParams.extend({
     .min(1)
     .max(listOnboardingsQuerySizeMax)
     .default(listOnboardingsQuerySizeDefault),
+  statuses: zod.preprocess(
+    (val) => (typeof val === "string" ? [val] : val),
+    zod.array(OnboardingStatusSchema).optional(),
+  ),
 });
 
 const listPendingOnboardingsHttpSchema = zod.object({
   query: listPendingOnboardingsQuerySchema,
 });
 
-const listPendingOnboardingsValidator = withSession(
-  SessionSchema,
-  createHttpRequestValidator(listPendingOnboardingsHttpSchema),
-  (_session, { query }) => ({
-    name: query.name,
-    page: query.page,
-    size: query.size,
-    status: query.status,
-  }),
+const listPendingOnboardingsValidator = withUserTypeAuthorization(
+  withSession(
+    SessionSchema,
+    createHttpRequestValidator(listPendingOnboardingsHttpSchema),
+    (session, { query }) => ({
+      name: query.name,
+      page: query.page,
+      size: query.size,
+      statuses: query.statuses,
+      userType: session.userType,
+    }),
+  ),
 );
 
 const listPendingOnboardingsFormatter = createHttpResponseFormatter(

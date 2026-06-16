@@ -12,12 +12,14 @@ interface Props {
   open: boolean;
   onClose: () => void;
   onPublish: () => void;
+  isLoading?: boolean;
 }
 
 export function PublishEntityModal({
   open,
   onClose,
   onPublish,
+  isLoading = false,
 }: Readonly<Props>) {
   return (
     <Dialog
@@ -64,7 +66,7 @@ export function PublishEntityModal({
             onClick={onPublish}
             sx={{ fontWeight: 700, borderRadius: 2, px: 5 }}
           >
-            Conferma
+            {isLoading ? 'Conferma in corso...' : 'Conferma'}
           </Button>
         </Stack>
       </DialogContent>

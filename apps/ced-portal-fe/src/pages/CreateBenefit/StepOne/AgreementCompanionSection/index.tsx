@@ -8,7 +8,7 @@ import {
   Switch,
   Typography,
 } from '@mui/material';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { useAppDispatch, useAppSelector } from '../../../../hooks';
 import { BenefitDetailsSection } from './components/BenefitDetailsSection';
@@ -25,6 +25,11 @@ import {
 export const AgreementCompanionSection = () => {
   const dispatch = useAppDispatch();
   const activeLanguage = useAppSelector(selectActiveFormLanguage);
+
+  const disabledNotLocalizedField = useMemo(
+    () => activeLanguage !== 'it',
+    [activeLanguage],
+  );
   const [isSameAsOwner, setIsSameAsOwner] = useState(false);
   const companionCopy =
     getAgreementCopy(activeLanguage).additionalSections.companion;
@@ -55,6 +60,7 @@ export const AgreementCompanionSection = () => {
           <Box sx={{ flex: 1 }} />
           <Switch
             checked={isEnabled}
+            disabled={disabledNotLocalizedField}
             onChange={(_, checked) => handleToggleCompanionBenefit(checked)}
             inputProps={{
               'aria-label': companionCopy.toggleAriaLabel,
@@ -65,6 +71,7 @@ export const AgreementCompanionSection = () => {
           <>
             <FormControlLabel
               sx={{ alignItems: 'center', ml: -0.75 }}
+              disabled={disabledNotLocalizedField}
               control={
                 <Checkbox
                   checked={isSameAsOwner}

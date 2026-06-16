@@ -4,8 +4,8 @@ import { describe, expect, it, vi } from "vitest";
 
 import type { PaginatedOpportunities } from "../../../../domain/ports/outbound/persistence/opportunity.repository.js";
 
-import { makeListOperatorOpportunitiesUseCase } from "../list-operator-opportunities.use-case.js";
-import { createMockOpportunityRepository, MOCK_OPERATOR_ID } from "./mocks.js";
+import { makeAdminListOpportunitiesUseCase } from "../admin-list-opportunities.use-case.js";
+import { createMockOpportunityRepository } from "./mocks.js";
 
 const mockPaginatedResult: PaginatedOpportunities = {
   items: [
@@ -15,6 +15,7 @@ const mockPaginatedResult: PaginatedOpportunities = {
       dateTo: "2026-12-31",
       id: "01JVMK3N8XQZP5T6G2WYHAB4CF",
       name: "Discount 20%",
+      operatorName: "Ente Demo",
       status: "draft",
     },
   ],
@@ -24,55 +25,47 @@ const mockPaginatedResult: PaginatedOpportunities = {
 const validInput = {
   limit: 20,
   offset: 0,
-  operatorId: MOCK_OPERATOR_ID,
   sortBy: "createdAt" as const,
   sortOrder: "desc" as const,
+  userType: "admin" as const,
 };
 
-describe("makeListOperatorOpportunitiesUseCase", () => {
-  it("should return paginated opportunities", async () => {
+describe("makeAdminListOpportunitiesUseCase", () => {
+  it("should return paginated opportunities for admin role", async () => {
     const repository = createMockOpportunityRepository({
       findAll: vi.fn().mockResolvedValue(ok(mockPaginatedResult)),
     });
-    const useCase = makeListOperatorOpportunitiesUseCase(repository);
+    const useCase = makeAdminListOpportunitiesUseCase(repository);
 
     const result = await useCase(validInput);
 
     expect(result).toEqual(ok(mockPaginatedResult));
-    expect(repository.findAll).toHaveBeenCalledWith(validInput);
   });
 
   it("should pass optional filters to repository", async () => {
     const repository = createMockOpportunityRepository({
       findAll: vi.fn().mockResolvedValue(ok({ items: [], total: 0 })),
     });
-    const useCase = makeListOperatorOpportunitiesUseCase(repository);
+    const useCase = makeAdminListOpportunitiesUseCase(repository);
 
     const inputWithFilters = {
       ...validInput,
+      categoryId: "01KRJXEYD44B58700GT982CCYY",
+      operatorId: "01JVMK3N8XQZP5T6G2WYHAB4CD",
       search: "sconto",
-      status: "test_rejected" as const,
+      status: "published" as const,
     };
 
     await useCase(inputWithFilters);
 
-    expect(repository.findAll).toHaveBeenCalledWith(inputWithFilters);
-  });
-
-  it("should pass categoryId filter to repository", async () => {
-    const repository = createMockOpportunityRepository({
-      findAll: vi.fn().mockResolvedValue(ok({ items: [], total: 0 })),
-    });
-    const useCase = makeListOperatorOpportunitiesUseCase(repository);
-
-    const inputWithCategory = {
-      ...validInput,
-      categoryId: "01KRJXEYD44B58700GT982CCYY",
-    };
-
-    await useCase(inputWithCategory);
-
-    expect(repository.findAll).toHaveBeenCalledWith(inputWithCategory);
+    expect(repository.findAll).toHaveBeenCalledWith(
+      expect.objectContaining({
+        categoryId: inputWithFilters.categoryId,
+        operatorId: inputWithFilters.operatorId,
+        search: inputWithFilters.search,
+        status: inputWithFilters.status,
+      }),
+    );
   });
 
   it("should propagate repository errors", async () => {
@@ -80,18 +73,18 @@ describe("makeListOperatorOpportunitiesUseCase", () => {
     const repository = createMockOpportunityRepository({
       findAll: vi.fn().mockResolvedValue(err(repoError)),
     });
-    const useCase = makeListOperatorOpportunitiesUseCase(repository);
+    const useCase = makeAdminListOpportunitiesUseCase(repository);
 
     const result = await useCase(validInput);
 
     expect(result).toEqual(err(repoError));
   });
 
-  it("should return ValidationError when operatorId is invalid", async () => {
+  it("should return ValidationError when operatorId is not a valid ULID", async () => {
     const repository = createMockOpportunityRepository();
-    const useCase = makeListOperatorOpportunitiesUseCase(repository);
+    const useCase = makeAdminListOpportunitiesUseCase(repository);
 
-    const result = await useCase({ ...validInput, operatorId: "invalid" });
+    const result = await useCase({ ...validInput, operatorId: "invalid-id" });
 
     expect(result).toEqual(
       err(expect.objectContaining({ kind: "ValidationError" })),
@@ -99,26 +92,21 @@ describe("makeListOperatorOpportunitiesUseCase", () => {
     expect(repository.findAll).not.toHaveBeenCalled();
   });
 
-  it("should apply default values for limit, offset, sortBy, sortOrder", async () => {
+  it("should forward default pagination and sorting values to repository", async () => {
     const repository = createMockOpportunityRepository({
       findAll: vi.fn().mockResolvedValue(ok({ items: [], total: 0 })),
     });
-    const useCase = makeListOperatorOpportunitiesUseCase(repository);
+    const useCase = makeAdminListOpportunitiesUseCase(repository);
 
-    await useCase({
-      limit: 20,
-      offset: 0,
-      operatorId: MOCK_OPERATOR_ID,
-      sortBy: "createdAt",
-      sortOrder: "desc",
-    });
+    await useCase(validInput);
 
-    expect(repository.findAll).toHaveBeenCalledWith({
-      limit: 20,
-      offset: 0,
-      operatorId: MOCK_OPERATOR_ID,
-      sortBy: "createdAt",
-      sortOrder: "desc",
-    });
+    expect(repository.findAll).toHaveBeenCalledWith(
+      expect.objectContaining({
+        limit: 20,
+        offset: 0,
+        sortBy: "createdAt",
+        sortOrder: "desc",
+      }),
+    );
   });
 });

@@ -23,6 +23,7 @@ export function AgreementLinkSection() {
         </Stack>
 
         <TextField
+          disabled={activeLanguage !== 'it'}
           label={copy.benefitUrlLabel}
           value={benefitUrl}
           onChange={(event) =>

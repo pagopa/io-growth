@@ -10,23 +10,29 @@ import { z as zod } from "zod";
 
 import type { GetOnboardingUseCase } from "../../../../application/use-cases/department/get-onboarding.use-case.js";
 
-import { OnboardingSchema } from "../../../../domain/entities/onboarding.js";
+import { OnboardingDetailSchema } from "../../../../domain/entities/onboarding.js";
 import { SessionSchema } from "../auth/session.js";
+import { withUserTypeAuthorization } from "../auth/utils/authorization.js";
 import { GetOnboardingParams } from "../contracts/department/department.js";
 
 const getOnboardingHttpSchema = zod.object({
   path: GetOnboardingParams,
 });
 
-const getOnboardingValidator = withSession(
-  SessionSchema,
-  createHttpRequestValidator(getOnboardingHttpSchema),
-  (_session, { path }) => ({
-    onboardingId: path.onboardingId,
-  }),
+const getOnboardingValidator = withUserTypeAuthorization(
+  withSession(
+    SessionSchema,
+    createHttpRequestValidator(getOnboardingHttpSchema),
+    (session, { path }) => ({
+      onboardingId: path.onboardingId,
+      userType: session.userType,
+    }),
+  ),
 );
 
-const getOnboardingFormatter = createHttpResponseFormatter(OnboardingSchema);
+const getOnboardingFormatter = createHttpResponseFormatter(
+  OnboardingDetailSchema,
+);
 
 export const mountGetOnboardingHandler = (
   fastify: FastifyInstance,

@@ -19,16 +19,20 @@ import {
 import { selectActiveFormLanguage } from '../../../../../features/opportunityCreation/selectors';
 import { setBenefit } from '../../../../../features/opportunityCreation/opportunityCreationSlice';
 
-type FixedPriceFieldsProps = {
+type DiscountFieldsProps = {
   sameValues?: boolean;
   benefit: BenefitDiscount;
 };
-export const FixedPriceFields = ({
+export const DiscountFields = ({
   sameValues,
   benefit,
-}: FixedPriceFieldsProps) => {
+}: DiscountFieldsProps) => {
   const dispatch = useAppDispatch();
   const activeLanguage = useAppSelector(selectActiveFormLanguage);
+  const disabledNotLocalizedField = useMemo(
+    () => activeLanguage !== 'it',
+    [activeLanguage],
+  );
 
   const copy = getAgreementCopy(activeLanguage).additionalSections.companion;
 
@@ -141,11 +145,13 @@ export const FixedPriceFields = ({
         <FormControlLabel
           value="percentage"
           control={<Radio />}
+          disabled={disabledNotLocalizedField}
           label={copy.discountTypeOptions.percentage}
         />
         <FormControlLabel
-          value="fixed"
+          value="fixed_amount"
           control={<Radio />}
+          disabled={disabledNotLocalizedField}
           label={copy.discountTypeOptions.fixed}
         />
       </RadioGroup>
@@ -168,10 +174,11 @@ export const FixedPriceFields = ({
           {discountIcon}
         </Box>
         <TextField
-          label={copy.discountValueLabel}
-          value={companionDiscountValue}
-          onChange={(event) => handleChange(Number(event.target.value))}
           fullWidth
+          value={companionDiscountValue}
+          label={copy.discountValueLabel}
+          disabled={disabledNotLocalizedField}
+          onChange={(event) => handleChange(Number(event.target.value))}
         />
       </Stack>
     </Stack>

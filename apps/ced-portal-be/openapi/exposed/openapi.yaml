@@ -565,6 +565,116 @@ paths:
               example:
                 statusCode: 401
                 message: Unauthorized
+  /opportunities:
+    get:
+      tags:
+        - Opportunities
+      summary: List all opportunities across all operators (department only)
+      operationId: adminListOpportunities
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: offset
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+        - name: status
+          in: query
+          required: false
+          schema:
+            type: string
+            enum:
+              - draft
+              - test_pending
+              - test_rejected
+              - test_passed
+              - published
+              - suspended
+              - deleted
+        - name: search
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: sortBy
+          in: query
+          required: false
+          schema:
+            type: string
+            enum:
+              - createdAt
+              - updatedAt
+            default: createdAt
+        - name: sortOrder
+          in: query
+          required: false
+          schema:
+            type: string
+            enum:
+              - asc
+              - desc
+            default: desc
+        - name: operatorId
+          in: query
+          required: false
+          schema:
+            type: string
+            pattern: "^[0-9A-HJKMNP-TV-Z]{26}$"
+        - name: categoryId
+          in: query
+          required: false
+          schema:
+            type: string
+            pattern: "^[0-9A-HJKMNP-TV-Z]{26}$"
+        - name: dateFrom
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date
+        - name: dateTo
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date
+      responses:
+        "200":
+          description: Paginated list of opportunities across all operators
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminOpportunityListResponse"
+        "401":
+          description: Invalid or missing JWT
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 401
+                message: Unauthorized
+        "403":
+          description: Forbidden — operator userType not allowed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 403
+                message: Forbidden
+
   /opportunities/{opportunityId}:
     get:
       tags:
@@ -614,6 +724,7 @@ paths:
               example:
                 statusCode: 404
                 message: Opportunity not found
+
   /opportunities/{opportunityId}/approve:
     patch:
       tags:
@@ -811,20 +922,22 @@ paths:
             minimum: 1
             maximum: 100
             default: 20
-        - name: status
+        - name: statuses
           in: query
           required: false
           schema:
-            type: string
-            enum:
-              - REQUEST
-              - TOBEVALIDATED
-              - PENDING
-              - PENDING_IN_REVIEW
-              - COMPLETED
-              - FAILED
-              - REJECTED
-              - DELETED
+            type: array
+            items:
+              type: string
+              enum:
+                - REQUEST
+                - TOBEVALIDATED
+                - PENDING
+                - PENDING_IN_REVIEW
+                - COMPLETED
+                - FAILED
+                - REJECTED
+                - DELETED
         - name: name
           in: query
           required: false
@@ -870,7 +983,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/OnboardingItem"
+                $ref: "#/components/schemas/OnboardingDetail"
         "401":
           description: Unauthorized
           content:
@@ -1346,6 +1459,20 @@ components:
         total:
           type: integer
           minimum: 0
+    AdminOpportunityListResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - items
+        - total
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/AdminOpportunitySummaryItem"
+        total:
+          type: integer
+          minimum: 0
     OpportunitySummaryItem:
       type: object
       additionalProperties: false
@@ -1380,6 +1507,43 @@ components:
           type: string
           format: date
           nullable: true
+    AdminOpportunitySummaryItem:
+      type: object
+      additionalProperties: false
+      required:
+        - id
+        - status
+        - name
+        - categoryTitle
+        - dateFrom
+        - operatorName
+      properties:
+        id:
+          type: string
+          pattern: "^[0-9A-HJKMNP-TV-Z]{26}$"
+        status:
+          type: string
+          enum:
+            - draft
+            - test_pending
+            - test_rejected
+            - test_passed
+            - published
+            - suspended
+            - deleted
+        name:
+          type: string
+        categoryTitle:
+          type: string
+        dateFrom:
+          type: string
+          format: date
+        dateTo:
+          type: string
+          format: date
+          nullable: true
+        operatorName:
+          type: string
     OpportunityDetailResponse:
       type: object
       additionalProperties: false
@@ -1591,6 +1755,10 @@ components:
           type: string
         status:
           type: string
+        city:
+          type: string
+        county:
+          type: string
         createdAt:
           type: string
           format: date-time
@@ -1618,3 +1786,209 @@ components:
               type: string
             county:
               type: string
+    OnboardingGeographicTaxonomy:
+      type: object
+      properties:
+        code:
+          type: string
+        desc:
+          type: string
+    OnboardingPaymentServiceProvider:
+      type: object
+      properties:
+        businessRegisterNumber:
+          type: string
+        legalRegisterNumber:
+          type: string
+        legalRegisterName:
+          type: string
+        longTermPayments:
+          type: boolean
+        abiCode:
+          type: string
+        vatNumberGroup:
+          type: boolean
+        providerNames:
+          type: array
+          items:
+            type: string
+        contractType:
+          type: string
+        contractId:
+          type: string
+    OnboardingDataProtectionOfficer:
+      type: object
+      properties:
+        address:
+          type: string
+        email:
+          type: string
+        pec:
+          type: string
+    OnboardingInstitutionDetail:
+      type: object
+      properties:
+        id:
+          type: string
+        institutionType:
+          type: string
+        taxCode:
+          type: string
+        taxCodeInvoicing:
+          type: string
+        subunitCode:
+          type: string
+        subunitType:
+          type: string
+        origin:
+          type: string
+        originId:
+          type: string
+        city:
+          type: string
+        country:
+          type: string
+        county:
+          type: string
+        description:
+          type: string
+        digitalAddress:
+          type: string
+        address:
+          type: string
+        zipCode:
+          type: string
+        parentDescription:
+          type: string
+        geographicTaxonomies:
+          type: array
+          items:
+            $ref: "#/components/schemas/OnboardingGeographicTaxonomy"
+        rea:
+          type: string
+        shareCapital:
+          type: string
+        businessRegisterPlace:
+          type: string
+        supportEmail:
+          type: string
+        supportPhone:
+          type: string
+        paymentServiceProvider:
+          $ref: "#/components/schemas/OnboardingPaymentServiceProvider"
+        dataProtectionOfficer:
+          $ref: "#/components/schemas/OnboardingDataProtectionOfficer"
+        atecoCodes:
+          type: array
+          items:
+            type: string
+        legalForm:
+          type: string
+    OnboardingUser:
+      type: object
+      properties:
+        id:
+          type: string
+        taxCode:
+          type: string
+        name:
+          type: string
+        surname:
+          type: string
+        email:
+          type: string
+        role:
+          type: string
+        productRole:
+          type: string
+    OnboardingBilling:
+      type: object
+      properties:
+        vatNumber:
+          type: string
+        recipientCode:
+          type: string
+        publicServices:
+          type: boolean
+    OnboardingPayment:
+      type: object
+      properties:
+        iban:
+          type: string
+        holder:
+          type: string
+    OnboardingAdditionalInformations:
+      type: object
+      properties:
+        belongRegulatedMarket:
+          type: boolean
+        regulatedMarketNote:
+          type: string
+        ipa:
+          type: boolean
+        ipaCode:
+          type: string
+        establishedByRegulatoryProvision:
+          type: boolean
+        establishedByRegulatoryProvisionNote:
+          type: string
+        agentOfPublicService:
+          type: boolean
+        agentOfPublicServiceNote:
+          type: string
+        otherNote:
+          type: string
+    OnboardingUserRequester:
+      type: object
+      properties:
+        userMailUuid:
+          type: string
+        userRequestUid:
+          type: string
+    OnboardingDetail:
+      type: object
+      properties:
+        id:
+          type: string
+        productId:
+          type: string
+        workflowType:
+          type: string
+        institution:
+          $ref: "#/components/schemas/OnboardingInstitutionDetail"
+        users:
+          type: array
+          items:
+            $ref: "#/components/schemas/OnboardingUser"
+        pricingPlan:
+          type: string
+        billing:
+          $ref: "#/components/schemas/OnboardingBilling"
+        payment:
+          $ref: "#/components/schemas/OnboardingPayment"
+        signContract:
+          type: boolean
+        additionalInformations:
+          $ref: "#/components/schemas/OnboardingAdditionalInformations"
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        expiringDate:
+          type: string
+          format: date-time
+        activatedAt:
+          type: string
+          format: date-time
+        status:
+          type: string
+        userRequester:
+          $ref: "#/components/schemas/OnboardingUserRequester"
+        reasonForReject:
+          type: string
+        attachments:
+          type: array
+          items:
+            type: string

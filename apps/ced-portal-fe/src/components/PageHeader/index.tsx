@@ -6,25 +6,42 @@ import { useAppSelector } from '../../hooks';
 import { APP_ROUTES } from '../../app/routeConfig';
 import { selectUser } from '../../core/auth/authSelectors';
 import { useDevRoleSwitcher } from '../../features/session/authDev/useDevRoleSwitcher';
+import { AuthorizeResponseUserType } from '../../core/api/generated/model';
 import { devAuthStorage } from '../../features/session/authDev/wrapper';
 
 export const PageHeader = () => {
   const user = useAppSelector(selectUser);
   const switchDevPartyContext = useDevRoleSwitcher(partyRoleMap);
 
+  const getSelectedPartyId = (
+    userId: string,
+    userRole?: Extract<AuthorizeResponseUserType, 'admin' | 'operator'>,
+  ) => {
+    const partyByUserId = partyList.find((party) => party.id === userId);
+    if (partyByUserId) {
+      return partyByUserId.id;
+    }
+
+    const partyByUserRole = partyList.find(
+      (party) => partyRoleMap[party.id] === userRole,
+    );
+    if (partyByUserRole) {
+      return partyByUserRole.id;
+    }
+
+    const savedPartyId = devAuthStorage.getSelectedPartyId();
+    if (savedPartyId && partyList.some((party) => party.id === savedPartyId)) {
+      return savedPartyId;
+    }
+
+    return partyList[0]?.id;
+  };
+
   if (!user) {
     return <Navigate replace to={APP_ROUTES.AUTHORIZE} />;
   }
 
-  const savedPartyId = devAuthStorage.getSelectedPartyId();
-  const selectedPartyId =
-    partyList.find((party) => party.id === user.id)?.id ??
-    partyList.find((party) => partyRoleMap[party.id] === user.role)?.id ??
-    (savedPartyId && partyList.some((party) => party.id === savedPartyId)
-      ? savedPartyId
-      : undefined) ??
-    partyList[0]?.id;
-
+  const selectedPartyId = getSelectedPartyId(user.id, user.role);
   const selectedProductId = productsList[0]?.id;
 
   if (!selectedPartyId || !selectedProductId) {

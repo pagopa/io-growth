@@ -1,11 +1,32 @@
-import type { FastifyInstance, FastifyRequest } from "fastify";
+import type { FastifyInstance } from "fastify";
 
-import { sendErrorResponse } from "@pagopa/io-core-adapter-fastify";
-import { ValidationError } from "@pagopa/io-core-domain/errors";
+import {
+  createHttpHandler,
+  createHttpRequestValidator,
+  withSession,
+} from "@pagopa/io-core-adapter-fastify";
+import zod from "zod";
 
 import type { GetContractSignedUseCase } from "../../../../application/use-cases/department/get-contract-signed.use-case.js";
 
+import { SessionSchema } from "../auth/session.js";
+import { withUserTypeAuthorization } from "../auth/utils/authorization.js";
 import { GetContractSignedParams } from "../contracts/department/department.js";
+
+const getContractSignedHttpSchema = zod.object({
+  path: GetContractSignedParams,
+});
+
+const getContractSignedValidator = withUserTypeAuthorization(
+  withSession(
+    SessionSchema,
+    createHttpRequestValidator(getContractSignedHttpSchema),
+    (_session, { path }) => ({
+      onboardingId: path.onboardingId,
+      userType: _session.userType,
+    }),
+  ),
+);
 
 export const mountGetContractSignedHandler = (
   fastify: FastifyInstance,
@@ -13,29 +34,13 @@ export const mountGetContractSignedHandler = (
 ) => {
   fastify.get(
     "/api/department/onboardings/:onboardingId/contract",
-    async (request: FastifyRequest, reply) => {
-      const paramsResult = GetContractSignedParams.safeParse(request.params);
-
-      if (!paramsResult.success) {
-        return sendErrorResponse(
-          reply,
-          new ValidationError(paramsResult.error.message),
-        );
-      }
-
-      const result = await useCase({
-        onboardingId: paramsResult.data.onboardingId,
-      });
-
-      if (result.isErr()) {
-        return sendErrorResponse(reply, result.error);
-      }
-
-      const blob = result.value;
-
-      return reply
-        .type(blob.type || "application/octet-stream")
-        .send(Buffer.from(await blob.arrayBuffer()));
-    },
+    createHttpHandler(useCase, getContractSignedValidator, {
+      successCode: 200,
+      successReplyHandler: async (reply, blob, successCode) =>
+        reply
+          .code(successCode)
+          .type(blob.type || "application/octet-stream")
+          .send(Buffer.from(await blob.arrayBuffer())),
+    }),
   );
 };

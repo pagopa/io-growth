@@ -1,25 +1,38 @@
 import type { InputValidator } from "@pagopa/io-core-domain";
 import type { FastifyInstance, FastifyRequest } from "fastify";
 
-import { createHttpHandler } from "@pagopa/io-core-adapter-fastify";
+import {
+  createHttpHandler,
+  createHttpRequestValidator,
+  withSession,
+} from "@pagopa/io-core-adapter-fastify";
 import { ValidationError } from "@pagopa/io-core-domain/errors";
 import { err, ok } from "neverthrow";
+import { z as zod } from "zod";
 
 import type {
   CompleteOnboardingInput,
   CompleteOnboardingUseCase,
 } from "../../../../application/use-cases/department/complete-onboarding.use-case.js";
 
+import { SessionSchema } from "../auth/session.js";
+import { withUserTypeAuthorization } from "../auth/utils/authorization.js";
 import { CompleteOnboardingParams } from "../contracts/department/department.js";
 
-const completeOnboardingValidator: InputValidator<
+const completeOnboardingHttpSchema = zod.object({
+  path: CompleteOnboardingParams,
+});
+
+const completeOnboardingInnerValidator: InputValidator<
   FastifyRequest,
   CompleteOnboardingInput
 > = async (request) => {
-  const paramsResult = CompleteOnboardingParams.safeParse(request.params);
+  const pathResult = await createHttpRequestValidator(
+    completeOnboardingHttpSchema,
+  )(request);
 
-  if (!paramsResult.success) {
-    return err(new ValidationError(paramsResult.error.message));
+  if (pathResult.isErr()) {
+    return err(pathResult.error);
   }
 
   const file = await request.file();
@@ -32,9 +45,20 @@ const completeOnboardingValidator: InputValidator<
 
   return ok({
     contract: new Blob([buffer], { type: file.mimetype }),
-    onboardingId: paramsResult.data.onboardingId,
+    onboardingId: pathResult.value.path.onboardingId,
   });
 };
+
+const completeOnboardingValidator = withUserTypeAuthorization(
+  withSession(
+    SessionSchema,
+    completeOnboardingInnerValidator,
+    (_session, input) => ({
+      ...input,
+      userType: _session.userType,
+    }),
+  ),
+);
 
 export const mountCompleteOnboardingHandler = (
   fastify: FastifyInstance,

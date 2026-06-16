@@ -1,5 +1,13 @@
 # ced-portal-be
 
+## 0.1.1
+
+### Patch Changes
+
+- 1e199aa: manage non json replies and add admin auth on department api
+- Updated dependencies [1e199aa]
+  - @pagopa/io-core-adapter-fastify@0.0.6
+
 ## 0.1.0
 
 ### Minor Changes

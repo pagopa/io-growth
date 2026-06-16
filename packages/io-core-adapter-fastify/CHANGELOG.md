@@ -1,5 +1,11 @@
 # @pagopa/io-core-adapter-fastify
 
+## 0.0.6
+
+### Patch Changes
+
+- 1e199aa: manage non json replies and add admin auth on department api
+
 ## 0.0.5
 
 ### Patch Changes

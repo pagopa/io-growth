@@ -83,8 +83,8 @@ describe("makeSearchPlacesUseCase", () => {
 
     const result = await useCase({ query: "comune" });
 
-    expect(result.isOk()).toBe(true);
-    const [item] = result._unsafeUnwrap();
+    if (!result.isOk()) throw new Error("Expected ok result");
+    const [item] = result.value;
     expect(item.type).toBe("profile");
     expect(item.address).toEqual({
       city: "Alessandria",
@@ -115,8 +115,8 @@ describe("makeSearchPlacesUseCase", () => {
 
     const result = await useCase({ query: "sportello" });
 
-    expect(result.isOk()).toBe(true);
-    const [item] = result._unsafeUnwrap();
+    if (!result.isOk()) throw new Error("Expected ok result");
+    const [item] = result.value;
     expect(item.type).toBe("place");
     expect(item.address).not.toBeNull();
     expect(item.url).toBeUndefined();
@@ -130,8 +130,8 @@ describe("makeSearchPlacesUseCase", () => {
 
     const result = await useCase({ query: "flixbus" });
 
-    expect(result.isOk()).toBe(true);
-    const [item] = result._unsafeUnwrap();
+    if (!result.isOk()) throw new Error("Expected ok result");
+    const [item] = result.value;
     expect(item.type).toBe("place");
     expect(item.address).toBeNull();
     expect(item.url).toBe("https://flixbus.it");

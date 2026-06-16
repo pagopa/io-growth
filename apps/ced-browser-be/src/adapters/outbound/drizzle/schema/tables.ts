@@ -28,7 +28,7 @@ export const placeMaterializedView = pgMaterializedView(
     country: varchar({ length: 255 }),
     id: char({ length: 26 }).notNull(),
     name: varchar({ length: 512 }),
-    operatorId: char("operator_id", { length: 26 }),
+    operatorId: char("operator_id", { length: 26 }).notNull(),
     postalCode: varchar("postal_code", { length: 20 }),
     profileDisplayName: varchar("profile_display_name", { length: 512 }),
     profileId: char("profile_id", { length: 26 }),
@@ -143,7 +143,9 @@ export const opportunityMaterializedView = pgMaterializedView(
     beneficiaryBenefitDiscountType: benefitDiscountTypeEnum(
       "beneficiary_benefit_discount_type",
     ),
-    beneficiaryBenefitType: benefitTypeEnum("beneficiary_benefit_type"),
+    beneficiaryBenefitType: benefitTypeEnum(
+      "beneficiary_benefit_type",
+    ).notNull(),
     beneficiaryBenefitValue: integer("beneficiary_benefit_value"),
     id: char({ length: 26 }).notNull(),
     language: localizedMetadataLanguageEnum(),

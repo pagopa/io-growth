@@ -5,7 +5,7 @@ import type {
 
 interface OpportunityRow {
   benefitDiscountType: null | string;
-  benefitType: null | string;
+  benefitType: string;
   benefitValue: null | number;
   opportunityId: null | string;
   title: null | string;
@@ -20,7 +20,7 @@ interface PlaceRow {
   };
   id: string;
   name: string;
-  operator?: null | { profile?: null | { displayName: string } };
+  operator?: null | { name: string; profile?: null | { displayName: string } };
   operatorId: string;
   supportContacts: { type: string; value: string }[];
   type: string;
@@ -65,7 +65,8 @@ export const mapPlaceDetailRow = (
       ...(website !== undefined ? { website } : {}),
     },
     entityId: placeRow.operatorId,
-    entityName: placeRow.operator?.profile?.displayName ?? "",
+    entityName:
+      placeRow.operator?.profile?.displayName ?? placeRow.operator?.name ?? "",
     id: placeRow.id,
     opportunities: opportunityRows
       .filter(
@@ -76,7 +77,7 @@ export const mapPlaceDetailRow = (
         benefit: {
           discountType:
             (row.benefitDiscountType as PlaceBenefit["discountType"]) ?? null,
-          type: row.benefitType as PlaceBenefit["type"],
+          type: row.benefitType,
           value: row.benefitValue ?? null,
         },
         id: row.opportunityId,

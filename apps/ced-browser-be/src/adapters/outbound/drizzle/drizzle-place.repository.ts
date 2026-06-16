@@ -64,7 +64,7 @@ export const createDrizzlePlaceRepository = (
                   street: row.street,
                 }
               : null,
-          entityId: row.entityId ?? "",
+          entityId: row.entityId,
           id: row.id,
           name: row.name,
           type: row.type,
@@ -96,7 +96,7 @@ export const createDrizzlePlaceRepository = (
             },
           },
           operator: {
-            columns: {},
+            columns: { name: true },
             with: { profile: { columns: { displayName: true } } },
           },
           supportContacts: { columns: { type: true, value: true } },

@@ -16,6 +16,8 @@ tags:
     description:
       Authentication flow via FIMS (OIDC). Obtain a session token before
       calling protected endpoints.
+  - name: Places
+    description: Search and retrieve place details (require Bearer token)
   - name: Opportunities
     description: Browse and search CED opportunities (require session token)
 
@@ -127,6 +129,148 @@ paths:
                 $ref: "#/components/schemas/SessionToken"
         "401":
           description: Unauthorized — invalid or expired session id.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+        "500":
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+
+  /search:
+    get:
+      tags:
+        - Places
+      summary: Search places and operator profiles
+      description: |
+        Citizen-facing full-text search on `place_materialized_view`.
+        Searches across place name, city, and operator profile display name.
+        Returns a flat list of places and operator profiles.
+        Requires citizen authentication (`Authorization: Bearer <token>`).
+      operationId: searchPlaces
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: q
+          in: query
+          required: true
+          schema:
+            type: string
+            minLength: 3
+          description: Full-text search query (minimum 3 characters).
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+          description: Maximum number of results to return (default 100).
+      responses:
+        "200":
+          description: Search results.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PlaceSearchResponse"
+              examples:
+                mixed:
+                  summary: Mixed place and profile results
+                  value:
+                    total: 2
+                    items:
+                      - id: 01JVMK3N8XQZP5T6G2WYHAB4CD
+                        name: Comune di Alessandria
+                        entityId: 01JVMK3N8XQZP5T6G2WYHAB4CA
+                        type: profile
+                        address:
+                          street: Piazza della Libertà 1
+                          city: Alessandria
+                          postalCode: "15121"
+                          state: AL
+                      - id: 01JVMK3N8XQZP5T6G2WYHAB4CE
+                        name: Biblioteca civica Francesca Calvo
+                        entityId: 01JVMK3N8XQZP5T6G2WYHAB4CA
+                        type: place
+                        address:
+                          street: Piazza Vittorio Veneto 1
+                          city: Alessandria
+                          postalCode: "15121"
+                          state: AL
+                online:
+                  summary: Online place result
+                  value:
+                    total: 1
+                    items:
+                      - id: 01JVMK3N8XQZP5T6G2WYHAB4CF
+                        name: Flixbus
+                        entityId: 01JVMK3N8XQZP5T6G2WYHAB4CB
+                        type: place
+                        address: null
+                        url: https://flixbus.it
+        "400":
+          description: Invalid query parameters.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+        "401":
+          description: Missing or invalid Bearer token.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+
+  /places/{placeId}:
+    get:
+      tags:
+        - Places
+      summary: Get place detail
+      description: |
+        Returns the full detail of a single place, including contact information,
+        associated published opportunities, and other places belonging to the same operator.
+        Requires citizen authentication (`Authorization: Bearer <token>`).
+      operationId: getPlaceDetail
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: placeId
+          in: path
+          required: true
+          description: Place identifier.
+          schema:
+            type: string
+        - name: Accept-Language
+          in: header
+          required: false
+          description: Language for opportunity titles (defaults to `it`). Must be an exact supported tag.
+          schema:
+            type: string
+            enum: [en, fr, de, sl, it]
+            default: it
+      responses:
+        "200":
+          description: Place detail.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PlaceDetail"
+        "400":
+          description: Invalid or malformed Accept-Language header.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+        "401":
+          description: Missing or invalid Bearer token.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+        "404":
+          description: Place not found.
           content:
             application/json:
               schema:
@@ -251,6 +395,12 @@ paths:
 
 components:
   securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      description: |
+        Opaque session token released by `GET /authorize` after the FIMS
+        authentication flow has been validated. Pass as `Authorization: Bearer <token>`.
     SessionAuth:
       type: apiKey
       in: header
@@ -261,6 +411,202 @@ components:
         protected endpoints.
 
   schemas:
+    # -------------------------------------------------------------------------
+    # Places search
+    # -------------------------------------------------------------------------
+    PlaceSearchResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - total
+        - items
+      properties:
+        total:
+          type: integer
+          minimum: 0
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/PlaceSearchItem"
+    PlaceSearchItem:
+      type: object
+      additionalProperties: false
+      required:
+        - id
+        - name
+        - entityId
+        - type
+        - address
+      properties:
+        id:
+          type: string
+          description: place.id — always a place identifier.
+        name:
+          type: string
+          description: |
+            COALESCE(profile.display_name, place.name) — shows the operator's
+            public name when the place is linked to the operator's profile.
+        entityId:
+          type: string
+          description: operator.id — used by the FE to build navigation paths.
+        type:
+          type: string
+          enum:
+            - place
+            - profile
+          description: |
+            `profile` when the place is linked to the operator's profile (profile_id IS NOT NULL);
+            `place` otherwise.
+        address:
+          nullable: true
+          description: Structured address. null for online places.
+          allOf:
+            - $ref: "#/components/schemas/PlaceAddress"
+        url:
+          type: string
+          format: uri
+          maxLength: 2048
+          description: Website URL. Present for online places only.
+    PlaceAddress:
+      type: object
+      additionalProperties: false
+      required:
+        - street
+        - city
+        - state
+        - postalCode
+      properties:
+        street:
+          type: string
+        city:
+          type: string
+        state:
+          type: string
+        postalCode:
+          type: string
+
+    # -------------------------------------------------------------------------
+    # Place Detail
+    # -------------------------------------------------------------------------
+    PlaceDetailContacts:
+      type: object
+      additionalProperties: false
+      properties:
+        phone:
+          type: string
+          description: Phone contact value, if available.
+        website:
+          type: string
+          format: uri
+          description: Website contact URL, if available.
+
+    PlaceBenefit:
+      type: object
+      additionalProperties: false
+      required:
+        - type
+      properties:
+        type:
+          type: string
+          enum:
+            - free
+            - reduced_fixed_price
+            - priority
+            - discount
+            - other
+          description: Benefit type.
+        discountType:
+          type: string
+          enum:
+            - percentage
+            - fixed_amount
+          nullable: true
+          description: Discount calculation method. Present only when type is `discount`.
+        value:
+          type: integer
+          nullable: true
+          description: Numeric benefit value. Present when type is `reduced_fixed_price` or `discount`.
+
+    PlaceDetailOpportunity:
+      type: object
+      additionalProperties: false
+      required:
+        - benefit
+        - id
+        - title
+      properties:
+        benefit:
+          $ref: "#/components/schemas/PlaceBenefit"
+        id:
+          type: string
+          description: Opportunity identifier.
+        title:
+          type: string
+          description: Opportunity title in the requested language.
+
+    PlaceDetailRelatedItem:
+      type: object
+      additionalProperties: false
+      required:
+        - id
+        - title
+      properties:
+        address:
+          nullable: true
+          allOf:
+            - $ref: "#/components/schemas/PlaceAddress"
+          description: Address of the related place. Null for online places.
+        id:
+          type: string
+          description: Related place identifier.
+        title:
+          type: string
+          description: Display name of the related place.
+
+    PlaceDetail:
+      type: object
+      additionalProperties: false
+      required:
+        - contacts
+        - entityId
+        - entityName
+        - id
+        - opportunities
+        - relatedPlaces
+        - title
+      properties:
+        address:
+          nullable: true
+          allOf:
+            - $ref: "#/components/schemas/PlaceAddress"
+          description: Physical address. Null for online places.
+        contacts:
+          $ref: "#/components/schemas/PlaceDetailContacts"
+        entityId:
+          type: string
+          description: Operator identifier this place belongs to.
+        entityName:
+          type: string
+          description: Operator display name.
+        id:
+          type: string
+          description: Place identifier.
+        opportunities:
+          type: array
+          description: Published opportunities redeemable at this place.
+          items:
+            $ref: "#/components/schemas/PlaceDetailOpportunity"
+        relatedPlaces:
+          type: array
+          description: |
+            Other places belonging to the same operator,
+            ordered alphabetically by name.
+          items:
+            $ref: "#/components/schemas/PlaceDetailRelatedItem"
+        title:
+          type: string
+          description: Place display name.
+
     # -------------------------------------------------------------------------
     # Auth
     # -------------------------------------------------------------------------

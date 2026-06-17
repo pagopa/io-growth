@@ -11,6 +11,7 @@ import {
   mountFimsHandlers,
 } from "@pagopa/io-core-adapter-fims";
 import { createResilientRedisClient } from "@pagopa/io-core-adapter-redis";
+import { tracingPlugin } from "@pagopa/io-core-adapter-tracing";
 import Fastify from "fastify";
 
 import {
@@ -81,6 +82,8 @@ const fimsAuthFlow = createFimsAuthFlow(
 );
 
 const app = Fastify({ logger: true });
+
+await app.register(tracingPlugin);
 
 // Inbound adapters — public routes
 mountInfoStartupHandler(app, makeGetInfoStartupUseCase);

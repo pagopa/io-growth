@@ -86,6 +86,9 @@ importers:
       '@pagopa/io-core-adapter-redis':
         specifier: workspace:^
         version: link:../../packages/io-core-adapter-redis
+      '@pagopa/io-core-adapter-tracing':
+        specifier: workspace:^
+        version: link:../../packages/io-core-adapter-tracing
       '@pagopa/io-core-domain':
         specifier: workspace:^
         version: link:../../packages/io-core-domain
@@ -286,6 +289,9 @@ importers:
       '@pagopa/io-core-adapter-redis':
         specifier: workspace:^
         version: link:../../packages/io-core-adapter-redis
+      '@pagopa/io-core-adapter-tracing':
+        specifier: workspace:^
+        version: link:../../packages/io-core-adapter-tracing
       '@pagopa/io-core-domain':
         specifier: workspace:^
         version: link:../../packages/io-core-domain

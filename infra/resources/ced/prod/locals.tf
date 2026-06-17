@@ -60,6 +60,15 @@ locals {
     readiness_probe_path = "/api/info/readiness"
   }
 
+  browser_be_container_app_name = provider::dx::resource_name({
+    prefix          = local.prefix
+    environment     = local.env_short
+    location        = local.location
+    domain          = local.domain
+    name            = "browser-be"
+    instance_number = 1
+    resource_type   = "container_app"
+  })
 
   # Browser BE Container App configuration
   browser_be = {
@@ -68,11 +77,17 @@ locals {
     image = "ghcr.io/pagopa/io-growth/ced-browser-be:latest"
 
     app_settings = {
+      APPLICATIONINSIGHTS_ENTRA_ID_AUTH_ENABLED = "false"
+      APPINSIGHTS_SAMPLING_PERCENTAGE           = "100"
+      TELEMETRY_SERVICE_NAME                    = local.browser_be_container_app_name
+
       PORT            = "8080"
+
       POSTGRES_HOST   = "${module.postgresql.postgres.name}.postgres.database.azure.com"
       POSTGRES_PORT   = "6432"
       POSTGRES_DB     = azurerm_postgresql_flexible_server_database.ced_test.name
       POSTGRES_SSL    = "true"
+
       REDIS_ENDPOINT  = module.redis_dx.endpoint
       REDIS_TLS       = "true"
       AZURE_CLIENT_ID = module.common_container_app_environment.user_assigned_identity.client_id
@@ -89,6 +104,16 @@ locals {
     readiness_probe_path = "/api/info/readiness"
   }
 
+  card_request_be_container_app_name = provider::dx::resource_name({
+    prefix          = local.prefix
+    environment     = local.env_short
+    location        = local.location
+    domain          = local.domain
+    name            = "card-request-be"
+    instance_number = 1
+    resource_type   = "container_app"
+  })
+
   # Card Request BE Container App configuration
   card_request_be = {
     target_port = 8080
@@ -96,7 +121,12 @@ locals {
     image = "ghcr.io/pagopa/io-growth/ced-card-request-be:latest"
 
     app_settings = {
+      APPLICATIONINSIGHTS_ENTRA_ID_AUTH_ENABLED = "false"
+      APPINSIGHTS_SAMPLING_PERCENTAGE           = "100"
+      TELEMETRY_SERVICE_NAME                    = local.card_request_be_container_app_name
+
       PORT            = "8080"
+
       REDIS_ENDPOINT  = module.redis_dx.endpoint
       REDIS_TLS       = "true"
       AZURE_CLIENT_ID = module.common_container_app_environment.user_assigned_identity.client_id

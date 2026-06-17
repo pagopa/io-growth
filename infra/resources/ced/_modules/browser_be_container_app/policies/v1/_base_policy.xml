@@ -10,7 +10,6 @@
                 <method>GET</method>
                 <method>POST</method>
                 <method>PUT</method>
-                <method>PATCH</method>
                 <method>DELETE</method>
                 <method>OPTIONS</method>
             </allowed-methods>

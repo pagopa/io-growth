@@ -1,27 +1,8 @@
 import { baseApi } from '../../core/api/baseApi.js';
-import type { EntityDetail, OpportunityDetail } from './types.js';
-import type {
-  AccessPointSearchResponse,
-  AccessPointDetail,
-} from '../../core/api/generated/model';
+import type { EntityDetail, OpportunityDetail } from './types';
 
 export const entitiesApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
-    // E2E BE connected endpoints
-    searchEntities: builder.query<AccessPointSearchResponse, string>({
-      query: (q) => `/entities/search?q=${encodeURIComponent(q)}`,
-      providesTags: ['Entities'],
-    }),
-    getAccessPointDetail: builder.query<
-      AccessPointDetail,
-      { entityId: string; accessPointId: string }
-    >({
-      query: ({ entityId, accessPointId }) =>
-        `/entities/${entityId}/access-points/${accessPointId}`,
-      providesTags: (_result, _error, { entityId, accessPointId }) => [
-        { type: 'Entities', id: `${entityId}-ap-${accessPointId}` },
-      ],
-    }),
     // mocked endpoints
     getEntityDetail: builder.query<EntityDetail, string>({
       query: (id) => `/entities/${id}`,
@@ -34,9 +15,5 @@ export const entitiesApi = baseApi.injectEndpoints({
   }),
 });
 
-export const {
-  useGetEntityDetailQuery,
-  useSearchEntitiesQuery,
-  useGetAccessPointDetailQuery,
-  useGetOpportunityDetailQuery,
-} = entitiesApi;
+export const { useGetEntityDetailQuery, useGetOpportunityDetailQuery } =
+  entitiesApi;

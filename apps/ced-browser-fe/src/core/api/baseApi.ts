@@ -26,6 +26,7 @@ export const baseApi = createApi({
     'Websites',
     'Opportunities',
     'Entities',
+    'Places',
   ],
   endpoints: () => ({}),
 });

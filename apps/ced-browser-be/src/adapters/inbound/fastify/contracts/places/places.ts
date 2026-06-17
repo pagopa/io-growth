@@ -1,9 +1,6 @@
 import { z } from "zod";
 
-import {
-  LANGUAGE_VALUES,
-  PLACE_TYPES,
-} from "../../../../../domain/ports/outbound/persistence/place.repository.js";
+import { PLACE_TYPES } from "../../../../../domain/ports/outbound/persistence/place.repository.js";
 
 export const SearchPlacesQueryParams = z.object({
   limit: z.coerce.number().int().positive().optional(),

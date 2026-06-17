@@ -1,5 +1,12 @@
 # ced-browser-be
 
+## 0.1.2
+
+### Patch Changes
+
+- Updated dependencies [89fa17c]
+  - @pagopa/io-core-adapter-tracing@0.0.6
+
 ## 0.1.1
 
 ### Patch Changes

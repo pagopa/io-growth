@@ -6,7 +6,9 @@ import { z } from "zod";
  */
 export const arConfigSchema = z.object({
   AR_API_KEY: z.string().min(1),
+  AR_API_KEY_TEST: z.string().min(1),
   AR_ENDPOINT: z.string().url(),
+  AR_ENDPOINT_TEST: z.string().url(),
 });
 
 export interface ArClientConfig {
@@ -23,4 +25,9 @@ export type ArEnvConfig = z.infer<typeof arConfigSchema>;
 export const buildArConfig = (config: ArEnvConfig): ArClientConfig => ({
   baseUrl: config.AR_ENDPOINT,
   subscriptionKey: config.AR_API_KEY,
+});
+
+export const buildArTestConfig = (config: ArEnvConfig): ArClientConfig => ({
+  baseUrl: config.AR_ENDPOINT_TEST,
+  subscriptionKey: config.AR_API_KEY_TEST,
 });

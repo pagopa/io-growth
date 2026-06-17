@@ -1,18 +1,18 @@
 import type { ArClientConfig } from "./config.js";
 
-let globalConfig: ArClientConfig | undefined;
+let configGetter: (() => ArClientConfig) | undefined;
 
-export const initArClient = (config: ArClientConfig): void => {
-  globalConfig = config;
+export const initArClient = (getter: () => ArClientConfig): void => {
+  configGetter = getter;
 };
 
 const getArClientConfig = (): ArClientConfig => {
-  if (!globalConfig) {
+  if (!configGetter) {
     throw new Error(
-      "AR client config not initialized. Call a create*Client(config) factory before making API calls.",
+      "AR client not initialized. Call initArClient() before making API calls.",
     );
   }
-  return globalConfig;
+  return configGetter();
 };
 
 export const customFetch = async <T>(

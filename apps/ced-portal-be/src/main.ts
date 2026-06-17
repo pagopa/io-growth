@@ -2,11 +2,16 @@
 // before any instrumented library (Fastify, PostgreSQL, Redis, fetch) loads.
 import "./telemetry.js";
 
+import type { TypedDbClient, TypedDbClientConfig } from "@pagopa/io-core-adapter-drizzle";
+
 import {
+  buildArConfig,
+  buildArTestConfig,
   createDocumentContentClient,
   createInstitutionClient,
   createOnboardingClient,
   createUserClient,
+  initArClient,
 } from "@pagopa/io-core-adapter-ar";
 import { createTypedDbClient } from "@pagopa/io-core-adapter-drizzle";
 import {
@@ -79,39 +84,64 @@ import { makeCreateOperatorProfileUseCase } from "./application/use-cases/profil
 import { makeGetOperatorProfileUseCase } from "./application/use-cases/profile/get-operator-profile.use-case.js";
 import { auditData } from "./audit-context.js";
 import { parseConfig } from "./config.js";
+import { isTestUser, userTypeContext } from "./user-type-context.js";
 
 const config = parseConfig();
 
-const arClientConfig = {
-  baseUrl: config.AR_ENDPOINT,
-  subscriptionKey: config.AR_API_KEY,
+const arProdConfig = buildArConfig(config);
+const arTestConfig = buildArTestConfig(config);
+
+initArClient(() => (isTestUser() ? arTestConfig : arProdConfig));
+
+const sharedDbConfig: Omit<TypedDbClientConfig<typeof schema>, "database"> = {
+  host: config.POSTGRES_HOST,
+  max: config.POSTGRES_MAX_CONNECTIONS,
+  onNotice: (notice) => {
+    emitCustomEvent("database.notice", {
+      caller: "DrizzleClient",
+      data: { message: notice.message },
+    })("DrizzleClient");
+  },
+  onTransaction: async (tx) => {
+    const audit = auditData.getStore();
+    if (!audit) return;
+    await tx.execute(
+      drizzleSql`SELECT set_config('app.referent_fullname', ${audit.referentFullname}, true), set_config('app.operator_external_id', ${audit.operatorExternalId}, true), set_config('app.referent_external_id', ${audit.referentExternalId}, true)`,
+    );
+  },
+  password: config.POSTGRES_PASSWORD,
+  port: config.POSTGRES_PORT,
+  ssl: config.POSTGRES_SSL,
+  user: config.POSTGRES_USER,
 };
 
-const dbClient = createTypedDbClient(
-  {
-    database: config.POSTGRES_DB,
-    host: config.POSTGRES_HOST,
-    max: config.POSTGRES_MAX_CONNECTIONS,
-    onNotice: (notice) => {
-      emitCustomEvent("database.notice", {
-        caller: "DrizzleClient",
-        data: { message: notice.message },
-      })("DrizzleClient");
-    },
-    onTransaction: async (tx) => {
-      const audit = auditData.getStore();
-      if (!audit) return;
-      await tx.execute(
-        drizzleSql`SELECT set_config('app.referent_fullname', ${audit.referentFullname}, true), set_config('app.operator_external_id', ${audit.operatorExternalId}, true), set_config('app.referent_external_id', ${audit.referentExternalId}, true)`,
-      );
-    },
-    password: config.POSTGRES_PASSWORD,
-    port: config.POSTGRES_PORT,
-    ssl: config.POSTGRES_SSL,
-    user: config.POSTGRES_USER,
-  },
+const prodDbClient = createTypedDbClient(
+  { ...sharedDbConfig, database: config.POSTGRES_DB },
   schema,
 );
+
+const testDbClient = config.POSTGRES_DB_TEST
+  ? createTypedDbClient(
+    { ...sharedDbConfig, database: config.POSTGRES_DB_TEST },
+    schema,
+  )
+  : undefined;
+
+const dbClient: TypedDbClient<typeof schema> = new Proxy(prodDbClient, {
+  get(_, prop: string | symbol) {
+    if (prop === "closeConnection") {
+      return async () => {
+        await prodDbClient.closeConnection();
+        if (testDbClient) await testDbClient.closeConnection();
+      };
+    }
+    const active = isTestUser() && testDbClient ? testDbClient : prodDbClient;
+    const value = Reflect.get(active, prop, active);
+    return typeof value === "function"
+      ? (value as (...args: unknown[]) => unknown).bind(active)
+      : value;
+  },
+});
 
 const redisClient = await createResilientRedisClient({
   endpoint: config.REDIS_ENDPOINT,
@@ -138,10 +168,10 @@ const opportunityRepository = createDrizzleOpportunityRepository(dbClient);
 const placeRepository = createDrizzlePlaceRepository(dbClient);
 const profileRepository = createDrizzleProfileRepository(dbClient);
 const arOnboardingRepository = createArOnboardingRepository(
-  createInstitutionClient(arClientConfig),
-  createOnboardingClient(arClientConfig),
-  createDocumentContentClient(arClientConfig),
-  createUserClient(arClientConfig),
+  createInstitutionClient(),
+  createOnboardingClient(),
+  createDocumentContentClient(),
+  createUserClient(),
 );
 
 const app = Fastify();
@@ -174,7 +204,7 @@ const authPreHandler = createAuthenticationPreHandler(
 app.register(async (app) => {
   app.addHook("preHandler", authPreHandler);
 
-  // Populate audit context from session to DB
+  // Populate audit context from session to DB and user-type context for routing
   app.addHook("preHandler", (request, _reply, done) => {
     getSessionFromRequest(request, SessionSchema)
       .then((result) => {
@@ -184,12 +214,14 @@ app.register(async (app) => {
             lastName,
             operatorExternalId,
             referentExternalId,
+            userType,
           } = result.value;
           auditData.enterWith({
             operatorExternalId,
             referentExternalId,
             referentFullname: `${lastName} ${firstName}`,
           });
+          userTypeContext.enterWith(userType);
         }
         done();
       })

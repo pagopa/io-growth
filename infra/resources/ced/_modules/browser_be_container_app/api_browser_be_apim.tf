@@ -70,7 +70,7 @@ resource "azurerm_api_management_backend" "ced_browser_be" {
   api_management_name = azurerm_api_management_api.ced_browser_be_v1.api_management_name
   resource_group_name = azurerm_api_management_api.ced_browser_be_v1.resource_group_name
   protocol            = "http"
-  url                 = "https://${replace(module.container_app.url, "/--[^.]+/", "/api")}"
+  url                 = "https://${replace(module.container_app.url, "/--[^.]+/", "")}/api"
 }
 
 resource "azurerm_role_assignment" "apim_container_app_reader" {

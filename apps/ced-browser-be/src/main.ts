@@ -19,19 +19,27 @@ import { tracingPlugin } from "@pagopa/io-core-adapter-tracing";
 import Fastify from "fastify";
 
 import {
+  mountGetOperatorProfileHandler,
+  mountGetOpportunityHandler,
   mountGetPlaceDetailHandler,
   mountInfoReadinessHandler,
   mountInfoStartupHandler,
+  mountSearchOpportunitiesHandler,
   mountSearchPlacesHandler,
 } from "./adapters/inbound/fastify/index.js";
+import { createDrizzleOpportunityRepository } from "./adapters/outbound/drizzle/drizzle-opportunity.repository.js";
 import { createDrizzlePlaceRepository } from "./adapters/outbound/drizzle/drizzle-place.repository.js";
+import { createDrizzleProfileRepository } from "./adapters/outbound/drizzle/drizzle-profile.repository.js";
 import * as schema from "./adapters/outbound/drizzle/schema/index.js";
 import { createRedisHealthCheckRepository } from "./adapters/outbound/redis/redis-health-check.repository.js";
 import { createRedisSessionRepository } from "./adapters/outbound/redis/redis-session.repository.js";
 import { makeGetInfoReadinessUseCase } from "./application/use-cases/health/info-readiness.use-case.js";
 import { makeGetInfoStartupUseCase } from "./application/use-cases/health/info-startup.use-case.js";
+import { makeGetOpportunityUseCase } from "./application/use-cases/opportunities/get-opportunity.use-case.js";
+import { makeSearchOpportunitiesUseCase } from "./application/use-cases/opportunities/search-opportunities.use-case.js";
 import { makeGetPlaceDetailUseCase } from "./application/use-cases/places/get-place-detail.use-case.js";
 import { makeSearchPlacesUseCase } from "./application/use-cases/places/search-places.use-case.js";
+import { makeGetOperatorProfileUseCase } from "./application/use-cases/profiles/get-operator-profile.use-case.js";
 import { parseConfig } from "./config.js";
 
 const config = parseConfig();
@@ -60,6 +68,8 @@ const redisHealthCheckRepository =
   createRedisHealthCheckRepository(redisClient);
 const sessionStore = createRedisSessionRepository(redisClient);
 const placeRepository = createDrizzlePlaceRepository(dbClient);
+const opportunityRepository = createDrizzleOpportunityRepository(dbClient);
+const profileRepository = createDrizzleProfileRepository(dbClient);
 
 const blobServiceClient = config.AZURE_STORAGE_CONNECTION_STRING
   ? BlobServiceClient.fromConnectionString(
@@ -113,6 +123,18 @@ app.register(async (citizenApp) => {
   mountGetPlaceDetailHandler(
     citizenApp,
     makeGetPlaceDetailUseCase(placeRepository),
+  );
+  mountGetOperatorProfileHandler(
+    citizenApp,
+    makeGetOperatorProfileUseCase(profileRepository),
+  );
+  mountSearchOpportunitiesHandler(
+    citizenApp,
+    makeSearchOpportunitiesUseCase(opportunityRepository),
+  );
+  mountGetOpportunityHandler(
+    citizenApp,
+    makeGetOpportunityUseCase(opportunityRepository),
   );
 });
 

@@ -5,16 +5,22 @@ meta {
 }
 
 post {
-  url: {{baseUrl}}/test-session
+  url: {{baseUrl}}/api/test-session
   body: json
   auth: none
 }
 
 body:json {
   {
-    "fiscalCode": "",
-    "familyName": "",
-    "givenName": ""
+    "fiscalCode": "FISCAL_CODE",
+    "familyName": "test",
+    "givenName": "test"
   }
 }
-​
+
+script:post-response {
+  if (res.status === 200) {
+    bru.setEnvVar("sessionToken", res.body.token, { persist: false });
+
+    }
+}

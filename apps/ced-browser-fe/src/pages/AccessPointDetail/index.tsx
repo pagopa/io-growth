@@ -1,10 +1,10 @@
 import { Box, ButtonBase, Stack, useTheme } from '@mui/material';
 import { useNavigate, useParams } from 'react-router-dom';
-import { ContactsSection } from '../../components/ContactsSection/index.js';
-import { ItemsSection } from '../../components/ItemsSection/index.js';
-import { PageHeader, QueryGuard } from '../../components/index.js';
-import { useGetAccessPointDetailQuery } from '../../features/entities/api.js';
-import { APP_ROUTES } from '../../app/routeConfig.js';
+import { ContactsSection } from '../../components/ContactsSection';
+import { ItemsSection } from '../../components/ItemsSection';
+import { PageHeader, QueryGuard } from '../../components';
+import { APP_ROUTES } from '../../app/routeConfig';
+import { useGetAccessPointDetailQuery } from '../../features/places/api';
 
 export default function AccessPointDetailPage() {
   const { id, accessPointId } = useParams<{
@@ -67,7 +67,7 @@ export default function AccessPointDetailPage() {
             <ItemsSection
               variant="access-point"
               entityId={id ?? ''}
-              items={resolvedData.relatedAccessPoints}
+              items={resolvedData.relatedPlaces}
               sectionLabel="Potrebbero interessarti"
             />
           </Stack>

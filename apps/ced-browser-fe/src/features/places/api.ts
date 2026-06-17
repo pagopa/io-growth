@@ -1,22 +1,22 @@
 import { baseApi } from '../../core/api/baseApi.js';
 import type { EntityDetail, OpportunityDetail } from './types';
 import type {
-  AccessPointSearchResponse,
-  AccessPointDetail,
+  PlaceSearchResponse,
+  PlaceDetail,
 } from '../../core/api/generated/model';
 
 export const placesApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     // E2E BE connected endpoints
-    searchPlaces: builder.query<AccessPointSearchResponse, string>({
-      query: (q) => `/api/search?q=${encodeURIComponent(q)}`,
+    searchPlaces: builder.query<PlaceSearchResponse, string>({
+      query: (q) => `/search?q=${encodeURIComponent(q)}`,
       providesTags: ['Places'],
     }),
     getAccessPointDetail: builder.query<
-      AccessPointDetail,
+      PlaceDetail,
       { entityId: string; accessPointId: string }
     >({
-      query: ({ accessPointId }) => `/api/places/${accessPointId}`,
+      query: ({ accessPointId }) => `/places/${accessPointId}`,
       providesTags: (_result, _error, { accessPointId }) => [
         { type: 'Places', id: accessPointId },
       ],

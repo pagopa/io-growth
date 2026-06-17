@@ -42,10 +42,11 @@ export function ItemsSection(props: ItemsSectionProps) {
           key={id}
           variant="opportunity"
           {...item}
-          // TODO api does not return eyebrow text - for test api i'll use title for now
-          eyebrow={hideEyebrow ? undefined : item.title}
           sx={{ px: 0, bgcolor: 'background.paper' }}
           onClick={() => navigate(toOpportunityDetailRoute(id))}
+          // TODO api does not return eyebrow text or badgeLabel - for test api i'll use those properties for now
+          badgeLabel={'badgeLabel'}
+          eyebrow={hideEyebrow ? undefined : item.title}
         />
       ));
     }

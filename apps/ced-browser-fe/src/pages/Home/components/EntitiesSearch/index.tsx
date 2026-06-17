@@ -8,14 +8,14 @@ import {
 } from '@mui/material';
 import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
 import SearchRoundedIcon from '@mui/icons-material/SearchRounded';
-import { generatePath } from 'react-router-dom';
-import { useSearchEntitiesQuery } from '../../../../features/entities/api';
+import { generatePath, useNavigate } from 'react-router-dom';
 import { SearchEmptyState } from './SearchEmptyState';
 import { SearchInitialState } from './SearchInitialState';
 import { SearchResults } from './SearchResults';
 import { SearchResultsSkeleton } from './SearchResultsSkeleton';
 import { useDebounce } from '../../../../hooks/useDebounce';
 import { APP_ROUTES } from '../../../../app/routeConfig';
+import { useSearchPlacesQuery } from '../../../../features/places/api';
 
 type EntitiesSearchProps = {
   isSearchActive: boolean;
@@ -26,6 +26,7 @@ export function EntitiesSearch({
   isSearchActive,
   setIsSearchActive,
 }: EntitiesSearchProps) {
+  const navigate = useNavigate();
   const inputRef = useRef<HTMLInputElement>(null);
 
   const [query, setQuery] = useState('');
@@ -34,7 +35,7 @@ export function EntitiesSearch({
   const hasMinQueryLength = query.length >= 3;
   const isDebouncing = query !== debouncedQuery;
 
-  const { data, isFetching } = useSearchEntitiesQuery(debouncedQuery, {
+  const { data, isFetching } = useSearchPlacesQuery(debouncedQuery, {
     skip: !hasMinQueryLength,
   });
 
@@ -60,7 +61,14 @@ export function EntitiesSearch({
           total={data.total}
           items={data.items}
           query={debouncedQuery}
-          onItemPress={(id) => generatePath(APP_ROUTES.ENTITY_DETAIL, { id })}
+          onItemPress={(entityId, accessPointId) =>
+            navigate(
+              generatePath(APP_ROUTES.ENTITY_ACCESS_POINT_DETAIL, {
+                id: entityId,
+                accessPointId,
+              }),
+            )
+          }
         />
       );
     if (showInitialState) return <SearchInitialState />;

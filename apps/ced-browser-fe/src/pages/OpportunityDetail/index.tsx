@@ -9,15 +9,15 @@ import {
   useTheme,
 } from '@mui/material';
 import { useNavigate, useParams } from 'react-router-dom';
-import { APP_ROUTES } from '../../app/routeConfig.js';
+import { APP_ROUTES } from '../../app/routeConfig';
 import {
   DiscoveryListItem,
   PageHeader,
   QueryGuard,
   SectionTitle,
-} from '../../components/index.js';
-import { useGetOpportunityDetailQuery } from '../../features/entities/api.js';
+} from '../../components';
 import { TheaterComedy } from '@mui/icons-material';
+import { useGetOpportunityDetailQuery } from '../../features/places/api';
 
 export default function OpportunityDetailPage() {
   const { id } = useParams<{ id: string }>();

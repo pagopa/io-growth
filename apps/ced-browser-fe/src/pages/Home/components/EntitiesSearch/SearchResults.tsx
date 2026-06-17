@@ -2,7 +2,8 @@ import type { ReactNode } from 'react';
 import { useMemo } from 'react';
 import { Box, Divider, Typography, useTheme } from '@mui/material';
 import { DiscoveryListItem } from '../../../../components/DiscoveryListItem';
-import { AccessPointSearchItem } from '../../../../core/api/generated/model';
+import { PlaceSearchItem } from '../../../../core/api/generated/model';
+import { formatAddress } from '../../../../utils/formatAddress';
 
 function highlightText(text: string, regex: RegExp | null): ReactNode {
   if (!regex) return text;
@@ -23,9 +24,9 @@ function highlightText(text: string, regex: RegExp | null): ReactNode {
 
 type SearchResultsProps = {
   total: number;
-  items: AccessPointSearchItem[];
+  items: PlaceSearchItem[];
   query: string;
-  onItemPress: (id: string) => void;
+  onItemPress: (entityId: string, accessPointId: string) => void;
 };
 
 export function SearchResults({
@@ -89,9 +90,11 @@ export function SearchResults({
           <DiscoveryListItem
             variant="simple"
             title={highlightText(item.name, highlightRegex)}
-            // TODO use a function to generate a address string based on address object
-            subtitle={highlightText(item.address?.street ?? '', highlightRegex)}
-            onClick={() => onItemPress(item.id)}
+            subtitle={highlightText(
+              formatAddress(item.address) || item.url || '',
+              highlightRegex,
+            )}
+            onClick={() => onItemPress(item.entityId, item.id)}
             sx={{ bgcolor: 'white', px: 0 }}
           />
         </Box>

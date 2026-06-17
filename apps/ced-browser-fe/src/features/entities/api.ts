@@ -1,5 +1,5 @@
 import { baseApi } from '../../core/api/baseApi.js';
-import type { EntityDetail, OpportunityDetail } from './types';
+import type { EntityDetail } from './types';
 
 export const entitiesApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
@@ -8,12 +8,7 @@ export const entitiesApi = baseApi.injectEndpoints({
       query: (id) => `/entities/${id}`,
       providesTags: (_result, _error, id) => [{ type: 'Entities', id }],
     }),
-    getOpportunityDetail: builder.query<OpportunityDetail, string>({
-      query: (id) => `/opportunities/${id}`,
-      providesTags: (_result, _error, id) => [{ type: 'Opportunities', id }],
-    }),
   }),
 });
 
-export const { useGetEntityDetailQuery, useGetOpportunityDetailQuery } =
-  entitiesApi;
+export const { useGetEntityDetailQuery } = entitiesApi;

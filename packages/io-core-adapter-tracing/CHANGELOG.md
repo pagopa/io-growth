@@ -1,5 +1,11 @@
 # @pagopa/io-core-adapter-tracing
 
+## 0.0.6
+
+### Patch Changes
+
+- 89fa17c: Added error tracing
+
 ## 0.0.5
 
 ### Patch Changes

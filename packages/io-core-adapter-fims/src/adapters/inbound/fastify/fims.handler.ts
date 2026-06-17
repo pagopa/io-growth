@@ -44,10 +44,10 @@ type TestSessionInput = z.infer<typeof testSessionHttpSchema>;
 /**
  * Mount FIMS SSO routes on an existing Fastify instance:
  *
- * - `GET /fauth`         — Redirect to FIMS OIDC provider
- * - `GET /fcb`           — FIMS callback: create session, redirect to /authorize
- * - `GET /authorize`     — Exchange one-time session ID for durable token
- * - `POST /test-session` — Create a session for test users (guarded by TEST_USERS)
+ * - `GET /api/fauth`         — Redirect to FIMS OIDC provider
+ * - `GET /api/fcb`           — FIMS callback: create session, redirect to /api/authorize
+ * - `GET /api/authorize`     — Exchange one-time session ID for durable token
+ * - `POST /api/test-session` — Create a session for test users (guarded by TEST_USERS)
  *
  * The Fastify instance is provided by the consuming app (injected).
  */
@@ -55,9 +55,9 @@ export const mountFimsHandlers = (
   fastify: FastifyInstance,
   fimsAuthFlow: FimsAuthFlow,
 ): void => {
-  // GET /fauth — initiate FIMS authentication
+  // GET /api/fauth — initiate FIMS authentication
   fastify.get(
-    "/fauth",
+    "/api/fauth",
     createHttpHandler(
       async ({ query }: InitiateAuthInput) =>
         fimsAuthFlow.initiateAuth({ device: query.device }),
@@ -66,9 +66,9 @@ export const mountFimsHandlers = (
     ),
   );
 
-  // GET /fcb — FIMS callback from identity provider
+  // GET /api/fcb — FIMS callback from identity provider
   fastify.get(
-    "/fcb",
+    "/api/fcb",
     createHttpHandler(
       async ({ headers, query }: CallbackInput) => {
         const lollipopHeaders =
@@ -92,9 +92,9 @@ export const mountFimsHandlers = (
     ),
   );
 
-  // GET /authorize — exchange one-time session ID for durable token
+  // GET /api/authorize — exchange one-time session ID for durable token
   fastify.get(
-    "/authorize",
+    "/api/authorize",
     createHttpHandler(
       async ({ query }: AuthorizeInput) =>
         fimsAuthFlow.exchangeSessionId({ sessionId: query.id }),
@@ -103,9 +103,9 @@ export const mountFimsHandlers = (
     ),
   );
 
-  // POST /test-session — create session for test users (public but guarded)
+  // POST /api/test-session — create session for test users (public but guarded)
   fastify.post(
-    "/test-session",
+    "/api/test-session",
     createHttpHandler(
       async ({ body }: TestSessionInput) =>
         fimsAuthFlow.createTestSession(body),

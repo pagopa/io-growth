@@ -12,10 +12,10 @@ import {
   APP_ROUTES,
   toEntityAccessPointDetailRoute,
   toOpportunityDetailRoute,
-} from '../../app/routeConfig.js';
-import { DiscoveryListItem } from '../index.js';
-import { SectionTitle } from '../SectionTitle/index.js';
-import type { ItemsSectionProps } from './types.js';
+} from '../../app/routeConfig';
+import { DiscoveryListItem } from '../';
+import { SectionTitle } from '../SectionTitle';
+import type { ItemsSectionProps } from './types';
 
 const ITEMS_LIMIT = 10;
 

@@ -11,12 +11,9 @@ import type {
   DiscoveryListItemProps,
   OpportunityProps,
   SimpleProps,
-} from './types.js';
+} from './types';
 
-export type {
-  DiscoveryListItemProps,
-  DiscoveryListItemVariant,
-} from './types.js';
+export type { DiscoveryListItemProps, DiscoveryListItemVariant } from './types';
 
 function OpportunityContent({ eyebrow, title, badgeLabel }: OpportunityProps) {
   const theme = useTheme();

@@ -1,5 +1,4 @@
-import { baseApi } from '../../core/api/baseApi.js';
-import type { EntityDetail, OpportunityDetail } from './types';
+import { baseApi } from '../../core/api/baseApi';
 import type {
   PlaceSearchResponse,
   PlaceDetail,
@@ -21,21 +20,7 @@ export const placesApi = baseApi.injectEndpoints({
         { type: 'Places', id: accessPointId },
       ],
     }),
-    // mocked endpoints
-    getEntityDetail: builder.query<EntityDetail, string>({
-      query: (id) => `/places/${id}`,
-      providesTags: (_result, _error, id) => [{ type: 'Places', id }],
-    }),
-    getOpportunityDetail: builder.query<OpportunityDetail, string>({
-      query: (id) => `/opportunities/${id}`,
-      providesTags: (_result, _error, id) => [{ type: 'Opportunities', id }],
-    }),
   }),
 });
 
-export const {
-  useGetEntityDetailQuery,
-  useSearchPlacesQuery,
-  useGetAccessPointDetailQuery,
-  useGetOpportunityDetailQuery,
-} = placesApi;
+export const { useSearchPlacesQuery, useGetAccessPointDetailQuery } = placesApi;

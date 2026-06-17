@@ -1,4 +1,4 @@
-import { baseApi } from '../../core/api/baseApi.js';
+import { baseApi } from '../../core/api/baseApi';
 import type { EntityDetail } from './types';
 
 export const entitiesApi = baseApi.injectEndpoints({

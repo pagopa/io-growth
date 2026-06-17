@@ -1,1 +1,1 @@
-export { buildGoogleMapsUrl } from './url.js';
+export { buildGoogleMapsUrl } from './url';

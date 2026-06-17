@@ -1,4 +1,4 @@
-import { baseApi } from '../../core/api/baseApi.js';
+import { baseApi } from '../../core/api/baseApi';
 import { OpportunityDetail } from '../../core/api/generated/model';
 
 export const opportunitiesApi = baseApi.injectEndpoints({

@@ -87,7 +87,14 @@ export function SearchResults({
           <DiscoveryListItem
             variant="simple"
             title={highlightText(item.name, highlightRegex)}
-            subtitle={highlightText(item.address, highlightRegex)}
+            subtitle={
+              item.address
+                ? highlightText(
+                    `${item.address.street}, ${item.address.city}`,
+                    highlightRegex,
+                  )
+                : undefined
+            }
             onClick={() => onItemPress(item.id)}
             sx={{ bgcolor: 'white', px: 0 }}
           />

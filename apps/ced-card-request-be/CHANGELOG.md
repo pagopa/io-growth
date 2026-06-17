@@ -1,5 +1,12 @@
 # ced-card-request-be
 
+## 0.0.12
+
+### Patch Changes
+
+- Updated dependencies [13a5a52]
+  - @pagopa/io-core-adapter-tracing@0.0.5
+
 ## 0.0.11
 
 ### Patch Changes

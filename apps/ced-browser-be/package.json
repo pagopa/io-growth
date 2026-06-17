@@ -1,6 +1,6 @@
 {
   "name": "ced-browser-be",
-  "version": "0.0.10",
+  "version": "0.1.1",
   "private": true,
   "type": "module",
   "main": "dist/main.js",
@@ -22,12 +22,17 @@
   "dependencies": {
     "@azure/identity": "^4.13.1",
     "@azure/storage-blob": "^12.31.0",
+    "@pagopa/io-core-adapter-drizzle": "workspace:^",
     "@pagopa/io-core-adapter-fastify": "workspace:^",
     "@pagopa/io-core-adapter-fims": "workspace:^",
     "@pagopa/io-core-adapter-redis": "workspace:^",
+    "@pagopa/io-core-adapter-tracing": "workspace:^",
     "@pagopa/io-core-domain": "workspace:^",
+    "@standard-schema/spec": "^1.1.0",
+    "drizzle-orm": "^0.45.0",
     "fastify": "catalog:",
     "neverthrow": "catalog:",
+    "ulid": "^3.0.2",
     "zod": "catalog:"
   },
   "devDependencies": {

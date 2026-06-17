@@ -1,5 +1,12 @@
 # ced-portal-be
 
+## 0.1.2
+
+### Patch Changes
+
+- Updated dependencies [13a5a52]
+  - @pagopa/io-core-adapter-tracing@0.0.5
+
 ## 0.1.1
 
 ### Patch Changes

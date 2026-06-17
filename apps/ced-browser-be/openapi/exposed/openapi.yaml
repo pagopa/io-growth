@@ -16,8 +16,8 @@ tags:
     description:
       Authentication flow via FIMS (OIDC). Obtain a session token before
       calling protected endpoints.
-  - name: Entities
-    description: Search access points and operator profiles (require Bearer token)
+  - name: Places
+    description: Search and retrieve place details (require Bearer token)
   - name: Opportunities
     description: Browse and search CED opportunities (require session token)
 
@@ -140,17 +140,17 @@ paths:
               schema:
                 $ref: "#/components/schemas/ProblemDetail"
 
-  /entities/search:
+  /search:
     get:
       tags:
-        - Entities
-      summary: Search access points and operator profiles
+        - Places
+      summary: Search places and operator profiles
       description: |
         Citizen-facing full-text search on `place_materialized_view`.
         Searches across place name, city, and operator profile display name.
-        Returns a flat list of access points (places) and operator profiles (sedi).
+        Returns a flat list of places and operator profiles.
         Requires citizen authentication (`Authorization: Bearer <token>`).
-      operationId: searchAccessPoints
+      operationId: searchPlaces
       security:
         - bearerAuth: []
       parameters:
@@ -174,7 +174,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/AccessPointSearchResponse"
+                $ref: "#/components/schemas/PlaceSearchResponse"
               examples:
                 mixed:
                   summary: Mixed place and profile results
@@ -223,39 +223,46 @@ paths:
               schema:
                 $ref: "#/components/schemas/ProblemDetail"
 
-  /entities/{entityId}/access-points/{accessPointId}:
+  /places/{placeId}:
     get:
       tags:
-        - Entities
-      summary: Get access point detail
+        - Places
+      summary: Get place detail
       description: |
-        Returns the full detail of a single access point (place), including
-        contact information, associated published opportunities, and other
-        access points belonging to the same operator.
+        Returns the full detail of a single place, including contact information,
+        associated published opportunities, and other places belonging to the same operator.
         Requires citizen authentication (`Authorization: Bearer <token>`).
-      operationId: getAccessPointDetail
+      operationId: getPlaceDetail
       security:
         - bearerAuth: []
       parameters:
-        - name: entityId
+        - name: placeId
           in: path
           required: true
-          description: Operator identifier — used for back-navigation to the entity page.
+          description: Place identifier.
           schema:
             type: string
-        - name: accessPointId
-          in: path
-          required: true
-          description: Access point (place) identifier.
+        - name: Accept-Language
+          in: header
+          required: false
+          description: Language for opportunity titles (defaults to `it`). Must be an exact supported tag.
           schema:
             type: string
+            enum: [en, fr, de, sl, it]
+            default: it
       responses:
         "200":
-          description: Access point detail.
+          description: Place detail.
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/AccessPointDetail"
+                $ref: "#/components/schemas/PlaceDetail"
+        "400":
+          description: Invalid or malformed Accept-Language header.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
         "401":
           description: Missing or invalid Bearer token.
           content:
@@ -263,7 +270,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/ProblemDetail"
         "404":
-          description: Access point not found.
+          description: Place not found.
           content:
             application/json:
               schema:
@@ -392,8 +399,8 @@ components:
       type: http
       scheme: bearer
       description: |
-        FIMS session token obtained from `GET /authorize` after completing the
-        authentication flow. Pass as `Authorization: Bearer <token>`.
+        Opaque session token released by `GET /authorize` after the FIMS
+        authentication flow has been validated. Pass as `Authorization: Bearer <token>`.
     SessionAuth:
       type: apiKey
       in: header
@@ -405,9 +412,9 @@ components:
 
   schemas:
     # -------------------------------------------------------------------------
-    # Entities search
+    # Places search
     # -------------------------------------------------------------------------
-    AccessPointSearchResponse:
+    PlaceSearchResponse:
       type: object
       additionalProperties: false
       required:
@@ -420,8 +427,8 @@ components:
         items:
           type: array
           items:
-            $ref: "#/components/schemas/AccessPointSearchItem"
-    AccessPointSearchItem:
+            $ref: "#/components/schemas/PlaceSearchItem"
+    PlaceSearchItem:
       type: object
       additionalProperties: false
       required:
@@ -438,7 +445,7 @@ components:
           type: string
           description: |
             COALESCE(profile.display_name, place.name) — shows the operator's
-            public name when the place is the operator's sede.
+            public name when the place is linked to the operator's profile.
         entityId:
           type: string
           description: operator.id — used by the FE to build navigation paths.
@@ -448,19 +455,19 @@ components:
             - place
             - profile
           description: |
-            `profile` when the place is the operator's sede (profile_id IS NOT NULL);
+            `profile` when the place is linked to the operator's profile (profile_id IS NOT NULL);
             `place` otherwise.
         address:
           nullable: true
           description: Structured address. null for online places.
           allOf:
-            - $ref: "#/components/schemas/AccessPointAddress"
+            - $ref: "#/components/schemas/PlaceAddress"
         url:
           type: string
           format: uri
           maxLength: 2048
           description: Website URL. Present for online places only.
-    AccessPointAddress:
+    PlaceAddress:
       type: object
       additionalProperties: false
       required:
@@ -479,9 +486,9 @@ components:
           type: string
 
     # -------------------------------------------------------------------------
-    # Access Point Detail
+    # Place Detail
     # -------------------------------------------------------------------------
-    AccessPointDetailContacts:
+    PlaceDetailContacts:
       type: object
       additionalProperties: false
       properties:
@@ -493,29 +500,51 @@ components:
           format: uri
           description: Website contact URL, if available.
 
-    AccessPointDetailOpportunity:
+    PlaceBenefit:
       type: object
       additionalProperties: false
       required:
-        - badgeLabel
+        - type
+      properties:
+        type:
+          type: string
+          enum:
+            - free
+            - reduced_fixed_price
+            - priority
+            - discount
+            - other
+          description: Benefit type.
+        discountType:
+          type: string
+          enum:
+            - percentage
+            - fixed_amount
+          nullable: true
+          description: Discount calculation method. Present only when type is `discount`.
+        value:
+          type: integer
+          nullable: true
+          description: Numeric benefit value. Present when type is `reduced_fixed_price` or `discount`.
+
+    PlaceDetailOpportunity:
+      type: object
+      additionalProperties: false
+      required:
+        - benefit
         - id
         - title
       properties:
-        badgeLabel:
-          type: string
-          description: |
-            Human-readable badge summarising the benefit
-            (e.g. "GRATIS", "-20%", "10€", "PRIORITÀ", "ALTRO").
-          example: "-20%"
+        benefit:
+          $ref: "#/components/schemas/PlaceBenefit"
         id:
           type: string
-          format: uuid
           description: Opportunity identifier.
         title:
           type: string
           description: Opportunity title in the requested language.
 
-    AccessPointDetailRelatedItem:
+    PlaceDetailRelatedItem:
       type: object
       additionalProperties: false
       required:
@@ -525,17 +554,16 @@ components:
         address:
           nullable: true
           allOf:
-            - $ref: "#/components/schemas/AccessPointAddress"
-          description: Address of the related access point. Null for online places.
+            - $ref: "#/components/schemas/PlaceAddress"
+          description: Address of the related place. Null for online places.
         id:
           type: string
-          format: uuid
-          description: Related access point identifier.
+          description: Related place identifier.
         title:
           type: string
-          description: Display name of the related access point.
+          description: Display name of the related place.
 
-    AccessPointDetail:
+    PlaceDetail:
       type: object
       additionalProperties: false
       required:
@@ -544,42 +572,40 @@ components:
         - entityName
         - id
         - opportunities
-        - relatedAccessPoints
+        - relatedPlaces
         - title
       properties:
         address:
           nullable: true
           allOf:
-            - $ref: "#/components/schemas/AccessPointAddress"
-          description: Physical address. Null for online access points.
+            - $ref: "#/components/schemas/PlaceAddress"
+          description: Physical address. Null for online places.
         contacts:
-          $ref: "#/components/schemas/AccessPointDetailContacts"
+          $ref: "#/components/schemas/PlaceDetailContacts"
         entityId:
           type: string
-          format: uuid
-          description: Operator (entity) identifier this access point belongs to.
+          description: Operator identifier this place belongs to.
         entityName:
           type: string
           description: Operator display name.
         id:
           type: string
-          format: uuid
-          description: Access point identifier.
+          description: Place identifier.
         opportunities:
           type: array
-          description: Published opportunities redeemable at this access point.
+          description: Published opportunities redeemable at this place.
           items:
-            $ref: "#/components/schemas/AccessPointDetailOpportunity"
-        relatedAccessPoints:
+            $ref: "#/components/schemas/PlaceDetailOpportunity"
+        relatedPlaces:
           type: array
           description: |
-            Other access points belonging to the same operator,
+            Other places belonging to the same operator,
             ordered alphabetically by name.
           items:
-            $ref: "#/components/schemas/AccessPointDetailRelatedItem"
+            $ref: "#/components/schemas/PlaceDetailRelatedItem"
         title:
           type: string
-          description: Access point display name.
+          description: Place display name.
 
     # -------------------------------------------------------------------------
     # Auth

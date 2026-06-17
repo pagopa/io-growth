@@ -242,10 +242,10 @@ paths:
           description: Place identifier.
           schema:
             type: string
-        - name: language
-          in: query
+        - name: Accept-Language
+          in: header
           required: false
-          description: Language for opportunity titles (defaults to `it`).
+          description: Language for opportunity titles (defaults to `it`). Must be an exact supported tag.
           schema:
             type: string
             enum: [en, fr, de, sl, it]
@@ -258,7 +258,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/PlaceDetail"
         "400":
-          description: Invalid query parameters.
+          description: Invalid or malformed Accept-Language header.
           content:
             application/json:
               schema:

@@ -35,10 +35,6 @@ export const GetPlaceDetailPathParams = z.object({
   placeId: z.string(),
 });
 
-export const GetPlaceDetailQueryParams = z.object({
-  language: z.enum(LANGUAGE_VALUES).optional(),
-});
-
 const PlaceDetailContacts = z.object({
   phone: z.string().optional(),
   website: z.string().optional(),

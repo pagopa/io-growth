@@ -10,23 +10,25 @@ import { z } from "zod";
 
 import type { GetPlaceDetailUseCase } from "../../../../application/use-cases/places/get-place-detail.use-case.js";
 
+import { LANGUAGE_VALUES } from "../../../../domain/ports/outbound/persistence/place.repository.js";
 import { CitizenSessionSchema } from "../auth/session.js";
 import {
   GetPlaceDetailPathParams,
-  GetPlaceDetailQueryParams,
   GetPlaceDetailResponse,
 } from "../contracts/places/places.js";
 
 const getPlaceDetailHttpSchema = z.object({
+  headers: z.object({
+    "accept-language": z.enum(LANGUAGE_VALUES).optional(),
+  }),
   path: GetPlaceDetailPathParams,
-  query: GetPlaceDetailQueryParams,
 });
 
 const getPlaceDetailValidator = withSession(
   CitizenSessionSchema,
   createHttpRequestValidator(getPlaceDetailHttpSchema),
-  (_session, { path, query }) => ({
-    language: query.language,
+  (_session, { headers, path }) => ({
+    language: headers["accept-language"],
     placeId: path.placeId,
   }),
 );

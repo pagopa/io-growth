@@ -1,3 +1,7 @@
+// Side-effect import: must stay FIRST so tracing instrumentation is installed
+// before any instrumented library (Fastify, PostgreSQL, Redis, fetch) loads.
+import "./telemetry.js";
+
 import { CosmosClient } from "@azure/cosmos";
 import { DefaultAzureCredential } from "@azure/identity";
 import { BlobServiceClient } from "@azure/storage-blob";

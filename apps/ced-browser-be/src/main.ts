@@ -1,3 +1,7 @@
+// Side-effect import: must stay FIRST so tracing instrumentation is installed
+// before any instrumented library (Fastify, PostgreSQL, Redis, fetch) loads.
+import "./telemetry.js";
+
 import { DefaultAzureCredential } from "@azure/identity";
 import { BlobServiceClient } from "@azure/storage-blob";
 import { createTypedDbClient } from "@pagopa/io-core-adapter-drizzle";

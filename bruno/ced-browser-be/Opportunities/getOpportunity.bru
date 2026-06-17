@@ -5,15 +5,11 @@ meta {
 }
 
 get {
-  url: {{baseUrl}}/opportunities/:opportunityId
+  url: {{baseUrl}}/api/opportunities/:opportunityId
   body: none
-  auth: none
+  auth: inherit
 }
 
 params:path {
-  opportunityId: 00000000-0000-0000-0000-000000000001
-}
-
-headers {
-  token: {{sessionToken}}
+  opportunityId: opportunityId
 }

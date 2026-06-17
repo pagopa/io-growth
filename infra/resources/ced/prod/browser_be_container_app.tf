@@ -52,6 +52,10 @@ module "browser_be_container_app" {
     {
       name                = "PAGOPA_IDP_KEYS_BASE_URL"
       key_vault_secret_id = format(local.secrets_id_template, "ced-p-itn-browser-be-fims-idp-keys-base-url")
+    },
+    {
+      name                = "APPINSIGHTS_INSTRUMENTATION_KEY"
+      key_vault_secret_id = module.azure_core_values.application_insights.instrumentation_key_kv_secret_id
     }
   ]
 

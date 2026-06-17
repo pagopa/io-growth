@@ -65,15 +65,6 @@ resource "azurerm_api_management_product_api" "ced_portal_be_v1" {
   product_id          = azurerm_api_management_product.ced_portal_be.product_id
 }
 
-resource "azurerm_api_management_named_value" "ced_portal_be_ca_url" {
-  name                = "ced-portal-be-ca-url"
-  api_management_name = azurerm_api_management_api.ced_portal_be_v1.api_management_name
-  resource_group_name = azurerm_api_management_api.ced_portal_be_v1.resource_group_name
-  display_name        = "ced-portal-be-ca-url"
-  secret              = true
-  value               = "https://${replace(module.container_app.url, "/--[^.]+/", "")}"
-}
-
 resource "azurerm_api_management_backend" "ced_portal_be" {
   name                = "ced-portal-backend"
   api_management_name = azurerm_api_management_api.ced_portal_be_v1.api_management_name

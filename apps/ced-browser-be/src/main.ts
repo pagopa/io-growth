@@ -1,3 +1,7 @@
+// Side-effect import: must stay FIRST so tracing instrumentation is installed
+// before any instrumented library (Fastify, PostgreSQL, Redis, fetch) loads.
+import "./telemetry.js";
+
 import { DefaultAzureCredential } from "@azure/identity";
 import { BlobServiceClient } from "@azure/storage-blob";
 import { createTypedDbClient } from "@pagopa/io-core-adapter-drizzle";
@@ -11,6 +15,7 @@ import {
   mountFimsHandlers,
 } from "@pagopa/io-core-adapter-fims";
 import { createResilientRedisClient } from "@pagopa/io-core-adapter-redis";
+import { tracingPlugin } from "@pagopa/io-core-adapter-tracing";
 import Fastify from "fastify";
 
 import {
@@ -81,6 +86,8 @@ const fimsAuthFlow = createFimsAuthFlow(
 );
 
 const app = Fastify({ logger: true });
+
+await app.register(tracingPlugin);
 
 // Inbound adapters — public routes
 mountInfoStartupHandler(app, makeGetInfoStartupUseCase);

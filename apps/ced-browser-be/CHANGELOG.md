@@ -1,5 +1,17 @@
 # ced-browser-be
 
+## 0.1.0
+
+### Minor Changes
+
+- 0031fa2: GET /api/search endpoint for citizen full-text search (IEG-2868)
+  GET /api/places/{placeId} endpoint for place detail (IEG-2954)
+
+### Patch Changes
+
+- Updated dependencies [f146ba6]
+  - @pagopa/io-core-adapter-fims@0.0.6
+
 ## 0.0.10
 
 ### Patch Changes

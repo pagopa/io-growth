@@ -38,6 +38,8 @@ export const createMockOpportunityRepository = (
   overrides?: Partial<OpportunityRepository>,
 ): OpportunityRepository => ({
   findPublishedById: vi.fn().mockResolvedValue(ok(undefined)),
-  searchFromMaterializedView: vi.fn().mockResolvedValue(ok(undefined)),
+  searchFromMaterializedView: vi
+    .fn()
+    .mockResolvedValue(ok({ items: [], total: 0 })),
   ...overrides,
 });

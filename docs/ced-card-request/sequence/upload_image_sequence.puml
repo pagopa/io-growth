@@ -2,49 +2,66 @@
 
 actor "FE (User App)" as FE
 participant "BFF (Our System)" as BFF
-database "Local DB\n(partitionKey, idLavorazione, state)" as DB
+database "Local DB\n(partitionKey, idLavorazione,\nstate, pendingStep, steps{})" as DB
 box "INPS Services (PDND)" #LightBlue
   participant "MS INPS\n(GestioneDomandaCED)" as INPS
 end box
 
-title 3. Photo Submission (FornisciFoto) - UPLOADING_PHOTO state
+title 3. Photo Submission (FornisciFoto)
 
-FE -> BFF: Submit Photo (idLavorazione, fotoCED)
+FE -> BFF: POST /image (idLavorazione, fotoCED)\n<<Header: Idempotency-Key = clientKey>>
 
-BFF -> DB: Retrieve Record R (idLavorazione, IK_CURRENT)
+BFF -> DB: Read Record R (partitionKey = CF)
 DB --> BFF: R
+BFF -> BFF: Verify R.idLavorazione == idLavorazione (ownership)
 
-== Local DB Write 1: Intermediate state ==
-BFF -> DB: UPDATE Record R (state: UPLOADING_PHOTO)
-
-alt DB Write 1 SUCCESS
-    DB --> BFF: OK
-
-    BFF -> INPS: FornisciFoto(idLavorazione, fotoCED) \n <<Header: Idempotency Key = R.IK_CURRENT>>
-
-    alt INPS Success (HTTP 200 OK)
-        INPS --> BFF: idLavorazione (X)
-
-        == Local DB Write 2: Update to READY_FOR_DOCUMENTS_UPLOAD ==
-        BFF -> DB: UPDATE Record R (state: READY_FOR_DOCUMENTS_UPLOAD)
-
-        alt DB Update SUCCESS
-            DB --> BFF: OK
-            BFF --> FE: Success (Next step: Confirmation required)
-
-        else DB Update FAILURE (***INCONSISTENCY POINT***)
-            DB --> BFF: ERROR (Timeout)
-            note right of BFF: INPS has confirmed photo (esitoCheck=30). \nLocal DB shows UPLOADING_PHOTO. \nReconciliation (Flow 1) will fix this disparity.
-            BFF --> FE: System Error (HTTP 500)
-        end
-
-    else INPS Failure (HTTP 400 BAD REQUEST)
-        INPS --> BFF: Error Code (e.g., 903: FOTO NON CONFORME)
-        BFF --> FE: Validation Error: Photo must be re-submitted (Details: Error Code)
+alt Replay/retry of the SAME intent (R.steps.photo.clientRequestId == clientKey)
+    alt R.steps.photo.status == COMPLETED
+        note right of BFF: True replay, no INPS call.
+        BFF --> FE: 200 (Next step: Confirmation)
+    else status PENDING/FAILED
+        note right of BFF: Retry reuses R.steps.photo.inpsIdempotencyKey (IK_PHOTO).
     end
 
-else DB Write 1 FAILURE (Fatal Error)
-    DB --> BFF: ERROR (e.g., Connection issue)
-    BFF --> FE: HTTP 503 Service Unavailable
+else NEW intent (new clientKey -> change/replace photo)
+    BFF -> BFF: Generate IK_PHOTO (UUID)
+    note right of BFF: Cascade rule: reset confirm step.\nidLavorazione is unchanged (FornisciFoto overwrites the photo).
+
+    == Write 1: intent record ==
+    BFF -> DB: UPDATE R (steps.photo={clientRequestId:clientKey,\ninpsIdempotencyKey:IK_PHOTO, status:PENDING}, pendingStep:PHOTO) <<If-Match>>
+    alt DB Write 1 FAILURE
+        DB --> BFF: ERROR
+        BFF --> FE: 503 Service Unavailable
+    end
+    DB --> BFF: OK
+end
+
+BFF -> INPS: FornisciFoto(idLavorazione, fotoCED)\n<<Header: Idempotency-Key = IK_PHOTO>>
+
+alt INPS Success (HTTP 200 OK)
+    INPS --> BFF: idLavorazione (X)
+
+    == Write 2: outcome ==
+    BFF -> DB: UPDATE R (steps.photo.status=COMPLETED,\nstate=READY_FOR_DOCUMENTS_UPLOAD, pendingStep=NULL) <<If-Match>>
+
+    alt DB Update SUCCESS
+        DB --> BFF: OK
+        BFF --> FE: 200 (Next step: Confirmation required)
+    else DB Update FAILURE (***INCONSISTENCY POINT***)
+        DB --> BFF: ERROR (Timeout)
+        note right of BFF: INPS confirmed photo (esitoCheck=30); local still PENDING.\nReconciliation on next /status realigns.
+        BFF --> FE: 500 System Error
+    end
+
+else INPS Failure (HTTP 400)
+    INPS --> BFF: Error Code (900-911 photo, 115 state)
+    BFF -> DB: UPDATE R (steps.photo.status=FAILED, lastErrorCode, pendingStep=NULL)
+    DB --> BFF: OK
+    BFF --> FE: 400 Validation Error: photo must be re-submitted (code)
+
+else INPS System Error (HTTP 500)
+    INPS --> BFF: Error Code 100
+    note right of BFF: Keep steps.photo.status=PENDING so a retry reuses IK_PHOTO.
+    BFF --> FE: 500 System Error
 end
 @enduml

@@ -2,56 +2,58 @@
 
 actor "FE (User App)" as FE
 participant "BFF (Our System)" as BFF
-database "Local DB\n(partitionKey, idLavorazione, state)" as DB
+database "Local DB\n(partitionKey, idLavorazione,\nstate, pendingStep, steps{})" as DB
 box "INPS Services (PDND)" #LightBlue
   participant "MS INPS\n(GestioneDomandaCED)" as INPS
 end box
 
-title 1. Initialization and Decision Loop (CheckDomanda) - With Reconciliation (Updated DRAFT Logic)
+title 1. Initialization and Decision Loop (CheckDomanda) - With Reconciliation
 
-FE -> BFF: Request Current Step (codiceFiscale)
+FE -> BFF: GET /status (codiceFiscale)
 
-BFF -> DB: Retrieve Local Record (R) by partitionKey
-DB --> BFF: R (R.state, R.idLavorazione, R.idempotencyKey)
+BFF -> DB: Read Local Record R by partitionKey (CF)
+DB --> BFF: R (state, idLavorazione, pendingStep, steps{})
 
 BFF -> INPS: CheckDomanda(codiceFiscale)
 INPS --> BFF: esitoCheck, idLavorazione_INPS (X)
 
-alt INPS State READY FOR NEW DRAFT (esitoCheck = 10 or 50)
+note over BFF: esitoCheck -> milestone mapping\n10 = no domanda -> READY_FOR_NEW_DRAFT\n20 = draft, no photo -> READY_FOR_PHOTO_UPLOAD\n30 = draft + photo -> READY_FOR_DOCUMENTS_UPLOAD\n40 = acquired/processing -> ACQUIRED\n50 = last AppIO state 90/99 -> READY_FOR_NEW_DRAFT (keep previousIdLavorazione)
+
+alt esitoCheck = 10 (no draft on INPS)
     alt Local Record R exists
-        note right of BFF: INPS says no active draft (10/50). Local record must be deleted.
-        BFF -> DB: DELETE Record R
+        note right of BFF: INPS owns no draft. Reset local steps; keep record (TTL) for history.
+        BFF -> DB: UPDATE R (state=READY_FOR_NEW_DRAFT, idLavorazione=NULL,\npendingStep=NULL, steps={}) <<If-Match>>
         DB --> BFF: OK
     end
-    BFF --> FE: Status: READY_FOR_NEW_DRAFT (Display Data Entry Form)
+    BFF --> FE: 200 READY_FOR_NEW_DRAFT (Display Data Entry Form)
 
-else INPS has active draft/processing (esitoCheck = 20, 30, 40)
-    alt Local Record R exists and R.state = DRAFT (R.idLavorazione == NULL)
-        note right of BFF: Inconsistency detected: Local DRAFT creation failed last time. \nReconciliation: update with idLavorazione (X) from INPS.
+else esitoCheck = 50 (previous application closed 90/99)
+    note right of BFF: A new application is allowed. Archive old id into previousIdLavorazione.
+    BFF -> DB: UPDATE R (previousIdLavorazione=R.idLavorazione, idLavorazione=NULL,\nstate=READY_FOR_NEW_DRAFT, pendingStep=NULL, steps={}) <<If-Match>>
+    DB --> BFF: OK
+    BFF --> FE: 200 READY_FOR_NEW_DRAFT (new application allowed)
 
-        BFF -> BFF: Determine correct state (20->READY_FOR_PHOTO_UPLOAD)
-        BFF -> DB: UPDATE R (idLavorazione=X, state=READY_FOR_PHOTO_UPLOAD, IK=R.idempotencyKey)
-        DB --> BFF: OK (Reconciliation Complete)
-        BFF --> FE: Status: READY_FOR_PHOTO_UPLOAD
+else esitoCheck = 20, 30 or 40 (INPS has an active application)
+    BFF -> BFF: targetState = map(esitoCheck)
 
-    else Local Record R exists but is in UPLOADING or is STALE (e.g., UPLOADING_PHOTO but esitoCheck=30)
-        BFF -> BFF: Map esitoCheck (20->READY_FOR_PHOTO_UPLOAD; 30->READY_FOR_DOCUMENTS_UPLOAD; 40->ACQUIRED)
-        BFF -> DB: UPDATE R (state, idLavorazione=X, IK=R.idempotencyKey)
-        DB --> BFF: OK (Reconciliation Complete)
-        BFF --> FE: Status: Current reconciled state
-
-    else Local Record R is NULL (Missing record, but INPS has state)
-        note right of BFF: Reconciliation: Create new local record, preserving INPS state.
-        BFF -> BFF: Generate Idempotency Key (IK_RECONCILE)
-        BFF -> DB: CREATE Record (partitionKey, idLavorazione=X, IK_RECONCILE, state based on esitoCheck)
+    alt R is NULL OR R.idLavorazione != X
+        note right of BFF: Missing/divergent local record. Rebuild from INPS source of truth.
+        BFF -> DB: UPSERT R (idLavorazione=X, state=targetState,\npendingStep=NULL, steps marked COMPLETED up to milestone) <<If-Match>>
         DB --> BFF: OK
-        BFF --> FE: Status: Current reconciled state
+        BFF --> FE: 200 targetState
 
-    else Local Record R is consistent
-        BFF --> FE: Status: R.state
+    else R.idLavorazione == X but state/steps diverge (pendingStep set, or stale)
+        note right of BFF: Reconciliation: an in-flight step (pendingStep) completed on INPS\nbut Write 2 failed locally. Realign to milestone.
+        BFF -> DB: UPDATE R (state=targetState, pendingStep=NULL,\nmark in-flight step COMPLETED) <<If-Match>>
+        DB --> BFF: OK
+        BFF -> BFF: lastReconciliation = now
+        BFF --> FE: 200 targetState (reconciled)
+
+    else R already consistent with X and targetState
+        BFF --> FE: 200 R.state
     end
 
-else INPS Error (e.g., 700, 212)
-    BFF --> FE: Error: Cannot proceed (Details: Error Code)
+else INPS Blocking Error (700 active card, 212/213/214 residence, 701/702 INPS-channel)
+    BFF --> FE: 4xx Cannot proceed (Details: Error Code + description)
 end
 @enduml

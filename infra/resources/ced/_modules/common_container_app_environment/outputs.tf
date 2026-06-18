@@ -12,3 +12,8 @@ output "user_assigned_identity" {
   description = "Details about the user-assigned managed identity created to manage roles of the Container Apps of this Environment."
   value       = module.container_app_environment.user_assigned_identity
 }
+
+output "subnet" {
+  description = "The subnet created by the Container App Environment (id, name, resource_group_name)."
+  value       = module.container_app_environment.subnet
+}

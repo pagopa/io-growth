@@ -1,0 +1,29 @@
+@startuml
+skinparam style strict
+hide footbox
+
+actor "FE (User App)" as FE
+participant "BFF (Our System)" as BFF
+box "INPS Services (PDND)" #LightBlue
+  participant "MS INPS\n(GestioneDomandaCED)" as INPS
+end box
+
+title 5. Read-Only Operations (Proxy to INPS)
+
+FE -> BFF: GET /summary or /receipt or /details or /draft (idLavorazione)
+note right of FE: Authorization: Bearer <opaque_token>
+
+BFF -> BFF: Verify ownership: \nCheck if idLavorazione belongs to UserSession.CF
+BFF -> INPS: RichiediRiepilogo / RichiediRicevuta / RichiediStato / RecuperoDatiDomanda(idLavorazione, CF)
+
+alt INPS Success (HTTP 200)
+    INPS --> BFF: Response Data (JSON or Base64 PDF)
+    BFF --> FE: 200 OK (Response Data)
+else INPS Document not ready (800 summary / 801 receipt)
+    INPS --> BFF: Error Code 800/801
+    BFF --> FE: 409 Not ready yet (retry later)
+else INPS Failure
+    INPS --> BFF: Error Response
+    BFF --> FE: Error Details
+end
+@enduml

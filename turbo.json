@@ -42,6 +42,7 @@
     "lint:check": {
       "inputs": ["src/**/*.ts"]
     },
+    "format": {},
     "format:check": {},
     "test": {
       "dependsOn": ["^build"],

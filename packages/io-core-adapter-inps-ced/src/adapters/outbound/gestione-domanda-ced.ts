@@ -51,13 +51,12 @@ export const createGestioneDomandaCedClient = (
       );
       if (response.status === 200) return ok(response.data);
       if (response.status === 404)
-        return err(new NotFoundError("domanda", String(response.status)));
+        return err(new NotFoundError("domanda", JSON.stringify(response.data)));
       return err(
         new GenericError(
           `checkDomanda failed with status ${String(response.status)}`,
         ),
       );
-    } catch (error) {
       return err(new GenericError(`checkDomanda failed: ${String(error)}`));
     }
   },

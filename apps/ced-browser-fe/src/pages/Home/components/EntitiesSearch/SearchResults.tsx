@@ -21,17 +21,19 @@ function highlightText(text: string, regex: RegExp | null): ReactNode {
   });
 }
 
+type SearchResultsProps = {
+  total: number;
+  items: EntitySearchItem[];
+  query: string;
+  onItemPress: (entityId: string, accessPointId: string) => void;
+};
+
 export function SearchResults({
   total,
   items,
   query,
   onItemPress,
-}: {
-  total: number;
-  items: EntitySearchItem[];
-  query: string;
-  onItemPress: (id: string) => void;
-}) {
+}: SearchResultsProps) {
   const theme = useTheme();
   const highlightRegex = useMemo(() => {
     const queryTrim = query.trim();
@@ -87,8 +89,15 @@ export function SearchResults({
           <DiscoveryListItem
             variant="simple"
             title={highlightText(item.name, highlightRegex)}
-            subtitle={highlightText(item.address, highlightRegex)}
-            onClick={() => onItemPress(item.id)}
+            subtitle={
+              item.address
+                ? highlightText(
+                    `${item.address.street}, ${item.address.city}`,
+                    highlightRegex,
+                  )
+                : undefined
+            }
+            onClick={() => onItemPress(item.entityId, item.id)}
             sx={{ bgcolor: 'white', px: 0 }}
           />
         </Box>

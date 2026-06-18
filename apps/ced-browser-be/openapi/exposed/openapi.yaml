@@ -290,7 +290,7 @@ paths:
         - Profiles
       summary: Get operator profile detail
       description: |
-        Returns the public profile of an operator identified by its operator id.
+        Returns the public profile of an operator identified by its id.
         The response includes the profile data and support contacts from the
         profile tables, plus the five most recent places and five most recent
         opportunities for the operator.

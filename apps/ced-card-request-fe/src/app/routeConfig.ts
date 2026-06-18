@@ -13,6 +13,8 @@ export const APP_ROUTES = {
 } as const;
 
 export const HomePage = lazy(() => import('../pages/CardRequestInfo'));
+export const Authorize = lazy(() => import('../pages/Authorize'));
+
 export const ConsentPage = lazy(() => import('../pages/CardRequestConsent'));
 export const LoadingPage = lazy(() => import('../pages/CardRequestLoading'));
 export const ApplicationPage = lazy(() => import('../pages/CardRequestFlow'));

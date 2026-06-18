@@ -7,7 +7,7 @@ import {
   selectCachedSession,
   selectIsTokenValid,
 } from '../core/auth/authSelectors';
-import { isFetchBaseQueryError } from '../utils/IsFetchBaseQueryError';
+import { isFetchBaseQueryError } from '../utils';
 import { authActions } from '../core/auth/authSlice';
 
 const redirectTokenError = { data: 'Session ID not provided', status: 401 };

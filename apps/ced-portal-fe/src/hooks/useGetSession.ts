@@ -39,20 +39,40 @@ export const useGetSession = () => {
   useEffect(() => {
     let isMounted = true;
 
+    const isValidToken = (value: unknown): value is string => {
+      if (typeof value !== 'string') return false;
+
+      return (
+        value.length > 0 &&
+        value.length <= 2048 &&
+        /^[A-Za-z0-9\-._~+/]+=*$/.test(value)
+      );
+    };
+
     const retrieveSession = async () => {
       const params = new URLSearchParams(search);
-      const redirectToken = params.get('id');
-      const assertionToken = params.get('token') ?? params.get('jwt');
+
+      const rawRedirectToken = params.get('id');
+      const rawAssertionToken = params.get('token') ?? params.get('jwt');
+
+      const redirectToken = isValidToken(rawRedirectToken)
+        ? rawRedirectToken
+        : null;
+
+      const assertionToken = isValidToken(rawAssertionToken)
+        ? rawAssertionToken
+        : null;
 
       if (!redirectToken) {
         if (assertionToken) {
-          const lastAcsAssertionToken = devAuthStorage.getLastAcsToken();
+          const last = devAuthStorage.getLastAcsToken();
 
-          if (lastAcsAssertionToken === assertionToken) {
+          if (last === assertionToken) {
             return;
           }
 
           devAuthStorage.setLastAcsToken(assertionToken);
+
           const acsUrl = `${API_BASE_URL}/acs?token=${encodeURIComponent(assertionToken)}`;
           window.location.replace(acsUrl);
           return;
@@ -66,7 +86,7 @@ export const useGetSession = () => {
         if (import.meta.env.DEV && !token) {
           const devToken = getDevAssertionToken(getCurrentRole());
 
-          if (devToken) {
+          if (devToken && isValidToken(devToken)) {
             navigate(
               `${APP_ROUTES.AUTHORIZE}?token=${encodeURIComponent(devToken)}`,
               { replace: true },
@@ -86,7 +106,6 @@ export const useGetSession = () => {
           navigateToLanding();
           return;
         }
-
         devAuthStorage.removeLastSessionExchangeId();
       }
 
@@ -94,10 +113,7 @@ export const useGetSession = () => {
         devAuthStorage.setLastSessionExchangeId(redirectToken);
         const response = await authorize(redirectToken);
 
-        if (!isMounted) {
-          return;
-        }
-
+        if (!isMounted) return;
         const role = resolveRole(response.user_type ?? response.role);
         navigate(getLandingRoute(role), { replace: true });
       } catch {

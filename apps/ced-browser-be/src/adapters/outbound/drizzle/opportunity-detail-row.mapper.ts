@@ -61,8 +61,13 @@ const candidateLanguages = (
   requestedLanguage: Language,
   localizedMetadata: LocalizedMetadataRow[],
 ): Language[] => {
-  const present = localizedMetadata.map((item) => item.language);
-  return [...new Set<Language>([requestedLanguage, "it", ...present])];
+  const languages = new Set<Language>();
+
+  languages.add(requestedLanguage);
+  languages.add("it");
+  localizedMetadata.forEach((item) => languages.add(item.language));
+
+  return [...languages];
 };
 
 const resolveLocalizedFields = (

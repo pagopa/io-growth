@@ -7,7 +7,7 @@ import { useNavigate } from 'react-router-dom';
 import { APP_ROUTES } from '../../app/routeConfig';
 import { theme } from '../../core/theme';
 import { useState } from 'react';
-import { OpportunitySearch } from './components/OpportunitySearch';
+import { EntitiesSearch } from './components/EntitiesSearch';
 
 export default function HomePage() {
   const navigate = useNavigate();
@@ -33,7 +33,7 @@ export default function HomePage() {
             Scopri le opportunità
           </Typography>
         </Collapse>
-        <OpportunitySearch
+        <EntitiesSearch
           isSearchActive={isSearchActive}
           setIsSearchActive={setIsSearchActive}
         />

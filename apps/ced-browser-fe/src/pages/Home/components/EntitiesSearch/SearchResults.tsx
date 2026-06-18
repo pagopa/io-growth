@@ -21,17 +21,19 @@ function highlightText(text: string, regex: RegExp | null): ReactNode {
   });
 }
 
+type SearchResultsProps = {
+  total: number;
+  items: EntitySearchItem[];
+  query: string;
+  onItemPress: (entityId: string, accessPointId: string) => void;
+};
+
 export function SearchResults({
   total,
   items,
   query,
   onItemPress,
-}: {
-  total: number;
-  items: EntitySearchItem[];
-  query: string;
-  onItemPress: (id: string) => void;
-}) {
+}: SearchResultsProps) {
   const theme = useTheme();
   const highlightRegex = useMemo(() => {
     const queryTrim = query.trim();
@@ -95,7 +97,7 @@ export function SearchResults({
                   )
                 : undefined
             }
-            onClick={() => onItemPress(item.id)}
+            onClick={() => onItemPress(item.entityId, item.id)}
             sx={{ bgcolor: 'white', px: 0 }}
           />
         </Box>

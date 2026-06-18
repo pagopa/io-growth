@@ -1,10 +1,25 @@
 import { Box, ButtonBase, Stack, useTheme } from '@mui/material';
+import { useMemo } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ContactsSection } from '../../components/ContactsSection/index.js';
 import { ItemsSection } from '../../components/ItemsSection/index.js';
 import { PageHeader, QueryGuard } from '../../components/index.js';
 import { useGetAccessPointDetailQuery } from '../../features/entities/api.js';
 import { APP_ROUTES } from '../../app/routeConfig.js';
+import type { PlaceBenefit } from '../../core/api/generated/model/index.js';
+
+function formatBadgeLabel(benefit: PlaceBenefit): string {
+  if (benefit.type === 'free') return 'GRATIS';
+  if (benefit.type === 'discount' && benefit.value != null) {
+    return benefit.discountType === 'fixed_amount'
+      ? `-${benefit.value}€`
+      : `-${benefit.value}%`;
+  }
+  if (benefit.type === 'reduced_fixed_price' && benefit.value != null) {
+    return `${benefit.value}€`;
+  }
+  return benefit.type;
+}
 
 export default function AccessPointDetailPage() {
   const { id, accessPointId } = useParams<{
@@ -14,8 +29,28 @@ export default function AccessPointDetailPage() {
   const navigate = useNavigate();
   const theme = useTheme();
   const { data, isLoading, isError } = useGetAccessPointDetailQuery(
-    { entityId: id ?? '', accessPointId: accessPointId ?? '' },
-    { skip: !id || !accessPointId },
+    { accessPointId: accessPointId ?? '' },
+    { skip: !accessPointId },
+  );
+
+  const opportunities = useMemo(
+    () =>
+      data?.opportunities.map(({ id, title, benefit }) => ({
+        id,
+        title,
+        badgeLabel: formatBadgeLabel(benefit),
+      })) ?? [],
+    [data],
+  );
+
+  const relatedAccessPoints = useMemo(
+    () =>
+      data?.relatedPlaces.map(({ id, title, address }) => ({
+        id,
+        title,
+        subtitle: address ? `${address.street}, ${address.city}` : '',
+      })) ?? [],
+    [data],
   );
 
   return (
@@ -60,14 +95,14 @@ export default function AccessPointDetailPage() {
             <ItemsSection
               variant="opportunity"
               entityId={id ?? ''}
-              items={resolvedData.opportunities}
+              items={opportunities}
               hideEyebrow
             />
             <ContactsSection contacts={resolvedData.contacts} />
             <ItemsSection
               variant="access-point"
               entityId={id ?? ''}
-              items={resolvedData.relatedAccessPoints}
+              items={relatedAccessPoints}
               sectionLabel="Potrebbero interessarti"
             />
           </Stack>

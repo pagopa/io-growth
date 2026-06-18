@@ -39,8 +39,7 @@ export function EntitiesSearch({
   });
 
   const isLoading = hasMinQueryLength && (isDebouncing || isFetching);
-  const hasResults = !!data?.items.length;
-
+  const hasResults = hasMinQueryLength && !!data?.items.length;
   const showResults = !isLoading && hasResults;
   const showInitialState = isSearchActive && !hasMinQueryLength;
   const showEmpty = !isLoading && hasMinQueryLength && !hasResults;
@@ -53,8 +52,10 @@ export function EntitiesSearch({
   };
 
   const renderPanel = () => {
+    if (!isSearchActive) return null;
+
     if (isLoading) return <SearchResultsSkeleton />;
-    if (showResults)
+    if (showResults) {
       return (
         <SearchResults
           total={data.total}
@@ -63,11 +64,12 @@ export function EntitiesSearch({
           onItemPress={(id) => generatePath(APP_ROUTES.ENTITY_DETAIL, { id })}
         />
       );
+    }
     if (showInitialState) return <SearchInitialState />;
     if (showEmpty) return <SearchEmptyState />;
+
     return null;
   };
-
   return (
     <Box>
       <Box

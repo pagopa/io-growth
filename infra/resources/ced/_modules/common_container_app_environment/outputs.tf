@@ -14,6 +14,8 @@ output "user_assigned_identity" {
 }
 
 output "subnet" {
-  description = "The subnet created by the Container App Environment (id, name, resource_group_name)."
-  value       = module.container_app_environment.subnet
+  description = "The subnet created by the Container App Environment (id)."
+  value = {
+    id = data.azurerm_container_app_environment.this.infrastructure_subnet_id
+  }
 }

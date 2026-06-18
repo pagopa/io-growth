@@ -21,6 +21,5 @@ body:json {
 script:post-response {
   if (res.status === 200) {
     bru.setEnvVar("sessionToken", res.body.token, { persist: false });
-
-    }
+  }
 }

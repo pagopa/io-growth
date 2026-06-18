@@ -1,0 +1,33 @@
+name: Deploy CED Card Request FE to Azure Static Web App
+
+on:
+    workflow_dispatch:
+    push:
+        branches:
+            - main
+        paths:
+            - "apps/ced-card-request-fe/**"
+    pull_request:
+        types:
+            - opened
+            - synchronize
+            - reopened
+            - closed
+        branches:
+            - main
+        paths:
+            - "apps/ced-card-request-fe/**"
+
+jobs:
+    deploy_ced_card_request_fe:
+        uses: pagopa/dx/.github/workflows/release-azure-staticapp-v1.yaml@main
+        name: Deploy CED Card Request FE
+        secrets: inherit
+        with:
+            workspace_name: ced-card-request-fe
+            output_dir: dist
+            static_web_app_name: ced-p-weu-card-request-fe-stapp-01
+            resource_group_name: ced-p-itn-rg-01
+            environment: app-prod
+            use_private_agent: true
+            use_labels: false

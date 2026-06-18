@@ -74,7 +74,7 @@ export const createDrizzleProfileRepository = (
       if (!profileRow.place) {
         return err(
           new GenericError(
-            `Data integrity error: profile for profile ${profileId} references a missing place`,
+            `Data integrity error: profile ${profileId} references a missing place`,
           ),
         );
       }

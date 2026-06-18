@@ -7,5 +7,6 @@ export default defineConfig({
       reporter: ["lcov", "text"],
     },
     exclude: ["**/node_modules/**", "**/dist/**"],
+    setupFiles: ["./src/__tests__/setup.ts"],
   },
 });

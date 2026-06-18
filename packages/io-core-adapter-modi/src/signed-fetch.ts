@@ -115,7 +115,10 @@ export const createSignedFetch = (options: {
 
     // Execute request over mTLS
     const dispatcher = await getDispatcher();
-    const fullUrl = `${config.inpsBaseUrl}${url}`;
+    const fullUrl =
+      url.startsWith("http://") || url.startsWith("https://")
+        ? url
+        : `${config.inpsBaseUrl}${url}`;
 
     const response = await undiciFetch(fullUrl, {
       ...(requestInit as UndiciRequestInit),

@@ -3,7 +3,7 @@ packages:
   - apps/*
 
 catalog:
-  "@pagopa/eslint-config": "^6.0.2"
+  "@pagopa/eslint-config": "^6.0.4"
   "@tsconfig/node22": ^22.0.5
   "@types/node": ^22.0.0
   "undici-types": ^6.21.0

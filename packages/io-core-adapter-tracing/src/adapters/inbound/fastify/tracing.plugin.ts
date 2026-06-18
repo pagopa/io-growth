@@ -52,6 +52,40 @@ const plugin: FastifyPluginCallback<TracingPluginOptions> = (
     hookDone();
   });
 
+  // Fires before every response is sent. For error responses serialised as
+  // Problem Details (application/problem+json) by `sendErrorResponse`, the
+  // Fastify `onError` hook never fires because the handler calls
+  // `reply.send(plainObject)` rather than throwing. This hook bridges that gap
+  // by creating a synthetic Error from the `detail` field and forwarding it to
+  // the telemetry client so 4xx/5xx messages are visible in Application Insights.
+  app.addHook("onSend", (request, reply, payload, hookDone) => {
+    const contentType = reply.getHeader("content-type");
+    if (
+      reply.statusCode >= 400 &&
+      typeof contentType === "string" &&
+      contentType.includes("application/problem+json") &&
+      typeof payload === "string"
+    ) {
+      try {
+        const body = JSON.parse(payload) as { detail?: string; title?: string };
+        const message = body.detail ?? `HTTP ${reply.statusCode}`;
+        const error = new Error(message);
+        error.name =
+          body.title ??
+          (reply.statusCode >= 500 ? "ServerError" : "ClientError");
+        client.trackException({
+          error,
+          method: request.method,
+          route: resolveRoute(request.routeOptions.url, request.url),
+          url: stripQueryParams(request.url),
+        });
+      } catch {
+        // best-effort — never block the response
+      }
+    }
+    hookDone();
+  });
+
   // Fires whenever a handler throws / rejects, capturing the exception details.
   app.addHook("onError", (request, _reply, error, hookDone) => {
     client.trackException({

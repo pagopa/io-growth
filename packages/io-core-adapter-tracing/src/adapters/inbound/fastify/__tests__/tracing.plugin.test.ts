@@ -34,6 +34,7 @@ describe("Fastify Tracing Plugin", () => {
     hookCallbacks = {
       onError: [],
       onResponse: [],
+      onSend: [],
     };
 
     // Mock Fastify instance
@@ -51,12 +52,16 @@ describe("Fastify Tracing Plugin", () => {
   });
 
   describe("plugin registration", () => {
-    it("should register two hooks (onResponse and onError)", () =>
+    it("should register three hooks (onResponse, onSend and onError)", () =>
       new Promise<void>((done) => {
         plugin(mockApp as FastifyInstance, { client: mockClient }, () => {
-          expect(mockApp.addHook).toHaveBeenCalledTimes(2);
+          expect(mockApp.addHook).toHaveBeenCalledTimes(3);
           expect(mockApp.addHook).toHaveBeenCalledWith(
             "onResponse",
+            expect.any(Function),
+          );
+          expect(mockApp.addHook).toHaveBeenCalledWith(
+            "onSend",
             expect.any(Function),
           );
           expect(mockApp.addHook).toHaveBeenCalledWith(
@@ -76,7 +81,7 @@ describe("Fastify Tracing Plugin", () => {
         };
 
         plugin(mockApp as FastifyInstance, { client: customClient }, () => {
-          expect(mockApp.addHook).toHaveBeenCalledTimes(2);
+          expect(mockApp.addHook).toHaveBeenCalledTimes(3);
           done();
         });
       }));
@@ -85,7 +90,7 @@ describe("Fastify Tracing Plugin", () => {
       new Promise<void>((done) => {
         plugin(mockApp as FastifyInstance, {}, () => {
           // Should succeed without throwing
-          expect(mockApp.addHook).toHaveBeenCalledTimes(2);
+          expect(mockApp.addHook).toHaveBeenCalledTimes(3);
           done();
         });
       }));
@@ -279,6 +284,145 @@ describe("Fastify Tracing Plugin", () => {
             success: true,
             url: "/test",
           });
+          done();
+        });
+      }));
+  });
+
+  describe("onSend hook", () => {
+    it("should track exception from a Problem Details response", () =>
+      new Promise<void>((done) => {
+        plugin(mockApp as FastifyInstance, { client: mockClient }, () => {
+          const onSendCallback = hookCallbacks.onSend[0];
+
+          const mockRequest = {
+            method: "GET",
+            routeOptions: { url: "/api/fauth" },
+            url: "/api/fauth",
+          } as Partial<FastifyRequest>;
+
+          const mockReply = {
+            getHeader: vi
+              .fn()
+              .mockReturnValue("application/problem+json; charset=utf-8"),
+            statusCode: 401,
+          } as Partial<FastifyReply>;
+
+          const payload = JSON.stringify({
+            detail: "Invalid issuer: https://evil.example.com",
+            status: 401,
+            title: "Unauthorized",
+            type: "https://ioapp.it/problems/unauthorized",
+          });
+
+          let hookDoneCalled = false;
+          onSendCallback(mockRequest, mockReply, payload, () => {
+            hookDoneCalled = true;
+          });
+
+          expect(hookDoneCalled).toBe(true);
+          expect(mockClient.trackException).toHaveBeenCalledWith(
+            expect.objectContaining({
+              method: "GET",
+              route: "/api/fauth",
+              url: "/api/fauth",
+            }),
+          );
+          const trackedError = (
+            mockClient.trackException as ReturnType<typeof vi.fn>
+          ).mock.calls[0][0].error as Error;
+          expect(trackedError.message).toBe(
+            "Invalid issuer: https://evil.example.com",
+          );
+          expect(trackedError.name).toBe("Unauthorized");
+          done();
+        });
+      }));
+
+    it("should not track exception for non-problem+json content type", () =>
+      new Promise<void>((done) => {
+        plugin(mockApp as FastifyInstance, { client: mockClient }, () => {
+          const onSendCallback = hookCallbacks.onSend[0];
+
+          const mockRequest = {
+            method: "GET",
+            routeOptions: { url: "/api/users" },
+            url: "/api/users",
+          } as Partial<FastifyRequest>;
+
+          const mockReply = {
+            getHeader: vi.fn().mockReturnValue("application/json"),
+            statusCode: 400,
+          } as Partial<FastifyReply>;
+
+          onSendCallback(
+            mockRequest,
+            mockReply,
+            JSON.stringify({ error: "bad" }),
+            () => {},
+          );
+
+          expect(mockClient.trackException).not.toHaveBeenCalled();
+          done();
+        });
+      }));
+
+    it("should not track exception for 2xx responses", () =>
+      new Promise<void>((done) => {
+        plugin(mockApp as FastifyInstance, { client: mockClient }, () => {
+          const onSendCallback = hookCallbacks.onSend[0];
+
+          const mockRequest = {
+            method: "GET",
+            routeOptions: { url: "/api/test" },
+            url: "/api/test",
+          } as Partial<FastifyRequest>;
+
+          const mockReply = {
+            getHeader: vi.fn().mockReturnValue("application/problem+json"),
+            statusCode: 200,
+          } as Partial<FastifyReply>;
+
+          onSendCallback(
+            mockRequest,
+            mockReply,
+            JSON.stringify({ detail: "ok" }),
+            () => {},
+          );
+
+          expect(mockClient.trackException).not.toHaveBeenCalled();
+          done();
+        });
+      }));
+
+    it("should fall back to 'HTTP {status}' message when detail is absent", () =>
+      new Promise<void>((done) => {
+        plugin(mockApp as FastifyInstance, { client: mockClient }, () => {
+          const onSendCallback = hookCallbacks.onSend[0];
+
+          const mockRequest = {
+            method: "POST",
+            routeOptions: { url: "/api/data" },
+            url: "/api/data",
+          } as Partial<FastifyRequest>;
+
+          const mockReply = {
+            getHeader: vi.fn().mockReturnValue("application/problem+json"),
+            statusCode: 500,
+          } as Partial<FastifyReply>;
+
+          onSendCallback(
+            mockRequest,
+            mockReply,
+            JSON.stringify({ status: 500 }),
+            () => {},
+          );
+
+          const trackedError = (
+            mockClient.trackException as ReturnType<typeof vi.fn>
+          ).mock.calls[0][0].error as Error;
+          expect(trackedError.message).toBe("HTTP 500");
+          expect(trackedError.name).toBe("ServerError");
           done();
         });
       }));

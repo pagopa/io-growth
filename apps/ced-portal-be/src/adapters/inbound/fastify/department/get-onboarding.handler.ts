@@ -12,18 +12,22 @@ import type { GetOnboardingUseCase } from "../../../../application/use-cases/dep
 
 import { OnboardingDetailSchema } from "../../../../domain/entities/onboarding.js";
 import { SessionSchema } from "../auth/session.js";
+import { withUserTypeAuthorization } from "../auth/utils/authorization.js";
 import { GetOnboardingParams } from "../contracts/department/department.js";
 
 const getOnboardingHttpSchema = zod.object({
   path: GetOnboardingParams,
 });
 
-const getOnboardingValidator = withSession(
-  SessionSchema,
-  createHttpRequestValidator(getOnboardingHttpSchema),
-  (_session, { path }) => ({
-    onboardingId: path.onboardingId,
-  }),
+const getOnboardingValidator = withUserTypeAuthorization(
+  withSession(
+    SessionSchema,
+    createHttpRequestValidator(getOnboardingHttpSchema),
+    (session, { path }) => ({
+      onboardingId: path.onboardingId,
+      userType: session.userType,
+    }),
+  ),
 );
 
 const getOnboardingFormatter = createHttpResponseFormatter(

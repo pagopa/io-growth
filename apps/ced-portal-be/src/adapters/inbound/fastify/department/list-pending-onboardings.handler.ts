@@ -15,6 +15,7 @@ import {
   PaginatedOnboardingsSchema,
 } from "../../../../domain/entities/onboarding.js";
 import { SessionSchema } from "../auth/session.js";
+import { withUserTypeAuthorization } from "../auth/utils/authorization.js";
 import {
   listOnboardingsQueryPageDefault,
   ListOnboardingsQueryParams,
@@ -44,15 +45,18 @@ const listPendingOnboardingsHttpSchema = zod.object({
   query: listPendingOnboardingsQuerySchema,
 });
 
-const listPendingOnboardingsValidator = withSession(
-  SessionSchema,
-  createHttpRequestValidator(listPendingOnboardingsHttpSchema),
-  (_session, { query }) => ({
-    name: query.name,
-    page: query.page,
-    size: query.size,
-    statuses: query.statuses,
-  }),
+const listPendingOnboardingsValidator = withUserTypeAuthorization(
+  withSession(
+    SessionSchema,
+    createHttpRequestValidator(listPendingOnboardingsHttpSchema),
+    (session, { query }) => ({
+      name: query.name,
+      page: query.page,
+      size: query.size,
+      statuses: query.statuses,
+      userType: session.userType,
+    }),
+  ),
 );
 
 const listPendingOnboardingsFormatter = createHttpResponseFormatter(

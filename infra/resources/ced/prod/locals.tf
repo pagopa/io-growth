@@ -53,13 +53,22 @@ locals {
 
       CED_PORTAL_FE_BASE_URL = "https://${module.portal_fe_static_web_app.custom_domain}"
       CED_PRODUCT_ID         = "prod-ced"
-      ADMIN_FISCAL_CODES     = ""
+      ADMIN_FISCAL_CODES     = "516984510c575da00a39bcfcbc7e31ca4295384940dad4d2fd39f6e402f660b4"
     }
 
     startup_probe_path   = "/api/info/startup"
     readiness_probe_path = "/api/info/readiness"
   }
 
+  browser_be_container_app_name = provider::dx::resource_name({
+    prefix          = local.prefix
+    environment     = local.env_short
+    location        = local.location
+    domain          = local.domain
+    name            = "browser-be"
+    instance_number = 1
+    resource_type   = "container_app"
+  })
 
   # Browser BE Container App configuration
   browser_be = {
@@ -68,11 +77,17 @@ locals {
     image = "ghcr.io/pagopa/io-growth/ced-browser-be:latest"
 
     app_settings = {
+      APPLICATIONINSIGHTS_ENTRA_ID_AUTH_ENABLED = "false"
+      APPINSIGHTS_SAMPLING_PERCENTAGE           = "100"
+      TELEMETRY_SERVICE_NAME                    = local.browser_be_container_app_name
+
       PORT            = "8080"
+
       POSTGRES_HOST   = "${module.postgresql.postgres.name}.postgres.database.azure.com"
       POSTGRES_PORT   = "6432"
       POSTGRES_DB     = azurerm_postgresql_flexible_server_database.ced_test.name
       POSTGRES_SSL    = "true"
+
       REDIS_ENDPOINT  = module.redis_dx.endpoint
       REDIS_TLS       = "true"
       AZURE_CLIENT_ID = module.common_container_app_environment.user_assigned_identity.client_id
@@ -80,14 +95,24 @@ locals {
       # FIMS SSO settings
       BASE_URL             = "https://browser.ced.pagopa.it"
       FIMS_AUDIT_CONTAINER = "ced-browser-logs"
-      FIMS_REDIRECT_URL    = "${module.ced_apim.gateway_url}/browser/fcb"
-      FIMS_SCOPE           = "openid profile fiscal_code"
-      TEST_USERS           = "6960f673e4bf8cc073a32b3b4579bfdb97b50b8df29964bdea6fcd1576d16f82"
+      FIMS_REDIRECT_URL    = "https://api.ced.pagopa.it/api/ced-browser/v1/fcb"
+      FIMS_SCOPE           = "openid profile lollipop"
+      TEST_USERS           = "c90f3d3d5f1c149eeb7e89360b3d7954fdff5d20ef276e63b42c839640fd06d0,2ac948451a778dc6a727927e947f5d29d4576eb49076b35834827c63948544f7,d1288381a4678fe3ce773ce5a255e7ecbf954f7d66c51126bcd3fd781d65fe27,12701c046897f8b03e4c4504152639d04a0f60c1c2ab499cfa557aac7170c35b,d3aedbfcf6dcc14227bb16bc766dc1b511dcef7784a18551d65e5e3399b902db,a8ed5e5884b81d744e8177f9740769d0af32afc0b63055d0caba4bcf2d174d41,bca66061a401f6d58a779aa470407a499fc6d2416cc8e6e3686fb5aaa7871110,48d42cdf45de7da33027a6e68f88d11ba3f41cbbbd17f0839733e0a1c6dafb0c,63d9f44b603c8446148b106261ecc9360b9cb3f62c54aafc42c0d54cc9b63f23,072b5457f7799888e760ecd1c8b0fef27b1931ce9c828a039fbc0dfafacb59d0"
     }
 
     startup_probe_path   = "/api/info/startup"
     readiness_probe_path = "/api/info/readiness"
   }
+
+  card_request_be_container_app_name = provider::dx::resource_name({
+    prefix          = local.prefix
+    environment     = local.env_short
+    location        = local.location
+    domain          = local.domain
+    name            = "card-request-be"
+    instance_number = 1
+    resource_type   = "container_app"
+  })
 
   # Card Request BE Container App configuration
   card_request_be = {
@@ -96,7 +121,12 @@ locals {
     image = "ghcr.io/pagopa/io-growth/ced-card-request-be:latest"
 
     app_settings = {
+      APPLICATIONINSIGHTS_ENTRA_ID_AUTH_ENABLED = "false"
+      APPINSIGHTS_SAMPLING_PERCENTAGE           = "100"
+      TELEMETRY_SERVICE_NAME                    = local.card_request_be_container_app_name
+
       PORT            = "8080"
+
       REDIS_ENDPOINT  = module.redis_dx.endpoint
       REDIS_TLS       = "true"
       AZURE_CLIENT_ID = module.common_container_app_environment.user_assigned_identity.client_id
@@ -107,9 +137,9 @@ locals {
       # FIMS SSO settings
       BASE_URL             = "https://card.ced.pagopa.it"
       FIMS_AUDIT_CONTAINER = "ced-card-request-logs"
-      FIMS_REDIRECT_URL    = "${module.ced_apim.gateway_url}/card-request/fcb"
-      FIMS_SCOPE           = "openid profile fiscal_code"
-      TEST_USERS           = "6960f673e4bf8cc073a32b3b4579bfdb97b50b8df29964bdea6fcd1576d16f82"
+      FIMS_REDIRECT_URL    = "https://api.ced.pagopa.it/api/ced-card/v1/fcb"
+      FIMS_SCOPE           = "openid profile lollipop"
+      TEST_USERS           = "c90f3d3d5f1c149eeb7e89360b3d7954fdff5d20ef276e63b42c839640fd06d0,2ac948451a778dc6a727927e947f5d29d4576eb49076b35834827c63948544f7,d1288381a4678fe3ce773ce5a255e7ecbf954f7d66c51126bcd3fd781d65fe27,12701c046897f8b03e4c4504152639d04a0f60c1c2ab499cfa557aac7170c35b,d3aedbfcf6dcc14227bb16bc766dc1b511dcef7784a18551d65e5e3399b902db,a8ed5e5884b81d744e8177f9740769d0af32afc0b63055d0caba4bcf2d174d41,bca66061a401f6d58a779aa470407a499fc6d2416cc8e6e3686fb5aaa7871110,48d42cdf45de7da33027a6e68f88d11ba3f41cbbbd17f0839733e0a1c6dafb0c,63d9f44b603c8446148b106261ecc9360b9cb3f62c54aafc42c0d54cc9b63f23,072b5457f7799888e760ecd1c8b0fef27b1931ce9c828a039fbc0dfafacb59d0"
     }
 
     startup_probe_path   = "/api/info/startup"

@@ -3,6 +3,13 @@ import { setCredentials } from '../../core/auth/authSlice';
 import { useToast } from '../../contexts';
 import { useAppDispatch } from '../../hooks/store';
 import { useLazyGetSessionQuery } from './api';
+import { resolveRole } from './authDev/utils';
+import { AuthorizeResponseUserType } from '../../core/api/generated/model';
+
+const getRoleFromSessionResponse = (response: {
+  role?: AuthorizeResponseUserType;
+  user_type?: AuthorizeResponseUserType;
+}) => resolveRole(response.user_type ?? response.role);
 
 export function useAuthorize() {
   const dispatch = useAppDispatch();
@@ -12,6 +19,8 @@ export function useAuthorize() {
   const authorize = useCallback(
     async (id: string) => {
       const response = await trigger(id).unwrap();
+      const role = getRoleFromSessionResponse(response);
+
       dispatch(
         setCredentials({
           token: response.session_token,
@@ -19,10 +28,11 @@ export function useAuthorize() {
             id: response.operator_name,
             name: `${response.first_name} ${response.last_name}`.trim(),
             email: '',
-            role: response.role,
+            role,
           },
         }),
       );
+
       showToast('Session restored', 'success');
       return response;
     },

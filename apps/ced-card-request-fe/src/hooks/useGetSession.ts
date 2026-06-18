@@ -29,7 +29,7 @@ export const useGetSession = () => {
   const [getSession] = useLazyGetSessionQuery();
 
   const cachedSession = useSelector(selectCachedSession);
-  const isChachedSessionValid = useSelector(selectIsTokenValid);
+  const isCachedSessionValid = useSelector(selectIsTokenValid);
 
   const retrieveSession = useCallback(async () => {
     if (!redirectToken) {
@@ -44,7 +44,7 @@ export const useGetSession = () => {
       cachedSession?.redirectToken &&
       redirectToken === cachedSession.redirectToken
     ) {
-      if (isChachedSessionValid) return navigate(APP_ROUTES.HOME);
+      if (isCachedSessionValid) return navigate(APP_ROUTES.HOME);
       return navigate(APP_ROUTES.UNAUTHORIZED, {
         state: {
           status: redirectTokenError.status,
@@ -59,7 +59,7 @@ export const useGetSession = () => {
     } = await getSession(redirectToken);
 
     if (sessionError && isFetchBaseQueryError(sessionErrorMsg)) {
-      if (isChachedSessionValid && cachedSession) {
+      if (isCachedSessionValid && cachedSession) {
         return navigate(APP_ROUTES.HOME);
       }
       dispatch(authActions.clearToken());
@@ -87,7 +87,7 @@ export const useGetSession = () => {
     cachedSession,
     getSession,
     navigate,
-    isChachedSessionValid,
+    isCachedSessionValid,
     dispatch,
     deviceId,
   ]);

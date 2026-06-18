@@ -1,8 +1,7 @@
-// features/auth/selectors.ts
 import { createSelector } from '@reduxjs/toolkit';
 import { RootState } from '../store';
 
-const EXPIRE_TIME = 30 * 60 * 1000; // 30 minuti in ms
+const EXPIRE_TIME = 30 * 60 * 1000;
 
 export const selectToken = (state: RootState) => state.auth.token;
 

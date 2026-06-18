@@ -2,6 +2,7 @@ import { lazy } from 'react';
 
 export const APP_ROUTES = {
   HOME: '/',
+  AUTHORIZE: '/authorize',
   CONSENT: '/consent',
   LOADING: '/loading',
   APPLICATION: '/application',

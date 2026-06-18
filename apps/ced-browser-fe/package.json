@@ -12,8 +12,7 @@
     "lint:check": "eslint .",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "mock:start": "npx @mockoon/cli start --data mockoon/mockoon-config.json",
-    "generate": "orval"
+    "mock:start": "npx @mockoon/cli start --data mockoon/mockoon-config.json"
   },
   "dependencies": {
     "swiper": "^12.1.0",
@@ -60,7 +59,6 @@
     "vite": "^6.0.0",
     "vite-plugin-typescript": "^1.0.4",
     "vite-tsconfig-paths": "^5.0.1",
-    "vitest": "^3.2.4",
-    "orval": "^8.9.0"
+    "vitest": "^3.2.4"
   }
 }

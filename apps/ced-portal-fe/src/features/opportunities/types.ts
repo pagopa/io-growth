@@ -1,12 +1,11 @@
 import type { ApproveOpportunityBody } from '../../core/api/generated/model/approveOpportunityBody';
 import type { ListOperatorOpportunitiesStatus } from '../../core/api/generated/model/listOperatorOpportunitiesStatus';
-import type { LocalizedMetadataItem } from '../../core/api/generated/model/localizedMetadataItem';
 import type { OpportunityDetailAdminResponse } from '../../core/api/generated/model/opportunityDetailAdminResponse';
 import type { OpportunityDetailResponse } from '../../core/api/generated/model/opportunityDetailResponse';
 import type { OpportunityListResponse } from '../../core/api/generated/model/opportunityListResponse';
 import type { OpportunitySummaryItem } from '../../core/api/generated/model/opportunitySummaryItem';
+export { type LocalizedMetadataItem } from '../../core/api/generated/model/localizedMetadataItem';
 
-export type { LocalizedMetadataItem };
 export type OpportunityDetail = OpportunityDetailResponse;
 export type OpportunitiesResponse = OpportunityListResponse;
 export type Opportunity = OpportunitySummaryItem;

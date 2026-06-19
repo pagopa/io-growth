@@ -45,8 +45,10 @@ import {
   mountListOpportunityCategoriesHandler,
   mountListPendingOnboardingsHandler,
   mountOperatorRequestOpportunityTestHandler,
+  mountPublishOpportunityHandler,
 } from "./adapters/inbound/fastify/index.js";
 import { createArOnboardingRepository } from "./adapters/outbound/ar/ar-onboarding.repository.js";
+import { createDrizzleMaterializedViewRepository } from "./adapters/outbound/drizzle/drizzle-materialized-view.repository.js";
 import { createDrizzleOperatorRepository } from "./adapters/outbound/drizzle/drizzle-operator.repository.js";
 import { createDrizzleOpportunityCategoryRepository } from "./adapters/outbound/drizzle/drizzle-opportunity-category.repository.js";
 import { createDrizzleOpportunityRepository } from "./adapters/outbound/drizzle/drizzle-opportunity.repository.js";
@@ -72,6 +74,7 @@ import { makeGetOpportunityUseCase } from "./application/use-cases/opportunities
 import { makeListOperatorOpportunitiesUseCase } from "./application/use-cases/opportunities/list-operator-opportunities.use-case.js";
 import { makeListOpportunityCategoriesUseCase } from "./application/use-cases/opportunities/list-opportunity-categories.use-case.js";
 import { makeOperatorRequestOpportunityTestUseCase } from "./application/use-cases/opportunities/operator-request-opportunity-test.use-case.js";
+import { makePublishOpportunityUseCase } from "./application/use-cases/opportunities/publish-opportunity.use-case.js";
 import { makeCreateOperatorPlaceUseCase } from "./application/use-cases/places/create-operator-place.use-case.js";
 import { makeGetOperatorPlaceUseCase } from "./application/use-cases/places/get-operator-place.use-case.js";
 import { makeListOperatorPlacesUseCase } from "./application/use-cases/places/list-operator-places.use-case.js";
@@ -135,6 +138,8 @@ const operatorRepository = createDrizzleOperatorRepository(dbClient);
 const opportunityCategoryRepository =
   createDrizzleOpportunityCategoryRepository(dbClient);
 const opportunityRepository = createDrizzleOpportunityRepository(dbClient);
+const materializedViewRepository =
+  createDrizzleMaterializedViewRepository(dbClient);
 const placeRepository = createDrizzlePlaceRepository(dbClient);
 const profileRepository = createDrizzleProfileRepository(dbClient);
 const arOnboardingRepository = createArOnboardingRepository(
@@ -245,6 +250,13 @@ app.register(async (app) => {
   mountOperatorRequestOpportunityTestHandler(
     app,
     makeOperatorRequestOpportunityTestUseCase(opportunityRepository),
+  );
+  mountPublishOpportunityHandler(
+    app,
+    makePublishOpportunityUseCase(
+      opportunityRepository,
+      materializedViewRepository,
+    ),
   );
   mountListPendingOnboardingsHandler(
     app,

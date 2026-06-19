@@ -14,6 +14,7 @@ export { mountGetOperatorOpportunityHandler } from "./opportunities/get-operator
 export { mountListOperatorOpportunitiesHandler } from "./opportunities/list-operator-opportunities.handler.js";
 export { mountListOpportunityCategoriesHandler } from "./opportunities/list-opportunity-categories.handler.js";
 export { mountOperatorRequestOpportunityTestHandler } from "./opportunities/operator-request-opportunity-test.handler.js";
+export { mountPublishOpportunityHandler } from "./opportunities/publish-operator-opportunity.handler.js";
 export { mountCreateOperatorPlaceHandler } from "./places/create-operator-place.handler.js";
 export { mountGetOperatorPlaceHandler } from "./places/get-operator-place.handler.js";
 export { mountListOperatorPlacesHandler } from "./places/list-operator-places.handler.js";

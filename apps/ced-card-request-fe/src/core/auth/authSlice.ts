@@ -1,30 +1,39 @@
-import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
-import type { AuthState, AuthUser } from './types';
+import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
-const initialState: AuthState = {
-  token: null,
-  user: null,
-};
-
-interface CredentialsPayload {
-  token: string;
-  user: AuthUser;
+export interface AuthState {
+  redirectToken?: string;
+  token?: string;
+  deviceId?: string;
+  savedAt?: number;
 }
+
+const initialState: AuthState = {};
 
 export const authSlice = createSlice({
   name: 'auth',
   initialState,
   reducers: {
-    setCredentials: (state, action: PayloadAction<CredentialsPayload>) => {
+    setToken: (
+      state,
+      action: PayloadAction<{
+        redirectToken: string;
+        token: string;
+        deviceId?: string;
+      }>,
+    ) => {
+      state.redirectToken = action.payload.redirectToken;
       state.token = action.payload.token;
-      state.user = action.payload.user;
+      state.deviceId = action.payload.deviceId;
+      state.savedAt = Date.now();
     },
-    clearSession: (state) => {
-      state.token = null;
-      state.user = null;
+    clearToken: (state) => {
+      state.token = undefined;
+      state.savedAt = undefined;
+      state.deviceId = undefined;
+      state.redirectToken = undefined;
     },
   },
 });
 
-export const { setCredentials, clearSession } = authSlice.actions;
+export const authActions = authSlice.actions;
 export const authReducer = authSlice.reducer;

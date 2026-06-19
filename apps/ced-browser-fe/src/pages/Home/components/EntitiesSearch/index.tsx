@@ -17,15 +17,15 @@ import { SearchResultsSkeleton } from './SearchResultsSkeleton';
 import { useDebounce } from '../../../../hooks/useDebounce';
 import { APP_ROUTES } from '../../../../app/routeConfig';
 
-type OpportunitySearchProps = {
+type EntitiesSearchProps = {
   isSearchActive: boolean;
   setIsSearchActive: (value: boolean) => void;
 };
 
-export function OpportunitySearch({
+export function EntitiesSearch({
   isSearchActive,
   setIsSearchActive,
-}: OpportunitySearchProps) {
+}: EntitiesSearchProps) {
   const inputRef = useRef<HTMLInputElement>(null);
 
   const [query, setQuery] = useState('');
@@ -39,8 +39,7 @@ export function OpportunitySearch({
   });
 
   const isLoading = hasMinQueryLength && (isDebouncing || isFetching);
-  const hasResults = !!data?.items.length;
-
+  const hasResults = hasMinQueryLength && !!data?.items.length;
   const showResults = !isLoading && hasResults;
   const showInitialState = isSearchActive && !hasMinQueryLength;
   const showEmpty = !isLoading && hasMinQueryLength && !hasResults;
@@ -53,8 +52,10 @@ export function OpportunitySearch({
   };
 
   const renderPanel = () => {
+    if (!isSearchActive) return null;
+
     if (isLoading) return <SearchResultsSkeleton />;
-    if (showResults)
+    if (showResults) {
       return (
         <SearchResults
           total={data.total}
@@ -63,11 +64,12 @@ export function OpportunitySearch({
           onItemPress={(id) => generatePath(APP_ROUTES.ENTITY_DETAIL, { id })}
         />
       );
+    }
     if (showInitialState) return <SearchInitialState />;
     if (showEmpty) return <SearchEmptyState />;
+
     return null;
   };
-
   return (
     <Box>
       <Box

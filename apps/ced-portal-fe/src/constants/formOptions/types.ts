@@ -22,37 +22,37 @@ export const benefitTypeMap: LocalizedBenefitTypesMap = {
   it: {
     discount: 'Sconto',
     free: 'Gratuito',
-    other: 'Altro',
     priority: 'Priorità',
     reduced_fixed_price: 'Prezzo fisso agevolato',
+    other: 'Altro',
   },
   de: {
     discount: 'Rabatt',
     free: 'Kostenlos',
-    other: 'Andere',
     priority: 'Priorität',
     reduced_fixed_price: 'Ermäßigter Festpreis',
+    other: 'Andere',
   },
   en: {
     discount: 'Discount',
     free: 'Free',
-    other: 'Other',
     priority: 'Priority',
     reduced_fixed_price: 'Reduced fixed price',
+    other: 'Other',
   },
   fr: {
     discount: 'Remise',
     free: 'Gratuit',
-    other: 'Autre',
     priority: 'Priorité',
     reduced_fixed_price: 'Prix fixe réduit',
+    other: 'Autre',
   },
   sl: {
     discount: 'Popust',
     free: 'Brezplačno',
-    other: 'Drugo',
     priority: 'Prednostna obravnava',
     reduced_fixed_price: 'Znižana fiksna cena',
+    other: 'Drugo',
   },
 };
 

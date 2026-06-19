@@ -1,5 +1,5 @@
 import { Box, Button, Stack, Typography, useTheme } from '@mui/material';
-import { SyntheticEvent, useMemo, useState } from 'react';
+import { SyntheticEvent, useCallback, useMemo, useState } from 'react';
 import { FiltersBar, PageTabs, ResultsPagination } from '../../components';
 import { useApproveOpportunityMutation } from '../../features/opportunities/api';
 import { useOpportunitiesData } from '../../features/opportunities/hooks';
@@ -70,6 +70,40 @@ export default function OpportunitiesPage() {
     setFilters(INITIAL_FILTERS);
     setPage(1);
   };
+
+  const handlePublish = useCallback(async () => {
+    if (idsToPublish.length === 0 || isApproving) {
+      return;
+    }
+
+    try {
+      await Promise.all(
+        idsToPublish.map((id) => {
+          const opportunity = displayedItems.find((item) => item.id === id);
+
+          return approveOpportunity({
+            id,
+            payload: opportunity?.dateFrom
+              ? { dateFrom: opportunity.dateFrom }
+              : undefined,
+          }).unwrap();
+        }),
+      );
+
+      setPublishModalOpen(false);
+      setSelected(new Set());
+      setIdsToPublish([]);
+      showToast('Opportunità approvata con successo', 'success');
+    } catch {
+      showToast("Errore durante l'approvazione dell'opportunità", 'error');
+    }
+  }, [
+    idsToPublish,
+    isApproving,
+    showToast,
+    displayedItems,
+    approveOpportunity,
+  ]);
 
   return (
     <Box
@@ -163,37 +197,7 @@ export default function OpportunitiesPage() {
       <PublishModal
         open={publishModalOpen}
         onClose={() => setPublishModalOpen(false)}
-        onPublish={async () => {
-          if (idsToPublish.length === 0 || isApproving) {
-            return;
-          }
-
-          try {
-            await Promise.all(
-              idsToPublish.map((id) => {
-                const opportunity = displayedItems.find(
-                  (item) => item.id === id,
-                );
-
-                return approveOpportunity({
-                  id,
-                  payload: opportunity?.dateFrom
-                    ? { dateFrom: opportunity.dateFrom }
-                    : undefined,
-                }).unwrap();
-              }),
-            );
-            setPublishModalOpen(false);
-            setSelected(new Set());
-            setIdsToPublish([]);
-            showToast('Opportunità approvata con successo', 'success');
-          } catch {
-            showToast(
-              "Errore durante l'approvazione dell'opportunità",
-              'error',
-            );
-          }
-        }}
+        onPublish={handlePublish}
         count={publishCount}
       />
     </Box>

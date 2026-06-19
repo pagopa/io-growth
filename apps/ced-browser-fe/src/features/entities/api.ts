@@ -1,10 +1,10 @@
 import { baseApi } from '../../core/api/baseApi.js';
 import type {
-  EntityDetail,
-  EntitySearchResponse,
-  AccessPointDetail,
+  PlaceSearchResponse,
+  PlaceDetail,
   OpportunityDetail,
-} from './types.js';
+} from '../../core/api/generated/model/index.js';
+import type { EntityDetail } from './types.js';
 
 export const entitiesApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
@@ -12,18 +12,20 @@ export const entitiesApi = baseApi.injectEndpoints({
       query: (id) => `/entities/${id}`,
       providesTags: (_result, _error, id) => [{ type: 'Entities', id }],
     }),
-    searchEntities: builder.query<EntitySearchResponse, string>({
-      query: (q) => `/entities/search?q=${encodeURIComponent(q)}`,
+    searchEntities: builder.query<PlaceSearchResponse, string>({
+      query: (q) => `/search?q=${encodeURIComponent(q)}`,
       providesTags: ['Entities'],
     }),
     getAccessPointDetail: builder.query<
-      AccessPointDetail,
-      { entityId: string; accessPointId: string }
+      PlaceDetail,
+      { accessPointId: string; language?: string }
     >({
-      query: ({ entityId, accessPointId }) =>
-        `/entities/${entityId}/access-points/${accessPointId}`,
-      providesTags: (_result, _error, { entityId, accessPointId }) => [
-        { type: 'Entities', id: `${entityId}-ap-${accessPointId}` },
+      query: ({ accessPointId, language }) => ({
+        url: `/places/${accessPointId}`,
+        headers: language ? { 'Accept-Language': language } : {},
+      }),
+      providesTags: (_result, _error, { accessPointId }) => [
+        { type: 'Entities', id: accessPointId },
       ],
     }),
     getOpportunityDetail: builder.query<OpportunityDetail, string>({

@@ -1,8 +1,30 @@
-import type { RootState } from '../store';
+import { createSelector } from '@reduxjs/toolkit';
+import { RootState } from '../store';
 
-export const selectAuthState = (state: RootState) => state.auth;
-export const selectToken = (state: RootState) => selectAuthState(state).token;
-export const selectUser = (state: RootState) => selectAuthState(state).user;
-export const selectUserRole = (state: RootState) => selectUser(state)?.role;
-export const selectIsAuthenticated = (state: RootState) =>
-  Boolean(selectToken(state));
+const EXPIRE_TIME = 30 * 60 * 1000;
+
+export const selectToken = (state: RootState) => state.auth.token;
+
+export const selectSavedAt = ({ auth }: RootState) => auth?.savedAt;
+
+export const selectRedirectToken = ({ auth }: RootState) => auth?.redirectToken;
+
+export const selectDeviceId = ({ auth }: RootState) => auth?.deviceId;
+
+export const selectIsTokenValid = createSelector(
+  selectToken,
+  selectSavedAt,
+  (token, savedAt) =>
+    Boolean(token && savedAt && Date.now() - savedAt < EXPIRE_TIME),
+);
+
+export const selectCachedSession = createSelector(
+  selectToken,
+  selectRedirectToken,
+  (token, redirectToken) => ({ token, redirectToken }),
+);
+
+export const selectIsAuthenticated = createSelector(
+  selectIsTokenValid,
+  (isValid) => isValid,
+);

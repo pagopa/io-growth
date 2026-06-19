@@ -6,4 +6,12 @@ export default defineConfig({
   resolve: {
     dedupe: ['react', 'react-dom', '@mui/material', '@mui/system'],
   },
+  server: {
+    proxy: {
+      '/api': {
+        target: 'http://localhost:8080',
+        changeOrigin: true,
+      },
+    },
+  },
 });

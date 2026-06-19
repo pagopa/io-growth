@@ -220,7 +220,7 @@ export function AgreementDetailsSection({
               handleLocalizedFieldChange('description', event.target.value)
             }
           >
-            <AppTextField fullWidth inputProps={{ maxLength: 250 }} />
+            <AppTextField fullWidth inputProps={{ maxLength: 500 }} />
           </DetailFormField>
 
           <DetailFormField
@@ -265,7 +265,7 @@ export function AgreementDetailsSection({
               handleLocalizedFieldChange('condition', event.target.value)
             }
           >
-            <AppTextField fullWidth inputProps={{ maxLength: 200 }} />
+            <AppTextField fullWidth inputProps={{ maxLength: 500 }} />
           </DetailFormField>
         </Stack>
       </Stack>

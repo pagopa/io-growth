@@ -44,9 +44,9 @@ export const EntityDataSection = ({
   addressError,
 }: EntityDataSectionProps) => {
   const isWebsite = sede === 'sito_web';
-  const locationFieldLabel = isWebsite ? 'Url' : 'Indirizzo';
+  const locationFieldLabel = isWebsite ? 'URL' : 'Indirizzo';
   const locationFieldPlaceholder = isWebsite
-    ? 'Inserisci url'
+    ? 'Inserisci URL'
     : "Inserisci l'indirizzo";
 
   return (
@@ -171,7 +171,7 @@ export const EntityDataSection = ({
           <UploadDropzone
             selectedFileName={coverFile?.name}
             onFileSelect={onCoverSelect}
-            title={'Trascina qui immagine di copertina'}
+            title={"Trascina qui un'immagine di copertina"}
             subtitle={'Dimensione massima 300 x 600 px - Formato .jpg o .png'}
           />
         </Stack>

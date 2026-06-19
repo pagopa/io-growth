@@ -33,7 +33,7 @@ export default function CardRequestConsentPage() {
         <Title text="Ci dai il tuo consenso?" variant="LG" />
         <VSpacer />
         <Body>
-          Per poter richiedere la Carta Europa della Disabilita abbiamo bisogno
+          Per poter richiedere la Carta Europa della Disabilità abbiamo bisogno
           di fornire alcuni tuoi dati all&apos;INPS.
         </Body>
 

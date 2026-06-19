@@ -25,12 +25,12 @@ export default function CardRequestInfoPage() {
   \nLa richiesta della carta è **gratuita** e non ci sono **limiti di utilizzo**.
   \n![alt](${CED_frame1})
   ##### Chi può richiederla?
-  Le persone con disabilita in possesso di un documento ufficiale che attesti la propria condizione.
+  Le persone con disabilità in possesso di un documento ufficiale che attesti la propria condizione.
   \n[Consulta le categorie di aventi diritto](${CATEGORIES_URL}).
   \n
   ##### Cosa serve
   Ti basta premere su "Richiedi la Carta" e in pochi passaggi puoi inviare la richiesta all'INPS.
-  \nTi servirà **una foto in primo piano** e potrebbe esserti richiesto anche il **documento che attesta l'invalidita**.
+  \nTi servirà **una foto in primo piano** e potrebbe esserti richiesto anche il **documento che attesta l'invalidità**.
   \nDopo il rilascio, potrai anche aggiungere la versione digitale della carta al Portafoglio.
   ![alt](${CED_frame2})
   ##### Come si usa

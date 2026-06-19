@@ -33,8 +33,7 @@ export function StepTwo({ attempted }: StepProps) {
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
       {needsLocation && (
         <WizardAlert>
-          Seleziona &quot;Su tutto il territorio nazionale&quot; o indica almeno
-          una sede.
+          Seleziona &quot;Ovunque&quot; o indica almeno una sede.
         </WizardAlert>
       )}
       {needsWebsite && <WizardAlert>Indica almeno un sito web.</WizardAlert>}

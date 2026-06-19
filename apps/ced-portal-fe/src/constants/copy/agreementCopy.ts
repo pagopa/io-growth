@@ -63,7 +63,7 @@ export const AGREEMENT_COPY_CONFIG: Record<string, AgreementCopy> = {
     detailsForm: {
       sectionTitle: "Dettagli dell'opportunità",
       sectionDescription:
-        "Inserisci i dettagli dell'opportunità che vuoi attivare. Se vuoi, puoi anche aggiungere le traduzioni in altre lingue.",
+        'Inserisci i dettagli dell’opportunità, facendo in modo che sia semplice da capire e da utilizzare per tutti i cittadini UE. Puoi aggiungere anche le traduzioni in altre lingue.',
       nameLabel: 'Nome',
       namePlaceholder: "Digita il nome dell'opportunità",
       nameHelperText: 'Inserisci un testo di max 50 caratteri',

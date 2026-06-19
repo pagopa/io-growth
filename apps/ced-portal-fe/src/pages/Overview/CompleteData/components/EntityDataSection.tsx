@@ -44,9 +44,9 @@ export const EntityDataSection = ({
   addressError,
 }: EntityDataSectionProps) => {
   const isWebsite = sede === 'sito_web';
-  const locationFieldLabel = isWebsite ? 'Url' : 'Indirizzo';
+  const locationFieldLabel = isWebsite ? 'URL' : 'Indirizzo';
   const locationFieldPlaceholder = isWebsite
-    ? 'Inserisci url'
+    ? 'Inserisci URL'
     : "Inserisci l'indirizzo";
 
   return (

@@ -57,6 +57,7 @@ export const createGestioneDomandaCedClient = (
           `checkDomanda failed with status ${String(response.status)}`,
         ),
       );
+    } catch (error) {
       return err(new GenericError(`checkDomanda failed: ${String(error)}`));
     }
   },

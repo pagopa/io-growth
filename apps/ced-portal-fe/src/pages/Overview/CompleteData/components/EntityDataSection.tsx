@@ -171,7 +171,7 @@ export const EntityDataSection = ({
           <UploadDropzone
             selectedFileName={coverFile?.name}
             onFileSelect={onCoverSelect}
-            title={'Trascina qui immagine di copertina'}
+            title={"Trascina qui un'immagine di copertina"}
             subtitle={'Dimensione massima 300 x 600 px - Formato .jpg o .png'}
           />
         </Stack>

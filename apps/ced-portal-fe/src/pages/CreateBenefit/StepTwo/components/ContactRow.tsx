@@ -2,6 +2,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import { Box, IconButton, useTheme } from '@mui/material';
 import { AppSelect, AppTextField } from '../../../../components';
 import type { SupportContactCreateRequest } from '../../../../core/api/generated/model';
+import { useState } from 'react';
 
 const CONTACT_TYPE_OPTIONS = [
   { label: 'Email', value: 'email' },
@@ -24,8 +25,9 @@ export function ContactRow({
   index,
   onRemove,
   onChange,
-}: ContactRowProps) {
+}: Readonly<ContactRowProps>) {
   const theme = useTheme();
+  const [fieldType, setFieldType] = useState('');
 
   return (
     <Box
@@ -56,9 +58,10 @@ export function ContactRow({
           label="Tipo di contatto"
           options={CONTACT_TYPE_OPTIONS}
           value={contact.type}
-          onChange={(e) =>
-            onChange({ index, field: 'type', value: e.target.value as string })
-          }
+          onChange={(e) => {
+            onChange({ index, field: 'type', value: e.target.value as string });
+            setFieldType(e.target.value as string);
+          }}
           sx={{
             minWidth: { xs: 0, sm: '200px' },
             maxWidth: { xs: '100%', sm: '200px' },
@@ -66,9 +69,8 @@ export function ContactRow({
           }}
         />
       </Box>
-
       <AppTextField
-        label="Inserisci contatto"
+        label={fieldType === 'website' ? 'Inserisci URL' : 'Inserisci contatto'}
         value={contact.value}
         onChange={(e) =>
           onChange({ index, field: 'value', value: e.target.value })

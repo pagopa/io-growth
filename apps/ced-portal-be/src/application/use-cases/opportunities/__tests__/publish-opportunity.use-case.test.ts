@@ -4,11 +4,13 @@ import { describe, expect, it, vi } from "vitest";
 
 import type { OpportunityDetail } from "../../../../domain/entities/opportunity.js";
 import type { MaterializedViewRepository } from "../../../../domain/ports/outbound/materialized-view.repository.js";
+import type { ProfileRepository } from "../../../../domain/ports/outbound/persistence/profile.repository.js";
 
 import { makePublishOpportunityUseCase } from "../publish-opportunity.use-case.js";
 import {
   createMockMaterializedViewRepository,
   createMockOpportunityRepository,
+  createMockProfileRepository,
   MOCK_OPERATOR_ID,
 } from "./mocks.js";
 
@@ -31,6 +33,7 @@ const mockOpportunity = (
   dateTo: "2026-12-31",
   id: MOCK_OPPORTUNITY_ID,
   localizedMetadata: [{ key: "name", language: "it", value: "Discount 20%" }],
+  nationalTerritory: false,
   placeIds: ["01JVMK3N8XQZP5T6G2WYHAB4CD"],
   status,
   updatedAt: "2026-01-01T00:00:00.000Z",
@@ -42,6 +45,7 @@ const makeDeps = (overrides?: {
   opportunityRepository?: Partial<
     Parameters<typeof createMockOpportunityRepository>[0]
   >;
+  profileRepository?: Partial<ProfileRepository>;
 }) => ({
   materializedViewRepository: createMockMaterializedViewRepository(
     overrides?.materializedViewRepository,
@@ -49,6 +53,7 @@ const makeDeps = (overrides?: {
   opportunityRepository: createMockOpportunityRepository(
     overrides?.opportunityRepository,
   ),
+  profileRepository: createMockProfileRepository(overrides?.profileRepository),
 });
 
 const validInput = {
@@ -72,6 +77,7 @@ describe("makePublishOpportunityUseCase - dateFrom refresh logic", () => {
     const useCase = makePublishOpportunityUseCase(
       deps.opportunityRepository,
       deps.materializedViewRepository,
+      deps.profileRepository,
     );
 
     const result = await useCase(validInput);
@@ -101,6 +107,7 @@ describe("makePublishOpportunityUseCase - dateFrom refresh logic", () => {
     const useCase = makePublishOpportunityUseCase(
       deps.opportunityRepository,
       deps.materializedViewRepository,
+      deps.profileRepository,
     );
 
     const result = await useCase(validInput);
@@ -128,6 +135,7 @@ describe("makePublishOpportunityUseCase - status guard", () => {
     const useCase = makePublishOpportunityUseCase(
       deps.opportunityRepository,
       deps.materializedViewRepository,
+      deps.profileRepository,
     );
 
     const result = await useCase(validInput);
@@ -152,6 +160,7 @@ describe("makePublishOpportunityUseCase - status guard", () => {
     const useCase = makePublishOpportunityUseCase(
       deps.opportunityRepository,
       deps.materializedViewRepository,
+      deps.profileRepository,
     );
 
     const result = await useCase(validInput);
@@ -188,6 +197,7 @@ describe("makePublishOpportunityUseCase - status guard", () => {
     const useCase = makePublishOpportunityUseCase(
       deps.opportunityRepository,
       deps.materializedViewRepository,
+      deps.profileRepository,
     );
 
     const result = await useCase(validInput);
@@ -195,6 +205,34 @@ describe("makePublishOpportunityUseCase - status guard", () => {
     expect(result).toEqual(
       err(expect.objectContaining({ kind: "ConflictError" })),
     );
+    expect(deps.materializedViewRepository.refreshAll).not.toHaveBeenCalled();
+  });
+
+  it("should return PreconditionFailedError when operator has no profile", async () => {
+    const deps = makeDeps({
+      opportunityRepository: {
+        findByIdAndOperatorId: vi
+          .fn()
+          .mockResolvedValue(ok(mockOpportunity("test_passed"))),
+      },
+      profileRepository: {
+        getByOperatorId: vi.fn().mockResolvedValue(ok(undefined)),
+      },
+    });
+    const useCase = makePublishOpportunityUseCase(
+      deps.opportunityRepository,
+      deps.materializedViewRepository,
+      deps.profileRepository,
+    );
+
+    const result = await useCase(validInput);
+
+    expect(result).toEqual(
+      err(expect.objectContaining({ kind: "PreconditionFailedError" })),
+    );
+    expect(
+      deps.opportunityRepository.updateStatusByIdAndOperatorId,
+    ).not.toHaveBeenCalled();
     expect(deps.materializedViewRepository.refreshAll).not.toHaveBeenCalled();
   });
 });
@@ -210,6 +248,7 @@ describe("makePublishOpportunityUseCase - error propagation", () => {
     const useCase = makePublishOpportunityUseCase(
       deps.opportunityRepository,
       deps.materializedViewRepository,
+      deps.profileRepository,
     );
 
     const result = await useCase(validInput);
@@ -236,6 +275,7 @@ describe("makePublishOpportunityUseCase - error propagation", () => {
     const useCase = makePublishOpportunityUseCase(
       deps.opportunityRepository,
       deps.materializedViewRepository,
+      deps.profileRepository,
     );
 
     const result = await useCase(validInput);
@@ -263,6 +303,7 @@ describe("makePublishOpportunityUseCase - error propagation", () => {
     const useCase = makePublishOpportunityUseCase(
       deps.opportunityRepository,
       deps.materializedViewRepository,
+      deps.profileRepository,
     );
 
     const result = await useCase(validInput);
@@ -278,6 +319,7 @@ describe("makePublishOpportunityUseCase - input validation", () => {
     const useCase = makePublishOpportunityUseCase(
       deps.opportunityRepository,
       deps.materializedViewRepository,
+      deps.profileRepository,
     );
 
     const result = await useCase({
@@ -298,6 +340,7 @@ describe("makePublishOpportunityUseCase - input validation", () => {
     const useCase = makePublishOpportunityUseCase(
       deps.opportunityRepository,
       deps.materializedViewRepository,
+      deps.profileRepository,
     );
 
     const result = await useCase({

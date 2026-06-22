@@ -14,6 +14,7 @@ import { z } from "zod";
 
 import type { MaterializedViewRepository } from "../../../domain/ports/outbound/materialized-view.repository.js";
 import type { OpportunityRepository } from "../../../domain/ports/outbound/persistence/opportunity.repository.js";
+import type { ProfileRepository } from "../../../domain/ports/outbound/persistence/profile.repository.js";
 
 import { validateUseCaseInput } from "../utils/validate-use-case-input.js";
 
@@ -40,6 +41,7 @@ export const makePublishOpportunityUseCase =
   (
     opportunityRepository: OpportunityRepository,
     materializedViewRepository: MaterializedViewRepository,
+    profileRepository: ProfileRepository,
   ): PublishOpportunityUseCase =>
   async (input) =>
     validateUseCaseInput(PublishOpportunityInputSchema, input).andThen(
@@ -58,21 +60,33 @@ export const makePublishOpportunityUseCase =
                 "Opportunity must be in test_passed status to be published",
               ),
             );
-          const today = new Date().toISOString().slice(0, 10);
 
           return new ResultAsync(
-            opportunityRepository.updateStatusByIdAndOperatorId({
-              expectedStatus: "test_passed",
-              operatorId: validatedInput.operatorId,
-              opportunityId: validatedInput.opportunityId,
-              status: "published",
-            }),
-          ).andThen(() =>
-            data.dateFrom <= today
-              ? new ResultAsync(materializedViewRepository.refreshAll()).orElse(
-                  () => okAsync(undefined),
-                )
-              : okAsync(undefined),
-          );
+            profileRepository.getByOperatorId(validatedInput.operatorId),
+          ).andThen((profile) => {
+            if (!profile)
+              return errAsync(
+                new PreconditionFailedError(
+                  "Operator must have a profile to publish an opportunity",
+                ),
+              );
+
+            const today = new Date().toISOString().slice(0, 10);
+
+            return new ResultAsync(
+              opportunityRepository.updateStatusByIdAndOperatorId({
+                expectedStatus: "test_passed",
+                operatorId: validatedInput.operatorId,
+                opportunityId: validatedInput.opportunityId,
+                status: "published",
+              }),
+            ).andThen(() =>
+              data.dateFrom <= today
+                ? new ResultAsync(
+                    materializedViewRepository.refreshAll(),
+                  ).orElse(() => okAsync(undefined))
+                : okAsync(undefined),
+            );
+          });
         }),
     );

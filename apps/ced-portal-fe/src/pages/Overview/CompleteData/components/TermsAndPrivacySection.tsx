@@ -38,16 +38,16 @@ export const TermsAndPrivacySection = ({
         </Stack>
         <AppTextField
           fullWidth
-          label="Inserisci il link all’Informativa sulla privacy dell’ente relativa all’opportunità"
-          placeholder="Inserisci il link all’Informativa sulla privacy dell’ente relativa all’opportunità"
+          label="Inserisci il link all’Informativa Privacy"
+          placeholder="Inserisci il link all’Informativa Privacy"
           value={privacyUrl}
           onChange={handlePrivacyUrlChange}
           sx={{ '& .MuiOutlinedInput-root': { borderRadius: '8px' } }}
         />
         <AppTextField
           fullWidth
-          label="Inserisci il link ai Termini e condizioni d’uso applicabili all’opportunità"
-          placeholder="Inserisci il link ai Termini e condizioni d’uso applicabili all’opportunità"
+          label="Inserisci il link ai Termini e condizioni d’uso"
+          placeholder="Inserisci il link ai Termini e condizioni d’uso"
           value={termsUrl}
           onChange={handleTermsUrlChange}
           sx={{ '& .MuiOutlinedInput-root': { borderRadius: '8px' } }}

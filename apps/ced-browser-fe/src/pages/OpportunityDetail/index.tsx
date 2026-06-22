@@ -1,3 +1,4 @@
+import { TheaterComedy } from '@mui/icons-material';
 import OpenInNewOutlinedIcon from '@mui/icons-material/OpenInNewOutlined';
 import {
   Box,
@@ -16,17 +17,12 @@ import {
   QueryGuard,
   SectionTitle,
 } from '../../components/index.js';
+import type { OpportunityBenefit } from '../../core/api/generated/model/index.js';
 import { useGetOpportunityDetailQuery } from '../../features/entities/api.js';
-import { TheaterComedy } from '@mui/icons-material';
-import type { OpportunitySummaryBeneficiaryBenefitType } from '../../core/api/generated/model/index.js';
 
-function formatBadgeLabel(
-  type: OpportunitySummaryBeneficiaryBenefitType,
-  value: number,
-): string {
-  if (type === 'percentual') return `-${value}%`;
-  if (type === 'absolute') return `-${value}€`;
-  return String(value);
+function formatBadgeLabel(benefit: OpportunityBenefit): string {
+  if (benefit.discountType === 'percentage') return `-${benefit.value}%`;
+  return `-${benefit.value}€`;
 }
 
 function formatVenueAddress(venue: {
@@ -104,10 +100,7 @@ export default function OpportunityDetailPage() {
                 mb: 2,
               }}
             >
-              {formatBadgeLabel(
-                resolvedData.beneficiary_benefit_type,
-                resolvedData.beneficiary_benefit_value,
-              )}
+              {formatBadgeLabel(resolvedData.beneficiaryBenefit)}
             </Box>
 
             <Typography
@@ -171,7 +164,7 @@ export default function OpportunityDetailPage() {
 
             <Divider />
 
-            {resolvedData.caregiver_benefit_value != null && (
+            {resolvedData.caregiverBenefit != null && (
               <>
                 <Box sx={{ py: 2 }}>
                   <Typography component="p" sx={sectionSx.label}>
@@ -190,7 +183,7 @@ export default function OpportunityDetailPage() {
                 Periodo di validità
               </Typography>
               <Typography sx={sectionSx.body}>
-                {formatDate(resolvedData.date_to ?? resolvedData.date_from)}
+                {formatDate(resolvedData.dateTo ?? resolvedData.dateFrom)}
               </Typography>
             </Box>
 
@@ -228,18 +221,18 @@ export default function OpportunityDetailPage() {
 
             <Box sx={{ mx: -3 }}>
               <SectionTitle label="Valida presso" />
-              {resolvedData.venues.map((venue) => (
+              {resolvedData.places.map((place) => (
                 <DiscoveryListItem
-                  key={venue.id}
+                  key={place.id}
                   variant="simple"
-                  title={venue.name}
-                  subtitle={formatVenueAddress(venue)}
+                  title={place.name}
+                  subtitle={formatVenueAddress(place)}
                   onClick={() =>
                     navigate(
                       APP_ROUTES.ENTITY_ACCESS_POINT_DETAIL.replace(
                         ':id',
                         '',
-                      ).replace(':accessPointId', venue.id),
+                      ).replace(':accessPointId', place.id),
                     )
                   }
                   sx={{ px: 0, bgcolor: 'background.paper' }}

@@ -108,6 +108,11 @@ export const verifyHttpSignature = async (
     `[FIMS][http-sig][verifyHttpSignature] url="${url}" algo="${algo}" thumbprint="${thumbprint}" signatureInput="${(headers as unknown as Record<string, string>)["signature-input"] ?? "(none)"}"`,
   ); // TO REMOVE
 
+  console.debug(
+    // TO REMOVE
+    `[FIMS][http-sig][verifyHttpSignature] lollipopHeadersReceived=${JSON.stringify(Object.keys(headers as unknown as Record<string, string>).filter((h) => h.startsWith("x-pagopa-lollipop-")))}`,
+  );
+
   const result = await verifySignatureHeader({
     httpHeaders: headers as unknown as Record<string, string>,
     method: "GET",

@@ -14,7 +14,10 @@ interface AgreementAdditionalSectionsCopy {
       percentage: string;
       fixed: string;
     };
-    discountValueLabel: string;
+    discountValueLabel: {
+      percentage: string;
+      fixed_amount: string;
+    };
     otherBenefitTypeLabel: string;
   };
   validity: {
@@ -39,7 +42,10 @@ interface AgreementDetailsFormCopy {
   nameHelperText: string;
   benefitTypeLabel: string;
   benefitTypePlaceholder: string;
-  discountValueLabel: string;
+  discountValueLabel: {
+    percentage: string;
+    fixed_amount: string;
+  };
   discountValueError: string;
   otherBenefitTypeLabel: string;
   descriptionLabel: string;
@@ -69,7 +75,10 @@ export const AGREEMENT_COPY_CONFIG: Record<string, AgreementCopy> = {
       nameHelperText: 'Inserisci un testo di max 50 caratteri',
       benefitTypeLabel: 'Tipo di opportunità',
       benefitTypePlaceholder: 'Seleziona una tipologia',
-      discountValueLabel: 'Importo dello sconto',
+      discountValueLabel: {
+        percentage: 'Percentuale dello sconto',
+        fixed_amount: 'Importo dello sconto',
+      },
       discountValueError: 'Inserisci un valore compreso tra 10 e 100',
       otherBenefitTypeLabel: 'Scrivi il tipo di opportunità che vuoi offrire',
       descriptionLabel: 'Descrizione',
@@ -98,7 +107,10 @@ export const AGREEMENT_COPY_CONFIG: Record<string, AgreementCopy> = {
           percentage: 'Percentuale',
           fixed: 'Importo fisso',
         },
-        discountValueLabel: 'Importo dello sconto',
+        discountValueLabel: {
+          percentage: 'Percentuale dello sconto',
+          fixed_amount: 'Importo dello sconto',
+        },
         otherBenefitTypeLabel: 'Scrivi il tipo di opportunità che vuoi offrire',
       },
       validity: {
@@ -126,7 +138,10 @@ export const AGREEMENT_COPY_CONFIG: Record<string, AgreementCopy> = {
       nameHelperText: 'Enter a text up to 50 characters',
       benefitTypeLabel: 'Benefit type',
       benefitTypePlaceholder: 'Select a type',
-      discountValueLabel: 'Discount amount',
+      discountValueLabel: {
+        percentage: 'Discount percentage',
+        fixed_amount: 'Discount amount',
+      },
       discountValueError: 'Enter a value between 10 and 100',
       otherBenefitTypeLabel: 'Write the benefit type you want to offer',
       descriptionLabel: 'Description',
@@ -155,7 +170,10 @@ export const AGREEMENT_COPY_CONFIG: Record<string, AgreementCopy> = {
           percentage: 'Percentage',
           fixed: 'Fixed amount',
         },
-        discountValueLabel: 'Discount amount',
+        discountValueLabel: {
+          percentage: 'Discount percentage',
+          fixed_amount: 'Discount amount',
+        },
         otherBenefitTypeLabel: 'Write the benefit type you want to offer',
       },
       validity: {

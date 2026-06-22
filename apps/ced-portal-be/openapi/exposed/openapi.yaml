@@ -489,12 +489,12 @@ paths:
                   summary: Opportunity is not in test_passed status
                   value:
                     statusCode: 412
-                    message: Opportunity must be in test_passed status to be published
+                    message: "Precondition failed: Opportunity must be in test_passed status to be published"
                 operatorHasNoProfile:
                   summary: Operator has no profile
                   value:
                     statusCode: 412
-                    message: Operator must have a profile to publish an opportunity
+                    message: "Precondition failed: Operator must have a profile to publish an opportunity"
   /operator/opportunities:
     get:
       tags:

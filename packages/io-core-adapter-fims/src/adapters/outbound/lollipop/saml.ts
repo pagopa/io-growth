@@ -112,7 +112,7 @@ const validateXPathStringLiteral = (value: string, field: string): void => {
 
 const getIdpKeysFromMetadata = (doc: Document, idp: string): string[] => {
   validateXPathStringLiteral(idp, "Issuer");
-  const expression = `/*[local-name()='EntityDescriptor'][contains(@entityID,'${idp}')]/*[local-name()='IDPSSODescriptor']/*[local-name()='KeyDescriptor']//*[name()='ds:X509Certificate']/text()`;
+  const expression = `//*[local-name()='EntityDescriptor'][contains(@entityID,'${idp}')]/*[local-name()='IDPSSODescriptor']/*[local-name()='KeyDescriptor']//*[name()='ds:X509Certificate']/text()`;
 
   const selection = xpath
     .select(expression, doc as unknown as Node)
@@ -212,6 +212,7 @@ export const verifyAssertionSignatures = async (
       .filter((ts) => ts <= issueInstantTs)
       .sort()
       .pop();
+
     if (!suitableTs) {
       return err(
         new UnauthorizedError(

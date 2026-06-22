@@ -1,6 +1,7 @@
 import { Box, Button, Stack, Typography, useTheme } from '@mui/material';
-import { SyntheticEvent, useMemo, useState } from 'react';
+import { SyntheticEvent, useCallback, useMemo, useState } from 'react';
 import { FiltersBar, PageTabs, ResultsPagination } from '../../components';
+import { useApproveOpportunityMutation } from '../../features/opportunities/api';
 import { useOpportunitiesData } from '../../features/opportunities/hooks';
 import type { OpportunityFilters } from '../../features/opportunities/types';
 import { PublishModal } from '../../components/PublishModal';
@@ -26,6 +27,9 @@ export default function OpportunitiesPage() {
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [publishModalOpen, setPublishModalOpen] = useState(false);
   const [publishCount, setPublishCount] = useState(0);
+  const [idsToPublish, setIdsToPublish] = useState<string[]>([]);
+  const [approveOpportunity, { isLoading: isApproving }] =
+    useApproveOpportunityMutation();
 
   const {
     newItems,
@@ -67,6 +71,40 @@ export default function OpportunitiesPage() {
     setPage(1);
   };
 
+  const handlePublish = useCallback(async () => {
+    if (idsToPublish.length === 0 || isApproving) {
+      return;
+    }
+
+    try {
+      await Promise.all(
+        idsToPublish.map((id) => {
+          const opportunity = displayedItems.find((item) => item.id === id);
+
+          return approveOpportunity({
+            id,
+            payload: opportunity?.dateFrom
+              ? { dateFrom: opportunity.dateFrom }
+              : undefined,
+          }).unwrap();
+        }),
+      );
+
+      setPublishModalOpen(false);
+      setSelected(new Set());
+      setIdsToPublish([]);
+      showToast('Opportunità approvata con successo', 'success');
+    } catch {
+      showToast("Errore durante l'approvazione dell'opportunità", 'error');
+    }
+  }, [
+    idsToPublish,
+    isApproving,
+    showToast,
+    displayedItems,
+    approveOpportunity,
+  ]);
+
   return (
     <Box
       sx={{
@@ -101,6 +139,7 @@ export default function OpportunitiesPage() {
               color="primary"
               size="large"
               onClick={() => {
+                setIdsToPublish(Array.from(selected));
                 setPublishCount(selected.size);
                 setPublishModalOpen(true);
               }}
@@ -136,7 +175,8 @@ export default function OpportunitiesPage() {
               onRetry={refetch}
               selected={selected}
               onSelectChange={setSelected}
-              onPublish={() => {
+              onPublish={(id) => {
+                setIdsToPublish([id]);
                 setPublishCount(1);
                 setPublishModalOpen(true);
               }}
@@ -157,11 +197,7 @@ export default function OpportunitiesPage() {
       <PublishModal
         open={publishModalOpen}
         onClose={() => setPublishModalOpen(false)}
-        onPublish={() => {
-          setPublishModalOpen(false);
-          setSelected(new Set());
-          showToast('Fatto!', 'success');
-        }}
+        onPublish={handlePublish}
         count={publishCount}
       />
     </Box>

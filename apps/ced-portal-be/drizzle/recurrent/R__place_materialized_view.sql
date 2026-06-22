@@ -17,13 +17,13 @@ SELECT
   a.postal_code,
   a.country,
   w.url,
-  to_tsvector('italian',
+  to_tsvector('simple',
     coalesce(p.name, '')
   ) AS search_vector_name,
-   to_tsvector('italian',
+  to_tsvector('simple',
     coalesce(a.city, '')
   ) AS search_vector_city,
-   to_tsvector('italian',
+  to_tsvector('simple',
     coalesce(pf.display_name, '')
   ) AS search_vector_display_name
 FROM place p

@@ -8,6 +8,8 @@ SELECT
   o.id,
   o.operator_id,
   o.national_territory,
+  o.date_from,
+  o.date_to,
   pf.display_name AS profile_display_name,
   lm_name.value AS name,
   lm_name.language,

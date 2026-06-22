@@ -8,7 +8,7 @@ import {
   Divider,
   Typography,
 } from '@mui/material';
-import type { OpportunityDetail } from '../../../features/opportunities/types';
+import type { AdminOpportunityDetail } from '../../../features/opportunities/types';
 import { DetailSection } from './DetailSection';
 import {
   getBenefitsDetailData,
@@ -18,7 +18,7 @@ import { useAppSelector } from '../../../hooks';
 import { selectActiveFormLanguage } from '../../../features/opportunityCreation/selectors';
 
 interface OpportunityDetailCardProps {
-  detail: OpportunityDetail;
+  detail: AdminOpportunityDetail;
 }
 
 export const OpportunityDetailCard = ({

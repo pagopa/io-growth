@@ -44,9 +44,6 @@ const buildDerAwareVerifier = (
     data: Uint8Array,
     signature: Uint8Array,
   ): Promise<boolean> => {
-    console.debug(
-      `[FIMS][http-sig][verify] keyid="${params.keyid}" thumbprint="${thumbprint}" alg="${params.alg}" match=${params.keyid === thumbprint}`,
-    ); // TO REMOVE
     if (params.keyid !== thumbprint) return false;
     try {
       const cryptoKey = createPublicKey({
@@ -103,15 +100,6 @@ export const verifyHttpSignature = async (
   const thumbprint = assertionRef.slice(`${algo}-`.length);
 
   const verifier = buildDerAwareVerifier(thumbprint, publicKey);
-
-  console.debug(
-    `[FIMS][http-sig][verifyHttpSignature] url="${url}" algo="${algo}" thumbprint="${thumbprint}" signatureInput="${(headers as unknown as Record<string, string>)["signature-input"] ?? "(none)"}"`,
-  ); // TO REMOVE
-
-  console.debug(
-    // TO REMOVE
-    `[FIMS][http-sig][verifyHttpSignature] lollipopHeadersReceived=${JSON.stringify(Object.keys(headers as unknown as Record<string, string>).filter((h) => h.startsWith("x-pagopa-lollipop-")))}`,
-  );
 
   const result = await verifySignatureHeader({
     httpHeaders: headers as unknown as Record<string, string>,

@@ -117,16 +117,8 @@ const getIdpKeysFromMetadata = (doc: Document, idp: string): string[] => {
   const selection = xpath
     .select(expression, doc as unknown as Node)
     ?.toString();
-
-  console.debug(
-    `[FIMS][saml][getIdpKeysFromMetadata] idp="${idp}" rawSelection="${selection ?? "(none)"}"`,
-  ); // TO REMOVE
   if (!selection) return [];
   const keys = selection.split(",").map((k) => addCertHeaders(sanitizeCert(k)));
-
-  console.debug(
-    `[FIMS][saml][getIdpKeysFromMetadata] extracted ${keys.length} key(s)`,
-  ); // TO REMOVE
   return keys;
 };
 
@@ -139,10 +131,6 @@ const checkSignatures = (xml: string, doc: Document, keys: string[]): void => {
     "Signature",
   );
 
-  console.debug(
-    `[FIMS][saml][checkSignatures] keys.length=${keys.length} signatures.length=${signatures.length}`,
-  ); // TO REMOVE
-
   for (const key of keys) {
     const sig = new SignedXml();
     sig.keyInfoProvider = new StringKeyInfo(key);
@@ -153,18 +141,11 @@ const checkSignatures = (xml: string, doc: Document, keys: string[]): void => {
       sig.loadSignature(signature as any);
       try {
         const res = sig.checkSignature(xml);
-
-        console.debug(
-          `[FIMS][saml][checkSignatures] sig[${i}] result=${String(res)} validationErrors=${JSON.stringify(sig.validationErrors)}`,
-        ); // TO REMOVE
         if (res) {
           verified = true;
           break;
         }
       } catch (e) {
-        console.debug(
-          `[FIMS][saml][checkSignatures] sig[${i}] threw: ${String(e)}`,
-        ); // TO REMOVE
         errors.push(e);
       }
     }
@@ -208,10 +189,6 @@ export const verifyAssertionSignatures = async (
       ? `${idpKeysBaseUrl}/cie`
       : `${idpKeysBaseUrl}/spid`;
 
-    console.debug(
-      `[FIMS][saml][verifyAssertionSignatures] issuer="${issuer}" isCie=${isCie} endpoint="${idpKeyEndpoint}" issueInstantTs=${issueInstantTs}`,
-    ); // TO REMOVE
-
     const FETCH_TIMEOUT_MS = 5000;
 
     // Fetch available key timestamps
@@ -219,10 +196,6 @@ export const verifyAssertionSignatures = async (
       signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
     });
     const timestamps = (await tsResponse.json()) as string[];
-
-    console.debug(
-      `[FIMS][saml][verifyAssertionSignatures] timestamps=${JSON.stringify(timestamps)}`,
-    ); // TO REMOVE
 
     // Fetch latest keys
     const latestResponse = await fetch(`${idpKeyEndpoint}/latest`, {
@@ -241,9 +214,6 @@ export const verifyAssertionSignatures = async (
       .sort()
       .pop();
 
-    console.debug(
-      `[FIMS][saml][verifyAssertionSignatures] suitableTs="${suitableTs ?? "(none)"}"`,
-    ); // TO REMOVE
     if (!suitableTs) {
       return err(
         new UnauthorizedError(
@@ -262,9 +232,6 @@ export const verifyAssertionSignatures = async (
     ) as unknown as Document;
     const altKeys = getIdpKeysFromMetadata(altDoc, issuer);
 
-    console.debug(
-      `[FIMS][saml][verifyAssertionSignatures] latestKeys=${latestKeys.length} altKeys=${altKeys.length} total=${latestKeys.length + altKeys.length}`,
-    ); // TO REMOVE
     checkSignatures(assertionXml, doc, [...latestKeys, ...altKeys]);
     return ok(undefined);
   } catch (error) {

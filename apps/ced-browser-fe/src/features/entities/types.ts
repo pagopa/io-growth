@@ -28,7 +28,7 @@ type EntityAccessPoint = {
   subtitle: string;
 };
 
-type EntityContacts = {
+export type EntityContacts = {
   phone?: string;
   website?: string;
   address?: string;

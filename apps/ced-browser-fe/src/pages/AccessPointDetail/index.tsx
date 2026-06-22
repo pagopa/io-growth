@@ -4,9 +4,9 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { ContactsSection } from '../../components/ContactsSection/index.js';
 import { ItemsSection } from '../../components/ItemsSection/index.js';
 import { PageHeader, QueryGuard } from '../../components/index.js';
-import { useGetAccessPointDetailQuery } from '../../features/entities/api.js';
 import { APP_ROUTES } from '../../app/routeConfig.js';
 import type { PlaceBenefit } from '../../core/api/generated/model/index.js';
+import { useGetAccessPointDetailQuery } from '../../features/places/api.js';
 
 function formatBadgeLabel(benefit: PlaceBenefit): string {
   if (benefit.type === 'free') return 'GRATIS';
@@ -29,8 +29,8 @@ export default function AccessPointDetailPage() {
   const navigate = useNavigate();
   const theme = useTheme();
   const { data, isLoading, isError } = useGetAccessPointDetailQuery(
-    { accessPointId: accessPointId ?? '' },
-    { skip: !accessPointId },
+    { entityId: id ?? '', accessPointId: accessPointId ?? '' },
+    { skip: !accessPointId || !id },
   );
 
   const opportunities = useMemo(

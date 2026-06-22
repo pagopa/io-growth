@@ -9,7 +9,7 @@ import { Box, Divider, Stack } from '@mui/material';
 import { buildGoogleMapsUrl } from '../../utils';
 import { SectionTitle } from '../SectionTitle';
 import { ContactRow } from '../ContactRow';
-import { EntityContacts } from '../../features/places/types';
+import { EntityContacts } from '../../features/entities/types';
 
 export function ContactsSection({
   contacts: _c,

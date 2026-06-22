@@ -2,7 +2,7 @@ import {
   PlaceDetailOpportunity,
   PlaceDetailRelatedItem,
 } from '../../core/api/generated/model';
-import { EntityOpportunity } from '../../features/places/types';
+import { EntityOpportunity } from '../../features/entities/types';
 
 type BaseItemsSectionProps<TVariant, TItems> = {
   variant: TVariant;

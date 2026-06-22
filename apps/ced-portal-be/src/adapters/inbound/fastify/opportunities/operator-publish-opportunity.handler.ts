@@ -10,28 +10,28 @@ import { z as zod } from "zod";
 import type { PublishOpportunityUseCase } from "../../../../application/use-cases/opportunities/publish-opportunity.use-case.js";
 
 import { OperatorSessionSchema } from "../auth/session.js";
-import { PublishOpportunityParams } from "../contracts/opportunities/opportunities.js";
+import { OperatorPublishOpportunityParams } from "../contracts/opportunities/opportunities.js";
 
-const publishOpportunityHttpSchema = zod.object({
-  path: PublishOpportunityParams,
+const operatorPublishOpportunityHttpSchema = zod.object({
+  path: OperatorPublishOpportunityParams,
 });
 
-const publishOpportunityValidator = withSession(
+const operatorPublishOpportunityValidator = withSession(
   OperatorSessionSchema,
-  createHttpRequestValidator(publishOpportunityHttpSchema),
+  createHttpRequestValidator(operatorPublishOpportunityHttpSchema),
   (session, { path }) => ({
     operatorId: session.operatorId,
     opportunityId: path.opportunityId,
   }),
 );
 
-export const mountPublishOpportunityHandler = (
+export const mountOperatorPublishOpportunityHandler = (
   fastify: FastifyInstance,
   useCase: PublishOpportunityUseCase,
 ) => {
   fastify.patch(
     "/api/operator/opportunities/:opportunityId/publish",
-    createHttpHandler(useCase, publishOpportunityValidator, {
+    createHttpHandler(useCase, operatorPublishOpportunityValidator, {
       successCode: 204,
     }),
   );

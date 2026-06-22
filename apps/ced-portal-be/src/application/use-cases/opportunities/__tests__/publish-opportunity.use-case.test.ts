@@ -244,13 +244,14 @@ describe("makePublishOpportunityUseCase - error propagation", () => {
     expect(deps.materializedViewRepository.refreshAll).not.toHaveBeenCalled();
   });
 
-  it("should propagate error from materializedViewRepository.refreshAll", async () => {
-    const refreshError = new GenericError(
-      "Failed to refresh materialized views",
-    );
+  it("should still publish when refreshAll fails (best-effort)", async () => {
     const deps = makeDeps({
       materializedViewRepository: {
-        refreshAll: vi.fn().mockResolvedValue(err(refreshError)),
+        refreshAll: vi
+          .fn()
+          .mockResolvedValue(
+            err(new GenericError("Failed to refresh materialized views")),
+          ),
       },
       opportunityRepository: {
         findByIdAndOperatorId: vi
@@ -266,7 +267,8 @@ describe("makePublishOpportunityUseCase - error propagation", () => {
 
     const result = await useCase(validInput);
 
-    expect(result).toEqual(err(refreshError));
+    expect(result).toEqual(ok(undefined));
+    expect(deps.materializedViewRepository.refreshAll).toHaveBeenCalledOnce();
   });
 });
 

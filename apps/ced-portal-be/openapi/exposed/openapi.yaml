@@ -425,7 +425,7 @@ paths:
   /operator/opportunities/{opportunityId}/publish:
     patch:
       summary: Publish an approved opportunity
-      operationId: publishOpportunity
+      operationId: operatorPublishOpportunity
       tags:
         - Opportunities
       security:

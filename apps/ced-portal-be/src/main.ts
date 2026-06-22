@@ -44,8 +44,8 @@ import {
   mountListOperatorPlacesHandler,
   mountListOpportunityCategoriesHandler,
   mountListPendingOnboardingsHandler,
+  mountOperatorPublishOpportunityHandler,
   mountOperatorRequestOpportunityTestHandler,
-  mountPublishOpportunityHandler,
 } from "./adapters/inbound/fastify/index.js";
 import { createArOnboardingRepository } from "./adapters/outbound/ar/ar-onboarding.repository.js";
 import { createDrizzleMaterializedViewRepository } from "./adapters/outbound/drizzle/drizzle-materialized-view.repository.js";
@@ -251,7 +251,7 @@ app.register(async (app) => {
     app,
     makeOperatorRequestOpportunityTestUseCase(opportunityRepository),
   );
-  mountPublishOpportunityHandler(
+  mountOperatorPublishOpportunityHandler(
     app,
     makePublishOpportunityUseCase(
       opportunityRepository,

@@ -69,7 +69,9 @@ export const makePublishOpportunityUseCase =
             }),
           ).andThen(() =>
             data.dateFrom <= today
-              ? new ResultAsync(materializedViewRepository.refreshAll())
+              ? new ResultAsync(materializedViewRepository.refreshAll()).orElse(
+                  () => okAsync(undefined),
+                )
               : okAsync(undefined),
           );
         }),

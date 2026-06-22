@@ -8,46 +8,46 @@ import {
 } from "@pagopa/io-core-adapter-fastify";
 import { z } from "zod";
 
-import type { GetPlaceDetailUseCase } from "../../../../application/use-cases/places/get-place-detail.use-case.js";
+import type { GetOperatorProfileUseCase } from "../../../../application/use-cases/profiles/get-operator-profile.use-case.js";
 
 import { LANGUAGE_VALUES } from "../../../../domain/ports/outbound/persistence/place.repository.js";
 import { CitizenSessionSchema } from "../auth/session.js";
 import {
-  GetPlaceDetailParams,
-  GetPlaceDetailResponse,
-} from "../contracts/places/places.js";
+  GetOperatorProfileParams,
+  GetOperatorProfileResponse,
+} from "../contracts/profiles/profiles.js";
 
-const getPlaceDetailHttpSchema = z.object({
+const getOperatorProfileHttpSchema = z.object({
   headers: z.object({
     "accept-language": z.enum(LANGUAGE_VALUES).optional(),
   }),
-  path: GetPlaceDetailParams,
+  path: GetOperatorProfileParams,
 });
 
-const getPlaceDetailValidator = withSession(
+const getOperatorProfileValidator = withSession(
   CitizenSessionSchema,
-  createHttpRequestValidator(getPlaceDetailHttpSchema),
+  createHttpRequestValidator(getOperatorProfileHttpSchema),
   (_session, { headers, path }) => ({
     language: headers["accept-language"],
-    placeId: path.placeId,
+    profileId: path.profileId,
   }),
 );
 
-const getPlaceDetailFormatter = createHttpResponseFormatter(
-  GetPlaceDetailResponse,
+const getOperatorProfileFormatter = createHttpResponseFormatter(
+  GetOperatorProfileResponse,
 );
 
-export const mountGetPlaceDetailHandler = (
+export const mountGetOperatorProfileHandler = (
   fastify: FastifyInstance,
-  useCase: GetPlaceDetailUseCase,
+  useCase: GetOperatorProfileUseCase,
 ) => {
   fastify.get(
-    "/api/places/:placeId",
+    "/api/profiles/:profileId",
     createHttpHandler(
       async (input) => useCase(input),
-      getPlaceDetailValidator,
+      getOperatorProfileValidator,
       { successCode: 200 },
-      getPlaceDetailFormatter,
+      getOperatorProfileFormatter,
     ),
   );
 };

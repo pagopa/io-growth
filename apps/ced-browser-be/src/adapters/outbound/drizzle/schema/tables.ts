@@ -2,9 +2,12 @@ import {
   boolean,
   char,
   customType,
+  date,
   integer,
   pgMaterializedView,
   pgTable,
+  primaryKey,
+  text,
   timestamp,
   uuid,
   varchar,
@@ -13,8 +16,10 @@ import {
 import {
   benefitDiscountTypeEnum,
   benefitTypeEnum,
+  localizedMetadataKeyEnum,
   localizedMetadataLanguageEnum,
   operatorStatusEnum,
+  opportunityStatusEnum,
   placeTypeEnum,
   supportContactTypeEnum,
 } from "./enums.js";
@@ -137,6 +142,99 @@ export const supportContact = pgTable("support_contact", {
   value: varchar({ length: 2048 }).notNull(),
 });
 
+export const opportunityCategory = pgTable("opportunity_category", {
+  description: varchar({ length: 512 }).notNull(),
+  id: char({ length: 26 }).primaryKey(),
+  title: varchar({ length: 64 }).notNull(),
+});
+
+export const opportunity = pgTable("opportunity", {
+  categoryId: char("category_id", { length: 26 })
+    .notNull()
+    .references(() => opportunityCategory.id),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+  dateFrom: date("date_from").notNull(),
+  dateTo: date("date_to"),
+  id: char({ length: 26 }).primaryKey(),
+  nationalTerritory: boolean("national_territory").notNull().default(false),
+  operatorId: char("operator_id", { length: 26 })
+    .notNull()
+    .references(() => operator.id, { onDelete: "cascade" }),
+  rejectionMessage: varchar("rejection_message", { length: 4096 }),
+  status: opportunityStatusEnum().notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+  url: varchar({ length: 2048 }),
+});
+
+export const opportunityPlace = pgTable(
+  "opportunity_place",
+  {
+    opportunityId: char("opportunity_id", { length: 26 })
+      .notNull()
+      .references(() => opportunity.id, { onDelete: "cascade" }),
+    placeId: char("place_id", { length: 26 })
+      .notNull()
+      .references(() => place.id, { onDelete: "cascade" }),
+  },
+  (table) => [primaryKey({ columns: [table.opportunityId, table.placeId] })],
+);
+
+export const beneficiaryBenefit = pgTable("beneficiary_benefit", {
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+  description: varchar({ length: 4096 }),
+  discountType: benefitDiscountTypeEnum("discount_type"),
+  id: char({ length: 26 }).primaryKey(),
+  opportunityId: char("opportunity_id", { length: 26 })
+    .notNull()
+    .references(() => opportunity.id, { onDelete: "cascade" })
+    .unique(),
+  type: benefitTypeEnum().notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+  value: integer(),
+});
+
+export const caregiverBenefit = pgTable("caregiver_benefit", {
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+  description: varchar({ length: 4096 }),
+  discountType: benefitDiscountTypeEnum("discount_type"),
+  id: char({ length: 26 }).primaryKey(),
+  opportunityId: char("opportunity_id", { length: 26 })
+    .notNull()
+    .references(() => opportunity.id, { onDelete: "cascade" })
+    .unique(),
+  type: benefitTypeEnum().notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+  value: integer(),
+});
+
+export const localizedMetadata = pgTable("localized_metadata", {
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+  id: char({ length: 26 }).primaryKey(),
+  key: localizedMetadataKeyEnum().notNull(),
+  language: localizedMetadataLanguageEnum().notNull(),
+  opportunityId: char("opportunity_id", { length: 26 })
+    .notNull()
+    .references(() => opportunity.id, { onDelete: "cascade" }),
+  updatedAt: timestamp("updated_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+  value: text().notNull(),
+});
+
 export const opportunityMaterializedView = pgMaterializedView(
   "opportunity_materialized_view",
   {
@@ -147,6 +245,8 @@ export const opportunityMaterializedView = pgMaterializedView(
       "beneficiary_benefit_type",
     ).notNull(),
     beneficiaryBenefitValue: integer("beneficiary_benefit_value"),
+    dateFrom: date("date_from"),
+    dateTo: date("date_to"),
     id: char({ length: 26 }).notNull(),
     language: localizedMetadataLanguageEnum(),
     name: varchar({ length: 512 }),

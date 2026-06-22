@@ -7,7 +7,12 @@ import type { OpportunityFilters } from '../../features/opportunities/types';
 import { PublishModal } from '../../components/PublishModal';
 import { OpportunitiesTable } from './components/OpportunitiesTable';
 import { useToast } from '../../contexts';
-import { STATE_OPTIONS } from '../../constants';
+import {
+  ADMIN_APPROVED_STATE_OPTIONS,
+  ADMIN_NOT_ACTIVE_STATE_OPTIONS,
+  ADMIN_REQUEST_STATE_OPTIONS,
+  STATE_OPTIONS,
+} from '../../constants';
 
 const INITIAL_FILTERS: OpportunityFilters = {
   search: '',
@@ -45,6 +50,12 @@ export default function OpportunitiesPage() {
     if (activeTab === 1) return approvedItems;
     return inactiveItems;
   }, [activeTab, newItems, approvedItems, inactiveItems]);
+
+  const filteredDisplayedItems = useMemo(() => {
+    if (activeTab === 0) return ADMIN_REQUEST_STATE_OPTIONS;
+    if (activeTab === 1) return ADMIN_APPROVED_STATE_OPTIONS;
+    return ADMIN_NOT_ACTIVE_STATE_OPTIONS;
+  }, [activeTab]);
 
   const paginatedItems = useMemo(() => {
     const start = (page - 1) * rowsPerPage;
@@ -162,7 +173,7 @@ export default function OpportunitiesPage() {
           onChange={handleFilterChange}
           onFilter={handleFilter}
           onReset={handleReset}
-          stateOptions={STATE_OPTIONS}
+          stateOptions={filteredDisplayedItems}
         />
 
         <Box>

@@ -12,6 +12,7 @@ interface AddressFormState {
   cap: string;
   indirizzo: string;
   civico: string;
+  intercomName: string;
   altriDettagli: string;
 }
 
@@ -48,6 +49,7 @@ export const AddressStep = forwardRef<StepRef>(function AddressStep(_, ref) {
     cap: '',
     indirizzo: '',
     civico: '',
+    intercomName: '',
     altriDettagli: '',
   });
   const [errors, setErrors] = useState<
@@ -143,6 +145,14 @@ export const AddressStep = forwardRef<StepRef>(function AddressStep(_, ref) {
           helperText={errors.civico}
           inputProps={{ maxLength: 10 }}
           onChange={(e) => handleChange('civico', e.target.value)}
+        />
+        <AppTextField
+          label="Nome sul citofono"
+          value={form.intercomName}
+          error={!!errors.intercomName}
+          helperText={errors.intercomName}
+          inputProps={{ maxLength: 45 }}
+          onChange={(e) => handleChange('intercomName', e.target.value)}
         />
         <AppTextField
           label="Altri dettagli"

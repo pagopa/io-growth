@@ -1,5 +1,12 @@
 # ced-browser-be
 
+## 0.1.3
+
+### Patch Changes
+
+- Updated dependencies [7bbb05b]
+  - @pagopa/io-core-adapter-fims@0.0.7
+
 ## 0.1.2
 
 ### Patch Changes

@@ -1,6 +1,11 @@
 import { useMemo } from 'react';
-import { useGetOpportunitiesQuery } from './api';
+import {
+  ListOperatorOpportunitiesStatus,
+  type ListOperatorOpportunitiesStatus as ListOperatorOpportunitiesStatusType,
+} from '../../core/api/generated/model';
+import { useGetAdminOpportunitiesQuery } from './api';
 import type {
+  AdminOpportunity,
   Opportunity,
   OpportunityFilters,
   OpportunityStatus,
@@ -32,12 +37,33 @@ const matchesState = (item: Opportunity, state: string): boolean => {
   return item.status === state;
 };
 
-export const useOpportunitiesData = (filters: OpportunityFilters) => {
-  const query = useGetOpportunitiesQuery(undefined, {
-    refetchOnMountOrArgChange: true,
-  });
+const isListOperatorOpportunitiesStatus = (
+  value: string,
+): value is ListOperatorOpportunitiesStatusType =>
+  Object.values(ListOperatorOpportunitiesStatus).includes(
+    value as ListOperatorOpportunitiesStatusType,
+  );
 
-  const items = useMemo(() => query.data?.items ?? [], [query.data]);
+export const useOpportunitiesData = (filters: OpportunityFilters) => {
+  const status = isListOperatorOpportunitiesStatus(filters.state)
+    ? filters.state
+    : undefined;
+
+  const query = useGetAdminOpportunitiesQuery(
+    {
+      limit: 100,
+      search: filters.search || undefined,
+      status,
+    },
+    {
+      refetchOnMountOrArgChange: true,
+    },
+  );
+
+  const items = useMemo<AdminOpportunity[]>(
+    () => query.data?.items ?? [],
+    [query.data],
+  );
 
   const filteredItems = useMemo(
     () =>

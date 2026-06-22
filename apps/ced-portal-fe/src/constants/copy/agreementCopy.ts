@@ -86,7 +86,7 @@ export const AGREEMENT_COPY_CONFIG: Record<string, AgreementCopy> = {
       companion: {
         title: 'Opportunità per accompagnatore',
         toggleAriaLabel: 'Attiva opportunità per accompagnatore',
-        sameConditionLabel: 'Stessa condizione del titolare',
+        sameConditionLabel: 'Stesse condizioni del titolare',
         benefitTypePlaceholder: 'Seleziona una tipologia',
         benefitTypeOptions: {
           free: 'Gratuito',

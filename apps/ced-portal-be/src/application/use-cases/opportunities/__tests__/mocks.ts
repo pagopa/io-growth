@@ -1,5 +1,6 @@
 import { vi } from "vitest";
 
+import type { MaterializedViewRepository } from "../../../../domain/ports/outbound/materialized-view.repository.js";
 import type { OpportunityRepository } from "../../../../domain/ports/outbound/persistence/opportunity.repository.js";
 
 export const MOCK_OPERATOR_ID = "01JVMK3N8XQZP5T6G2WYHAB4CD";
@@ -57,6 +58,12 @@ export const mockOpportunityDetail = {
   updatedAt: "2026-01-01T00:00:00.000Z",
   url: mockCreateOpportunityInput.url,
 };
+
+export const createMockMaterializedViewRepository = (
+  overrides: Partial<MaterializedViewRepository> = {},
+): MaterializedViewRepository => ({
+  refreshAll: overrides.refreshAll ?? vi.fn(),
+});
 
 export const createMockOpportunityRepository = (
   overrides: Partial<OpportunityRepository> = {},

@@ -356,7 +356,10 @@ export const createDrizzleOpportunityRepository = (
       await db.transaction(async (tx) => {
         const result = await tx
           .update(opportunity)
-          .set({ status: input.status, updatedAt: new Date() })
+          .set({
+            status: input.status,
+            updatedAt: new Date(),
+          })
           .where(and(...conditions));
         updateCount = result.count;
       });

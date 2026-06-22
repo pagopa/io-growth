@@ -90,7 +90,7 @@ export function LocationManagementSection() {
           }
           label={
             <Typography variant="body2" fontWeight={600}>
-              Su tutto il territorio nazionale
+              Ovunque
             </Typography>
           }
           sx={{ ml: 0, gap: 1 }}

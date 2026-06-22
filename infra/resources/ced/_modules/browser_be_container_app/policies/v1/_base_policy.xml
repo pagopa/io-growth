@@ -5,6 +5,7 @@
             <allowed-origins>
                 <origin>https://browser.ced.pagopa.it</origin>
                 <origin>https://api.ced.pagopa.it</origin>
+				        <origin>https://oauth.io.pagopa.it</origin>
             </allowed-origins>
             <allowed-methods preflight-result-max-age="300">
                 <method>GET</method>
@@ -16,6 +17,8 @@
             <allowed-headers>
                 <header>Content-Type</header>
                 <header>Accept</header>
+                <header>signature</header>
+                <header>signature-input</header>
             </allowed-headers>
             <expose-headers>
                 <header>*</header>

@@ -97,7 +97,7 @@ locals {
       FIMS_AUDIT_CONTAINER = "ced-browser-logs"
       FIMS_REDIRECT_URL    = "https://api.ced.pagopa.it/api/ced-browser/v1/fcb"
       FIMS_SCOPE           = "openid profile lollipop"
-      TEST_USERS           = "c90f3d3d5f1c149eeb7e89360b3d7954fdff5d20ef276e63b42c839640fd06d0,2ac948451a778dc6a727927e947f5d29d4576eb49076b35834827c63948544f7,d1288381a4678fe3ce773ce5a255e7ecbf954f7d66c51126bcd3fd781d65fe27,12701c046897f8b03e4c4504152639d04a0f60c1c2ab499cfa557aac7170c35b,d3aedbfcf6dcc14227bb16bc766dc1b511dcef7784a18551d65e5e3399b902db,a8ed5e5884b81d744e8177f9740769d0af32afc0b63055d0caba4bcf2d174d41,bca66061a401f6d58a779aa470407a499fc6d2416cc8e6e3686fb5aaa7871110,48d42cdf45de7da33027a6e68f88d11ba3f41cbbbd17f0839733e0a1c6dafb0c,63d9f44b603c8446148b106261ecc9360b9cb3f62c54aafc42c0d54cc9b63f23,072b5457f7799888e760ecd1c8b0fef27b1931ce9c828a039fbc0dfafacb59d0"
+      TEST_USERS           = ""
     }
 
     startup_probe_path   = "/api/info/startup"
@@ -139,7 +139,7 @@ locals {
       FIMS_AUDIT_CONTAINER = "ced-card-request-logs"
       FIMS_REDIRECT_URL    = "https://api.ced.pagopa.it/api/ced-card/v1/fcb"
       FIMS_SCOPE           = "openid profile lollipop"
-      TEST_USERS           = "c90f3d3d5f1c149eeb7e89360b3d7954fdff5d20ef276e63b42c839640fd06d0,2ac948451a778dc6a727927e947f5d29d4576eb49076b35834827c63948544f7,d1288381a4678fe3ce773ce5a255e7ecbf954f7d66c51126bcd3fd781d65fe27,12701c046897f8b03e4c4504152639d04a0f60c1c2ab499cfa557aac7170c35b,d3aedbfcf6dcc14227bb16bc766dc1b511dcef7784a18551d65e5e3399b902db,a8ed5e5884b81d744e8177f9740769d0af32afc0b63055d0caba4bcf2d174d41,bca66061a401f6d58a779aa470407a499fc6d2416cc8e6e3686fb5aaa7871110,48d42cdf45de7da33027a6e68f88d11ba3f41cbbbd17f0839733e0a1c6dafb0c,63d9f44b603c8446148b106261ecc9360b9cb3f62c54aafc42c0d54cc9b63f23,072b5457f7799888e760ecd1c8b0fef27b1931ce9c828a039fbc0dfafacb59d0"
+      TEST_USERS           = ""
     }
 
     startup_probe_path   = "/api/info/startup"

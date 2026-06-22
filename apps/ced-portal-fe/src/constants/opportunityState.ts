@@ -19,7 +19,6 @@ export const STATE_OPTIONS: {
     label: 'Pubblicazione programmata',
   },
   { value: OpportunitySummaryItemStatus.published, label: 'Pubblicata su IO' },
-  //manca stato in eliminazione e in sospsensione chiedere a BE
   { value: OpportunitySummaryItemStatus.suspended, label: 'Sospesa' },
   { value: OpportunitySummaryItemStatus.deleted, label: 'Eliminata' },
 ];

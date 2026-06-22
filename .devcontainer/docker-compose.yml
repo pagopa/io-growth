@@ -40,7 +40,7 @@ services:
     volumes:
       - azurite-data:/data
   azurite-init:
-    image: mcr.microsoft.com/azure-cli
+    image: mcr.microsoft.com/azure-cli@sha256:e02c9723b6e2296e98f54eeb3630b95206aef06aa04251e097ce8390904ba396
     depends_on:
       - azurite
     environment:

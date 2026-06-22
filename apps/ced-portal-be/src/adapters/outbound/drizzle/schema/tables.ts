@@ -1,9 +1,11 @@
 import {
   boolean,
   char,
+  customType,
   date,
   integer,
   jsonb,
+  pgMaterializedView,
   pgTable,
   primaryKey,
   text,
@@ -25,6 +27,8 @@ import {
   placeTypeEnum,
   supportContactTypeEnum,
 } from "./enums.js";
+
+const tsvector = customType<{ data: string }>({ dataType: () => "tsvector" });
 
 export const operator = pgTable("operator", {
   createdAt: timestamp("created_at", { withTimezone: true })
@@ -249,3 +253,44 @@ export const changeAudit = pgTable("change_audit", {
   referentFullname: varchar("referent_fullname", { length: 512 }).notNull(),
   value: jsonb().notNull(),
 });
+
+export const placeMaterializedView = pgMaterializedView(
+  "place_materialized_view",
+  {
+    city: varchar({ length: 255 }),
+    country: varchar({ length: 255 }),
+    id: char({ length: 26 }).notNull(),
+    name: varchar({ length: 512 }),
+    operatorId: char("operator_id", { length: 26 }).notNull(),
+    postalCode: varchar("postal_code", { length: 20 }),
+    profileDisplayName: varchar("profile_display_name", { length: 512 }),
+    profileId: char("profile_id", { length: 26 }),
+    searchVectorCity: tsvector("search_vector_city"),
+    searchVectorDisplayName: tsvector("search_vector_display_name"),
+    searchVectorName: tsvector("search_vector_name"),
+    state: varchar({ length: 255 }),
+    street: varchar({ length: 512 }),
+    type: placeTypeEnum(),
+    url: varchar({ length: 2048 }),
+  },
+).existing();
+
+export const opportunityMaterializedView = pgMaterializedView(
+  "opportunity_materialized_view",
+  {
+    beneficiaryBenefitDiscountType: benefitDiscountTypeEnum(
+      "beneficiary_benefit_discount_type",
+    ),
+    beneficiaryBenefitType: benefitTypeEnum(
+      "beneficiary_benefit_type",
+    ).notNull(),
+    beneficiaryBenefitValue: integer("beneficiary_benefit_value"),
+    id: char({ length: 26 }).notNull(),
+    language: localizedMetadataLanguageEnum(),
+    name: varchar({ length: 512 }),
+    nationalTerritory: boolean("national_territory"),
+    operatorId: char("operator_id", { length: 26 }),
+    placeId: char("place_id", { length: 26 }),
+    profileDisplayName: varchar("profile_display_name", { length: 512 }),
+  },
+).existing();

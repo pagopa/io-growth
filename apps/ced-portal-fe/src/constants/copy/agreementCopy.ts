@@ -112,7 +112,7 @@ export const AGREEMENT_COPY_CONFIG: Record<string, AgreementCopy> = {
       link: {
         title: "Link dell'opportunità",
         benefitUrlLabel:
-          "Inserisci l'URL del sito dove e visibile l'opportunità",
+          "Inserisci l'URL del sito dove è visibile l'opportunità",
       },
     },
   },

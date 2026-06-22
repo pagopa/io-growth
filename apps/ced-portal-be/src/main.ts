@@ -48,6 +48,8 @@ import {
   mountOperatorRequestOpportunityTestHandler,
 } from "./adapters/inbound/fastify/index.js";
 import { createArOnboardingRepository } from "./adapters/outbound/ar/ar-onboarding.repository.js";
+import { createSessionContextPreHandler } from "./adapters/outbound/async-local-storage/async-local-storage-session.repository.js";
+import { getDbAuditContext } from "./adapters/outbound/drizzle/drizzle-audit-context.js";
 import { createDrizzleMaterializedViewRepository } from "./adapters/outbound/drizzle/drizzle-materialized-view.repository.js";
 import { createDrizzleOperatorRepository } from "./adapters/outbound/drizzle/drizzle-operator.repository.js";
 import { createDrizzleOpportunityCategoryRepository } from "./adapters/outbound/drizzle/drizzle-opportunity-category.repository.js";
@@ -80,7 +82,6 @@ import { makeGetOperatorPlaceUseCase } from "./application/use-cases/places/get-
 import { makeListOperatorPlacesUseCase } from "./application/use-cases/places/list-operator-places.use-case.js";
 import { makeCreateOperatorProfileUseCase } from "./application/use-cases/profile/create-operator-profile.use-case.js";
 import { makeGetOperatorProfileUseCase } from "./application/use-cases/profile/get-operator-profile.use-case.js";
-import { auditData } from "./audit-context.js";
 import { parseConfig } from "./config.js";
 
 const config = parseConfig();
@@ -102,7 +103,7 @@ const dbClient = createTypedDbClient(
       })("DrizzleClient");
     },
     onTransaction: async (tx) => {
-      const audit = auditData.getStore();
+      const audit = getDbAuditContext();
       if (!audit) return;
       await tx.execute(
         drizzleSql`SELECT set_config('app.referent_fullname', ${audit.referentFullname}, true), set_config('app.operator_external_id', ${audit.operatorExternalId}, true), set_config('app.referent_external_id', ${audit.referentExternalId}, true)`,
@@ -179,27 +180,13 @@ const authPreHandler = createAuthenticationPreHandler(
 app.register(async (app) => {
   app.addHook("preHandler", authPreHandler);
 
-  // Populate audit context from session to DB
-  app.addHook("preHandler", (request, _reply, done) => {
-    getSessionFromRequest(request, SessionSchema)
-      .then((result) => {
-        if (result.isOk()) {
-          const {
-            firstName,
-            lastName,
-            operatorExternalId,
-            referentExternalId,
-          } = result.value;
-          auditData.enterWith({
-            operatorExternalId,
-            referentExternalId,
-            referentFullname: `${lastName} ${firstName}`,
-          });
-        }
-        done();
-      })
-      .catch((e) => done(e as Error));
-  });
+  // Populate per-request session context in ALS for cross-cutting concerns
+  app.addHook(
+    "preHandler",
+    createSessionContextPreHandler((req) =>
+      getSessionFromRequest(req, SessionSchema),
+    ),
+  );
 
   // Mount authenticated route handlers here
   mountGetOperatorProfileHandler(

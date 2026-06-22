@@ -1,6 +1,9 @@
 import { Stack, Typography, Box, Button, Collapse } from '@mui/material';
 import { Carousel } from './components/Carousel';
-import { PARTNERS_CARDS_CONFIG, DISCOVERY_ITEMS_CONFIG } from './constants';
+import {
+  PARTNERS_CARDS_CONFIG,
+  generateDiscoveryItemsConfig,
+} from './constants';
 import { DiscoveryListItem } from '../../components';
 import { InfoBox } from '../../components/Infobox';
 import { useNavigate } from 'react-router-dom';
@@ -8,10 +11,16 @@ import { APP_ROUTES } from '../../app/routeConfig';
 import { theme } from '../../core/theme';
 import { useState } from 'react';
 import { EntitiesSearch } from './components/EntitiesSearch';
+import { useGetOpportunitiesSearchQuery } from '../../features/opportunities/api';
 
 export default function HomePage() {
   const navigate = useNavigate();
   const [isSearchActive, setIsSearchActive] = useState(false);
+
+  const { data } = useGetOpportunitiesSearchQuery({
+    limit: 10,
+  });
+  const discoveryItems = generateDiscoveryItemsConfig(data?.items);
 
   return (
     <Stack
@@ -81,7 +90,7 @@ export default function HomePage() {
                 Mostra tutti
               </Button>
             </Stack>
-            {DISCOVERY_ITEMS_CONFIG.map((item, index, list) => (
+            {discoveryItems?.map((item, index, list) => (
               <DiscoveryListItem
                 key={item.id}
                 sx={{ backgroundColor: theme.palette.background.paper }}

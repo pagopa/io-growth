@@ -1,5 +1,12 @@
 # ced-browser-be
 
+## 0.1.4
+
+### Patch Changes
+
+- 4536003: fix place full-text search: replace italian dictionary with simple for prefix matching
+- 836f060: add profile and opportunity api
+
 ## 0.1.3
 
 ### Patch Changes

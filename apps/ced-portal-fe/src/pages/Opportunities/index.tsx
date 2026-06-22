@@ -11,7 +11,6 @@ import {
   ADMIN_APPROVED_STATE_OPTIONS,
   ADMIN_NOT_ACTIVE_STATE_OPTIONS,
   ADMIN_REQUEST_STATE_OPTIONS,
-  STATE_OPTIONS,
 } from '../../constants';
 
 const INITIAL_FILTERS: OpportunityFilters = {

@@ -1,0 +1,15 @@
+meta {
+  name: Get operator profile detail
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/api/profiles/:operatorId
+  body: none
+  auth: inherit
+}
+
+params:path {
+  operatorId: operatorId
+}

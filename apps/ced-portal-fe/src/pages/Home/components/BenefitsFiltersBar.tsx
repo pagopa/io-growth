@@ -2,7 +2,6 @@ import FilterAltOutlined from '@mui/icons-material/FilterAltOutlined';
 import { Button, SelectChangeEvent, Stack } from '@mui/material';
 import { useCallback } from 'react';
 import { AppSelect, AppTextField } from '../../../components';
-import { STATE_OPTIONS } from '../../../constants';
 import type { OpportunitySummaryItemStatus } from '../../../core/api/generated/model';
 import type { OpportunityCategoryItem } from '../../../core/api/generated/model/opportunityCategoryItem';
 
@@ -13,6 +12,7 @@ interface BenefitsFiltersBarProps {
   categoryOptions: OpportunityCategoryItem[];
   onCategoryChange: (value: OpportunityCategoryItem['id']) => void;
   status: OpportunitySummaryItemStatus | '';
+  stateOptions?: Array<{ value: string; label: string }>;
   onStatusChange: (value: OpportunitySummaryItemStatus | '') => void;
   onFilter: () => void;
   onReset: () => void;
@@ -28,6 +28,7 @@ export const BenefitsFiltersBar = ({
   onSearchChange,
   onFilter,
   onReset,
+  stateOptions,
 }: BenefitsFiltersBarProps) => {
   const handleSearchChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -87,7 +88,7 @@ export const BenefitsFiltersBar = ({
         sx={{ flex: 0.5 }}
         label="Stato"
         placeholder="Stato"
-        options={STATE_OPTIONS}
+        options={stateOptions}
         onChange={handleStatusChange}
       />
 

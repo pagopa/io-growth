@@ -118,8 +118,7 @@ const getIdpKeysFromMetadata = (doc: Document, idp: string): string[] => {
     .select(expression, doc as unknown as Node)
     ?.toString();
   if (!selection) return [];
-  const keys = selection.split(",").map((k) => addCertHeaders(sanitizeCert(k)));
-  return keys;
+  return selection.split(",").map((k) => addCertHeaders(sanitizeCert(k)));
 };
 
 const checkSignatures = (xml: string, doc: Document, keys: string[]): void => {

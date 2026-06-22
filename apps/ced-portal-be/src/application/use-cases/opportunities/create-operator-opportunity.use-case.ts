@@ -50,23 +50,18 @@ const LocalizedMetadataListInputSchema = z
     },
   );
 
-const CreateOperatorOpportunityInputSchema = z
-  .object({
-    beneficiaryBenefit: BenefitInputSchema,
-    caregiverBenefit: BenefitInputSchema.optional(),
-    categoryId: z.ulid(),
-    dateFrom: z.iso.date(),
-    dateTo: z.iso.date().optional(),
-    localizedMetadata: LocalizedMetadataListInputSchema,
-    nationalTerritory: z.boolean().default(false),
-    operatorId: z.ulid(),
-    placeIds: z.array(z.ulid()),
-    url: z.url().max(2048).optional(),
-  })
-  .refine((input) => input.nationalTerritory || input.placeIds.length > 0, {
-    message: "placeIds cannot be empty unless nationalTerritory is true",
-    path: ["placeIds"],
-  });
+const CreateOperatorOpportunityInputSchema = z.object({
+  beneficiaryBenefit: BenefitInputSchema,
+  caregiverBenefit: BenefitInputSchema.optional(),
+  categoryId: z.ulid(),
+  dateFrom: z.iso.date(),
+  dateTo: z.iso.date().optional(),
+  localizedMetadata: LocalizedMetadataListInputSchema,
+  nationalTerritory: z.boolean().default(false),
+  operatorId: z.ulid(),
+  placeIds: z.array(z.ulid()).default([]),
+  url: z.url().max(2048).optional(),
+});
 
 export type CreateOperatorOpportunityInput = z.infer<
   typeof CreateOperatorOpportunityInputSchema

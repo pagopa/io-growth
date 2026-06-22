@@ -32,7 +32,7 @@ const createOperatorOpportunityValidator = withSession(
     localizedMetadata: body.localizedMetadata,
     nationalTerritory: body.nationalTerritory,
     operatorId: session.operatorId,
-    placeIds: body.placeIds,
+    placeIds: body.placeIds ?? [],
     url: body.url,
   }),
 );

@@ -39,6 +39,8 @@ interface OpportunitiesTableProps {
   selected: Set<string>;
   onSelectChange: (selected: Set<string>) => void;
   onPublish: (id: string) => void;
+  // string to show when there are no items
+  emptyCopy: string;
 }
 
 export const OpportunitiesTable = ({
@@ -49,6 +51,7 @@ export const OpportunitiesTable = ({
   selected,
   onSelectChange,
   onPublish,
+  emptyCopy,
 }: OpportunitiesTableProps) => {
   const theme = useTheme();
   const navigate = useNavigate();
@@ -185,7 +188,7 @@ export const OpportunitiesTable = ({
           <Typography
             sx={{ fontSize: 18, fontWeight: 700, color: 'text.secondary' }}
           >
-            Non ci sono opportunità da mostrare
+            {emptyCopy}
           </Typography>
         </Stack>
       </Paper>

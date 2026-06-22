@@ -12,10 +12,10 @@ import {
   APP_ROUTES,
   toEntityAccessPointDetailRoute,
   toOpportunityDetailRoute,
-} from '../../app/routeConfig.js';
-import { DiscoveryListItem } from '../index.js';
-import { SectionTitle } from '../SectionTitle/index.js';
-import type { ItemsSectionProps } from './types.js';
+} from '../../app/routeConfig';
+import { DiscoveryListItem } from '../';
+import { SectionTitle } from '../SectionTitle';
+import type { ItemsSectionProps } from './types';
 
 const ITEMS_LIMIT = 10;
 
@@ -37,18 +37,18 @@ export function ItemsSection(props: ItemsSectionProps) {
 
   const renderedItems = useMemo(() => {
     if (variant === 'opportunity') {
-      return items
-        .slice(0, ITEMS_LIMIT)
-        .map(({ id, ...item }) => (
-          <DiscoveryListItem
-            key={id}
-            variant="opportunity"
-            {...item}
-            eyebrow={hideEyebrow ? undefined : item.eyebrow}
-            sx={{ px: 0, bgcolor: 'background.paper' }}
-            onClick={() => navigate(toOpportunityDetailRoute(id))}
-          />
-        ));
+      return items.slice(0, ITEMS_LIMIT).map(({ id, ...item }) => (
+        <DiscoveryListItem
+          key={id}
+          variant="opportunity"
+          {...item}
+          sx={{ px: 0, bgcolor: 'background.paper' }}
+          onClick={() => navigate(toOpportunityDetailRoute(id))}
+          // TODO api does not return eyebrow text or badgeLabel - for test api i'll use those properties for now
+          badgeLabel={'badgeLabel'}
+          eyebrow={hideEyebrow ? undefined : item.title}
+        />
+      ));
     }
 
     return items

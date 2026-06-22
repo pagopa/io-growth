@@ -9,7 +9,7 @@ import {
   useTheme,
 } from '@mui/material';
 import { useNavigate, useParams } from 'react-router-dom';
-import { APP_ROUTES } from '../../app/routeConfig.js';
+import { APP_ROUTES } from '../../app/routeConfig';
 import {
   DiscoveryListItem,
   PageHeader,
@@ -61,7 +61,6 @@ export default function OpportunityDetailPage() {
     },
   };
   const { data, isLoading, isError } = useGetOpportunityDetailQuery(id ?? '');
-  console.log('🚀 ~ OpportunityDetailPage ~ data:', data);
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);

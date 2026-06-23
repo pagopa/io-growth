@@ -57,6 +57,13 @@ export const makeOperatorRequestOpportunityTestUseCase =
             ),
           );
         }
+        if (!data.nationalTerritory && data.placeIds.length === 0) {
+          return errAsync(
+            new PreconditionFailedError(
+              "Opportunity must have at least one place or be valid on the national territory to request testing",
+            ),
+          );
+        }
         return new ResultAsync(
           opportunityRepository.updateStatusByIdAndOperatorId({
             expectedStatus: "draft",

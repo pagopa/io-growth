@@ -55,6 +55,12 @@ resource "azurerm_postgresql_flexible_server_configuration" "shared_preload_libr
   value = "pg_cron"
 }
 
+resource "azurerm_postgresql_flexible_server_configuration" "azure_extensions" {
+  name      = "azure.extensions"
+  server_id = module.postgresql.postgres.id
+  value     = "PG_CRON"
+}
+
 resource "azurerm_postgresql_flexible_server_configuration" "cron_database_name" {
   name      = "cron.database_name"
   server_id = module.postgresql.postgres.id

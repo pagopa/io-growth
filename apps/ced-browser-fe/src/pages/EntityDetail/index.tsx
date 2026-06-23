@@ -1,10 +1,10 @@
 import { Box, Stack } from '@mui/material';
 import { useParams } from 'react-router-dom';
-import { useGetEntityDetailQuery } from '../../features/entities/api.js';
-import { ItemsSection } from '../../components/ItemsSection/index.js';
-import { ContactsSection } from '../../components/ContactsSection/index.js';
-import { PageHeader, QueryGuard } from '../../components/index.js';
-import { EntityPlaceholderIcon } from './components/EntityPlaceholderIcon/index.js';
+import { useGetEntityDetailQuery } from '../../features/entities/api';
+import { ItemsSection } from '../../components/ItemsSection/index';
+import { ContactsSection } from '../../components/ContactsSection';
+import { PageHeader, QueryGuard } from '../../components';
+import { EntityPlaceholderIcon } from './components/EntityPlaceholderIcon';
 
 export default function EntityDetailPage() {
   const { id } = useParams<{ id: string }>();

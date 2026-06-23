@@ -37,7 +37,7 @@ export const getFormConfig = (
     },
     benefitDiscountValue: {
       helperText: '',
-      placeholder: copy.discountValueLabel,
+      placeholder: '',
     },
     otherBenefitTypeDescription: {
       title: '',
@@ -78,7 +78,7 @@ export const getFormConfig = (
     },
     companionDiscountValue: {
       helperText: '',
-      placeholder: copy.discountValueLabel,
+      placeholder: '',
     },
     companionOtherBenefitTypeDescription: {
       title: '',

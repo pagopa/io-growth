@@ -1,4 +1,5 @@
-import { ok } from "neverthrow";
+import { GenericError } from "@pagopa/io-core-domain/errors";
+import { err, ok } from "neverthrow";
 import { describe, expect, it } from "vitest";
 
 import type { OpportunityDetailRow } from "./opportunity-detail-row.mapper.js";
@@ -18,6 +19,24 @@ const baseRow: OpportunityDetailRow = {
   id: "opportunity-id",
   localizedMetadata: [],
   nationalTerritory: false,
+  operator: {
+    profile: {
+      displayName: "Comune di Alessandria",
+      id: "profile-id",
+      place: {
+        address: {
+          city: "Alessandria",
+          postalCode: "15121",
+          state: "AL",
+          street: "Piazza della Liberta 1",
+        },
+        id: "profile-place-id",
+        name: "Sportello CED",
+        type: "offline",
+        website: null,
+      },
+    },
+  },
   opportunityPlaces: [
     {
       place: {
@@ -86,5 +105,101 @@ describe("mapOpportunityDetailRow", () => {
         }),
       ),
     );
+  });
+
+  it("maps the operator profile and its place", () => {
+    const result = mapOpportunityDetailRow(
+      {
+        ...baseRow,
+        localizedMetadata: [
+          { key: "name", language: "it", value: "Nome italiano" },
+          { key: "description", language: "it", value: "Descrizione italiana" },
+        ],
+      },
+      "it",
+    );
+
+    expect(result).toEqual(
+      ok(
+        expect.objectContaining({
+          profile: {
+            displayName: "Comune di Alessandria",
+            id: "profile-id",
+            place: {
+              address: {
+                city: "Alessandria",
+                postalCode: "15121",
+                state: "AL",
+                street: "Piazza della Liberta 1",
+              },
+              id: "profile-place-id",
+              name: "Sportello CED",
+              type: "offline",
+              website: null,
+            },
+          },
+        }),
+      ),
+    );
+  });
+
+  it("maps an online operator profile place with its website", () => {
+    const result = mapOpportunityDetailRow(
+      {
+        ...baseRow,
+        localizedMetadata: [
+          { key: "name", language: "it", value: "Nome italiano" },
+          { key: "description", language: "it", value: "Descrizione italiana" },
+        ],
+        operator: {
+          profile: {
+            displayName: "Comune di Alessandria",
+            id: "profile-id",
+            place: {
+              address: null,
+              id: "profile-place-id",
+              name: "Portale servizi online",
+              type: "online",
+              website: { url: "https://servizi.comune.alessandria.it" },
+            },
+          },
+        },
+      },
+      "it",
+    );
+
+    expect(result).toEqual(
+      ok(
+        expect.objectContaining({
+          profile: {
+            displayName: "Comune di Alessandria",
+            id: "profile-id",
+            place: {
+              address: null,
+              id: "profile-place-id",
+              name: "Portale servizi online",
+              type: "online",
+              website: "https://servizi.comune.alessandria.it",
+            },
+          },
+        }),
+      ),
+    );
+  });
+
+  it("returns a data integrity error when the profile is missing", () => {
+    const result = mapOpportunityDetailRow(
+      {
+        ...baseRow,
+        localizedMetadata: [
+          { key: "name", language: "it", value: "Nome italiano" },
+          { key: "description", language: "it", value: "Descrizione italiana" },
+        ],
+        operator: { profile: null },
+      },
+      "it",
+    );
+
+    expect(result).toEqual(err(expect.any(GenericError)));
   });
 });

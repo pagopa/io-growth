@@ -1,12 +1,8 @@
 import { Box, Divider, Stack, Typography } from '@mui/material';
 import { useNavigate, useParams } from 'react-router-dom';
-import {
-  DiscoveryListItem,
-  PageHeader,
-  QueryGuard,
-} from '../../components/index.js';
-import { useGetEntityDetailQuery } from '../../features/entities/api.js';
-import { toEntityAccessPointDetailRoute } from '../../app/routeConfig.js';
+import { DiscoveryListItem, PageHeader, QueryGuard } from '../../components';
+import { useGetEntityDetailQuery } from '../../features/entities/api';
+import { toEntityAccessPointDetailRoute } from '../../app/routeConfig';
 
 export default function EntityAccessPointsPage() {
   const { id } = useParams<{ id: string }>();
@@ -50,7 +46,7 @@ export default function EntityAccessPointsPage() {
                 title={item.title}
                 subtitle={item.subtitle}
                 onClick={() =>
-                  navigate(toEntityAccessPointDetailRoute(id ?? '', item.id))
+                  navigate(toEntityAccessPointDetailRoute(item.id))
                 }
                 sx={{ px: 0, bgcolor: 'background.paper' }}
               />

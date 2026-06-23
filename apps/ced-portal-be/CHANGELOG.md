@@ -1,5 +1,24 @@
 # ced-portal-be
 
+## 0.2.3
+
+### Patch Changes
+
+- 6f5c703: add profile info and make user info optional
+
+## 0.2.2
+
+### Patch Changes
+
+- b8c4b22: (Chore) Refactored ALS session context
+
+## 0.2.1
+
+### Patch Changes
+
+- 1b6f9a1: add places guard on request test api
+- c9baec0: Publish opportunity now returns 412 when the operator has no profile.
+
 ## 0.2.0
 
 ### Minor Changes

@@ -13,6 +13,13 @@ export const baseApi = createApi({
 
       if (token) {
         headers.set('Authorization', `Bearer ${token}`);
+        /**
+         * TODO now we don't have any language choice
+         * since Accept-Language seems required in all
+         * authenticated APIs we set it here
+         */
+        const acceptLanguage = 'it';
+        headers.set('Accept-Language', acceptLanguage);
       }
 
       return headers;
@@ -26,6 +33,7 @@ export const baseApi = createApi({
     'Websites',
     'Opportunities',
     'Entities',
+    'Places',
   ],
   endpoints: () => ({}),
 });

@@ -25,6 +25,7 @@ export const baseApi = createApi({
     'Places',
     'Opportunities',
     'Entities',
+    'Profile',
   ],
   endpoints: () => ({}),
 });

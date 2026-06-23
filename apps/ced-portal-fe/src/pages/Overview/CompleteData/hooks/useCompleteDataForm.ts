@@ -6,6 +6,10 @@ import {
   validateCompleteDataForm,
   type FirstContactErrors,
 } from '../utils/validation';
+import type {
+  OperatorProfileCreateRequest,
+  SupportContactCreateRequestType,
+} from '../../../../core/api/generated/model';
 
 const createEmptyContact = (): Contact => ({
   contact: '',
@@ -28,7 +32,7 @@ const INITIAL_FORM_DATA: CompleteDataFormData = {
 };
 
 type UseCompleteDataFormParams = {
-  onValidSubmit?: (formData: CompleteDataFormData) => void;
+  onValidSubmit?: (payload: OperatorProfileCreateRequest) => void;
 };
 
 export type UseCompleteDataFormResult = {
@@ -52,6 +56,34 @@ export type UseCompleteDataFormResult = {
   handlePrivacyUrlChange: (value: string) => void;
   handleTermsUrlChange: (value: string) => void;
   handleContinueClick: () => void;
+};
+
+const buildSupportContacts = (contacts: Contact[]) =>
+  contacts
+    .filter((c) => c.type && (c.contact || c.website))
+    .map((c) => ({
+      type: c.type as SupportContactCreateRequestType,
+      value: (c.contact || c.website)!.trim(),
+    }));
+
+type ParsedAddress = {
+  street: string;
+  city: string;
+  state: string;
+  postalCode: string;
+  country: string;
+};
+
+export const parseAddress = (input: string): ParsedAddress => {
+  const parts = input.split(',').map((p) => p.trim());
+
+  return {
+    street: parts[0] || '',
+    city: parts[1] || '',
+    state: parts[2] || '',
+    postalCode: parts[3] || '',
+    country: 'IT',
+  };
 };
 
 export const useCompleteDataForm = ({
@@ -134,12 +166,43 @@ export const useCompleteDataForm = ({
 
   const handleContinueClick = useCallback(() => {
     setIsSubmitted(true);
-    if (!validateForm()) {
+    if (!validateForm()) return;
+
+    const isOnline = formData.sede === 'sito_web';
+
+    const supportContacts = buildSupportContacts(formData.contacts);
+
+    const websiteUrl = formData.contacts.find(
+      (c) => c.type === 'website',
+    )?.website;
+
+    if (isOnline && !websiteUrl) {
       return;
     }
 
-    onValidSubmit?.(formData);
-  }, [formData, onValidSubmit, validateForm]);
+    const place: OperatorProfileCreateRequest['place'] = isOnline
+      ? {
+          type: 'online',
+          name: 'Sito web',
+          website: {
+            url: websiteUrl!.trim(),
+          },
+          supportContacts,
+        }
+      : {
+          type: 'offline',
+          name: 'Sede fisica',
+          address: parseAddress(formData.address),
+          supportContacts,
+        };
+
+    const payload: OperatorProfileCreateRequest = {
+      displayName: formData.name.trim(),
+      place,
+    };
+
+    onValidSubmit?.(payload);
+  }, [formData, validateForm, onValidSubmit]);
 
   const handleNameChange = useCallback(
     (value: string) => updateField('name', value),
@@ -179,6 +242,7 @@ export const useCompleteDataForm = ({
   const visibleFirstContactTypeError = isSubmitted
     ? errors.firstContactType
     : '';
+
   const visibleFirstContactValueError = isSubmitted
     ? errors.firstContactValue
     : '';

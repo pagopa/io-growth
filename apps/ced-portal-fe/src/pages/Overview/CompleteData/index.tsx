@@ -2,17 +2,22 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { Box, Button, Paper, Stack, Typography } from '@mui/material';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+
 import { ContactsSection } from './components/ContactsSection';
 import { EntityDataSection } from './components/EntityDataSection';
 import { InfoModal } from './components/InfoModal';
 import { TermsAndPrivacySection } from './components/TermsAndPrivacySection';
 import { useCompleteDataForm } from './hooks/useCompleteDataForm';
+import { useCreateOperatorProfileMutation } from '../../../features/profile/api';
 
 export default function OverviewCompleteDataPage() {
   const navigate = useNavigate();
   const [infoModalType, setInfoModalType] = useState<'logo' | 'cover' | null>(
     null,
   );
+
+  const [createProfile, { isLoading }] = useCreateOperatorProfileMutation();
+
   const {
     formData,
     nameError,
@@ -31,78 +36,37 @@ export default function OverviewCompleteDataPage() {
     handleContactChange,
     handleContinueClick,
   } = useCompleteDataForm({
-    onValidSubmit: (validatedFormData) => {
-      // TODO: Handle form submission
-      console.log('Form submitted:', validatedFormData);
+    onValidSubmit: async (payload) => {
+      try {
+        await createProfile(payload).unwrap();
+        navigate(-1);
+      } catch (e) {
+        console.error('Errore creazione profilo', e);
+      }
     },
   });
 
   return (
-    <Box
-      sx={{
-        bgcolor: 'common.neutralGray',
-        color: 'text.primary',
-      }}
-    >
+    <Box sx={{ bgcolor: 'common.neutralGray', color: 'text.primary' }}>
       <Box component="main" sx={{ py: 3, pb: { xs: 14, md: 16 } }}>
         <Box sx={{ maxWidth: 760, mx: 'auto', px: { xs: 2, md: 0 } }}>
           <Button
-            startIcon={<ArrowBackIcon sx={{ width: 24, height: 24 }} />}
+            startIcon={<ArrowBackIcon />}
             onClick={() => navigate(-1)}
-            sx={{
-              mb: 3,
-              color: 'common.neutralBlack',
-              textTransform: 'none',
-              p: 0,
-            }}
+            sx={{ mb: 3, textTransform: 'none', p: 0 }}
           >
             Esci
           </Button>
 
           <Stack spacing={3}>
-            {/* Page header */}
             <Box>
-              <Stack spacing={1}>
-                <Typography variant="h4" sx={{ fontSize: 32, fontWeight: 700 }}>
-                  Completa i dati dell&apos;ente
-                </Typography>
-                <Typography
-                  variant="body2"
-                  sx={{ fontSize: 18, color: 'text.secondary' }}
-                >
-                  Queste informazioni saranno usate per identificarti
-                  sull&apos;app IO
-                </Typography>
-              </Stack>
-              <Typography
-                variant="body2"
-                fontWeight={600}
-                sx={{ mt: 3, color: 'error.dark' }}
-              >
-                * Campo obbligatorio
+              <Typography variant="h4" fontWeight={700}>
+                Completa i dati dellente
               </Typography>
             </Box>
 
-            {/* Card principale */}
-            <Paper
-              elevation={0}
-              sx={{
-                borderRadius: 2.5,
-                display: 'flex',
-                p: 3,
-                flexDirection: 'column',
-                alignItems: 'flex-start',
-                gap: 1,
-                alignSelf: 'stretch',
-              }}
-            >
-              <Typography variant="h6" fontWeight={700}>
-                Informazioni visibili su IO
-              </Typography>
-              <Typography variant="body1" color="text.secondary">
-                Completa o modifica le informazioni del tuo ente.
-              </Typography>
-              <Stack spacing={2} sx={{ width: '100%' }}>
+            <Paper sx={{ p: 3 }}>
+              <Stack spacing={2}>
                 <EntityDataSection
                   name={formData.name}
                   sede={formData.sede}
@@ -128,7 +92,6 @@ export default function OverviewCompleteDataPage() {
                   onContactChange={handleContactChange}
                 />
 
-                {/* Terms and privacy section */}
                 <TermsAndPrivacySection
                   privacyUrl={formData.privacyUrl}
                   termsUrl={formData.termsUrl}
@@ -138,15 +101,14 @@ export default function OverviewCompleteDataPage() {
               </Stack>
             </Paper>
 
-            {/* Footer with continue button */}
-            <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+            <Box display="flex" justifyContent="flex-end">
               <Button
                 variant="contained"
                 size="large"
                 onClick={handleContinueClick}
-                sx={{ borderRadius: 2, px: 4, fontWeight: 700 }}
+                disabled={isLoading}
               >
-                Continua
+                {isLoading ? 'Salvataggio...' : 'Continua'}
               </Button>
             </Box>
           </Stack>

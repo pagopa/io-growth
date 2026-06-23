@@ -1,3 +1,5 @@
+import { ContactType } from '../../types';
+
 export const MODAL_CONTENT = {
   logo: {
     title: 'Logo dell’ente',
@@ -23,8 +25,6 @@ export const MODAL_CONTENT = {
   },
 };
 
-export type ContactType = 'EMAIL' | 'TELEPHONE' | 'WEBSITE';
-
 type ContactInputField = 'contact' | 'website';
 type ContactInputType = 'text' | 'email' | 'tel' | 'url';
 
@@ -40,30 +40,30 @@ export const CONTACT_TYPE_OPTIONS: Array<{
 }> = [
   {
     label: 'Email',
-    value: 'EMAIL',
+    value: 'email',
   },
   {
     label: 'Telefono',
-    value: 'TELEPHONE',
+    value: 'telephone',
   },
   {
     label: 'Sito web',
-    value: 'WEBSITE',
+    value: 'website',
   },
 ];
 
 export const CONTACT_INPUT_BY_TYPE = {
-  EMAIL: {
+  email: {
     field: 'contact',
     placeholder: 'Inserisci email',
     type: 'email',
   },
-  TELEPHONE: {
+  telephone: {
     field: 'contact',
     placeholder: 'Inserisci telefono',
     type: 'tel',
   },
-  WEBSITE: {
+  website: {
     field: 'website',
     placeholder: 'Inserisci url',
     type: 'url',
@@ -80,12 +80,12 @@ export const getContactInputConfig = (
   contactType: string,
 ): ContactInputConfig => {
   switch (contactType) {
-    case 'EMAIL':
-      return CONTACT_INPUT_BY_TYPE.EMAIL;
-    case 'TELEPHONE':
-      return CONTACT_INPUT_BY_TYPE.TELEPHONE;
-    case 'WEBSITE':
-      return CONTACT_INPUT_BY_TYPE.WEBSITE;
+    case 'email':
+      return CONTACT_INPUT_BY_TYPE.email;
+    case 'telephone':
+      return CONTACT_INPUT_BY_TYPE.telephone;
+    case 'website':
+      return CONTACT_INPUT_BY_TYPE.website;
     default:
       return DEFAULT_CONTACT_INPUT;
   }

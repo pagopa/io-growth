@@ -1,8 +1,10 @@
-export interface Contact {
+export type ContactType = 'email' | 'telephone' | 'website';
+
+export type Contact = {
   contact: string;
-  type: string;
+  type: ContactType | '';
   website: string;
-}
+};
 
 export interface CompleteDataFormData {
   name: string;

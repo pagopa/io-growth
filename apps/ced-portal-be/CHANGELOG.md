@@ -1,5 +1,12 @@
 # ced-portal-be
 
+## 0.2.1
+
+### Patch Changes
+
+- 1b6f9a1: add places guard on request test api
+- c9baec0: Publish opportunity now returns 412 when the operator has no profile.
+
 ## 0.2.0
 
 ### Minor Changes

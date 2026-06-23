@@ -19,7 +19,6 @@ import {
   emitCustomEvent,
   tracingPlugin,
 } from "@pagopa/io-core-adapter-tracing";
-import { sql as drizzleSql } from "drizzle-orm";
 import Fastify from "fastify";
 
 import { SessionSchema } from "./adapters/inbound/fastify/auth/session.js";
@@ -48,8 +47,7 @@ import {
   mountOperatorRequestOpportunityTestHandler,
 } from "./adapters/inbound/fastify/index.js";
 import { createArOnboardingRepository } from "./adapters/outbound/ar/ar-onboarding.repository.js";
-import { createSessionContextPreHandler } from "./adapters/outbound/async-local-storage/async-local-storage-session.repository.js";
-import { getDbAuditContext } from "./adapters/outbound/drizzle/drizzle-audit-context.js";
+import { injectDbAuditContext } from "./adapters/outbound/drizzle/drizzle-audit-context.js";
 import { createDrizzleMaterializedViewRepository } from "./adapters/outbound/drizzle/drizzle-materialized-view.repository.js";
 import { createDrizzleOperatorRepository } from "./adapters/outbound/drizzle/drizzle-operator.repository.js";
 import { createDrizzleOpportunityCategoryRepository } from "./adapters/outbound/drizzle/drizzle-opportunity-category.repository.js";
@@ -82,6 +80,7 @@ import { makeGetOperatorPlaceUseCase } from "./application/use-cases/places/get-
 import { makeListOperatorPlacesUseCase } from "./application/use-cases/places/list-operator-places.use-case.js";
 import { makeCreateOperatorProfileUseCase } from "./application/use-cases/profile/create-operator-profile.use-case.js";
 import { makeGetOperatorProfileUseCase } from "./application/use-cases/profile/get-operator-profile.use-case.js";
+import { createSessionContextPreHandler } from "./async-local-storage-session-context.js";
 import { parseConfig } from "./config.js";
 
 const config = parseConfig();
@@ -102,13 +101,7 @@ const dbClient = createTypedDbClient(
         data: { message: notice.message },
       })("DrizzleClient");
     },
-    onTransaction: async (tx) => {
-      const audit = getDbAuditContext();
-      if (!audit) return;
-      await tx.execute(
-        drizzleSql`SELECT set_config('app.referent_fullname', ${audit.referentFullname}, true), set_config('app.operator_external_id', ${audit.operatorExternalId}, true), set_config('app.referent_external_id', ${audit.referentExternalId}, true)`,
-      );
-    },
+    onTransaction: injectDbAuditContext,
     password: config.POSTGRES_PASSWORD,
     port: config.POSTGRES_PORT,
     ssl: config.POSTGRES_SSL,

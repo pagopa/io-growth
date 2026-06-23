@@ -4,7 +4,7 @@ import type { Result } from "neverthrow";
 
 import { AsyncLocalStorage } from "node:async_hooks";
 
-import type { Session } from "../../../domain/entities/session.js";
+import type { Session } from "./domain/entities/session.js";
 
 const storage = new AsyncLocalStorage<Session>();
 

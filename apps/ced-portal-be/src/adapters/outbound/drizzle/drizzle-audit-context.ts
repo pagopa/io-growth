@@ -1,12 +1,18 @@
-import { getRequestSession } from "../async-local-storage/async-local-storage-session.repository.js";
+import { ExtractTablesWithRelations } from "drizzle-orm";
+import { sql as drizzleSql } from "drizzle-orm";
+import { PgTransaction } from "drizzle-orm/pg-core";
+import { PostgresJsQueryResultHKT } from "drizzle-orm/postgres-js";
 
-export interface DbAuditContext {
+import { getRequestSession } from "../../../async-local-storage-session-context.js";
+import * as schema from "./schema/index.js";
+
+interface DbAuditContext {
   readonly operatorExternalId: string;
   readonly referentExternalId: string;
   readonly referentFullname: string;
 }
 
-export const getDbAuditContext = (): DbAuditContext | undefined => {
+const getDbAuditContext = (): DbAuditContext | undefined => {
   const session = getRequestSession();
   if (!session) return undefined;
   const { firstName, lastName, operatorExternalId, referentExternalId } =
@@ -16,4 +22,18 @@ export const getDbAuditContext = (): DbAuditContext | undefined => {
     referentExternalId,
     referentFullname: `${lastName} ${firstName}`,
   };
+};
+
+export const injectDbAuditContext = async (
+  tx: PgTransaction<
+    PostgresJsQueryResultHKT,
+    typeof schema,
+    ExtractTablesWithRelations<typeof schema>
+  >,
+) => {
+  const audit = getDbAuditContext();
+  if (!audit) return;
+  await tx.execute(
+    drizzleSql`SELECT set_config('app.referent_fullname', ${audit.referentFullname}, true), set_config('app.operator_external_id', ${audit.operatorExternalId}, true), set_config('app.referent_external_id', ${audit.referentExternalId}, true)`,
+  );
 };

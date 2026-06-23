@@ -1,5 +1,11 @@
 # ced-portal-be
 
+## 0.2.2
+
+### Patch Changes
+
+- b8c4b22: (Chore) Refactored ALS session context
+
 ## 0.2.1
 
 ### Patch Changes

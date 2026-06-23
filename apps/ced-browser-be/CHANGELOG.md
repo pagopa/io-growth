@@ -1,5 +1,12 @@
 # ced-browser-be
 
+## 0.1.6
+
+### Patch Changes
+
+- Updated dependencies [9603c2e]
+  - @pagopa/io-core-adapter-drizzle@0.0.4
+
 ## 0.1.5
 
 ### Patch Changes

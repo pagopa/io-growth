@@ -63,7 +63,7 @@ const CreateOperatorOpportunityInputSchema = z.object({
   url: z.url().max(2048).optional(),
 });
 
-export type CreateOperatorOpportunityInput = z.infer<
+export type CreateOperatorOpportunityInput = z.input<
   typeof CreateOperatorOpportunityInputSchema
 >;
 

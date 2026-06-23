@@ -12,8 +12,6 @@ import { devAuthStorage } from '../../features/session/authDev/wrapper';
 export const PageHeader = () => {
   const user = useAppSelector(selectUser);
 
-  const isDev = import.meta.env.MODE === 'development';
-
   const switchDevPartyContext = useDevRoleSwitcher(partyRoleMap);
 
   const isDev = import.meta.env.VITE_APP_ENV === 'development';

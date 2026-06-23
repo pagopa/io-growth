@@ -479,14 +479,24 @@ paths:
                 statusCode: 409
                 message: Opportunity status was modified concurrently
         "412":
-          description: Opportunity is not in test_passed status
+          description: >-
+            Precondition failed: the opportunity is not in test_passed status,
+            or the operator has no profile.
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
-              example:
-                statusCode: 412
-                message: Opportunity is not in test_passed status
+              examples:
+                notTestPassed:
+                  summary: Opportunity is not in test_passed status
+                  value:
+                    statusCode: 412
+                    message: "Precondition failed: Opportunity must be in test_passed status to be published"
+                operatorHasNoProfile:
+                  summary: Operator has no profile
+                  value:
+                    statusCode: 412
+                    message: "Precondition failed: Operator must have a profile to publish an opportunity"
   /operator/opportunities:
     get:
       tags:

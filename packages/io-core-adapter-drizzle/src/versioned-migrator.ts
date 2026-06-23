@@ -4,6 +4,10 @@ import { createRawSqlClient } from "./client.js";
 import { runVersionedMigrations } from "./migrator.js";
 import { runRecurrentMigrations } from "./recurrent-migrator.js";
 
+// Single lock key covering the full migration pipeline.
+// Ensures no other instance can interleave versioned and recurrent phases.
+const LOCK_KEY = 789_012_344;
+
 export interface MigrationConfig {
   readonly connection: RawSqlClientConfig;
   readonly migrationsFolder: string;
@@ -18,8 +22,13 @@ export const runAllMigrations = async (
   const sql = createRawSqlClient(config.connection);
 
   try {
-    await runVersionedMigrations(sql, config.migrationsFolder);
-    await runRecurrentMigrations(sql, config.recurrentFolder);
+    await sql`SELECT pg_advisory_lock(${LOCK_KEY})`;
+    try {
+      await runVersionedMigrations(sql, config.migrationsFolder);
+      await runRecurrentMigrations(sql, config.recurrentFolder);
+    } finally {
+      await sql`SELECT pg_advisory_unlock(${LOCK_KEY})`;
+    }
   } finally {
     await sql.end();
   }

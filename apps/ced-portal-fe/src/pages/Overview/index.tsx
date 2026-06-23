@@ -1,4 +1,12 @@
-import { Alert, Box, Button, Stack, Typography, useTheme } from '@mui/material';
+import {
+  Alert,
+  Box,
+  Button,
+  Divider,
+  Stack,
+  Typography,
+  useTheme,
+} from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { APP_ROUTES } from '../../app/routeConfig';
 import { SectionCard } from '../../components/SectionCard';
@@ -109,20 +117,12 @@ export default function OverviewPage() {
                 <Typography fontSize={16} fontWeight={600}>
                   {displayName}
                 </Typography>
-
-                {/* PLACE NAME */}
-                <Typography fontSize={14} color="text.secondary" mt={2}>
-                  Nome sportello
-                </Typography>
-
-                <Typography fontSize={16} fontWeight={600}>
-                  {place?.name}
-                </Typography>
+                <Divider sx={{ my: 1, borderColor: 'divider' }} />
 
                 {/* ONLINE */}
                 {place?.type === 'online' && place.website && (
                   <>
-                    <Typography fontSize={14} color="text.secondary" mt={2}>
+                    <Typography fontSize={14} color="text.secondary">
                       Sito web
                     </Typography>
 
@@ -135,7 +135,7 @@ export default function OverviewPage() {
                 {/* OFFLINE */}
                 {place?.type === 'offline' && place.address && (
                   <>
-                    <Typography fontSize={14} color="text.secondary" mt={2}>
+                    <Typography fontSize={14} color="text.secondary">
                       Indirizzo
                     </Typography>
 
@@ -147,6 +147,10 @@ export default function OverviewPage() {
                 )}
 
                 {/* CONTACTS */}
+
+                <Typography variant="overline" color="text.secondary" mt={4}>
+                  CONTATTI ASSISTENZA
+                </Typography>
                 {contacts.length > 0 && (
                   <>
                     <Typography fontSize={14} color="text.secondary" mt={2}>
@@ -154,9 +158,14 @@ export default function OverviewPage() {
                     </Typography>
 
                     {contacts.map((c) => (
-                      <Typography key={c.id} fontSize={16} fontWeight={600}>
-                        {c.type}: {c.value}
-                      </Typography>
+                      <>
+                        <Typography key={c.id} fontSize={16} fontWeight={600}>
+                          {c.type}: {c.value}
+                        </Typography>
+                        {contacts.length > 1 && (
+                          <Divider sx={{ my: 1, borderColor: 'divider' }} />
+                        )}
+                      </>
                     ))}
                   </>
                 )}

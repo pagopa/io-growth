@@ -1,4 +1,9 @@
 import { DiscoveryListItemProps } from '../../components';
+import {
+  OpportunitySearchResult,
+  OpportunitySearchResultBeneficiaryBenefitDiscountType,
+  OpportunitySearchResultBeneficiaryBenefitType,
+} from '../../core/api/generated/model';
 
 /// mock
 export const PARTNERS_CARDS_CONFIG = [
@@ -38,6 +43,39 @@ export const PARTNERS_CARDS_CONFIG = [
       'https://upload.wikimedia.org/wikipedia/commons/d/d5/Alessandria-Stemma.png', // Placeholder stemma
   },
 ];
+
+const generateBadgeLabel = (
+  value: number | null,
+  benefitDiscountType: OpportunitySearchResultBeneficiaryBenefitDiscountType,
+  benefitType: OpportunitySearchResultBeneficiaryBenefitType,
+) => {
+  if (!value) return benefitType;
+  return `-${value}${benefitDiscountType === 'fixed_amount' ? '€' : '%'}`;
+};
+
+export const generateDiscoveryItemsConfig: (
+  opportunities: OpportunitySearchResult[] | undefined,
+) => Array<DiscoveryListItemProps & { id: string }> = (opportunities) =>
+  (opportunities || []).map(
+    ({
+      id,
+      name,
+      profileDisplayName,
+      beneficiaryBenefitValue,
+      beneficiaryBenefitType,
+      beneficiaryBenefitDiscountType,
+    }) => ({
+      id,
+      variant: 'opportunity',
+      eyebrow: profileDisplayName,
+      title: name,
+      badgeLabel: generateBadgeLabel(
+        beneficiaryBenefitValue,
+        beneficiaryBenefitDiscountType,
+        beneficiaryBenefitType,
+      ),
+    }),
+  );
 
 export const DISCOVERY_ITEMS_CONFIG: Array<
   DiscoveryListItemProps & { id: string }

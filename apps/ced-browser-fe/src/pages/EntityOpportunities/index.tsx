@@ -1,12 +1,8 @@
 import { Box, Divider, Stack, Typography } from '@mui/material';
 import { useNavigate, useParams } from 'react-router-dom';
-import {
-  DiscoveryListItem,
-  PageHeader,
-  QueryGuard,
-} from '../../components/index.js';
-import { toOpportunityDetailRoute } from '../../app/routeConfig.js';
-import { useGetEntityDetailQuery } from '../../features/entities/api.js';
+import { DiscoveryListItem, PageHeader, QueryGuard } from '../../components';
+import { toOpportunityDetailRoute } from '../../app/routeConfig';
+import { useGetEntityDetailQuery } from '../../features/entities/api';
 
 export default function EntityOpportunitiesPage() {
   const { id } = useParams<{ id: string }>();

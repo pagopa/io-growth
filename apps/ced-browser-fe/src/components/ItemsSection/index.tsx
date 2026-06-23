@@ -12,10 +12,10 @@ import {
   APP_ROUTES,
   toEntityAccessPointDetailRoute,
   toOpportunityDetailRoute,
-} from '../../app/routeConfig.js';
-import { DiscoveryListItem } from '../index.js';
-import { SectionTitle } from '../SectionTitle/index.js';
-import type { ItemsSectionProps } from './types.js';
+} from '../../app/routeConfig';
+import { DiscoveryListItem } from '../';
+import { SectionTitle } from '../SectionTitle';
+import type { ItemsSectionProps } from './types';
 
 const ITEMS_LIMIT = 10;
 
@@ -44,9 +44,9 @@ export function ItemsSection(props: ItemsSectionProps) {
             key={id}
             variant="opportunity"
             {...item}
-            eyebrow={hideEyebrow ? undefined : item.eyebrow}
             sx={{ px: 0, bgcolor: 'background.paper' }}
             onClick={() => navigate(toOpportunityDetailRoute(id))}
+            eyebrow={hideEyebrow ? undefined : item.title}
           />
         ));
     }
@@ -59,10 +59,10 @@ export function ItemsSection(props: ItemsSectionProps) {
           variant="simple"
           {...item}
           sx={{ px: 0, bgcolor: 'background.paper' }}
-          onClick={() => navigate(toEntityAccessPointDetailRoute(entityId, id))}
+          onClick={() => navigate(toEntityAccessPointDetailRoute(id))}
         />
       ));
-  }, [variant, items, hideEyebrow, navigate, entityId]);
+  }, [variant, items, hideEyebrow, navigate]);
 
   if (items.length === 0) return null;
 

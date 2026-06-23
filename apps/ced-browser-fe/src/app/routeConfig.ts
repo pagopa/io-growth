@@ -6,7 +6,7 @@ export const APP_ROUTES = {
   ENTITY_DETAIL: '/enti/:id',
   ENTITY_OPPORTUNITIES: '/enti/:id/opportunita',
   ENTITY_ACCESS_POINTS: '/enti/:id/punti-di-accesso',
-  ENTITY_ACCESS_POINT_DETAIL: '/enti/:id/punti-di-accesso/:accessPointId',
+  ENTITY_ACCESS_POINT_DETAIL: '/enti/punti-di-accesso/:accessPointId',
   OPPORTUNITY_DETAIL: '/opportunita/:id',
   EUROPEAN_OPPORTUNITIES: '/european-opportunities',
   OPPORTUNITIES_LIST: '/opportunities',
@@ -15,12 +15,8 @@ export const APP_ROUTES = {
   UNAUTHORIZED: '/unauthorized',
 } as const;
 
-export const toEntityAccessPointDetailRoute = (
-  entityId: string,
-  accessPointId: string,
-) =>
+export const toEntityAccessPointDetailRoute = (accessPointId: string) =>
   generatePath(APP_ROUTES.ENTITY_ACCESS_POINT_DETAIL, {
-    id: entityId,
     accessPointId,
   });
 

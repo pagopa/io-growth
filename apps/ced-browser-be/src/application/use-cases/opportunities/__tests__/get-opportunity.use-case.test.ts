@@ -40,6 +40,21 @@ const mockOpportunityDetail: OpportunityDetail = {
       url: null,
     },
   ],
+  profile: {
+    displayName: "Comune di Alessandria",
+    id: "01JVMK3N8XQZP5T6G2WYHAB4CA",
+    place: {
+      address: {
+        city: "Alessandria",
+        postalCode: "15121",
+        state: "AL",
+        street: "Piazza della Liberta 1",
+      },
+      id: "01JVMK3N8XQZP5T6G2WYHAB4CB",
+      name: "Sportello Carta Europea della Disabilita",
+      type: "offline",
+    },
+  },
   url: "https://example.com/offerta-ced",
 };
 

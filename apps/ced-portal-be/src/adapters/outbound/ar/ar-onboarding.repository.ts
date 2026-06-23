@@ -66,7 +66,10 @@ const enrichManagerUser = async (
   const managerResult = await userClient.getUserById(managerId);
 
   if (managerResult.isErr()) {
-    return err(new GenericError(managerResult.error.message));
+    // Enriching the manager user is best-effort: if the user lookup fails
+    // (e.g. the user no longer exists), return the un-enriched users instead
+    // of failing the whole onboarding detail request.
+    return ok(users);
   }
 
   const { email, name, surname } = managerResult.value;
@@ -109,10 +112,6 @@ export const createArOnboardingRepository = (
     }
 
     const usersResult = await enrichManagerUser(item.users, userClient);
-
-    if (usersResult.isErr()) {
-      return err(new GenericError(usersResult.error.message));
-    }
 
     const onboardingDetail: OnboardingDetail = {
       activatedAt: item.activatedAt,

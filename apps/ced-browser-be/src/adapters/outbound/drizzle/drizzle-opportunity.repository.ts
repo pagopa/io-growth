@@ -107,6 +107,11 @@ export const createDrizzleOpportunityRepository = (
                           street: true,
                         },
                       },
+                      website: {
+                        columns: {
+                          url: true,
+                        },
+                      },
                     },
                   },
                 },

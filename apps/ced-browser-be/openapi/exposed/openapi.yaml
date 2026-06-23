@@ -1256,6 +1256,11 @@ components:
           description: Physical address. Null for online places.
           allOf:
             - $ref: "#/components/schemas/PlaceAddress"
+        website:
+          type: string
+          format: uri
+          nullable: true
+          description: Website URL. Present for online places only.
 
     OpportunitySearchResponse:
       type: object

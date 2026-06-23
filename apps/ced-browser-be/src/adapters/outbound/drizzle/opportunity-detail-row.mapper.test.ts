@@ -33,6 +33,7 @@ const baseRow: OpportunityDetailRow = {
         id: "profile-place-id",
         name: "Sportello CED",
         type: "offline",
+        website: null,
       },
     },
   },
@@ -134,6 +135,51 @@ describe("mapOpportunityDetailRow", () => {
               id: "profile-place-id",
               name: "Sportello CED",
               type: "offline",
+              website: null,
+            },
+          },
+        }),
+      ),
+    );
+  });
+
+  it("maps an online operator profile place with its website", () => {
+    const result = mapOpportunityDetailRow(
+      {
+        ...baseRow,
+        localizedMetadata: [
+          { key: "name", language: "it", value: "Nome italiano" },
+          { key: "description", language: "it", value: "Descrizione italiana" },
+        ],
+        operator: {
+          profile: {
+            displayName: "Comune di Alessandria",
+            id: "profile-id",
+            place: {
+              address: null,
+              id: "profile-place-id",
+              name: "Portale servizi online",
+              type: "online",
+              website: { url: "https://servizi.comune.alessandria.it" },
+            },
+          },
+        },
+      },
+      "it",
+    );
+
+    expect(result).toEqual(
+      ok(
+        expect.objectContaining({
+          profile: {
+            displayName: "Comune di Alessandria",
+            id: "profile-id",
+            place: {
+              address: null,
+              id: "profile-place-id",
+              name: "Portale servizi online",
+              type: "online",
+              website: "https://servizi.comune.alessandria.it",
             },
           },
         }),

@@ -65,6 +65,9 @@ interface ProfilePlaceRow {
   id: string;
   name: string;
   type: "offline" | "online";
+  website: null | {
+    url: string;
+  };
 }
 
 interface ProfileRow {
@@ -159,6 +162,8 @@ const mapProfileRow = (row: ProfileWithPlace): OpportunityProfile => ({
     id: row.place.id,
     name: row.place.name,
     type: row.place.type,
+    website:
+      row.place.type === "online" ? (row.place.website?.url ?? null) : null,
   },
 });
 

@@ -44,6 +44,7 @@ export const OpportunityProfilePlaceSchema = z.object({
   id: z.string().min(1),
   name: z.string().min(1),
   type: z.enum(["online", "offline"]),
+  website: z.url().nullable().optional(),
 });
 
 export type OpportunityProfilePlace = z.infer<

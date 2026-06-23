@@ -1,7 +1,10 @@
 import DeleteIcon from '@mui/icons-material/Delete';
 import { Box, IconButton, useTheme } from '@mui/material';
 import { AppSelect, AppTextField } from '../../../../components';
-import type { SupportContactCreateRequest } from '../../../../core/api/generated/model';
+import type {
+  SupportContactCreateRequest,
+  SupportContactCreateRequestType,
+} from '../../../../core/api/generated/model';
 import { useState } from 'react';
 
 const CONTACT_TYPE_OPTIONS = [
@@ -27,7 +30,7 @@ export function ContactRow({
   onChange,
 }: Readonly<ContactRowProps>) {
   const theme = useTheme();
-  const [fieldType, setFieldType] = useState('');
+  const [fieldType, setFieldType] = useState(contact.type ?? '');
 
   return (
     <Box
@@ -60,7 +63,7 @@ export function ContactRow({
           value={contact.type}
           onChange={(e) => {
             onChange({ index, field: 'type', value: e.target.value as string });
-            setFieldType(e.target.value as string);
+            setFieldType(e.target.value as SupportContactCreateRequestType);
           }}
           sx={{
             minWidth: { xs: 0, sm: '200px' },

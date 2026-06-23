@@ -9,6 +9,7 @@ import { InfoModal } from './components/InfoModal';
 import { TermsAndPrivacySection } from './components/TermsAndPrivacySection';
 import { useCompleteDataForm } from './hooks/useCompleteDataForm';
 import { useCreateOperatorProfileMutation } from '../../../features/profile/api';
+import { useToast } from '../../../contexts';
 
 export default function OverviewCompleteDataPage() {
   const navigate = useNavigate();
@@ -40,11 +41,15 @@ export default function OverviewCompleteDataPage() {
       try {
         await createProfile(payload).unwrap();
         navigate(-1);
-      } catch (e) {
-        console.error('Errore creazione profilo', e);
+        showToast('Dati salvati', 'success');
+      } catch (error) {
+        showToast('Errore nella creazione dell’ente', 'error');
+        throw error;
       }
     },
   });
+
+  const { showToast } = useToast();
 
   return (
     <Box sx={{ bgcolor: 'common.neutralGray', color: 'text.primary' }}>
@@ -61,7 +66,7 @@ export default function OverviewCompleteDataPage() {
           <Stack spacing={3}>
             <Box>
               <Typography variant="h4" fontWeight={700}>
-                Completa i dati dellente
+                Completa i dati dell’ente
               </Typography>
             </Box>
 

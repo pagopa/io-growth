@@ -14,7 +14,7 @@ export const baseApi = createApi({
       if (token) {
         headers.set('Authorization', `Bearer ${token}`);
         /**
-         * TODO now we don't have any language choise
+         * TODO now we don't have any language choice
          * since Accept-Language seems required in all
          * authenticated APIs we set it here
          */

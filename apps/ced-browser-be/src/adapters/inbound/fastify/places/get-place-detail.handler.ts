@@ -13,7 +13,7 @@ import type { GetPlaceDetailUseCase } from "../../../../application/use-cases/pl
 import { LANGUAGE_VALUES } from "../../../../domain/ports/outbound/persistence/place.repository.js";
 import { CitizenSessionSchema } from "../auth/session.js";
 import {
-  GetPlaceDetailPathParams,
+  GetPlaceDetailParams,
   GetPlaceDetailResponse,
 } from "../contracts/places/places.js";
 
@@ -21,7 +21,7 @@ const getPlaceDetailHttpSchema = z.object({
   headers: z.object({
     "accept-language": z.enum(LANGUAGE_VALUES).optional(),
   }),
-  path: GetPlaceDetailPathParams,
+  path: GetPlaceDetailParams,
 });
 
 const getPlaceDetailValidator = withSession(

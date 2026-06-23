@@ -414,7 +414,9 @@ paths:
                 statusCode: 409
                 message: Opportunity status was modified concurrently
         "412":
-          description: Opportunity is not in draft status
+          description: >-
+            Opportunity is not in draft status, or has neither places nor
+            national territory coverage
           content:
             application/json:
               schema:
@@ -422,6 +424,79 @@ paths:
               example:
                 statusCode: 412
                 message: Opportunity is not in draft status
+  /operator/opportunities/{opportunityId}/publish:
+    patch:
+      summary: Publish an approved opportunity
+      operationId: operatorPublishOpportunity
+      tags:
+        - Opportunities
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: opportunityId
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: "^[0-9A-HJKMNP-TV-Z]{26}$"
+      responses:
+        "204":
+          description: Opportunity published successfully.
+        "401":
+          description: Invalid or missing JWT
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 401
+                message: Unauthorized
+        "403":
+          description: Authenticated user is not an operator
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 403
+                message: Forbidden
+        "404":
+          description: Opportunity not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 404
+                message: Opportunity not found
+        "409":
+          description: Opportunity status was modified concurrently
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 409
+                message: Opportunity status was modified concurrently
+        "412":
+          description: >-
+            Precondition failed: the opportunity is not in test_passed status,
+            or the operator has no profile.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              examples:
+                notTestPassed:
+                  summary: Opportunity is not in test_passed status
+                  value:
+                    statusCode: 412
+                    message: "Precondition failed: Opportunity must be in test_passed status to be published"
+                operatorHasNoProfile:
+                  summary: Operator has no profile
+                  value:
+                    statusCode: 412
+                    message: "Precondition failed: Operator must have a profile to publish an opportunity"
   /operator/opportunities:
     get:
       tags:
@@ -1304,7 +1379,6 @@ components:
       additionalProperties: false
       required:
         - dateFrom
-        - placeIds
         - beneficiaryBenefit
         - localizedMetadata
         - categoryId

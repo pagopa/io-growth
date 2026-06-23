@@ -22,7 +22,7 @@ export type EntityOpportunity = {
   badgeLabel: string;
 };
 
-export type EntityAccessPoint = {
+type EntityAccessPoint = {
   id: string;
   title: string;
   subtitle: string;

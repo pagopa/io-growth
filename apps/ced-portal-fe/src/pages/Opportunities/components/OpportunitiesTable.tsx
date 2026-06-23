@@ -39,6 +39,8 @@ interface OpportunitiesTableProps {
   selected: Set<string>;
   onSelectChange: (selected: Set<string>) => void;
   onPublish: (id: string) => void;
+  // string to show when there are no items
+  emptyCopy: string;
 }
 
 export const OpportunitiesTable = ({
@@ -49,6 +51,7 @@ export const OpportunitiesTable = ({
   selected,
   onSelectChange,
   onPublish,
+  emptyCopy,
 }: OpportunitiesTableProps) => {
   const theme = useTheme();
   const navigate = useNavigate();
@@ -185,7 +188,7 @@ export const OpportunitiesTable = ({
           <Typography
             sx={{ fontSize: 18, fontWeight: 700, color: 'text.secondary' }}
           >
-            Non ci sono opportunità da mostrare
+            {emptyCopy}
           </Typography>
         </Stack>
       </Paper>
@@ -216,18 +219,18 @@ export const OpportunitiesTable = ({
             <TableCell>Ente</TableCell>
             <TableCell>
               <TableSortLabel
-                active={sortBy === 'created_at'}
-                direction={sortBy === 'created_at' ? sortDirection : 'asc'}
-                onClick={() => handleSort('created_at')}
+                active={sortBy === 'dateFrom'}
+                direction={sortBy === 'dateFrom' ? sortDirection : 'asc'}
+                onClick={() => handleSort('dateFrom')}
               >
                 Creato il
               </TableSortLabel>
             </TableCell>
             <TableCell>
               <TableSortLabel
-                active={sortBy === 'state'}
-                direction={sortBy === 'state' ? sortDirection : 'asc'}
-                onClick={() => handleSort('state')}
+                active={sortBy === 'status'}
+                direction={sortBy === 'status' ? sortDirection : 'asc'}
+                onClick={() => handleSort('status')}
               >
                 Stato
               </TableSortLabel>

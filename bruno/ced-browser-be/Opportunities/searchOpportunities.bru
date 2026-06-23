@@ -1,0 +1,22 @@
+meta {
+  name: Search opportunities from materialized view
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{baseUrl}}/api/opportunities/search
+  body: none
+  auth: inherit
+}
+
+params:query {
+  ~order_by: dateFrom
+  ~order_direction: desc
+  ~limit: 
+  ~offset: 
+}
+
+headers {
+  ~token: {{sessionToken}}
+}

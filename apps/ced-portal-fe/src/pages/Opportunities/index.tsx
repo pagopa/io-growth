@@ -1,17 +1,28 @@
 import { Box, Button, Stack, Typography, useTheme } from '@mui/material';
-import { SyntheticEvent, useMemo, useState } from 'react';
+import { SyntheticEvent, useCallback, useMemo, useState } from 'react';
 import { FiltersBar, PageTabs, ResultsPagination } from '../../components';
+import { useApproveOpportunityMutation } from '../../features/opportunities/api';
 import { useOpportunitiesData } from '../../features/opportunities/hooks';
 import type { OpportunityFilters } from '../../features/opportunities/types';
 import { PublishModal } from '../../components/PublishModal';
 import { OpportunitiesTable } from './components/OpportunitiesTable';
 import { useToast } from '../../contexts';
-import { STATE_OPTIONS } from '../../constants';
+import {
+  ADMIN_APPROVED_STATE_OPTIONS,
+  ADMIN_NOT_ACTIVE_STATE_OPTIONS,
+  ADMIN_REQUEST_STATE_OPTIONS,
+} from '../../constants';
 
 const INITIAL_FILTERS: OpportunityFilters = {
   search: '',
   state: '',
 };
+
+const emptyValue = [
+  'Non ci sono nuove opportunità - Qui vedrai le opportunità da gestire.',
+  'Non ci sono opportunità approvate - Qui vedrai le opportunità che hai approvato.',
+  'Non ci sono opportunità non attive - Qui vedrai le opportunità non più disponibili su IO.',
+];
 
 export default function OpportunitiesPage() {
   const theme = useTheme();
@@ -26,6 +37,9 @@ export default function OpportunitiesPage() {
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [publishModalOpen, setPublishModalOpen] = useState(false);
   const [publishCount, setPublishCount] = useState(0);
+  const [idsToPublish, setIdsToPublish] = useState<string[]>([]);
+  const [approveOpportunity, { isLoading: isApproving }] =
+    useApproveOpportunityMutation();
 
   const {
     newItems,
@@ -41,6 +55,12 @@ export default function OpportunitiesPage() {
     if (activeTab === 1) return approvedItems;
     return inactiveItems;
   }, [activeTab, newItems, approvedItems, inactiveItems]);
+
+  const filteredDisplayedItems = useMemo(() => {
+    if (activeTab === 0) return ADMIN_REQUEST_STATE_OPTIONS;
+    if (activeTab === 1) return ADMIN_APPROVED_STATE_OPTIONS;
+    return ADMIN_NOT_ACTIVE_STATE_OPTIONS;
+  }, [activeTab]);
 
   const paginatedItems = useMemo(() => {
     const start = (page - 1) * rowsPerPage;
@@ -66,6 +86,40 @@ export default function OpportunitiesPage() {
     setFilters(INITIAL_FILTERS);
     setPage(1);
   };
+
+  const handlePublish = useCallback(async () => {
+    if (idsToPublish.length === 0 || isApproving) {
+      return;
+    }
+
+    try {
+      await Promise.all(
+        idsToPublish.map((id) => {
+          const opportunity = displayedItems.find((item) => item.id === id);
+
+          return approveOpportunity({
+            id,
+            payload: opportunity?.dateFrom
+              ? { dateFrom: opportunity.dateFrom }
+              : undefined,
+          }).unwrap();
+        }),
+      );
+
+      setPublishModalOpen(false);
+      setSelected(new Set());
+      setIdsToPublish([]);
+      showToast('Opportunità approvata con successo', 'success');
+    } catch {
+      showToast("Errore durante l'approvazione dell'opportunità", 'error');
+    }
+  }, [
+    idsToPublish,
+    isApproving,
+    showToast,
+    displayedItems,
+    approveOpportunity,
+  ]);
 
   return (
     <Box
@@ -101,6 +155,7 @@ export default function OpportunitiesPage() {
               color="primary"
               size="large"
               onClick={() => {
+                setIdsToPublish(Array.from(selected));
                 setPublishCount(selected.size);
                 setPublishModalOpen(true);
               }}
@@ -123,20 +178,22 @@ export default function OpportunitiesPage() {
           onChange={handleFilterChange}
           onFilter={handleFilter}
           onReset={handleReset}
-          stateOptions={STATE_OPTIONS}
+          stateOptions={filteredDisplayedItems}
         />
 
         <Box>
           <PageTabs activeTab={activeTab} onChange={handleTabChange} />
           <Box sx={{ mt: 2 }}>
             <OpportunitiesTable
+              emptyCopy={emptyValue[activeTab]}
               items={paginatedItems}
               isLoading={isLoading}
               isError={isError}
               onRetry={refetch}
               selected={selected}
               onSelectChange={setSelected}
-              onPublish={() => {
+              onPublish={(id) => {
+                setIdsToPublish([id]);
                 setPublishCount(1);
                 setPublishModalOpen(true);
               }}
@@ -157,11 +214,7 @@ export default function OpportunitiesPage() {
       <PublishModal
         open={publishModalOpen}
         onClose={() => setPublishModalOpen(false)}
-        onPublish={() => {
-          setPublishModalOpen(false);
-          setSelected(new Set());
-          showToast('Fatto!', 'success');
-        }}
+        onPublish={handlePublish}
         count={publishCount}
       />
     </Box>

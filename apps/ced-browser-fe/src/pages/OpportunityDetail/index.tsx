@@ -1,3 +1,4 @@
+import { TheaterComedy } from '@mui/icons-material';
 import OpenInNewOutlinedIcon from '@mui/icons-material/OpenInNewOutlined';
 import {
   Box,
@@ -9,27 +10,21 @@ import {
   useTheme,
 } from '@mui/material';
 import { useNavigate, useParams } from 'react-router-dom';
-import { APP_ROUTES } from '../../app/routeConfig.js';
+import {
+  toEntityAccessPointDetailRoute,
+  toEntityDetailRoute,
+} from '../../app/routeConfig';
 import {
   DiscoveryListItem,
   PageHeader,
   QueryGuard,
   SectionTitle,
 } from '../../components/index.js';
-import { useGetOpportunityDetailQuery } from '../../features/entities/api.js';
-import { TheaterComedy } from '@mui/icons-material';
-import type { OpportunitySummaryBeneficiaryBenefitType } from '../../core/api/generated/model/index.js';
+import { useGetOpportunityDetailQuery } from '../../features/opportunities/api.js';
+import { formatBadgeLabel } from '../../utils/formatBadgeLabel.js';
+import { formatAddress } from '../../utils/formatAddress.js';
 
-function formatBadgeLabel(
-  type: OpportunitySummaryBeneficiaryBenefitType,
-  value: number,
-): string {
-  if (type === 'percentual') return `-${value}%`;
-  if (type === 'absolute') return `-${value}€`;
-  return String(value);
-}
-
-function formatVenueAddress(venue: {
+function formatPlacesAddress(venue: {
   street?: string | null;
   city?: string | null;
   state?: string | null;
@@ -104,10 +99,7 @@ export default function OpportunityDetailPage() {
                 mb: 2,
               }}
             >
-              {formatBadgeLabel(
-                resolvedData.beneficiary_benefit_type,
-                resolvedData.beneficiary_benefit_value,
-              )}
+              {formatBadgeLabel(resolvedData.beneficiaryBenefit)}
             </Box>
 
             <Typography
@@ -160,18 +152,20 @@ export default function OpportunityDetailPage() {
 
             <Divider />
 
-            <Box sx={{ py: 2 }}>
-              <Typography component="p" sx={sectionSx.label}>
-                Condizioni
-              </Typography>
-              <Typography sx={sectionSx.body}>
-                {resolvedData.condition}
-              </Typography>
-            </Box>
+            {resolvedData.condition && (
+              <Box sx={{ py: 2 }}>
+                <Typography component="p" sx={sectionSx.label}>
+                  Condizioni
+                </Typography>
+                <Typography sx={sectionSx.body}>
+                  {resolvedData.condition}
+                </Typography>
+              </Box>
+            )}
 
             <Divider />
 
-            {resolvedData.caregiver_benefit_value != null && (
+            {resolvedData.caregiverBenefit?.value && (
               <>
                 <Box sx={{ py: 2 }}>
                   <Typography component="p" sx={sectionSx.label}>
@@ -190,7 +184,7 @@ export default function OpportunityDetailPage() {
                 Periodo di validità
               </Typography>
               <Typography sx={sectionSx.body}>
-                {formatDate(resolvedData.date_to ?? resolvedData.date_from)}
+                {formatDate(resolvedData.dateTo ?? resolvedData.dateFrom)}
               </Typography>
             </Box>
 
@@ -228,19 +222,14 @@ export default function OpportunityDetailPage() {
 
             <Box sx={{ mx: -3 }}>
               <SectionTitle label="Valida presso" />
-              {resolvedData.venues.map((venue) => (
+              {resolvedData.places.map((place) => (
                 <DiscoveryListItem
-                  key={venue.id}
+                  key={place.id}
                   variant="simple"
-                  title={venue.name}
-                  subtitle={formatVenueAddress(venue)}
+                  title={place.name}
+                  subtitle={formatPlacesAddress(place)}
                   onClick={() =>
-                    navigate(
-                      APP_ROUTES.ENTITY_ACCESS_POINT_DETAIL.replace(
-                        ':id',
-                        '',
-                      ).replace(':accessPointId', venue.id),
-                    )
+                    navigate(toEntityAccessPointDetailRoute(place.id))
                   }
                   sx={{ px: 0, bgcolor: 'background.paper' }}
                 />
@@ -251,8 +240,14 @@ export default function OpportunityDetailPage() {
               <SectionTitle label="Gestita da" />
               <DiscoveryListItem
                 variant="simple"
-                title={resolvedData.name}
-                onClick={() => navigate(APP_ROUTES.HOME)}
+                title={resolvedData.profile.displayName}
+                subtitle={
+                  resolvedData.profile.place.website ??
+                  formatAddress(resolvedData.profile.place.address)
+                }
+                onClick={() =>
+                  navigate(toEntityDetailRoute(resolvedData.profile.id))
+                }
                 sx={{ px: 0, bgcolor: 'background.paper' }}
               />
             </Box>

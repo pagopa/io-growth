@@ -6,10 +6,10 @@ import {
   VerifiedUser,
 } from '@mui/icons-material';
 import { Box, Divider, Stack } from '@mui/material';
-import type { EntityContacts } from '../../features/entities/types.js';
-import { buildGoogleMapsUrl } from '../../utils/index.js';
-import { SectionTitle } from '../SectionTitle/index.js';
-import { ContactRow } from '../ContactRow/index.js';
+import { buildGoogleMapsUrl } from '../../utils';
+import { SectionTitle } from '../SectionTitle';
+import { ContactRow } from '../ContactRow';
+import { EntityContacts } from '../../features/entities/types';
 
 export function ContactsSection({ contacts }: { contacts: EntityContacts }) {
   const hasAny =

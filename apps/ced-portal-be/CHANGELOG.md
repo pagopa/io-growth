@@ -1,5 +1,11 @@
 # ced-portal-be
 
+## 0.2.3
+
+### Patch Changes
+
+- 6f5c703: add profile info and make user info optional
+
 ## 0.2.2
 
 ### Patch Changes

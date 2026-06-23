@@ -2,4 +2,4 @@
 "ced-portal-be": patch
 ---
 
-(Chore) Refactored ASL session context
+(Chore) Refactored ALS session context

@@ -151,6 +151,51 @@ describe("createArOnboardingRepository", () => {
     );
   });
 
+  it("should return the onboarding detail with un-enriched users when manager lookup fails", async () => {
+    const getUserById = vi
+      .fn()
+      .mockResolvedValue(err(new Error("user not found")));
+    const repository = createRepository({
+      getOnboardingWithFilter: vi.fn().mockResolvedValue(
+        ok({
+          items: [
+            {
+              ...mockArOnboardingDetailItem,
+              users: [
+                {
+                  ...mockArOnboardingDetailItem.users[0],
+                  email: "old@example.org",
+                  name: "Old",
+                  surname: "Value",
+                },
+              ],
+            },
+          ],
+        }),
+      ),
+      getUserById,
+    });
+
+    const result = await repository.getById(MOCK_ONBOARDING_ID);
+
+    expect(getUserById).toHaveBeenCalledWith("user-2");
+    expect(result).toEqual(
+      ok(
+        expect.objectContaining({
+          users: [
+            expect.objectContaining({
+              email: "old@example.org",
+              id: "user-2",
+              name: "Old",
+              role: "MANAGER",
+              surname: "Value",
+            }),
+          ],
+        }),
+      ),
+    );
+  });
+
   it("should return NotFoundError when getById finds no AR item", async () => {
     const repository = createRepository({
       getOnboardingWithFilter: vi.fn().mockResolvedValue(

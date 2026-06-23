@@ -20,8 +20,6 @@ import {
   QueryGuard,
   SectionTitle,
 } from '../../components/index.js';
-
-import { TheaterComedy } from '@mui/icons-material';
 import { useGetOpportunityDetailQuery } from '../../features/opportunities/api.js';
 import { formatBadgeLabel } from '../../utils/formatBadgeLabel.js';
 
@@ -100,7 +98,6 @@ export default function OpportunityDetailPage() {
                 mb: 2,
               }}
             >
-              {formatBadgeLabel(resolvedData.beneficiaryBenefit)}
               {formatBadgeLabel(resolvedData.beneficiaryBenefit)}
             </Box>
 
@@ -187,7 +184,6 @@ export default function OpportunityDetailPage() {
               </Typography>
               <Typography sx={sectionSx.body}>
                 {formatDate(resolvedData.dateTo ?? resolvedData.dateFrom)}
-                {formatDate(resolvedData.dateTo ?? resolvedData.dateFrom)}
               </Typography>
             </Box>
 
@@ -226,9 +222,7 @@ export default function OpportunityDetailPage() {
             <Box sx={{ mx: -3 }}>
               <SectionTitle label="Valida presso" />
               {resolvedData.places.map((place) => (
-              {resolvedData.places.map((place) => (
                 <DiscoveryListItem
-                  key={place.id}
                   key={place.id}
                   variant="simple"
                   title={place.name}

@@ -11,17 +11,7 @@ import { SectionTitle } from '../SectionTitle';
 import { ContactRow } from '../ContactRow';
 import { EntityContacts } from '../../features/entities/types';
 
-export function ContactsSection({
-  contacts: _c,
-}: {
-  contacts: EntityContacts;
-}) {
-  const contacts = {
-    ..._c,
-    phone: '0121234266',
-    website: 'http://www.google.it',
-    address: 'Viale Trieste, 63/B, Cagliari, CA',
-  };
+export function ContactsSection({ contacts }: { contacts: EntityContacts }) {
   const hasAny =
     contacts.phone ||
     contacts.website ||

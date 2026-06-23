@@ -8,12 +8,11 @@ export type {
   RawSqlClientConfig,
   TypedDatabase,
   TypedDbClient,
-  TypedDbClientConfig
+  TypedDbClientConfig,
 } from "./client.js";
-
-export { runRecurrentMigrations } from "./recurrent-migrator.js";
-export { runVersionedMigrations } from "./versioned-migrator.js";
 
 export { runAllMigrations } from "./migrator.js";
 export type { MigrationConfig } from "./migrator.js";
 
+export { runRecurrentMigrations } from "./recurrent-migrator.js";
+export { runVersionedMigrations } from "./versioned-migrator.js";

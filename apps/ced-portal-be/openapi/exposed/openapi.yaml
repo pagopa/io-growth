@@ -414,7 +414,9 @@ paths:
                 statusCode: 409
                 message: Opportunity status was modified concurrently
         "412":
-          description: Opportunity is not in draft status
+          description: >-
+            Opportunity is not in draft status, or has neither places nor
+            national territory coverage
           content:
             application/json:
               schema:
@@ -1377,7 +1379,6 @@ components:
       additionalProperties: false
       required:
         - dateFrom
-        - placeIds
         - beneficiaryBenefit
         - localizedMetadata
         - categoryId

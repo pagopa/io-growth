@@ -236,6 +236,7 @@ app.register(async (app) => {
     makePublishOpportunityUseCase(
       opportunityRepository,
       materializedViewRepository,
+      profileRepository,
     ),
   );
   mountListPendingOnboardingsHandler(

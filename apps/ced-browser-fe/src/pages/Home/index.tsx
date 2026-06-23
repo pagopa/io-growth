@@ -7,7 +7,7 @@ import {
 import { DiscoveryListItem } from '../../components';
 import { InfoBox } from '../../components/Infobox';
 import { useNavigate } from 'react-router-dom';
-import { APP_ROUTES } from '../../app/routeConfig';
+import { APP_ROUTES, toOpportunityDetailRoute } from '../../app/routeConfig';
 import { theme } from '../../core/theme';
 import { useState } from 'react';
 import { EntitiesSearch } from './components/EntitiesSearch';
@@ -92,10 +92,11 @@ export default function HomePage() {
             </Stack>
             {discoveryItems?.map((item, index, list) => (
               <DiscoveryListItem
+                {...item}
                 key={item.id}
                 sx={{ backgroundColor: theme.palette.background.paper }}
                 divider={index < list.length - 1}
-                {...item}
+                onClick={() => navigate(toOpportunityDetailRoute(item.id))}
               />
             ))}
           </Stack>

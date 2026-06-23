@@ -5,32 +5,18 @@ import { ContactsSection } from '../../components/ContactsSection/index.js';
 import { ItemsSection } from '../../components/ItemsSection/index.js';
 import { PageHeader, QueryGuard } from '../../components/index.js';
 import { APP_ROUTES } from '../../app/routeConfig.js';
-import type { PlaceBenefit } from '../../core/api/generated/model/index.js';
 import { useGetAccessPointDetailQuery } from '../../features/places/api.js';
-
-function formatBadgeLabel(benefit: PlaceBenefit): string {
-  if (benefit.type === 'free') return 'GRATIS';
-  if (benefit.type === 'discount' && benefit.value != null) {
-    return benefit.discountType === 'fixed_amount'
-      ? `-${benefit.value}€`
-      : `-${benefit.value}%`;
-  }
-  if (benefit.type === 'reduced_fixed_price' && benefit.value != null) {
-    return `${benefit.value}€`;
-  }
-  return benefit.type;
-}
+import { formatBadgeLabel } from '../../utils';
 
 export default function AccessPointDetailPage() {
-  const { id, accessPointId } = useParams<{
-    id: string;
+  const { accessPointId } = useParams<{
     accessPointId: string;
   }>();
   const navigate = useNavigate();
   const theme = useTheme();
   const { data, isLoading, isError } = useGetAccessPointDetailQuery(
-    { entityId: id ?? '', accessPointId: accessPointId ?? '' },
-    { skip: !accessPointId || !id },
+    { accessPointId: accessPointId ?? '' },
+    { skip: !accessPointId },
   );
 
   const opportunities = useMemo(
@@ -94,14 +80,14 @@ export default function AccessPointDetailPage() {
           <Stack spacing={2} sx={{ mt: 2, mb: 4 }}>
             <ItemsSection
               variant="opportunity"
-              entityId={id ?? ''}
+              entityId={data?.entityId ?? ''}
               items={opportunities}
               hideEyebrow
             />
             <ContactsSection contacts={resolvedData.contacts} />
             <ItemsSection
               variant="access-point"
-              entityId={id ?? ''}
+              entityId={data?.entityId ?? ''}
               items={relatedAccessPoints}
               sectionLabel="Potrebbero interessarti"
             />

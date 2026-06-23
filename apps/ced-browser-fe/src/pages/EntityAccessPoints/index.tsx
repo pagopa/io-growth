@@ -46,7 +46,7 @@ export default function EntityAccessPointsPage() {
                 title={item.title}
                 subtitle={item.subtitle}
                 onClick={() =>
-                  navigate(toEntityAccessPointDetailRoute(id ?? '', item.id))
+                  navigate(toEntityAccessPointDetailRoute(item.id))
                 }
                 sx={{ px: 0, bgcolor: 'background.paper' }}
               />

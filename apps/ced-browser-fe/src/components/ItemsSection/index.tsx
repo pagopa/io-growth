@@ -59,10 +59,10 @@ export function ItemsSection(props: ItemsSectionProps) {
           variant="simple"
           {...item}
           sx={{ px: 0, bgcolor: 'background.paper' }}
-          onClick={() => navigate(toEntityAccessPointDetailRoute(entityId, id))}
+          onClick={() => navigate(toEntityAccessPointDetailRoute(id))}
         />
       ));
-  }, [variant, items, hideEyebrow, navigate, entityId]);
+  }, [variant, items, hideEyebrow, navigate]);
 
   if (items.length === 0) return null;
 

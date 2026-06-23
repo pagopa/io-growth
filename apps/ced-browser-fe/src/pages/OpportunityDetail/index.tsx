@@ -9,7 +9,10 @@ import {
   useTheme,
 } from '@mui/material';
 import { useNavigate, useParams } from 'react-router-dom';
-import { APP_ROUTES } from '../../app/routeConfig';
+import {
+  APP_ROUTES,
+  toEntityAccessPointDetailRoute,
+} from '../../app/routeConfig';
 import {
   DiscoveryListItem,
   PageHeader,
@@ -18,18 +21,8 @@ import {
 } from '../../components/index.js';
 
 import { TheaterComedy } from '@mui/icons-material';
-import type { OpportunityBenefitDiscountType } from '../../core/api/generated/model/index.js';
 import { useGetOpportunityDetailQuery } from '../../features/opportunities/api.js';
-
-function formatBadgeLabel(
-  type: OpportunityBenefitDiscountType,
-  value: number | null,
-): string | null {
-  if (!value) return null;
-  if (type === 'percentage') return `-${value}%`;
-  if (type === 'fixed_amount') return `-${value}€`;
-  return String(value);
-}
+import { formatBadgeLabel } from '../../utils/formatBadgeLabel.js';
 
 function formatPlacesAddress(venue: {
   street?: string | null;
@@ -106,10 +99,7 @@ export default function OpportunityDetailPage() {
                 mb: 2,
               }}
             >
-              {formatBadgeLabel(
-                resolvedData.beneficiaryBenefit.discountType,
-                resolvedData.beneficiaryBenefit.value,
-              )}
+              {formatBadgeLabel(resolvedData.beneficiaryBenefit)}
             </Box>
 
             <Typography
@@ -162,14 +152,16 @@ export default function OpportunityDetailPage() {
 
             <Divider />
 
-            <Box sx={{ py: 2 }}>
-              <Typography component="p" sx={sectionSx.label}>
-                Condizioni
-              </Typography>
-              <Typography sx={sectionSx.body}>
-                {resolvedData.condition}
-              </Typography>
-            </Box>
+            {resolvedData.condition && (
+              <Box sx={{ py: 2 }}>
+                <Typography component="p" sx={sectionSx.label}>
+                  Condizioni
+                </Typography>
+                <Typography sx={sectionSx.body}>
+                  {resolvedData.condition}
+                </Typography>
+              </Box>
+            )}
 
             <Divider />
 
@@ -237,12 +229,7 @@ export default function OpportunityDetailPage() {
                   title={place.name}
                   subtitle={formatPlacesAddress(place)}
                   onClick={() =>
-                    navigate(
-                      APP_ROUTES.ENTITY_ACCESS_POINT_DETAIL.replace(
-                        ':id',
-                        '',
-                      ).replace(':accessPointId', place.id),
-                    )
+                    navigate(toEntityAccessPointDetailRoute(place.id))
                   }
                   sx={{ px: 0, bgcolor: 'background.paper' }}
                 />

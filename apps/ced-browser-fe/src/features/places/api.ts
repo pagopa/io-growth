@@ -11,15 +11,14 @@ export const placesApi = baseApi.injectEndpoints({
       query: (q) => `/search?q=${encodeURIComponent(q)}`,
       providesTags: ['Places'],
     }),
-    getAccessPointDetail: builder.query<
-      PlaceDetail,
-      { entityId: string; accessPointId: string }
-    >({
-      query: ({ accessPointId }) => `/places/${accessPointId}`,
-      providesTags: (_result, _error, { accessPointId }) => [
-        { type: 'Places', id: accessPointId },
-      ],
-    }),
+    getAccessPointDetail: builder.query<PlaceDetail, { accessPointId: string }>(
+      {
+        query: ({ accessPointId }) => `/places/${accessPointId}`,
+        providesTags: (_result, _error, { accessPointId }) => [
+          { type: 'Places', id: accessPointId },
+        ],
+      },
+    ),
   }),
 });
 

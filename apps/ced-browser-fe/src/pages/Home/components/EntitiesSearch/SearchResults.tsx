@@ -26,7 +26,7 @@ type SearchResultsProps = {
   total: number;
   items: PlaceSearchItem[];
   query: string;
-  onItemPress: (entityId: string, accessPointId: string) => void;
+  onItemPress: (accessPointId: string) => void;
 };
 
 export function SearchResults({
@@ -94,7 +94,7 @@ export function SearchResults({
               formatAddress(item.address) || item.url || '',
               highlightRegex,
             )}
-            onClick={() => onItemPress(item.entityId, item.id)}
+            onClick={() => onItemPress(item.id)}
             sx={{ bgcolor: 'white', px: 0 }}
           />
         </Box>

@@ -62,10 +62,9 @@ export function EntitiesSearch({
           total={data.total}
           items={data.items}
           query={debouncedQuery}
-          onItemPress={(entityId, accessPointId) =>
+          onItemPress={(accessPointId) =>
             navigate(
               generatePath(APP_ROUTES.ENTITY_ACCESS_POINT_DETAIL, {
-                id: entityId,
                 accessPointId,
               }),
             )

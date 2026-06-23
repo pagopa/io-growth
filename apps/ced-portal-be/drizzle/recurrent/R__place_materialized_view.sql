@@ -4,7 +4,7 @@
 DROP MATERIALIZED VIEW IF EXISTS place_materialized_view;
 
 CREATE MATERIALIZED VIEW place_materialized_view AS
-SELECT
+SELECT DISTINCT ON (p.id)
   p.id,
   pf.display_name AS profile_display_name,
   pf.id AS profile_id,
@@ -30,15 +30,20 @@ FROM place p
 LEFT JOIN profile pf ON pf.place_id = p.id
 LEFT JOIN address a ON a.place_id = p.id
 LEFT JOIN website w ON w.place_id = p.id
-LEFT JOIN opportunity_place opp_p ON opp_p.place_id = p.id
-JOIN opportunity o ON o.id = opp_p.opportunity_id
 WHERE
   pf.id IS NOT NULL OR
-  o.status = 'published' AND
-  CURRENT_DATE >= o.date_from AND
-  CURRENT_DATE <= coalesce(o.date_to, 'infinity'::date)
+  EXISTS (
+    SELECT 1
+    FROM opportunity_place opp_p
+    JOIN opportunity o ON o.id = opp_p.opportunity_id
+    WHERE opp_p.place_id = p.id
+      AND o.status = 'published'
+      AND CURRENT_DATE >= o.date_from
+      AND CURRENT_DATE <= coalesce(o.date_to, 'infinity'::date)
+  )
 ;
 
+CREATE UNIQUE INDEX idx_place_mv_id ON place_materialized_view (id);
 CREATE INDEX idx_place_mv_operator ON place_materialized_view (operator_id);
 CREATE INDEX idx_place_mv_search_name ON place_materialized_view USING gin(search_vector_name);
 CREATE INDEX idx_place_mv_search_city ON place_materialized_view USING gin(search_vector_city);

@@ -14,7 +14,7 @@ const getFirstContact = (contacts: Contact[]): Contact =>
   contacts[0] ?? { contact: '', type: '', website: '' };
 
 const getFirstContactValue = (contact: Contact): string =>
-  contact.type === 'WEBSITE' ? contact.website : contact.contact;
+  contact.type === 'website' ? contact.website : contact.contact;
 
 export const validateFirstContact = (
   contacts: Contact[],

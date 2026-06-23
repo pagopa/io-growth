@@ -535,6 +535,18 @@ paths:
                       type: free
                       discountType: null
                       value: null
+                    profile:
+                      id: 01JVMK3N8XQZP5T6G2WYHAB4CA
+                      displayName: Comune di Alessandria
+                      place:
+                        id: 01JVMK3N8XQZP5T6G2WYHAB4CB
+                        name: Sportello Carta Europea della Disabilita
+                        type: offline
+                        address:
+                          street: Piazza della Liberta 1
+                          city: Alessandria
+                          state: AL
+                          postalCode: "15121"
                     places:
                       - id: 01JVMK3N8XQZP5T6G2WYHAB4CF
                         name: Palestra FitLife Roma Centro
@@ -1125,6 +1137,7 @@ components:
         - name
         - nationalTerritory
         - places
+        - profile
       properties:
         id:
           type: string
@@ -1191,6 +1204,59 @@ components:
           description: Places where the opportunity can be redeemed.
           items:
             $ref: "#/components/schemas/Place"
+        profile:
+          $ref: "#/components/schemas/OpportunityProfile"
+
+    OpportunityProfile:
+      type: object
+      additionalProperties: false
+      description: Operator profile that owns the opportunity.
+      required:
+        - id
+        - displayName
+        - place
+      properties:
+        id:
+          type: string
+          description: Profile identifier.
+          example: 01JVMK3N8XQZP5T6G2WYHAB4CA
+        displayName:
+          type: string
+          description: Public display name of the operator profile.
+          example: Comune di Alessandria
+        place:
+          $ref: "#/components/schemas/OpportunityProfilePlace"
+
+    OpportunityProfilePlace:
+      type: object
+      additionalProperties: false
+      description: The operator profile's place.
+      required:
+        - id
+        - name
+        - type
+        - address
+      properties:
+        id:
+          type: string
+          description: Place identifier.
+          example: 01JVMK3N8XQZP5T6G2WYHAB4CD
+        name:
+          type: string
+          description: Display name of the place.
+          example: Sportello Carta Europea della Disabilita
+        type:
+          type: string
+          enum:
+            - online
+            - offline
+          description: Whether the place is a physical location or an online service.
+        address:
+          nullable: true
+          description: Physical address. Null for online places.
+          allOf:
+            - $ref: "#/components/schemas/PlaceAddress"
+
     OpportunitySearchResponse:
       type: object
       required:

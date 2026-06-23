@@ -5,6 +5,7 @@ import type {
   OpportunityBenefit,
   OpportunityDetail,
   OpportunityPlace,
+  OpportunityProfile,
 } from "../../../domain/entities/opportunity.js";
 import type { Language } from "../../../domain/ports/outbound/persistence/place.repository.js";
 
@@ -17,6 +18,9 @@ export interface OpportunityDetailRow {
   id: string;
   localizedMetadata: LocalizedMetadataRow[];
   nationalTerritory: boolean;
+  operator: null | {
+    profile: null | ProfileRow;
+  };
   opportunityPlaces: OpportunityPlaceRow[];
   url: null | string;
 }
@@ -50,6 +54,26 @@ interface OpportunityPlaceRow {
     };
   };
 }
+
+interface ProfilePlaceRow {
+  address: null | {
+    city: string;
+    postalCode: string;
+    state: string;
+    street: string;
+  };
+  id: string;
+  name: string;
+  type: "offline" | "online";
+}
+
+interface ProfileRow {
+  displayName: string;
+  id: string;
+  place: null | ProfilePlaceRow;
+}
+
+type ProfileWithPlace = ProfileRow & { place: ProfilePlaceRow };
 
 const mapBenefitRow = (row: BenefitRow): OpportunityBenefit => ({
   discountType: row.discountType,
@@ -120,6 +144,24 @@ const mapPlaceRow = (row: OpportunityPlaceRow): OpportunityPlace => ({
   url: row.place.type === "online" ? (row.place.website?.url ?? null) : null,
 });
 
+const mapProfileRow = (row: ProfileWithPlace): OpportunityProfile => ({
+  displayName: row.displayName,
+  id: row.id,
+  place: {
+    address: row.place.address
+      ? {
+          city: row.place.address.city,
+          postalCode: row.place.address.postalCode,
+          state: row.place.address.state,
+          street: row.place.address.street,
+        }
+      : null,
+    id: row.place.id,
+    name: row.place.name,
+    type: row.place.type,
+  },
+});
+
 export const mapOpportunityDetailRow = (
   row: OpportunityDetailRow,
   requestedLanguage: Language,
@@ -161,6 +203,22 @@ export const mapOpportunityDetailRow = (
     );
   }
 
+  const profile = row.operator?.profile;
+  if (!profile) {
+    return err(
+      new GenericError(
+        `Data integrity error: opportunity ${row.id} has no associated profile`,
+      ),
+    );
+  }
+  if (!profile.place) {
+    return err(
+      new GenericError(
+        `Data integrity error: opportunity ${row.id} profile ${profile.id} has no associated place`,
+      ),
+    );
+  }
+
   return ok({
     beneficiaryBenefit: mapBenefitRow(row.beneficiaryBenefit),
     caregiverBenefit: row.caregiverBenefit
@@ -178,6 +236,7 @@ export const mapOpportunityDetailRow = (
     name: localizedFields.name,
     nationalTerritory: row.nationalTerritory,
     places,
+    profile: mapProfileRow({ ...profile, place: profile.place }),
     url: row.url,
   });
 };

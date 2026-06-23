@@ -69,7 +69,7 @@ export const AGREEMENT_COPY_CONFIG: Record<string, AgreementCopy> = {
     detailsForm: {
       sectionTitle: "Dettagli dell'opportunità",
       sectionDescription:
-        "Inserisci i dettagli dell'opportunità che vuoi attivare. Se vuoi, puoi anche aggiungere le traduzioni in altre lingue.",
+        'Inserisci i dettagli dell’opportunità, facendo in modo che sia semplice da capire e da utilizzare per tutti i cittadini UE. Puoi aggiungere anche le traduzioni in altre lingue.',
       nameLabel: 'Nome',
       namePlaceholder: "Digita il nome dell'opportunità",
       nameHelperText: 'Inserisci un testo di max 50 caratteri',
@@ -83,12 +83,12 @@ export const AGREEMENT_COPY_CONFIG: Record<string, AgreementCopy> = {
       otherBenefitTypeLabel: 'Scrivi il tipo di opportunità che vuoi offrire',
       descriptionLabel: 'Descrizione',
       descriptionPlaceholder: "Descrivi brevemente l'opportunità",
-      descriptionHelperText: 'Inserisci un testo di max 250 caratteri',
+      descriptionHelperText: 'Inserisci un testo di max 500 caratteri',
       categoryLabel: 'Categoria',
       categoryPlaceholder: 'Seleziona una categoria',
       conditionsLabel: 'Condizioni',
       conditionsPlaceholder: "Specifica eventuali limitazioni dell'opportunità",
-      conditionsHelperText: 'Inserisci un testo di max 200 caratteri',
+      conditionsHelperText: 'Inserisci un testo di max 500 caratteri',
       fixedPriceLabel: 'Importo del prezzo fisso agevolato',
     },
     additionalSections: {
@@ -146,12 +146,12 @@ export const AGREEMENT_COPY_CONFIG: Record<string, AgreementCopy> = {
       otherBenefitTypeLabel: 'Write the benefit type you want to offer',
       descriptionLabel: 'Description',
       descriptionPlaceholder: 'Briefly describe the benefit',
-      descriptionHelperText: 'Enter a text up to 250 characters',
+      descriptionHelperText: 'Enter a text up to 500 characters',
       categoryLabel: 'Category',
       categoryPlaceholder: 'Select a category',
       conditionsLabel: 'Conditions',
       conditionsPlaceholder: 'Specify any benefit limitations',
-      conditionsHelperText: 'Enter a text up to 200 characters',
+      conditionsHelperText: 'Enter a text up to 500 characters',
       fixedPriceLabel: 'Fixed price amount',
     },
     additionalSections: {

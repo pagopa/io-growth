@@ -29,7 +29,7 @@ export default function CardRequestApplicantDataPage() {
       }}
     >
       <PageHeader
-        title="Richiesta Carta Europea della Disabilita"
+        title="Richiesta Carta Europea della Disabilità"
         subtitle={<Body>Completa i passaggi e invia la richiesta.</Body>}
       />
 

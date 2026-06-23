@@ -219,18 +219,18 @@ export const OpportunitiesTable = ({
             <TableCell>Ente</TableCell>
             <TableCell>
               <TableSortLabel
-                active={sortBy === 'created_at'}
-                direction={sortBy === 'created_at' ? sortDirection : 'asc'}
-                onClick={() => handleSort('created_at')}
+                active={sortBy === 'dateFrom'}
+                direction={sortBy === 'dateFrom' ? sortDirection : 'asc'}
+                onClick={() => handleSort('dateFrom')}
               >
                 Creato il
               </TableSortLabel>
             </TableCell>
             <TableCell>
               <TableSortLabel
-                active={sortBy === 'state'}
-                direction={sortBy === 'state' ? sortDirection : 'asc'}
-                onClick={() => handleSort('state')}
+                active={sortBy === 'status'}
+                direction={sortBy === 'status' ? sortDirection : 'asc'}
+                onClick={() => handleSort('status')}
               >
                 Stato
               </TableSortLabel>

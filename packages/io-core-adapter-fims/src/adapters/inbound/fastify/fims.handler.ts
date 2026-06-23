@@ -7,16 +7,22 @@ import {
 import { z } from "zod";
 
 import type { FimsAuthFlow } from "../../../application/use-cases/fims-auth-flow.js";
+import type { LollipopHeaders } from "../../../domain/entities.js";
 
 const initiateAuthHttpSchema = z.object({
   query: z.object({ device: z.string().optional() }),
 });
 
 const callbackHttpSchema = z.object({
-  headers: z.object({
-    signature: z.string().optional(),
-    "signature-input": z.string().optional(),
-  }),
+  // `.passthrough()` keeps the `x-pagopa-lollipop-*` custom headers that are
+  // covered by the HTTP message signature and therefore needed to rebuild the
+  // signature base during verification.
+  headers: z
+    .object({
+      signature: z.string().optional(),
+      "signature-input": z.string().optional(),
+    })
+    .passthrough(),
   query: z.object({
     code: z.string().min(1),
     iss: z.string().min(1),
@@ -71,13 +77,17 @@ export const mountFimsHandlers = (
     "/api/fcb",
     createHttpHandler(
       async ({ headers, query }: CallbackInput) => {
+        // Forward all incoming string headers (signature, signature-input and
+        // the x-pagopa-lollipop-* headers covered by the signature) so the
+        // verifier can reconstruct the signature base. Mirrors io-cdc.
         const lollipopHeaders =
           typeof headers.signature === "string" &&
           typeof headers["signature-input"] === "string"
-            ? {
-                signature: headers.signature,
-                "signature-input": headers["signature-input"],
-              }
+            ? (Object.fromEntries(
+                Object.entries(headers).filter(
+                  ([, value]) => typeof value === "string",
+                ),
+              ) as LollipopHeaders)
             : undefined;
 
         return fimsAuthFlow.handleCallback({

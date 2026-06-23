@@ -4,7 +4,7 @@
 DROP MATERIALIZED VIEW IF EXISTS place_materialized_view;
 
 CREATE MATERIALIZED VIEW place_materialized_view AS
-SELECT DISTINCT ON (p.id)
+SELECT
   p.id,
   pf.display_name AS profile_display_name,
   pf.id AS profile_id,

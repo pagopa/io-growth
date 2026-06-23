@@ -11,8 +11,8 @@ import {
 } from '@mui/material';
 import { useNavigate, useParams } from 'react-router-dom';
 import {
-  APP_ROUTES,
   toEntityAccessPointDetailRoute,
+  toEntityDetailRoute,
 } from '../../app/routeConfig';
 import {
   DiscoveryListItem,
@@ -22,6 +22,7 @@ import {
 } from '../../components/index.js';
 import { useGetOpportunityDetailQuery } from '../../features/opportunities/api.js';
 import { formatBadgeLabel } from '../../utils/formatBadgeLabel.js';
+import { formatAddress } from '../../utils/formatAddress.js';
 
 function formatPlacesAddress(venue: {
   street?: string | null;
@@ -239,8 +240,14 @@ export default function OpportunityDetailPage() {
               <SectionTitle label="Gestita da" />
               <DiscoveryListItem
                 variant="simple"
-                title={resolvedData.name}
-                onClick={() => navigate(APP_ROUTES.HOME)}
+                title={resolvedData.profile.displayName}
+                subtitle={
+                  resolvedData.profile.place.website ??
+                  formatAddress(resolvedData.profile.place.address)
+                }
+                onClick={() =>
+                  navigate(toEntityDetailRoute(resolvedData.profile.id))
+                }
                 sx={{ px: 0, bgcolor: 'background.paper' }}
               />
             </Box>

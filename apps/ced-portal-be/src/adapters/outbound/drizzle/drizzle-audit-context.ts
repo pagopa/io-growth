@@ -1,7 +1,7 @@
-import { ExtractTablesWithRelations } from "drizzle-orm";
+import type { ExtractTablesWithRelations } from "drizzle-orm/relations";
 import { sql as drizzleSql } from "drizzle-orm";
-import { PgTransaction } from "drizzle-orm/pg-core";
-import { PostgresJsQueryResultHKT } from "drizzle-orm/postgres-js";
+import type { PgTransaction } from "drizzle-orm/pg-core";
+import type { PostgresJsQueryResultHKT } from "drizzle-orm/postgres-js";
 
 import { getRequestSession } from "../../../async-local-storage-session-context.js";
 import * as schema from "./schema/index.js";

@@ -1,37 +1,68 @@
-import type { RawSqlClientConfig } from "./client.js";
+import { readdir, readFile } from "node:fs/promises";
+import { join } from "node:path";
 
-import { createRawSqlClient } from "./client.js";
-import { runVersionedMigrations } from "./migrator.js";
-import { runRecurrentMigrations } from "./recurrent-migrator.js";
+import type { RawSqlClient } from "./client.js";
 
-// Single lock key covering the full migration pipeline.
-// Ensures no other instance can interleave versioned and recurrent phases.
-const LOCK_KEY = 789_012_344;
+const LOCK_KEY = 789_012_346;
 
-export interface MigrationConfig {
-  readonly connection: RawSqlClientConfig;
-  readonly migrationsFolder: string;
-  readonly recurrentFolder: string;
-}
+const ensureMigrationsTable = async (sql: RawSqlClient): Promise<void> => {
+  await sql`
+    CREATE TABLE IF NOT EXISTS _versioned_migrations (
+      filename TEXT PRIMARY KEY,
+      applied_at TIMESTAMPTZ NOT NULL DEFAULT now()
+    )
+  `;
+};
 
-export const runAllMigrations = async (
-  config: MigrationConfig,
+export const runVersionedMigrations = async (
+  sql: RawSqlClient,
+  migrationsFolder: string,
 ): Promise<void> => {
-  console.log("[migrations] Starting migration run...");
+  console.log(
+    `[migrations] Running versioned migrations from: ${migrationsFolder}`,
+  );
 
-  const sql = createRawSqlClient(config.connection);
-
+  let files: string[];
   try {
-    await sql`SELECT pg_advisory_lock(${LOCK_KEY})`;
-    try {
-      await runVersionedMigrations(sql, config.migrationsFolder);
-      await runRecurrentMigrations(sql, config.recurrentFolder);
-    } finally {
-      await sql`SELECT pg_advisory_unlock(${LOCK_KEY})`;
-    }
-  } finally {
-    await sql.end();
+    const entries = await readdir(migrationsFolder);
+    files = entries.filter((f) => f.endsWith(".sql")).sort();
+  } catch {
+    console.log("[migrations] Migrations folder not found. Skipping.");
+    return;
   }
 
-  console.log("[migrations] All migrations completed successfully.");
+  if (files.length === 0) {
+    console.log("[migrations] No .sql files found. Skipping.");
+    return;
+  }
+
+  await sql`SELECT pg_advisory_lock(${LOCK_KEY})`;
+  try {
+    await ensureMigrationsTable(sql);
+
+    for (const file of files) {
+      const [existing] = await sql`
+        SELECT filename FROM _versioned_migrations WHERE filename = ${file}
+      `;
+
+      if (existing) {
+        console.log(`[migrations] skip (already applied): ${file}`);
+        continue;
+      }
+
+      console.log(`[migrations] applying: ${file}`);
+      const content = await readFile(join(migrationsFolder, file), "utf8");
+      await sql.begin(async (tx) => {
+        await tx.unsafe(content);
+        await tx`
+          INSERT INTO _versioned_migrations (filename, applied_at)
+          VALUES (${file}, now())
+        `;
+      });
+    }
+  } finally {
+    await sql`SELECT pg_advisory_unlock(${LOCK_KEY})`;
+  }
+
+  console.log("[migrations] Versioned migrations completed.");
 };

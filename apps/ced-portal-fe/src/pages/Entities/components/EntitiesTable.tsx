@@ -129,7 +129,7 @@ export const EntitiesTable = ({
           >
             {activeTab === 0
               ? 'Non ci sono nuove richieste'
-              : 'Non ci sono enti attivi'}
+              : 'Non ci sono enti da mostrare'}
           </Typography>
           <Typography sx={{ color: 'text.secondary' }}>
             {activeTab === 0

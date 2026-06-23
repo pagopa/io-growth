@@ -1,3 +1,4 @@
+import { TheaterComedy } from '@mui/icons-material';
 import OpenInNewOutlinedIcon from '@mui/icons-material/OpenInNewOutlined';
 import {
   Box,
@@ -100,6 +101,7 @@ export default function OpportunityDetailPage() {
               }}
             >
               {formatBadgeLabel(resolvedData.beneficiaryBenefit)}
+              {formatBadgeLabel(resolvedData.beneficiaryBenefit)}
             </Box>
 
             <Typography
@@ -185,6 +187,7 @@ export default function OpportunityDetailPage() {
               </Typography>
               <Typography sx={sectionSx.body}>
                 {formatDate(resolvedData.dateTo ?? resolvedData.dateFrom)}
+                {formatDate(resolvedData.dateTo ?? resolvedData.dateFrom)}
               </Typography>
             </Box>
 
@@ -223,7 +226,9 @@ export default function OpportunityDetailPage() {
             <Box sx={{ mx: -3 }}>
               <SectionTitle label="Valida presso" />
               {resolvedData.places.map((place) => (
+              {resolvedData.places.map((place) => (
                 <DiscoveryListItem
+                  key={place.id}
                   key={place.id}
                   variant="simple"
                   title={place.name}

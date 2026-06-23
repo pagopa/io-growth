@@ -1,6 +1,11 @@
 import { baseApi } from '../../core/api/baseApi';
-import { OpportunityCreateRequest } from '../../core/api/generated/model';
 import {
+  ListOperatorOpportunitiesParams,
+  OpportunityCategoryItem,
+  OpportunityCreateRequest,
+} from '../../core/api/generated/model';
+import {
+  adminListOpportunitiesResponse,
   getApproveOpportunityUrl,
   getGetOpportunityUrl,
 } from '../../core/api/generated/endpoints/opportunities/opportunities';
@@ -12,6 +17,7 @@ import type {
   OpportunitiesResponse,
   OpportunityDetail,
 } from './types';
+import { compactQueryParams } from '../../utils';
 
 const getListAdminOpportunitiesUrl = (
   params?: ListAdminOpportunitiesParams,
@@ -33,8 +39,14 @@ const getListAdminOpportunitiesUrl = (
 
 export const opportunitiesApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
-    getOpportunities: builder.query<OpportunitiesResponse, void>({
-      query: () => '/operator/opportunities',
+    getOperatorOpportunities: builder.query<
+      OpportunitiesResponse,
+      ListOperatorOpportunitiesParams
+    >({
+      query: (params) => ({
+        url: '/operator/opportunities',
+        params: compactQueryParams(params),
+      }),
       providesTags: ['Opportunities'],
     }),
     getOpportunityDetail: builder.query<OpportunityDetail, string>({
@@ -51,6 +63,10 @@ export const opportunitiesApi = baseApi.injectEndpoints({
     getAdminOpportunityDetail: builder.query<AdminOpportunityDetail, string>({
       query: (id) => getGetOpportunityUrl(id),
       providesTags: (_result, _error, id) => [{ type: 'Opportunities', id }],
+    }),
+    getOpportunityCategories: builder.query<OpportunityCategoryItem[], void>({
+      query: () => '/opportunity-categories',
+      keepUnusedDataFor: 3600,
     }),
     createOpportunity: builder.mutation<
       OpportunityDetail,
@@ -91,9 +107,10 @@ export const opportunitiesApi = baseApi.injectEndpoints({
 });
 
 export const {
-  useGetOpportunitiesQuery,
+  useGetOperatorOpportunitiesQuery,
   useGetOpportunityDetailQuery,
   useGetAdminOpportunitiesQuery,
+  useGetOpportunityCategoriesQuery,
   useGetAdminOpportunityDetailQuery,
   useCreateOpportunityMutation,
   useRequestApprovalMutation,

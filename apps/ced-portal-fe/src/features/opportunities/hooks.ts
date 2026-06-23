@@ -1,9 +1,13 @@
 import { useMemo } from 'react';
 import {
+  ListOperatorOpportunitiesParams,
   ListOperatorOpportunitiesStatus,
   type ListOperatorOpportunitiesStatus as ListOperatorOpportunitiesStatusType,
 } from '../../core/api/generated/model';
-import { useGetAdminOpportunitiesQuery } from './api';
+import {
+  useGetAdminOpportunitiesQuery,
+  useGetOperatorOpportunitiesQuery,
+} from './api';
 import type {
   AdminOpportunity,
   Opportunity,
@@ -96,5 +100,33 @@ export const useOpportunitiesData = (filters: OpportunityFilters) => {
     newItems,
     approvedItems,
     inactiveItems,
+  };
+};
+
+export const useBenefitsData = (params: ListOperatorOpportunitiesParams) => {
+  const query = useGetOperatorOpportunitiesQuery(params, {
+    refetchOnMountOrArgChange: true,
+  });
+
+  const items = useMemo(() => query.data?.items ?? [], [query.data]);
+
+  const total = useMemo(() => query.data?.total ?? 0, [query.data]);
+
+  const inManagementItems = useMemo(
+    () => items.filter((item) => NEW_STATES.has(item.status)),
+    [items],
+  );
+
+  const approvedItems = useMemo(
+    () => items.filter((item) => APPROVED_STATES.has(item.status)),
+    [items],
+  );
+
+  return {
+    ...query,
+    items,
+    inManagementItems,
+    approvedItems,
+    total,
   };
 };

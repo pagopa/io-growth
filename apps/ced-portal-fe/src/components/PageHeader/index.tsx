@@ -13,6 +13,8 @@ export const PageHeader = () => {
   const user = useAppSelector(selectUser);
   const switchDevPartyContext = useDevRoleSwitcher(partyRoleMap);
 
+  const isDev = import.meta.env.VITE_APP_ENV === 'development';
+
   const getSelectedPartyId = (
     userId: string,
     userRole?: Extract<AuthorizeResponseUserType, 'admin' | 'operator'>,
@@ -41,22 +43,29 @@ export const PageHeader = () => {
     return <Navigate replace to={APP_ROUTES.AUTHORIZE} />;
   }
 
-  const selectedPartyId = getSelectedPartyId(user.id, user.role);
-  const selectedProductId = productsList[0]?.id;
+  if (isDev) {
+    const selectedPartyId = getSelectedPartyId(user.id, user.role);
+    const selectedProductId = productsList[0]?.id;
 
-  if (!selectedPartyId || !selectedProductId) {
-    return null;
+    if (!selectedPartyId || !selectedProductId) {
+      return null;
+    }
+
+    return (
+      <Box sx={{ '& .MuiContainer-root': { px: { xs: 2, md: 3 } } }}>
+        <HeaderProduct
+          productsList={productsList}
+          productId={selectedProductId}
+          partyList={partyList}
+          partyId={selectedPartyId}
+          onSelectedParty={switchDevPartyContext}
+        />
+      </Box>
+    );
   }
-
   return (
     <Box sx={{ '& .MuiContainer-root': { px: { xs: 2, md: 3 } } }}>
-      <HeaderProduct
-        productsList={productsList}
-        productId={selectedProductId}
-        partyList={partyList}
-        partyId={selectedPartyId}
-        onSelectedParty={switchDevPartyContext}
-      />
+      <HeaderProduct productsList={productsList} partyList={[user]} />
     </Box>
   );
 };

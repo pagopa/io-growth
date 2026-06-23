@@ -1,8 +1,6 @@
 import { Box, Stack, useTheme } from '@mui/material';
 import { SyntheticEvent, useState } from 'react';
 import { ResultsPagination } from '../../components';
-import { useGetOpportunityCategoriesQuery } from '../../features/benefits/api';
-import { useBenefitsData } from '../../features/benefits/hooks';
 import { useDebounce } from '../../hooks/useDebounce';
 import { BenefitsContentState } from './components/BenefitsContentState';
 import { BenefitsFiltersBar } from './components/BenefitsFiltersBar';
@@ -13,6 +11,8 @@ import {
   OPERATOR_MANAGED_STATE_OPTIONS,
   OPERATOR_REQUEST_STATE_OPTIONS,
 } from '../../constants';
+import { useBenefitsData } from '../../features/opportunities/hooks';
+import { useGetOpportunityCategoriesQuery } from '../../features/opportunities/api';
 
 const DEFAULT_ROWS_PER_PAGE = 20;
 

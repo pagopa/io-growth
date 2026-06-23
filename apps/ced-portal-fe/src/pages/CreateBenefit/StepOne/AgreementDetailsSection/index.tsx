@@ -27,7 +27,7 @@ import {
 } from '../../../../core/api/generated/model';
 import { FieldWithIcon } from './components/FieldWithIcon';
 import { benefitTypeMap } from '../../../../constants/formOptions/types';
-import { selectOpportunityCategories } from '../../../../features/benefits/selectors';
+import { selectOpportunityCategories } from '../../../../features/opportunities/selectors';
 
 export function AgreementDetailsSection({
   attempted,

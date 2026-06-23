@@ -6,6 +6,8 @@ import {
   setField,
   setBenefit,
   setLocalizedValue,
+  setCaregiverEnabled,
+  setCaregiverHasSameConditions,
 } from '../../../features/opportunityCreation/opportunityCreationSlice';
 import {
   setAccessPoint,
@@ -14,6 +16,7 @@ import {
 } from '../../../features/places/placesSlice';
 import { useGetPlacesQuery } from '../../../features/places/api';
 import { PlaceBaseType } from '../../../core/api/generated/model';
+import { checkBenefitEquality } from '../../../utils/checkBenefitEquality';
 
 type PlacesMap = {
   locations: Array<string>;
@@ -95,24 +98,32 @@ export const useHydrateFromSourceOpportunity = (
       dispatch(setSelectedLocationIds(placesIdsMapped?.locations ?? []));
       dispatch(setSelectedWebsiteIds(placesIdsMapped?.websites ?? []));
 
-      const accessPoint: PlaceBaseType | 'both' = placesIdsMapped?.websites
-        .length
-        ? 'online'
-        : placesIdsMapped?.locations.length || nationalTerritory
-          ? 'offline'
-          : 'both';
+      const accessPoint: PlaceBaseType | 'both' =
+        placesIdsMapped?.websites.length && placesIdsMapped?.locations.length
+          ? 'both'
+          : placesIdsMapped?.locations.length || nationalTerritory
+            ? 'offline'
+            : 'online';
       dispatch(setAccessPoint(accessPoint));
     }
 
     localizedMetadata?.map((payload) => dispatch(setLocalizedValue(payload)));
 
     if (caregiverBenefit) {
+      dispatch(setCaregiverEnabled(true));
       dispatch(
         setBenefit({
           which: 'caregiverBenefit',
           value: caregiverBenefit ?? null,
         }),
       );
+      if (beneficiaryBenefit) {
+        dispatch(
+          setCaregiverHasSameConditions(
+            checkBenefitEquality(beneficiaryBenefit, caregiverBenefit),
+          ),
+        );
+      }
     }
 
     if (beneficiaryBenefit) {

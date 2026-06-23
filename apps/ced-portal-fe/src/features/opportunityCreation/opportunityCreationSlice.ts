@@ -22,6 +22,8 @@ export interface OpportunityCreationState {
   form: OpportunityCreationForm;
   activeLanguage: LocalizedMetadataItemLanguage;
   caregiverEnabled?: boolean;
+  caregiverHasSameConditions?: boolean;
+  hasEndDate?: boolean;
 }
 
 const createEmptyForm = (): OpportunityCreationForm => ({
@@ -59,6 +61,12 @@ const opportunityCreationSlice = createSlice({
     },
     setCaregiverEnabled: (state, action: PayloadAction<boolean>) => {
       state.caregiverEnabled = action.payload;
+    },
+    setCaregiverHasSameConditions: (state, action: PayloadAction<boolean>) => {
+      state.caregiverHasSameConditions = action.payload;
+    },
+    setHasEndDate: (state, action: PayloadAction<boolean>) => {
+      state.hasEndDate = action.payload;
     },
     cloneOwnerBenefitToCompanion: (state) => {
       state.form.caregiverBenefit = {
@@ -144,6 +152,8 @@ const opportunityCreationSlice = createSlice({
 export const {
   setActiveLanguage,
   setCaregiverEnabled,
+  setCaregiverHasSameConditions,
+  setHasEndDate,
   cloneOwnerBenefitToCompanion,
   setField,
   setPlaceIds,

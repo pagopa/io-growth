@@ -32,19 +32,23 @@ export default function EntityAccessPointsPage() {
                   component="span"
                   sx={{ fontWeight: 700, color: 'text.primary' }}
                 >
-                  {resolvedData.name}
+                  {resolvedData.displayName}
                 </Box>
               </Typography>
             }
           />
 
           <Stack divider={<Divider sx={{ mx: 2 }} />} sx={{ px: 2 }}>
-            {resolvedData.accessPoints.map((item) => (
+            {resolvedData.recentPlaces.map((item) => (
               <DiscoveryListItem
                 key={item.id}
                 variant="simple"
-                title={item.title}
-                subtitle={item.subtitle}
+                title={item.name}
+                subtitle={
+                  item.street && item.city
+                    ? `${item.street}, ${item.city}`
+                    : undefined
+                }
                 onClick={() =>
                   navigate(toEntityAccessPointDetailRoute(item.id))
                 }

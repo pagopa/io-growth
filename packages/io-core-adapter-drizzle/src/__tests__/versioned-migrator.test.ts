@@ -3,7 +3,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { RawSqlClient } from "../client.js";
 
-import { runVersionedMigrations } from "../migrator.js";
+import { runVersionedMigrations } from "../versioned-migrator.js";
 
 vi.mock("node:fs/promises", () => ({
   readdir: vi.fn(),

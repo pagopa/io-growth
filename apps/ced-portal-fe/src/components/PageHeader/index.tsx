@@ -11,6 +11,9 @@ import { devAuthStorage } from '../../features/session/authDev/wrapper';
 
 export const PageHeader = () => {
   const user = useAppSelector(selectUser);
+
+  const isDev = import.meta.env.MODE === 'development';
+
   const switchDevPartyContext = useDevRoleSwitcher(partyRoleMap);
 
   const isDev = import.meta.env.VITE_APP_ENV === 'development';
@@ -19,6 +22,18 @@ export const PageHeader = () => {
     userId: string,
     userRole?: Extract<AuthorizeResponseUserType, 'admin' | 'operator'>,
   ) => {
+    if (!isDev) {
+      const partyByUserId = partyList.find((party) => party.id === userId);
+      if (partyByUserId) {
+        return partyByUserId.id;
+      }
+
+      const partyByUserRole = partyList.find(
+        (party) => partyRoleMap[party.id] === userRole,
+      );
+      return partyByUserRole?.id;
+    }
+
     const partyByUserId = partyList.find((party) => party.id === userId);
     if (partyByUserId) {
       return partyByUserId.id;

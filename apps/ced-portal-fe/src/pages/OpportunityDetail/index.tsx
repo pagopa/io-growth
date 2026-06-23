@@ -138,29 +138,31 @@ export default function OpportunityDetailPage() {
 
         <OpportunityDetailCard detail={detail} />
 
-        <Stack
-          direction="row"
-          spacing={2}
-          justifyContent="center"
-          sx={{ pt: 2, pb: 4 }}
-        >
-          <Button
-            variant="outlined"
-            startIcon={<EditOutlinedIcon />}
-            onClick={() => setRequestChangesOpen(true)}
-            sx={{ fontWeight: 700, borderRadius: 2, px: 3 }}
+        {detail.status === 'test_pending' && (
+          <Stack
+            direction="row"
+            spacing={2}
+            justifyContent="flex-end"
+            sx={{ pt: 2, pb: 4 }}
           >
-            Richiedi modifiche
-          </Button>
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={() => setPublishModalOpen(true)}
-            sx={{ fontWeight: 700, borderRadius: 2, px: 4 }}
-          >
-            Pubblica
-          </Button>
-        </Stack>
+            <Button
+              variant="outlined"
+              startIcon={<EditOutlinedIcon />}
+              onClick={() => setRequestChangesOpen(true)}
+              sx={{ fontWeight: 700, borderRadius: 2, px: 3 }}
+            >
+              Richiedi modifiche
+            </Button>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={() => setPublishModalOpen(true)}
+              sx={{ fontWeight: 700, borderRadius: 2, px: 4 }}
+            >
+              Pubblica
+            </Button>
+          </Stack>
+        )}
       </Stack>
 
       <PublishModal

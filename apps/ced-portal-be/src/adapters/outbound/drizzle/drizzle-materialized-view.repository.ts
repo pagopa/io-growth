@@ -22,8 +22,8 @@ export const createDrizzleMaterializedViewRepository = (
 ): MaterializedViewRepository => ({
   refreshAll: async () => {
     const results = await Promise.allSettled([
-      db.refreshMaterializedView(placeMaterializedView),
-      db.refreshMaterializedView(opportunityMaterializedView),
+      db.refreshMaterializedView(placeMaterializedView).concurrently(),
+      db.refreshMaterializedView(opportunityMaterializedView).concurrently(),
     ]);
 
     const failures = results.flatMap((result, i) =>

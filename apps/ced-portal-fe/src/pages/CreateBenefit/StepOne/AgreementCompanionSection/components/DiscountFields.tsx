@@ -69,13 +69,13 @@ export const DiscountFields = ({
   );
 
   const handleBenefitTypeChange = useCallback(
-    (value: string) => {
+    (value: BenefitDiscountDiscountType) => {
       dispatch(
         setBenefit({
           which: 'caregiverBenefit',
           value: {
             type: BenefitDiscountType.discount,
-            discountType: value as BenefitDiscountDiscountType,
+            discountType: value,
             value: 0,
           },
         }),
@@ -125,7 +125,7 @@ export const DiscountFields = ({
           </Box>
           <TextField
             disabled
-            label={copy.discountValueLabel}
+            label={copy.discountValueLabel[companionDiscountValueType]}
             value={companionDiscountValue}
             fullWidth
           />
@@ -140,7 +140,11 @@ export const DiscountFields = ({
         sx={{ flexWrap: 'nowrap' }}
         row
         value={companionDiscountValueType}
-        onChange={(event) => handleBenefitTypeChange(event.target.value)}
+        onChange={(event) =>
+          handleBenefitTypeChange(
+            event.target.value as BenefitDiscountDiscountType,
+          )
+        }
       >
         <FormControlLabel
           value="percentage"
@@ -176,7 +180,7 @@ export const DiscountFields = ({
         <TextField
           fullWidth
           value={companionDiscountValue}
-          label={copy.discountValueLabel}
+          label={copy.discountValueLabel[companionDiscountValueType]}
           disabled={disabledNotLocalizedField}
           onChange={(event) => handleChange(Number(event.target.value))}
         />

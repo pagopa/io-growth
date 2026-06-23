@@ -33,7 +33,7 @@ interface StepConfig {
 }
 
 const STEPS: StepConfig[] = [
-  { label: 'Dettagli opportunità', component: StepOne },
+  { label: 'Inserisci i dettagli', component: StepOne },
   { label: 'Indica i punti di accesso', component: StepTwo },
 ];
 

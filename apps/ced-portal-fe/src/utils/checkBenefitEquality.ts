@@ -4,24 +4,25 @@ export const checkBenefitEquality = (
   benefit: BenefitRequest,
   companionBenefit: BenefitRequest,
 ): boolean => {
-  if (benefit.type !== companionBenefit.type) {
-    return false;
+  switch (benefit.type) {
+    case 'other':
+      return (
+        companionBenefit.type === 'other' &&
+        benefit.description === companionBenefit.description
+      );
+    case 'discount':
+      return (
+        companionBenefit.type === 'discount' &&
+        benefit.discountType === companionBenefit.discountType &&
+        benefit.value === companionBenefit.value
+      );
+    case 'reduced_fixed_price':
+      return (
+        companionBenefit.type === 'reduced_fixed_price' &&
+        benefit.value === companionBenefit.value
+      );
+    case 'free':
+    case 'priority':
+      return true;
   }
-
-  if ('description' in benefit && 'description' in companionBenefit) {
-    return benefit.description === companionBenefit.description;
-  }
-
-  if ('discountType' in benefit && 'discountType' in companionBenefit) {
-    return (
-      benefit.discountType === companionBenefit.discountType &&
-      benefit.value === companionBenefit.value
-    );
-  }
-
-  if ('value' in benefit && 'value' in companionBenefit) {
-    return benefit.value === companionBenefit.value;
-  }
-
-  return true;
 };

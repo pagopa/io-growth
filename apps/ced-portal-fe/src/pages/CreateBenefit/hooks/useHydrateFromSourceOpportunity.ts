@@ -98,13 +98,18 @@ export const useHydrateFromSourceOpportunity = (
       dispatch(setSelectedLocationIds(placesIdsMapped?.locations ?? []));
       dispatch(setSelectedWebsiteIds(placesIdsMapped?.websites ?? []));
 
+      const hasWebsites = Boolean(placesIdsMapped?.websites.length);
+      const hasLocations = Boolean(
+        placesIdsMapped?.locations.length || nationalTerritory,
+      );
+
       const accessPoint: PlaceBaseType | 'both' =
-        placesIdsMapped?.websites.length &&
-        (placesIdsMapped?.locations.length || nationalTerritory)
+        hasWebsites && hasLocations
           ? 'both'
-          : placesIdsMapped?.locations.length || nationalTerritory
+          : hasLocations
             ? 'offline'
             : 'online';
+
       dispatch(setAccessPoint(accessPoint));
     }
 

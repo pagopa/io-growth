@@ -1,10 +1,10 @@
 import { baseApi } from '../../core/api/baseApi.js';
-import type { EntityDetail } from './types.js';
+import { OperatorProfileDetail } from '../../core/api/generated/model/operatorProfileDetail.js';
 
 export const entitiesApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
-    getEntityDetail: builder.query<EntityDetail, string>({
-      query: (id) => `/entities/${id}`,
+    getEntityDetail: builder.query<OperatorProfileDetail, string>({
+      query: (id) => `/profiles//${id}`,
       providesTags: (_result, _error, id) => [{ type: 'Entities', id }],
     }),
   }),

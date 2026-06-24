@@ -52,6 +52,7 @@ const validInput = {
   opportunityId: MOCK_OPPORTUNITY_ID,
 };
 
+// eslint-disable-next-line max-lines-per-function
 describe("makeOperatorRequestOpportunityTestUseCase", () => {
   it("should update status to test_pending when opportunity is in draft", async () => {
     const deps = makeDeps({

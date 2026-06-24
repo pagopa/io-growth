@@ -30,7 +30,9 @@ export function ContactRow({
   onChange,
 }: Readonly<ContactRowProps>) {
   const theme = useTheme();
-  const [fieldType, setFieldType] = useState(contact.type ?? '');
+  const [fieldType, setFieldType] = useState<
+    SupportContactCreateRequestType | ''
+  >(contact.type ?? '');
 
   return (
     <Box

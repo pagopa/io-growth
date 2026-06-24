@@ -79,13 +79,18 @@ const opportunityCreationSlice = createSlice({
     setPlaceIds: (state, action: PayloadAction<string[]>) => {
       state.form.placeIds = action.payload;
     },
+
     addPlaceId: (state, action: PayloadAction<string>) => {
+      if (!state.form.placeIds) {
+        state.form.placeIds = [];
+      }
       if (!state.form.placeIds.includes(action.payload)) {
         state.form.placeIds.push(action.payload);
       }
     },
+
     removePlaceId: (state, action: PayloadAction<string>) => {
-      state.form.placeIds = state.form.placeIds.filter(
+      state.form.placeIds = (state.form.placeIds ?? []).filter(
         (p) => p !== action.payload,
       );
     },

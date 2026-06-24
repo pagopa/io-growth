@@ -1,16 +1,20 @@
 import { SupportContactResponseType } from '../../../core/api/generated/model';
 
 export type Contact = {
-  contact: string;
+  type: SupportContactResponseType;
+  value: string;
+};
+
+export type ContactFormData = {
   type: SupportContactResponseType | '';
-  website: string;
+  value: string;
 };
 
 export interface CompleteDataFormData {
   name: string;
   sede: 'fisica' | 'sito_web';
   address: string;
-  contacts: Contact[];
+  contacts: ContactFormData[];
   logoFile: File | null;
   coverFile: File | null;
   privacyUrl: string;

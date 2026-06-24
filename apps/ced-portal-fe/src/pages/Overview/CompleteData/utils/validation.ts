@@ -1,4 +1,4 @@
-import type { CompleteDataFormData, Contact } from '../types';
+import type { CompleteDataFormData, Contact, ContactFormData } from '../types';
 
 export type FirstContactErrors = {
   firstContactType: string;
@@ -10,22 +10,20 @@ export const INITIAL_FIRST_CONTACT_ERRORS: FirstContactErrors = {
   firstContactValue: '',
 };
 
-const getFirstContact = (contacts: Contact[]): Contact =>
-  contacts[0] ?? { contact: '', type: '', website: '' };
+const getFirstContact = (contacts: ContactFormData[]): ContactFormData =>
+  contacts[0] ?? { type: '', value: '' };
 
-const getFirstContactValue = (contact: Contact): string =>
-  contact.type === 'website' ? contact.website : contact.contact;
+const getFirstContactValue = (contact: ContactFormData): string =>
+  contact.value;
 
 export const validateFirstContact = (
-  contacts: Contact[],
+  contacts: ContactFormData[],
 ): FirstContactErrors => {
   const firstContact = getFirstContact(contacts);
 
   return {
     firstContactType: firstContact.type ? '' : 'Seleziona un tipo di contatto',
-    firstContactValue: getFirstContactValue(firstContact).trim()
-      ? ''
-      : 'Campo obbligatorio',
+    firstContactValue: firstContact.value.trim() ? '' : 'Campo obbligatorio',
   };
 };
 

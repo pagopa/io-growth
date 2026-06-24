@@ -1,5 +1,5 @@
 import { useCallback, useState } from 'react';
-import type { CompleteDataFormData, Contact } from '../types';
+import type { CompleteDataFormData, Contact, ContactFormData } from '../types';
 import { useCheckRequiredField } from './useCheckRequiredField';
 import {
   INITIAL_FIRST_CONTACT_ERRORS,
@@ -9,17 +9,15 @@ import {
 import type {
   Address,
   OperatorProfileCreateRequest,
-  SupportContactCreateRequestType,
 } from '../../../../core/api/generated/model';
 
-const createEmptyContact = (): Contact => ({
-  contact: '',
+const createEmptyContact = (): ContactFormData => ({
   type: '',
-  website: '',
+  value: '',
 });
 
-const isFirstContactValueField = (field: keyof Contact): boolean =>
-  field === 'contact' || field === 'website';
+const isFirstContactValueField = (field: keyof ContactFormData): boolean =>
+  field === 'value';
 
 const INITIAL_FORM_DATA: CompleteDataFormData = {
   name: '',
@@ -51,7 +49,7 @@ export type UseCompleteDataFormResult = {
   handleRemoveContact: (index: number) => void;
   handleContactChange: (
     index: number,
-    field: keyof Contact,
+    field: keyof ContactFormData,
     value: string,
   ) => void;
   handlePrivacyUrlChange: (value: string) => void;
@@ -59,12 +57,12 @@ export type UseCompleteDataFormResult = {
   handleContinueClick: () => void;
 };
 
-const buildSupportContacts = (contacts: Contact[]) =>
+const buildSupportContacts = (contacts: ContactFormData[]) =>
   contacts
-    .filter((c) => c.type && (c.contact || c.website))
+    .filter((c): c is Contact => c.type !== '' && c.value.trim() !== '')
     .map((c) => ({
-      type: c.type as SupportContactCreateRequestType,
-      value: (c.contact || c.website)!.trim(),
+      type: c.type,
+      value: c.value.trim(),
     }));
 
 export const parseAddress = (input: string): Address => {
@@ -117,11 +115,13 @@ export const useCompleteDataForm = ({
   }, []);
 
   const handleContactChange = useCallback(
-    (index: number, field: keyof Contact, value: string) => {
+    (index: number, field: keyof ContactFormData, value: string) => {
+      // reset error type primo contatto
       if (index === 0 && field === 'type') {
         setErrors(INITIAL_FIRST_CONTACT_ERRORS);
       }
 
+      // reset errore valore primo contatto
       if (index === 0 && isFirstContactValueField(field)) {
         setErrors((prev) => ({
           ...prev,
@@ -167,7 +167,7 @@ export const useCompleteDataForm = ({
 
     const websiteUrl = formData.contacts.find(
       (c) => c.type === 'website',
-    )?.website;
+    )?.value;
 
     if (isOnline && !websiteUrl) {
       return;
@@ -235,6 +235,7 @@ export const useCompleteDataForm = ({
   const visibleFirstContactTypeError = isSubmitted
     ? errors.firstContactType
     : '';
+
   const visibleFirstContactValueError = isSubmitted
     ? errors.firstContactValue
     : '';

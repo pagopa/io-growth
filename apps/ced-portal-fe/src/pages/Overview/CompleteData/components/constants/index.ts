@@ -25,68 +25,45 @@ export const MODAL_CONTENT = {
   },
 };
 
-type ContactInputField = 'contact' | 'website';
 type ContactInputType = 'text' | 'email' | 'tel' | 'url';
 
 export interface ContactInputConfig {
-  field: ContactInputField;
   placeholder: string;
   type: ContactInputType;
 }
+
+export const CONTACT_INPUT_BY_TYPE = {
+  email: {
+    placeholder: 'Inserisci email',
+    type: 'email',
+  },
+  phone: {
+    placeholder: 'Inserisci telefono',
+    type: 'tel',
+  },
+  website: {
+    placeholder: 'Inserisci url',
+    type: 'url',
+  },
+} as const;
 
 export const CONTACT_TYPE_OPTIONS: Array<{
   label: string;
   value: SupportContactResponseType;
 }> = [
-  {
-    label: 'Email',
-    value: 'email',
-  },
-  {
-    label: 'Telefono',
-    value: 'phone',
-  },
-  {
-    label: 'Sito web',
-    value: 'website',
-  },
+  { label: 'Email', value: 'email' },
+  { label: 'Telefono', value: 'phone' },
+  { label: 'Sito web', value: 'website' },
 ];
 
-export const CONTACT_INPUT_BY_TYPE = {
-  email: {
-    field: 'contact',
-    placeholder: 'Inserisci email',
-    type: 'email',
-  },
-  phone: {
-    field: 'contact',
-    placeholder: 'Inserisci telefono',
-    type: 'tel',
-  },
-  website: {
-    field: 'website',
-    placeholder: 'Inserisci url',
-    type: 'url',
-  },
-} satisfies Record<SupportContactResponseType, ContactInputConfig>;
-
 export const DEFAULT_CONTACT_INPUT: ContactInputConfig = {
-  field: 'contact',
   placeholder: 'Inserisci contatto',
   type: 'text',
 };
 
 export const getContactInputConfig = (
-  contactType: SupportContactResponseType,
+  type: SupportContactResponseType | '',
 ): ContactInputConfig => {
-  switch (contactType) {
-    case 'email':
-      return CONTACT_INPUT_BY_TYPE.email;
-    case 'phone':
-      return CONTACT_INPUT_BY_TYPE.phone;
-    case 'website':
-      return CONTACT_INPUT_BY_TYPE.website;
-    default:
-      return DEFAULT_CONTACT_INPUT;
-  }
+  if (!type) return DEFAULT_CONTACT_INPUT;
+  return CONTACT_INPUT_BY_TYPE[type];
 };

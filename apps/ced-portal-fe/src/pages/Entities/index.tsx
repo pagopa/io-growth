@@ -30,7 +30,7 @@ export default function EntitiesPage() {
   const [page, setPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(5);
 
-  const { items, total, isLoading, isError } = useEntitiesData({
+  const { items, total, isLoading, isError, refetch } = useEntitiesData({
     activeTab,
     filters,
     page,
@@ -126,6 +126,7 @@ export default function EntitiesPage() {
           <EntitiesTable
             activeTab={activeTab}
             items={displayedItems}
+            onRetry={refetch}
             isLoading={isLoading}
             isError={isError}
             onRowOpen={handleOpenDetail}

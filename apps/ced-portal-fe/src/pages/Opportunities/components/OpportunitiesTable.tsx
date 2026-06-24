@@ -17,7 +17,10 @@ import {
   CircularProgress,
   Stack,
   Typography,
+  Button,
 } from '@mui/material';
+import WarningAmberRoundedIcon from '@mui/icons-material/WarningAmberRounded';
+import CheckCircleRounded from '@mui/icons-material/CheckCircleRounded';
 import { useCallback, useMemo, useState } from 'react';
 import { generatePath, useNavigate } from 'react-router-dom';
 import type { Opportunity } from '../../../features/opportunities/types';
@@ -26,22 +29,7 @@ import {
   STATE_COLORS,
 } from '../../../constants/opportunityState';
 import { APP_ROUTES } from '../../../app/routeConfig';
-import { CheckCircleRounded } from '@mui/icons-material';
-
-const emptyValue = [
-  {
-    title: 'Non ci sono nuove opportunità',
-    description: 'Qui vedrai le opportunità da gestire.',
-  },
-  {
-    title: 'Non ci sono opportunità approvate',
-    description: 'Qui vedrai le opportunità che hai approvato.',
-  },
-  {
-    title: 'Non ci sono opportunità non attive',
-    description: 'Qui vedrai le opportunità non più disponibili su IO.',
-  },
-];
+import { emptyValue } from './constants';
 
 type SortDirection = 'asc' | 'desc';
 
@@ -60,10 +48,11 @@ export const OpportunitiesTable = ({
   items,
   isLoading,
   isError,
+  onRetry,
   selected,
-  activeTab,
   onSelectChange,
   onPublish,
+  activeTab,
 }: OpportunitiesTableProps) => {
   const theme = useTheme();
   const navigate = useNavigate();
@@ -164,16 +153,37 @@ export const OpportunitiesTable = ({
     );
   }
 
-  if (isError || items.length === 0) {
+  if (isError) {
+    return (
+      <Paper
+        elevation={0}
+        sx={{ ...paperSx, display: 'grid', placeItems: 'center' }}
+      >
+        <Stack spacing={1.5} alignItems="center" textAlign="center">
+          <WarningAmberRoundedIcon
+            sx={{ color: 'text.secondary', fontSize: 28 }}
+          />
+          <Typography
+            sx={{ fontSize: 18, fontWeight: 700, color: 'text.secondary' }}
+          >
+            Errore durante il caricamento
+          </Typography>
+          <Button variant="text" onClick={onRetry}>
+            Riprova
+          </Button>
+        </Stack>
+      </Paper>
+    );
+  }
+
+  if (items.length === 0) {
     return (
       <Paper
         elevation={0}
         sx={{ ...paperSx, display: 'grid', placeItems: 'center' }}
       >
         <Stack spacing={1} alignItems="center" textAlign="center">
-          <CheckCircleRounded
-            sx={{ color: theme.palette.common.decorativeIcon, fontSize: 24 }}
-          />
+          <CheckCircleRounded sx={{ color: 'text.secondary', fontSize: 28 }} />
           <Typography
             sx={{ fontSize: 18, fontWeight: 700, color: 'text.secondary' }}
           >

@@ -18,7 +18,7 @@ export function AgreementLinkSection({
   const benefitUrl = useAppSelector(selectUrl);
   const copy = getAgreementCopy(activeLanguage).additionalSections.link;
 
-  const error = isValidHttpsUrl(benefitUrl);
+  const isValidUrl = isValidHttpsUrl(benefitUrl);
 
   return (
     <Paper elevation={0} sx={{ borderRadius: 2.5, p: { xs: 2, md: 3 } }}>
@@ -30,9 +30,9 @@ export function AgreementLinkSection({
 
         <FormField
           label={copy.benefitUrlLabel}
-          error={attempted && !error}
+          error={attempted && !isValidUrl}
           helperText={
-            attempted && !error
+            attempted && !isValidUrl
               ? 'Inserisci un URL valido (es. https://...)'
               : ''
           }

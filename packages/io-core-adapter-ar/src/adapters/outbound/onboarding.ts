@@ -18,7 +18,7 @@ export const createOnboardingClient = (
     completeOnboarding: async (onboardingId, body) => {
       try {
         const response = await completeOnboardingUsingPUT(onboardingId, body);
-        if (response.status === 401 || response.status === 403) {
+        if (response.status >= 400) {
           return err(
             new GenericError(
               `completeOnboarding failed with status ${String(response.status)}`,

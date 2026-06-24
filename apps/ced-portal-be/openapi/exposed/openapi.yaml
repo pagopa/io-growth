@@ -537,6 +537,7 @@ paths:
         - name: search
           in: query
           required: false
+          description: Case-insensitive text search on the opportunity name.
           schema:
             type: string
         - name: categoryId
@@ -680,6 +681,9 @@ paths:
         - name: search
           in: query
           required: false
+          description: >-
+            Case-insensitive text search on the opportunity name and the
+            operator name.
           schema:
             type: string
         - name: sortBy

@@ -1,8 +1,7 @@
 import { useMemo } from 'react';
 import {
-  ListOperatorOpportunitiesParams,
+  type ListOperatorOpportunitiesParams,
   ListOperatorOpportunitiesStatus,
-  type ListOperatorOpportunitiesStatus as ListOperatorOpportunitiesStatusType,
 } from '../../core/api/generated/model';
 import {
   useGetAdminOpportunitiesQuery,
@@ -43,9 +42,9 @@ const matchesState = (item: Opportunity, state: string): boolean => {
 
 const isListOperatorOpportunitiesStatus = (
   value: string,
-): value is ListOperatorOpportunitiesStatusType =>
+): value is ListOperatorOpportunitiesStatus =>
   Object.values(ListOperatorOpportunitiesStatus).includes(
-    value as ListOperatorOpportunitiesStatusType,
+    value as ListOperatorOpportunitiesStatus,
   );
 
 export const useOpportunitiesData = (filters: OpportunityFilters) => {

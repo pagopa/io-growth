@@ -10,22 +10,21 @@ import {
   useTheme,
 } from '@mui/material';
 import { useNavigate, useParams } from 'react-router-dom';
-import { APP_ROUTES } from '../../app/routeConfig.js';
+import {
+  toEntityAccessPointDetailRoute,
+  toEntityDetailRoute,
+} from '../../app/routeConfig';
 import {
   DiscoveryListItem,
   PageHeader,
   QueryGuard,
   SectionTitle,
 } from '../../components/index.js';
-import type { OpportunityBenefit } from '../../core/api/generated/model/index.js';
-import { useGetOpportunityDetailQuery } from '../../features/entities/api.js';
+import { useGetOpportunityDetailQuery } from '../../features/opportunities/api.js';
+import { formatBadgeLabel } from '../../utils/formatBadgeLabel.js';
+import { formatAddress } from '../../utils/formatAddress.js';
 
-function formatBadgeLabel(benefit: OpportunityBenefit): string {
-  if (benefit.discountType === 'percentage') return `-${benefit.value}%`;
-  return `-${benefit.value}€`;
-}
-
-function formatVenueAddress(venue: {
+function formatPlacesAddress(venue: {
   street?: string | null;
   city?: string | null;
   state?: string | null;
@@ -153,18 +152,20 @@ export default function OpportunityDetailPage() {
 
             <Divider />
 
-            <Box sx={{ py: 2 }}>
-              <Typography component="p" sx={sectionSx.label}>
-                Condizioni
-              </Typography>
-              <Typography sx={sectionSx.body}>
-                {resolvedData.condition}
-              </Typography>
-            </Box>
+            {resolvedData.condition && (
+              <Box sx={{ py: 2 }}>
+                <Typography component="p" sx={sectionSx.label}>
+                  Condizioni
+                </Typography>
+                <Typography sx={sectionSx.body}>
+                  {resolvedData.condition}
+                </Typography>
+              </Box>
+            )}
 
             <Divider />
 
-            {resolvedData.caregiverBenefit != null && (
+            {resolvedData.caregiverBenefit?.value && (
               <>
                 <Box sx={{ py: 2 }}>
                   <Typography component="p" sx={sectionSx.label}>
@@ -226,14 +227,9 @@ export default function OpportunityDetailPage() {
                   key={place.id}
                   variant="simple"
                   title={place.name}
-                  subtitle={formatVenueAddress(place)}
+                  subtitle={formatPlacesAddress(place)}
                   onClick={() =>
-                    navigate(
-                      APP_ROUTES.ENTITY_ACCESS_POINT_DETAIL.replace(
-                        ':id',
-                        '',
-                      ).replace(':accessPointId', place.id),
-                    )
+                    navigate(toEntityAccessPointDetailRoute(place.id))
                   }
                   sx={{ px: 0, bgcolor: 'background.paper' }}
                 />
@@ -244,8 +240,14 @@ export default function OpportunityDetailPage() {
               <SectionTitle label="Gestita da" />
               <DiscoveryListItem
                 variant="simple"
-                title={resolvedData.name}
-                onClick={() => navigate(APP_ROUTES.HOME)}
+                title={resolvedData.profile.displayName}
+                subtitle={
+                  resolvedData.profile.place.website ??
+                  formatAddress(resolvedData.profile.place.address)
+                }
+                onClick={() =>
+                  navigate(toEntityDetailRoute(resolvedData.profile.id))
+                }
                 sx={{ px: 0, bgcolor: 'background.paper' }}
               />
             </Box>

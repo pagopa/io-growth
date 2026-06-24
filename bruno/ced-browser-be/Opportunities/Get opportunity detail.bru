@@ -1,0 +1,20 @@
+meta {
+  name: Get opportunity detail
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{baseUrl}}/api/opportunities/:opportunityId
+  body: none
+  auth: inherit
+}
+
+params:path {
+  opportunityId: opportunity-id
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

@@ -83,6 +83,41 @@ export const createDrizzleOpportunityRepository = (
               value: true,
             },
           },
+          operator: {
+            columns: {},
+            with: {
+              profile: {
+                columns: {
+                  displayName: true,
+                  id: true,
+                },
+                with: {
+                  place: {
+                    columns: {
+                      id: true,
+                      name: true,
+                      type: true,
+                    },
+                    with: {
+                      address: {
+                        columns: {
+                          city: true,
+                          postalCode: true,
+                          state: true,
+                          street: true,
+                        },
+                      },
+                      website: {
+                        columns: {
+                          url: true,
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
           opportunityPlaces: {
             columns: {},
             with: {

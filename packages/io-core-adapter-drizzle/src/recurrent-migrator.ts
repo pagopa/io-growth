@@ -2,7 +2,9 @@ import { createHash } from "node:crypto";
 import { readdir, readFile } from "node:fs/promises";
 import { join } from "node:path";
 
-import type { RawSqlClient } from "./client.js";
+import type { RawSqlClient, RawSqlClientConfig } from "./client.js";
+
+import { createRawSqlClient } from "./client.js";
 
 const LOCK_KEY = 789_012_345;
 
@@ -22,6 +24,7 @@ const ensureRecurrentTable = async (sql: RawSqlClient): Promise<void> => {
 export const runRecurrentMigrations = async (
   sql: RawSqlClient,
   recurrentFolder: string,
+  connectionConfig?: RawSqlClientConfig,
 ): Promise<void> => {
   console.log(
     `[drizzle] Running recurrent migrations from: ${recurrentFolder}`,
@@ -63,7 +66,24 @@ export const runRecurrentMigrations = async (
       console.log(
         `[drizzle] R__ applying: ${file} (${existing ? "changed" : "new"})`,
       );
-      await sql.unsafe(content);
+
+      // Honour -- @database <name>: run the SQL against a different database
+      // while keeping the same user / host / port. Requires connectionConfig.
+      const dbOverride = content.match(/--\s*@database\s+(\S+)/)?.[1];
+
+      if (dbOverride && connectionConfig) {
+        const overrideSql = createRawSqlClient({
+          ...connectionConfig,
+          database: dbOverride,
+        });
+        try {
+          await overrideSql.unsafe(content);
+        } finally {
+          await overrideSql.end();
+        }
+      } else {
+        await sql.unsafe(content);
+      }
 
       await sql`
         INSERT INTO _recurrent_migrations (filename, checksum, applied_at)

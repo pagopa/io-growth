@@ -22,24 +22,10 @@ export type EntityOpportunity = {
   badgeLabel: string;
 };
 
-export type EntityAccessPoint = {
-  id: string;
-  title: string;
-  subtitle: string;
-};
-
 export type EntityContacts = {
   phone?: string;
   website?: string;
   address?: string;
   privacyUrl?: string;
   termsUrl?: string;
-};
-
-export type EntityDetail = {
-  id: string;
-  name: string;
-  opportunities: EntityOpportunity[];
-  accessPoints: EntityAccessPoint[];
-  contacts: EntityContacts;
 };

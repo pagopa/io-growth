@@ -1,5 +1,19 @@
 # ced-portal-be
 
+## 0.2.4
+
+### Patch Changes
+
+- 9603c2e: added possibility to migrate cron job
+- Updated dependencies [9603c2e]
+  - @pagopa/io-core-adapter-drizzle@0.0.4
+
+## 0.2.3
+
+### Patch Changes
+
+- 6f5c703: add profile info and make user info optional
+
 ## 0.2.2
 
 ### Patch Changes

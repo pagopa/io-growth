@@ -1,5 +1,18 @@
 # ced-browser-be
 
+## 0.1.6
+
+### Patch Changes
+
+- Updated dependencies [9603c2e]
+  - @pagopa/io-core-adapter-drizzle@0.0.4
+
+## 0.1.5
+
+### Patch Changes
+
+- 6f5c703: add profile info and make user info optional
+
 ## 0.1.4
 
 ### Patch Changes

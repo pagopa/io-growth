@@ -28,6 +28,37 @@ export const OpportunityPlaceSchema = z.object({
 
 export type OpportunityPlace = z.infer<typeof OpportunityPlaceSchema>;
 
+export const OpportunityProfilePlaceAddressSchema = z.object({
+  city: z.string(),
+  postalCode: z.string(),
+  state: z.string(),
+  street: z.string(),
+});
+
+export type OpportunityProfilePlaceAddress = z.infer<
+  typeof OpportunityProfilePlaceAddressSchema
+>;
+
+export const OpportunityProfilePlaceSchema = z.object({
+  address: OpportunityProfilePlaceAddressSchema.nullable(),
+  id: z.string().min(1),
+  name: z.string().min(1),
+  type: z.enum(["online", "offline"]),
+  website: z.url().nullable().optional(),
+});
+
+export type OpportunityProfilePlace = z.infer<
+  typeof OpportunityProfilePlaceSchema
+>;
+
+export const OpportunityProfileSchema = z.object({
+  displayName: z.string().min(1),
+  id: z.string().min(1),
+  place: OpportunityProfilePlaceSchema,
+});
+
+export type OpportunityProfile = z.infer<typeof OpportunityProfileSchema>;
+
 export const OpportunityDetailSchema = z.object({
   beneficiaryBenefit: OpportunityBenefitSchema,
   caregiverBenefit: OpportunityBenefitSchema.nullable().optional(),
@@ -41,6 +72,7 @@ export const OpportunityDetailSchema = z.object({
   name: z.string().min(1),
   nationalTerritory: z.boolean(),
   places: z.array(OpportunityPlaceSchema).min(1),
+  profile: OpportunityProfileSchema,
   url: z.url().nullable().optional(),
 });
 

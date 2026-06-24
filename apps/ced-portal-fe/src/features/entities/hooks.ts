@@ -123,6 +123,7 @@ export const useEntitiesData = ({
   );
 
   return {
+    ...query,
     isError: query.isError,
     isLoading: query.isLoading || query.isFetching,
     items,

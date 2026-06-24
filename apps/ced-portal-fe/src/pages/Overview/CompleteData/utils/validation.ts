@@ -1,4 +1,4 @@
-import type { CompleteDataFormData, Contact, ContactFormData } from '../types';
+import type { CompleteDataFormData, ContactFormData } from '../types';
 
 export type FirstContactErrors = {
   firstContactType: string;
@@ -12,9 +12,6 @@ export const INITIAL_FIRST_CONTACT_ERRORS: FirstContactErrors = {
 
 const getFirstContact = (contacts: ContactFormData[]): ContactFormData =>
   contacts[0] ?? { type: '', value: '' };
-
-const getFirstContactValue = (contact: ContactFormData): string =>
-  contact.value;
 
 export const validateFirstContact = (
   contacts: ContactFormData[],

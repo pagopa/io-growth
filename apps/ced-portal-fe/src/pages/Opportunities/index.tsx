@@ -18,12 +18,6 @@ const INITIAL_FILTERS: OpportunityFilters = {
   state: '',
 };
 
-const emptyValue = [
-  'Non ci sono nuove opportunità - Qui vedrai le opportunità da gestire.',
-  'Non ci sono opportunità approvate - Qui vedrai le opportunità che hai approvato.',
-  'Non ci sono opportunità non attive - Qui vedrai le opportunità non più disponibili su IO.',
-];
-
 export default function OpportunitiesPage() {
   const theme = useTheme();
   const { showToast } = useToast();
@@ -185,7 +179,7 @@ export default function OpportunitiesPage() {
           <PageTabs activeTab={activeTab} onChange={handleTabChange} />
           <Box sx={{ mt: 2 }}>
             <OpportunitiesTable
-              emptyCopy={emptyValue[activeTab]}
+              activeTab={activeTab}
               items={paginatedItems}
               isLoading={isLoading}
               isError={isError}

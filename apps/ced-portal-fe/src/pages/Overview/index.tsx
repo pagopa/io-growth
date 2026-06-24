@@ -12,6 +12,16 @@ import { APP_ROUTES } from '../../app/routeConfig';
 import { SectionCard } from '../../components/SectionCard';
 import { WarningOutlined } from '@mui/icons-material';
 import { useGetOperatorProfileQuery } from '../../features/profile/api';
+import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
+
+const hasStatus = (error: unknown, status: number): boolean => {
+  return (
+    typeof error === 'object' &&
+    error !== null &&
+    'status' in error &&
+    (error as FetchBaseQueryError).status === status
+  );
+};
 
 export default function OverviewPage() {
   const theme = useTheme();
@@ -19,7 +29,7 @@ export default function OverviewPage() {
 
   const { data, isLoading, error } = useGetOperatorProfileQuery();
 
-  const isNotFound = (error as any)?.status === 404;
+  const isNotFound = hasStatus(error, 404);
 
   const displayName = data?.displayName;
   const place = data?.place;

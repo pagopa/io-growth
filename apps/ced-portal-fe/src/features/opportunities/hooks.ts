@@ -1,9 +1,12 @@
 import { useMemo } from 'react';
 import {
+  type ListOperatorOpportunitiesParams,
   ListOperatorOpportunitiesStatus,
-  type ListOperatorOpportunitiesStatus as ListOperatorOpportunitiesStatusType,
 } from '../../core/api/generated/model';
-import { useGetAdminOpportunitiesQuery } from './api';
+import {
+  useGetAdminOpportunitiesQuery,
+  useGetOperatorOpportunitiesQuery,
+} from './api';
 import type {
   AdminOpportunity,
   Opportunity,
@@ -26,12 +29,6 @@ const INACTIVE_STATES: Set<OpportunityStatus> = new Set([
   OpportunityStatusEnum.deleted,
 ]);
 
-const matchesSearch = (item: Opportunity, search: string): boolean => {
-  if (!search) return true;
-  const q = search.toLowerCase();
-  return item.name.toLowerCase().includes(q);
-};
-
 const matchesState = (item: Opportunity, state: string): boolean => {
   if (!state) return true;
   return item.status === state;
@@ -39,9 +36,9 @@ const matchesState = (item: Opportunity, state: string): boolean => {
 
 const isListOperatorOpportunitiesStatus = (
   value: string,
-): value is ListOperatorOpportunitiesStatusType =>
+): value is ListOperatorOpportunitiesStatus =>
   Object.values(ListOperatorOpportunitiesStatus).includes(
-    value as ListOperatorOpportunitiesStatusType,
+    value as ListOperatorOpportunitiesStatus,
   );
 
 export const useOpportunitiesData = (filters: OpportunityFilters) => {
@@ -59,19 +56,13 @@ export const useOpportunitiesData = (filters: OpportunityFilters) => {
       refetchOnMountOrArgChange: true,
     },
   );
-
   const items = useMemo<AdminOpportunity[]>(
     () => query.data?.items ?? [],
     [query.data],
   );
 
   const filteredItems = useMemo(
-    () =>
-      items.filter(
-        (item) =>
-          matchesSearch(item, filters.search) &&
-          matchesState(item, filters.state),
-      ),
+    () => items.filter((item) => matchesState(item, filters.state)),
     [items, filters],
   );
 
@@ -96,5 +87,33 @@ export const useOpportunitiesData = (filters: OpportunityFilters) => {
     newItems,
     approvedItems,
     inactiveItems,
+  };
+};
+
+export const useBenefitsData = (params: ListOperatorOpportunitiesParams) => {
+  const query = useGetOperatorOpportunitiesQuery(params, {
+    refetchOnMountOrArgChange: true,
+  });
+
+  const items = useMemo(() => query.data?.items ?? [], [query.data]);
+
+  const total = useMemo(() => query.data?.total ?? 0, [query.data]);
+
+  const inManagementItems = useMemo(
+    () => items.filter((item) => NEW_STATES.has(item.status)),
+    [items],
+  );
+
+  const approvedItems = useMemo(
+    () => items.filter((item) => APPROVED_STATES.has(item.status)),
+    [items],
+  );
+
+  return {
+    ...query,
+    items,
+    inManagementItems,
+    approvedItems,
+    total,
   };
 };

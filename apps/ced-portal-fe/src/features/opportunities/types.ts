@@ -1,19 +1,18 @@
+import { AdminOpportunitySummaryItem } from '../../core/api/generated/model';
 import type { ApproveOpportunityBody } from '../../core/api/generated/model/approveOpportunityBody';
 import type { ListOperatorOpportunitiesStatus } from '../../core/api/generated/model/listOperatorOpportunitiesStatus';
 import type { OpportunityDetailAdminResponse } from '../../core/api/generated/model/opportunityDetailAdminResponse';
 import type { OpportunityDetailResponse } from '../../core/api/generated/model/opportunityDetailResponse';
 import type { OpportunityListResponse } from '../../core/api/generated/model/opportunityListResponse';
-import type { OpportunitySummaryItem } from '../../core/api/generated/model/opportunitySummaryItem';
 export { type LocalizedMetadataItem } from '../../core/api/generated/model/localizedMetadataItem';
+export type { OpportunitySummaryItemStatus as OpportunityStatus } from '../../core/api/generated/model/opportunitySummaryItemStatus';
+export { OpportunitySummaryItemStatus as OpportunityStatusEnum } from '../../core/api/generated/model/opportunitySummaryItemStatus';
 
 export type OpportunityDetail = OpportunityDetailResponse;
 export type OpportunitiesResponse = OpportunityListResponse;
-export type Opportunity = OpportunitySummaryItem;
-export { OpportunitySummaryItemStatus as OpportunityStatusEnum } from '../../core/api/generated/model/opportunitySummaryItemStatus';
-export type { OpportunitySummaryItemStatus as OpportunityStatus } from '../../core/api/generated/model/opportunitySummaryItemStatus';
+export type Opportunity = AdminOpportunitySummaryItem;
 
-export type AdminOpportunity = OpportunitySummaryItem;
-export type AdminOpportunitiesResponse = OpportunityListResponse;
+export type AdminOpportunity = AdminOpportunitySummaryItem;
 export type AdminOpportunityDetail = OpportunityDetailAdminResponse;
 
 export interface ListAdminOpportunitiesParams {

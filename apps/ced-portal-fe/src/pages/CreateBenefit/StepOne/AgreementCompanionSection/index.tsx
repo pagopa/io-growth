@@ -8,7 +8,7 @@ import {
   Switch,
   Typography,
 } from '@mui/material';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo } from 'react';
 
 import { useAppDispatch, useAppSelector } from '../../../../hooks';
 import { BenefitDetailsSection } from './components/BenefitDetailsSection';
@@ -16,10 +16,12 @@ import { getAgreementCopy } from '../../../../constants';
 import {
   selectActiveFormLanguage,
   selectEnabledCaregiver,
+  selectIsSameConditionsCaregiver,
 } from '../../../../features/opportunityCreation/selectors';
 import {
   cloneOwnerBenefitToCompanion,
   setCaregiverEnabled,
+  setCaregiverHasSameConditions,
 } from '../../../../features/opportunityCreation/opportunityCreationSlice';
 
 export const AgreementCompanionSection = () => {
@@ -30,7 +32,8 @@ export const AgreementCompanionSection = () => {
     () => activeLanguage !== 'it',
     [activeLanguage],
   );
-  const [isSameAsOwner, setIsSameAsOwner] = useState(false);
+
+  const isSameAsOwner = useAppSelector(selectIsSameConditionsCaregiver);
   const companionCopy =
     getAgreementCopy(activeLanguage).additionalSections.companion;
 
@@ -76,7 +79,7 @@ export const AgreementCompanionSection = () => {
                 <Checkbox
                   checked={isSameAsOwner}
                   onChange={(_, checked) => {
-                    setIsSameAsOwner(checked);
+                    dispatch(setCaregiverHasSameConditions(checked));
                   }}
                 />
               }

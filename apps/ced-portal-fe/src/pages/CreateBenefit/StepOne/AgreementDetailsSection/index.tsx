@@ -27,12 +27,15 @@ import {
 } from '../../../../core/api/generated/model';
 import { FieldWithIcon } from './components/FieldWithIcon';
 import { benefitTypeMap } from '../../../../constants/formOptions/types';
-import { selectOpportunityCategories } from '../../../../features/opportunities/selectors';
+import { useGetOpportunityCategoriesQuery } from '../../../../features/opportunities/api';
 
 export function AgreementDetailsSection({
   attempted,
 }: Readonly<{ attempted: boolean }>) {
   const dispatch = useAppDispatch();
+
+  const { data: categories = [] } = useGetOpportunityCategoriesQuery();
+
   const activeLanguage = useAppSelector(selectActiveFormLanguage);
 
   const disabledNotLocalizedField = activeLanguage !== 'it';
@@ -40,8 +43,6 @@ export function AgreementDetailsSection({
   const copy = getAgreementCopy(activeLanguage);
 
   const benefitType = useAppSelector(selectBeneficiaryBenefit);
-
-  const categories = useAppSelector(selectOpportunityCategories);
 
   const categoriesOptions = useMemo(
     () =>

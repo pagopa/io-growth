@@ -73,23 +73,17 @@ export default function OverviewPage() {
         {isNotFound && (
           <Alert
             severity="warning"
-            icon={<WarningOutlined sx={{ color: '#614C15' }} />}
-            sx={{
-              bgcolor: '#FFF5DA',
-              color: '#614C15',
-              border: '1px solid #FFD56B',
-              borderRadius: 2,
-              alignItems: 'center',
-              '& .MuiAlert-message': {
-                padding: 0,
-              },
-            }}
+            icon={
+              <WarningOutlined
+                sx={{ color: 'theme.palette.common.alertWarningText' }}
+              />
+            }
           >
             <Typography
               sx={{
                 fontSize: 14,
                 lineHeight: 1.6,
-                color: '#614C15',
+                color: (theme) => theme.palette.common.alertWarningText,
               }}
             >
               È necessario completare i dati del tuo ente e caricare il logo per

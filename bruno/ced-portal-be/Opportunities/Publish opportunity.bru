@@ -1,0 +1,15 @@
+meta {
+  name: Publish opportunity
+  type: http
+  seq: 5
+}
+
+patch {
+  url: {{baseUrl}}/operator/opportunities/:opportunityId/publish
+  body: none
+  auth: inherit
+}
+
+params:path {
+  opportunityId: an-opportunity-id
+}

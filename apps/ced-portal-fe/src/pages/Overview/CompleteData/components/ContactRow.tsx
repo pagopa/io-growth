@@ -2,15 +2,19 @@ import CancelIcon from '@mui/icons-material/Cancel';
 import { Box, IconButton } from '@mui/material';
 import { memo } from 'react';
 import { AppSelect, AppTextField } from '../../../../components';
-import type { Contact } from '../types';
+import type { ContactFormData } from '../types';
 import { CONTACT_TYPE_OPTIONS, getContactInputConfig } from './constants';
 
 interface ContactRowProps {
-  contact: Contact;
+  contact: ContactFormData;
   index: number;
   canRemove: boolean;
   onRemove: (index: number) => void;
-  onChange: (index: number, field: keyof Contact, value: string) => void;
+  onChange: (
+    index: number,
+    field: keyof ContactFormData,
+    value: string,
+  ) => void;
   typeError?: string;
   contactError?: string;
 }
@@ -25,12 +29,7 @@ export const ContactRow = memo(
     typeError,
     contactError,
   }: ContactRowProps) => {
-    const contactInputBase = getContactInputConfig(contact.type);
-
-    const contactInput = {
-      ...contactInputBase,
-      value: contact[contactInputBase.field],
-    };
+    const contactInput = getContactInputConfig(contact.type);
 
     return (
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.25, mb: 1 }}>
@@ -70,12 +69,9 @@ export const ContactRow = memo(
             required={!canRemove}
             label={contactInput.placeholder}
             type={contactInput.type}
-            value={contactInput.value}
             error={Boolean(contactError)}
-            helperText={contactError}
-            onChange={(e) =>
-              onChange(index, contactInput.field, e.target.value)
-            }
+            value={contact.value}
+            onChange={(e) => onChange(index, 'value', e.target.value)}
             sx={{ '& .MuiOutlinedInput-root': { borderRadius: '8px' } }}
           />
         </Box>

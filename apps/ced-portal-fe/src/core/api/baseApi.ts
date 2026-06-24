@@ -1,6 +1,7 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import { selectToken } from '../auth/authSelectors';
 import type { RootState } from '../store';
+import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? '/api';
 
@@ -25,6 +26,16 @@ export const baseApi = createApi({
     'Places',
     'Opportunities',
     'Entities',
+    'Profile',
   ],
   endpoints: () => ({}),
 });
+
+export const hasStatus = (error: unknown, status: number): boolean => {
+  return (
+    typeof error === 'object' &&
+    error !== null &&
+    'status' in error &&
+    (error as FetchBaseQueryError).status === status
+  );
+};

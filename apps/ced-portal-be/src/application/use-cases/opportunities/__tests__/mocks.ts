@@ -85,7 +85,7 @@ export const createMockProfileRepository = (
 export const createMockMaterializedViewRepository = (
   overrides: Partial<MaterializedViewRepository> = {},
 ): MaterializedViewRepository => ({
-  refreshAll: overrides.refreshAll ?? vi.fn(),
+  refreshAll: overrides.refreshAll ?? vi.fn().mockResolvedValue(ok(undefined)),
 });
 
 export const createMockOpportunityRepository = (

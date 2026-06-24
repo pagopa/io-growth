@@ -13,6 +13,7 @@ import { errAsync, ResultAsync } from "neverthrow";
 import { z } from "zod";
 
 import type { OpportunityRepository } from "../../../domain/ports/outbound/persistence/opportunity.repository.js";
+import type { ProfileRepository } from "../../../domain/ports/outbound/persistence/profile.repository.js";
 
 import { validateUseCaseInput } from "../utils/validate-use-case-input.js";
 
@@ -38,6 +39,7 @@ export type OperatorRequestOpportunityTestUseCase = UseCase<
 export const makeOperatorRequestOpportunityTestUseCase =
   (
     opportunityRepository: OpportunityRepository,
+    profileRepository: ProfileRepository,
   ): OperatorRequestOpportunityTestUseCase =>
   async (input) =>
     validateUseCaseInput(
@@ -65,12 +67,23 @@ export const makeOperatorRequestOpportunityTestUseCase =
           );
         }
         return new ResultAsync(
-          opportunityRepository.updateStatusByIdAndOperatorId({
-            expectedStatus: "draft",
-            operatorId: validatedInput.operatorId,
-            opportunityId: validatedInput.opportunityId,
-            status: "test_pending",
-          }),
-        );
+          profileRepository.getByOperatorId(validatedInput.operatorId),
+        ).andThen((profile) => {
+          if (!profile) {
+            return errAsync(
+              new PreconditionFailedError(
+                "Operator must have a profile to publish an opportunity",
+              ),
+            );
+          }
+          return new ResultAsync(
+            opportunityRepository.updateStatusByIdAndOperatorId({
+              expectedStatus: "draft",
+              operatorId: validatedInput.operatorId,
+              opportunityId: validatedInput.opportunityId,
+              status: "test_pending",
+            }),
+          );
+        });
       }),
     );

@@ -229,7 +229,10 @@ app.register(async (app) => {
   );
   mountOperatorRequestOpportunityTestHandler(
     app,
-    makeOperatorRequestOpportunityTestUseCase(opportunityRepository),
+    makeOperatorRequestOpportunityTestUseCase(
+      opportunityRepository,
+      profileRepository,
+    ),
   );
   mountOperatorPublishOpportunityHandler(
     app,
@@ -265,7 +268,10 @@ app.register(async (app) => {
   );
   mountApproveOpportunityHandler(
     app,
-    makeApproveOpportunityUseCase(opportunityRepository),
+    makeApproveOpportunityUseCase(
+      opportunityRepository,
+      materializedViewRepository,
+    ),
   );
 });
 

@@ -5,7 +5,6 @@ import {
   OpportunityCreateRequest,
 } from '../../core/api/generated/model';
 import {
-  adminListOpportunitiesResponse,
   getApproveOpportunityUrl,
   getGetOpportunityUrl,
 } from '../../core/api/generated/endpoints/opportunities/opportunities';

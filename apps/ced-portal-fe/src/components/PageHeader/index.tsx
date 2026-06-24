@@ -11,7 +11,6 @@ import { devAuthStorage } from '../../features/session/authDev/wrapper';
 
 export const PageHeader = () => {
   const user = useAppSelector(selectUser);
-
   const switchDevPartyContext = useDevRoleSwitcher(partyRoleMap);
 
   const getSelectedPartyId = (

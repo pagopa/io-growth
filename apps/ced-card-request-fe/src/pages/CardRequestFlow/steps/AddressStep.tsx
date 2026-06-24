@@ -98,36 +98,6 @@ export const AddressStep = forwardRef<StepRef>(function AddressStep(_, ref) {
       </Body>
 
       <Box sx={{ mt: 3, display: 'grid', gap: 2.25 }}>
-        <AppAutocomplete
-          label="Provincia"
-          required
-          options={provinceOptions}
-          inputValue={form.provincia}
-          error={!!errors.provincia}
-          helperText={errors.provincia}
-          onValueChange={(value) => handleChange('provincia', value)}
-          onSelect={(option) => handleChange('provincia', option.label)}
-        />
-        <AppAutocomplete
-          label="Comune"
-          required
-          options={comuneOptions}
-          inputValue={form.comune}
-          error={!!errors.comune}
-          helperText={errors.comune}
-          onValueChange={(value) => handleChange('comune', value)}
-          onSelect={(option) => handleChange('comune', option.label)}
-        />
-        <AppAutocomplete
-          label="CAP"
-          required
-          options={capOptions}
-          inputValue={form.cap}
-          error={!!errors.cap}
-          helperText={errors.cap}
-          onValueChange={(value) => handleChange('cap', value)}
-          onSelect={(option) => handleChange('cap', option.label)}
-        />
         <AppTextField
           label="Indirizzo"
           required
@@ -145,6 +115,36 @@ export const AddressStep = forwardRef<StepRef>(function AddressStep(_, ref) {
           helperText={errors.civico}
           inputProps={{ maxLength: 10 }}
           onChange={(e) => handleChange('civico', e.target.value)}
+        />
+        <AppAutocomplete
+          label="Comune"
+          required
+          options={comuneOptions}
+          inputValue={form.comune}
+          error={!!errors.comune}
+          helperText={errors.comune}
+          onValueChange={(value) => handleChange('comune', value)}
+          onSelect={(option) => handleChange('comune', option.label)}
+        />
+        <AppAutocomplete
+          label="Provincia"
+          required
+          options={provinceOptions}
+          inputValue={form.provincia}
+          error={!!errors.provincia}
+          helperText={errors.provincia}
+          onValueChange={(value) => handleChange('provincia', value)}
+          onSelect={(option) => handleChange('provincia', option.label)}
+        />
+        <AppAutocomplete
+          label="CAP"
+          required
+          options={capOptions}
+          inputValue={form.cap}
+          error={!!errors.cap}
+          helperText={errors.cap}
+          onValueChange={(value) => handleChange('cap', value)}
+          onSelect={(option) => handleChange('cap', option.label)}
         />
         <AppTextField
           label="Nome sul citofono"

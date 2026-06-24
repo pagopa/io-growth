@@ -12,16 +12,7 @@ import { APP_ROUTES } from '../../app/routeConfig';
 import { SectionCard } from '../../components/SectionCard';
 import { WarningOutlined } from '@mui/icons-material';
 import { useGetOperatorProfileQuery } from '../../features/profile/api';
-import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
-
-const hasStatus = (error: unknown, status: number): boolean => {
-  return (
-    typeof error === 'object' &&
-    error !== null &&
-    'status' in error &&
-    (error as FetchBaseQueryError).status === status
-  );
-};
+import { hasStatus } from '../../core/api/baseApi';
 
 export default function OverviewPage() {
   const theme = useTheme();

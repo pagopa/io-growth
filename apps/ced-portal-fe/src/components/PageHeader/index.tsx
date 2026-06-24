@@ -12,26 +12,12 @@ import { devAuthStorage } from '../../features/session/authDev/wrapper';
 export const PageHeader = () => {
   const user = useAppSelector(selectUser);
 
-  const isDev = import.meta.env.MODE === 'development';
-
   const switchDevPartyContext = useDevRoleSwitcher(partyRoleMap);
 
   const getSelectedPartyId = (
     userId: string,
     userRole?: Extract<AuthorizeResponseUserType, 'admin' | 'operator'>,
   ) => {
-    if (!isDev) {
-      const partyByUserId = partyList.find((party) => party.id === userId);
-      if (partyByUserId) {
-        return partyByUserId.id;
-      }
-
-      const partyByUserRole = partyList.find(
-        (party) => partyRoleMap[party.id] === userRole,
-      );
-      return partyByUserRole?.id;
-    }
-
     const partyByUserId = partyList.find((party) => party.id === userId);
     if (partyByUserId) {
       return partyByUserId.id;
@@ -63,18 +49,14 @@ export const PageHeader = () => {
     return null;
   }
 
-  const effectivePartyList = isDev
-    ? partyList
-    : partyList.filter((p) => p.id === selectedPartyId);
-
   return (
     <Box sx={{ '& .MuiContainer-root': { px: { xs: 2, md: 3 } } }}>
       <HeaderProduct
         productsList={productsList}
         productId={selectedProductId}
-        partyList={effectivePartyList}
+        partyList={partyList}
         partyId={selectedPartyId}
-        onSelectedParty={isDev ? switchDevPartyContext : undefined}
+        onSelectedParty={switchDevPartyContext}
       />
     </Box>
   );

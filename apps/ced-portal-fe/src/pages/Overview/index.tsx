@@ -43,7 +43,6 @@ export default function OverviewPage() {
           >
             Panoramica
           </Typography>
-
           <Typography sx={{ mt: 0.5, color: 'text.secondary', fontSize: 18 }}>
             Gestisci le informazioni del tuo ente.
           </Typography>
@@ -89,10 +88,8 @@ export default function OverviewPage() {
           </Alert>
         )}
 
-        {/* LOADING */}
         {isLoading && <Typography>Caricamento...</Typography>}
 
-        {/* DATI PROFILO */}
         {data && (
           <SectionCard>
             <Stack>
@@ -132,7 +129,6 @@ export default function OverviewPage() {
                   </>
                 )}
 
-                {/* OFFLINE */}
                 {place?.type === 'offline' && place.address && (
                   <>
                     <Typography fontSize={14} color="text.secondary">
@@ -145,8 +141,6 @@ export default function OverviewPage() {
                     </Typography>
                   </>
                 )}
-
-                {/* CONTACTS */}
 
                 <Typography variant="overline" color="text.secondary" mt={4}>
                   CONTATTI ASSISTENZA

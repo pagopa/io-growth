@@ -1,8 +1,8 @@
-export type ContactType = 'email' | 'telephone' | 'website';
+import { SupportContactResponseType } from '../../../core/api/generated/model';
 
 export type Contact = {
   contact: string;
-  type: ContactType | '';
+  type: SupportContactResponseType | '';
   website: string;
 };
 

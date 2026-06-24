@@ -1,4 +1,4 @@
-import { ContactType } from '../../types';
+import { SupportContactResponseType } from '../../../../../core/api/generated/model';
 
 export const MODAL_CONTENT = {
   logo: {
@@ -36,7 +36,7 @@ export interface ContactInputConfig {
 
 export const CONTACT_TYPE_OPTIONS: Array<{
   label: string;
-  value: ContactType;
+  value: SupportContactResponseType;
 }> = [
   {
     label: 'Email',
@@ -44,7 +44,7 @@ export const CONTACT_TYPE_OPTIONS: Array<{
   },
   {
     label: 'Telefono',
-    value: 'telephone',
+    value: 'phone',
   },
   {
     label: 'Sito web',
@@ -58,7 +58,7 @@ export const CONTACT_INPUT_BY_TYPE = {
     placeholder: 'Inserisci email',
     type: 'email',
   },
-  telephone: {
+  phone: {
     field: 'contact',
     placeholder: 'Inserisci telefono',
     type: 'tel',
@@ -68,7 +68,7 @@ export const CONTACT_INPUT_BY_TYPE = {
     placeholder: 'Inserisci url',
     type: 'url',
   },
-} satisfies Record<ContactType, ContactInputConfig>;
+} satisfies Record<SupportContactResponseType, ContactInputConfig>;
 
 export const DEFAULT_CONTACT_INPUT: ContactInputConfig = {
   field: 'contact',
@@ -77,13 +77,13 @@ export const DEFAULT_CONTACT_INPUT: ContactInputConfig = {
 };
 
 export const getContactInputConfig = (
-  contactType: string,
+  contactType: SupportContactResponseType,
 ): ContactInputConfig => {
   switch (contactType) {
     case 'email':
       return CONTACT_INPUT_BY_TYPE.email;
-    case 'telephone':
-      return CONTACT_INPUT_BY_TYPE.telephone;
+    case 'phone':
+      return CONTACT_INPUT_BY_TYPE.phone;
     case 'website':
       return CONTACT_INPUT_BY_TYPE.website;
     default:

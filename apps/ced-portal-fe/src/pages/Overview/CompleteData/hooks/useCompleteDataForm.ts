@@ -7,6 +7,7 @@ import {
   type FirstContactErrors,
 } from '../utils/validation';
 import type {
+  Address,
   OperatorProfileCreateRequest,
   SupportContactCreateRequestType,
 } from '../../../../core/api/generated/model';
@@ -66,15 +67,7 @@ const buildSupportContacts = (contacts: Contact[]) =>
       value: (c.contact || c.website)!.trim(),
     }));
 
-type ParsedAddress = {
-  street: string;
-  city: string;
-  state: string;
-  postalCode: string;
-  country: string;
-};
-
-export const parseAddress = (input: string): ParsedAddress => {
+export const parseAddress = (input: string): Address => {
   const parts = input.split(',').map((p) => p.trim());
 
   return {
@@ -242,7 +235,6 @@ export const useCompleteDataForm = ({
   const visibleFirstContactTypeError = isSubmitted
     ? errors.firstContactType
     : '';
-
   const visibleFirstContactValueError = isSubmitted
     ? errors.firstContactValue
     : '';

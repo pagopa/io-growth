@@ -9,7 +9,7 @@ import { StepCard } from '../StepCard';
 import type { StepRef } from '../types';
 import { VSpacer } from '../../../layouts/Spacer';
 
-type YesNo = 'yes' | 'no' | null;
+export type YesNo = 'yes' | 'no' | null;
 type Province = 'trento' | 'bolzano' | 'aosta' | 'other' | null;
 
 type FormState = {

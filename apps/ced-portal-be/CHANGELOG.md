@@ -1,5 +1,11 @@
 # ced-portal-be
 
+## 0.2.6
+
+### Patch Changes
+
+- 04a397d: Department opportunities list: text search now also matches the operator (ente) name, not only the opportunity name.
+
 ## 0.2.5
 
 ### Patch Changes

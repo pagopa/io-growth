@@ -1,5 +1,11 @@
 # ced-portal-be
 
+## 0.2.5
+
+### Patch Changes
+
+- f22d16f: add concurrently option to refresh materialized view
+
 ## 0.2.4
 
 ### Patch Changes

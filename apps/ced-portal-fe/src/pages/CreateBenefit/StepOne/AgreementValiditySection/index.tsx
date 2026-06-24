@@ -14,7 +14,6 @@ import {
   selectActiveFormLanguage,
   selectDateFrom,
   selectDateTo,
-  selectHasEndDate,
 } from '../../../../features/opportunityCreation/selectors';
 import { setField } from '../../../../features/opportunityCreation/opportunityCreationSlice';
 

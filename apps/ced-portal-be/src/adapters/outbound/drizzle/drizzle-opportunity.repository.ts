@@ -2,7 +2,7 @@ import type { TypedDbClient } from "@pagopa/io-core-adapter-drizzle";
 import type { Result } from "neverthrow";
 
 import { ConflictError, GenericError } from "@pagopa/io-core-domain/errors";
-import { and, count, eq, gte, ilike, inArray, lte, sql } from "drizzle-orm";
+import { and, count, eq, gte, ilike, inArray, lte, or, sql } from "drizzle-orm";
 import { err, ok } from "neverthrow";
 
 import type { OpportunityDetail } from "../../../domain/entities/opportunity.js";
@@ -11,6 +11,7 @@ import type {
   FindByIdInput,
   ListOpportunitiesInput,
   OpportunityRepository,
+  OpportunitySearchField,
   PaginatedOpportunities,
   UpdateOpportunityStatusByIdAndOperatorIdInput,
   UpdateOpportunityStatusByIdInput,
@@ -37,6 +38,11 @@ type TransactionClient = Parameters<
 
 const escapeIlikePattern = (value: string): string =>
   value.replace(/\\/g, "\\\\").replace(/%/g, "\\%").replace(/_/g, "\\_");
+
+const searchColumns = {
+  name: localizedMetadata.value,
+  operatorName: operator.name,
+} satisfies Record<OpportunitySearchField, unknown>;
 
 const findByIdAndOperatorId = async (
   db: DbOrTxClient,
@@ -269,11 +275,11 @@ export const createDrizzleOpportunityRepository = (
       if (input.status)
         conditions.push(sql`${opportunity.status} = ${input.status}`);
       if (input.search) {
+        const pattern = `%${escapeIlikePattern(input.search)}%`;
+        const fields: readonly OpportunitySearchField[] =
+          input.searchFields ?? ["name"];
         conditions.push(
-          ilike(
-            localizedMetadata.value,
-            `%${escapeIlikePattern(input.search)}%`,
-          ),
+          or(...fields.map((field) => ilike(searchColumns[field], pattern))),
         );
       }
 

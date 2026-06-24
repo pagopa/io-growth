@@ -68,6 +68,22 @@ describe("makeAdminListOpportunitiesUseCase", () => {
     );
   });
 
+  it("should request operator-name search on the department list (IEG-3031)", async () => {
+    const repository = createMockOpportunityRepository({
+      findAll: vi.fn().mockResolvedValue(ok({ items: [], total: 0 })),
+    });
+    const useCase = makeAdminListOpportunitiesUseCase(repository);
+
+    await useCase({ ...validInput, search: "cultura" });
+
+    expect(repository.findAll).toHaveBeenCalledWith(
+      expect.objectContaining({
+        search: "cultura",
+        searchFields: ["name", "operatorName"],
+      }),
+    );
+  });
+
   it("should propagate repository errors", async () => {
     const repoError = new GenericError("DB connection failed");
     const repository = createMockOpportunityRepository({

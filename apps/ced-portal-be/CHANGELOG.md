@@ -1,5 +1,13 @@
 # ced-portal-be
 
+## 0.2.7
+
+### Patch Changes
+
+- 1e8e656: change approve api to publish an opportunity and refresh materialized views
+- Updated dependencies [1e8e656]
+  - @pagopa/io-core-adapter-ar@0.0.7
+
 ## 0.2.6
 
 ### Patch Changes

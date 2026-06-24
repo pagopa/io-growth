@@ -1,5 +1,5 @@
 import LinkRoundedIcon from '@mui/icons-material/LinkRounded';
-import { Paper, Stack, TextField, Typography } from '@mui/material';
+import { Paper, Stack, Typography } from '@mui/material';
 import { useAppDispatch, useAppSelector } from '../../../../hooks';
 import { getAgreementCopy } from '../../../../constants';
 import {

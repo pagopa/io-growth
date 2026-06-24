@@ -21,11 +21,7 @@ import { useGetFirstStepValidation } from './hooks/useGetFirstStepValidation';
 import { useCreateOpportunity } from './hooks/useCreateOpportunity';
 import type { CreateBenefitNavigationState } from './types';
 import { useHydrateFromSourceOpportunity } from './hooks/useHydrateFromSourceOpportunity';
-import {
-  selectNationalTerritory,
-  selectUrl,
-} from '../../features/opportunityCreation/selectors';
-import { isValidHttpsUrl } from '../../utils';
+import { selectNationalTerritory } from '../../features/opportunityCreation/selectors';
 
 export interface StepProps {
   attempted: boolean;
@@ -62,7 +58,6 @@ export default function CreateBenefitPage() {
     useRequestApprovalMutation();
 
   const accessPoint = useAppSelector(selectAccessPoint);
-  const url = useAppSelector(selectUrl);
   const nationwide = useAppSelector(selectNationalTerritory);
   const selectedLocationIds = useAppSelector(selectSelectedLocationIds);
   const selectedWebsiteIds = useAppSelector(selectSelectedWebsiteIds);
@@ -74,9 +69,7 @@ export default function CreateBenefitPage() {
     if (step === 1) {
       const hasTerritory = accessPoint === 'offline' || accessPoint === 'both';
       const hasOnline = accessPoint === 'online' || accessPoint === 'both';
-      const isUrlValid = url ? isValidHttpsUrl(url) : true;
       return (
-        !!isUrlValid &&
         !!accessPoint &&
         (!hasTerritory || nationwide || selectedLocationIds.length > 0) &&
         (!hasOnline || selectedWebsiteIds.length > 0)

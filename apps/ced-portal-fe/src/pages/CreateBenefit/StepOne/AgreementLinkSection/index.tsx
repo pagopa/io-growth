@@ -30,9 +30,9 @@ export function AgreementLinkSection({
 
         <FormField
           label={copy.benefitUrlLabel}
-          error={attempted && error}
+          error={attempted && !error}
           helperText={
-            attempted && error
+            attempted && !error
               ? 'Inserisci un URL valido (es. https://...)'
               : ''
           }

@@ -39,7 +39,7 @@ const steps = [
     confirmLabel: 'Continua',
     cancelLabel: 'Riprendi più tardi',
   },
-  { title: 'Riepilogo e invio', content: SummaryStep },
+  { title: 'Conferma e invia', content: SummaryStep },
 ];
 
 const TOTAL_STEPS = steps.length;

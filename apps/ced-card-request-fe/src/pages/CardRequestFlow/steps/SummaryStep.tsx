@@ -27,10 +27,12 @@ const personalData = [
 
 const addressData = [
   { label: 'Indirizzo', value: 'Corso Vittorio Emanuele' },
+  { label: 'Civico', value: '10' },
   { label: 'CAP', value: '12100' },
-  { label: 'Altri dettagli', value: 'Scala B' },
-  { label: 'Provincia', value: 'AL' },
   { label: 'Comune', value: 'Alessandria' },
+  { label: 'Provincia', value: 'AL' },
+  { label: 'Nome sul citofono', value: 'Anna Verdi' },
+  { label: 'Altri dettagli', value: 'Scala B' },
 ];
 
 const judgmentData = [
@@ -145,7 +147,7 @@ export const SummaryStep = forwardRef<StepRef, SummaryProps>(
             <AccordionSummary expandIcon={<ExpandMoreIcon />} sx={summarySx}>
               <Box sx={{ display: 'flex', flexDirection: 'column' }}>
                 <Title variant="XS" text="Indirizzo di spedizione" />
-                <Body>Dove ricevere la carta.</Body>
+                <Body>Dove riceverai la carta.</Body>
               </Box>
             </AccordionSummary>
             <AccordionDetails sx={detailsSx}>

@@ -66,8 +66,8 @@ export const useHydrateFromSourceOpportunity = (
     }
 
     dispatch(setField({ field: 'dateFrom', value: dateFrom }));
-    dispatch(setField({ field: 'dateTo', value: dateTo }));
-    dispatch(setField({ field: 'url', value: url }));
+    dispatch(setField({ field: 'dateTo', value: dateTo ?? undefined }));
+    dispatch(setField({ field: 'url', value: url ?? undefined }));
     dispatch(setField({ field: 'categoryId', value: categoryId }));
     dispatch(setField({ field: 'placeIds', value: placeIds }));
     dispatch(
@@ -99,7 +99,8 @@ export const useHydrateFromSourceOpportunity = (
       dispatch(setSelectedWebsiteIds(placesIdsMapped?.websites ?? []));
 
       const accessPoint: PlaceBaseType | 'both' =
-        placesIdsMapped?.websites.length && placesIdsMapped?.locations.length
+        placesIdsMapped?.websites.length &&
+        (placesIdsMapped?.locations.length || nationalTerritory)
           ? 'both'
           : placesIdsMapped?.locations.length || nationalTerritory
             ? 'offline'
@@ -114,7 +115,7 @@ export const useHydrateFromSourceOpportunity = (
       dispatch(
         setBenefit({
           which: 'caregiverBenefit',
-          value: caregiverBenefit ?? null,
+          value: caregiverBenefit ?? undefined,
         }),
       );
       if (beneficiaryBenefit) {
@@ -130,7 +131,7 @@ export const useHydrateFromSourceOpportunity = (
       dispatch(
         setBenefit({
           which: 'beneficiaryBenefit',
-          value: beneficiaryBenefit ?? null,
+          value: beneficiaryBenefit ?? undefined,
         }),
       );
     }

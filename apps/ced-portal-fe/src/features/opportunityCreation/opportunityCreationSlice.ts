@@ -77,7 +77,7 @@ const opportunityCreationSlice = createSlice({
       state,
       action: PayloadAction<{
         field: keyof OpportunityCreationForm;
-        value: OpportunityCreationForm[keyof OpportunityCreationForm] | null;
+        value: OpportunityCreationForm[keyof OpportunityCreationForm];
       }>,
     ) => {
       const { field, value } = action.payload;

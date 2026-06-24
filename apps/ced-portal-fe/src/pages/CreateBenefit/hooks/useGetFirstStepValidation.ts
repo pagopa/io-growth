@@ -56,7 +56,7 @@ export const useGetFirstStepValidation = () => {
   const validateDates =
     !!dateFrom && !!dateTo ? new Date(dateFrom) < new Date(dateTo) : !!dateFrom;
 
-  const validateUrl = url ? isValidHttpsUrl(url) : true;
+    const validateUrl = !url || isValidHttpsUrl(url);
 
   return (
     validateUrl &&

@@ -68,7 +68,7 @@ describe("makeAdminListOpportunitiesUseCase", () => {
     );
   });
 
-  it("should request operator-name search on the department list (IEG-3031)", async () => {
+  it("should request operator-name search on the department list", async () => {
     const repository = createMockOpportunityRepository({
       findAll: vi.fn().mockResolvedValue(ok({ items: [], total: 0 })),
     });

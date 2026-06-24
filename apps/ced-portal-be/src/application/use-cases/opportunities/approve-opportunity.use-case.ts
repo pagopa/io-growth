@@ -9,12 +9,13 @@ import {
   NotFoundError,
   PreconditionFailedError,
 } from "@pagopa/io-core-domain/errors";
-import { errAsync, ResultAsync } from "neverthrow";
+import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { z } from "zod";
 
 import type { OpportunityRepository } from "../../../domain/ports/outbound/persistence/opportunity.repository.js";
 
 import { USER_TYPES } from "../../../domain/entities/user-type.js";
+import { MaterializedViewRepository } from "../../../domain/ports/outbound/materialized-view.repository.js";
 import { validateUseCaseInput } from "../utils/validate-use-case-input.js";
 
 const ApproveOpportunityInputSchema = z.object({
@@ -39,7 +40,10 @@ export type ApproveOpportunityUseCase = UseCase<
 >;
 
 export const makeApproveOpportunityUseCase =
-  (opportunityRepository: OpportunityRepository): ApproveOpportunityUseCase =>
+  (
+    opportunityRepository: OpportunityRepository,
+    materializedViewRepository: MaterializedViewRepository,
+  ): ApproveOpportunityUseCase =>
   async (input) =>
     validateUseCaseInput(ApproveOpportunityInputSchema, input).andThen(
       (validatedInput) =>
@@ -56,13 +60,21 @@ export const makeApproveOpportunityUseCase =
                 "Opportunity must be in test_pending or test_rejected status to be approved",
               ),
             );
+          const today = new Date().toISOString().slice(0, 10);
+
           return new ResultAsync(
             opportunityRepository.updateStatusById({
               dateFrom: validatedInput.dateFrom,
               expectedStatuses: ["test_pending", "test_rejected"],
               opportunityId: validatedInput.opportunityId,
-              status: "test_passed",
+              status: "published",
             }),
+          ).andThen(() =>
+            data.dateFrom <= today
+              ? new ResultAsync(materializedViewRepository.refreshAll()).orElse(
+                  () => okAsync(undefined),
+                )
+              : okAsync(undefined),
           );
         }),
     );

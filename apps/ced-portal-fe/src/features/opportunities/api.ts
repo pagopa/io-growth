@@ -1,5 +1,6 @@
 import { baseApi } from '../../core/api/baseApi';
 import {
+  AdminOpportunityListResponse,
   ListOperatorOpportunitiesParams,
   OpportunityCategoryItem,
   OpportunityCreateRequest,
@@ -9,7 +10,6 @@ import {
   getGetOpportunityUrl,
 } from '../../core/api/generated/endpoints/opportunities/opportunities';
 import type {
-  AdminOpportunitiesResponse,
   AdminOpportunityDetail,
   ApproveOpportunityPayload,
   ListAdminOpportunitiesParams,
@@ -53,7 +53,7 @@ export const opportunitiesApi = baseApi.injectEndpoints({
       providesTags: (_result, _error, id) => [{ type: 'Opportunities', id }],
     }),
     getAdminOpportunities: builder.query<
-      AdminOpportunitiesResponse,
+      AdminOpportunityListResponse,
       ListAdminOpportunitiesParams | undefined
     >({
       query: (params) => getListAdminOpportunitiesUrl(params),

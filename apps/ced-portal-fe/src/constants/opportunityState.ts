@@ -26,7 +26,8 @@ export const STATE_OPTIONS: {
 export const ADMIN_REQUEST_STATE_OPTIONS = STATE_OPTIONS.filter(
   ({ value }) =>
     value === OpportunitySummaryItemStatus.test_rejected ||
-    value === OpportunitySummaryItemStatus.test_pending,
+    value === OpportunitySummaryItemStatus.test_pending ||
+    value === OpportunitySummaryItemStatus.draft,
 );
 
 export const ADMIN_APPROVED_STATE_OPTIONS = STATE_OPTIONS.filter(

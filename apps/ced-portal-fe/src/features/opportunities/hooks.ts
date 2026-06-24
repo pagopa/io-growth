@@ -29,12 +29,6 @@ const INACTIVE_STATES: Set<OpportunityStatus> = new Set([
   OpportunityStatusEnum.deleted,
 ]);
 
-const matchesSearch = (item: Opportunity, search: string): boolean => {
-  if (!search) return true;
-  const q = search.toLowerCase();
-  return item.name.toLowerCase().includes(q);
-};
-
 const matchesState = (item: Opportunity, state: string): boolean => {
   if (!state) return true;
   return item.status === state;
@@ -62,19 +56,13 @@ export const useOpportunitiesData = (filters: OpportunityFilters) => {
       refetchOnMountOrArgChange: true,
     },
   );
-
   const items = useMemo<AdminOpportunity[]>(
     () => query.data?.items ?? [],
     [query.data],
   );
 
   const filteredItems = useMemo(
-    () =>
-      items.filter(
-        (item) =>
-          matchesSearch(item, filters.search) &&
-          matchesState(item, filters.state),
-      ),
+    () => items.filter((item) => matchesState(item, filters.state)),
     [items, filters],
   );
 

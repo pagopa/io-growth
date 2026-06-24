@@ -218,7 +218,15 @@ export const OpportunitiesTable = ({
                 Nome
               </TableSortLabel>
             </TableCell>
-            <TableCell>Ente</TableCell>
+            <TableCell>
+              <TableSortLabel
+                active={sortBy === 'operatorName'}
+                direction={sortBy === 'operatorName' ? sortDirection : 'asc'}
+                onClick={() => handleSort('operatorName')}
+              >
+                Ente
+              </TableSortLabel>
+            </TableCell>
             <TableCell>
               <TableSortLabel
                 active={sortBy === 'dateFrom'}
@@ -250,7 +258,7 @@ export const OpportunitiesTable = ({
                 />
               </TableCell>
               <TableCell>{item.name}</TableCell>
-              <TableCell>{item.categoryTitle}</TableCell>
+              <TableCell>{item.operatorName}</TableCell>
               <TableCell>
                 {new Date(item.dateFrom).toLocaleDateString('it-IT')}
               </TableCell>

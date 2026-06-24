@@ -3,13 +3,17 @@ import ForumOutlinedIcon from '@mui/icons-material/ForumOutlined';
 import { Box, Button, Paper, Stack, Typography } from '@mui/material';
 import { memo } from 'react';
 import { ContactRow } from './ContactRow';
-import type { Contact } from '../types';
+import type { ContactFormData } from '../types';
 
 interface ContactsSectionProps {
-  contacts: Contact[];
+  contacts: ContactFormData[];
   onAddContact: () => void;
   onRemoveContact: (index: number) => void;
-  onContactChange: (index: number, field: keyof Contact, value: string) => void;
+  onContactChange: (
+    index: number,
+    field: keyof ContactFormData,
+    value: string,
+  ) => void;
   firstContactTypeError?: string;
   firstContactValueError?: string;
 }

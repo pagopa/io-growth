@@ -10,6 +10,9 @@ const NEUTRAL_BLACK = '#0E0F13';
 const ALERT_ERROR_BG = '#FFD9D9';
 const ALERT_ERROR_BORDER = '#FF6666';
 const ALERT_SUCCESS_BORDER = '#89D188';
+const ALERT_WARNING_BG = '#FFF5DA';
+const ALERT_WARNING_BORDER = '#FFD56B';
+const ALERT_WARNING_TEXT = '#614C15';
 const ERROR_ICON_BG = '#5D1313';
 const TOAST_ERROR_BG = ERROR_ICON_BG;
 
@@ -24,6 +27,9 @@ declare module '@mui/material/styles' {
     alertErrorBg: string;
     alertErrorBorder: string;
     alertSuccessBorder: string;
+    alertWarningBg: string;
+    alertWarningBorder: string;
+    alertWarningText: string;
     toastError: string;
   }
 }
@@ -46,6 +52,9 @@ export const createAppTheme = () =>
         alertErrorBg: ALERT_ERROR_BG,
         alertErrorBorder: ALERT_ERROR_BORDER,
         alertSuccessBorder: ALERT_SUCCESS_BORDER,
+        alertWarningBg: ALERT_WARNING_BG,
+        alertWarningBorder: ALERT_WARNING_BORDER,
+        alertWarningText: ALERT_WARNING_TEXT,
         neutralDarkGray: APP_NEUTRAL_DARK_GRAY,
         toastError: TOAST_ERROR_BG,
       },
@@ -396,6 +405,28 @@ export const createAppTheme = () =>
           completed: {
             '& .MuiStepConnector-line': {
               borderColor: muiItaliaTheme.palette.common.primaryButton,
+            },
+          },
+        },
+      },
+
+      MuiAlert: {
+        styleOverrides: {
+          root: {
+            borderRadius: 8,
+            alignItems: 'center',
+          },
+          standardWarning: {
+            backgroundColor: ALERT_WARNING_BG,
+            color: ALERT_WARNING_TEXT,
+            border: `1px solid ${ALERT_WARNING_BORDER}`,
+
+            '& .MuiAlert-message': {
+              padding: 0,
+            },
+
+            '& .MuiSvgIcon-root': {
+              color: ALERT_WARNING_TEXT,
             },
           },
         },

@@ -44,6 +44,15 @@ const searchColumns = {
   operatorName: operator.name,
 } satisfies Record<OpportunitySearchField, unknown>;
 
+export const buildSearchCondition = (
+  search: string,
+  fields?: readonly OpportunitySearchField[],
+) => {
+  const pattern = `%${escapeIlikePattern(search)}%`;
+  const effective = fields?.length ? fields : (["name"] as const);
+  return or(...effective.map((field) => ilike(searchColumns[field], pattern)));
+};
+
 const findByIdAndOperatorId = async (
   db: DbOrTxClient,
   input: FindByIdAndOperatorIdInput,
@@ -275,12 +284,7 @@ export const createDrizzleOpportunityRepository = (
       if (input.status)
         conditions.push(sql`${opportunity.status} = ${input.status}`);
       if (input.search) {
-        const pattern = `%${escapeIlikePattern(input.search)}%`;
-        const fields: readonly OpportunitySearchField[] =
-          input.searchFields ?? ["name"];
-        conditions.push(
-          or(...fields.map((field) => ilike(searchColumns[field], pattern))),
-        );
+        conditions.push(buildSearchCondition(input.search, input.searchFields));
       }
 
       const orderColumn =

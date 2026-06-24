@@ -18,7 +18,9 @@ describe("createDrizzleMaterializedViewRepository", () => {
   });
 
   it("should return ok and not emit when all views refresh", async () => {
-    const refreshMaterializedView = vi.fn().mockResolvedValue(undefined);
+    const refreshMaterializedView = vi.fn().mockReturnValue({
+      concurrently: () => Promise.resolve(undefined),
+    });
     const repository = createDrizzleMaterializedViewRepository(
       makeDb(refreshMaterializedView),
     );
@@ -33,8 +35,12 @@ describe("createDrizzleMaterializedViewRepository", () => {
   it("should record the failing view with its reason, then return an error", async () => {
     const refreshMaterializedView = vi
       .fn()
-      .mockRejectedValueOnce(new Error("boom"))
-      .mockResolvedValueOnce(undefined);
+      .mockReturnValueOnce({
+        concurrently: () => Promise.reject(new Error("boom")),
+      })
+      .mockReturnValueOnce({
+        concurrently: () => Promise.resolve(undefined),
+      });
     const repository = createDrizzleMaterializedViewRepository(
       makeDb(refreshMaterializedView),
     );

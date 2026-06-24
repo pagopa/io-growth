@@ -25,8 +25,6 @@ export function AgreementValiditySection({
   const dateFrom = useAppSelector(selectDateFrom);
   const dateTo = useAppSelector(selectDateTo);
 
-  // const hasEndDateLocal = useAppSelector(selectHasEndDate)
-
   const [hasEndDateLocal, setHasEndDateLocal] = useState(!!dateTo);
 
   useEffect(() => {

@@ -302,46 +302,48 @@ export default function EntityDetailPage() {
             </Typography>
           </Box>
         </SectionCard>
-        <Stack
-          direction="row"
-          spacing={2}
-          justifyContent="flex-end"
-          sx={{ pt: 2 }}
-        >
-          <Button
-            variant="outlined"
-            color="error"
-            sx={{ borderRadius: 2, px: 3 }}
-            onClick={() => setOpenRejectModal(true)}
+        {onboarding.status === 'PENDING_IN_REVIEW' && (
+          <Stack
+            direction="row"
+            spacing={2}
+            justifyContent="flex-end"
+            sx={{ pt: 2 }}
           >
-            Rifiuta
-          </Button>
-          <Button
-            variant="contained"
-            sx={{ borderRadius: 2, px: 4 }}
-            onClick={handlePublish}
-          >
-            Approva
-          </Button>
+            <Button
+              variant="outlined"
+              color="error"
+              sx={{ borderRadius: 2, px: 3 }}
+              onClick={() => setOpenRejectModal(true)}
+            >
+              Rifiuta
+            </Button>
+            <Button
+              variant="contained"
+              sx={{ borderRadius: 2, px: 4 }}
+              onClick={handlePublish}
+            >
+              Approva
+            </Button>
 
-          <RejectEntityModal
-            open={openRejectModal}
-            onClose={() => setOpenRejectModal(false)}
-            onConfirm={() => {
-              setOpenRejectModal(false);
-              navigate(APP_ROUTES.ENTITIES);
-              showToast('Fatto', 'success');
-            }}
-            entityName={entityName}
-            productName={onboarding.productId ?? '-'}
-          />
-          <PublishEntityModal
-            open={openPublishModal}
-            onClose={() => setOpenPublishModal(false)}
-            onPublish={handleApprove}
-            isLoading={isCompletingOnboarding}
-          />
-        </Stack>
+            <RejectEntityModal
+              open={openRejectModal}
+              onClose={() => setOpenRejectModal(false)}
+              onConfirm={() => {
+                setOpenRejectModal(false);
+                navigate(APP_ROUTES.ENTITIES);
+                showToast('Fatto', 'success');
+              }}
+              entityName={entityName}
+              productName={onboarding.productId ?? '-'}
+            />
+            <PublishEntityModal
+              open={openPublishModal}
+              onClose={() => setOpenPublishModal(false)}
+              onPublish={handleApprove}
+              isLoading={isCompletingOnboarding}
+            />
+          </Stack>
+        )}
       </Stack>
     </Box>
   );

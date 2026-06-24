@@ -20,6 +20,7 @@ import {
   Button,
 } from '@mui/material';
 import WarningAmberRoundedIcon from '@mui/icons-material/WarningAmberRounded';
+import CheckCircleRounded from '@mui/icons-material/CheckCircleRounded';
 import { useCallback, useMemo, useState } from 'react';
 import { generatePath, useNavigate } from 'react-router-dom';
 import type { Opportunity } from '../../../features/opportunities/types';
@@ -28,6 +29,7 @@ import {
   STATE_COLORS,
 } from '../../../constants/opportunityState';
 import { APP_ROUTES } from '../../../app/routeConfig';
+import { emptyValue } from './constants';
 
 type SortDirection = 'asc' | 'desc';
 
@@ -39,8 +41,7 @@ interface OpportunitiesTableProps {
   selected: Set<string>;
   onSelectChange: (selected: Set<string>) => void;
   onPublish: (id: string) => void;
-  // string to show when there are no items
-  emptyCopy: string;
+  activeTab: number;
 }
 
 export const OpportunitiesTable = ({
@@ -51,7 +52,7 @@ export const OpportunitiesTable = ({
   selected,
   onSelectChange,
   onPublish,
-  emptyCopy,
+  activeTab,
 }: OpportunitiesTableProps) => {
   const theme = useTheme();
   const navigate = useNavigate();
@@ -182,13 +183,14 @@ export const OpportunitiesTable = ({
         sx={{ ...paperSx, display: 'grid', placeItems: 'center' }}
       >
         <Stack spacing={1} alignItems="center" textAlign="center">
-          <WarningAmberRoundedIcon
-            sx={{ color: 'text.secondary', fontSize: 28 }}
-          />
+          <CheckCircleRounded sx={{ color: 'text.secondary', fontSize: 28 }} />
           <Typography
             sx={{ fontSize: 18, fontWeight: 700, color: 'text.secondary' }}
           >
-            {emptyCopy}
+            {emptyValue[activeTab].title}
+          </Typography>
+          <Typography sx={{ color: 'text.secondary' }}>
+            {emptyValue[activeTab].description}
           </Typography>
         </Stack>
       </Paper>

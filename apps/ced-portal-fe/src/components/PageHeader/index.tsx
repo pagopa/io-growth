@@ -9,7 +9,7 @@ import { useDevRoleSwitcher } from '../../features/session/authDev/useDevRoleSwi
 import { AuthorizeResponseUserType } from '../../core/api/generated/model';
 import { devAuthStorage } from '../../features/session/authDev/wrapper';
 
-const isDev = import.meta.env.VITE_APP_ENV === 'development';
+const isDev = import.meta.env.DEV;
 
 export const PageHeader = () => {
   const user = useAppSelector(selectUser);

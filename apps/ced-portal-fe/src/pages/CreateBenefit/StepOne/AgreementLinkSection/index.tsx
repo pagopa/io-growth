@@ -8,7 +8,7 @@ import {
 } from '../../../../features/opportunityCreation/selectors';
 import { setField } from '../../../../features/opportunityCreation/opportunityCreationSlice';
 import { isValidHttpsUrl } from '../../../../utils';
-import { FormField } from '../../../../components';
+import { AppTextField, FormField } from '../../../../components';
 
 export function AgreementLinkSection({
   attempted,
@@ -29,27 +29,25 @@ export function AgreementLinkSection({
         </Stack>
 
         <FormField
+          label={copy.benefitUrlLabel}
           error={attempted && error}
           helperText={
             attempted && error
               ? 'Inserisci un URL valido (es. https://...)'
               : ''
           }
+          disabled={activeLanguage !== 'it'}
+          value={benefitUrl}
+          onChange={(event) =>
+            dispatch(
+              setField({
+                field: 'url',
+                value: event.target.value,
+              }),
+            )
+          }
         >
-          <TextField
-            disabled={activeLanguage !== 'it'}
-            label={copy.benefitUrlLabel}
-            value={benefitUrl}
-            onChange={(event) =>
-              dispatch(
-                setField({
-                  field: 'url',
-                  value: event.target.value,
-                }),
-              )
-            }
-            fullWidth
-          />
+          <AppTextField fullWidth />
         </FormField>
       </Stack>
     </Paper>

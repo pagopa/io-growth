@@ -99,7 +99,7 @@ export const createDrizzlePlaceRepository = (
           },
           operator: {
             columns: { name: true },
-            with: { profile: { columns: { displayName: true } } },
+            with: { profile: { columns: { displayName: true, id: true } } },
           },
           supportContacts: { columns: { type: true, value: true } },
           website: { columns: { url: true } },

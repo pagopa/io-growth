@@ -776,7 +776,8 @@ components:
           $ref: "#/components/schemas/PlaceDetailContacts"
         entityId:
           type: string
-          description: Operator identifier this place belongs to.
+          description: >-
+            Operator profile id this place belongs to
         entityName:
           type: string
           description: Operator display name.

@@ -55,7 +55,7 @@ export const InfoBox = ({
                 {title}
               </Typography>
 
-              <IllusMIEarth />
+              <IllusMIEarth size={56} />
             </Stack>
 
             <Typography

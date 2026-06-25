@@ -22,6 +22,7 @@ import { PublishModal } from '../../components/PublishModal';
 import { RequestChangesModal } from '../../components/RequestChangesModal';
 import { OpportunityDetailCard } from './components/OpportunityDetailCard';
 import { STATE_COLORS, STATE_OPTIONS } from '../../constants/opportunityState';
+import { getDisplayStatus } from '../../utils';
 
 export default function OpportunityDetailPage() {
   const theme = useTheme();
@@ -92,6 +93,7 @@ export default function OpportunityDetailPage() {
     );
   }
 
+  const displayStatus = getDisplayStatus(detail.status, detail.dateFrom);
   return (
     <Box
       sx={{
@@ -128,10 +130,10 @@ export default function OpportunityDetailPage() {
           </Box>
           <Chip
             label={
-              STATE_OPTIONS.find((o) => o.value === detail.status)?.label ??
-              detail.status
+              STATE_OPTIONS.find((o) => o.value === displayStatus)?.label ??
+              displayStatus
             }
-            color={STATE_COLORS[detail.status] ?? 'default'}
+            color={STATE_COLORS[displayStatus] ?? 'default'}
             size="small"
           />
         </Stack>

@@ -1,9 +1,9 @@
 import { baseApi } from '../../core/api/baseApi';
-import type { SessionPayload } from './types';
+import type { AuthorizeResponse } from '../../core/api/generated/model';
 
 export const sessionApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
-    getSession: builder.query<SessionPayload, string>({
+    getSession: builder.query<AuthorizeResponse, string>({
       query: (id) => `/authorize?id=${encodeURIComponent(id)}`,
       providesTags: ['Session'],
     }),

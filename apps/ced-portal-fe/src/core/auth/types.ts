@@ -1,13 +1,8 @@
+import type { AuthorizeResponse } from '../api/generated/model';
+
 export type UserRole = 'admin' | 'operator';
 
-export interface AuthUser {
-  id: string;
-  name: string;
-  email: string;
-  role: UserRole;
-}
-
 export interface AuthState {
-  token: string | null;
-  user: AuthUser | null;
+  token: AuthorizeResponse['session_token'] | null;
+  user: Omit<AuthorizeResponse, 'session_token'> | null;
 }

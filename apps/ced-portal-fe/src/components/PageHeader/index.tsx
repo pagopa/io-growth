@@ -13,11 +13,18 @@ const isDev = import.meta.env.DEV;
 
 export const PageHeader = () => {
   const user = useAppSelector(selectUser);
+
+  const userParty = {
+    id: `${user?.first_name}-${user?.last_name}`,
+    name: `${user?.first_name} ${user?.last_name}`,
+    productRole: user?.user_type === 'operator' ? 'Operatore' : 'Admin',
+    parentName: user?.operator_name,
+  };
   const switchDevPartyContext = useDevRoleSwitcher(partyRoleMap);
 
   const getSelectedPartyId = (
     userId: string,
-    userRole?: Extract<AuthorizeResponseUserType, 'admin' | 'operator'>,
+    userRole?: AuthorizeResponseUserType,
   ) => {
     if (!isDev) {
       const partyByUserId = partyList.find((party) => party.id === userId);
@@ -56,7 +63,7 @@ export const PageHeader = () => {
   }
 
   if (isDev) {
-    const selectedPartyId = getSelectedPartyId(user.id, user.role);
+    const selectedPartyId = getSelectedPartyId(userParty.id, user?.user_type);
     const selectedProductId = productsList[0]?.id;
 
     if (!selectedPartyId || !selectedProductId) {
@@ -77,7 +84,7 @@ export const PageHeader = () => {
   }
   return (
     <Box sx={{ '& .MuiContainer-root': { px: { xs: 2, md: 3 } } }}>
-      <HeaderProduct productsList={productsList} partyList={[user]} />
+      <HeaderProduct productsList={productsList} partyList={[userParty]} />
     </Box>
   );
 };

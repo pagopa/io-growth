@@ -53,7 +53,9 @@ export default function OpportunityDetailPage() {
       fontWeight: 600,
     },
   };
-  const { data, isLoading, isError } = useGetOpportunityDetailQuery(id ?? '');
+  const { data, isLoading, isError, error } = useGetOpportunityDetailQuery(
+    id ?? '',
+  );
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -70,6 +72,7 @@ export default function OpportunityDetailPage() {
     <QueryGuard
       isLoading={isLoading}
       isError={isError}
+      error={error}
       data={data}
       errorMessage="Impossibile caricare i dati dell'opportunità."
     >

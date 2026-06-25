@@ -50,10 +50,10 @@ export const useDevRoleSwitcher = (partyRoleMap: Record<string, Role>) => {
         setCredentials({
           token,
           user: {
-            id: party.id,
-            name: party.name,
-            email: `${party.id}@test.it`,
-            role,
+            first_name: party.name,
+            last_name: party.name,
+            operator_name: 'test',
+            user_type: role,
           },
         }),
       );

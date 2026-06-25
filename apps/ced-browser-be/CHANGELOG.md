@@ -1,5 +1,11 @@
 # ced-browser-be
 
+## 0.1.7
+
+### Patch Changes
+
+- 212085d: Place detail (`GET /api/places/:placeId`): `entityId` now returns the operator profile id instead of the operator id
+
 ## 0.1.6
 
 ### Patch Changes

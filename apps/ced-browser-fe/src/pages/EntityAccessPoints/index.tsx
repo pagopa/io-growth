@@ -7,12 +7,13 @@ import { toEntityAccessPointDetailRoute } from '../../app/routeConfig';
 export default function EntityAccessPointsPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { data, isLoading, isError } = useGetEntityDetailQuery(id ?? '');
+  const { data, isLoading, isError, error } = useGetEntityDetailQuery(id ?? '');
 
   return (
     <QueryGuard
       isLoading={isLoading}
       isError={isError}
+      error={error}
       data={data}
       errorMessage="Impossibile caricare i dati dell'ente."
     >

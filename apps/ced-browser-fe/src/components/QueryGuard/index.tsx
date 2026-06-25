@@ -5,6 +5,7 @@ type Props<T> = {
   isLoading: boolean;
   isError: boolean;
   data: T | undefined;
+  error?: unknown;
   errorMessage?: string;
   children: (data: T) => ReactNode;
 };
@@ -14,6 +15,7 @@ export function QueryGuard<T>({
   isError,
   data,
   errorMessage = 'Impossibile caricare i dati.',
+  error,
   children,
 }: Props<T>) {
   if (isLoading) {
@@ -28,6 +30,16 @@ export function QueryGuard<T>({
     return (
       <Box sx={{ px: 2, pt: 4 }}>
         <Typography color="error">{errorMessage}</Typography>
+        {error !== undefined && (
+          <Typography
+            color="error"
+            variant="caption"
+            component="pre"
+            sx={{ mt: 1, whiteSpace: 'pre-wrap', wordBreak: 'break-all' }}
+          >
+            {JSON.stringify(error, null, 2)}
+          </Typography>
+        )}
       </Box>
     );
   }

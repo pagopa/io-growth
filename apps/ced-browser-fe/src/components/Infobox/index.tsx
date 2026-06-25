@@ -1,9 +1,6 @@
 import { Paper, Typography, Button, Box, Stack } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
-{
-  /* This Pictogram its a placeholder, pictogram used in figma its not exposed */
-}
-import { IllusAlarmClock } from '@pagopa/mui-italia';
+import { IllusMIEarth } from '@pagopa/mui-italia';
 
 interface InfoBoxProps {
   title: string;
@@ -58,7 +55,7 @@ export const InfoBox = ({
                 {title}
               </Typography>
 
-              <IllusAlarmClock />
+              <IllusMIEarth />
             </Stack>
 
             <Typography

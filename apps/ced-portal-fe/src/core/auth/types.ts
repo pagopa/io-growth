@@ -1,4 +1,4 @@
-import { AuthorizeResponse } from '../api/generated/model';
+import type { AuthorizeResponse } from '../api/generated/model';
 
 export type UserRole = 'admin' | 'operator';
 

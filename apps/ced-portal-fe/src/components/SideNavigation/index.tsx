@@ -76,7 +76,7 @@ export function SideNavigation() {
   const isOpportunitiesActive = pathname === APP_ROUTES.OPPORTUNITIES;
   const isEntitiesActive = pathname === APP_ROUTES.ENTITIES;
   const role = useAppSelector(selectUserType);
-  const isAdmin = role === 'admin';
+  const isAdmin = role === 'admin' || role === 'test_admin';
 
   return (
     <Box

@@ -12,7 +12,7 @@ import {
   resolveRole,
 } from '../features/session/authDev/utils';
 import { API_BASE_URL } from '../features/session/authDev/constant';
-import { AuthorizeResponseUserType } from '../core/api/generated/model';
+import type { AuthorizeResponseUserType } from '../core/api/generated/model';
 
 export const useGetSession = () => {
   const { search } = useLocation();
@@ -81,12 +81,12 @@ export const useGetSession = () => {
         }
 
         if (token) {
-          navigateToLanding(user?.user_type);
+          navigateToLanding(getCurrentRole());
           return;
         }
 
         if (import.meta.env.DEV && !token) {
-          const devToken = getDevAssertionToken(user?.user_type);
+          const devToken = getDevAssertionToken(getCurrentRole());
           if (devToken && isValidToken(devToken)) {
             navigate(
               `${APP_ROUTES.AUTHORIZE}?token=${encodeURIComponent(devToken)}`,
@@ -104,7 +104,7 @@ export const useGetSession = () => {
 
       if (lastSessionExchangeId === redirectToken) {
         if (token) {
-          navigateToLanding(user?.user_type);
+          navigateToLanding(getCurrentRole());
           return;
         }
         devAuthStorage.removeLastSessionExchangeId();

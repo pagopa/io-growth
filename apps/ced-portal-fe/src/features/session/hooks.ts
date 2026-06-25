@@ -13,10 +13,12 @@ export function useAuthorize() {
     async (id: string) => {
       const response = await trigger(id).unwrap();
 
+      const { session_token, ...rest } = response;
+
       dispatch(
         setCredentials({
-          token: response.session_token,
-          user: response,
+          token: session_token,
+          user: rest,
         }),
       );
 

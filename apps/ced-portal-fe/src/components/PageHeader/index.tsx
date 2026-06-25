@@ -12,13 +12,13 @@ import { devAuthStorage } from '../../features/session/authDev/wrapper';
 const isDev = import.meta.env.DEV;
 
 export const PageHeader = () => {
-  const _user = useAppSelector(selectUser);
+  const user = useAppSelector(selectUser);
 
-  const user = {
-    id: `${_user?.first_name}-${_user?.last_name}`,
-    name: `${_user?.first_name} ${_user?.last_name}`,
-    productRole: _user?.user_type === 'operator' ? 'Operatore' : 'Admin',
-    parentName: _user?.operator_name,
+  const userParty = {
+    id: `${user?.first_name}-${user?.last_name}`,
+    name: `${user?.first_name} ${user?.last_name}`,
+    productRole: user?.user_type === 'operator' ? 'Operatore' : 'Admin',
+    parentName: user?.operator_name,
   };
   const switchDevPartyContext = useDevRoleSwitcher(partyRoleMap);
 
@@ -58,12 +58,12 @@ export const PageHeader = () => {
     return partyList[0]?.id;
   };
 
-  if (!_user) {
+  if (!user) {
     return <Navigate replace to={APP_ROUTES.AUTHORIZE} />;
   }
 
   if (isDev) {
-    const selectedPartyId = getSelectedPartyId(user.id, _user?.user_type);
+    const selectedPartyId = getSelectedPartyId(userParty.id, user?.user_type);
     const selectedProductId = productsList[0]?.id;
 
     if (!selectedPartyId || !selectedProductId) {
@@ -84,7 +84,7 @@ export const PageHeader = () => {
   }
   return (
     <Box sx={{ '& .MuiContainer-root': { px: { xs: 2, md: 3 } } }}>
-      <HeaderProduct productsList={productsList} partyList={[user]} />
+      <HeaderProduct productsList={productsList} partyList={[userParty]} />
     </Box>
   );
 };

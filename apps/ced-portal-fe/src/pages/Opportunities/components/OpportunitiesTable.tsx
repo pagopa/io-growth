@@ -1,8 +1,5 @@
-import MoreVertIcon from '@mui/icons-material/MoreVert';
 import {
   Checkbox,
-  Chip,
-  IconButton,
   Menu,
   MenuItem,
   Table,
@@ -24,13 +21,8 @@ import CheckCircleRounded from '@mui/icons-material/CheckCircleRounded';
 import { useCallback, useMemo, useState } from 'react';
 import { generatePath, useNavigate } from 'react-router-dom';
 import type { Opportunity } from '../../../features/opportunities/types';
-import {
-  STATE_OPTIONS,
-  STATE_COLORS,
-} from '../../../constants/opportunityState';
 import { APP_ROUTES } from '../../../app/routeConfig';
 import { emptyValue } from './constants';
-import { getDisplayStatus } from '../../../utils';
 import { OpportunityRow } from './OpportunityRow';
 
 type SortDirection = 'asc' | 'desc';

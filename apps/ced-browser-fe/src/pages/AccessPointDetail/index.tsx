@@ -14,7 +14,7 @@ export default function AccessPointDetailPage() {
   }>();
   const navigate = useNavigate();
   const theme = useTheme();
-  const { data, isLoading, isError } = useGetAccessPointDetailQuery(
+  const { data, isLoading, isError, error } = useGetAccessPointDetailQuery(
     { accessPointId: accessPointId ?? '' },
     { skip: !accessPointId },
   );
@@ -43,6 +43,7 @@ export default function AccessPointDetailPage() {
     <QueryGuard
       isLoading={isLoading}
       isError={isError}
+      error={error}
       data={data}
       errorMessage="Impossibile caricare i dati del punto di accesso."
     >

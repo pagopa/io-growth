@@ -3,13 +3,13 @@
   "private": true,
   "version": "0.1.0",
   "type": "module",
-  "main": "dist/io-core-ui.umd.js",
+  "main": "dist/io-core-ui.umd.cjs",
   "module": "dist/io-core-ui.es.js",
   "types": "dist/index.d.ts",
   "exports": {
     ".": {
       "import": "./dist/io-core-ui.es.js",
-      "require": "./dist/io-core-ui.umd.js",
+      "require": "./dist/io-core-ui.umd.cjs",
       "types": "./dist/index.d.ts"
     }
   },

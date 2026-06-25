@@ -1,1 +1,1 @@
-export { Title, Body, ErrorBody } from "./components/Typography/index";
+export { Title, Body, ErrorBody } from "./components/Typography/index.js";

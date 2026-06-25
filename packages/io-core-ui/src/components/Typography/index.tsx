@@ -80,10 +80,12 @@ type BodyProps =
   | (BaseBodyProps & {
       asLink: true;
       onClick: () => void;
+      avoidTextDecoration?: boolean;
     })
   | (BaseBodyProps & {
       asLink?: false;
       onClick?: never;
+      avoidTextDecoration?: false;
     });
 
 export const Body = ({
@@ -91,6 +93,7 @@ export const Body = ({
   fontWeight = "Regular",
   fontSize = "16px",
   asLink = false,
+  avoidTextDecoration = false,
   onClick,
 }: BodyProps) => {
   const { palette } = useTheme();
@@ -106,7 +109,7 @@ export const Body = ({
           : fontWeight === "Regular"
             ? palette.common.neutralDarkGray
             : palette.common.neutralBlack,
-        textDecoration: asLink ? "underline" : "none",
+        textDecoration: asLink && !avoidTextDecoration ? "underline" : "none",
       }}
     >
       {children}

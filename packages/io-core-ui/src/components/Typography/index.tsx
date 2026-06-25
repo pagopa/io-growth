@@ -1,4 +1,5 @@
 import { Typography, useTheme } from "@mui/material";
+import type { TypographyProps } from "@mui/material/Typography";
 
 const titleStyles = {
   XXL: {
@@ -32,14 +33,15 @@ type Variant = keyof typeof titleStyles;
 type TitleProps = {
   text: string;
   variant: Variant;
+  fontWeight?: TypographyProps["fontWeight"];
 };
 
-export const Title = ({ text, variant }: TitleProps) => {
+export const Title = ({ text, variant, fontWeight = 600 }: TitleProps) => {
   const theme = useTheme();
   return (
     <Typography
       sx={{
-        fontWeight: 600,
+        fontWeight,
         fontSize: titleStyles[variant].size,
         lineHeight: titleStyles[variant].lineHeight,
         color: theme.palette.common.neutralBlack,

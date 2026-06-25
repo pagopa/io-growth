@@ -1,8 +1,5 @@
-import MoreVertIcon from '@mui/icons-material/MoreVert';
 import {
   Checkbox,
-  Chip,
-  IconButton,
   Menu,
   MenuItem,
   Table,
@@ -24,12 +21,9 @@ import CheckCircleRounded from '@mui/icons-material/CheckCircleRounded';
 import { useCallback, useMemo, useState } from 'react';
 import { generatePath, useNavigate } from 'react-router-dom';
 import type { Opportunity } from '../../../features/opportunities/types';
-import {
-  STATE_OPTIONS,
-  STATE_COLORS,
-} from '../../../constants/opportunityState';
 import { APP_ROUTES } from '../../../app/routeConfig';
 import { emptyValue } from './constants';
+import { OpportunityRow } from './OpportunityRow';
 
 type SortDirection = 'asc' | 'desc';
 
@@ -250,37 +244,13 @@ export const OpportunitiesTable = ({
         </TableHead>
         <TableBody>
           {sortedItems.map((item) => (
-            <TableRow key={item.id} hover>
-              <TableCell padding="checkbox">
-                <Checkbox
-                  checked={selected.has(item.id)}
-                  onChange={() => handleSelectRow(item.id)}
-                />
-              </TableCell>
-              <TableCell>{item.name}</TableCell>
-              <TableCell>{item.operatorName}</TableCell>
-              <TableCell>
-                {new Date(item.dateFrom).toLocaleDateString('it-IT')}
-              </TableCell>
-              <TableCell>
-                <Chip
-                  label={
-                    STATE_OPTIONS.find((o) => o.value === item.status)?.label ??
-                    item.status
-                  }
-                  color={STATE_COLORS[item.status] ?? 'default'}
-                  size="small"
-                />
-              </TableCell>
-              <TableCell>
-                <IconButton
-                  size="small"
-                  onClick={(e) => handleMenuOpen(e, item.id)}
-                >
-                  <MoreVertIcon />
-                </IconButton>
-              </TableCell>
-            </TableRow>
+            <OpportunityRow
+              key={item.id}
+              item={item}
+              selected={selected.has(item.id)}
+              onSelect={handleSelectRow}
+              onMenuOpen={handleMenuOpen}
+            />
           ))}
         </TableBody>
       </Table>

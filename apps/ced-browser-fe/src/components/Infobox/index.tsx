@@ -1,5 +1,6 @@
-import { Paper, Typography, Button, Box, Stack } from '@mui/material';
+import { Box, Paper, Stack } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
+import { Body, Title } from '@pagopa/io-core-ui';
 import { IllusMIEarth } from '@pagopa/mui-italia';
 
 interface InfoBoxProps {
@@ -27,6 +28,7 @@ export const InfoBox = ({
         borderColor: 'grey.200',
         backgroundColor: 'background.paper',
         maxWidth: 500,
+        padding: '16px',
       }}
     >
       <Stack direction="row" spacing={2.5}>
@@ -40,54 +42,32 @@ export const InfoBox = ({
 
         <Box sx={{ flex: 1 }}>
           <Stack spacing={2}>
-            <Stack
-              direction="row"
-              justifyContent="space-between"
-              alignItems="flex-start"
-            >
-              <Typography
-                variant="h6"
+            <Stack direction="row" alignItems="flex-start">
+              <Box sx={{ flex: '0 0 70%' }}>
+                <Title text={title} variant="XS" />
+              </Box>
+              <Box
                 sx={{
-                  color: 'text.primary',
-                  pr: 2,
+                  flex: '0 0 30%',
+                  display: 'flex',
+                  justifyContent: 'flex-end',
                 }}
               >
-                {title}
-              </Typography>
-
-              <IllusMIEarth size={56} />
+                <IllusMIEarth size={56} />
+              </Box>
             </Stack>
+            <Body fontWeight="Regular">{description}</Body>
 
-            <Typography
-              variant="body2"
-              sx={{
-                color: 'text.secondary',
-                lineHeight: 1.6,
-                fontSize: '1rem',
-              }}
-            >
-              {description}
-            </Typography>
-
-            <Box>
-              <Button
-                variant="text"
+            {onLinkClick && (
+              <Body
+                avoidTextDecoration
                 onClick={onLinkClick}
-                sx={{
-                  p: 0,
-                  textTransform: 'none',
-                  fontWeight: 700,
-                  fontSize: '1rem',
-                  '&:hover': {
-                    backgroundColor: 'transparent',
-                    textDecoration: 'underline',
-                  },
-                  color: theme.palette.common.primaryButton,
-                }}
+                asLink
+                fontWeight="Semibold"
               >
                 {linkText}
-              </Button>
-            </Box>
+              </Body>
+            )}
           </Stack>
         </Box>
       </Stack>

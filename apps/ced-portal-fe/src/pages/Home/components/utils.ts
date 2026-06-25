@@ -39,10 +39,7 @@ export const getChipConfig = ({ item, role }: ChipConfig): ChipProps => {
 export const getDetailChipConfig = (
   item: OpportunityDetailResponse,
 ): ChipProps => {
-  const displayStatus = getDisplayStatus(
-    item.status,
-    item.dateFrom, // oppure createdAt se manca
-  );
+  const displayStatus = getDisplayStatus(item.status, item.dateFrom);
 
   const config = benefitStateLabelMap[displayStatus];
 

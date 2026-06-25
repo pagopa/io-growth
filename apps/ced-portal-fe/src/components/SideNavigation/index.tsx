@@ -14,7 +14,7 @@ import { italia } from '@pagopa/mui-italia';
 import type { ReactNode } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { APP_ROUTES } from '../../app/routeConfig';
-import { selectUserRole } from '../../core/auth/authSelectors';
+import { selectUserType } from '../../core/auth/authSelectors';
 import { useAppSelector } from '../../hooks';
 
 interface NavItemProps {
@@ -75,7 +75,7 @@ export function SideNavigation() {
   const isBenefitsActive = pathname === APP_ROUTES.HOME;
   const isOpportunitiesActive = pathname === APP_ROUTES.OPPORTUNITIES;
   const isEntitiesActive = pathname === APP_ROUTES.ENTITIES;
-  const role = useAppSelector(selectUserRole);
+  const role = useAppSelector(selectUserType);
   const isAdmin = role === 'admin';
 
   return (

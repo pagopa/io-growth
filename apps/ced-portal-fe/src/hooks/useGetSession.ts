@@ -12,6 +12,7 @@ import {
   resolveRole,
 } from '../features/session/authDev/utils';
 import { API_BASE_URL } from '../features/session/authDev/constant';
+import { AuthorizeResponseUserType } from '../core/api/generated/model';
 
 export const useGetSession = () => {
   const { search } = useLocation();
@@ -21,22 +22,25 @@ export const useGetSession = () => {
   const user = useAppSelector(selectUser);
 
   const getCurrentRole = useCallback(() => {
-    if (user?.role) {
-      return user.role;
+    if (user?.user_type) {
+      return user.user_type;
     }
 
     const savedPartyId = devAuthStorage.getSelectedPartyId();
     return savedPartyId ? (partyRoleMap[savedPartyId] ?? 'admin') : 'admin';
-  }, [user?.role]);
+  }, [user?.user_type]);
 
   const navigateToLanding = useCallback(
-    (role?: 'admin' | 'operator') => {
-      navigate(getLandingRoute(role ?? getCurrentRole()), { replace: true });
+    (role?: AuthorizeResponseUserType) => {
+      console.log('🚀 ~ useGetSession ~ role:', role);
+      if (role) return navigate(getLandingRoute(role), { replace: true });
+      navigate(APP_ROUTES.UNAUTHORIZED);
     },
-    [getCurrentRole, navigate],
+    [navigate],
   );
 
   useEffect(() => {
+    console.log('effect');
     let isMounted = true;
 
     const isValidToken = (value: unknown): value is string => {
@@ -64,10 +68,15 @@ export const useGetSession = () => {
         : null;
 
       if (!redirectToken) {
+        console.log('line___________ 68');
+
         if (assertionToken) {
+          console.log('line___________ 71');
+
           const last = devAuthStorage.getLastAcsToken();
 
           if (last === assertionToken) {
+            console.log('line___________ 76');
             return;
           }
 
@@ -75,18 +84,23 @@ export const useGetSession = () => {
 
           const acsUrl = `${API_BASE_URL}/acs?token=${encodeURIComponent(assertionToken)}`;
           window.location.replace(acsUrl);
+          console.log('line___________ 84');
           return;
         }
 
         if (token) {
-          navigateToLanding();
+          console.log('line___________ 89');
+          navigateToLanding(user?.user_type);
           return;
         }
 
         if (import.meta.env.DEV && !token) {
-          const devToken = getDevAssertionToken(getCurrentRole());
+          console.log('line___________ 95');
+
+          const devToken = getDevAssertionToken(user?.user_type);
 
           if (devToken && isValidToken(devToken)) {
+            console.log('line___________ 100');
             navigate(
               `${APP_ROUTES.AUTHORIZE}?token=${encodeURIComponent(devToken)}`,
               { replace: true },
@@ -95,6 +109,7 @@ export const useGetSession = () => {
           }
         }
 
+        console.log('line___________ 110');
         navigate(APP_ROUTES.UNAUTHORIZED, { replace: true });
         return;
       }
@@ -102,8 +117,9 @@ export const useGetSession = () => {
       const lastSessionExchangeId = devAuthStorage.getLastSessionExchangeId();
 
       if (lastSessionExchangeId === redirectToken) {
+        console.log('line___________ 117');
         if (token) {
-          navigateToLanding();
+          navigateToLanding(user?.user_type);
           return;
         }
         devAuthStorage.removeLastSessionExchangeId();
@@ -112,14 +128,16 @@ export const useGetSession = () => {
       try {
         devAuthStorage.setLastSessionExchangeId(redirectToken);
         const response = await authorize(redirectToken);
+        console.log('🚀 ~ retrieveSession ~ response:', response);
 
         if (!isMounted) return;
-        const role = resolveRole(response.user_type ?? response.role);
+        const role = resolveRole(response.user_type);
         navigate(getLandingRoute(role), { replace: true });
       } catch {
         devAuthStorage.removeLastSessionExchangeId();
 
         if (isMounted) {
+          console.log('line___________ 139');
           navigate(APP_ROUTES.UNAUTHORIZED, { replace: true });
         }
       } finally {
@@ -132,5 +150,13 @@ export const useGetSession = () => {
     return () => {
       isMounted = false;
     };
-  }, [authorize, getCurrentRole, navigate, navigateToLanding, search, token]);
+  }, [
+    authorize,
+    getCurrentRole,
+    navigate,
+    navigateToLanding,
+    search,
+    token,
+    user?.user_type,
+  ]);
 };

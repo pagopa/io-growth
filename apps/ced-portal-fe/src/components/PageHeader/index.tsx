@@ -12,12 +12,19 @@ import { devAuthStorage } from '../../features/session/authDev/wrapper';
 const isDev = import.meta.env.DEV;
 
 export const PageHeader = () => {
-  const user = useAppSelector(selectUser);
+  const _user = useAppSelector(selectUser);
+
+  const user = {
+    id: `${_user?.first_name}-${_user?.last_name}`,
+    name: `${_user?.first_name} ${_user?.last_name}`,
+    productRole: _user?.user_type === 'operator' ? 'Operatore' : 'Admin',
+    parentName: _user?.operator_name,
+  };
   const switchDevPartyContext = useDevRoleSwitcher(partyRoleMap);
 
   const getSelectedPartyId = (
     userId: string,
-    userRole?: Extract<AuthorizeResponseUserType, 'admin' | 'operator'>,
+    userRole?: AuthorizeResponseUserType,
   ) => {
     if (!isDev) {
       const partyByUserId = partyList.find((party) => party.id === userId);
@@ -51,12 +58,12 @@ export const PageHeader = () => {
     return partyList[0]?.id;
   };
 
-  if (!user) {
+  if (!_user) {
     return <Navigate replace to={APP_ROUTES.AUTHORIZE} />;
   }
 
   if (isDev) {
-    const selectedPartyId = getSelectedPartyId(user.id, user.role);
+    const selectedPartyId = getSelectedPartyId(user.id, _user?.user_type);
     const selectedProductId = productsList[0]?.id;
 
     if (!selectedPartyId || !selectedProductId) {

@@ -1,13 +1,22 @@
 import { HeaderAccount } from '@pagopa/mui-italia';
 import { Settings, LogoutRounded } from '@mui/icons-material';
 import { accountRootLink } from './constants';
+import { useAppSelector } from '../../hooks';
+import { selectUser } from '../../core/auth/authSelectors';
 
 export const TopUtilityBar = () => {
+  const user = useAppSelector(selectUser);
+  console.log('🚀 ~ TopUtilityBar ~ user:', user);
+
   return (
     <HeaderAccount
       enableDropdown
       rootLink={accountRootLink}
-      loggedUser={{ id: 'mario-rossi', name: 'Mario', surname: 'Rossi' }}
+      loggedUser={{
+        id: `${user?.first_name}-${user?.last_name}`,
+        name: user?.first_name,
+        surname: user?.last_name,
+      }}
       onAssistanceClick={() => undefined}
       onDocumentationClick={() => undefined}
       onLogout={() => undefined}

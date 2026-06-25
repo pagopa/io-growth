@@ -10,8 +10,14 @@ export type Role = Extract<AuthorizeResponseUserType, 'admin' | 'operator'>;
 export const resolveRole = (value?: AuthorizeResponseUserType): Role =>
   value === 'admin' || value === 'test_admin' ? 'admin' : 'operator';
 
-export const getLandingRoute = (role: Role): string =>
-  role === 'admin' ? APP_ROUTES.OPPORTUNITIES : APP_ROUTES.HOME;
+export const getLandingRoute = (role: AuthorizeResponseUserType): string =>
+  role === 'admin' || role === 'test_admin'
+    ? APP_ROUTES.OPPORTUNITIES
+    : APP_ROUTES.HOME;
 
-export const getDevAssertionToken = (role: Role): string | undefined =>
-  role === 'admin' ? DEV_ADMIN_ASSERTION_TOKEN : DEV_OPERATOR_ASSERTION_TOKEN;
+export const getDevAssertionToken = (
+  role?: AuthorizeResponseUserType,
+): string | undefined =>
+  role === 'admin' || role === 'test_admin'
+    ? DEV_ADMIN_ASSERTION_TOKEN
+    : DEV_OPERATOR_ASSERTION_TOKEN;

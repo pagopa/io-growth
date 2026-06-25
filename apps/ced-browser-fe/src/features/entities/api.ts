@@ -4,7 +4,7 @@ import { OperatorProfileDetail } from '../../core/api/generated/model/operatorPr
 export const entitiesApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     getEntityDetail: builder.query<OperatorProfileDetail, string>({
-      query: (id) => `/profiles//${id}`,
+      query: (id) => `/profiles/${id}`,
       providesTags: (_result, _error, id) => [{ type: 'Entities', id }],
     }),
   }),

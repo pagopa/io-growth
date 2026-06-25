@@ -32,7 +32,6 @@ export const useGetSession = () => {
 
   const navigateToLanding = useCallback(
     (role?: AuthorizeResponseUserType) => {
-      console.log('🚀 ~ useGetSession ~ role:', role);
       if (role) return navigate(getLandingRoute(role), { replace: true });
       navigate(APP_ROUTES.UNAUTHORIZED);
     },
@@ -40,7 +39,6 @@ export const useGetSession = () => {
   );
 
   useEffect(() => {
-    console.log('effect');
     let isMounted = true;
 
     const isValidToken = (value: unknown): value is string => {
@@ -68,15 +66,10 @@ export const useGetSession = () => {
         : null;
 
       if (!redirectToken) {
-        console.log('line___________ 68');
-
         if (assertionToken) {
-          console.log('line___________ 71');
-
           const last = devAuthStorage.getLastAcsToken();
 
           if (last === assertionToken) {
-            console.log('line___________ 76');
             return;
           }
 
@@ -84,23 +77,17 @@ export const useGetSession = () => {
 
           const acsUrl = `${API_BASE_URL}/acs?token=${encodeURIComponent(assertionToken)}`;
           window.location.replace(acsUrl);
-          console.log('line___________ 84');
           return;
         }
 
         if (token) {
-          console.log('line___________ 89');
           navigateToLanding(user?.user_type);
           return;
         }
 
         if (import.meta.env.DEV && !token) {
-          console.log('line___________ 95');
-
           const devToken = getDevAssertionToken(user?.user_type);
-
           if (devToken && isValidToken(devToken)) {
-            console.log('line___________ 100');
             navigate(
               `${APP_ROUTES.AUTHORIZE}?token=${encodeURIComponent(devToken)}`,
               { replace: true },
@@ -109,7 +96,6 @@ export const useGetSession = () => {
           }
         }
 
-        console.log('line___________ 110');
         navigate(APP_ROUTES.UNAUTHORIZED, { replace: true });
         return;
       }
@@ -117,7 +103,6 @@ export const useGetSession = () => {
       const lastSessionExchangeId = devAuthStorage.getLastSessionExchangeId();
 
       if (lastSessionExchangeId === redirectToken) {
-        console.log('line___________ 117');
         if (token) {
           navigateToLanding(user?.user_type);
           return;
@@ -128,7 +113,6 @@ export const useGetSession = () => {
       try {
         devAuthStorage.setLastSessionExchangeId(redirectToken);
         const response = await authorize(redirectToken);
-        console.log('🚀 ~ retrieveSession ~ response:', response);
 
         if (!isMounted) return;
         const role = resolveRole(response.user_type);
@@ -137,7 +121,6 @@ export const useGetSession = () => {
         devAuthStorage.removeLastSessionExchangeId();
 
         if (isMounted) {
-          console.log('line___________ 139');
           navigate(APP_ROUTES.UNAUTHORIZED, { replace: true });
         }
       } finally {

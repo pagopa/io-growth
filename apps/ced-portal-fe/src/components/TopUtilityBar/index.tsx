@@ -6,7 +6,6 @@ import { selectUser } from '../../core/auth/authSelectors';
 
 export const TopUtilityBar = () => {
   const user = useAppSelector(selectUser);
-  console.log('🚀 ~ TopUtilityBar ~ user:', user);
 
   return (
     <HeaderAccount

@@ -40,6 +40,7 @@ declare module '@mui/material/styles' {
     neutral500: string;
     badgeBg: string;
     badgeText: string;
+    linkColor: string;
   }
 }
 
@@ -123,6 +124,7 @@ export const createAppTheme = () =>
         neutral500: NEUTRAL_500,
         badgeBg: BADGE_BG,
         badgeText: BADGE_TEXT,
+        linkColor: PRIMARY_BUTTON_BACKGROUND,
       },
     },
     components: {

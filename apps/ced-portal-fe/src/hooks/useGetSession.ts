@@ -12,6 +12,7 @@ import {
   resolveRole,
 } from '../features/session/authDev/utils';
 import { API_BASE_URL } from '../features/session/authDev/constant';
+import type { AuthorizeResponseUserType } from '../core/api/generated/model';
 
 export const useGetSession = () => {
   const { search } = useLocation();
@@ -21,19 +22,20 @@ export const useGetSession = () => {
   const user = useAppSelector(selectUser);
 
   const getCurrentRole = useCallback(() => {
-    if (user?.role) {
-      return user.role;
+    if (user?.user_type) {
+      return user.user_type;
     }
 
     const savedPartyId = devAuthStorage.getSelectedPartyId();
     return savedPartyId ? (partyRoleMap[savedPartyId] ?? 'admin') : 'admin';
-  }, [user?.role]);
+  }, [user?.user_type]);
 
   const navigateToLanding = useCallback(
-    (role?: 'admin' | 'operator') => {
-      navigate(getLandingRoute(role ?? getCurrentRole()), { replace: true });
+    (role?: AuthorizeResponseUserType) => {
+      if (role) return navigate(getLandingRoute(role), { replace: true });
+      navigate(APP_ROUTES.UNAUTHORIZED);
     },
-    [getCurrentRole, navigate],
+    [navigate],
   );
 
   useEffect(() => {
@@ -79,13 +81,12 @@ export const useGetSession = () => {
         }
 
         if (token) {
-          navigateToLanding();
+          navigateToLanding(getCurrentRole());
           return;
         }
 
         if (import.meta.env.DEV && !token) {
           const devToken = getDevAssertionToken(getCurrentRole());
-
           if (devToken && isValidToken(devToken)) {
             navigate(
               `${APP_ROUTES.AUTHORIZE}?token=${encodeURIComponent(devToken)}`,
@@ -103,7 +104,7 @@ export const useGetSession = () => {
 
       if (lastSessionExchangeId === redirectToken) {
         if (token) {
-          navigateToLanding();
+          navigateToLanding(getCurrentRole());
           return;
         }
         devAuthStorage.removeLastSessionExchangeId();
@@ -114,7 +115,7 @@ export const useGetSession = () => {
         const response = await authorize(redirectToken);
 
         if (!isMounted) return;
-        const role = resolveRole(response.user_type ?? response.role);
+        const role = resolveRole(response.user_type);
         navigate(getLandingRoute(role), { replace: true });
       } catch {
         devAuthStorage.removeLastSessionExchangeId();
@@ -132,5 +133,13 @@ export const useGetSession = () => {
     return () => {
       isMounted = false;
     };
-  }, [authorize, getCurrentRole, navigate, navigateToLanding, search, token]);
+  }, [
+    authorize,
+    getCurrentRole,
+    navigate,
+    navigateToLanding,
+    search,
+    token,
+    user?.user_type,
+  ]);
 };

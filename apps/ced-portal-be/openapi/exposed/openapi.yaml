@@ -1584,6 +1584,7 @@ components:
             - test_rejected
             - test_passed
             - published
+            - scheduled
             - suspended
             - deleted
         name:
@@ -1619,6 +1620,7 @@ components:
             - test_rejected
             - test_passed
             - published
+            - scheduled
             - suspended
             - deleted
         name:
@@ -1661,6 +1663,7 @@ components:
             - test_rejected
             - test_passed
             - published
+            - scheduled
             - suspended
             - deleted
         dateFrom:
@@ -1729,6 +1732,7 @@ components:
             - test_rejected
             - test_passed
             - published
+            - scheduled
             - suspended
             - deleted
         dateFrom:

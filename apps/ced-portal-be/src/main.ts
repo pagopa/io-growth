@@ -8,13 +8,10 @@ import type {
 } from "@pagopa/io-core-adapter-drizzle";
 
 import {
+  type ArClient,
   buildArConfig,
   buildArTestConfig,
-  createDocumentContentClient,
-  createInstitutionClient,
-  createOnboardingClient,
-  createUserClient,
-  initArClient,
+  createArClient,
 } from "@pagopa/io-core-adapter-ar";
 import { createTypedDbClient } from "@pagopa/io-core-adapter-drizzle";
 import {
@@ -27,6 +24,7 @@ import {
   emitCustomEvent,
   tracingPlugin,
 } from "@pagopa/io-core-adapter-tracing";
+import { createEnvRouter } from "@pagopa/io-core-environment-router";
 import Fastify from "fastify";
 
 import { SessionSchema } from "./adapters/inbound/fastify/auth/session.js";
@@ -88,16 +86,34 @@ import { makeGetOperatorPlaceUseCase } from "./application/use-cases/places/get-
 import { makeListOperatorPlacesUseCase } from "./application/use-cases/places/list-operator-places.use-case.js";
 import { makeCreateOperatorProfileUseCase } from "./application/use-cases/profile/create-operator-profile.use-case.js";
 import { makeGetOperatorProfileUseCase } from "./application/use-cases/profile/get-operator-profile.use-case.js";
-import { createSessionContextPreHandler } from "./async-local-storage-session-context.js";
+import {
+  createSessionContextPreHandler,
+  getRequestSession,
+} from "./async-local-storage-session-context.js";
 import { parseConfig } from "./config.js";
-import { isTestUser } from "./user-type-context.js";
 
 const config = parseConfig();
+
+/**
+ * Routing predicate shared by every environment router. It reads the current
+ * request session from the AsyncLocalStorage context populated per request, so
+ * the decision automatically follows the authenticated user.
+ */
+const isTestRequest = (): boolean => {
+  const userType = getRequestSession()?.userType;
+  return userType === "test_admin" || userType === "test_operator";
+};
 
 const arProdConfig = buildArConfig(config);
 const arTestConfig = buildArTestConfig(config);
 
-initArClient(() => (isTestUser() ? arTestConfig : arProdConfig));
+const arClientRouter = createEnvRouter<typeof arProdConfig, ArClient>({
+  createProdInstance: createArClient,
+  createTestInstance: createArClient,
+  isTestRequest,
+  prodConfig: arProdConfig,
+  testConfig: arTestConfig,
+});
 
 const sharedDbConfig: Omit<TypedDbClientConfig<typeof schema>, "database"> = {
   host: config.POSTGRES_HOST,
@@ -115,31 +131,18 @@ const sharedDbConfig: Omit<TypedDbClientConfig<typeof schema>, "database"> = {
   user: config.POSTGRES_USER,
 };
 
-const prodDbClient = createTypedDbClient(
-  { ...sharedDbConfig, database: config.POSTGRES_DB },
-  schema,
-);
-
-const testDbClient = config.POSTGRES_DB_TEST
-  ? createTypedDbClient(
-      { ...sharedDbConfig, database: config.POSTGRES_DB_TEST },
-      schema,
-    )
-  : undefined;
-
-const dbClient: TypedDbClient<typeof schema> = new Proxy(prodDbClient, {
-  get(_, prop: string | symbol) {
-    if (prop === "closeConnection") {
-      return async () => {
-        await prodDbClient.closeConnection();
-        if (testDbClient) await testDbClient.closeConnection();
-      };
-    }
-    const active = isTestUser() && testDbClient ? testDbClient : prodDbClient;
-    const value = Reflect.get(active, prop, active);
-    return typeof value === "function"
-      ? (value as (...args: unknown[]) => unknown).bind(active)
-      : value;
+const dbRouter = createEnvRouter<
+  TypedDbClientConfig<typeof schema>,
+  TypedDbClient<typeof schema>
+>({
+  createProdInstance: (dbConfig) => createTypedDbClient(dbConfig, schema),
+  createTestInstance: (dbConfig) => createTypedDbClient(dbConfig, schema),
+  isTestRequest,
+  prodConfig: { ...sharedDbConfig, database: config.POSTGRES_DB },
+  // Fall back to the prod database when no dedicated test database is set.
+  testConfig: {
+    ...sharedDbConfig,
+    database: config.POSTGRES_DB_TEST ?? config.POSTGRES_DB,
   },
 });
 
@@ -157,24 +160,19 @@ const redisClient = await createResilientRedisClient({
   tls: config.REDIS_TLS,
 });
 
-const dbHealthCheckRepository = createDrizzleHealthCheckRepository(dbClient);
+const dbHealthCheckRepository = createDrizzleHealthCheckRepository(dbRouter);
 const redisHealthCheckRepository =
   createRedisHealthCheckRepository(redisClient);
 const sessionRepository = createRedisSessionRepository(redisClient);
-const operatorRepository = createDrizzleOperatorRepository(dbClient);
+const operatorRepository = createDrizzleOperatorRepository(dbRouter);
 const opportunityCategoryRepository =
-  createDrizzleOpportunityCategoryRepository(dbClient);
-const opportunityRepository = createDrizzleOpportunityRepository(dbClient);
+  createDrizzleOpportunityCategoryRepository(dbRouter);
+const opportunityRepository = createDrizzleOpportunityRepository(dbRouter);
 const materializedViewRepository =
-  createDrizzleMaterializedViewRepository(dbClient);
-const placeRepository = createDrizzlePlaceRepository(dbClient);
-const profileRepository = createDrizzleProfileRepository(dbClient);
-const arOnboardingRepository = createArOnboardingRepository(
-  createInstitutionClient(),
-  createOnboardingClient(),
-  createDocumentContentClient(),
-  createUserClient(),
-);
+  createDrizzleMaterializedViewRepository(dbRouter);
+const placeRepository = createDrizzlePlaceRepository(dbRouter);
+const profileRepository = createDrizzleProfileRepository(dbRouter);
+const arOnboardingRepository = createArOnboardingRepository(arClientRouter);
 
 const app = Fastify();
 
@@ -310,7 +308,7 @@ app.register(async (app) => {
 
 app.addHook("onClose", async () => {
   await redisClient.closeConnection();
-  await dbClient.closeConnection();
+  await Promise.all(dbRouter.instances.map((db) => db.closeConnection()));
 });
 
 await app.listen({ host: config.HOST, port: config.PORT });

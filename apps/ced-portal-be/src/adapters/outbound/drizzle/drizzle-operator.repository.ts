@@ -1,5 +1,6 @@
 import type { TypedDbClient } from "@pagopa/io-core-adapter-drizzle";
 import type { BaseError } from "@pagopa/io-core-domain/errors";
+import type { EnvRouter } from "@pagopa/io-core-environment-router";
 import type { Result } from "neverthrow";
 
 import { GenericError } from "@pagopa/io-core-domain/errors";
@@ -13,85 +14,88 @@ import * as schema from "./schema/index.js";
 import { operator } from "./schema/tables.js";
 
 export const createDrizzleOperatorRepository = (
-  db: TypedDbClient<typeof schema>,
-): OperatorRepository => ({
-  create: async (input: Operator): Promise<Result<Operator, BaseError>> => {
-    try {
-      await db.transaction(async (tx) => {
-        await tx.insert(operator).values({
-          externalId: input.externalId,
-          id: input.id,
-          name: input.name,
-          status: input.status,
+  dbRouter: EnvRouter<TypedDbClient<typeof schema>>,
+): OperatorRepository => {
+  const db = dbRouter.getInstance();
+  return {
+    create: async (input: Operator): Promise<Result<Operator, BaseError>> => {
+      try {
+        await db.transaction(async (tx) => {
+          await tx.insert(operator).values({
+            externalId: input.externalId,
+            id: input.id,
+            name: input.name,
+            status: input.status,
+          });
         });
-      });
-      return ok(input);
-    } catch (error) {
-      return err(
-        new GenericError(`Failed to create operator: ${String(error)}`),
-      );
-    }
-  },
-  getByExternalId: async (
-    externalId: string,
-  ): Promise<Result<Operator | undefined, BaseError>> => {
-    try {
-      const result = await db
-        .select({
-          externalId: operator.externalId,
-          id: operator.id,
-          name: operator.name,
-          status: operator.status,
-        })
-        .from(operator)
-        .where(eq(operator.externalId, externalId))
-        .limit(1);
-      return ok(
-        result[0]
-          ? {
-              externalId: result[0].externalId,
-              id: result[0].id,
-              name: result[0].name,
-              status: result[0].status,
-            }
-          : undefined,
-      );
-    } catch (error) {
-      return err(
-        new GenericError(
-          `Failed to get operator by externalId: ${String(error)}`,
-        ),
-      );
-    }
-  },
-  getById: async (
-    id: string,
-  ): Promise<Result<Operator | undefined, BaseError>> => {
-    try {
-      const result = await db
-        .select({
-          externalId: operator.externalId,
-          id: operator.id,
-          name: operator.name,
-          status: operator.status,
-        })
-        .from(operator)
-        .where(eq(operator.id, id))
-        .limit(1);
-      return ok(
-        result[0]
-          ? {
-              externalId: result[0].externalId,
-              id: result[0].id,
-              name: result[0].name,
-              status: result[0].status,
-            }
-          : undefined,
-      );
-    } catch (error) {
-      return err(
-        new GenericError(`Failed to get operator by id: ${String(error)}`),
-      );
-    }
-  },
-});
+        return ok(input);
+      } catch (error) {
+        return err(
+          new GenericError(`Failed to create operator: ${String(error)}`),
+        );
+      }
+    },
+    getByExternalId: async (
+      externalId: string,
+    ): Promise<Result<Operator | undefined, BaseError>> => {
+      try {
+        const result = await db
+          .select({
+            externalId: operator.externalId,
+            id: operator.id,
+            name: operator.name,
+            status: operator.status,
+          })
+          .from(operator)
+          .where(eq(operator.externalId, externalId))
+          .limit(1);
+        return ok(
+          result[0]
+            ? {
+                externalId: result[0].externalId,
+                id: result[0].id,
+                name: result[0].name,
+                status: result[0].status,
+              }
+            : undefined,
+        );
+      } catch (error) {
+        return err(
+          new GenericError(
+            `Failed to get operator by externalId: ${String(error)}`,
+          ),
+        );
+      }
+    },
+    getById: async (
+      id: string,
+    ): Promise<Result<Operator | undefined, BaseError>> => {
+      try {
+        const result = await db
+          .select({
+            externalId: operator.externalId,
+            id: operator.id,
+            name: operator.name,
+            status: operator.status,
+          })
+          .from(operator)
+          .where(eq(operator.id, id))
+          .limit(1);
+        return ok(
+          result[0]
+            ? {
+                externalId: result[0].externalId,
+                id: result[0].id,
+                name: result[0].name,
+                status: result[0].status,
+              }
+            : undefined,
+        );
+      } catch (error) {
+        return err(
+          new GenericError(`Failed to get operator by id: ${String(error)}`),
+        );
+      }
+    },
+  };
+};

@@ -1,4 +1,5 @@
 import type { TypedDbClient } from "@pagopa/io-core-adapter-drizzle";
+import type { EnvRouter } from "@pagopa/io-core-environment-router";
 import type { Result } from "neverthrow";
 
 import { GenericError } from "@pagopa/io-core-domain/errors";
@@ -12,52 +13,55 @@ import * as schema from "./schema/index.js";
 import { opportunityCategory } from "./schema/tables.js";
 
 export const createDrizzleOpportunityCategoryRepository = (
-  db: TypedDbClient<typeof schema>,
-): OpportunityCategoryRepository => ({
-  getById: async (
-    id: string,
-  ): Promise<Result<OpportunityCategory | undefined, GenericError>> => {
-    try {
-      const row = await db
-        .select()
-        .from(opportunityCategory)
-        .where(eq(opportunityCategory.id, id))
-        .limit(1);
+  dbRouter: EnvRouter<TypedDbClient<typeof schema>>,
+): OpportunityCategoryRepository => {
+  const db = dbRouter.getInstance();
+  return {
+    getById: async (
+      id: string,
+    ): Promise<Result<OpportunityCategory | undefined, GenericError>> => {
+      try {
+        const row = await db
+          .select()
+          .from(opportunityCategory)
+          .where(eq(opportunityCategory.id, id))
+          .limit(1);
 
-      return ok(
-        row[0]
-          ? {
-              description: row[0].description,
-              id: row[0].id,
-              title: row[0].title,
-            }
-          : undefined,
-      );
-    } catch (error) {
-      return err(
-        new GenericError(
-          `Failed to get opportunity category by id: ${String(error)}`,
-        ),
-      );
-    }
-  },
-  list: async (): Promise<Result<OpportunityCategory[], GenericError>> => {
-    try {
-      const rows = await db.select().from(opportunityCategory);
+        return ok(
+          row[0]
+            ? {
+                description: row[0].description,
+                id: row[0].id,
+                title: row[0].title,
+              }
+            : undefined,
+        );
+      } catch (error) {
+        return err(
+          new GenericError(
+            `Failed to get opportunity category by id: ${String(error)}`,
+          ),
+        );
+      }
+    },
+    list: async (): Promise<Result<OpportunityCategory[], GenericError>> => {
+      try {
+        const rows = await db.select().from(opportunityCategory);
 
-      return ok(
-        rows.map((row) => ({
-          description: row.description,
-          id: row.id,
-          title: row.title,
-        })),
-      );
-    } catch (error) {
-      return err(
-        new GenericError(
-          `Failed to list opportunity categories: ${String(error)}`,
-        ),
-      );
-    }
-  },
-});
+        return ok(
+          rows.map((row) => ({
+            description: row.description,
+            id: row.id,
+            title: row.title,
+          })),
+        );
+      } catch (error) {
+        return err(
+          new GenericError(
+            `Failed to list opportunity categories: ${String(error)}`,
+          ),
+        );
+      }
+    },
+  };
+};

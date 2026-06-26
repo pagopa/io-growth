@@ -1,11 +1,5 @@
-// Adapter factory functions
-export { createDocumentContentClient } from "./adapters/outbound/document-content.js";
-export { createInstitutionClient } from "./adapters/outbound/institution.js";
-export { createOnboardingClient } from "./adapters/outbound/onboarding.js";
-export { createUserClient } from "./adapters/outbound/user.js";
-
-// Client initialisation
-export { initArClient } from "./client.js";
+// Client bundle factory
+export { type ArClient, createArClient } from "./ar-client.js";
 
 // Configuration
 export {

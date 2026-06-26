@@ -31,6 +31,7 @@
     "@pagopa/io-core-adapter-fastify": "workspace:^",
     "@pagopa/io-core-adapter-redis": "workspace:^",
     "@pagopa/io-core-domain": "workspace:^",
+    "@pagopa/io-core-environment-router": "workspace:^",
     "@standard-schema/spec": "^1.1.0",
     "drizzle-orm": "^0.45.0",
     "fastify": "catalog:",

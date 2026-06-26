@@ -1,19 +1,34 @@
+import { AsyncLocalStorage } from "node:async_hooks";
+
 import type { ArClientConfig } from "./config.js";
 
-let configGetter: (() => ArClientConfig) | undefined;
-
-export const initArClient = (getter: () => ArClientConfig): void => {
-  configGetter = getter;
-};
+/**
+ * Per-call configuration storage. Each AR client binds its own
+ * {@link ArClientConfig} around every request via {@link withArConfig}, so a
+ * test and a prod client can coexist in the same process without any global
+ * mutable state.
+ */
+const configStorage = new AsyncLocalStorage<ArClientConfig>();
 
 const getArClientConfig = (): ArClientConfig => {
-  if (!configGetter) {
+  const config = configStorage.getStore();
+  if (!config) {
     throw new Error(
-      "AR client not initialized. Call initArClient() before making API calls.",
+      "AR client config is not set. AR requests must run inside withArConfig() (createArClient() handles this for you).",
     );
   }
-  return configGetter();
+  return config;
 };
+
+/**
+ * Runs `fn` with the given {@link ArClientConfig} bound for the duration of the
+ * (possibly async) call, so {@link customFetch} can resolve the right endpoint
+ * and subscription key for this specific client instance.
+ */
+export const withArConfig = <T>(
+  config: ArClientConfig,
+  fn: () => Promise<T>,
+): Promise<T> => configStorage.run(config, fn);
 
 export const customFetch = async <T>(
   url: string,

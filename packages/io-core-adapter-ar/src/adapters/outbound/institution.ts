@@ -1,26 +1,31 @@
 import { GenericError } from "@pagopa/io-core-domain/errors";
 import { err, ok } from "neverthrow";
 
+import type { ArClientConfig } from "../../config.js";
 import type { InstitutionRepository } from "../../domain/ports/outbound/institution.repository.js";
 
+import { withArConfig } from "../../client.js";
 import { retrieveOnboardingOnSearchEngine } from "../../generated/endpoints/institution/institution.js";
 
-export const createInstitutionClient = (): InstitutionRepository => ({
-  searchOnboardings: async (params) => {
-    try {
-      const response = await retrieveOnboardingOnSearchEngine(params);
-      if (response.status === 200) {
-        return ok(response.data);
+export const createInstitutionClient = (
+  config: ArClientConfig,
+): InstitutionRepository => ({
+  searchOnboardings: (params) =>
+    withArConfig(config, async () => {
+      try {
+        const response = await retrieveOnboardingOnSearchEngine(params);
+        if (response.status === 200) {
+          return ok(response.data);
+        }
+        return err(
+          new GenericError(
+            `searchOnboardings failed with status ${String(response.status)}`,
+          ),
+        );
+      } catch (error) {
+        return err(
+          new GenericError(`searchOnboardings failed: ${String(error)}`),
+        );
       }
-      return err(
-        new GenericError(
-          `searchOnboardings failed with status ${String(response.status)}`,
-        ),
-      );
-    } catch (error) {
-      return err(
-        new GenericError(`searchOnboardings failed: ${String(error)}`),
-      );
-    }
-  },
+    }),
 });

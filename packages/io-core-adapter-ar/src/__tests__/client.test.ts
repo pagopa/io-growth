@@ -1,6 +1,6 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { customFetch, initArClient } from "../client.js";
+import { customFetch, withArConfig } from "../client.js";
 
 const testConfig = {
   baseUrl: "https://ar.example.com",
@@ -8,10 +8,6 @@ const testConfig = {
 };
 
 describe("customFetch", () => {
-  beforeEach(() => {
-    initArClient(() => testConfig);
-  });
-
   afterEach(() => {
     vi.restoreAllMocks();
   });
@@ -24,11 +20,13 @@ describe("customFetch", () => {
       }),
     );
 
-    const response = await customFetch<{
-      data: { ok: boolean };
-      headers: Headers;
-      status: number;
-    }>("/json", { method: "GET" });
+    const response = await withArConfig(testConfig, () =>
+      customFetch<{
+        data: { ok: boolean };
+        headers: Headers;
+        status: number;
+      }>("/json", { method: "GET" }),
+    );
 
     expect(response).toEqual(
       expect.objectContaining({ data: { ok: true }, status: 200 }),
@@ -43,28 +41,48 @@ describe("customFetch", () => {
       }),
     );
 
-    const response = await customFetch<{
-      data: Blob;
-      headers: Headers;
-      status: number;
-    }>("/document-content/onboarding-id/contract-signed", { method: "GET" });
+    const response = await withArConfig(testConfig, () =>
+      customFetch<{
+        data: Blob;
+        headers: Headers;
+        status: number;
+      }>("/document-content/onboarding-id/contract-signed", { method: "GET" }),
+    );
 
     expect(response.status).toBe(200);
     expect(response.data).toBeInstanceOf(Blob);
     await expect(response.data.text()).resolves.toBe("pdf-bytes");
   });
 
-  it("calls the getter on every request", async () => {
-    const getter = vi.fn().mockReturnValue(testConfig);
-    initArClient(getter);
+  it("uses the bound config of the surrounding withArConfig scope", async () => {
+    const fetchSpy = vi
+      .spyOn(globalThis, "fetch")
+      .mockResolvedValue(new Response(null, { status: 204 }));
 
-    vi.spyOn(globalThis, "fetch").mockResolvedValue(
-      new Response(null, { status: 204 }),
+    await withArConfig(
+      { baseUrl: "https://prod.example.com", subscriptionKey: "prod-key" },
+      () => customFetch("/anything", { method: "GET" }),
+    );
+    await withArConfig(
+      { baseUrl: "https://test.example.com", subscriptionKey: "test-key" },
+      () => customFetch("/anything", { method: "GET" }),
     );
 
-    await customFetch("/anything", { method: "GET" });
-    await customFetch("/anything", { method: "GET" });
+    expect(fetchSpy).toHaveBeenNthCalledWith(
+      1,
+      "https://prod.example.com/anything",
+      expect.objectContaining({ method: "GET" }),
+    );
+    expect(fetchSpy).toHaveBeenNthCalledWith(
+      2,
+      "https://test.example.com/anything",
+      expect.objectContaining({ method: "GET" }),
+    );
+  });
 
-    expect(getter).toHaveBeenCalledTimes(2);
+  it("throws when called outside a withArConfig scope", async () => {
+    await expect(customFetch("/anything", { method: "GET" })).rejects.toThrow(
+      "AR client config is not set",
+    );
   });
 });

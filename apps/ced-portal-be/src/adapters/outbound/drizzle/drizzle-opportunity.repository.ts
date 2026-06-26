@@ -1,4 +1,5 @@
 import type { TypedDbClient } from "@pagopa/io-core-adapter-drizzle";
+import type { EnvRouter } from "@pagopa/io-core-environment-router";
 import type { Result } from "neverthrow";
 
 import { ConflictError, GenericError } from "@pagopa/io-core-domain/errors";
@@ -197,6 +198,10 @@ const updateStatusById =
   };
 
 export const createDrizzleOpportunityRepository = (
+  dbRouter: EnvRouter<TypedDbClient<typeof schema>>,
+): OpportunityRepository => createOpportunityRepository(dbRouter.getInstance());
+
+const createOpportunityRepository = (
   db: TypedDbClient<typeof schema>,
 ): OpportunityRepository => ({
   countByOperatorIds: async (operatorIds) => {

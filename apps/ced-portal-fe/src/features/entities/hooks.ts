@@ -65,7 +65,7 @@ const toEntityItem = (
       : ListOnboardingsStatusesItem.COMPLETED;
   const status = parseOnboardingStatus(item.status, fallbackStatus);
   const base = {
-    city: item.institution?.city ?? item.institution?.county ?? '-',
+    city: `${item.city} (${item.county})`,
     id: item.id,
     name: item.institution?.description ?? 'Ente senza nome',
     state: status,
@@ -84,7 +84,7 @@ const toEntityItem = (
   return {
     ...base,
     active_from: formatDate(item.updatedAt ?? item.createdAt),
-    opportunities_count: item.opportunityCount ?? 0,
+    opportunities_count: item.opportunities_count ?? 0,
     tab: 'entities',
   };
 };

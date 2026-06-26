@@ -63,7 +63,12 @@ export const getEntityFields = (onboarding: EntityDetail | undefined) =>
 export const getGeographicFields = (onboarding: EntityDetail | undefined) =>
   onboarding
     ? [
-        buildField('Area di competenza', onboarding.workflowType),
+        buildField(
+          'Area di competenza',
+          onboarding.institution?.geographicTaxonomies?.[0]?.code === 'ITA'
+            ? 'Nazionale'
+            : 'Locale',
+        ),
         buildField(
           'Area geografica',
           joinGeographicTaxonomies(

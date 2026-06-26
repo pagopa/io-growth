@@ -15,6 +15,7 @@ const mockPaginatedResult: PaginatedOpportunities = {
       dateTo: "2026-12-31",
       id: "01JVMK3N8XQZP5T6G2WYHAB4CF",
       name: "Discount 20%",
+      operatorName: "operator-name",
       status: "draft",
     },
   ],

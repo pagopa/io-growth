@@ -37,11 +37,9 @@
       "dependsOn": ["^build", "^typecheck", "generate"]
     },
     "lint": {
-      "dependsOn": ["generate", "^build"],
       "inputs": ["src/**/*.ts"]
     },
     "lint:check": {
-      "dependsOn": ["generate", "^build"],
       "inputs": ["src/**/*.ts"]
     },
     "format": {},

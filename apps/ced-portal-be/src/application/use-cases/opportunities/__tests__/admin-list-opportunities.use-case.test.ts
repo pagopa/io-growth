@@ -68,9 +68,7 @@ describe("makeAdminListOpportunitiesUseCase", () => {
     );
   });
 
-  it("should forward the derived scheduled status with a reference date", async () => {
-    vi.useFakeTimers();
-    vi.setSystemTime(new Date("2026-06-26T10:00:00Z"));
+  it("should forward the scheduled status filter to the repository", async () => {
     const repository = createMockOpportunityRepository({
       findAll: vi.fn().mockResolvedValue(ok({ items: [], total: 0 })),
     });
@@ -79,12 +77,8 @@ describe("makeAdminListOpportunitiesUseCase", () => {
     await useCase({ ...validInput, status: "scheduled" });
 
     expect(repository.findAll).toHaveBeenCalledWith(
-      expect.objectContaining({
-        referenceDate: "2026-06-26",
-        status: "scheduled",
-      }),
+      expect.objectContaining({ status: "scheduled" }),
     );
-    vi.useRealTimers();
   });
 
   it("should request operator-name search on the department list", async () => {

@@ -272,48 +272,48 @@ export default function EntityDetailPage() {
             </Stack>
           </Box>
 
-          {isEditable && <Divider sx={{ ml: 3, mr: 3 }} />}
-
-          <Box sx={{ py: 2, px: 3 }}>
-            {isEditable && (
-              <>
-                <UploadDropzone
-                  title="Trascina qui la richiesta di convenzionamento controfirmata"
-                  subtitle="Formato PDF"
-                  onFileSelect={(file) => {
-                    if (file) {
-                      setUploadedFile(file);
-                      setUploadState('success');
-                    } else {
+          {isEditable && (
+            <>
+              <Divider sx={{ ml: 3, mr: 3 }} />
+              <Box sx={{ py: 2, px: 3 }}>
+                <>
+                  <UploadDropzone
+                    title="Trascina qui la richiesta di convenzionamento controfirmata"
+                    subtitle="Formato PDF"
+                    onFileSelect={(file) => {
+                      if (file) {
+                        setUploadedFile(file);
+                        setUploadState('success');
+                      } else {
+                        setUploadedFile(null);
+                        setUploadState('idle');
+                      }
+                    }}
+                    isLoading={
+                      uploadState === 'loading' || isCompletingOnboarding
+                    }
+                    isError={uploadState === 'error'}
+                    isSuccess={uploadState === 'success'}
+                    uploadedFileName={uploadedFile?.name}
+                    uploadedFileLabel="Richiesta di convenzionamento controfirmata"
+                    onRetry={() => setUploadState('idle')}
+                    onDelete={() => {
                       setUploadedFile(null);
                       setUploadState('idle');
-                    }
-                  }}
-                  isLoading={
-                    uploadState === 'loading' || isCompletingOnboarding
-                  }
-                  isError={uploadState === 'error'}
-                  isSuccess={uploadState === 'success'}
-                  uploadedFileName={uploadedFile?.name}
-                  uploadedFileLabel="Richiesta di convenzionamento controfirmata"
-                  onRetry={() => setUploadState('idle')}
-                  onDelete={() => {
-                    setUploadedFile(null);
-                    setUploadState('idle');
-                  }}
-                  onCancel={() => setUploadState('idle')}
-                  acceptedTypes={['application/pdf']}
-                />
-
-                <Typography
-                  variant="body2"
-                  sx={{ mt: 3, mb: 3, fontWeight: 600, color: 'error.dark' }}
-                >
-                  * Campo obbligatorio
-                </Typography>
-              </>
-            )}
-          </Box>
+                    }}
+                    onCancel={() => setUploadState('idle')}
+                    acceptedTypes={['application/pdf']}
+                  />
+                  <Typography
+                    variant="body2"
+                    sx={{ mt: 3, mb: 3, fontWeight: 600, color: 'error.dark' }}
+                  >
+                    * Campo obbligatorio
+                  </Typography>
+                </>
+              </Box>
+            </>
+          )}
         </SectionCard>
         {isEditable && (
           <Stack

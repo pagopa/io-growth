@@ -56,8 +56,6 @@ export const EntitiesTable = ({
 }: EntitiesTableProps) => {
   const theme = useTheme();
 
-  console.log(items, 'items');
-
   const paperSx = {
     borderRadius: 2.5,
     border: '8px solid',

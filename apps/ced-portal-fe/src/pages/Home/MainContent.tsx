@@ -8,7 +8,7 @@ import { BenefitsFiltersBar } from './components/BenefitsFiltersBar';
 import { BenefitsTabs } from './components/BenefitsTabs';
 import { MainContentHeader } from './components/MainContentHeader';
 import { OpportunitySummaryItemStatus } from '../../core/api/generated/model';
-import { useMemorizedTabsAndFilters } from '../../hooks/useMemorizedTabsAndFilters'; // Importa l'hook
+import { useMemorizedTabsAndFilters } from '../../hooks/useMemorizedTabsAndFilters';
 import {
   OPERATOR_MANAGED_STATE_OPTIONS,
   OPERATOR_REQUEST_STATE_OPTIONS,

@@ -31,8 +31,6 @@ export const useMemorizedTabsAndFilters = <
   ) => {
     const newParams = new URLSearchParams(searchParams);
 
-    console.log(newValues, 'aijsihdai');
-
     Object.entries(newValues).forEach(([key, value]) => {
       if (value === undefined || value === '') {
         newParams.delete(key);

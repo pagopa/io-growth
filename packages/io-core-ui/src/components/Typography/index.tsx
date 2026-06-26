@@ -135,3 +135,22 @@ export const ErrorBody = (props: Omit<BodyProps, "asLink">) => {
     </Typography>
   );
 };
+
+export const LabelCaption = ({ children }: { children?: React.ReactNode }) => {
+  const theme = useTheme();
+
+  return (
+    <Typography
+      sx={{
+        fontWeight: 600,
+        fontSize: "14px",
+        lineHeight: "100%",
+        letterSpacing: "0px",
+        textTransform: "uppercase",
+        color: theme.palette.common.neutralDarkGray,
+      }}
+    >
+      {children}
+    </Typography>
+  );
+};

@@ -33,7 +33,7 @@ export const TermsAndPrivacySection = ({
             sx={{ color: 'common.decorativeIcon', fontSize: 20 }}
           />
           <Typography fontWeight={600} fontSize={16} sx={{ lineHeight: 1.25 }}>
-            Termini e Privacy
+            Termini e privacy dei servizi erogati dall’ente
           </Typography>
         </Stack>
         <AppTextField

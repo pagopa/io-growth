@@ -19,31 +19,31 @@ interface EuropeanOpportunity {
 const opportunities: EuropeanOpportunity[] = [
   {
     country: 'Belgio',
-    url: 'https://google.com',
+    url: 'https://eudisabilitycard.be/en',
   },
   {
     country: 'Finlandia',
-    url: 'https://google.com',
+    url: 'https://vammaiskortti.fi/en/frontpage/',
   },
   {
     country: 'Estonia',
-    url: 'https://google.com',
+    url: 'https://www.eesti.ee/eraisik/en/artikkel/disabled-people/determination-of-disability/disability-card',
   },
   {
     country: 'Cipro',
-    url: 'https://google.com',
+    url: 'https://www.eudisabilitycard.gov.cy/en/home',
   },
   {
     country: 'Malta',
-    url: 'https://google.com',
+    url: 'https://www.eudisabilitycard.org.mt/',
   },
   {
     country: 'Romania',
-    url: 'https://google.com',
+    url: 'http://www.dizab.eurocard.gov.ro/?lang=en',
   },
   {
     country: 'Slovenia',
-    url: 'https://google.com',
+    url: 'https://invalidska-kartica.si/en/',
   },
 ];
 

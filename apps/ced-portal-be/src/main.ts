@@ -79,7 +79,7 @@ const config = parseConfig();
 
 const dbRouter = createDbRouter(config);
 const arClientRouter = createArRouter(config);
-const db = dbRouter.getInstance();
+const dbClient = dbRouter.getInstance();
 const arClient = arClientRouter.getInstance();
 
 const redisClient = await createResilientRedisClient({
@@ -96,17 +96,18 @@ const redisClient = await createResilientRedisClient({
   tls: config.REDIS_TLS,
 });
 
-const dbHealthCheckRepository = createDrizzleHealthCheckRepository(db);
+const dbHealthCheckRepository = createDrizzleHealthCheckRepository(dbClient);
 const redisHealthCheckRepository =
   createRedisHealthCheckRepository(redisClient);
 const sessionRepository = createRedisSessionRepository(redisClient);
-const operatorRepository = createDrizzleOperatorRepository(db);
+const operatorRepository = createDrizzleOperatorRepository(dbClient);
 const opportunityCategoryRepository =
-  createDrizzleOpportunityCategoryRepository(db);
-const opportunityRepository = createDrizzleOpportunityRepository(db);
-const materializedViewRepository = createDrizzleMaterializedViewRepository(db);
-const placeRepository = createDrizzlePlaceRepository(db);
-const profileRepository = createDrizzleProfileRepository(db);
+  createDrizzleOpportunityCategoryRepository(dbClient);
+const opportunityRepository = createDrizzleOpportunityRepository(dbClient);
+const materializedViewRepository =
+  createDrizzleMaterializedViewRepository(dbClient);
+const placeRepository = createDrizzlePlaceRepository(dbClient);
+const profileRepository = createDrizzleProfileRepository(dbClient);
 const arOnboardingRepository = createArOnboardingRepository(arClient);
 
 const app = Fastify();

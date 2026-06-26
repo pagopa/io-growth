@@ -50,7 +50,7 @@
       "outputLogs": "full"
     },
     "test:coverage": {
-      "dependsOn": ["^build"],
+      "dependsOn": ["^build", "build"],
       "inputs": [],
       "outputs": ["coverage"],
       "outputLogs": "full"

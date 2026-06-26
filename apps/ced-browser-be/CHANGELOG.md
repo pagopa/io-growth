@@ -1,5 +1,11 @@
 # ced-browser-be
 
+## 0.1.8
+
+### Patch Changes
+
+- f8f9345: add distinct on opportunities materialized view query
+
 ## 0.1.7
 
 ### Patch Changes

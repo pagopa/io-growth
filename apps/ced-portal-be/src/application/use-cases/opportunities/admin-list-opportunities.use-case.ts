@@ -66,9 +66,6 @@ export const makeAdminListOpportunitiesUseCase =
             limit: validatedInput.limit,
             offset: validatedInput.offset,
             operatorId: validatedInput.operatorId,
-            // Server-owned reference date used to resolve the derived
-            // "scheduled" / "published" statuses against dateFrom.
-            referenceDate: new Date().toISOString().slice(0, 10),
             search: validatedInput.search,
             searchFields: ["name", "operatorName"],
             sortBy: validatedInput.sortBy,

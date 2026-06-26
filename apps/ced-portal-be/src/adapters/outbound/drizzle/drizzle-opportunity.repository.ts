@@ -196,25 +196,33 @@ const updateStatusById =
     }
   };
 
-export const createDrizzleOpportunityRepository = (
-  db: TypedDbClient<typeof schema>,
-): OpportunityRepository => ({
-  countByOperatorIds: async (operatorIds) => {
-    if (operatorIds.length === 0) {
+const countByExternalOperatorIds =
+  (db: TypedDbClient<typeof schema>) =>
+  async (
+    externalOperatorIds: readonly string[],
+  ): Promise<Result<ReadonlyMap<string, number>, GenericError>> => {
+    if (externalOperatorIds.length === 0) {
       return ok(new Map<string, number>());
     }
     try {
+      const today = new Date().toISOString().slice(0, 10);
       const rows = await db
         .select({
-          operatorId: opportunity.operatorId,
+          externalOperatorIds: operator.externalId,
           total: count(),
         })
         .from(opportunity)
-        .where(inArray(opportunity.operatorId, [...operatorIds]))
-        .groupBy(opportunity.operatorId);
-
+        .innerJoin(operator, eq(opportunity.operatorId, operator.id))
+        .where(
+          and(
+            inArray(operator.externalId, [...externalOperatorIds]),
+            eq(opportunity.status, "published"),
+            lte(opportunity.dateFrom, today),
+          ),
+        )
+        .groupBy(operator.externalId);
       const result = new Map<string, number>(
-        rows.map((row) => [row.operatorId, row.total]),
+        rows.map((row) => [row.externalOperatorIds, row.total]),
       );
       return ok(result);
     } catch (error) {
@@ -224,7 +232,12 @@ export const createDrizzleOpportunityRepository = (
         ),
       );
     }
-  },
+  };
+
+export const createDrizzleOpportunityRepository = (
+  db: TypedDbClient<typeof schema>,
+): OpportunityRepository => ({
+  countByExternalOperatorIds: countByExternalOperatorIds(db),
 
   create: async (input): Promise<Result<OpportunityDetail, GenericError>> => {
     try {

@@ -193,11 +193,7 @@ export default function OpportunityDetailPage() {
           }
         }}
         count={1}
-        publishDate={
-          detail?.dateFrom
-            ? new Date(detail.dateFrom).toLocaleDateString('it-IT')
-            : undefined
-        }
+        publishDate={detail?.dateFrom}
       />
 
       <RequestChangesModal

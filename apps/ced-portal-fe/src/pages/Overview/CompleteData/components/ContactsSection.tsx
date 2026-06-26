@@ -1,8 +1,9 @@
 import AddIcon from '@mui/icons-material/Add';
+import CancelIcon from '@mui/icons-material/Cancel';
 import ForumOutlinedIcon from '@mui/icons-material/ForumOutlined';
 import { Box, Button, Paper, Stack, Typography } from '@mui/material';
 import { memo } from 'react';
-import { ContactRow } from './ContactRow';
+import { ContactRow } from '../../../../components/ContactRow';
 import type { ContactFormData } from '../types';
 
 interface ContactsSectionProps {
@@ -53,9 +54,13 @@ export const ContactsSection = memo(
               index={i}
               canRemove={i !== 0}
               onRemove={onRemoveContact}
-              onChange={onContactChange}
+              onChange={(idx, field, value) =>
+                onContactChange(idx, field as keyof ContactFormData, value)
+              }
+              required={i === 0}
               typeError={i === 0 ? firstContactTypeError : undefined}
               contactError={i === 0 ? firstContactValueError : undefined}
+              removeIcon={<CancelIcon />}
             />
           ))}
 

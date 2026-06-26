@@ -31,9 +31,6 @@ export interface ListOpportunitiesInput {
   limit: number;
   offset: number;
   operatorId?: string;
-  // Reference date (YYYY-MM-DD) used to resolve the derived "scheduled" /
-  // "published" statuses against the opportunity dateFrom.
-  referenceDate?: string;
   search?: string;
   searchFields?: readonly OpportunitySearchField[];
   sortBy: "createdAt" | "updatedAt";
@@ -70,9 +67,7 @@ export type OpportunitySearchField = "name" | "operatorName";
 // "scheduled" is a request-only, derived filter value: it is not a stored
 // status. It selects published opportunities whose dateFrom is still in the
 // future relative to the reference date.
-export type OpportunityStatusFilter =
-  | "scheduled"
-  | OpportunitySummary["status"];
+export type OpportunityStatusFilter = "scheduled" | Opportunity["status"];
 
 export interface PaginatedOpportunities {
   items: OpportunitySummary[];
@@ -88,7 +83,7 @@ export interface UpdateOpportunityStatusByIdAndOperatorIdInput {
 
 export interface UpdateOpportunityStatusByIdInput {
   dateFrom?: string;
-  expectedStatuses: OpportunitySummary["status"][];
+  expectedStatuses: Opportunity["status"][];
   opportunityId: string;
-  status: OpportunitySummary["status"];
+  status: Opportunity["status"];
 }

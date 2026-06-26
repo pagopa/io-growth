@@ -27,8 +27,13 @@ export function PublishModal({
 }: Readonly<PublishModalProps>) {
   const isSingle = count === 1;
 
+  // TODO this should be handled differently since the date is required in description copy
+  const renderDate = publishDate
+    ? new Date(publishDate).toLocaleDateString('it-IT')
+    : `{gg/mm/aaaa}`;
+
   const description = isSingle
-    ? `L'opportunità sarà disponibile su IO a partire dal ${publishDate ?? '{gg/mm/aaaa}'}. Invieremo un'email di conferma all'ente.`
+    ? `L'opportunità sarà disponibile su IO a partire dal ${renderDate}. Invieremo un'email di conferma all'ente.`
     : `Le opportunità selezionate (${count}) saranno disponibili su IO a partire dalla data indicata nel dettaglio. Invieremo un'email di conferma agli enti.`;
 
   return (

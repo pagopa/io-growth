@@ -29,6 +29,7 @@ const ListOperatorOpportunitiesInputSchema = z.object({
       "test_rejected",
       "test_passed",
       "published",
+      "scheduled",
       "suspended",
       "deleted",
     ])
@@ -52,5 +53,12 @@ export const makeListOperatorOpportunitiesUseCase =
   async (input) =>
     validateUseCaseInput(ListOperatorOpportunitiesInputSchema, input).andThen(
       (validatedInput) =>
-        new ResultAsync(opportunityRepository.findAll(validatedInput)),
+        new ResultAsync(
+          opportunityRepository.findAll({
+            ...validatedInput,
+            // Server-owned reference date used to resolve the derived
+            // "scheduled" / "published" statuses against dateFrom.
+            referenceDate: new Date().toISOString().slice(0, 10),
+          }),
+        ),
     );

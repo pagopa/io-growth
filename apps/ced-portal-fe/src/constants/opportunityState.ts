@@ -15,7 +15,7 @@ export const STATE_OPTIONS: {
     label: 'In attesa di modifiche',
   },
   {
-    value: OpportunitySummaryItemStatus.test_passed,
+    value: OpportunitySummaryItemStatus.scheduled,
     label: 'Pubblicazione programmata',
   },
   { value: OpportunitySummaryItemStatus.published, label: 'Pubblicata su IO' },
@@ -67,7 +67,7 @@ export const OPERATOR_REQUEST_STATE_OPTIONS = OPERATOR_STATE_OPTIONS.filter(
 
 export const OPERATOR_MANAGED_STATE_OPTIONS = OPERATOR_STATE_OPTIONS.filter(
   ({ value }) =>
-    value === OpportunitySummaryItemStatus.test_passed ||
+    value === OpportunitySummaryItemStatus.scheduled ||
     value === OpportunitySummaryItemStatus.published ||
     value === OpportunitySummaryItemStatus.suspended ||
     value === OpportunitySummaryItemStatus.deleted,
@@ -79,6 +79,7 @@ export const STATE_COLORS: Record<
 > = {
   draft: 'default',
   test_pending: 'warning',
+  scheduled: 'info',
   test_passed: 'info',
   published: 'success',
   suspended: 'warning',

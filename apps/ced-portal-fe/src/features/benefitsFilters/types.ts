@@ -8,6 +8,7 @@ export const publicationStatusLabels: Record<
   test_rejected: 'Rifiutato',
   test_pending: 'In fase di test',
   test_passed: 'Test superato',
+  scheduled: 'Pubblicazione programmata',
   published: 'Pubblicata su IO',
   suspended: 'Sospesa',
   deleted: 'Eliminata',

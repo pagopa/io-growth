@@ -5,7 +5,6 @@ import {
   STATE_OPTIONS,
   STATE_COLORS,
 } from '../../../constants/opportunityState';
-import { getDisplayStatus } from '../../../utils';
 
 interface OpportunityRowProps {
   item: Opportunity;
@@ -20,8 +19,6 @@ export const OpportunityRow = ({
   onSelect,
   onMenuOpen,
 }: OpportunityRowProps) => {
-  const displayStatus = getDisplayStatus(item.status, item.dateFrom);
-
   return (
     <TableRow hover>
       <TableCell padding="checkbox">
@@ -39,10 +36,10 @@ export const OpportunityRow = ({
       <TableCell>
         <Chip
           label={
-            STATE_OPTIONS.find((o) => o.value === displayStatus)?.label ??
-            displayStatus
+            STATE_OPTIONS.find((o) => o.value === item.status)?.label ??
+            item.status
           }
-          color={STATE_COLORS[displayStatus] ?? 'default'}
+          color={STATE_COLORS[item.status] ?? 'default'}
           size="small"
         />
       </TableCell>

@@ -1,5 +1,5 @@
 // Client bundle factory
-export { type ArClient, createArClient } from "./ar-client.js";
+export { type ArClient, createArClient } from "./client.js";
 
 // Configuration
 export { type ArClientConfig } from "./config.js";

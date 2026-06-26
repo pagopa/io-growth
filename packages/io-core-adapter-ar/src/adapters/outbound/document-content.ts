@@ -1,31 +1,33 @@
 import { GenericError } from "@pagopa/io-core-domain/errors";
 import { err, ok } from "neverthrow";
 
-import type { ArClientConfig } from "../../config.js";
 import type { DocumentContentRepository } from "../../domain/ports/outbound/document-content.repository.js";
+import type { CustomFetch } from "../../fetch.js";
+import type { getContractSignedResponse } from "../../generated/endpoints/document-content-controller/document-content-controller.js";
 
-import { withArConfig } from "../../client.js";
-import { getContractSigned as getContractSignedGen } from "../../generated/endpoints/document-content-controller/document-content-controller.js";
+import { getGetContractSignedUrl } from "../../generated/endpoints/document-content-controller/document-content-controller.js";
 
 export const createDocumentContentClient = (
-  config: ArClientConfig,
+  customFetch: CustomFetch,
 ): DocumentContentRepository => ({
-  getContractSigned: (onboardingId) =>
-    withArConfig(config, async () => {
-      try {
-        const response = await getContractSignedGen(onboardingId);
-        if (response.status === 200) {
-          return ok(response.data);
-        }
-        return err(
-          new GenericError(
-            `getContractSigned failed with status ${String(response.status)}`,
-          ),
-        );
-      } catch (error) {
-        return err(
-          new GenericError(`getContractSigned failed: ${String(error)}`),
-        );
+  getContractSigned: async (onboardingId) => {
+    try {
+      const response = await customFetch<getContractSignedResponse>(
+        getGetContractSignedUrl(onboardingId),
+        { method: "GET" },
+      );
+      if (response.status === 200) {
+        return ok(response.data);
       }
-    }),
+      return err(
+        new GenericError(
+          `getContractSigned failed with status ${String(response.status)}`,
+        ),
+      );
+    } catch (error) {
+      return err(
+        new GenericError(`getContractSigned failed: ${String(error)}`),
+      );
+    }
+  },
 });

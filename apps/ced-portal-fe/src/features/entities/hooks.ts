@@ -84,7 +84,7 @@ const toEntityItem = (
   return {
     ...base,
     active_from: formatDate(item.updatedAt ?? item.createdAt),
-    opportunities_count: item.opportunities_count ?? 0,
+    opportunities_count: item.opportunityCount ?? 0,
     tab: 'entities',
   };
 };

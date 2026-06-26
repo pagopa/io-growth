@@ -81,7 +81,7 @@ export default function CardRequestInfoPage() {
             bgcolor: theme.palette.common.primaryButton,
           }}
         >
-          Continua
+          Richiedi la Carta
         </Button>
 
         <Button

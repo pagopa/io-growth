@@ -103,7 +103,7 @@ export const createDrizzleProfileRepository = (
           .orderBy(desc(placeMaterializedView.id))
           .limit(5),
         db
-          .select({
+          .selectDistinct({
             beneficiaryBenefitDiscountType:
               opportunityMaterializedView.beneficiaryBenefitDiscountType,
             beneficiaryBenefitType: sql<

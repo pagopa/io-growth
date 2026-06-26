@@ -198,10 +198,6 @@ const updateStatusById =
 
 export const createDrizzleOpportunityRepository = (
   db: TypedDbClient<typeof schema>,
-): OpportunityRepository => createOpportunityRepository(db);
-
-const createOpportunityRepository = (
-  db: TypedDbClient<typeof schema>,
 ): OpportunityRepository => ({
   countByOperatorIds: async (operatorIds) => {
     if (operatorIds.length === 0) {

@@ -1,13 +1,12 @@
 import { Box, FormControl } from '@mui/material';
+import { Body, ErrorBody, Title, VSpacer } from '@pagopa/io-core-ui';
 import { forwardRef, useImperativeHandle, useRef, useState } from 'react';
 import {
   AppRadioList,
   type RadioListOption,
 } from '../../../components/RadioList';
-import { Body, ErrorBody, Title } from '../../../components/Typography';
 import { StepCard } from '../StepCard';
 import type { StepRef } from '../types';
-import { VSpacer } from '../../../layouts/Spacer';
 
 export type YesNo = 'yes' | 'no' | null;
 type Province = 'trento' | 'bolzano' | 'aosta' | 'other' | null;

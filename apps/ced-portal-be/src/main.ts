@@ -2,7 +2,10 @@
 // before any instrumented library (Fastify, PostgreSQL, Redis, fetch) loads.
 import "./telemetry.js";
 
-import type { TypedDbClient, TypedDbClientConfig } from "@pagopa/io-core-adapter-drizzle";
+import type {
+  TypedDbClient,
+  TypedDbClientConfig,
+} from "@pagopa/io-core-adapter-drizzle";
 
 import {
   buildArConfig,
@@ -87,7 +90,7 @@ import { makeCreateOperatorProfileUseCase } from "./application/use-cases/profil
 import { makeGetOperatorProfileUseCase } from "./application/use-cases/profile/get-operator-profile.use-case.js";
 import { createSessionContextPreHandler } from "./async-local-storage-session-context.js";
 import { parseConfig } from "./config.js";
-import { isTestUser, userTypeContext } from "./user-type-context.js";
+import { isTestUser } from "./user-type-context.js";
 
 const config = parseConfig();
 
@@ -119,9 +122,9 @@ const prodDbClient = createTypedDbClient(
 
 const testDbClient = config.POSTGRES_DB_TEST
   ? createTypedDbClient(
-    { ...sharedDbConfig, database: config.POSTGRES_DB_TEST },
-    schema,
-  )
+      { ...sharedDbConfig, database: config.POSTGRES_DB_TEST },
+      schema,
+    )
   : undefined;
 
 const dbClient: TypedDbClient<typeof schema> = new Proxy(prodDbClient, {

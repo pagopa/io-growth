@@ -9,9 +9,10 @@ export { initArClient } from "./client.js";
 
 // Configuration
 export {
+  type ArClientConfig,
   arConfigSchema,
   buildArConfig,
-  buildArTestConfig, type ArClientConfig
+  buildArTestConfig,
 } from "./config.js";
 // Port interfaces
 export type { DocumentContentRepository } from "./domain/ports/outbound/document-content.repository.js";
@@ -19,4 +20,3 @@ export type { InstitutionRepository } from "./domain/ports/outbound/institution.
 
 export type { OnboardingRepository } from "./domain/ports/outbound/onboarding.repository.js";
 export type { UserRepository } from "./domain/ports/outbound/user.repository.js";
-

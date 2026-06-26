@@ -210,6 +210,10 @@ export default function OpportunitiesPage() {
         onClose={() => setPublishModalOpen(false)}
         onPublish={handlePublish}
         count={publishCount}
+        publishDate={
+          displayedItems.find((item) => idsToPublish.includes(item.id))
+            ?.dateFrom
+        }
       />
     </Box>
   );

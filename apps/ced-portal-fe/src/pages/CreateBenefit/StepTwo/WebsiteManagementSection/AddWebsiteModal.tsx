@@ -32,7 +32,7 @@ export function AddWebsiteModal({
       onClose={handleClose}
       onBack={onBack}
       title="Aggiungi nuovo sito web"
-      description="Le informazioni saranno visibili su IO nel dettaglio del sito web."
+      description="Le informazioni saranno visibili su IO nel dettaglio del punto di accesso."
     >
       <WebsiteFields attempted={attempted} />
 

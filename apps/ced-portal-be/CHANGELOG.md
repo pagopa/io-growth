@@ -1,5 +1,11 @@
 # ced-portal-be
 
+## 0.2.8
+
+### Patch Changes
+
+- 6e12e3c: fix count published opportunities by operator
+
 ## 0.2.7
 
 ### Patch Changes

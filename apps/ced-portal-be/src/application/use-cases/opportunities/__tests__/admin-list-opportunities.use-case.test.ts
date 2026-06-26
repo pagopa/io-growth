@@ -68,6 +68,25 @@ describe("makeAdminListOpportunitiesUseCase", () => {
     );
   });
 
+  it("should forward the derived scheduled status with a reference date", async () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-06-26T10:00:00Z"));
+    const repository = createMockOpportunityRepository({
+      findAll: vi.fn().mockResolvedValue(ok({ items: [], total: 0 })),
+    });
+    const useCase = makeAdminListOpportunitiesUseCase(repository);
+
+    await useCase({ ...validInput, status: "scheduled" });
+
+    expect(repository.findAll).toHaveBeenCalledWith(
+      expect.objectContaining({
+        referenceDate: "2026-06-26",
+        status: "scheduled",
+      }),
+    );
+    vi.useRealTimers();
+  });
+
   it("should request operator-name search on the department list", async () => {
     const repository = createMockOpportunityRepository({
       findAll: vi.fn().mockResolvedValue(ok({ items: [], total: 0 })),

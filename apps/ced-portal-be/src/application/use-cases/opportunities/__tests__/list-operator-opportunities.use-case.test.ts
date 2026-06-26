@@ -40,7 +40,10 @@ describe("makeListOperatorOpportunitiesUseCase", () => {
     const result = await useCase(validInput);
 
     expect(result).toEqual(ok(mockPaginatedResult));
-    expect(repository.findAll).toHaveBeenCalledWith(validInput);
+    expect(repository.findAll).toHaveBeenCalledWith({
+      ...validInput,
+      referenceDate: expect.any(String),
+    });
   });
 
   it("should pass optional filters to repository", async () => {
@@ -57,7 +60,28 @@ describe("makeListOperatorOpportunitiesUseCase", () => {
 
     await useCase(inputWithFilters);
 
-    expect(repository.findAll).toHaveBeenCalledWith(inputWithFilters);
+    expect(repository.findAll).toHaveBeenCalledWith({
+      ...inputWithFilters,
+      referenceDate: expect.any(String),
+    });
+  });
+
+  it("should forward the derived scheduled status with a reference date", async () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-06-26T10:00:00Z"));
+    const repository = createMockOpportunityRepository({
+      findAll: vi.fn().mockResolvedValue(ok({ items: [], total: 0 })),
+    });
+    const useCase = makeListOperatorOpportunitiesUseCase(repository);
+
+    await useCase({ ...validInput, status: "scheduled" });
+
+    expect(repository.findAll).toHaveBeenCalledWith({
+      ...validInput,
+      referenceDate: "2026-06-26",
+      status: "scheduled",
+    });
+    vi.useRealTimers();
   });
 
   it("should pass categoryId filter to repository", async () => {
@@ -73,7 +97,10 @@ describe("makeListOperatorOpportunitiesUseCase", () => {
 
     await useCase(inputWithCategory);
 
-    expect(repository.findAll).toHaveBeenCalledWith(inputWithCategory);
+    expect(repository.findAll).toHaveBeenCalledWith({
+      ...inputWithCategory,
+      referenceDate: expect.any(String),
+    });
   });
 
   it("should propagate repository errors", async () => {
@@ -118,6 +145,7 @@ describe("makeListOperatorOpportunitiesUseCase", () => {
       limit: 20,
       offset: 0,
       operatorId: MOCK_OPERATOR_ID,
+      referenceDate: expect.any(String),
       sortBy: "createdAt",
       sortOrder: "desc",
     });

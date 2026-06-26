@@ -42,7 +42,7 @@ export const CONTACT_INPUT_BY_TYPE = {
     type: 'tel',
   },
   website: {
-    placeholder: 'Inserisci url',
+    placeholder: 'Inserisci URL',
     type: 'url',
   },
 } as const;

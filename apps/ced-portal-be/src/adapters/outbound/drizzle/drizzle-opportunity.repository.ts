@@ -89,6 +89,11 @@ export const buildStatusCondition = (
   return sql`${opportunity.status} = ${status}`;
 };
 
+// Server-owned reference date (YYYY-MM-DD) used to resolve the derived
+// "scheduled" / "published" statuses, both when filtering and when mapping
+// rows into entities.
+const today = (): string => new Date().toISOString().slice(0, 10);
+
 const findByIdAndOperatorId = async (
   db: DbOrTxClient,
   input: FindByIdAndOperatorIdInput,
@@ -139,7 +144,7 @@ const findByIdAndOperatorId = async (
       return ok(undefined);
     }
 
-    return mapOpportunityDetailRow(row);
+    return mapOpportunityDetailRow(row, today());
   } catch (error) {
     return err(
       new GenericError(`Failed to get operator opportunity: ${String(error)}`),
@@ -191,7 +196,7 @@ const findById =
         },
       });
       if (!row) return ok(undefined);
-      return mapOpportunityDetailRow(row);
+      return mapOpportunityDetailRow(row, today());
     } catch (error) {
       return err(
         new GenericError(`Failed to get opportunity: ${String(error)}`),
@@ -331,9 +336,7 @@ export const createDrizzleOpportunityRepository = (
         conditions.push(gte(opportunity.dateFrom, input.dateFrom));
       if (input.dateTo) conditions.push(lte(opportunity.dateTo, input.dateTo));
       if (input.status) {
-        conditions.push(
-          buildStatusCondition(input.status, input.referenceDate),
-        );
+        conditions.push(buildStatusCondition(input.status, today()));
       }
       if (input.search) {
         conditions.push(buildSearchCondition(input.search, input.searchFields));
@@ -383,7 +386,9 @@ export const createDrizzleOpportunityRepository = (
           .where(and(...conditions)),
       ]);
 
-      const items = dataResult.map(mapOpportunitySummaryRow);
+      const items = dataResult.map((row) =>
+        mapOpportunitySummaryRow(row, today()),
+      );
       const total = countResult[0]?.total ?? 0;
 
       return ok({ items, total });

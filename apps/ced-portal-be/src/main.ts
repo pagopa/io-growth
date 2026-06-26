@@ -9,8 +9,7 @@ import type {
 
 import {
   type ArClient,
-  buildArConfig,
-  buildArTestConfig,
+  type ArClientConfig,
   createArClient,
 } from "@pagopa/io-core-adapter-ar";
 import { createTypedDbClient } from "@pagopa/io-core-adapter-drizzle";
@@ -104,8 +103,15 @@ const isTestRequest = (): boolean => {
   return userType === "test_admin" || userType === "test_operator";
 };
 
-const arProdConfig = buildArConfig(config);
-const arTestConfig = buildArTestConfig(config);
+const arProdConfig: ArClientConfig = {
+  baseUrl: config.AR_ENDPOINT,
+  subscriptionKey: config.AR_API_KEY,
+};
+
+const arTestConfig: ArClientConfig = {
+  baseUrl: config.AR_ENDPOINT_TEST,
+  subscriptionKey: config.AR_API_KEY_TEST,
+};
 
 const arClientRouter = createEnvRouter<typeof arProdConfig, ArClient>({
   createProdInstance: createArClient,

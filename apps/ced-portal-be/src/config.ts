@@ -1,7 +1,6 @@
-import { arConfigSchema } from "@pagopa/io-core-adapter-ar";
 import { z } from "zod";
 
-const configSchema = arConfigSchema.extend({
+const configSchema = z.object({
   ADMIN_FISCAL_CODES: z
     .string()
     .optional()
@@ -10,6 +9,13 @@ const configSchema = arConfigSchema.extend({
     .string()
     .optional()
     .transform((v) => v?.split(",").map((s) => s.trim()) ?? []),
+  // AR (Area Riservata) — production instance
+  AR_API_KEY: z.string().min(1),
+  // AR (Area Riservata) — test instance
+  AR_API_KEY_TEST: z.string().min(1),
+
+  AR_ENDPOINT: z.string().url(),
+  AR_ENDPOINT_TEST: z.string().url(),
   AZURE_CLIENT_ID: z.string().optional(),
   CED_PORTAL_FE_BASE_URL: z.string().min(1),
   CED_PRODUCT_ID: z.string().min(1),

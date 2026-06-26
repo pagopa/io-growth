@@ -1,14 +1,18 @@
 import { Box, Stack, useTheme } from '@mui/material';
 import { SyntheticEvent, useState } from 'react';
 import { ResultsPagination } from '../../components';
-import { useGetOpportunityCategoriesQuery } from '../../features/benefits/api';
-import { useBenefitsData } from '../../features/benefits/hooks';
+import { useGetOpportunityCategoriesQuery } from '../../features/opportunities/api';
+import { useBenefitsData } from '../../features/opportunities/hooks';
 import { useDebounce } from '../../hooks/useDebounce';
 import { BenefitsContentState } from './components/BenefitsContentState';
 import { BenefitsFiltersBar } from './components/BenefitsFiltersBar';
 import { BenefitsTabs } from './components/BenefitsTabs';
 import { MainContentHeader } from './components/MainContentHeader';
 import { OpportunitySummaryItemStatus } from '../../core/api/generated/model';
+import {
+  OPERATOR_MANAGED_STATE_OPTIONS,
+  OPERATOR_REQUEST_STATE_OPTIONS,
+} from '../../constants';
 
 const DEFAULT_ROWS_PER_PAGE = 20;
 
@@ -75,6 +79,10 @@ export const MainContent = () => {
   };
 
   const displayedItems = activeTab === 0 ? inManagementItems : approvedItems;
+  const filterForDisplayedItems =
+    activeTab === 0
+      ? OPERATOR_REQUEST_STATE_OPTIONS
+      : OPERATOR_MANAGED_STATE_OPTIONS;
   const showPagination = !isLoading && !isError && displayedItems.length > 0;
 
   return (
@@ -95,6 +103,7 @@ export const MainContent = () => {
           categoryOptions={categories}
           onCategoryChange={handleCategoryChange}
           status={statusInput}
+          stateOptions={filterForDisplayedItems}
           onStatusChange={handleStatusChange}
           onFilter={handleFilter}
           onReset={handleReset}

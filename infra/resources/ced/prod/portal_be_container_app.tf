@@ -52,7 +52,6 @@ module "portal_be_container_app" {
     {
       name                = "APPINSIGHTS_INSTRUMENTATION_KEY"
       key_vault_secret_id = module.azure_core_values.application_insights.instrumentation_key_kv_secret_id
-
     }
   ]
 

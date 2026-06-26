@@ -12,17 +12,16 @@ export function useAuthorize() {
   const authorize = useCallback(
     async (id: string) => {
       const response = await trigger(id).unwrap();
+
+      const { session_token, ...rest } = response;
+
       dispatch(
         setCredentials({
-          token: response.session_token,
-          user: {
-            id: response.operator_name,
-            name: `${response.first_name} ${response.last_name}`.trim(),
-            email: '',
-            role: response.role,
-          },
+          token: session_token,
+          user: rest,
         }),
       );
+
       showToast('Session restored', 'success');
       return response;
     },

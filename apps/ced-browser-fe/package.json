@@ -12,11 +12,13 @@
     "lint:check": "eslint .",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "mock:start": "npx @mockoon/cli start --data mockoon/mockoon-config.json"
+    "mock:start": "npx @mockoon/cli start --data mockoon/mockoon-config.json",
+    "generate": "orval"
   },
   "dependencies": {
     "swiper": "^12.1.0",
     "@pagopa/io-mixpanel": "workspace:^",
+    "@pagopa/io-core-ui": "workspace:^",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.1",
     "@mui/icons-material": "^5.18.0",
@@ -56,9 +58,10 @@
     "prettier": "^3.5.3",
     "typescript": "^5.8.2",
     "typescript-eslint": "^8.26.1",
-    "vite": "^6.0.0",
+    "vite": "^6.4.3",
     "vite-plugin-typescript": "^1.0.4",
     "vite-tsconfig-paths": "^5.0.1",
-    "vitest": "^3.2.4"
+    "vitest": "^3.2.6",
+    "orval": "^8.9.0"
   }
 }

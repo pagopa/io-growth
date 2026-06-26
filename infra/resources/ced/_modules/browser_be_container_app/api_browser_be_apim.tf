@@ -46,7 +46,7 @@ resource "azurerm_api_management_api" "ced_browser_be_v1" {
 
   import {
     content_format = "openapi-link"
-    content_value  = "https://raw.githubusercontent.com/pagopa/io-growth/3c01c94378c4c8aab79bcffeb00e52509572ee48/apps/ced-browser-be/openapi/exposed/openapi.yaml"
+    content_value  = "https://raw.githubusercontent.com/pagopa/io-growth/d74999f4dde82e43f98cd2141bb61bcb5ef21c4e/apps/ced-browser-be/openapi/exposed/openapi.yaml"
   }
 }
 
@@ -70,7 +70,7 @@ resource "azurerm_api_management_backend" "ced_browser_be" {
   api_management_name = azurerm_api_management_api.ced_browser_be_v1.api_management_name
   resource_group_name = azurerm_api_management_api.ced_browser_be_v1.resource_group_name
   protocol            = "http"
-  url                 = "https://${replace(module.container_app.url, "/--[^.]+/", "/api")}"
+  url                 = "https://${replace(module.container_app.url, "/--[^.]+/", "")}/api"
 }
 
 resource "azurerm_role_assignment" "apim_container_app_reader" {

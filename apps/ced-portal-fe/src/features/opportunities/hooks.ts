@@ -1,6 +1,14 @@
 import { useMemo } from 'react';
-import { useGetOpportunitiesQuery } from './api';
+import {
+  type ListOperatorOpportunitiesParams,
+  ListOperatorOpportunitiesStatus,
+} from '../../core/api/generated/model';
+import {
+  useGetAdminOpportunitiesQuery,
+  useGetOperatorOpportunitiesQuery,
+} from './api';
 import type {
+  AdminOpportunity,
   Opportunity,
   OpportunityFilters,
   OpportunityStatus,
@@ -21,31 +29,40 @@ const INACTIVE_STATES: Set<OpportunityStatus> = new Set([
   OpportunityStatusEnum.deleted,
 ]);
 
-const matchesSearch = (item: Opportunity, search: string): boolean => {
-  if (!search) return true;
-  const q = search.toLowerCase();
-  return item.name.toLowerCase().includes(q);
-};
-
 const matchesState = (item: Opportunity, state: string): boolean => {
   if (!state) return true;
   return item.status === state;
 };
 
-export const useOpportunitiesData = (filters: OpportunityFilters) => {
-  const query = useGetOpportunitiesQuery(undefined, {
-    refetchOnMountOrArgChange: true,
-  });
+const isListOperatorOpportunitiesStatus = (
+  value: string,
+): value is ListOperatorOpportunitiesStatus =>
+  Object.values(ListOperatorOpportunitiesStatus).includes(
+    value as ListOperatorOpportunitiesStatus,
+  );
 
-  const items = useMemo(() => query.data?.items ?? [], [query.data]);
+export const useOpportunitiesData = (filters: OpportunityFilters) => {
+  const status = isListOperatorOpportunitiesStatus(filters.state)
+    ? filters.state
+    : undefined;
+
+  const query = useGetAdminOpportunitiesQuery(
+    {
+      limit: 100,
+      search: filters.search || undefined,
+      status,
+    },
+    {
+      refetchOnMountOrArgChange: true,
+    },
+  );
+  const items = useMemo<AdminOpportunity[]>(
+    () => query.data?.items ?? [],
+    [query.data],
+  );
 
   const filteredItems = useMemo(
-    () =>
-      items.filter(
-        (item) =>
-          matchesSearch(item, filters.search) &&
-          matchesState(item, filters.state),
-      ),
+    () => items.filter((item) => matchesState(item, filters.state)),
     [items, filters],
   );
 
@@ -70,5 +87,33 @@ export const useOpportunitiesData = (filters: OpportunityFilters) => {
     newItems,
     approvedItems,
     inactiveItems,
+  };
+};
+
+export const useBenefitsData = (params: ListOperatorOpportunitiesParams) => {
+  const query = useGetOperatorOpportunitiesQuery(params, {
+    refetchOnMountOrArgChange: true,
+  });
+
+  const items = useMemo(() => query.data?.items ?? [], [query.data]);
+
+  const total = useMemo(() => query.data?.total ?? 0, [query.data]);
+
+  const inManagementItems = useMemo(
+    () => items.filter((item) => NEW_STATES.has(item.status)),
+    [items],
+  );
+
+  const approvedItems = useMemo(
+    () => items.filter((item) => APPROVED_STATES.has(item.status)),
+    [items],
+  );
+
+  return {
+    ...query,
+    items,
+    inManagementItems,
+    approvedItems,
+    total,
   };
 };

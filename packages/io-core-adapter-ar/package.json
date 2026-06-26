@@ -1,6 +1,6 @@
 {
   "name": "@pagopa/io-core-adapter-ar",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "type": "module",
   "exports": {
     ".": {
@@ -13,8 +13,8 @@
   ],
   "scripts": {
     "clean": "rm -rf dist",
-    "generate": "orval",
-    "build": "pnpm clean && pnpm generate && pnpm esm:generated && tsc",
+    "generate": "orval && pnpm esm:generated",
+    "build": "pnpm clean && pnpm generate && tsc",
     "typecheck": "tsc --noEmit",
     "lint": "pnpm lint:check --fix",
     "lint:check": "eslint .",

@@ -52,6 +52,7 @@ export interface LollipopAudit {
 }
 
 export interface LollipopHeaders {
+  readonly [key: string]: string | undefined;
   readonly signature: string;
   readonly "signature-input": string;
 }

@@ -42,7 +42,7 @@ export const getEntityFields = (onboarding: EntityDetail | undefined) =>
         buildField('Sede legale', onboarding.institution?.address),
         buildField('CAP', onboarding.institution?.zipCode),
         buildField('Email PEC', onboarding.institution?.digitalAddress),
-        buildField('Partita IVA', onboarding.institution?.taxCode),
+        buildField('Partita IVA o CF', onboarding.institution?.taxCode),
         buildField(
           'La P IVA è di gruppo',
           onboarding.institution?.paymentServiceProvider?.vatNumberGroup,
@@ -63,7 +63,12 @@ export const getEntityFields = (onboarding: EntityDetail | undefined) =>
 export const getGeographicFields = (onboarding: EntityDetail | undefined) =>
   onboarding
     ? [
-        buildField('Area di competenza', onboarding.workflowType),
+        buildField(
+          'Area di competenza',
+          onboarding.institution?.geographicTaxonomies?.[0]?.code === 'ITA'
+            ? 'Nazionale'
+            : 'Locale',
+        ),
         buildField(
           'Area geografica',
           joinGeographicTaxonomies(

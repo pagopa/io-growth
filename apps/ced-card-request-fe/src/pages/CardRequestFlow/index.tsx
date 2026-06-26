@@ -9,7 +9,7 @@ import { VSpacer } from '../../layouts/Spacer';
 import { SavedDraftDialog } from './SavedDraftDialog';
 import { AddressStep } from './steps/AddressStep';
 import { ApplicantDataStep } from './steps/ApplicantDataStep';
-import { DocumentTypeStep } from './steps/DocumentTypeStep';
+import { DocumentTypeStep, YesNo } from './steps/DocumentTypeStep';
 import { PhotoUploadStep } from './steps/PhotoUploadStep';
 import SummaryStep from './steps/SummaryStep';
 import type { StepRef } from './types';
@@ -39,7 +39,7 @@ const steps = [
     confirmLabel: 'Continua',
     cancelLabel: 'Riprendi più tardi',
   },
-  { title: 'Riepilogo e invio', content: SummaryStep },
+  { title: 'Conferma e invia', content: SummaryStep },
 ];
 
 const TOTAL_STEPS = steps.length;
@@ -52,6 +52,9 @@ export default function CardRequestFlowPage() {
   const stepRef = useRef<StepRef | null>(null);
   const [photoPreview, setPhotoPreview] = useState<string>('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [docHasDoc, setDocHasDoc] = useState<YesNo>(null);
+
+  const isContinueDisabled = currentStep === 3 && docHasDoc === 'no';
 
   const {
     title,
@@ -126,6 +129,7 @@ export default function CardRequestFlowPage() {
           onEditJudgment={() => setCurrentStep(3)}
           onPhotoPreviewChange={(url: string) => setPhotoPreview(url)}
           photoPreview={photoPreview}
+          onDocChange={(value: YesNo) => setDocHasDoc(value)}
         />
         {isSubmitting && (
           <SpinnerLoader
@@ -147,6 +151,7 @@ export default function CardRequestFlowPage() {
           fullWidth
           variant="contained"
           onClick={isLastStep ? handleSubmit : handleNext}
+          disabled={isContinueDisabled}
           sx={{
             height: 52,
             borderRadius: '10px',

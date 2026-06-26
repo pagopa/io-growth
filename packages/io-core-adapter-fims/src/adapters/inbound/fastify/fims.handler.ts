@@ -7,16 +7,22 @@ import {
 import { z } from "zod";
 
 import type { FimsAuthFlow } from "../../../application/use-cases/fims-auth-flow.js";
+import type { LollipopHeaders } from "../../../domain/entities.js";
 
 const initiateAuthHttpSchema = z.object({
   query: z.object({ device: z.string().optional() }),
 });
 
 const callbackHttpSchema = z.object({
-  headers: z.object({
-    signature: z.string().optional(),
-    "signature-input": z.string().optional(),
-  }),
+  // `.passthrough()` keeps the `x-pagopa-lollipop-*` custom headers that are
+  // covered by the HTTP message signature and therefore needed to rebuild the
+  // signature base during verification.
+  headers: z
+    .object({
+      signature: z.string().optional(),
+      "signature-input": z.string().optional(),
+    })
+    .passthrough(),
   query: z.object({
     code: z.string().min(1),
     iss: z.string().min(1),
@@ -44,10 +50,10 @@ type TestSessionInput = z.infer<typeof testSessionHttpSchema>;
 /**
  * Mount FIMS SSO routes on an existing Fastify instance:
  *
- * - `GET /fauth`         — Redirect to FIMS OIDC provider
- * - `GET /fcb`           — FIMS callback: create session, redirect to /authorize
- * - `GET /authorize`     — Exchange one-time session ID for durable token
- * - `POST /test-session` — Create a session for test users (guarded by TEST_USERS)
+ * - `GET /api/fauth`         — Redirect to FIMS OIDC provider
+ * - `GET /api/fcb`           — FIMS callback: create session, redirect to /api/authorize
+ * - `GET /api/authorize`     — Exchange one-time session ID for durable token
+ * - `POST /api/test-session` — Create a session for test users (guarded by TEST_USERS)
  *
  * The Fastify instance is provided by the consuming app (injected).
  */
@@ -55,9 +61,9 @@ export const mountFimsHandlers = (
   fastify: FastifyInstance,
   fimsAuthFlow: FimsAuthFlow,
 ): void => {
-  // GET /fauth — initiate FIMS authentication
+  // GET /api/fauth — initiate FIMS authentication
   fastify.get(
-    "/fauth",
+    "/api/fauth",
     createHttpHandler(
       async ({ query }: InitiateAuthInput) =>
         fimsAuthFlow.initiateAuth({ device: query.device }),
@@ -66,18 +72,22 @@ export const mountFimsHandlers = (
     ),
   );
 
-  // GET /fcb — FIMS callback from identity provider
+  // GET /api/fcb — FIMS callback from identity provider
   fastify.get(
-    "/fcb",
+    "/api/fcb",
     createHttpHandler(
       async ({ headers, query }: CallbackInput) => {
+        // Forward all incoming string headers (signature, signature-input and
+        // the x-pagopa-lollipop-* headers covered by the signature) so the
+        // verifier can reconstruct the signature base. Mirrors io-cdc.
         const lollipopHeaders =
           typeof headers.signature === "string" &&
           typeof headers["signature-input"] === "string"
-            ? {
-                signature: headers.signature,
-                "signature-input": headers["signature-input"],
-              }
+            ? (Object.fromEntries(
+                Object.entries(headers).filter(
+                  ([, value]) => typeof value === "string",
+                ),
+              ) as LollipopHeaders)
             : undefined;
 
         return fimsAuthFlow.handleCallback({
@@ -92,9 +102,9 @@ export const mountFimsHandlers = (
     ),
   );
 
-  // GET /authorize — exchange one-time session ID for durable token
+  // GET /api/authorize — exchange one-time session ID for durable token
   fastify.get(
-    "/authorize",
+    "/api/authorize",
     createHttpHandler(
       async ({ query }: AuthorizeInput) =>
         fimsAuthFlow.exchangeSessionId({ sessionId: query.id }),
@@ -103,9 +113,9 @@ export const mountFimsHandlers = (
     ),
   );
 
-  // POST /test-session — create session for test users (public but guarded)
+  // POST /api/test-session — create session for test users (public but guarded)
   fastify.post(
-    "/test-session",
+    "/api/test-session",
     createHttpHandler(
       async ({ body }: TestSessionInput) =>
         fimsAuthFlow.createTestSession(body),

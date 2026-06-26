@@ -1,3 +1,5 @@
+import { SupportContactResponseType } from '../../../../../core/api/generated/model';
+
 export const MODAL_CONTENT = {
   logo: {
     title: 'Logo dell’ente',
@@ -23,70 +25,45 @@ export const MODAL_CONTENT = {
   },
 };
 
-export type ContactType = 'EMAIL' | 'TELEPHONE' | 'WEBSITE';
-
-type ContactInputField = 'contact' | 'website';
 type ContactInputType = 'text' | 'email' | 'tel' | 'url';
 
 export interface ContactInputConfig {
-  field: ContactInputField;
   placeholder: string;
   type: ContactInputType;
 }
 
-export const CONTACT_TYPE_OPTIONS: Array<{
-  label: string;
-  value: ContactType;
-}> = [
-  {
-    label: 'Email',
-    value: 'EMAIL',
-  },
-  {
-    label: 'Telefono',
-    value: 'TELEPHONE',
-  },
-  {
-    label: 'Sito web',
-    value: 'WEBSITE',
-  },
-];
-
 export const CONTACT_INPUT_BY_TYPE = {
-  EMAIL: {
-    field: 'contact',
+  email: {
     placeholder: 'Inserisci email',
     type: 'email',
   },
-  TELEPHONE: {
-    field: 'contact',
+  phone: {
     placeholder: 'Inserisci telefono',
     type: 'tel',
   },
-  WEBSITE: {
-    field: 'website',
-    placeholder: 'Inserisci url',
+  website: {
+    placeholder: 'Inserisci URL',
     type: 'url',
   },
-} satisfies Record<ContactType, ContactInputConfig>;
+} as const;
+
+export const CONTACT_TYPE_OPTIONS: Array<{
+  label: string;
+  value: SupportContactResponseType;
+}> = [
+  { label: 'Email', value: 'email' },
+  { label: 'Telefono', value: 'phone' },
+  { label: 'Sito web', value: 'website' },
+];
 
 export const DEFAULT_CONTACT_INPUT: ContactInputConfig = {
-  field: 'contact',
   placeholder: 'Inserisci contatto',
   type: 'text',
 };
 
 export const getContactInputConfig = (
-  contactType: string,
+  type: SupportContactResponseType | '',
 ): ContactInputConfig => {
-  switch (contactType) {
-    case 'EMAIL':
-      return CONTACT_INPUT_BY_TYPE.EMAIL;
-    case 'TELEPHONE':
-      return CONTACT_INPUT_BY_TYPE.TELEPHONE;
-    case 'WEBSITE':
-      return CONTACT_INPUT_BY_TYPE.WEBSITE;
-    default:
-      return DEFAULT_CONTACT_INPUT;
-  }
+  if (!type) return DEFAULT_CONTACT_INPUT;
+  return CONTACT_INPUT_BY_TYPE[type];
 };

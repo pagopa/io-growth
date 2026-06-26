@@ -18,8 +18,14 @@ services:
       AZURITE_TABLE_PORT: "10002"
 
   postgres:
-    image: postgres:16.13@sha256:760ea41aae126965bedd587d35a23de37447bb13a6ac4444bef6ff73b8b72234
+    build:
+      context: .
+      dockerfile: postgres.Dockerfile
     restart: unless-stopped
+    command: >
+      postgres
+      -c shared_preload_libraries=pg_cron
+      -c cron.database_name=postgres
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
@@ -39,6 +45,19 @@ services:
       - "10002:10002"
     volumes:
       - azurite-data:/data
+  azurite-init:
+    image: mcr.microsoft.com/azure-cli@sha256:e02c9723b6e2296e98f54eeb3630b95206aef06aa04251e097ce8390904ba396
+    depends_on:
+      - azurite
+    environment:
+      # Azurite's default well-known connection string
+      AZURE_STORAGE_CONNECTION_STRING: "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://azurite:10000/devstoreaccount1;"
+    command: >
+      bash -c "
+      echo 'Waiting for Azurite to start...' &&
+      sleep 3 &&
+      az storage container create --name audit &&
+      echo 'Container created successfully!'"
 
   redis:
     image: redis:7@sha256:a5995dfdf108997f8a7c9587f54fad5e94ed5848de5236a6b28119e99efd67e0

@@ -257,8 +257,10 @@ describe("makeCreateOperatorOpportunityUseCase - validation", () => {
     expect(deps.opportunityRepository.create).not.toHaveBeenCalled();
   });
 
-  it("should return ValidationError when placeIds is empty and nationalTerritory is false", async () => {
-    const deps = makeDeps();
+  it("should create opportunity when placeIds is empty and nationalTerritory is false", async () => {
+    const deps = makeDeps({
+      placeRepository: { getIdsByOperator: vi.fn().mockResolvedValue(ok([])) },
+    });
     const useCase = makeCreateOperatorOpportunityUseCase(deps);
 
     const result = await useCase({
@@ -267,10 +269,37 @@ describe("makeCreateOperatorOpportunityUseCase - validation", () => {
       placeIds: [],
     });
 
-    expect(result).toEqual(
-      err(expect.objectContaining({ kind: "ValidationError" })),
+    expect(result).toEqual(ok(mockOpportunityDetail));
+    expect(deps.placeRepository.getIdsByOperator).not.toHaveBeenCalled();
+    expect(deps.opportunityRepository.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        opportunity: expect.objectContaining({
+          nationalTerritory: false,
+          placeIds: [],
+        }),
+      }),
     );
-    expect(deps.opportunityRepository.create).not.toHaveBeenCalled();
+  });
+
+  it("should default placeIds to an empty array when omitted", async () => {
+    const deps = makeDeps({
+      placeRepository: { getIdsByOperator: vi.fn().mockResolvedValue(ok([])) },
+    });
+    const useCase = makeCreateOperatorOpportunityUseCase(deps);
+
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { placeIds, ...inputWithoutPlaceIds } = mockCreateOpportunityInput;
+    const result = await useCase(
+      inputWithoutPlaceIds as unknown as typeof mockCreateOpportunityInput,
+    );
+
+    expect(result).toEqual(ok(mockOpportunityDetail));
+    expect(deps.placeRepository.getIdsByOperator).not.toHaveBeenCalled();
+    expect(deps.opportunityRepository.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        opportunity: expect.objectContaining({ placeIds: [] }),
+      }),
+    );
   });
 
   it("should create opportunity when placeIds is empty and nationalTerritory is true", async () => {

@@ -8,14 +8,70 @@ export const STATE_OPTIONS: {
   value: OpportunitySummaryItemStatus;
   label: string;
 }[] = [
-  { value: OpportunitySummaryItemStatus.draft, label: 'Bozza' },
-  { value: OpportunitySummaryItemStatus.test_pending, label: 'In test' },
-  { value: OpportunitySummaryItemStatus.test_rejected, label: 'Rifiutato' },
-  { value: OpportunitySummaryItemStatus.test_passed, label: 'Test superato' },
-  { value: OpportunitySummaryItemStatus.published, label: 'Pubblicata' },
+  { value: OpportunitySummaryItemStatus.draft, label: 'In bozza' },
+  { value: OpportunitySummaryItemStatus.test_pending, label: 'Da gestire' },
+  {
+    value: OpportunitySummaryItemStatus.test_rejected,
+    label: 'In attesa di modifiche',
+  },
+  {
+    value: OpportunitySummaryItemStatus.test_passed,
+    label: 'Pubblicazione programmata',
+  },
+  { value: OpportunitySummaryItemStatus.published, label: 'Pubblicata su IO' },
   { value: OpportunitySummaryItemStatus.suspended, label: 'Sospesa' },
   { value: OpportunitySummaryItemStatus.deleted, label: 'Eliminata' },
 ];
+
+export const ADMIN_REQUEST_STATE_OPTIONS = STATE_OPTIONS.filter(
+  ({ value }) =>
+    value === OpportunitySummaryItemStatus.test_rejected ||
+    value === OpportunitySummaryItemStatus.test_pending ||
+    value === OpportunitySummaryItemStatus.draft,
+);
+
+export const ADMIN_APPROVED_STATE_OPTIONS = STATE_OPTIONS.filter(
+  ({ value }) =>
+    value === OpportunitySummaryItemStatus.test_passed ||
+    value === OpportunitySummaryItemStatus.published,
+);
+
+export const ADMIN_NOT_ACTIVE_STATE_OPTIONS = STATE_OPTIONS.filter(
+  ({ value }) =>
+    value === OpportunitySummaryItemStatus.suspended ||
+    value === OpportunitySummaryItemStatus.deleted,
+);
+
+export const OPERATOR_STATE_OPTIONS: {
+  value: OpportunitySummaryItemStatus;
+  label: string;
+}[] = [
+  { value: OpportunitySummaryItemStatus.draft, label: 'In bozza' },
+  { value: OpportunitySummaryItemStatus.test_pending, label: 'In revisione' },
+  { value: OpportunitySummaryItemStatus.test_rejected, label: 'Da modificare' },
+  {
+    value: OpportunitySummaryItemStatus.test_passed,
+    label: 'Pubblicazione programmata',
+  },
+  { value: OpportunitySummaryItemStatus.published, label: 'Pubblicata su IO' },
+  { value: OpportunitySummaryItemStatus.suspended, label: 'Sospesa' },
+  { value: OpportunitySummaryItemStatus.deleted, label: 'Eliminata' },
+];
+
+export const OPERATOR_REQUEST_STATE_OPTIONS = OPERATOR_STATE_OPTIONS.filter(
+  ({ value }) =>
+    value === OpportunitySummaryItemStatus.draft ||
+    value === OpportunitySummaryItemStatus.test_rejected ||
+    value === OpportunitySummaryItemStatus.test_pending,
+);
+
+export const OPERATOR_MANAGED_STATE_OPTIONS = OPERATOR_STATE_OPTIONS.filter(
+  ({ value }) =>
+    value === OpportunitySummaryItemStatus.test_passed ||
+    value === OpportunitySummaryItemStatus.published ||
+    value === OpportunitySummaryItemStatus.suspended ||
+    value === OpportunitySummaryItemStatus.deleted,
+);
 
 export const STATE_COLORS: Record<
   OpportunitySummaryItemStatus,

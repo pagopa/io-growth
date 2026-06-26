@@ -11,7 +11,7 @@ export function StepOne({ attempted }: StepProps) {
       <AgreementDetailsSection attempted={attempted} />
       <AgreementCompanionSection />
       <AgreementValiditySection attempted={attempted} />
-      <AgreementLinkSection />
+      <AgreementLinkSection attempted={attempted} />
     </Box>
   );
 }

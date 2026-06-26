@@ -1,27 +1,49 @@
 import { Box, ButtonBase, Stack, useTheme } from '@mui/material';
+import { useMemo } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ContactsSection } from '../../components/ContactsSection/index.js';
 import { ItemsSection } from '../../components/ItemsSection/index.js';
 import { PageHeader, QueryGuard } from '../../components/index.js';
-import { useGetAccessPointDetailQuery } from '../../features/entities/api.js';
 import { APP_ROUTES } from '../../app/routeConfig.js';
+import { useGetAccessPointDetailQuery } from '../../features/places/api.js';
+import { formatBadgeLabel } from '../../utils';
 
 export default function AccessPointDetailPage() {
-  const { id, accessPointId } = useParams<{
-    id: string;
+  const { accessPointId } = useParams<{
     accessPointId: string;
   }>();
   const navigate = useNavigate();
   const theme = useTheme();
-  const { data, isLoading, isError } = useGetAccessPointDetailQuery(
-    { entityId: id ?? '', accessPointId: accessPointId ?? '' },
-    { skip: !id || !accessPointId },
+  const { data, isLoading, isError, error } = useGetAccessPointDetailQuery(
+    { accessPointId: accessPointId ?? '' },
+    { skip: !accessPointId },
+  );
+
+  const opportunities = useMemo(
+    () =>
+      data?.opportunities.map(({ id, title, benefit }) => ({
+        id,
+        title,
+        badgeLabel: formatBadgeLabel(benefit),
+      })) ?? [],
+    [data],
+  );
+
+  const relatedAccessPoints = useMemo(
+    () =>
+      data?.relatedPlaces.map(({ id, title, address }) => ({
+        id,
+        title,
+        subtitle: address ? `${address.street}, ${address.city}` : '',
+      })) ?? [],
+    [data],
   );
 
   return (
     <QueryGuard
       isLoading={isLoading}
       isError={isError}
+      error={error}
       data={data}
       errorMessage="Impossibile caricare i dati del punto di accesso."
     >
@@ -59,15 +81,15 @@ export default function AccessPointDetailPage() {
           <Stack spacing={2} sx={{ mt: 2, mb: 4 }}>
             <ItemsSection
               variant="opportunity"
-              entityId={id ?? ''}
-              items={resolvedData.opportunities}
+              entityId={data?.entityId ?? ''}
+              items={opportunities}
               hideEyebrow
             />
             <ContactsSection contacts={resolvedData.contacts} />
             <ItemsSection
               variant="access-point"
-              entityId={id ?? ''}
-              items={resolvedData.relatedAccessPoints}
+              entityId={data?.entityId ?? ''}
+              items={relatedAccessPoints}
               sectionLabel="Potrebbero interessarti"
             />
           </Stack>

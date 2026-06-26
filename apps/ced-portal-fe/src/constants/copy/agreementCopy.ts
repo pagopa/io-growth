@@ -14,7 +14,10 @@ interface AgreementAdditionalSectionsCopy {
       percentage: string;
       fixed: string;
     };
-    discountValueLabel: string;
+    discountValueLabel: {
+      percentage: string;
+      fixed_amount: string;
+    };
     otherBenefitTypeLabel: string;
   };
   validity: {
@@ -39,7 +42,10 @@ interface AgreementDetailsFormCopy {
   nameHelperText: string;
   benefitTypeLabel: string;
   benefitTypePlaceholder: string;
-  discountValueLabel: string;
+  discountValueLabel: {
+    percentage: string;
+    fixed_amount: string;
+  };
   discountValueError: string;
   otherBenefitTypeLabel: string;
   descriptionLabel: string;
@@ -63,30 +69,33 @@ export const AGREEMENT_COPY_CONFIG: Record<string, AgreementCopy> = {
     detailsForm: {
       sectionTitle: "Dettagli dell'opportunità",
       sectionDescription:
-        "Inserisci i dettagli dell'opportunità che vuoi attivare. Se vuoi, puoi anche aggiungere le traduzioni in altre lingue.",
+        'Inserisci i dettagli dell’opportunità, facendo in modo che sia semplice da capire e da utilizzare per tutti i cittadini UE. Puoi aggiungere anche le traduzioni in altre lingue.',
       nameLabel: 'Nome',
       namePlaceholder: "Digita il nome dell'opportunità",
       nameHelperText: 'Inserisci un testo di max 50 caratteri',
       benefitTypeLabel: 'Tipo di opportunità',
       benefitTypePlaceholder: 'Seleziona una tipologia',
-      discountValueLabel: 'Importo dello sconto',
+      discountValueLabel: {
+        percentage: 'Percentuale dello sconto',
+        fixed_amount: 'Importo dello sconto',
+      },
       discountValueError: 'Inserisci un valore compreso tra 10 e 100',
       otherBenefitTypeLabel: 'Scrivi il tipo di opportunità che vuoi offrire',
       descriptionLabel: 'Descrizione',
       descriptionPlaceholder: "Descrivi brevemente l'opportunità",
-      descriptionHelperText: 'Inserisci un testo di max 250 caratteri',
+      descriptionHelperText: 'Inserisci un testo di max 500 caratteri',
       categoryLabel: 'Categoria',
       categoryPlaceholder: 'Seleziona una categoria',
       conditionsLabel: 'Condizioni',
       conditionsPlaceholder: "Specifica eventuali limitazioni dell'opportunità",
-      conditionsHelperText: 'Inserisci un testo di max 200 caratteri',
+      conditionsHelperText: 'Inserisci un testo di max 500 caratteri',
       fixedPriceLabel: 'Importo del prezzo fisso agevolato',
     },
     additionalSections: {
       companion: {
         title: 'Opportunità per accompagnatore',
         toggleAriaLabel: 'Attiva opportunità per accompagnatore',
-        sameConditionLabel: 'Stessa condizione del titolare',
+        sameConditionLabel: 'Stesse condizioni del titolare',
         benefitTypePlaceholder: 'Seleziona una tipologia',
         benefitTypeOptions: {
           free: 'Gratuito',
@@ -98,7 +107,10 @@ export const AGREEMENT_COPY_CONFIG: Record<string, AgreementCopy> = {
           percentage: 'Percentuale',
           fixed: 'Importo fisso',
         },
-        discountValueLabel: 'Importo dello sconto',
+        discountValueLabel: {
+          percentage: 'Percentuale dello sconto',
+          fixed_amount: 'Importo dello sconto',
+        },
         otherBenefitTypeLabel: 'Scrivi il tipo di opportunità che vuoi offrire',
       },
       validity: {
@@ -112,7 +124,7 @@ export const AGREEMENT_COPY_CONFIG: Record<string, AgreementCopy> = {
       link: {
         title: "Link dell'opportunità",
         benefitUrlLabel:
-          "Inserisci l'URL del sito dove e visibile l'opportunità",
+          "Inserisci l'URL del sito dove è visibile l'opportunità",
       },
     },
   },
@@ -126,17 +138,20 @@ export const AGREEMENT_COPY_CONFIG: Record<string, AgreementCopy> = {
       nameHelperText: 'Enter a text up to 50 characters',
       benefitTypeLabel: 'Benefit type',
       benefitTypePlaceholder: 'Select a type',
-      discountValueLabel: 'Discount amount',
+      discountValueLabel: {
+        percentage: 'Discount percentage',
+        fixed_amount: 'Discount amount',
+      },
       discountValueError: 'Enter a value between 10 and 100',
       otherBenefitTypeLabel: 'Write the benefit type you want to offer',
       descriptionLabel: 'Description',
       descriptionPlaceholder: 'Briefly describe the benefit',
-      descriptionHelperText: 'Enter a text up to 250 characters',
+      descriptionHelperText: 'Enter a text up to 500 characters',
       categoryLabel: 'Category',
       categoryPlaceholder: 'Select a category',
       conditionsLabel: 'Conditions',
       conditionsPlaceholder: 'Specify any benefit limitations',
-      conditionsHelperText: 'Enter a text up to 200 characters',
+      conditionsHelperText: 'Enter a text up to 500 characters',
       fixedPriceLabel: 'Fixed price amount',
     },
     additionalSections: {
@@ -155,7 +170,10 @@ export const AGREEMENT_COPY_CONFIG: Record<string, AgreementCopy> = {
           percentage: 'Percentage',
           fixed: 'Fixed amount',
         },
-        discountValueLabel: 'Discount amount',
+        discountValueLabel: {
+          percentage: 'Discount percentage',
+          fixed_amount: 'Discount amount',
+        },
         otherBenefitTypeLabel: 'Write the benefit type you want to offer',
       },
       validity: {

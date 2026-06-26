@@ -1,5 +1,11 @@
 # @pagopa/io-core-adapter-drizzle
 
+## 0.0.4
+
+### Patch Changes
+
+- 9603c2e: added possibility to migrate cron job
+
 ## 0.0.3
 
 ### Patch Changes

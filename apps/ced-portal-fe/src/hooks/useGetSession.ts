@@ -1,90 +1,130 @@
 import { useLocation, useNavigate } from 'react-router-dom';
-import { useEffect } from 'react';
+import { useEffect, useCallback } from 'react';
 import { APP_ROUTES } from '../app/routeConfig';
 import { useAuthorize } from '../features/session/hooks';
 import { useAppSelector } from './store';
-import { selectToken } from '../core/auth/authSelectors';
-
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? '/api';
-const DEV_ASSERTION_TOKEN = import.meta.env.VITE_DEV_ASSERTION_TOKEN;
-const SESSION_EXCHANGE_KEY = 'ced-portal-last-session-exchange-id';
-const ACS_EXCHANGE_KEY = 'ced-portal-last-acs-assertion-token';
+import { selectToken, selectUser } from '../core/auth/authSelectors';
+import { partyRoleMap } from '../components/PageHeader/constants';
+import { devAuthStorage } from '../features/session/authDev/wrapper';
+import {
+  getDevAssertionToken,
+  getLandingRoute,
+  resolveRole,
+} from '../features/session/authDev/utils';
+import { API_BASE_URL } from '../features/session/authDev/constant';
+import type { AuthorizeResponseUserType } from '../core/api/generated/model';
 
 export const useGetSession = () => {
   const { search } = useLocation();
   const navigate = useNavigate();
   const { authorize } = useAuthorize();
   const token = useAppSelector(selectToken);
+  const user = useAppSelector(selectUser);
+
+  const getCurrentRole = useCallback(() => {
+    if (user?.user_type) {
+      return user.user_type;
+    }
+
+    const savedPartyId = devAuthStorage.getSelectedPartyId();
+    return savedPartyId ? (partyRoleMap[savedPartyId] ?? 'admin') : 'admin';
+  }, [user?.user_type]);
+
+  const navigateToLanding = useCallback(
+    (role?: AuthorizeResponseUserType) => {
+      if (role) return navigate(getLandingRoute(role), { replace: true });
+      navigate(APP_ROUTES.UNAUTHORIZED);
+    },
+    [navigate],
+  );
 
   useEffect(() => {
     let isMounted = true;
 
+    const isValidToken = (value: unknown): value is string => {
+      if (typeof value !== 'string') return false;
+
+      return (
+        value.length > 0 &&
+        value.length <= 2048 &&
+        /^[A-Za-z0-9\-._~+/]+=*$/.test(value)
+      );
+    };
+
     const retrieveSession = async () => {
       const params = new URLSearchParams(search);
-      const redirectToken = params.get('id');
-      const assertionToken = params.get('token') ?? params.get('jwt');
+
+      const rawRedirectToken = params.get('id');
+      const rawAssertionToken = params.get('token') ?? params.get('jwt');
+
+      const redirectToken = isValidToken(rawRedirectToken)
+        ? rawRedirectToken
+        : null;
+
+      const assertionToken = isValidToken(rawAssertionToken)
+        ? rawAssertionToken
+        : null;
 
       if (!redirectToken) {
         if (assertionToken) {
-          const lastAcsAssertionToken =
-            window.sessionStorage.getItem(ACS_EXCHANGE_KEY);
-          if (lastAcsAssertionToken === assertionToken) {
+          const last = devAuthStorage.getLastAcsToken();
+
+          if (last === assertionToken) {
             return;
           }
 
-          window.sessionStorage.setItem(ACS_EXCHANGE_KEY, assertionToken);
+          devAuthStorage.setLastAcsToken(assertionToken);
+
           const acsUrl = `${API_BASE_URL}/acs?token=${encodeURIComponent(assertionToken)}`;
           window.location.replace(acsUrl);
           return;
         }
 
         if (token) {
-          navigate(APP_ROUTES.HOME, { replace: true });
+          navigateToLanding(getCurrentRole());
           return;
         }
 
-        if (import.meta.env.DEV && DEV_ASSERTION_TOKEN && !token) {
-          navigate(
-            `${APP_ROUTES.AUTHORIZE}?token=${encodeURIComponent(DEV_ASSERTION_TOKEN)}`,
-            { replace: true },
-          );
-          return;
+        if (import.meta.env.DEV && !token) {
+          const devToken = getDevAssertionToken(getCurrentRole());
+          if (devToken && isValidToken(devToken)) {
+            navigate(
+              `${APP_ROUTES.AUTHORIZE}?token=${encodeURIComponent(devToken)}`,
+              { replace: true },
+            );
+            return;
+          }
         }
 
         navigate(APP_ROUTES.UNAUTHORIZED, { replace: true });
         return;
       }
 
-      const lastSessionExchangeId =
-        window.sessionStorage.getItem(SESSION_EXCHANGE_KEY);
+      const lastSessionExchangeId = devAuthStorage.getLastSessionExchangeId();
+
       if (lastSessionExchangeId === redirectToken) {
-        // If the user is already authenticated (normal navigation),
-        // redirect directly. If the store is empty (page refresh),
-        // clear the guard and repeat the exchange in the same cycle.
         if (token) {
-          navigate(APP_ROUTES.HOME, { replace: true });
+          navigateToLanding(getCurrentRole());
           return;
         }
-
-        window.sessionStorage.removeItem(SESSION_EXCHANGE_KEY);
+        devAuthStorage.removeLastSessionExchangeId();
       }
 
       try {
-        window.sessionStorage.setItem(SESSION_EXCHANGE_KEY, redirectToken);
-        await authorize(redirectToken);
+        devAuthStorage.setLastSessionExchangeId(redirectToken);
+        const response = await authorize(redirectToken);
 
-        if (!isMounted) {
-          return;
-        }
-
-        navigate(APP_ROUTES.HOME, { replace: true });
+        if (!isMounted) return;
+        const role = resolveRole(response.user_type);
+        navigate(getLandingRoute(role), { replace: true });
       } catch {
-        window.sessionStorage.removeItem(SESSION_EXCHANGE_KEY);
+        devAuthStorage.removeLastSessionExchangeId();
+
         if (isMounted) {
           navigate(APP_ROUTES.UNAUTHORIZED, { replace: true });
         }
       } finally {
-        window.sessionStorage.removeItem(ACS_EXCHANGE_KEY);
+        devAuthStorage.removeLastAcsToken();
       }
     };
 
@@ -93,5 +133,13 @@ export const useGetSession = () => {
     return () => {
       isMounted = false;
     };
-  }, [authorize, navigate, search, token]);
+  }, [
+    authorize,
+    getCurrentRole,
+    navigate,
+    navigateToLanding,
+    search,
+    token,
+    user?.user_type,
+  ]);
 };

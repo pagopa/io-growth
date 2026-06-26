@@ -46,7 +46,7 @@ resource "azurerm_api_management_api" "ced_portal_be_v1" {
 
   import {
     content_format = "openapi-link"
-    content_value  = "https://raw.githubusercontent.com/pagopa/io-growth/fe9e2d5ca502c0964749d9a6212bd3c179486557/apps/ced-portal-be/openapi/exposed/openapi.yaml"
+    content_value  = "https://raw.githubusercontent.com/pagopa/io-growth/d74999f4dde82e43f98cd2141bb61bcb5ef21c4e/apps/ced-portal-be/openapi/exposed/openapi.yaml"
   }
 }
 
@@ -63,15 +63,6 @@ resource "azurerm_api_management_product_api" "ced_portal_be_v1" {
   api_management_name = azurerm_api_management_api.ced_portal_be_v1.api_management_name
   resource_group_name = azurerm_api_management_api.ced_portal_be_v1.resource_group_name
   product_id          = azurerm_api_management_product.ced_portal_be.product_id
-}
-
-resource "azurerm_api_management_named_value" "ced_portal_be_ca_url" {
-  name                = "ced-portal-be-ca-url"
-  api_management_name = azurerm_api_management_api.ced_portal_be_v1.api_management_name
-  resource_group_name = azurerm_api_management_api.ced_portal_be_v1.resource_group_name
-  display_name        = "ced-portal-be-ca-url"
-  secret              = true
-  value               = "https://${replace(module.container_app.url, "/--[^.]+/", "")}"
 }
 
 resource "azurerm_api_management_backend" "ced_portal_be" {

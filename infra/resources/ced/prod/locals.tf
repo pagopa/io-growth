@@ -60,7 +60,7 @@ locals {
 
       # Production admin fiscal codes (comma-separated list of fiscal codes hashes)
       # These define the fiscal codes that can access the admin endpoints of the portal BE application
-      ADMIN_FISCAL_CODES = "516984510c575da00a39bcfcbc7e31ca4295384940dad4d2fd39f6e402f660b4"
+      ADMIN_FISCAL_CODES = "516984510c575da00a39bcfcbc7e31ca4295384940dad4d2fd39f6e402f660b4,c76485950c65824bfece422678533d27eb3df4802220aa2f75580401964875b9"
 
       # Test actor fiscal codes (comma-separated list of fiscal codes hashes)
       # These define the fiscal codes that can the portal BE application as test actors
@@ -72,6 +72,15 @@ locals {
     readiness_probe_path = "/api/info/readiness"
   }
 
+  browser_be_container_app_name = provider::dx::resource_name({
+    prefix          = local.prefix
+    environment     = local.env_short
+    location        = local.location
+    domain          = local.domain
+    name            = "browser-be"
+    instance_number = 1
+    resource_type   = "container_app"
+  })
 
   # Browser BE Container App configuration
   browser_be = {
@@ -80,11 +89,17 @@ locals {
     image = "ghcr.io/pagopa/io-growth/ced-browser-be:latest"
 
     app_settings = {
+      APPLICATIONINSIGHTS_ENTRA_ID_AUTH_ENABLED = "false"
+      APPINSIGHTS_SAMPLING_PERCENTAGE           = "100"
+      TELEMETRY_SERVICE_NAME                    = local.browser_be_container_app_name
+
       PORT            = "8080"
+
       POSTGRES_HOST   = "${module.postgresql.postgres.name}.postgres.database.azure.com"
       POSTGRES_PORT   = "6432"
       POSTGRES_DB     = azurerm_postgresql_flexible_server_database.ced_test.name
       POSTGRES_SSL    = "true"
+
       REDIS_ENDPOINT  = module.redis_dx.endpoint
       REDIS_TLS       = "true"
       AZURE_CLIENT_ID = module.common_container_app_environment.user_assigned_identity.client_id
@@ -92,14 +107,24 @@ locals {
       # FIMS SSO settings
       BASE_URL             = "https://browser.ced.pagopa.it"
       FIMS_AUDIT_CONTAINER = "ced-browser-logs"
-      FIMS_REDIRECT_URL    = "${module.ced_apim.gateway_url}/browser/fcb"
-      FIMS_SCOPE           = "openid profile fiscal_code"
-      TEST_USERS           = "6960f673e4bf8cc073a32b3b4579bfdb97b50b8df29964bdea6fcd1576d16f82"
+      FIMS_REDIRECT_URL    = "https://api.ced.pagopa.it/api/ced-browser/v1/fcb"
+      FIMS_SCOPE           = "openid profile lollipop"
+      TEST_USERS           = ""
     }
 
     startup_probe_path   = "/api/info/startup"
     readiness_probe_path = "/api/info/readiness"
   }
+
+  card_request_be_container_app_name = provider::dx::resource_name({
+    prefix          = local.prefix
+    environment     = local.env_short
+    location        = local.location
+    domain          = local.domain
+    name            = "card-request-be"
+    instance_number = 1
+    resource_type   = "container_app"
+  })
 
   # Card Request BE Container App configuration
   card_request_be = {
@@ -108,7 +133,12 @@ locals {
     image = "ghcr.io/pagopa/io-growth/ced-card-request-be:latest"
 
     app_settings = {
+      APPLICATIONINSIGHTS_ENTRA_ID_AUTH_ENABLED = "false"
+      APPINSIGHTS_SAMPLING_PERCENTAGE           = "100"
+      TELEMETRY_SERVICE_NAME                    = local.card_request_be_container_app_name
+
       PORT            = "8080"
+
       REDIS_ENDPOINT  = module.redis_dx.endpoint
       REDIS_TLS       = "true"
       AZURE_CLIENT_ID = module.common_container_app_environment.user_assigned_identity.client_id
@@ -119,9 +149,9 @@ locals {
       # FIMS SSO settings
       BASE_URL             = "https://card.ced.pagopa.it"
       FIMS_AUDIT_CONTAINER = "ced-card-request-logs"
-      FIMS_REDIRECT_URL    = "${module.ced_apim.gateway_url}/card-request/fcb"
-      FIMS_SCOPE           = "openid profile fiscal_code"
-      TEST_USERS           = "6960f673e4bf8cc073a32b3b4579bfdb97b50b8df29964bdea6fcd1576d16f82"
+      FIMS_REDIRECT_URL    = "https://api.ced.pagopa.it/api/ced-card/v1/fcb"
+      FIMS_SCOPE           = "openid profile lollipop"
+      TEST_USERS           = ""
     }
 
     startup_probe_path   = "/api/info/startup"

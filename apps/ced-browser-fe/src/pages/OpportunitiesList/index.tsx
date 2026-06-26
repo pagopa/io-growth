@@ -1,20 +1,20 @@
 import { Box, Typography } from '@mui/material';
 import { DiscoveryListItem } from '../../components';
 import { theme } from '../../core/theme';
-import { DISCOVERY_ITEMS_CONFIG } from '../Home/constants';
 import { useNavigate } from 'react-router-dom';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { toOpportunityDetailRoute } from '../../app/routeConfig';
+import { useGetOpportunitiesSearchQuery } from '../../features/opportunities/api';
+import { generateDiscoveryItemsConfig } from '../Home/constants';
+
 export default function OpportunitiesList() {
   const navigate = useNavigate();
 
-  // mock to reach max length of opportunities list (30)
-  const mockOpportunities = [
-    ...DISCOVERY_ITEMS_CONFIG,
-    ...(Array(30 - DISCOVERY_ITEMS_CONFIG.length).fill(
-      DISCOVERY_ITEMS_CONFIG[DISCOVERY_ITEMS_CONFIG.length - 1],
-    ) as typeof DISCOVERY_ITEMS_CONFIG),
-  ];
+  const { data } = useGetOpportunitiesSearchQuery({
+    limit: 30,
+  });
+
+  const items = generateDiscoveryItemsConfig(data?.items);
 
   return (
     <Box sx={{ bgcolor: 'background.paper' }}>
@@ -42,7 +42,7 @@ export default function OpportunitiesList() {
           Ecco le ultime opportunità pubblicate dai partner.
         </Typography>
       </Box>
-      {mockOpportunities.map((item, index, list) => (
+      {items.map((item, index, list) => (
         <DiscoveryListItem
           key={`${item.id}-${index}`}
           sx={{ backgroundColor: theme.palette.background.paper }}

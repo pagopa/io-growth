@@ -4,6 +4,7 @@ import type {
   OpportunitySummaryItem,
 } from '../../../core/api/generated/model';
 import { benefitStateLabelMap, opportunityStatusLabelMap } from './constants';
+import { getDisplayStatus } from '../../../utils';
 
 type ChipConfig = {
   item: OpportunitySummaryItem;
@@ -11,11 +12,14 @@ type ChipConfig = {
 };
 
 export const getChipConfig = ({ item, role }: ChipConfig): ChipProps => {
+  const displayStatus = getDisplayStatus(item.status, item.dateFrom);
+
   const config = (
     role === 'admin' ? opportunityStatusLabelMap : benefitStateLabelMap
-  )[item.status];
+  )[displayStatus];
+
   const color = config?.color ?? 'default';
-  const label = config?.text ?? item.status;
+  const label = config?.text ?? displayStatus;
 
   return {
     size: 'small',
@@ -35,9 +39,12 @@ export const getChipConfig = ({ item, role }: ChipConfig): ChipProps => {
 export const getDetailChipConfig = (
   item: OpportunityDetailResponse,
 ): ChipProps => {
-  const config = benefitStateLabelMap[item.status];
+  const displayStatus = getDisplayStatus(item.status, item.dateFrom);
+
+  const config = benefitStateLabelMap[displayStatus];
+
   const color = config?.color ?? 'default';
-  const label = config?.text ?? item.status;
+  const label = config?.text ?? displayStatus;
 
   return {
     size: 'small',

@@ -36,13 +36,13 @@ export const DiscountBenefitFields = () => {
   );
 
   const handleBenefitTypeChange = useCallback(
-    (value: string) => {
+    (value: BenefitDiscountDiscountType) => {
       dispatch(
         setBenefit({
           which: 'beneficiaryBenefit',
           value: {
             type: BenefitDiscountType.discount,
-            discountType: value as BenefitDiscountDiscountType,
+            discountType: value,
             value: 0,
           },
         }),
@@ -101,14 +101,22 @@ export const DiscountBenefitFields = () => {
         value={benefitDiscountType}
         options={fixedPriceBenefitTypeOptions}
         disabled={disabledNotLocalizedField}
-        onChange={(event) => handleBenefitTypeChange(event.target.value)}
+        onChange={(event) =>
+          handleBenefitTypeChange(
+            event.target.value as BenefitDiscountDiscountType,
+          )
+        }
       />
 
       <FieldWithIcon
         disabled={disabledNotLocalizedField}
         onChange={(event) => handleChange(Number(event.target.value))}
         icon={discountIcon}
-        label={copy.detailsForm.discountValueLabel}
+        label={
+          copy.detailsForm.discountValueLabel[
+            benefitDiscountType as BenefitDiscountDiscountType
+          ]
+        }
         value={benefitDiscountValue || ''}
         error={benefitPercentageError}
         errorMessage={copy.detailsForm.discountValueError}

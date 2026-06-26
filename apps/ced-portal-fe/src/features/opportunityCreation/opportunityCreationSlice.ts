@@ -22,6 +22,8 @@ export interface OpportunityCreationState {
   form: OpportunityCreationForm;
   activeLanguage: LocalizedMetadataItemLanguage;
   caregiverEnabled?: boolean;
+  caregiverHasSameConditions?: boolean;
+  hasEndDate?: boolean;
 }
 
 const createEmptyForm = (): OpportunityCreationForm => ({
@@ -60,6 +62,12 @@ const opportunityCreationSlice = createSlice({
     setCaregiverEnabled: (state, action: PayloadAction<boolean>) => {
       state.caregiverEnabled = action.payload;
     },
+    setCaregiverHasSameConditions: (state, action: PayloadAction<boolean>) => {
+      state.caregiverHasSameConditions = action.payload;
+    },
+    setHasEndDate: (state, action: PayloadAction<boolean>) => {
+      state.hasEndDate = action.payload;
+    },
     cloneOwnerBenefitToCompanion: (state) => {
       state.form.caregiverBenefit = {
         ...state.form.beneficiaryBenefit,
@@ -69,7 +77,7 @@ const opportunityCreationSlice = createSlice({
       state,
       action: PayloadAction<{
         field: keyof OpportunityCreationForm;
-        value: OpportunityCreationForm[keyof OpportunityCreationForm] | null;
+        value: OpportunityCreationForm[keyof OpportunityCreationForm];
       }>,
     ) => {
       const { field, value } = action.payload;
@@ -79,13 +87,18 @@ const opportunityCreationSlice = createSlice({
     setPlaceIds: (state, action: PayloadAction<string[]>) => {
       state.form.placeIds = action.payload;
     },
+
     addPlaceId: (state, action: PayloadAction<string>) => {
+      if (!state.form.placeIds) {
+        state.form.placeIds = [];
+      }
       if (!state.form.placeIds.includes(action.payload)) {
         state.form.placeIds.push(action.payload);
       }
     },
+
     removePlaceId: (state, action: PayloadAction<string>) => {
-      state.form.placeIds = state.form.placeIds.filter(
+      state.form.placeIds = (state.form.placeIds ?? []).filter(
         (p) => p !== action.payload,
       );
     },
@@ -144,6 +157,8 @@ const opportunityCreationSlice = createSlice({
 export const {
   setActiveLanguage,
   setCaregiverEnabled,
+  setCaregiverHasSameConditions,
+  setHasEndDate,
   cloneOwnerBenefitToCompanion,
   setField,
   setPlaceIds,

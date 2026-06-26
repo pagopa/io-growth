@@ -1,3 +1,4 @@
+import { TheaterComedy } from '@mui/icons-material';
 import OpenInNewOutlinedIcon from '@mui/icons-material/OpenInNewOutlined';
 import {
   Box,
@@ -9,15 +10,30 @@ import {
   useTheme,
 } from '@mui/material';
 import { useNavigate, useParams } from 'react-router-dom';
-import { APP_ROUTES } from '../../app/routeConfig.js';
+import {
+  toEntityAccessPointDetailRoute,
+  toEntityDetailRoute,
+} from '../../app/routeConfig';
 import {
   DiscoveryListItem,
   PageHeader,
   QueryGuard,
   SectionTitle,
 } from '../../components/index.js';
-import { useGetOpportunityDetailQuery } from '../../features/entities/api.js';
-import { TheaterComedy } from '@mui/icons-material';
+import { useGetOpportunityDetailQuery } from '../../features/opportunities/api.js';
+import { formatBadgeLabel } from '../../utils/formatBadgeLabel.js';
+import { formatAddress } from '../../utils/formatAddress.js';
+
+function formatPlacesAddress(venue: {
+  street?: string | null;
+  city?: string | null;
+  state?: string | null;
+  postal_code?: string | null;
+}): string {
+  return [venue.street, venue.city, venue.state, venue.postal_code]
+    .filter(Boolean)
+    .join(', ');
+}
 
 export default function OpportunityDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -37,7 +53,9 @@ export default function OpportunityDetailPage() {
       fontWeight: 600,
     },
   };
-  const { data, isLoading, isError } = useGetOpportunityDetailQuery(id ?? '');
+  const { data, isLoading, isError, error } = useGetOpportunityDetailQuery(
+    id ?? '',
+  );
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -54,6 +72,7 @@ export default function OpportunityDetailPage() {
     <QueryGuard
       isLoading={isLoading}
       isError={isError}
+      error={error}
       data={data}
       errorMessage="Impossibile caricare i dati dell'opportunità."
     >
@@ -83,11 +102,7 @@ export default function OpportunityDetailPage() {
                 mb: 2,
               }}
             >
-              {resolvedData.discount_label ??
-                (resolvedData.discount_type === 'Percentuale' &&
-                resolvedData.discount_value
-                  ? `-${resolvedData.discount_value}%`
-                  : resolvedData.opportunity_type)}
+              {formatBadgeLabel(resolvedData.beneficiaryBenefit)}
             </Box>
 
             <Typography
@@ -140,18 +155,20 @@ export default function OpportunityDetailPage() {
 
             <Divider />
 
-            <Box sx={{ py: 2 }}>
-              <Typography component="p" sx={sectionSx.label}>
-                Condizioni
-              </Typography>
-              <Typography sx={sectionSx.body}>
-                {resolvedData.conditions}
-              </Typography>
-            </Box>
+            {resolvedData.condition && (
+              <Box sx={{ py: 2 }}>
+                <Typography component="p" sx={sectionSx.label}>
+                  Condizioni
+                </Typography>
+                <Typography sx={sectionSx.body}>
+                  {resolvedData.condition}
+                </Typography>
+              </Box>
+            )}
 
             <Divider />
 
-            {resolvedData.companion?.enabled && (
+            {resolvedData.caregiverBenefit?.value && (
               <>
                 <Box sx={{ py: 2 }}>
                   <Typography component="p" sx={sectionSx.label}>
@@ -170,82 +187,69 @@ export default function OpportunityDetailPage() {
                 Periodo di validità
               </Typography>
               <Typography sx={sectionSx.body}>
-                {formatDate(resolvedData.validity_end)}
+                {formatDate(resolvedData.dateTo ?? resolvedData.dateFrom)}
               </Typography>
             </Box>
 
             <Divider />
 
-            {resolvedData.info_url && (
-              <>
-                <Box sx={{ py: 2.25 }}>
-                  <Box
-                    sx={{ display: 'flex', alignItems: 'center', gap: 1.25 }}
-                  >
-                    <OpenInNewOutlinedIcon
+            {resolvedData.url && (
+              <Box sx={{ py: 2.25 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.25 }}>
+                  <OpenInNewOutlinedIcon
+                    sx={{
+                      color: theme.palette.common.primaryButton,
+                      fontSize: 20,
+                    }}
+                  />
+                  <Box>
+                    <Typography sx={sectionSx.label}>Scopri di più</Typography>
+                    <Link
+                      href={resolvedData.url}
+                      target="_blank"
+                      rel="noreferrer"
                       sx={{
                         color: theme.palette.common.primaryButton,
-                        fontSize: 20,
+                        fontSize: 16,
+                        lineHeight: 1.35,
+                        fontWeight: 600,
+                        wordBreak: 'break-word',
                       }}
-                    />
-                    <Box>
-                      <Typography sx={sectionSx.label}>
-                        Scopri di più
-                      </Typography>
-                      <Link
-                        href={resolvedData.info_url}
-                        target="_blank"
-                        rel="noreferrer"
-                        sx={{
-                          color: theme.palette.common.primaryButton,
-                          fontSize: 16,
-                          lineHeight: 1.35,
-                          fontWeight: 600,
-                          wordBreak: 'break-word',
-                        }}
-                      >
-                        {resolvedData.info_url}
-                      </Link>
-                    </Box>
+                    >
+                      {resolvedData.url}
+                    </Link>
                   </Box>
                 </Box>
-              </>
+              </Box>
             )}
 
             <Box sx={{ mx: -3 }}>
               <SectionTitle label="Valida presso" />
-              <DiscoveryListItem
-                variant="simple"
-                title={
-                  resolvedData.venue_name ?? resolvedData.organization_name
-                }
-                subtitle={resolvedData.venue_address}
-                onClick={() =>
-                  navigate(
-                    APP_ROUTES.ENTITY_ACCESS_POINT_DETAIL.replace(
-                      ':id',
-                      resolvedData.entityId,
-                    ).replace(':accessPointId', resolvedData.accessPointId),
-                  )
-                }
-                sx={{ px: 0, bgcolor: 'background.paper' }}
-              />
+              {resolvedData.places.map((place) => (
+                <DiscoveryListItem
+                  key={place.id}
+                  variant="simple"
+                  title={place.name}
+                  subtitle={formatPlacesAddress(place)}
+                  onClick={() =>
+                    navigate(toEntityAccessPointDetailRoute(place.id))
+                  }
+                  sx={{ px: 0, bgcolor: 'background.paper' }}
+                />
+              ))}
             </Box>
 
             <Box sx={{ mx: -3, mt: 2 }}>
               <SectionTitle label="Gestita da" />
               <DiscoveryListItem
                 variant="simple"
-                title={
-                  resolvedData.managed_by ?? resolvedData.organization_name
+                title={resolvedData.profile.displayName}
+                subtitle={
+                  resolvedData.profile.place.website ??
+                  formatAddress(resolvedData.profile.place.address)
                 }
                 onClick={() =>
-                  navigate(
-                    APP_ROUTES.ENTITY_DETAIL.replace(
-                      ':id',
-                      resolvedData.entityId,
-                    ),
-                  )
+                  navigate(toEntityDetailRoute(resolvedData.profile.id))
                 }
                 sx={{ px: 0, bgcolor: 'background.paper' }}
               />

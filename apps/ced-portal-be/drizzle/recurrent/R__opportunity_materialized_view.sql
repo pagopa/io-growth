@@ -8,6 +8,8 @@ SELECT
   o.id,
   o.operator_id,
   o.national_territory,
+  o.date_from,
+  o.date_to,
   pf.display_name AS profile_display_name,
   lm_name.value AS name,
   lm_name.language,
@@ -26,6 +28,7 @@ WHERE
   CURRENT_DATE <= coalesce(o.date_to, 'infinity'::date)
 ;
 
+CREATE UNIQUE INDEX idx_opportunity_mv_id ON opportunity_materialized_view (id, place_id, language);
 CREATE INDEX idx_opportunity_mv_operator ON opportunity_materialized_view (operator_id);
 CREATE INDEX idx_opportunity_mv_place ON opportunity_materialized_view (place_id);
 CREATE INDEX idx_opportunity_mv_language ON opportunity_materialized_view (language);

@@ -1,5 +1,17 @@
 # @pagopa/io-core-adapter-fims
 
+## 0.0.7
+
+### Patch Changes
+
+- 7bbb05b: fixes for fims signature verification
+
+## 0.0.6
+
+### Patch Changes
+
+- f146ba6: fixed endpoints with /api
+
 ## 0.0.5
 
 ### Patch Changes

@@ -9,7 +9,10 @@ export interface AgreementAdditionalSectionsCopy {
       percentage: string;
       fixed: string;
     };
-    discountValueLabel: string;
+    discountValueLabel: {
+      percentage: string;
+      fixed_amount: string;
+    };
     otherBenefitTypeLabel: string;
   };
   validity: {
@@ -34,7 +37,10 @@ export interface AgreementDetailsFormCopy {
   nameHelperText: string;
   benefitTypeLabel: string;
   benefitTypePlaceholder: string;
-  discountValueLabel: string;
+  discountValueLabel: {
+    percentage: string;
+    fixed_amount: string;
+  };
   otherBenefitTypeLabel: string;
   descriptionLabel: string;
   descriptionPlaceholder: string;

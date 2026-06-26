@@ -1,7 +1,8 @@
 import { fimsConfigSchema } from "@pagopa/io-core-adapter-fims";
+import { azureTracingConfigSchema } from "@pagopa/io-core-adapter-tracing";
 import { z } from "zod";
 
-const configSchema = fimsConfigSchema.merge(
+const configSchema = fimsConfigSchema.merge(azureTracingConfigSchema).merge(
   z.object({
     AZURE_CLIENT_ID: z.string().optional(),
     COSMOS_ENDPOINT: z.string().url(),

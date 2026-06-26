@@ -22,6 +22,14 @@ export const selectEnabledCaregiver = (state: {
   opportunityCreation: OpportunityCreationState;
 }) => state.opportunityCreation.caregiverEnabled;
 
+export const selectIsSameConditionsCaregiver = (state: {
+  opportunityCreation: OpportunityCreationState;
+}) => !!state.opportunityCreation.caregiverHasSameConditions;
+
+export const selectHasEndDate = (state: {
+  opportunityCreation: OpportunityCreationState;
+}) => !!state.opportunityCreation.form.dateTo;
+
 export const selectOpportunityForm = (state: {
   opportunityCreation: OpportunityCreationState;
 }) => baseSelectOpportunityForm(state);

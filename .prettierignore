@@ -1,5 +1,2 @@
 # Ignore all files with a .hbs extension
 **/*.hbs
-
-# Ignore built files
-dist

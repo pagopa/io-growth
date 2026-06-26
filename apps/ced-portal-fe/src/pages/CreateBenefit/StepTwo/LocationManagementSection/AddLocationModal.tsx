@@ -32,7 +32,7 @@ export function AddLocationModal({
       onClose={handleClose}
       onBack={onBack}
       title="Aggiungi nuova sede"
-      description="Le informazioni saranno visibili su IO nel dettaglio della sede."
+      description="Le informazioni saranno visibili su IO nel dettaglio del punto di accesso."
     >
       <LocationFields attempted={attempted} />
 

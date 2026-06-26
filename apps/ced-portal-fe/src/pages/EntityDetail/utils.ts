@@ -39,7 +39,12 @@ export const getEntityFields = (onboarding: EntityDetail | undefined) =>
           onboarding.institution?.institutionType,
         ),
         buildField('Ragione sociale', onboarding.institution?.description),
-        buildField('Sede legale', onboarding.institution?.address),
+        buildField(
+          'Sede legale',
+          [onboarding.institution?.address, onboarding.institution?.city]
+            .filter(Boolean)
+            .join(', '),
+        ),
         buildField('CAP', onboarding.institution?.zipCode),
         buildField('Email PEC', onboarding.institution?.digitalAddress),
         buildField('Partita IVA o CF', onboarding.institution?.taxCode),

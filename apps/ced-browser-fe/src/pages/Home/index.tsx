@@ -1,5 +1,5 @@
 import { Box, Button, Collapse, Stack } from '@mui/material';
-import { Body, Title, VSpacer } from '@pagopa/io-core-ui';
+import { LabelCaption, Title, VSpacer } from '@pagopa/io-core-ui';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { APP_ROUTES, toOpportunityDetailRoute } from '../../app/routeConfig';
@@ -52,9 +52,7 @@ export default function HomePage() {
         <>
           <Stack direction="column" gap={2}>
             <Box px={3} sx={{ flexShrink: 0 }}>
-              <Body fontWeight="Semibold" fontSize="14px">
-                IN PRIMO PIANO
-              </Body>
+              <LabelCaption>IN PRIMO PIANO</LabelCaption>
             </Box>
             <Carousel list={PARTNERS_CARDS_CONFIG} />
           </Stack>
@@ -66,9 +64,7 @@ export default function HomePage() {
               justifyContent="space-between"
             >
               <Box px={3} sx={{ flexShrink: 0 }}>
-                <Body fontWeight="Semibold" fontSize="14px">
-                  NUOVE OPPORTUNITÀ
-                </Body>
+                <LabelCaption>NUOVE OPPORTUNITÀ</LabelCaption>
               </Box>
               <Button
                 variant="text"

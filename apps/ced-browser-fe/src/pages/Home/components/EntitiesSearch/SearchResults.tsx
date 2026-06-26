@@ -1,5 +1,5 @@
 import { Box, Divider, useTheme } from '@mui/material';
-import { Body } from '@pagopa/io-core-ui';
+import { LabelCaption } from '@pagopa/io-core-ui';
 import type { ReactNode } from 'react';
 import { useMemo } from 'react';
 import { DiscoveryListItem } from '../../../../components/DiscoveryListItem';
@@ -55,9 +55,7 @@ export function SearchResults({
           mb: 1,
         }}
       >
-        <Body fontSize="14px" fontWeight="Semibold">
-          RISULTATI
-        </Body>
+        <LabelCaption>RISULTATI</LabelCaption>
         <Box
           component="span"
           sx={{

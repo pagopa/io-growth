@@ -1,5 +1,5 @@
 import { Box, Divider, Skeleton } from '@mui/material';
-import { Body } from '@pagopa/io-core-ui';
+import { LabelCaption } from '@pagopa/io-core-ui';
 
 export function SearchResultsSkeleton() {
   return (
@@ -12,9 +12,7 @@ export function SearchResultsSkeleton() {
           mb: 1,
         }}
       >
-        <Body fontSize="14px" fontWeight="Semibold">
-          RISULTATI
-        </Body>
+        <LabelCaption>RISULTATI</LabelCaption>
         <Skeleton variant="circular" width={24} height={24} />
       </Box>
       {Array.from({ length: 3 }, (_, i) => (

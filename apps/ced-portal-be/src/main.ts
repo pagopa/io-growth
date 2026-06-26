@@ -2,17 +2,6 @@
 // before any instrumented library (Fastify, PostgreSQL, Redis, fetch) loads.
 import "./telemetry.js";
 
-import type {
-  TypedDbClient,
-  TypedDbClientConfig,
-} from "@pagopa/io-core-adapter-drizzle";
-
-import {
-  type ArClient,
-  type ArClientConfig,
-  createArClient,
-} from "@pagopa/io-core-adapter-ar";
-import { createTypedDbClient } from "@pagopa/io-core-adapter-drizzle";
 import {
   createAuthenticationPreHandler,
   getSessionFromRequest,
@@ -23,7 +12,6 @@ import {
   emitCustomEvent,
   tracingPlugin,
 } from "@pagopa/io-core-adapter-tracing";
-import { createEnvRouter } from "@pagopa/io-core-environment-router";
 import Fastify from "fastify";
 
 import { SessionSchema } from "./adapters/inbound/fastify/auth/session.js";
@@ -52,7 +40,6 @@ import {
   mountOperatorRequestOpportunityTestHandler,
 } from "./adapters/inbound/fastify/index.js";
 import { createArOnboardingRepository } from "./adapters/outbound/ar/ar-onboarding.repository.js";
-import { injectDbAuditContext } from "./adapters/outbound/drizzle/drizzle-audit-context.js";
 import { createDrizzleMaterializedViewRepository } from "./adapters/outbound/drizzle/drizzle-materialized-view.repository.js";
 import { createDrizzleOperatorRepository } from "./adapters/outbound/drizzle/drizzle-operator.repository.js";
 import { createDrizzleOpportunityCategoryRepository } from "./adapters/outbound/drizzle/drizzle-opportunity-category.repository.js";
@@ -60,7 +47,6 @@ import { createDrizzleOpportunityRepository } from "./adapters/outbound/drizzle/
 import { createDrizzlePlaceRepository } from "./adapters/outbound/drizzle/drizzle-place.repository.js";
 import { createDrizzleProfileRepository } from "./adapters/outbound/drizzle/drizzle-profile.repository.js";
 import { createDrizzleHealthCheckRepository } from "./adapters/outbound/drizzle/health-check.repository.js";
-import * as schema from "./adapters/outbound/drizzle/schema/index.js";
 import { createRedisHealthCheckRepository } from "./adapters/outbound/redis/redis-health-check.repository.js";
 import { createRedisSessionRepository } from "./adapters/outbound/redis/redis-session.repository.js";
 import { makeAcsUseCase } from "./application/use-cases/auth/acs.use-case.js";
@@ -85,72 +71,16 @@ import { makeGetOperatorPlaceUseCase } from "./application/use-cases/places/get-
 import { makeListOperatorPlacesUseCase } from "./application/use-cases/places/list-operator-places.use-case.js";
 import { makeCreateOperatorProfileUseCase } from "./application/use-cases/profile/create-operator-profile.use-case.js";
 import { makeGetOperatorProfileUseCase } from "./application/use-cases/profile/get-operator-profile.use-case.js";
-import {
-  createSessionContextPreHandler,
-  getRequestSession,
-} from "./async-local-storage-session-context.js";
+import { createSessionContextPreHandler } from "./async-local-storage-session-context.js";
 import { parseConfig } from "./config.js";
+import { createArRouter, createDbRouter } from "./routed-clients.js";
 
 const config = parseConfig();
 
-/**
- * Routing predicate shared by every environment router. It reads the current
- * request session from the AsyncLocalStorage context populated per request, so
- * the decision automatically follows the authenticated user.
- */
-const isTestRequest = (): boolean => {
-  const userType = getRequestSession()?.userType;
-  return userType === "test_admin" || userType === "test_operator";
-};
-
-const arProdConfig: ArClientConfig = {
-  baseUrl: config.AR_ENDPOINT,
-  subscriptionKey: config.AR_API_KEY,
-};
-
-const arTestConfig: ArClientConfig = {
-  baseUrl: config.AR_ENDPOINT_TEST,
-  subscriptionKey: config.AR_API_KEY_TEST,
-};
-
-const arClientRouter = createEnvRouter<typeof arProdConfig, ArClient>({
-  createProdInstance: createArClient,
-  createTestInstance: createArClient,
-  isTestRequest,
-  prodConfig: arProdConfig,
-  testConfig: arTestConfig,
-});
-
-const sharedDbConfig: Omit<TypedDbClientConfig<typeof schema>, "database"> = {
-  host: config.POSTGRES_HOST,
-  max: config.POSTGRES_MAX_CONNECTIONS,
-  onNotice: (notice) => {
-    emitCustomEvent("database.notice", {
-      caller: "DrizzleClient",
-      data: { message: notice.message },
-    })("DrizzleClient");
-  },
-  onTransaction: injectDbAuditContext,
-  password: config.POSTGRES_PASSWORD,
-  port: config.POSTGRES_PORT,
-  ssl: config.POSTGRES_SSL,
-  user: config.POSTGRES_USER,
-};
-
-const dbRouter = createEnvRouter<
-  TypedDbClientConfig<typeof schema>,
-  TypedDbClient<typeof schema>
->({
-  createProdInstance: (dbConfig) => createTypedDbClient(dbConfig, schema),
-  createTestInstance: (dbConfig) => createTypedDbClient(dbConfig, schema),
-  isTestRequest,
-  prodConfig: { ...sharedDbConfig, database: config.POSTGRES_DB },
-  // Fall back to the prod database when no dedicated test database is set.
-  testConfig: {
-    ...sharedDbConfig,
-    database: config.POSTGRES_DB_TEST ?? config.POSTGRES_DB,
-  },
-});
+const dbRouter = createDbRouter(config);
+const arClientRouter = createArRouter(config);
+const db = dbRouter.getInstance();
+const arClient = arClientRouter.getInstance();
 
 const redisClient = await createResilientRedisClient({
   endpoint: config.REDIS_ENDPOINT,
@@ -166,19 +96,18 @@ const redisClient = await createResilientRedisClient({
   tls: config.REDIS_TLS,
 });
 
-const dbHealthCheckRepository = createDrizzleHealthCheckRepository(dbRouter);
+const dbHealthCheckRepository = createDrizzleHealthCheckRepository(db);
 const redisHealthCheckRepository =
   createRedisHealthCheckRepository(redisClient);
 const sessionRepository = createRedisSessionRepository(redisClient);
-const operatorRepository = createDrizzleOperatorRepository(dbRouter);
+const operatorRepository = createDrizzleOperatorRepository(db);
 const opportunityCategoryRepository =
-  createDrizzleOpportunityCategoryRepository(dbRouter);
-const opportunityRepository = createDrizzleOpportunityRepository(dbRouter);
-const materializedViewRepository =
-  createDrizzleMaterializedViewRepository(dbRouter);
-const placeRepository = createDrizzlePlaceRepository(dbRouter);
-const profileRepository = createDrizzleProfileRepository(dbRouter);
-const arOnboardingRepository = createArOnboardingRepository(arClientRouter);
+  createDrizzleOpportunityCategoryRepository(db);
+const opportunityRepository = createDrizzleOpportunityRepository(db);
+const materializedViewRepository = createDrizzleMaterializedViewRepository(db);
+const placeRepository = createDrizzlePlaceRepository(db);
+const profileRepository = createDrizzleProfileRepository(db);
+const arOnboardingRepository = createArOnboardingRepository(arClient);
 
 const app = Fastify();
 
@@ -314,7 +243,9 @@ app.register(async (app) => {
 
 app.addHook("onClose", async () => {
   await redisClient.closeConnection();
-  await Promise.all(dbRouter.instances.map((db) => db.closeConnection()));
+  await Promise.all(
+    dbRouter.instances.map((instance) => instance.closeConnection()),
+  );
 });
 
 await app.listen({ host: config.HOST, port: config.PORT });

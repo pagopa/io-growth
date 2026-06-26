@@ -7,15 +7,10 @@ vi.mock("@pagopa/io-core-adapter-tracing", () => ({
   emitCustomEvent: vi.fn(() => vi.fn()),
 }));
 
-const makeDb = (refreshMaterializedView: ReturnType<typeof vi.fn>) => {
-  const db = { refreshMaterializedView } as unknown as ReturnType<
-    Parameters<typeof createDrizzleMaterializedViewRepository>[0]["getInstance"]
-  >;
-  return {
-    getInstance: () => db,
-    instances: [db],
-  } as Parameters<typeof createDrizzleMaterializedViewRepository>[0];
-};
+const makeDb = (refreshMaterializedView: ReturnType<typeof vi.fn>) =>
+  ({ refreshMaterializedView }) as unknown as Parameters<
+    typeof createDrizzleMaterializedViewRepository
+  >[0];
 
 describe("createDrizzleMaterializedViewRepository", () => {
   beforeEach(() => {

@@ -32,6 +32,8 @@ export interface EnvRouter<TInstance extends object> {
   readonly instances: readonly TInstance[];
 }
 
+export type EnvRouterEnv = "prod" | "test";
+
 export interface EnvRouterParams<TConfig, TInstance extends object> {
   /** Builds the prod instance from {@link EnvRouterParams.prodConfig}. */
   readonly createProdInstance: (config: TConfig) => TInstance;
@@ -42,6 +44,20 @@ export interface EnvRouterParams<TConfig, TInstance extends object> {
    * must be routed to the test instance, `false` to use the prod instance.
    */
   readonly isTestRequest: () => boolean;
+  /**
+   * Optional callback invoked whenever the active environment **changes**
+   * (including the very first access). Use this to emit a custom telemetry
+   * event without coupling the router to any specific tracing library.
+   *
+   * @example
+   * ```ts
+   * onRoute: (env) =>
+   *   emitCustomEvent("env-router.routed", { caller: "DbRouter", data: { env } })(
+   *     "DbRouter",
+   *   ),
+   * ```
+   */
+  readonly onRoute?: (env: EnvRouterEnv) => void;
   /** Configuration used to build the prod instance. */
   readonly prodConfig: TConfig;
   /** Configuration used to build the test instance. */
@@ -54,15 +70,18 @@ export const createEnvRouter = <TConfig, TInstance extends object>(
   const prodInstance = params.createProdInstance(params.prodConfig);
   const testInstance = params.createTestInstance(params.testConfig);
 
-  const resolveActive = (): TInstance =>
-    params.isTestRequest() ? testInstance : prodInstance;
-
   // A single proxy resolves the active instance on every property access and
   // binds methods to it, so callers can capture `getInstance()` once and still
   // be routed per request.
+  //
+  // `onRoute` is called on EVERY property access
   const proxy = new Proxy(prodInstance, {
     get(_target, property) {
-      const active = resolveActive();
+      const isTest = params.isTestRequest();
+      const active = isTest ? testInstance : prodInstance;
+
+      params.onRoute?.(isTest ? "test" : "prod");
+
       const value = Reflect.get(active, property, active);
       return typeof value === "function"
         ? (value as (...args: unknown[]) => unknown).bind(active)

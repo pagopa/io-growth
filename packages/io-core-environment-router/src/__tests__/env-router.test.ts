@@ -132,4 +132,102 @@ describe("createEnvRouter", () => {
     expect(prodClose).toHaveBeenCalledTimes(1);
     expect(testClose).toHaveBeenCalledTimes(1);
   });
+
+  describe("onRoute callback", () => {
+    it("is invoked on every property access with the current environment", () => {
+      const onRoute = vi.fn();
+      const client = createEnvRouter({
+        createProdInstance: () => createFakeClient("prod"),
+        createTestInstance: () => createFakeClient("test"),
+        isTestRequest: () => false,
+        onRoute,
+        prodConfig: { name: "prod-config" },
+        testConfig: { name: "test-config" },
+      }).getInstance();
+
+      void client.env;
+      void client.label;
+      void client.whoAmI();
+
+      expect(onRoute).toHaveBeenCalledTimes(3);
+      expect(onRoute).toHaveBeenCalledWith("prod");
+    });
+
+    it("is called with 'test' when routed to the test instance", () => {
+      const onRoute = vi.fn();
+      const client = createEnvRouter({
+        createProdInstance: () => createFakeClient("prod"),
+        createTestInstance: () => createFakeClient("test"),
+        isTestRequest: () => true,
+        onRoute,
+        prodConfig: { name: "prod-config" },
+        testConfig: { name: "test-config" },
+      }).getInstance();
+
+      void client.env;
+
+      expect(onRoute).toHaveBeenCalledWith("test");
+    });
+
+    it("reflects the current environment on each access independently", () => {
+      const onRoute = vi.fn();
+      let useTest = false;
+      const client = createEnvRouter({
+        createProdInstance: () => createFakeClient("prod"),
+        createTestInstance: () => createFakeClient("test"),
+        isTestRequest: () => useTest,
+        onRoute,
+        prodConfig: { name: "prod-config" },
+        testConfig: { name: "test-config" },
+      }).getInstance();
+
+      void client.env; // → 'prod'
+      void client.label; // → 'prod'
+      useTest = true;
+      void client.env; // → 'test'
+      void client.label; // → 'test'
+
+      expect(onRoute).toHaveBeenCalledTimes(4);
+      expect(onRoute).toHaveBeenNthCalledWith(1, "prod");
+      expect(onRoute).toHaveBeenNthCalledWith(2, "prod");
+      expect(onRoute).toHaveBeenNthCalledWith(3, "test");
+      expect(onRoute).toHaveBeenNthCalledWith(4, "test");
+    });
+
+    it("has no shared state between concurrent logical requests", () => {
+      // Simulate two interleaved requests (prod and test) sharing the same
+      // proxy — mirrors Node.js concurrency where async tasks interleave.
+      const onRoute = vi.fn();
+      let currentIsTest = false; // simulates ALS returning per-request value
+      const client = createEnvRouter({
+        createProdInstance: () => createFakeClient("prod"),
+        createTestInstance: () => createFakeClient("test"),
+        isTestRequest: () => currentIsTest,
+        onRoute,
+        prodConfig: { name: "prod-config" },
+        testConfig: { name: "test-config" },
+      }).getInstance();
+
+      // "prod request" accesses the client
+      currentIsTest = false;
+      void client.env;
+      expect(onRoute).toHaveBeenLastCalledWith("prod");
+
+      // "test request" interleaves and accesses the client
+      currentIsTest = true;
+      void client.env;
+      expect(onRoute).toHaveBeenLastCalledWith("test");
+
+      // "prod request" resumes — must still see 'prod', not polluted by test
+      currentIsTest = false;
+      void client.env;
+      expect(onRoute).toHaveBeenLastCalledWith("prod");
+    });
+
+    it("is not called at all when not provided", () => {
+      const { router } = setup(() => false);
+      const client = router.getInstance();
+      expect(() => void client.env).not.toThrow();
+    });
+  });
 });

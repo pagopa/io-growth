@@ -1,5 +1,4 @@
 import type { TypedDbClient } from "@pagopa/io-core-adapter-drizzle";
-import type { EnvRouter } from "@pagopa/io-core-environment-router";
 import type { Result } from "neverthrow";
 
 import { ConflictError, GenericError } from "@pagopa/io-core-domain/errors";
@@ -15,120 +14,115 @@ import * as schema from "./schema/index.js";
 import { place, profile, supportContact } from "./schema/tables.js";
 
 export const createDrizzleProfileRepository = (
-  dbRouter: EnvRouter<TypedDbClient<typeof schema>>,
-): ProfileRepository => {
-  const db = dbRouter.getInstance();
-  return {
-    create: async (
-      input: Profile,
-    ): Promise<Result<Profile, ConflictError | GenericError>> => {
-      try {
-        let created!: Profile;
-        await db.transaction(async (tx) => {
-          const returnedPlace = await createPlaceInTransaction(
-            tx,
-            input.operatorId,
-            input.place,
-          );
+  db: TypedDbClient<typeof schema>,
+): ProfileRepository => ({
+  create: async (
+    input: Profile,
+  ): Promise<Result<Profile, ConflictError | GenericError>> => {
+    try {
+      let created!: Profile;
+      await db.transaction(async (tx) => {
+        const returnedPlace = await createPlaceInTransaction(
+          tx,
+          input.operatorId,
+          input.place,
+        );
 
-          const [createdProfile] = await tx
-            .insert(profile)
-            .values({
-              displayName: input.displayName,
-              operatorId: input.operatorId,
-              placeId: input.place.id,
-            })
-            .onConflictDoNothing({ target: profile.operatorId })
-            .returning({
-              displayName: profile.displayName,
-              operatorId: profile.operatorId,
-            });
+        const [createdProfile] = await tx
+          .insert(profile)
+          .values({
+            displayName: input.displayName,
+            operatorId: input.operatorId,
+            placeId: input.place.id,
+          })
+          .onConflictDoNothing({ target: profile.operatorId })
+          .returning({
+            displayName: profile.displayName,
+            operatorId: profile.operatorId,
+          });
 
-          if (!createdProfile) {
-            throw new ConflictError("Operator profile already exists");
-          }
-
-          created = {
-            displayName: createdProfile.displayName,
-            operatorId: createdProfile.operatorId,
-            place: returnedPlace,
-          };
-        });
-
-        return ok(created);
-      } catch (error) {
-        if (error instanceof ConflictError) {
-          return err(error);
+        if (!createdProfile) {
+          throw new ConflictError("Operator profile already exists");
         }
+
+        created = {
+          displayName: createdProfile.displayName,
+          operatorId: createdProfile.operatorId,
+          place: returnedPlace,
+        };
+      });
+
+      return ok(created);
+    } catch (error) {
+      if (error instanceof ConflictError) {
+        return err(error);
+      }
+      return err(
+        new GenericError(`Failed to create operator profile: ${String(error)}`),
+      );
+    }
+  },
+
+  getByOperatorId: async (
+    operatorId: string,
+  ): Promise<Result<Profile | undefined, GenericError>> => {
+    try {
+      const profileRow = await db.query.profile.findFirst({
+        columns: {
+          displayName: true,
+          operatorId: true,
+          placeId: true,
+        },
+        where: eq(profile.operatorId, operatorId),
+      });
+
+      if (!profileRow) {
+        return ok(undefined);
+      }
+
+      const placeRow = await db.query.place.findFirst({
+        columns: { id: true, name: true, type: true },
+        where: eq(place.id, profileRow.placeId),
+        with: {
+          address: {
+            columns: {
+              city: true,
+              country: true,
+              postalCode: true,
+              state: true,
+              street: true,
+            },
+          },
+          supportContacts: {
+            columns: { id: true, type: true, value: true },
+            orderBy: [asc(supportContact.createdAt), asc(supportContact.id)],
+          },
+          website: { columns: { url: true } },
+        },
+      });
+
+      if (!placeRow) {
         return err(
           new GenericError(
-            `Failed to create operator profile: ${String(error)}`,
+            `Data integrity error: profile for operator ${operatorId} references a missing place`,
           ),
         );
       }
-    },
 
-    getByOperatorId: async (
-      operatorId: string,
-    ): Promise<Result<Profile | undefined, GenericError>> => {
-      try {
-        const profileRow = await db.query.profile.findFirst({
-          columns: {
-            displayName: true,
-            operatorId: true,
-            placeId: true,
-          },
-          where: eq(profile.operatorId, operatorId),
-        });
-
-        if (!profileRow) {
-          return ok(undefined);
-        }
-
-        const placeRow = await db.query.place.findFirst({
-          columns: { id: true, name: true, type: true },
-          where: eq(place.id, profileRow.placeId),
-          with: {
-            address: {
-              columns: {
-                city: true,
-                country: true,
-                postalCode: true,
-                state: true,
-                street: true,
-              },
-            },
-            supportContacts: {
-              columns: { id: true, type: true, value: true },
-              orderBy: [asc(supportContact.createdAt), asc(supportContact.id)],
-            },
-            website: { columns: { url: true } },
-          },
-        });
-
-        if (!placeRow) {
-          return err(
-            new GenericError(
-              `Data integrity error: profile for operator ${operatorId} references a missing place`,
-            ),
-          );
-        }
-
-        const mappedPlace = mapPlaceRow(placeRow);
-        if (mappedPlace.isErr()) {
-          return err(mappedPlace.error);
-        }
-
-        return ok({
-          displayName: profileRow.displayName,
-          operatorId: profileRow.operatorId,
-          place: mappedPlace.value,
-        });
-      } catch (error) {
-        return err(
-          new GenericError(`Failed to get operator profile: ${String(error)}`),
-        );
+      const mappedPlace = mapPlaceRow(placeRow);
+      if (mappedPlace.isErr()) {
+        return err(mappedPlace.error);
       }
-    },
-  };
-};
+
+      return ok({
+        displayName: profileRow.displayName,
+        operatorId: profileRow.operatorId,
+        place: mappedPlace.value,
+      });
+    } catch (error) {
+      return err(
+        new GenericError(`Failed to get operator profile: ${String(error)}`),
+      );
+    }
+  },
+});

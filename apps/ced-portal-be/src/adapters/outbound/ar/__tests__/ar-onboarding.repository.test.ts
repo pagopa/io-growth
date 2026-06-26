@@ -3,7 +3,7 @@ import { describe, expect, it, vi } from "vitest";
 
 import { createArOnboardingRepository } from "../ar-onboarding.repository.js";
 import {
-  createMockArClientRouter,
+  createMockArClient,
   createMockDocumentContentRepository,
   createMockInstitutionRepository,
   createMockOnboardingRepository,
@@ -23,7 +23,7 @@ const createRepository = ({
   searchOnboardings = vi.fn(),
 } = {}) =>
   createArOnboardingRepository(
-    createMockArClientRouter({
+    createMockArClient({
       documentContentClient: createMockDocumentContentRepository(),
       institutionClient: createMockInstitutionRepository({ searchOnboardings }),
       onboardingClient: createMockOnboardingRepository({

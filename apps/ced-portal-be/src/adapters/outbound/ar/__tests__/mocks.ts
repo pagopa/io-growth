@@ -5,7 +5,6 @@ import type {
   OnboardingRepository,
   UserRepository,
 } from "@pagopa/io-core-adapter-ar";
-import type { EnvRouter } from "@pagopa/io-core-environment-router";
 
 import { vi } from "vitest";
 
@@ -222,9 +221,4 @@ export const createMockUserRepository = (
     getUserById: overrides.getUserById ?? vi.fn(),
   }) as UserRepository;
 
-export const createMockArClientRouter = (
-  arClient: ArClient,
-): EnvRouter<ArClient> => ({
-  getInstance: () => arClient,
-  instances: [arClient],
-});
+export const createMockArClient = (arClient: ArClient): ArClient => arClient;

@@ -1,0 +1,3 @@
+export enum PageErrorType {
+  OPPORTUNITY_NOT_FOUND = 'OPPORTUNITY_NOT_FOUND',
+}

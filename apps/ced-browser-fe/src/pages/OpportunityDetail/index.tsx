@@ -21,8 +21,9 @@ import {
   SectionTitle,
 } from '../../components/index.js';
 import { useGetOpportunityDetailQuery } from '../../features/opportunities/api.js';
-import { formatBadgeLabel } from '../../utils/formatBadgeLabel.js';
 import { formatAddress } from '../../utils/formatAddress.js';
+import { formatBadgeLabel } from '../../utils/formatBadgeLabel.js';
+import { PageErrorType } from '../Error/types.js';
 
 function formatPlacesAddress(venue: {
   street?: string | null;
@@ -53,9 +54,8 @@ export default function OpportunityDetailPage() {
       fontWeight: 600,
     },
   };
-  const { data, isLoading, isError, error } = useGetOpportunityDetailQuery(
-    id ?? '',
-  );
+  const { data, isLoading, isError, error, refetch } =
+    useGetOpportunityDetailQuery(id ?? '');
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -75,6 +75,8 @@ export default function OpportunityDetailPage() {
       error={error}
       data={data}
       errorMessage="Impossibile caricare i dati dell'opportunità."
+      errorType={PageErrorType.OPPORTUNITY_NOT_FOUND}
+      reloadAction={refetch}
     >
       {(resolvedData) => (
         <Box

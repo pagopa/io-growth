@@ -1,13 +1,21 @@
 import { Box, CircularProgress, Typography } from '@mui/material';
 import type { ReactNode } from 'react';
+import ErrorScreen from '../../pages/Error';
+import { PageErrorType } from '../../pages/Error/types';
 
 type Props<T> = {
   isLoading: boolean;
   isError: boolean;
   data: T | undefined;
   error?: unknown;
+  /**
+   * @deprecated use errorType and create a custom error screen instead
+   *
+   */
   errorMessage?: string;
   children: (data: T) => ReactNode;
+  errorType?: PageErrorType;
+  reloadAction?: () => void;
 };
 
 export function QueryGuard<T>({
@@ -17,7 +25,9 @@ export function QueryGuard<T>({
   errorMessage = 'Impossibile caricare i dati.',
   error,
   children,
-}: Props<T>) {
+  errorType,
+  reloadAction,
+}: Readonly<Props<T>>) {
   if (isLoading) {
     return (
       <Box sx={{ display: 'flex', justifyContent: 'center', pt: 8 }}>
@@ -27,6 +37,10 @@ export function QueryGuard<T>({
   }
 
   if (isError || data === undefined) {
+    if (errorType) {
+      return <ErrorScreen errorType={errorType} reloadAction={reloadAction} />;
+    }
+
     return (
       <Box sx={{ px: 2, pt: 4 }}>
         <Typography color="error">{errorMessage}</Typography>

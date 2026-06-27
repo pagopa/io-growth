@@ -45,23 +45,23 @@ const withOpportunityCount = (
 
 const enrichWithOpportunityCounts = (
   items: readonly Onboarding[],
-  countByOperatorIds: OpportunityRepository["countByOperatorIds"],
+  countByExternalOperatorIds: OpportunityRepository["countByExternalOperatorIds"],
 ): ResultAsync<readonly Onboarding[], GenericError | ValidationError> => {
-  const operatorIds = items.reduce<string[]>((acc, item) => {
+  const externalOperatorIds = items.reduce<string[]>((acc, item) => {
     if (item.status !== "PENDING_IN_REVIEW" && item.institution?.id) {
       acc.push(item.institution.id);
     }
     return acc;
   }, []);
 
-  if (operatorIds.length === 0) {
+  if (externalOperatorIds.length === 0) {
     return ResultAsync.fromSafePromise(
       Promise.resolve(items.map((item) => withOpportunityCount(item))),
     );
   }
 
   return new ResultAsync(
-    countByOperatorIds(operatorIds).then((countsResult) =>
+    countByExternalOperatorIds(externalOperatorIds).then((countsResult) =>
       countsResult.map((counts) =>
         items.map((item) => withOpportunityCount(item, counts)),
       ),
@@ -72,7 +72,10 @@ const enrichWithOpportunityCounts = (
 export const makeListOnboardingsUseCase =
   (
     arOnboardingRepository: ArOnboardingRepository,
-    opportunityRepository: Pick<OpportunityRepository, "countByOperatorIds">,
+    opportunityRepository: Pick<
+      OpportunityRepository,
+      "countByExternalOperatorIds"
+    >,
     productId: string,
   ): ListOnboardingsUseCase =>
   async (input) =>
@@ -92,7 +95,7 @@ export const makeListOnboardingsUseCase =
       .andThen((paginated) =>
         enrichWithOpportunityCounts(
           paginated.items,
-          opportunityRepository.countByOperatorIds,
+          opportunityRepository.countByExternalOperatorIds,
         ).map((enrichedItems) => ({
           count: paginated.count,
           items: [...enrichedItems],

@@ -1,5 +1,5 @@
 import { Box, Button, useTheme } from '@mui/material';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { APP_ROUTES } from '../../app/routeConfig';
 import { PageHeader, Stepper } from '../../components';
@@ -63,6 +63,15 @@ export default function CardRequestFlowPage() {
   const actionLabel = isLastStep
     ? 'Invia richiesta'
     : (confirmLabel ?? 'Conferma');
+
+  useEffect(() => {
+    requestAnimationFrame(() => {
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth',
+      });
+    });
+  }, [currentStep]);
 
   if (draftSaved) {
     return (

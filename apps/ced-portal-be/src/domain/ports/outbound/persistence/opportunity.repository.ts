@@ -39,7 +39,7 @@ export interface ListOpportunitiesInput {
 }
 
 export interface OpportunityRepository {
-  readonly countByOperatorIds: (
+  readonly countByExternalOperatorIds: (
     operatorIds: readonly string[],
   ) => Promise<Result<ReadonlyMap<string, number>, GenericError>>;
   readonly create: (

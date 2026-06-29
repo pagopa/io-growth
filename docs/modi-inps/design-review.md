@@ -2,21 +2,27 @@
 
 ## 1. Introduction and Goals
 
-Integrate with INPS _GestioneDomandaCED_ REST APIs using the AGID ModI P3
-interoperability profile, which mandates:
+Integrate with INPS _GestioneDomandaCED_ REST APIs using the AGID ModI interoperability framework.
+The exact profile is selected at runtime via the `MODI_PROFILE` environment variable.
 
-| Requirement                               | ModI Pattern                                                                   |
+| Profile                      | ModI Patterns                                                             | mTLS | Body digest | Response non-repudiation |
+| ---------------------------- | ------------------------------------------------------------------------- | :--: | :---------: | :----------------------: |
+| **P1** — `ID_AUTH_REST_01`   | Auth-only JWT in `Agid-JWT-Signature`                                     |  ❌  |     ❌      |            ❌            |
+| **P2** — `INTEGRITY_REST_01` | Auth + body-integrity JWT                                                 |  ❌  |     ✅      |            ❌            |
+| **P3** — Full                | `ID_AUTH_CHANNEL_02` + `INTEGRITY_REST_01` + `PROFILE_NON_REPUDIATION_01` |  ✅  |     ✅      |            ✅            |
+
+All profiles require:
+
+| Requirement                               | Mechanism                                                                      |
 | ----------------------------------------- | ------------------------------------------------------------------------------ |
-| Mutual TLS between domains                | `ID_AUTH_CHANNEL_02`                                                           |
-| Application-level JWT signing of requests | `ID_AUTH_REST_01` / `INTEGRITY_REST_01`                                        |
-| Non-repudiation: INPS signs responses     | `PROFILE_NON_REPUDIATION_01`                                                   |
+| Application-level JWT signing of requests | `ID_AUTH_REST_01` / `INTEGRITY_REST_01` (depth varies by profile)              |
 | Caller identity threading                 | INPS `Identity` header (`INPS-Identity-UserId`, `INPS-Identity-CodiceUfficio`) |
 
 ---
 
 ## 2. Constraints
 
-- All secrets (certificates, private keys, CA chains) stored in **Azure Key Vault**; no plaintext secrets in environment variables.
+- All secrets (certificates, private keys, CA chains) stored in **Azure Key Vault**; no plaintext secrets in environment variables. Only the secrets required by the active profile are fetched.
 - Generated client code via **orval** from OpenAPI 3.0 (consumed spec owned by INPS).
 - Must work with the existing hexagonal architecture: adapters implement `Result<T, BaseError>` ports — no thrown exceptions for business logic errors.
 - INPS has not yet completed formal adhesion; `audience`, base URL, and exact JWT header names are provisional until the eService descriptor is confirmed.
@@ -26,17 +32,15 @@ interoperability profile, which mandates:
 ## 3. Context and Scope
 
 ```mermaid
-C4Context
-    title System Context — INPS ModI Integration
+flowchart LR
+    citizen(["👤 Citizen\n_Applies for CED card_"])
+    ioApp["**IO App / CED Portal**\nPagoPA application"]
+    inps[["**INPS GestioneDomandaCED**\nREST API · ModI P3"]]
+    kv[["**Azure Key Vault**\nCertificates & keys"]]
 
-    Person(citizen, "Citizen", "Applies for CED card")
-    System(ioApp, "IO App / CED Portal", "PagoPA application")
-    System_Ext(inps, "INPS GestioneDomandaCED", "REST API, ModI P3")
-    System_Ext(kv, "Azure Key Vault", "Certificates & keys")
-
-    Rel(citizen, ioApp, "Submits application")
-    Rel(ioApp, inps, "mTLS + signed JWT (ModI P3)", "HTTPS")
-    Rel(ioApp, kv, "Fetches credentials at startup / per-request")
+    citizen -->|"Submits application"| ioApp
+    ioApp -->|"signed JWT (ModI P1/P2)\nor mTLS + signed JWT (P3)"| inps
+    ioApp -->|"Fetches credentials\n(startup / per-request)"| kv
 ```
 
 ---
@@ -45,12 +49,12 @@ C4Context
 
 Two dedicated packages implement a clean separation of concerns:
 
-| Package                    | Responsibility                                                                                                  |
-| -------------------------- | --------------------------------------------------------------------------------------------------------------- |
-| `io-core-adapter-modi`     | Generic ModI P3 primitives: mTLS dispatcher, JWT signer, response verifier, Key Vault credential provider       |
-| `io-core-adapter-inps-ced` | INPS CED-specific: orval-generated client, `customFetch` mutator, outbound adapter implementing the domain port |
+| Package                    | Responsibility                                                                                                                                                                                                              |
+| -------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `io-core-adapter-modi`     | Generic ModI primitives for all profiles: JWT signer, body-digest, optional mTLS dispatcher, optional response verifier, Key Vault credential provider. Profile selected via `config.profile` (`"P1"` \| `"P2"` \| `"P3"`). |
+| `io-core-adapter-inps-ced` | INPS CED-specific: orval-generated client, `customFetch` mutator, outbound adapter implementing the domain port                                                                                                             |
 
-Identity context is propagated per-request using Node.js `AsyncLocalStorage`, avoiding global state races in concurrent requests.
+Identity context is propagated per-request using Node.js `AsyncLocalStorage`, which lives **exclusively in the app layer** (`ced-card-request-be`). The adapter packages contain no `async_hooks` dependency. Instead, `initInpsCedClient` accepts a getter function `() => InpsIdentityContext | undefined`; the app supplies a closure that reads from its own ALS and maps the session to the shape required by INPS.
 
 ---
 
@@ -58,22 +62,22 @@ Identity context is propagated per-request using Node.js `AsyncLocalStorage`, av
 
 ```mermaid
 flowchart TD
-    subgraph BE["ced-portal-be (app)"]
+    subgraph BE["ced-card-request-be (app)"]
         UC["Use Case"]
     end
 
     subgraph CED["io-core-adapter-inps-ced"]
         REPO["GestioneDomandaCedRepository\n(adapter impl)"]
-        CLIENT["customFetch mutator\n(AsyncLocalStorage identity)"]
+        CLIENT["customFetch mutator\n(injected getIdentity getter)"]
         GEN["orval-generated\nendpoints"]
     end
 
     subgraph MODI["io-core-adapter-modi"]
-        SF["createSignedFetch"]
+        SF["createSignedFetch\n(profile-aware)"]
         SIGNER["jose-token-signer\n(Agid-JWT-Signature)"]
-        DIGEST["computeDigest\n(SHA-256)"]
-        VERIFIER["jose-response-verifier\n(request_digest check)"]
-        MTLS["createMtlsDispatcher\n(undici Agent)"]
+        DIGEST["computeDigest\n(SHA-256) — P2/P3 only"]
+        VERIFIER["jose-response-verifier\n(request_digest check) — P3 only"]
+        MTLS["createMtlsDispatcher\n(undici Agent) — P3 only"]
         KV["createKeyvaultCredentialProvider\n(Azure Key Vault)"]
     end
 
@@ -97,40 +101,51 @@ flowchart TD
 
 ---
 
-## 6. Runtime View — ModI P3 Request Flow
+## 6. Runtime View — ModI Request Flow (P3 shown; P1/P2 skip dashed steps)
+
+> **P1** skips: Digest header, signing CA fetch, `request_digest` in JWT, and the entire response JWT check.
+> **P2** skips: mTLS dispatcher fetch and the response JWT check.
 
 ```mermaid
 sequenceDiagram
+    participant PH as Fastify Pre-Handler
     participant UC as Use Case
     participant Repo as GestioneDomandaCedAdapter
-    participant Store as AsyncLocalStorage
     participant CF as customFetch
     participant SF as signedFetch (ModI)
     participant KV as Azure Key Vault
     participant INPS as INPS API
 
-    UC->>Repo: checkDomanda(req, identity)
-    Repo->>Store: run({ userId, codiceUfficio }, fn)
-    Store->>CF: orval calls customFetch(url, opts)
-    CF->>Store: getStore() → identity
+    Note over PH: App-owned ALS already holds session
+    PH->>PH: resolve identity from session
+    PH->>UC: continue (getter closure captures identity)
+    UC->>Repo: checkDomanda(req)
+    Repo->>CF: orval calls customFetch(url, opts)
+    CF->>CF: getIdentity() → { userId, codiceUfficio }
     CF->>CF: set INPS-Identity-UserId / CodiceUfficio headers
     CF->>SF: signedFetch(fullUrl, opts)
 
-    SF->>KV: getHttpsClientCredentials() + getInpsHttpsCaChain() [parallel, cached for process lifetime]
+    Note over SF,KV: P3 only
+    SF->>KV: getHttpsClientCredentials() + getInpsHttpsCaChain() [cached for process lifetime]
     KV-->>SF: cert, key, CA PEM
 
-    SF->>SF: assert INPS-Identity-UserId is present (fail-fast)
+    SF->>SF: assert INPS-Identity-UserId is present (fail-fast — all profiles)
+
+    Note over SF: P2/P3 only
     SF->>SF: computeDigest(body) → SHA-256 Digest header
 
-    SF->>KV: getSigningCredentials() + getInpsSigningCaChain() [parallel, cached 24h]
-    KV-->>SF: privateKey, x5c, signingCA
+    SF->>KV: getSigningCredentials() [cached 24h — all profiles]
+    Note over SF,KV: P3 only (alongside above)
+    KV-->>SF: privateKey, x5c [, signingCA for P3]
 
-    SF->>SF: SignJWT { digest, content-type, identity claims, signed_headers, iss, aud, x5c }
+    Note over SF: P1: auth claims only · P2/P3: + digest + signed_headers
+    SF->>SF: SignJWT { identity claims [, digest, signed_headers] }
     SF->>SF: set Agid-JWT-Signature header
 
-    SF->>INPS: POST /Domanda/CheckDomanda [mTLS + Digest + Agid-JWT-Signature]
-    INPS-->>SF: 200 + Agid-JWT-Signature (response JWT)
+    SF->>INPS: POST /Domanda/CheckDomanda [Agid-JWT-Signature [+ mTLS for P3]]
+    INPS-->>SF: 200 [+ Agid-JWT-Signature response JWT for P3]
 
+    Note over SF: P3 only
     SF->>SF: assert Agid-JWT-Signature present (fail-closed)
     SF->>SF: jwtVerify(responseJwt) + assert request_digest == sentDigest
     SF-->>CF: Response
@@ -145,27 +160,27 @@ sequenceDiagram
 ```mermaid
 flowchart LR
     subgraph ACA["Azure Container Apps\n(NAT Gateway → static egress IP)"]
-        APP["ced-portal-be"]
+        APP["ced-card-request-be"]
     end
 
     subgraph AKV_NS["Azure Key Vault"]
-        SEC1["HTTPS client cert/key\n(mTLS)"]
-        SEC2["Signing cert/key\n(JWT)"]
-        SEC3["INPS HTTPS CA\n(trust anchor)"]
-        SEC4["INPS Signing CA\n(response verification)"]
+        SEC1["HTTPS client cert/key\n(mTLS) — P3 only"]
+        SEC2["Signing cert/key\n(JWT — all profiles)"]
+        SEC3["INPS HTTPS CA\n(trust anchor) — P3 only"]
+        SEC4["INPS Signing CA\n(response verification) — P3 only"]
     end
 
     INPS["INPS Gateway\n(api.collaudo.inps.it / api.inps.it)\nIP allowlist: 89.97.59.151 / 89.97.59.148"]
 
     APP -- "DefaultAzureCredential\n(Managed Identity)" --> AKV_NS
-    APP -- "mTLS HTTPS\negressIP whitelisted at INPS" --> INPS
+    APP -- "HTTPS [+ mTLS for P3]\negressIP whitelisted at INPS" --> INPS
 ```
 
 Credential loading strategy:
 
-- **mTLS undici `Agent`** — cached for process lifetime after first Key Vault fetch.
-- **Signing credentials** — cached for 24 h (TTL-based, refreshed lazily on next request after expiry).
-- A process restart is required to pick up a rotated mTLS certificate.
+- **Signing credentials** — cached for 24 h (TTL-based, refreshed lazily on next request after expiry). All profiles.
+- **mTLS undici `Agent`** — cached for process lifetime after first Key Vault fetch. **P3 only.**
+- A process restart is required to pick up a rotated mTLS certificate (P3 only).
 
 ---
 
@@ -186,7 +201,16 @@ JWT signing/verification failures are converted to `GenericError` / `Unauthorize
 
 ### 8.2 Identity Threading
 
-`AsyncLocalStorage<InpsIdentityContext>` in `client.ts` ensures per-request isolation. The outbound adapter calls `identityStore.run(ctx, () => generatedEndpoint(...))` before each generated call so concurrent requests carry independent identities without changing generated signatures.
+The **app layer** (`ced-card-request-be`) owns `AsyncLocalStorage`. The adapter package has no `async_hooks` dependency.
+
+| Layer                                    | Responsibility                                              | Mechanism                                             |
+| ---------------------------------------- | ----------------------------------------------------------- | ----------------------------------------------------- |
+| `ced-card-request-be`                    | Owns ALS, sets context per request in a Fastify pre-handler | `AsyncLocalStorage<RequestContext>`                   |
+| `ced-card-request-be` (composition root) | Passes a getter closure to the adapter at startup           | `initInpsCedClient(config, signedFetch, getIdentity)` |
+| `getIdentity` closure                    | Reads app ALS, maps session fields to `InpsIdentityContext` | `() => InpsIdentityContext \| undefined`              |
+| `customFetch` mutator                    | Calls the injected getter to obtain identity headers        | No `async_hooks` import                               |
+
+This mirrors how `ced-portal-be` injects `getRequestSession` into adapters that need session data: the adapter calls a function pointer; the ALS lifecycle is the app's concern.
 
 ### 8.3 Idempotency
 
@@ -194,16 +218,16 @@ Mutating operations (`confermaDomanda`, `fornisciFoto`, `nuovaDomandaInBozza`) r
 
 ### 8.4 Certificate Management
 
-All 6 PEM secrets live in Azure Key Vault. Secret names are injected via `ModiConfig.secretNames`. No active rotation mechanism — a restart is required to pick up a rotated mTLS certificate; signing credentials refresh automatically after the 24 h TTL.
+All 6 PEM secrets live in Azure Key Vault for P3. P1/P2 only require the 2 signing secrets. Secret names are injected via `ModiConfig.secretNames` (profile-specific type). No active rotation mechanism for mTLS (P3) — a restart is required to pick up a rotated mTLS certificate; signing credentials refresh automatically after the 24 h TTL.
 
 ---
 
 ## 9. Architecture Decisions and Pain Points
 
-### ADR-001: ModI P3 profile (not P1/P2)
+### ADR-001: Configurable ModI profile (P1 / P2 / P3)
 
-**Decision:** Use the strictest profile (mTLS + message signing + non-repudiation) for all GestioneDomandaCED operations.
-**Rationale:** Conforms to INPS requirements per the PDF guidelines. Simpler but weaker profiles are not supported for this API.
+**Decision:** The ModI profile is selected at runtime via `MODI_PROFILE` env var. `io-core-adapter-modi` supports all three profiles in a single `createSignedFetch` factory; the Zod config schema enforces which Key Vault secrets are required per profile.
+**Rationale:** INPS adhesion is not finalised and the required profile may be confirmed later. Providing all three profiles avoids a code change when the eService descriptor is received. P3 remains the target for production (strictest security); P1/P2 can be used during integration testing or if INPS formally certifies a weaker profile for certain endpoints.
 
 ### ADR-002: orval code generation from consumed OpenAPI
 
@@ -274,21 +298,21 @@ The `cachedDispatcher` lives for the process lifetime. Rotating the HTTPS client
 
 ## 10. Quality Requirements
 
-| Quality         | Mechanism                                                      | Status                                                 |
-| --------------- | -------------------------------------------------------------- | ------------------------------------------------------ |
-| Confidentiality | mTLS + JWT                                                     | Header name unconfirmed (P1)                           |
-| Non-repudiation | Response JWT verification (fail-closed)                        | Fixed (P2)                                             |
-| Auditability    | Identity headers in signed JWT, fail-fast on empty userId      | Fixed (P3)                                             |
-| Availability    | Cached dispatcher + signing credentials (24 h TTL)             | Signing creds fixed (P4); mTLS cache still no TTL (P8) |
-| Performance     | 24 h credential cache avoids per-request Key Vault round-trips | Fixed (P4)                                             |
+| Quality         | Mechanism                                                                     | Status                                                              |
+| --------------- | ----------------------------------------------------------------------------- | ------------------------------------------------------------------- |
+| Confidentiality | JWT signing (all profiles); mTLS (P3 only)                                    | Header name unconfirmed (P1); profile selectable via `MODI_PROFILE` |
+| Non-repudiation | Response JWT verification fail-closed (P3 only; P1/P2 don’t require it)       | Fixed (P2)                                                          |
+| Auditability    | Identity headers in signed JWT; fail-fast on empty `UserId` (all profiles)    | Fixed (P3)                                                          |
+| Availability    | Signing credentials cached 24 h (all profiles); mTLS dispatcher cached for P3 | Signing creds fixed (P4); mTLS cache still no TTL (P8)              |
+| Performance     | 24 h credential cache avoids per-request Key Vault round-trips (all profiles) | Fixed (P4)                                                          |
 
 ---
 
 ## 11. Risks and Technical Debt
 
-| ID  | Severity | Description                                                                    | Status                                                |
-| --- | -------- | ------------------------------------------------------------------------------ | ----------------------------------------------------- |
-| R1  | HIGH     | Adhesion not finalised — `audience`, base URL, JWT header name are provisional | Block prod deploy on eService descriptor confirmation |
-| R2  | HIGH     | Trivy: Key Vault secrets read via Terraform data sources                       | Open (P9)                                             |
-| R3  | MED      | mTLS certificate rotation requires process restart                             | Open (P8)                                             |
-| R4  | LOW      | `signedFetch` throws instead of returning `Result`                             | Accepted trade-off (P5)                               |
+| ID  | Severity | Description                                                                                                     | Status                                                                             |
+| --- | -------- | --------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------- |
+| R1  | HIGH     | Adhesion not finalised — `audience`, base URL, JWT header name are provisional; profile may be mandated by INPS | Block prod deploy on eService descriptor confirmation; P3 is the production target |
+| R2  | HIGH     | Trivy: Key Vault secrets read via Terraform data sources                                                        | Open (P9)                                                                          |
+| R3  | MED      | mTLS certificate rotation requires process restart (P3 only)                                                    | Open (P8)                                                                          |
+| R4  | LOW      | `signedFetch` throws instead of returning `Result`                                                              | Accepted trade-off (P5)                                                            |

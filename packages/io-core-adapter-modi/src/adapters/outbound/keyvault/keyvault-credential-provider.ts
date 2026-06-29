@@ -28,13 +28,18 @@ const pemCertsToDerBase64 = (pemChain: string): string[] =>
 /**
  * Production credential provider backed by Azure Key Vault.
  *
- * All secrets are stored as plain-text PEM values in Key Vault:
- *  - HTTPS client cert (PEM, may include chain)
- *  - HTTPS client private key (PKCS#8 PEM)
- *  - Signing cert (PEM chain, leaf first)
- *  - Signing private key (PKCS#8 PEM, RS256)
- *  - INPS HTTPS server CA chain (PEM)
- *  - INPS JWT signing CA chain (PEM)
+ * All secrets are stored as plain-text PEM values in Key Vault.
+ * Methods that are not applicable to the configured profile
+ * (`getHttpsClientCredentials`, `getInpsHttpsCaChain`,
+ * `getInpsSigningCaChain` for P1/P2) return a `GenericError` immediately —
+ * they are never called by `createSignedFetch` for those profiles.
+ *
+ * | Method                       | P1 | P2 | P3 |
+ * |------------------------------|----|----|-----|
+ * | `getSigningCredentials`      | ✅ | ✅ | ✅ |
+ * | `getInpsSigningCaChain`      | ❌ | ❌ | ✅ |
+ * | `getHttpsClientCredentials`  | ❌ | ❌ | ✅ |
+ * | `getInpsHttpsCaChain`        | ❌ | ❌ | ✅ |
  */
 export const createKeyvaultCredentialProvider = async (
   config: ModiConfig,
@@ -67,10 +72,23 @@ export const createKeyvaultCredentialProvider = async (
     }
   };
 
+  /** Returns an error explaining the method is unavailable for the profile. */
+  const profileGuard = (method: string): Promise<Result<never, GenericError>> =>
+    Promise.resolve(
+      err(
+        new GenericError(
+          `'${method}' requires ModI profile P3 but the configured profile is ${config.profile}`,
+        ),
+      ),
+    );
+
   return {
     getHttpsClientCredentials: async (): Promise<
       Result<HttpsClientCredentials, BaseError>
     > => {
+      if (config.profile !== "P3") {
+        return profileGuard("getHttpsClientCredentials");
+      }
       try {
         const [cert, key] = await Promise.all([
           fetchSecret(config.secretNames.httpsClientCert),
@@ -86,18 +104,26 @@ export const createKeyvaultCredentialProvider = async (
       }
     },
 
-    getInpsHttpsCaChain: (): Promise<Result<string, BaseError>> =>
-      getSecret(
+    getInpsHttpsCaChain: (): Promise<Result<string, BaseError>> => {
+      if (config.profile !== "P3") {
+        return profileGuard("getInpsHttpsCaChain");
+      }
+      return getSecret(
         config.secretNames.inpsHttpsCa,
         (msg) => new GenericError(`Failed to load INPS HTTPS CA chain: ${msg}`),
-      ),
+      );
+    },
 
-    getInpsSigningCaChain: (): Promise<Result<string, BaseError>> =>
-      getSecret(
+    getInpsSigningCaChain: (): Promise<Result<string, BaseError>> => {
+      if (config.profile !== "P3") {
+        return profileGuard("getInpsSigningCaChain");
+      }
+      return getSecret(
         config.secretNames.inpsSigningCa,
         (msg) =>
           new GenericError(`Failed to load INPS signing CA chain: ${msg}`),
-      ),
+      );
+    },
 
     getSigningCredentials: async (): Promise<
       Result<SigningCredentials, BaseError>

@@ -7,7 +7,6 @@ import { err, ok } from "neverthrow";
 
 import type { GestioneDomandaCedRepository } from "../../domain/ports/outbound/gestione-domanda-ced.repository.js";
 
-import { identityStore } from "../../client.js";
 // These imports are satisfied after `pnpm generate` runs.
 import {
   checkDomanda as checkDomandaGen,
@@ -20,16 +19,14 @@ import {
   richiediStato as richiediStatoGen,
 } from "../../generated/endpoints/domanda/domanda.js";
 
-const resolveIdentity = (
-  identity: { codiceUfficio?: string; userId: string },
-  defaultCodiceUfficio: string,
-) => ({
-  codiceUfficio: identity.codiceUfficio ?? defaultCodiceUfficio,
-  userId: identity.userId,
-});
-
 /**
  * Creates the GestioneDomandaCED outbound adapter.
+ *
+ * Identity context (userId, codiceUfficio) is NOT passed explicitly — it is
+ * read from AsyncLocalStorage by the `customFetch` mutator. The application
+ * layer is responsible for establishing the context before use cases run,
+ * using `runWithInpsIdentity` (mirroring the `createSessionContextPreHandler`
+ * pattern in ced-portal-be).
  *
  * Error mapping (HTTP-status based, ProblemDetails model):
  *  - 400 → ValidationError (or ConflictError if response indicates conflict)
@@ -40,188 +37,183 @@ const resolveIdentity = (
  * expected to surface in ProblemDetails fields. Exact mapping TBC after
  * adhesion testing — update the 400 branch once confirmed with INPS.
  */
-export const createGestioneDomandaCedClient = (
-  defaultCodiceUfficio: string,
-): GestioneDomandaCedRepository => ({
-  checkDomanda: async (request, identity) => {
-    const ctx = resolveIdentity(identity, defaultCodiceUfficio);
-    try {
-      const response = await identityStore.run(ctx, () =>
-        checkDomandaGen(request),
-      );
-      if (response.status === 200) return ok(response.data);
-      if (response.status === 404)
-        return err(new NotFoundError("domanda", JSON.stringify(response.data)));
-      return err(
-        new GenericError(
-          `checkDomanda failed with status ${String(response.status)}`,
-        ),
-      );
-    } catch (error) {
-      return err(new GenericError(`checkDomanda failed: ${String(error)}`));
-    }
-  },
-
-  confermaDomanda: async (request, identity, { idempotencyKey }) => {
-    const ctx = resolveIdentity(identity, defaultCodiceUfficio);
-    try {
-      const response = await identityStore.run(ctx, () =>
-        confermaDomandaGen(request, {
-          headers: { "Idempotency-Key": idempotencyKey },
-        }),
-      );
-      if (response.status === 200) return ok(response.data);
-      if (response.status === 400)
+export const createGestioneDomandaCedClient =
+  (): GestioneDomandaCedRepository => ({
+    checkDomanda: async (request) => {
+      try {
+        const response = await checkDomandaGen(request);
+        if (response.status === 200) return ok(response.data);
+        if (response.status === 404)
+          return err(
+            new NotFoundError("domanda", JSON.stringify(response.data)),
+          );
         return err(
-          new ValidationError(
-            `confermaDomanda rejected: ${JSON.stringify(response.data)}`,
+          new GenericError(
+            `checkDomanda failed with status ${String(response.status)}`,
           ),
         );
-      if (response.status === 404)
-        return err(new NotFoundError("domanda", String(response.status)));
-      return err(
-        new GenericError(
-          `confermaDomanda failed with status ${String(response.status)}`,
-        ),
-      );
-    } catch (error) {
-      return err(new GenericError(`confermaDomanda failed: ${String(error)}`));
-    }
-  },
+      } catch (error) {
+        return err(new GenericError(`checkDomanda failed: ${String(error)}`));
+      }
+    },
 
-  fornisciFoto: async (request, identity, { idempotencyKey }) => {
-    const ctx = resolveIdentity(identity, defaultCodiceUfficio);
-    try {
-      const response = await identityStore.run(ctx, () =>
-        fornisciFotoGen(request, {
+    confermaDomanda: async (request, { idempotencyKey }) => {
+      try {
+        const response = await confermaDomandaGen(request, {
           headers: { "Idempotency-Key": idempotencyKey },
-        }),
-      );
-      if (response.status === 200) return ok(response.data);
-      if (response.status === 400)
+        });
+        if (response.status === 200) return ok(response.data);
+        if (response.status === 400)
+          return err(
+            new ValidationError(
+              `confermaDomanda rejected: ${JSON.stringify(response.data)}`,
+            ),
+          );
+        if (response.status === 404)
+          return err(
+            new NotFoundError("domanda", JSON.stringify(response.data)),
+          );
         return err(
-          new ValidationError(
-            `fornisciFoto rejected: ${JSON.stringify(response.data)}`,
+          new GenericError(
+            `confermaDomanda failed with status ${String(response.status)}`,
           ),
         );
-      if (response.status === 404)
-        return err(new NotFoundError("domanda", String(response.status)));
-      return err(
-        new GenericError(
-          `fornisciFoto failed with status ${String(response.status)}`,
-        ),
-      );
-    } catch (error) {
-      return err(new GenericError(`fornisciFoto failed: ${String(error)}`));
-    }
-  },
-
-  nuovaDomandaInBozza: async (request, identity, { idempotencyKey }) => {
-    const ctx = resolveIdentity(identity, defaultCodiceUfficio);
-    try {
-      const response = await identityStore.run(ctx, () =>
-        nuovaDomandaInBozzaGen(request, {
-          headers: { "Idempotency-Key": idempotencyKey },
-        }),
-      );
-      if (response.status === 200) return ok(response.data);
-      if (response.status === 400)
+      } catch (error) {
         return err(
-          new ValidationError(
-            `nuovaDomandaInBozza rejected: ${JSON.stringify(response.data)}`,
+          new GenericError(`confermaDomanda failed: ${String(error)}`),
+        );
+      }
+    },
+
+    fornisciFoto: async (request, { idempotencyKey }) => {
+      try {
+        const response = await fornisciFotoGen(request, {
+          headers: { "Idempotency-Key": idempotencyKey },
+        });
+        if (response.status === 200) return ok(response.data);
+        if (response.status === 400)
+          return err(
+            new ValidationError(
+              `fornisciFoto rejected: ${JSON.stringify(response.data)}`,
+            ),
+          );
+        if (response.status === 404)
+          return err(
+            new NotFoundError("domanda", JSON.stringify(response.data)),
+          );
+        return err(
+          new GenericError(
+            `fornisciFoto failed with status ${String(response.status)}`,
           ),
         );
-      if (response.status === 404)
-        return err(new NotFoundError("domanda", String(response.status)));
-      return err(
-        new GenericError(
-          `nuovaDomandaInBozza failed with status ${String(response.status)}`,
-        ),
-      );
-    } catch (error) {
-      return err(
-        new GenericError(`nuovaDomandaInBozza failed: ${String(error)}`),
-      );
-    }
-  },
+      } catch (error) {
+        return err(new GenericError(`fornisciFoto failed: ${String(error)}`));
+      }
+    },
 
-  recuperoDatiDomanda: async (request, identity) => {
-    const ctx = resolveIdentity(identity, defaultCodiceUfficio);
-    try {
-      const response = await identityStore.run(ctx, () =>
-        recuperoDatiDomandaGen(request),
-      );
-      if (response.status === 200) return ok(response.data);
-      if (response.status === 404)
-        return err(new NotFoundError("domanda", String(response.status)));
-      return err(
-        new GenericError(
-          `recuperoDatiDomanda failed with status ${String(response.status)}`,
-        ),
-      );
-    } catch (error) {
-      return err(
-        new GenericError(`recuperoDatiDomanda failed: ${String(error)}`),
-      );
-    }
-  },
+    nuovaDomandaInBozza: async (request, { idempotencyKey }) => {
+      try {
+        const response = await nuovaDomandaInBozzaGen(request, {
+          headers: { "Idempotency-Key": idempotencyKey },
+        });
+        if (response.status === 200) return ok(response.data);
+        if (response.status === 400)
+          return err(
+            new ValidationError(
+              `nuovaDomandaInBozza rejected: ${JSON.stringify(response.data)}`,
+            ),
+          );
+        if (response.status === 404)
+          return err(
+            new NotFoundError("domanda", JSON.stringify(response.data)),
+          );
+        return err(
+          new GenericError(
+            `nuovaDomandaInBozza failed with status ${String(response.status)}`,
+          ),
+        );
+      } catch (error) {
+        return err(
+          new GenericError(`nuovaDomandaInBozza failed: ${String(error)}`),
+        );
+      }
+    },
 
-  richiediRicevuta: async (request, identity) => {
-    const ctx = resolveIdentity(identity, defaultCodiceUfficio);
-    try {
-      const response = await identityStore.run(ctx, () =>
-        richiediRicevutaGen(request),
-      );
-      if (response.status === 200) return ok(response.data);
-      if (response.status === 404)
-        return err(new NotFoundError("domanda", String(response.status)));
-      return err(
-        new GenericError(
-          `richiediRicevuta failed with status ${String(response.status)}`,
-        ),
-      );
-    } catch (error) {
-      return err(new GenericError(`richiediRicevuta failed: ${String(error)}`));
-    }
-  },
+    recuperoDatiDomanda: async (request) => {
+      try {
+        const response = await recuperoDatiDomandaGen(request);
+        if (response.status === 200) return ok(response.data);
+        if (response.status === 404)
+          return err(
+            new NotFoundError("domanda", JSON.stringify(response.data)),
+          );
+        return err(
+          new GenericError(
+            `recuperoDatiDomanda failed with status ${String(response.status)}`,
+          ),
+        );
+      } catch (error) {
+        return err(
+          new GenericError(`recuperoDatiDomanda failed: ${String(error)}`),
+        );
+      }
+    },
 
-  richiediRiepilogo: async (request, identity) => {
-    const ctx = resolveIdentity(identity, defaultCodiceUfficio);
-    try {
-      const response = await identityStore.run(ctx, () =>
-        richiediRiepilogoGen(request),
-      );
-      if (response.status === 200) return ok(response.data);
-      if (response.status === 404)
-        return err(new NotFoundError("domanda", String(response.status)));
-      return err(
-        new GenericError(
-          `richiediRiepilogo failed with status ${String(response.status)}`,
-        ),
-      );
-    } catch (error) {
-      return err(
-        new GenericError(`richiediRiepilogo failed: ${String(error)}`),
-      );
-    }
-  },
+    richiediRicevuta: async (request) => {
+      try {
+        const response = await richiediRicevutaGen(request);
+        if (response.status === 200) return ok(response.data);
+        if (response.status === 404)
+          return err(
+            new NotFoundError("domanda", JSON.stringify(response.data)),
+          );
+        return err(
+          new GenericError(
+            `richiediRicevuta failed with status ${String(response.status)}`,
+          ),
+        );
+      } catch (error) {
+        return err(
+          new GenericError(`richiediRicevuta failed: ${String(error)}`),
+        );
+      }
+    },
 
-  richiediStato: async (request, identity) => {
-    const ctx = resolveIdentity(identity, defaultCodiceUfficio);
-    try {
-      const response = await identityStore.run(ctx, () =>
-        richiediStatoGen(request),
-      );
-      if (response.status === 200) return ok(response.data);
-      if (response.status === 404)
-        return err(new NotFoundError("domanda", String(response.status)));
-      return err(
-        new GenericError(
-          `richiediStato failed with status ${String(response.status)}`,
-        ),
-      );
-    } catch (error) {
-      return err(new GenericError(`richiediStato failed: ${String(error)}`));
-    }
-  },
-});
+    richiediRiepilogo: async (request) => {
+      try {
+        const response = await richiediRiepilogoGen(request);
+        if (response.status === 200) return ok(response.data);
+        if (response.status === 404)
+          return err(
+            new NotFoundError("domanda", JSON.stringify(response.data)),
+          );
+        return err(
+          new GenericError(
+            `richiediRiepilogo failed with status ${String(response.status)}`,
+          ),
+        );
+      } catch (error) {
+        return err(
+          new GenericError(`richiediRiepilogo failed: ${String(error)}`),
+        );
+      }
+    },
+
+    richiediStato: async (request) => {
+      try {
+        const response = await richiediStatoGen(request);
+        if (response.status === 200) return ok(response.data);
+        if (response.status === 404)
+          return err(
+            new NotFoundError("domanda", JSON.stringify(response.data)),
+          );
+        return err(
+          new GenericError(
+            `richiediStato failed with status ${String(response.status)}`,
+          ),
+        );
+      } catch (error) {
+        return err(new GenericError(`richiediStato failed: ${String(error)}`));
+      }
+    },
+  });

@@ -3,7 +3,13 @@ export { createKeyvaultCredentialProvider } from "./adapters/outbound/keyvault/k
 // Config
 export { buildModiConfig, modiConfigSchema } from "./config.js";
 
-export type { ModiConfig, ModiEnvConfig } from "./config.js";
+export type {
+  ModiConfig,
+  ModiEnvConfig,
+  ModiP1Config,
+  ModiP2Config,
+  ModiP3Config,
+} from "./config.js";
 
 // Port interfaces
 export type {

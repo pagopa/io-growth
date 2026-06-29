@@ -13,7 +13,6 @@ vi.mock("../../../generated/endpoints/domanda/domanda.js", () => ({
   richiediStato: vi.fn(),
 }));
 
-import { identityStore } from "../../../client.js";
 import {
   checkDomanda as checkDomandaGen,
   nuovaDomandaInBozza as nuovaDomandaInBozzaGen,
@@ -23,8 +22,6 @@ import { createGestioneDomandaCedClient } from "../gestione-domanda-ced.js";
 // ─────────────────────────────────────────────────────────────────────────────
 // Fixtures
 // ─────────────────────────────────────────────────────────────────────────────
-const DEFAULT_UFFICIO = "UFFDEFAULT";
-const IDENTITY = { userId: "RSSMRA80A01H501U" };
 
 // Loose response builder — cast bypasses the narrow discriminated-union type
 // so we can freely vary the status code in tests.
@@ -36,7 +33,7 @@ function makeGenResponse(status: number, data: unknown) {
     : never;
 }
 
-const adapter = createGestioneDomandaCedClient(DEFAULT_UFFICIO);
+const adapter = createGestioneDomandaCedClient();
 
 beforeEach(() => {
   vi.clearAllMocks();
@@ -50,10 +47,9 @@ describe("checkDomanda", () => {
     const data = { esitoCheck: 10, idLavorazione: null };
     vi.mocked(checkDomandaGen).mockResolvedValue(makeGenResponse(200, data));
 
-    const result = await adapter.checkDomanda(
-      { codiceFiscale: "RSSMRA80A01H501U" },
-      IDENTITY,
-    );
+    const result = await adapter.checkDomanda({
+      codiceFiscale: "RSSMRA80A01H501U",
+    });
 
     expect(result.isOk()).toBe(true);
     expect(result._unsafeUnwrap()).toEqual(data);
@@ -64,10 +60,7 @@ describe("checkDomanda", () => {
       makeGenResponse(404, { detail: "not found" }),
     );
 
-    const result = await adapter.checkDomanda(
-      { codiceFiscale: null },
-      IDENTITY,
-    );
+    const result = await adapter.checkDomanda({ codiceFiscale: null });
 
     expect(result.isErr()).toBe(true);
     expect(result._unsafeUnwrapErr().kind).toBe("NotFoundError");
@@ -78,10 +71,7 @@ describe("checkDomanda", () => {
       makeGenResponse(500, { detail: "internal error" }),
     );
 
-    const result = await adapter.checkDomanda(
-      { codiceFiscale: null },
-      IDENTITY,
-    );
+    const result = await adapter.checkDomanda({ codiceFiscale: null });
 
     expect(result.isErr()).toBe(true);
     expect(result._unsafeUnwrapErr().kind).toBe("GenericError");
@@ -90,33 +80,10 @@ describe("checkDomanda", () => {
   it("returns err(GenericError) when the generated function throws", async () => {
     vi.mocked(checkDomandaGen).mockRejectedValue(new Error("network failure"));
 
-    const result = await adapter.checkDomanda(
-      { codiceFiscale: null },
-      IDENTITY,
-    );
+    const result = await adapter.checkDomanda({ codiceFiscale: null });
 
     expect(result.isErr()).toBe(true);
     expect(result._unsafeUnwrapErr().kind).toBe("GenericError");
-  });
-
-  it("seeds identityStore with the resolved identity and falls back to defaultCodiceUfficio", async () => {
-    const captured: { codiceUfficio?: string; userId?: string } = {};
-
-    vi.mocked(checkDomandaGen).mockImplementation(async () => {
-      const ctx = identityStore.getStore();
-      captured.codiceUfficio = ctx?.codiceUfficio;
-      captured.userId = ctx?.userId;
-      return makeGenResponse(200, {});
-    });
-
-    // identity has no codiceUfficio → adapter must fall back to DEFAULT_UFFICIO
-    await adapter.checkDomanda(
-      { codiceFiscale: null },
-      { userId: "RSSMRA80A01H501U" },
-    );
-
-    expect(captured.codiceUfficio).toBe(DEFAULT_UFFICIO);
-    expect(captured.userId).toBe("RSSMRA80A01H501U");
   });
 });
 
@@ -138,7 +105,7 @@ describe("nuovaDomandaInBozza", () => {
       makeGenResponse(200, data),
     );
 
-    const result = await adapter.nuovaDomandaInBozza(BOZZA_REQUEST, IDENTITY, {
+    const result = await adapter.nuovaDomandaInBozza(BOZZA_REQUEST, {
       idempotencyKey: "key-1",
     });
 
@@ -151,7 +118,7 @@ describe("nuovaDomandaInBozza", () => {
       makeGenResponse(400, { detail: "invalid input" }),
     );
 
-    const result = await adapter.nuovaDomandaInBozza(BOZZA_REQUEST, IDENTITY, {
+    const result = await adapter.nuovaDomandaInBozza(BOZZA_REQUEST, {
       idempotencyKey: "key-1",
     });
 
@@ -164,7 +131,7 @@ describe("nuovaDomandaInBozza", () => {
       makeGenResponse(200, {}),
     );
 
-    await adapter.nuovaDomandaInBozza(BOZZA_REQUEST, IDENTITY, {
+    await adapter.nuovaDomandaInBozza(BOZZA_REQUEST, {
       idempotencyKey: "test-idempotency-abc",
     });
 

@@ -40,6 +40,7 @@ const CONFIG: ModiConfig = {
   idTipoUtente: "01",
   inpsBaseUrl: "https://api.collaudo.inps.it",
   keyVaultUrl: "https://kv.example.com",
+  profile: "P3",
   secretNames: {
     httpsClientCert: "cert",
     httpsClientKey: "key",
@@ -48,6 +49,22 @@ const CONFIG: ModiConfig = {
     signingCert: "sigcert",
     signingKey: "sigkey",
   },
+};
+
+const P1_CONFIG: ModiConfig = {
+  codiceEnte: "pagopa-01",
+  defaultCodiceUfficio: "UFFDEFAULT",
+  environment: "collaudo",
+  idTipoUtente: "01",
+  inpsBaseUrl: "https://api.collaudo.inps.it",
+  keyVaultUrl: "https://kv.example.com",
+  profile: "P1",
+  secretNames: { signingCert: "sigcert", signingKey: "sigkey" },
+};
+
+const P2_CONFIG: ModiConfig = {
+  ...P1_CONFIG,
+  profile: "P2",
 };
 
 const AUDIENCE = "urn:inps:api:gestione-ced";
@@ -328,5 +345,148 @@ describe("createSignedFetch", () => {
         method: "POST",
       }),
     ).rejects.toThrow("invalid signature");
+  });
+});
+
+// ──────────────────────────────────────────────────────────────────────────────
+// P1 profile — ID_AUTH_REST_01 (auth-only JWT, no mTLS, no digest, no response check)
+// ──────────────────────────────────────────────────────────────────────────────
+describe("createSignedFetch — P1 profile", () => {
+  it("does NOT set a Digest header (no body integrity)", async () => {
+    const signedFetch = createSignedFetch({
+      audience: AUDIENCE,
+      config: P1_CONFIG,
+      credentialProvider,
+    });
+
+    await signedFetch("/Domanda/CheckDomanda", {
+      body: "{}",
+      headers: { "INPS-Identity-UserId": "RSSMRA80A01H501U" },
+      method: "POST",
+    });
+
+    const [, calledOptions] = vi.mocked(mockFetch).mock.calls[0];
+    expect((calledOptions?.headers as Headers).has("Digest")).toBe(false);
+  });
+
+  it("sets Agid-JWT-Signature (auth JWT) without digest claim", async () => {
+    const signedFetch = createSignedFetch({
+      audience: AUDIENCE,
+      config: P1_CONFIG,
+      credentialProvider,
+    });
+
+    await signedFetch("/Domanda/CheckDomanda", {
+      body: "{}",
+      headers: { "INPS-Identity-UserId": "RSSMRA80A01H501U" },
+      method: "POST",
+    });
+
+    const [, calledOptions] = vi.mocked(mockFetch).mock.calls[0];
+    const jwt = (calledOptions?.headers as Headers).get("Agid-JWT-Signature");
+    expect(jwt).toBeTruthy();
+
+    const payload = decodeJwt(String(jwt));
+    expect(payload["digest"]).toBeUndefined();
+    expect(payload["signed_headers"]).toBeUndefined();
+  });
+
+  it("does NOT throw when response is missing Agid-JWT-Signature (no non-repudiation)", async () => {
+    // Response without the header — should succeed silently for P1
+    vi.mocked(mockFetch).mockResolvedValueOnce(
+      makeOkResponse() as unknown as Awaited<ReturnType<typeof mockFetch>>,
+    );
+
+    const signedFetch = createSignedFetch({
+      audience: AUDIENCE,
+      config: P1_CONFIG,
+      credentialProvider,
+    });
+
+    await expect(
+      signedFetch("/Domanda/CheckDomanda", {
+        body: "{}",
+        headers: { "INPS-Identity-UserId": "RSSMRA80A01H501U" },
+        method: "POST",
+      }),
+    ).resolves.toBeDefined();
+  });
+
+  it("throws when INPS-Identity-UserId header is missing (guard applies to all profiles)", async () => {
+    const signedFetch = createSignedFetch({
+      audience: AUDIENCE,
+      config: P1_CONFIG,
+      credentialProvider,
+    });
+
+    await expect(
+      signedFetch("/Domanda/CheckDomanda", { body: "{}", method: "POST" }),
+    ).rejects.toThrow("INPS-Identity-UserId header is required");
+  });
+});
+
+// ──────────────────────────────────────────────────────────────────────────────
+// P2 profile — INTEGRITY_REST_01 (auth + digest JWT, no mTLS, no response check)
+// ──────────────────────────────────────────────────────────────────────────────
+describe("createSignedFetch — P2 profile", () => {
+  it("sets Digest header on the outgoing request", async () => {
+    const signedFetch = createSignedFetch({
+      audience: AUDIENCE,
+      config: P2_CONFIG,
+      credentialProvider,
+    });
+
+    await signedFetch("/Domanda/CheckDomanda", {
+      body: '{"codiceFiscale":"RSSMRA80A01H501U"}',
+      headers: { "INPS-Identity-UserId": "RSSMRA80A01H501U" },
+      method: "POST",
+    });
+
+    const [, calledOptions] = vi.mocked(mockFetch).mock.calls[0];
+    expect((calledOptions?.headers as Headers).get("Digest")).toMatch(
+      /^SHA-256=/,
+    );
+  });
+
+  it("includes digest claim in the JWT (body integrity)", async () => {
+    const signedFetch = createSignedFetch({
+      audience: AUDIENCE,
+      config: P2_CONFIG,
+      credentialProvider,
+    });
+
+    await signedFetch("/Domanda/CheckDomanda", {
+      body: "{}",
+      headers: { "INPS-Identity-UserId": "RSSMRA80A01H501U" },
+      method: "POST",
+    });
+
+    const [, calledOptions] = vi.mocked(mockFetch).mock.calls[0];
+    const jwt = (calledOptions?.headers as Headers).get("Agid-JWT-Signature");
+    expect(jwt).toBeTruthy();
+
+    const payload = decodeJwt(String(jwt));
+    expect(payload["digest"]).toMatch(/^SHA-256=/);
+    expect(payload["signed_headers"]).toContain("digest");
+  });
+
+  it("does NOT throw when response is missing Agid-JWT-Signature (no non-repudiation)", async () => {
+    vi.mocked(mockFetch).mockResolvedValueOnce(
+      makeOkResponse() as unknown as Awaited<ReturnType<typeof mockFetch>>,
+    );
+
+    const signedFetch = createSignedFetch({
+      audience: AUDIENCE,
+      config: P2_CONFIG,
+      credentialProvider,
+    });
+
+    await expect(
+      signedFetch("/Domanda/CheckDomanda", {
+        body: "{}",
+        headers: { "INPS-Identity-UserId": "RSSMRA80A01H501U" },
+        method: "POST",
+      }),
+    ).resolves.toBeDefined();
   });
 });

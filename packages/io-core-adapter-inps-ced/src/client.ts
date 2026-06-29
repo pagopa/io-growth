@@ -1,7 +1,5 @@
 import type { SignedFetch } from "@pagopa/io-core-adapter-modi";
 
-import { AsyncLocalStorage } from "node:async_hooks";
-
 import type { InpsCedConfig } from "./config.js";
 
 export interface InpsIdentityContext {
@@ -9,53 +7,69 @@ export interface InpsIdentityContext {
   readonly userId: string;
 }
 
-/**
- * Per-request identity store. Populated by the outbound adapter before
- * calling each generated endpoint function so concurrent requests do not
- * share identity state.
- */
-export const identityStore = new AsyncLocalStorage<InpsIdentityContext>();
-
 let globalConfig: InpsCedConfig | undefined;
 let globalSignedFetch: SignedFetch | undefined;
+let globalGetIdentity: (() => InpsIdentityContext | undefined) | undefined;
 
 export const initInpsCedClient = (
   config: InpsCedConfig,
   signedFetch: SignedFetch,
+  /**
+   * A getter function supplied by the **app layer** that resolves the
+   * `InpsIdentityContext` for the current request.  The app owns the
+   * `AsyncLocalStorage` (or any other mechanism) and maps its session data
+   * to this shape.  The adapter never touches `async_hooks` directly — it
+   * only calls this function at fetch time.
+   *
+   * Pattern mirrors how `ced-portal-be` injects `getRequestSession` into
+   * adapters that need session data.
+   */
+  getIdentity: () => InpsIdentityContext | undefined,
 ): void => {
   globalConfig = config;
   globalSignedFetch = signedFetch;
+  globalGetIdentity = getIdentity;
 };
 
-const getClient = (): { config: InpsCedConfig; signedFetch: SignedFetch } => {
-  if (!globalConfig || !globalSignedFetch) {
+const getClient = (): {
+  config: InpsCedConfig;
+  getIdentity: () => InpsIdentityContext | undefined;
+  signedFetch: SignedFetch;
+} => {
+  if (!globalConfig || !globalSignedFetch || !globalGetIdentity) {
     throw new Error(
       "inps-ced client not initialised. Call initInpsCedClient() in your composition root.",
     );
   }
-  return { config: globalConfig, signedFetch: globalSignedFetch };
+  return {
+    config: globalConfig,
+    getIdentity: globalGetIdentity,
+    signedFetch: globalSignedFetch,
+  };
 };
 
 /**
  * orval customFetch mutator.
  *
- * Reads identity from AsyncLocalStorage (populated per-call by the outbound
- * adapter) and sets INPS-Identity-* headers before delegating to the ModI
- * signed fetch, which includes them in the JWT signed_headers claim.
+ * Calls the identity getter injected at initialisation time to obtain
+ * per-request INPS identity headers.  The getter is owned and implemented
+ * by the app layer (`ced-card-request-be`), which maps its own
+ * `AsyncLocalStorage`-backed session to the `InpsIdentityContext` shape.
+ * This adapter package has no `async_hooks` dependency.
  *
- * The base URL is resolved here from InpsCedConfig; orval generates paths only.
+ * The base URL is resolved here from `InpsCedConfig`; orval generates paths only.
  */
 export const customFetch = async <T>(
   url: string,
   options: RequestInit,
 ): Promise<T> => {
-  const { config, signedFetch } = getClient();
+  const { config, getIdentity, signedFetch } = getClient();
 
   const headers = new Headers(options.headers);
   headers.set("Content-Type", "application/json");
   headers.set("Accept", "application/json");
 
-  const identity = identityStore.getStore();
+  const identity = getIdentity();
   if (identity) {
     headers.set("INPS-Identity-UserId", identity.userId);
     headers.set("INPS-Identity-CodiceUfficio", identity.codiceUfficio);

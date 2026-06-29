@@ -16,20 +16,27 @@ export interface TokenSignerParams {
   readonly audience: string;
   readonly codiceUfficio: string;
   readonly contentType: string;
-  readonly digest: string;
+  /**
+   * SHA-256 body digest (e.g. `"SHA-256=…"`).
+   * Required for P2/P3 (INTEGRITY_REST_01); omit for P1 (ID_AUTH_REST_01 only).
+   * When absent the JWT carries no body-integrity claims (no `digest`,
+   * no `signed_headers`).
+   */
+  readonly digest?: string;
   readonly issuer: string;
   readonly userId: string;
 }
 
 /**
- * AGID ModI P3 request-signing factory (INTEGRITY_REST_01 / ID_AUTH_REST_01).
+ * AGID ModI request-signing factory.
  *
  * Produces a signed JWT placed in the `Agid-JWT-Signature` header.
- * The JWT includes:
- *  - x5c header: DER-base64 signing cert chain (leaf first)
- *  - signed_headers: space-separated list of headers covered by the JWT
- *  - digest / content-type / identity claims matching the signed headers
- *  - standard JOSE claims: iss, sub, aud, iat, nbf, exp (5 min), jti
+ * Behaviour adapts to the ModI profile:
+ *
+ * - **P1** (`digest` absent): auth-only JWT — iss/sub/aud/iat/nbf/exp/jti +
+ *   identity claims. No body-integrity claims.
+ * - **P2 / P3** (`digest` present): full integrity JWT — adds `digest`,
+ *   `content-type`, INPS identity header claims, and `signed_headers`.
  *
  * NOTE: exact header/claim names are subject to confirmation from the
  * INPS eService descriptor and AGID ModI spec.
@@ -42,20 +49,28 @@ export const createTokenSigner = (credentials: SigningCredentials) => ({
       const jti = randomUUID();
       const now = Math.floor(Date.now() / 1000);
 
-      const signedHeaders = [
-        "digest",
-        "content-type",
-        "inps-identity-userid",
-        "inps-identity-codiceufficio",
-      ].join(" ");
+      // P2/P3: include body-integrity claims and signed_headers.
+      // P1: identity claims only (audit trail without body integrity).
+      const integrityPayload = params.digest
+        ? {
+            "content-type": params.contentType,
+            digest: params.digest,
+            "inps-identity-codiceufficio": params.codiceUfficio,
+            "inps-identity-userid": params.userId,
+            signed_headers: [
+              "digest",
+              "content-type",
+              "inps-identity-userid",
+              "inps-identity-codiceufficio",
+            ].join(" "),
+          }
+        : {
+            // P1: identity claims for audit; no digest/signed_headers
+            "inps-identity-codiceufficio": params.codiceUfficio,
+            "inps-identity-userid": params.userId,
+          };
 
-      const jwt = await new SignJWT({
-        "content-type": params.contentType,
-        digest: params.digest,
-        "inps-identity-codiceufficio": params.codiceUfficio,
-        "inps-identity-userid": params.userId,
-        signed_headers: signedHeaders,
-      })
+      const jwt = await new SignJWT(integrityPayload)
         .setProtectedHeader({
           alg: "RS256",
           x5c: [...credentials.x5c],

@@ -1,8 +1,7 @@
 import { Box } from '@mui/material';
+import { Body, Title, VSpacer } from '@pagopa/io-core-ui';
 import { forwardRef, useImperativeHandle, useState } from 'react';
 import { AppAutocomplete, AppTextField } from '../../../components';
-import { Body, Title } from '../../../components/Typography';
-import { VSpacer } from '../../../layouts/Spacer';
 import { StepCard } from '../StepCard';
 import type { StepRef } from '../types';
 

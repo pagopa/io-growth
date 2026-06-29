@@ -1,5 +1,5 @@
 import { Box, CircularProgress, useTheme } from '@mui/material';
-import { Body } from '../Typography';
+import { Body } from '@pagopa/io-core-ui';
 
 type Props = {
   title: string;

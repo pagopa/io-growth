@@ -1,6 +1,7 @@
+import { Box, Divider, useTheme } from '@mui/material';
+import { LabelCaption } from '@pagopa/io-core-ui';
 import type { ReactNode } from 'react';
 import { useMemo } from 'react';
-import { Box, Divider, Typography, useTheme } from '@mui/material';
 import { DiscoveryListItem } from '../../../../components/DiscoveryListItem';
 import { PlaceSearchItem } from '../../../../core/api/generated/model';
 import { formatAddress } from '../../../../utils/formatAddress';
@@ -54,16 +55,7 @@ export function SearchResults({
           mb: 1,
         }}
       >
-        <Typography
-          sx={{
-            fontSize: 14,
-            fontWeight: 700,
-            color: theme.palette.common.neutralDarkGray,
-            letterSpacing: '0.08em',
-          }}
-        >
-          RISULTATI
-        </Typography>
+        <LabelCaption>RISULTATI</LabelCaption>
         <Box
           component="span"
           sx={{

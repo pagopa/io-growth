@@ -1,5 +1,6 @@
 import { ArrowBack } from '@mui/icons-material';
-import { Box, ButtonBase, Typography } from '@mui/material';
+import { Box, ButtonBase } from '@mui/material';
+import { Body, Title, VSpacer } from '@pagopa/io-core-ui';
 import type { ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
 
@@ -37,21 +38,18 @@ export function PageHeader({
         Indietro
       </ButtonBase>
 
-      {leadingContent && <Box sx={{ mb: 3 }}>{leadingContent}</Box>}
+      {leadingContent && <Box>{leadingContent}</Box>}
 
-      {title && (
-        <Typography
-          variant="h1"
-          component="h1"
-          sx={{
-            color: 'text.primary',
-          }}
-        >
-          {title}
-        </Typography>
+      {title && <Title variant="LG" text={title} fontWeight="700" />}
+
+      {subtitle && (
+        <>
+          <VSpacer size={8} />
+          <Body fontWeight="Regular" fontSize="16px">
+            {subtitle}
+          </Body>
+        </>
       )}
-
-      {subtitle && <Box sx={{ mt: title ? 0.5 : 0 }}>{subtitle}</Box>}
     </Box>
   );
 }

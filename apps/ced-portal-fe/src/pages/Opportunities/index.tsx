@@ -81,8 +81,8 @@ export default function OpportunitiesPage() {
       updateParams({
         tab: newValue,
         page: 1,
-        search: undefined,
-        state: undefined,
+        search: '',
+        state: '',
       });
     },
     [updateParams],
@@ -104,7 +104,7 @@ export default function OpportunitiesPage() {
   }, [draftFilters.search, draftFilters.state, updateParams]);
 
   const handleReset = useCallback(() => {
-    updateParams({ search: undefined, state: undefined, page: 1 });
+    updateParams({ search: '', state: '', page: 1 });
   }, [updateParams]);
 
   const handleChangeLimit = useCallback(

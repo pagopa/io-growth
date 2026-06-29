@@ -1,12 +1,6 @@
 import ChevronRightRoundedIcon from '@mui/icons-material/ChevronRightRounded';
-import {
-  Box,
-  ButtonBase,
-  Divider,
-  Stack,
-  Typography,
-  useTheme,
-} from '@mui/material';
+import { Box, ButtonBase, Divider, Stack, useTheme } from '@mui/material';
+import { Body } from '@pagopa/io-core-ui';
 import type {
   DiscoveryListItemProps,
   OpportunityProps,
@@ -17,37 +11,16 @@ export type { DiscoveryListItemProps, DiscoveryListItemVariant } from './types';
 
 function OpportunityContent({ eyebrow, title, badgeLabel }: OpportunityProps) {
   const theme = useTheme();
-  const secondaryColor = theme.palette.text.secondary;
   const { badgeBg, badgeText } = theme.palette.common;
   return (
     <Stack spacing={1} sx={{ minWidth: 0, flex: 1 }}>
       <Stack spacing={0.5} sx={{ minWidth: 0 }}>
         {eyebrow && (
-          <Typography
-            component="p"
-            sx={{
-              color: secondaryColor,
-              fontSize: 14,
-              lineHeight: 1.2,
-              wordBreak: 'break-word',
-            }}
-          >
+          <Body fontWeight="Regular" fontSize="14px">
             {eyebrow}
-          </Typography>
+          </Body>
         )}
-
-        <Typography
-          component="p"
-          sx={{
-            color: 'text.primary',
-            fontSize: 16,
-            fontWeight: 600,
-            lineHeight: 1.15,
-            wordBreak: 'break-word',
-          }}
-        >
-          {title}
-        </Typography>
+        <Body fontWeight="Semibold">{title}</Body>
       </Stack>
 
       <Box
@@ -73,40 +46,15 @@ function OpportunityContent({ eyebrow, title, badgeLabel }: OpportunityProps) {
 }
 
 function SimpleContent({ title, subtitle }: SimpleProps) {
-  const theme = useTheme();
-  const secondaryColor = theme.palette.text.secondary;
   return (
     <Stack spacing={1} sx={{ minWidth: 0, flex: 1 }}>
       <Stack spacing={0.5} sx={{ minWidth: 0 }}>
-        <Typography
-          component="p"
-          sx={{
-            color: 'text.primary',
-            fontSize: 16,
-            fontWeight: 600,
-            lineHeight: 1.15,
-            wordBreak: 'break-word',
-          }}
-        >
-          {title}
-        </Typography>
+        <Body fontWeight="Semibold">{title}</Body>
 
         {subtitle && (
-          <Typography
-            component="p"
-            sx={{
-              color: secondaryColor,
-              fontSize: 14,
-              lineHeight: 1.25,
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-              display: '-webkit-box',
-              WebkitLineClamp: 2,
-              WebkitBoxOrient: 'vertical',
-            }}
-          >
+          <Body fontWeight="Regular" fontSize="14px">
             {subtitle}
-          </Typography>
+          </Body>
         )}
       </Stack>
     </Stack>

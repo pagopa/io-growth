@@ -1,4 +1,5 @@
-import { Box, Typography } from '@mui/material';
+import { Box } from '@mui/material';
+import { Body } from '@pagopa/io-core-ui';
 import type { ReactNode } from 'react';
 
 export function SectionTitle({
@@ -18,17 +19,9 @@ export function SectionTitle({
         pt: 1,
       }}
     >
-      <Typography
-        component="p"
-        sx={{
-          color: 'text.secondary',
-          fontSize: 14,
-          fontWeight: 600,
-          textTransform: 'uppercase',
-        }}
-      >
-        {label}
-      </Typography>
+      <Body fontSize="14px" fontWeight="Semibold">
+        {label.toUpperCase()}
+      </Body>
       {action}
     </Box>
   );

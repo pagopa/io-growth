@@ -66,7 +66,7 @@ export const PartnerCard = ({
               width: 44,
               height: 44,
               bgcolor: 'white',
-              '& img': { objectFit: 'contain', p: 1 },
+              '& img': { objectFit: 'contain' },
             }}
           />
         </Box>

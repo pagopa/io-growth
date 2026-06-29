@@ -45,7 +45,6 @@ export const ResultsPagination = ({
             value={rowsPerPage}
             onChange={(e) => {
               onRowsPerPageChange(Number(e.target.value));
-              onPageChange(1);
             }}
             sx={{ minWidth: 80, fontSize: 14 }}
           >

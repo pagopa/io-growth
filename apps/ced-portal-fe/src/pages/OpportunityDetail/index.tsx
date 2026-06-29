@@ -106,7 +106,7 @@ export default function OpportunityDetailPage() {
       <Stack spacing={3} sx={{ maxWidth: 800, mx: 'auto' }}>
         <Button
           startIcon={<ArrowBackIcon />}
-          onClick={() => navigate(APP_ROUTES.OPPORTUNITIES)}
+          onClick={() => navigate(-1)}
           sx={{ alignSelf: 'flex-start', fontWeight: 600, pl: 0 }}
         >
           Indietro

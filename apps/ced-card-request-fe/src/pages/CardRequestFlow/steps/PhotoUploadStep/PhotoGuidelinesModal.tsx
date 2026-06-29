@@ -1,6 +1,7 @@
 import CloseIcon from '@mui/icons-material/Close';
 import { Box, Button, IconButton, Modal, useTheme } from '@mui/material';
-import { Body, Title } from '../../../../components/Typography';
+import { MarkdownRenderer } from '../../../../components/Typography/MarkdownRender';
+import { Title } from '@pagopa/io-core-ui';
 
 interface Props {
   open: boolean;
@@ -40,33 +41,17 @@ export const PhotoGuidelinesModal = ({ open, onClose }: Props) => {
           </IconButton>
         </Box>
 
-        <Box
-          component="ul"
-          sx={{
-            pl: 2.5,
-            mt: 2,
-            color: theme.palette.common.neutralDarkGray,
-            fontSize: 16,
-            lineHeight: '22px',
-          }}
-        >
-          <li>
-            Inquadra il tuo viso, in modo che sia visibile per intero, al centro
-            e con espressione neutra
-          </li>
-          <li>
-            Non coprire il volto con oggetti, come caschi, mascherine o
-            cappelli. Puoi tenere gli ausili sanitari necessari, come occhiali
-            da vista o protesi
-          </li>
-          <li>Usa uno sfondo chiaro, uniforme e neutro</li>
-          <li>
-            Assicurati che la foto sia nitida e ben illuminata, senza ombre
-          </li>
-        </Box>
+        <MarkdownRenderer
+          content={`
+            - Usa una foto a colori, senza applicare filtri o effetti
+            - Inquadra il tuo viso, in modo che sia visibile per intero, al centro e con espressione neutra
+            - Non coprire il volto con oggetti, come caschi, mascherine o cappelli. Puoi tenere gli ausili sanitari necessari, come occhiali da vista o protesi
+            - Usa uno sfondo chiaro, uniforme e neutro
+            - Assicurati che la foto sia nitida e ben illuminata, senza ombre
 
-        <Body>Ecco un esempio di foto accettata:</Body>
-
+            Ecco un esempio di foto accettata:
+            `}
+        />
         <Box
           sx={{
             display: 'flex',
@@ -79,7 +64,6 @@ export const PhotoGuidelinesModal = ({ open, onClose }: Props) => {
             src="/accepted_photo_example.png"
             alt="Esempio foto accettata"
             sx={{
-              mt: 2,
               mb: 2,
               width: 138,
               borderRadius: 1,

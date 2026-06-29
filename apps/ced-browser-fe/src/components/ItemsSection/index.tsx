@@ -1,21 +1,15 @@
-import {
-  Box,
-  ButtonBase,
-  Divider,
-  Stack,
-  Typography,
-  useTheme,
-} from '@mui/material';
+import { Box, ButtonBase, Divider, Stack } from '@mui/material';
+import { Body } from '@pagopa/io-core-ui';
 import { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { DiscoveryListItem } from '../';
 import {
   APP_ROUTES,
   toEntityAccessPointDetailRoute,
   toOpportunityDetailRoute,
-} from '../../app/routeConfig.js';
-import { DiscoveryListItem } from '../index.js';
-import { SectionTitle } from '../SectionTitle/index.js';
-import type { ItemsSectionProps } from './types.js';
+} from '../../app/routeConfig';
+import { SectionTitle } from '../SectionTitle';
+import type { ItemsSectionProps } from './types';
 
 const ITEMS_LIMIT = 10;
 
@@ -24,7 +18,6 @@ export function ItemsSection(props: ItemsSectionProps) {
   const hideEyebrow =
     props.variant === 'opportunity' && (props.hideEyebrow ?? false);
   const navigate = useNavigate();
-  const theme = useTheme();
 
   const hasMore = items.length > ITEMS_LIMIT;
   const defaultLabel =
@@ -44,9 +37,9 @@ export function ItemsSection(props: ItemsSectionProps) {
             key={id}
             variant="opportunity"
             {...item}
-            eyebrow={hideEyebrow ? undefined : item.eyebrow}
             sx={{ px: 0, bgcolor: 'background.paper' }}
             onClick={() => navigate(toOpportunityDetailRoute(id))}
+            eyebrow={hideEyebrow ? undefined : item.title}
           />
         ));
     }
@@ -59,12 +52,14 @@ export function ItemsSection(props: ItemsSectionProps) {
           variant="simple"
           {...item}
           sx={{ px: 0, bgcolor: 'background.paper' }}
-          onClick={() => navigate(toEntityAccessPointDetailRoute(entityId, id))}
+          onClick={() => navigate(toEntityAccessPointDetailRoute(id))}
         />
       ));
-  }, [variant, items, hideEyebrow, navigate, entityId]);
+  }, [variant, items, hideEyebrow, navigate]);
 
   if (items.length === 0) return null;
+
+  const handleOnClick = () => navigate(route.replace(':id', entityId));
 
   return (
     <Box sx={{ bgcolor: 'background.paper' }}>
@@ -72,20 +67,16 @@ export function ItemsSection(props: ItemsSectionProps) {
         label={label}
         action={
           hasMore ? (
-            <ButtonBase
-              onClick={() => navigate(route.replace(':id', entityId))}
-            >
-              <Typography
-                sx={{
-                  fontSize: 14,
-                  fontWeight: 600,
-                  color: theme.palette.common.primaryButton,
-                  mr: 1,
-                  textTransform: 'uppercase',
-                }}
+            <ButtonBase onClick={handleOnClick}>
+              <Body
+                onClick={handleOnClick}
+                asLink
+                fontSize="14px"
+                fontWeight="Semibold"
+                avoidTextDecoration
               >
-                Mostra tutte
-              </Typography>
+                MOSTRA TUTTE
+              </Body>
             </ButtonBase>
           ) : undefined
         }

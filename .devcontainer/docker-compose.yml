@@ -18,8 +18,14 @@ services:
       AZURITE_TABLE_PORT: "10002"
 
   postgres:
-    image: postgres:16.13@sha256:760ea41aae126965bedd587d35a23de37447bb13a6ac4444bef6ff73b8b72234
+    build:
+      context: .
+      dockerfile: postgres.Dockerfile
     restart: unless-stopped
+    command: >
+      postgres
+      -c shared_preload_libraries=pg_cron
+      -c cron.database_name=postgres
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
@@ -40,7 +46,7 @@ services:
     volumes:
       - azurite-data:/data
   azurite-init:
-    image: mcr.microsoft.com/azure-cli
+    image: mcr.microsoft.com/azure-cli@sha256:e02c9723b6e2296e98f54eeb3630b95206aef06aa04251e097ce8390904ba396
     depends_on:
       - azurite
     environment:

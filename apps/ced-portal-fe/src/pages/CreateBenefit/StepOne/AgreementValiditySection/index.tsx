@@ -7,7 +7,7 @@ import {
   Typography,
   Stack,
 } from '@mui/material';
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useAppDispatch, useAppSelector } from '../../../../hooks';
 import { getAgreementCopy } from '../../../../constants';
 import {
@@ -25,6 +25,12 @@ export function AgreementValiditySection({
   const dateTo = useAppSelector(selectDateTo);
 
   const [hasEndDateLocal, setHasEndDateLocal] = useState(!!dateTo);
+
+  useEffect(() => {
+    if (dateTo) {
+      setHasEndDateLocal(true);
+    }
+  }, [dateTo]);
 
   const activeLanguage = useAppSelector(selectActiveFormLanguage);
   const copy = getAgreementCopy(activeLanguage).additionalSections.validity;

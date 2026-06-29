@@ -1,11 +1,10 @@
 import { Box, Button, useTheme } from '@mui/material';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { APP_ROUTES } from '../../app/routeConfig';
 import { PageHeader, Stepper } from '../../components';
 import { SpinnerLoader } from '../../components/Loader';
-import { Body } from '../../components/Typography';
-import { VSpacer } from '../../layouts/Spacer';
+import { Body, VSpacer } from '@pagopa/io-core-ui';
 import { SavedDraftDialog } from './SavedDraftDialog';
 import { AddressStep } from './steps/AddressStep';
 import { ApplicantDataStep } from './steps/ApplicantDataStep';
@@ -39,7 +38,7 @@ const steps = [
     confirmLabel: 'Continua',
     cancelLabel: 'Riprendi più tardi',
   },
-  { title: 'Riepilogo e invio', content: SummaryStep },
+  { title: 'Conferma e invia', content: SummaryStep },
 ];
 
 const TOTAL_STEPS = steps.length;
@@ -63,6 +62,15 @@ export default function CardRequestFlowPage() {
   const actionLabel = isLastStep
     ? 'Invia richiesta'
     : (confirmLabel ?? 'Conferma');
+
+  useEffect(() => {
+    requestAnimationFrame(() => {
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth',
+      });
+    });
+  }, [currentStep]);
 
   if (draftSaved) {
     return (

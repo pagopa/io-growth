@@ -1,5 +1,5 @@
 import LinkRoundedIcon from '@mui/icons-material/LinkRounded';
-import { Paper, Stack, TextField, Typography } from '@mui/material';
+import { Paper, Stack, Typography } from '@mui/material';
 import { useAppDispatch, useAppSelector } from '../../../../hooks';
 import { getAgreementCopy } from '../../../../constants';
 import {
@@ -7,12 +7,18 @@ import {
   selectUrl,
 } from '../../../../features/opportunityCreation/selectors';
 import { setField } from '../../../../features/opportunityCreation/opportunityCreationSlice';
+import { isValidHttpsUrl } from '../../../../utils';
+import { AppTextField, FormField } from '../../../../components';
 
-export function AgreementLinkSection() {
+export function AgreementLinkSection({
+  attempted,
+}: Readonly<{ attempted: boolean }>) {
   const dispatch = useAppDispatch();
   const activeLanguage = useAppSelector(selectActiveFormLanguage);
   const benefitUrl = useAppSelector(selectUrl);
   const copy = getAgreementCopy(activeLanguage).additionalSections.link;
+
+  const isValidUrl = isValidHttpsUrl(benefitUrl);
 
   return (
     <Paper elevation={0} sx={{ borderRadius: 2.5, p: { xs: 2, md: 3 } }}>
@@ -22,9 +28,15 @@ export function AgreementLinkSection() {
           <Typography sx={{ fontWeight: 600 }}>{copy.title}</Typography>
         </Stack>
 
-        <TextField
-          disabled={activeLanguage !== 'it'}
+        <FormField
           label={copy.benefitUrlLabel}
+          error={attempted && !isValidUrl}
+          helperText={
+            attempted && !isValidUrl
+              ? 'Inserisci un URL valido (es. https://...)'
+              : ''
+          }
+          disabled={activeLanguage !== 'it'}
           value={benefitUrl}
           onChange={(event) =>
             dispatch(
@@ -34,8 +46,9 @@ export function AgreementLinkSection() {
               }),
             )
           }
-          fullWidth
-        />
+        >
+          <AppTextField fullWidth />
+        </FormField>
       </Stack>
     </Paper>
   );

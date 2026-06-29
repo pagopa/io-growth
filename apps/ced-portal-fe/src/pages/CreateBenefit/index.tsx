@@ -33,7 +33,7 @@ interface StepConfig {
 }
 
 const STEPS: StepConfig[] = [
-  { label: 'Dettagli opportunità', component: StepOne },
+  { label: 'Inserisci i dettagli', component: StepOne },
   { label: 'Indica i punti di accesso', component: StepTwo },
 ];
 
@@ -203,7 +203,7 @@ export default function CreateBenefitPage() {
         open={submitReviewOpen}
         onClose={() => setSubmitReviewOpen(false)}
         title="Invia in revisione"
-        description="Il Dipartimento effettuerà la revisione della tua opportunità. Il processo potrebbe richiedere diverso tempo. Se approvata, sarà pubblicata su IO a partire dalla data di inizio validità che hai scelto."
+        description="Il Dipartimento effettuerà la revisione della tua opportunità. Il processo potrebbe richiedere un po' di tempo. Se approvata, sarà pubblicata su IO a partire dalla data di inizio validità che hai scelto."
       >
         <Button
           variant="contained"

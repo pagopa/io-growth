@@ -1,5 +1,44 @@
 # ced-browser-be
 
+## 0.1.8
+
+### Patch Changes
+
+- f8f9345: add distinct on opportunities materialized view query
+
+## 0.1.7
+
+### Patch Changes
+
+- 212085d: Place detail (`GET /api/places/:placeId`): `entityId` now returns the operator profile id instead of the operator id
+
+## 0.1.6
+
+### Patch Changes
+
+- Updated dependencies [9603c2e]
+  - @pagopa/io-core-adapter-drizzle@0.0.4
+
+## 0.1.5
+
+### Patch Changes
+
+- 6f5c703: add profile info and make user info optional
+
+## 0.1.4
+
+### Patch Changes
+
+- 4536003: fix place full-text search: replace italian dictionary with simple for prefix matching
+- 836f060: add profile and opportunity api
+
+## 0.1.3
+
+### Patch Changes
+
+- Updated dependencies [7bbb05b]
+  - @pagopa/io-core-adapter-fims@0.0.7
+
 ## 0.1.2
 
 ### Patch Changes

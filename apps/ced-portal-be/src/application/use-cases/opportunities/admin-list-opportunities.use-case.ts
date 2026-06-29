@@ -66,6 +66,7 @@ export const makeAdminListOpportunitiesUseCase =
             offset: validatedInput.offset,
             operatorId: validatedInput.operatorId,
             search: validatedInput.search,
+            searchFields: ["name", "operatorName"],
             sortBy: validatedInput.sortBy,
             sortOrder: validatedInput.sortOrder,
             status: validatedInput.status,

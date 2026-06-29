@@ -18,6 +18,8 @@ tags:
       calling protected endpoints.
   - name: Places
     description: Search and retrieve place details (require Bearer token)
+  - name: Profiles
+    description: Retrieve operator profile details (require Bearer token)
   - name: Opportunities
     description: Browse and search CED opportunities (require session token)
 
@@ -282,29 +284,158 @@ paths:
               schema:
                 $ref: "#/components/schemas/ProblemDetail"
 
-  /opportunities:
+  /profiles/{profileId}:
+    get:
+      tags:
+        - Profiles
+      summary: Get operator profile detail
+      description: |
+        Returns the public profile of an operator identified by its id.
+        The response includes the profile data and support contacts from the
+        profile tables, plus the five most recent places and five most recent
+        opportunities for the operator.
+        Requires citizen authentication (`Authorization: Bearer <token>`).
+      operationId: getOperatorProfile
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: profileId
+          in: path
+          required: true
+          description: Profile identifier.
+          schema:
+            type: string
+        - name: Accept-Language
+          in: header
+          required: false
+          description: |
+            Language for recent opportunity titles (defaults to `it`). Must be an exact supported tag.
+          schema:
+            type: string
+            enum: [en, fr, de, sl, it]
+            default: it
+      responses:
+        "200":
+          description: Operator profile detail.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OperatorProfileDetail"
+              examples:
+                default:
+                  summary: Operator profile with recent places and opportunities
+                  value:
+                    displayName: Comune di Alessandria
+                    place:
+                      id: 01JVMK3N8XQZP5T6G2WYHAB4CD
+                      name: Sportello Carta Europea della Disabilita
+                      type: offline
+                      supportContacts:
+                        - id: 01JVMK3N8XQZP5T6G2WYHAB4CE
+                          type: phone
+                          value: "+39 0131 515111"
+                        - id: 01JVMK3N8XQZP5T6G2WYHAB4CF
+                          type: website
+                          value: https://comune.alessandria.it/ced
+                      address:
+                        street: Piazza della Liberta 1
+                        city: Alessandria
+                        postalCode: "15121"
+                        state: AL
+                      website: null
+                    recentPlaces:
+                      - id: 01JVMK3N8XQZP5T6G2WYHAB4CG
+                        name: Biblioteca civica Francesca Calvo
+                        type: offline
+                        street: Piazza Vittorio Veneto 1
+                        city: Alessandria
+                        state: AL
+                        postalCode: "15121"
+                        country: IT
+                        url: null
+                      - id: 01JVMK3N8XQZP5T6G2WYHAB4CH
+                        name: Portale servizi online
+                        type: online
+                        street: null
+                        city: null
+                        state: null
+                        postalCode: null
+                        country: null
+                        url: https://servizi.comune.alessandria.it
+                    recentOpportunities:
+                      - id: 01JVMK3N8XQZP5T6G2WYHAB4CI
+                        name: Sconto mensile palestra
+                        beneficiaryBenefit:
+                          type: discount
+                          discountType: percentage
+                          value: 20
+                        dateFrom: "2026-01-01"
+                        dateTo: "2026-12-31"
+                      - id: 01JVMK3N8XQZP5T6G2WYHAB4CJ
+                        name: Ingresso gratuito museo
+                        beneficiaryBenefit:
+                          type: free
+                          discountType: null
+                          value: null
+                        dateFrom: "2026-03-01"
+                        dateTo: null
+        "401":
+          description: Missing or invalid Bearer token.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+        "404":
+          description: Operator profile not found.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+        "500":
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+
+  /opportunities/search:
     get:
       tags:
         - Opportunities
-      summary: List and search CED opportunities
+      summary: Search opportunities from materialized view
       description: |
-        Returns a paginated list of published CED opportunities.
-        When `q` is provided, it is used to search and rank results. Search and ordering logic is managed by the backend.
-      operationId: listOpportunities
+        Returns a paginated, ordered list of opportunities from the materialized view.
+        Only published opportunities within their valid date range are returned.
+      operationId: searchOpportunities
       security:
         - SessionAuth: []
       parameters:
-        - name: q
+        - name: Accept-Language
+          in: header
+          required: false
+          description: Language for opportunity titles (defaults to `it`). Must be an exact supported tag.
+          schema:
+            type: string
+            enum: [en, fr, de, sl, it]
+            default: it
+        - name: orderBy
           in: query
           description: |
-            Search query. Can include a place name, city, or free-text keywords.
-            The backend handles matching and result ordering.
+            Field to order results by. Supported values: `dateFrom`, `dateTo`, `name`, `profileDisplayName`.
+            Default is `dateFrom` descending.
           required: false
           schema:
             type: string
-            minLength: 1
-            maxLength: 200
-            example: "palestra Roma"
+            enum: [dateFrom, dateTo, name, profileDisplayName]
+            default: dateFrom
+        - name: orderDirection
+          in: query
+          description: Sort direction. Default is `desc`.
+          required: false
+          schema:
+            type: string
+            enum: [asc, desc]
+            default: desc
         - name: limit
           in: query
           description: Maximum number of results to return per page.
@@ -324,11 +455,11 @@ paths:
             default: 0
       responses:
         "200":
-          description: Paginated list of matching opportunities.
+          description: Paginated list of opportunities from the materialized view.
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/OpportunitiesResponse"
+                $ref: "#/components/schemas/OpportunitySearchResponse"
         "400":
           description: Invalid query parameters.
           content:
@@ -354,7 +485,7 @@ paths:
         - Opportunities
       summary: Get a specific CED opportunity
       description: |
-        Returns the full details of a single published CED opportunity, including all its venues.
+        Returns the full details of a single published CED opportunity, including all its places.
         Returns 404 if the opportunity does not exist, is not published, or is outside its valid date range.
       operationId: getOpportunity
       security:
@@ -366,7 +497,15 @@ paths:
           description: Unique identifier of the opportunity.
           schema:
             type: string
-            format: uuid
+        - name: Accept-Language
+          in: header
+          required: false
+          description: |
+            Language for localized opportunity metadata (defaults to `it`). Must be an exact supported tag.
+          schema:
+            type: string
+            enum: [en, fr, de, sl, it]
+            default: it
       responses:
         "200":
           description: Opportunity details.
@@ -374,6 +513,59 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/OpportunityDetail"
+              examples:
+                default:
+                  summary: Published opportunity detail
+                  value:
+                    id: 01JVMK3N8XQZP5T6G2WYHAB4CD
+                    name: Sconto mensile palestra
+                    description: 20% di sconto sulla quota mensile per portatori di disabilità.
+                    condition: Riservato ai titolari della Carta Europea della Disabilità.
+                    language: it
+                    category: Cultura e tempo libero
+                    nationalTerritory: false
+                    dateFrom: "2026-01-01"
+                    dateTo: "2026-12-31"
+                    url: https://example.com/offerta-ced
+                    beneficiaryBenefit:
+                      type: discount
+                      discountType: percentage
+                      value: 20
+                    caregiverBenefit:
+                      type: free
+                      discountType: null
+                      value: null
+                    profile:
+                      id: 01JVMK3N8XQZP5T6G2WYHAB4CA
+                      displayName: Comune di Alessandria
+                      place:
+                        id: 01JVMK3N8XQZP5T6G2WYHAB4CB
+                        name: Sportello Carta Europea della Disabilita
+                        type: offline
+                        address:
+                          street: Piazza della Liberta 1
+                          city: Alessandria
+                          state: AL
+                          postalCode: "15121"
+                    places:
+                      - id: 01JVMK3N8XQZP5T6G2WYHAB4CF
+                        name: Palestra FitLife Roma Centro
+                        type: offline
+                        street: Via del Corso, 10
+                        city: Roma
+                        state: Lazio
+                        postalCode: "00186"
+                        country: IT
+                        url: null
+                      - id: 01JVMK3N8XQZP5T6G2WYHAB4CG
+                        name: Portale FitLife
+                        type: online
+                        street: null
+                        city: null
+                        state: null
+                        postalCode: null
+                        country: null
+                        url: https://example.com/ced-access
         "401":
           description: Missing or invalid authentication token.
           content:
@@ -584,7 +776,8 @@ components:
           $ref: "#/components/schemas/PlaceDetailContacts"
         entityId:
           type: string
-          description: Operator identifier this place belongs to.
+          description: >-
+            Operator profile id this place belongs to
         entityName:
           type: string
           description: Operator display name.
@@ -606,6 +799,167 @@ components:
         title:
           type: string
           description: Place display name.
+
+    # -------------------------------------------------------------------------
+    # Profile Detail
+    # -------------------------------------------------------------------------
+    ProfileSupportContact:
+      type: object
+      additionalProperties: false
+      required:
+        - id
+        - type
+        - value
+      properties:
+        id:
+          type: string
+          description: Support contact identifier.
+        type:
+          type: string
+          enum:
+            - email
+            - phone
+            - website
+          description: Support contact type.
+        value:
+          type: string
+          maxLength: 2048
+          description: Support contact value.
+
+    ProfilePlace:
+      type: object
+      additionalProperties: false
+      required:
+        - id
+        - name
+        - type
+        - supportContacts
+      properties:
+        id:
+          type: string
+          description: Profile place identifier.
+        name:
+          type: string
+          description: Profile place display name.
+        type:
+          type: string
+          enum:
+            - online
+            - offline
+          description: Whether the profile place is physical or online.
+        supportContacts:
+          type: array
+          description: Support contacts exposed by the operator profile.
+          items:
+            $ref: "#/components/schemas/ProfileSupportContact"
+        address:
+          nullable: true
+          description: Physical address for offline profiles. Null for online profiles.
+          allOf:
+            - $ref: "#/components/schemas/PlaceAddress"
+        website:
+          type: string
+          format: uri
+          nullable: true
+          description: Website URL for online profiles.
+
+    ProfileRecentOpportunity:
+      type: object
+      additionalProperties: false
+      required:
+        - id
+        - name
+        - beneficiaryBenefit
+        - dateFrom
+      properties:
+        id:
+          type: string
+          description: Opportunity identifier.
+        name:
+          type: string
+          description: Opportunity title in the requested language.
+        beneficiaryBenefit:
+          $ref: "#/components/schemas/OpportunityBenefit"
+        dateFrom:
+          type: string
+          format: date
+          description: First date from which the opportunity is available.
+        dateTo:
+          type: string
+          format: date
+          nullable: true
+          description: Last date until which the opportunity is available.
+
+    ProfileRecentPlace:
+      type: object
+      additionalProperties: false
+      required:
+        - id
+        - name
+        - type
+      properties:
+        id:
+          type: string
+          description: Place identifier.
+        name:
+          type: string
+          description: Display name of the place.
+        type:
+          type: string
+          enum:
+            - online
+            - offline
+          description: Whether the place is a physical location or an online service.
+        street:
+          type: string
+          nullable: true
+          description: Street address. Present for offline places.
+        city:
+          type: string
+          nullable: true
+          description: City. Present for offline places.
+        state:
+          type: string
+          nullable: true
+          description: State or province. Present for offline places.
+        postalCode:
+          type: string
+          nullable: true
+          description: Postal code. Present for offline places.
+        country:
+          type: string
+          nullable: true
+          description: ISO 3166-1 alpha-2 country code. Present for offline places.
+        url:
+          type: string
+          format: uri
+          nullable: true
+          description: URL to access the service. Present for online places.
+
+    OperatorProfileDetail:
+      type: object
+      additionalProperties: false
+      required:
+        - displayName
+        - place
+        - recentPlaces
+        - recentOpportunities
+      properties:
+        displayName:
+          type: string
+          description: Public display name of the operator profile.
+        place:
+          $ref: "#/components/schemas/ProfilePlace"
+        recentPlaces:
+          type: array
+          description: Five most recent places of the operator ordered by creation time.
+          items:
+            $ref: "#/components/schemas/ProfileRecentPlace"
+        recentOpportunities:
+          type: array
+          description: Five most recent opportunities of the operator ordered by start date.
+          items:
+            $ref: "#/components/schemas/ProfileRecentOpportunity"
 
     # -------------------------------------------------------------------------
     # Auth
@@ -647,10 +1001,41 @@ components:
     # -------------------------------------------------------------------------
     # Opportunity
     # -------------------------------------------------------------------------
+    OpportunityBenefit:
+      type: object
+      additionalProperties: false
+      required:
+        - type
+        - discountType
+        - value
+      properties:
+        type:
+          type: string
+          enum:
+            - free
+            - reduced_fixed_price
+            - priority
+            - discount
+            - other
+          description: Type of benefit granted for the opportunity.
+        discountType:
+          type: string
+          enum:
+            - percentage
+            - fixed_amount
+          nullable: true
+          description: |
+            Discount calculation method. Present only when `type` is `discount`.
+        value:
+          type: integer
+          nullable: true
+          description: |
+            Numeric benefit value. Present when the benefit type carries a numeric amount.
+
     OpportunitySummary:
       type: object
       description: |
-        Compact representation of a CED opportunity, including its venues.
+        Compact representation of a CED opportunity, including its places.
         Used in list responses.
       required:
         - id
@@ -658,14 +1043,14 @@ components:
         - description
         - type
         - category
-        - beneficiary_benefit_value
-        - beneficiary_benefit_type
-        - date_from
-        - venues
+        - beneficiaryBenefitValue
+        - beneficiaryBenefitType
+        - dateFrom
+        - places
       properties:
         id:
           type: string
-          format: uuid
+          pattern: "^[0-9A-HJKMNP-TV-Z]{26}$"
           description: Unique identifier of the opportunity.
         name:
           type: string
@@ -683,11 +1068,11 @@ components:
           type: string
           description: Category the opportunity belongs to (e.g. sport, mobility).
           example: "sport"
-        beneficiary_benefit_value:
+        beneficiaryBenefitValue:
           type: integer
           description: Numeric benefit value for the beneficiary.
           example: 20
-        beneficiary_benefit_type:
+        beneficiaryBenefitType:
           type: string
           enum:
             - percentual
@@ -696,13 +1081,13 @@ components:
             How the benefit value is interpreted:
             - `percentual` — a percentage discount (e.g. 20%)
             - `absolute` — a fixed amount in euros (e.g. 50€)
-        caregiver_benefit_value:
+        caregiverBenefitValue:
           type: integer
           nullable: true
           description: Numeric benefit value for the caregiver accompanying the
             beneficiary, if applicable.
           example: 10
-        caregiver_benefit_type:
+        caregiverBenefitType:
           type: string
           nullable: true
           enum:
@@ -711,12 +1096,12 @@ components:
           description:
             How the caregiver benefit value is interpreted. Null when no
             caregiver benefit applies.
-        date_from:
+        dateFrom:
           type: string
           format: date
           description: First date from which the opportunity is available (inclusive).
           example: "2026-01-01"
-        date_to:
+        dateTo:
           type: string
           format: date
           nullable: true
@@ -730,50 +1115,254 @@ components:
           nullable: true
           description: URL for further information about the opportunity.
           example: "https://example.com/offerta-ced"
-        venues:
+        places:
           type: array
-          description: Venues (physical or online) where the opportunity can be redeemed.
+          description: Places (physical or online) where the opportunity can be redeemed.
           minItems: 1
           items:
-            $ref: "#/components/schemas/Venue"
+            $ref: "#/components/schemas/Place"
 
     OpportunityDetail:
+      type: object
+      additionalProperties: false
       description: |
-        Full representation of a CED opportunity, including all fields and its venues.
-        Returned by the single-opportunity endpoint.
-      allOf:
-        - $ref: "#/components/schemas/OpportunitySummary"
-        - type: object
-          required:
-            - condition
-            - language
-          properties:
-            condition:
-              type: string
-              description: |
-                Eligibility conditions or restrictions that apply to access the opportunity.
-              example:
-                "Riservato a titolari della Carta Europea della Disabilità con
-                invalidità ≥ 50%."
-            language:
-              type: string
-              enum:
-                - en
-                - fr
-                - de
-                - sl
-                - it
-              description: Language in which the opportunity content is authored.
-              example: "it"
+        Full representation of a single published CED opportunity.
+        Localized metadata is returned in the resolved language.
+      required:
+        - beneficiaryBenefit
+        - category
+        - dateFrom
+        - description
+        - id
+        - language
+        - name
+        - nationalTerritory
+        - places
+        - profile
+      properties:
+        id:
+          type: string
+          description: Unique identifier of the opportunity.
+          example: 01JVMK3N8XQZP5T6G2WYHAB4CD
+        name:
+          type: string
+          description: Opportunity display name in the resolved language.
+          example: Sconto mensile palestra
+        description:
+          type: string
+          description: Opportunity description in the resolved language.
+          example: 20% di sconto sulla quota mensile per portatori di disabilità.
+        condition:
+          type: string
+          nullable: true
+          description: Eligibility conditions in the resolved language, if available.
+          example: Riservato ai titolari della Carta Europea della Disabilità.
+        language:
+          type: string
+          enum:
+            - en
+            - fr
+            - de
+            - sl
+            - it
+          description: Language used to resolve localized metadata.
+          example: it
+        category:
+          type: string
+          description: Title of the opportunity category.
+          example: Cultura e tempo libero
+        nationalTerritory:
+          type: boolean
+          description: Whether the opportunity is valid on the whole national territory.
+        dateFrom:
+          type: string
+          format: date
+          description: First date from which the opportunity is available (inclusive).
+          example: "2026-01-01"
+        dateTo:
+          type: string
+          format: date
+          nullable: true
+          description: |
+            Last date until which the opportunity is available (inclusive).
+            Null means the opportunity has no expiry.
+          example: "2026-12-31"
+        url:
+          type: string
+          format: uri
+          nullable: true
+          description: URL for further information about the opportunity.
+          example: https://example.com/offerta-ced
+        beneficiaryBenefit:
+          $ref: "#/components/schemas/OpportunityBenefit"
+        caregiverBenefit:
+          nullable: true
+          allOf:
+            - $ref: "#/components/schemas/OpportunityBenefit"
+        places:
+          type: array
+          minItems: 1
+          description: Places where the opportunity can be redeemed.
+          items:
+            $ref: "#/components/schemas/Place"
+        profile:
+          $ref: "#/components/schemas/OpportunityProfile"
+
+    OpportunityProfile:
+      type: object
+      additionalProperties: false
+      description: Operator profile that owns the opportunity.
+      required:
+        - id
+        - displayName
+        - place
+      properties:
+        id:
+          type: string
+          description: Profile identifier.
+          example: 01JVMK3N8XQZP5T6G2WYHAB4CA
+        displayName:
+          type: string
+          description: Public display name of the operator profile.
+          example: Comune di Alessandria
+        place:
+          $ref: "#/components/schemas/OpportunityProfilePlace"
+
+    OpportunityProfilePlace:
+      type: object
+      additionalProperties: false
+      description: The operator profile's place.
+      required:
+        - id
+        - name
+        - type
+        - address
+      properties:
+        id:
+          type: string
+          description: Place identifier.
+          example: 01JVMK3N8XQZP5T6G2WYHAB4CD
+        name:
+          type: string
+          description: Display name of the place.
+          example: Sportello Carta Europea della Disabilita
+        type:
+          type: string
+          enum:
+            - online
+            - offline
+          description: Whether the place is a physical location or an online service.
+        address:
+          nullable: true
+          description: Physical address. Null for online places.
+          allOf:
+            - $ref: "#/components/schemas/PlaceAddress"
+        website:
+          type: string
+          format: uri
+          nullable: true
+          description: Website URL. Present for online places only.
+
+    OpportunitySearchResponse:
+      type: object
+      required:
+        - items
+        - total
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/OpportunitySearchResult"
+          description: Opportunities for the current page.
+        total:
+          type: integer
+          minimum: 0
+          description: Total number of opportunities matching the query (before pagination).
+      example:
+        total: 1
+        items:
+          - id: 01JVMK3N8XQZP5T6G2WYHAB4CD
+            name: Sconto mensile palestra
+            profileDisplayName: Palestra FitLife Roma Centro
+            beneficiaryBenefitType: discount
+            beneficiaryBenefitDiscountType: percentage
+            beneficiaryBenefitValue: 20
+            dateFrom: "2026-01-01"
+            dateTo: "2026-12-31"
+            language: it
+
+    OpportunitySearchResult:
+      type: object
+      required:
+        - id
+        - name
+        - profileDisplayName
+        - beneficiaryBenefitType
+        - beneficiaryBenefitDiscountType
+        - beneficiaryBenefitValue
+      properties:
+        id:
+          type: string
+          description: Unique identifier of the opportunity (ULID).
+        name:
+          type: string
+          description: Display name of the opportunity.
+        profileDisplayName:
+          type: string
+          description: Display name of the operator profile.
+        beneficiaryBenefitType:
+          type: string
+          enum:
+            - free
+            - reduced_fixed_price
+            - priority
+            - discount
+            - other
+          description: Type of benefit granted to the beneficiary.
+        beneficiaryBenefitDiscountType:
+          type: string
+          enum:
+            - percentage
+            - fixed_amount
+          nullable: true
+          description: |
+            Discount calculation method. Present only when
+            `beneficiaryBenefitType` is `discount`; otherwise `null`.
+        beneficiaryBenefitValue:
+          type: integer
+          nullable: true
+          description: |
+            Numeric benefit value for the beneficiary. `null` when the benefit
+            type carries no numeric value (e.g. `free`, `priority`).
+        dateFrom:
+          type: string
+          format: date
+          description: First date from which the opportunity is available (inclusive).
+        dateTo:
+          type: string
+          format: date
+          nullable: true
+          description:
+            Last date until which the opportunity is available (inclusive).
+            Null means the opportunity has no expiry.
+        language:
+          type: string
+          enum:
+            - en
+            - fr
+            - de
+            - sl
+            - it
+          description: Language in which the opportunity content is authored.
 
     # -------------------------------------------------------------------------
-    # Venue (Place)
+    # Place
     # -------------------------------------------------------------------------
-    Venue:
+    Place:
       type: object
       description: |
-        A venue where an opportunity can be redeemed.
-        Offline venues include address fields; online venues include a URL.
+        A place where an opportunity can be redeemed.
+        Offline places include address fields; online places include a URL.
       required:
         - id
         - name
@@ -781,48 +1370,48 @@ components:
       properties:
         id:
           type: string
-          format: uuid
-          description: Unique identifier of the venue.
+          pattern: "^[0-9A-HJKMNP-TV-Z]{26}$"
+          description: Unique identifier of the place.
         name:
           type: string
-          description: Display name of the venue.
+          description: Display name of the place.
           example: "Palestra FitLife Roma Centro"
         type:
           type: string
           enum:
             - online
             - offline
-          description: Whether the venue is a physical location or an online service.
+          description: Whether the place is a physical location or an online service.
         street:
           type: string
           nullable: true
-          description: Street address. Present for offline venues.
+          description: Street address. Present for offline places.
           example: "Via del Corso, 10"
         city:
           type: string
           nullable: true
-          description: City. Present for offline venues.
+          description: City. Present for offline places.
           example: "Roma"
         state:
           type: string
           nullable: true
-          description: State or province. Present for offline venues.
+          description: State or province. Present for offline places.
           example: "Lazio"
-        postal_code:
+        postalCode:
           type: string
           nullable: true
-          description: Postal code. Present for offline venues.
+          description: Postal code. Present for offline places.
           example: "00186"
         country:
           type: string
           nullable: true
-          description: ISO 3166-1 alpha-2 country code. Present for offline venues.
+          description: ISO 3166-1 alpha-2 country code. Present for offline places.
           example: "IT"
         url:
           type: string
           format: uri
           nullable: true
-          description: URL to access the service. Present for online venues.
+          description: URL to access the service. Present for online places.
           example: "https://example.com/ced-access"
 
     # -------------------------------------------------------------------------

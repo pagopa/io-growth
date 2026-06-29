@@ -1,0 +1,16 @@
+meta {
+  name: Search places and operator profiles
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/api/search
+  body: none
+  auth: inherit
+}
+
+params:query {
+  q: 
+  ~limit: 
+}

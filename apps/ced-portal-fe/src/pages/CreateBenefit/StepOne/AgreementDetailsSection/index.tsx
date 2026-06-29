@@ -27,12 +27,15 @@ import {
 } from '../../../../core/api/generated/model';
 import { FieldWithIcon } from './components/FieldWithIcon';
 import { benefitTypeMap } from '../../../../constants/formOptions/types';
-import { selectOpportunityCategories } from '../../../../features/benefits/selectors';
+import { useGetOpportunityCategoriesQuery } from '../../../../features/opportunities/api';
 
 export function AgreementDetailsSection({
   attempted,
 }: Readonly<{ attempted: boolean }>) {
   const dispatch = useAppDispatch();
+
+  const { data: categories = [] } = useGetOpportunityCategoriesQuery();
+
   const activeLanguage = useAppSelector(selectActiveFormLanguage);
 
   const disabledNotLocalizedField = activeLanguage !== 'it';
@@ -40,8 +43,6 @@ export function AgreementDetailsSection({
   const copy = getAgreementCopy(activeLanguage);
 
   const benefitType = useAppSelector(selectBeneficiaryBenefit);
-
-  const categories = useAppSelector(selectOpportunityCategories);
 
   const categoriesOptions = useMemo(
     () =>
@@ -220,7 +221,7 @@ export function AgreementDetailsSection({
               handleLocalizedFieldChange('description', event.target.value)
             }
           >
-            <AppTextField fullWidth inputProps={{ maxLength: 250 }} />
+            <AppTextField fullWidth inputProps={{ maxLength: 500 }} />
           </DetailFormField>
 
           <DetailFormField
@@ -265,7 +266,7 @@ export function AgreementDetailsSection({
               handleLocalizedFieldChange('condition', event.target.value)
             }
           >
-            <AppTextField fullWidth inputProps={{ maxLength: 200 }} />
+            <AppTextField fullWidth inputProps={{ maxLength: 500 }} />
           </DetailFormField>
         </Stack>
       </Stack>

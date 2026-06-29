@@ -12,6 +12,7 @@ import {
   LoadingPage,
   NotFoundPage,
   UnauthorizedPage,
+  Authorize,
 } from './routeConfig';
 
 export function AppRoutes() {
@@ -20,6 +21,7 @@ export function AppRoutes() {
       <Routes>
         <Route element={<AppLayout />}>
           <Route path={APP_ROUTES.HOME} element={<HomePage />} />
+          <Route path={APP_ROUTES.AUTHORIZE} element={<Authorize />} />
           <Route path={APP_ROUTES.CONSENT} element={<ConsentPage />} />
           <Route path={APP_ROUTES.LOADING} element={<LoadingPage />} />
           <Route path={APP_ROUTES.APPLICATION} element={<ApplicationPage />} />

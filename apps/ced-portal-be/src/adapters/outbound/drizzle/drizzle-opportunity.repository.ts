@@ -2,7 +2,7 @@ import type { TypedDbClient } from "@pagopa/io-core-adapter-drizzle";
 import type { Result } from "neverthrow";
 
 import { ConflictError, GenericError } from "@pagopa/io-core-domain/errors";
-import { and, count, eq, gte, ilike, inArray, lte, sql } from "drizzle-orm";
+import { and, count, eq, gte, ilike, inArray, lte, or, sql } from "drizzle-orm";
 import { err, ok } from "neverthrow";
 
 import type { OpportunityDetail } from "../../../domain/entities/opportunity.js";
@@ -11,6 +11,7 @@ import type {
   FindByIdInput,
   ListOpportunitiesInput,
   OpportunityRepository,
+  OpportunitySearchField,
   PaginatedOpportunities,
   UpdateOpportunityStatusByIdAndOperatorIdInput,
   UpdateOpportunityStatusByIdInput,
@@ -37,6 +38,20 @@ type TransactionClient = Parameters<
 
 const escapeIlikePattern = (value: string): string =>
   value.replace(/\\/g, "\\\\").replace(/%/g, "\\%").replace(/_/g, "\\_");
+
+const searchColumns = {
+  name: localizedMetadata.value,
+  operatorName: operator.name,
+} satisfies Record<OpportunitySearchField, unknown>;
+
+export const buildSearchCondition = (
+  search: string,
+  fields?: readonly OpportunitySearchField[],
+) => {
+  const pattern = `%${escapeIlikePattern(search)}%`;
+  const effective = fields?.length ? fields : (["name"] as const);
+  return or(...effective.map((field) => ilike(searchColumns[field], pattern)));
+};
 
 const findByIdAndOperatorId = async (
   db: DbOrTxClient,
@@ -181,25 +196,33 @@ const updateStatusById =
     }
   };
 
-export const createDrizzleOpportunityRepository = (
-  db: TypedDbClient<typeof schema>,
-): OpportunityRepository => ({
-  countByOperatorIds: async (operatorIds) => {
-    if (operatorIds.length === 0) {
+const countByExternalOperatorIds =
+  (db: TypedDbClient<typeof schema>) =>
+  async (
+    externalOperatorIds: readonly string[],
+  ): Promise<Result<ReadonlyMap<string, number>, GenericError>> => {
+    if (externalOperatorIds.length === 0) {
       return ok(new Map<string, number>());
     }
     try {
+      const today = new Date().toISOString().slice(0, 10);
       const rows = await db
         .select({
-          operatorId: opportunity.operatorId,
+          externalOperatorIds: operator.externalId,
           total: count(),
         })
         .from(opportunity)
-        .where(inArray(opportunity.operatorId, [...operatorIds]))
-        .groupBy(opportunity.operatorId);
-
+        .innerJoin(operator, eq(opportunity.operatorId, operator.id))
+        .where(
+          and(
+            inArray(operator.externalId, [...externalOperatorIds]),
+            eq(opportunity.status, "published"),
+            lte(opportunity.dateFrom, today),
+          ),
+        )
+        .groupBy(operator.externalId);
       const result = new Map<string, number>(
-        rows.map((row) => [row.operatorId, row.total]),
+        rows.map((row) => [row.externalOperatorIds, row.total]),
       );
       return ok(result);
     } catch (error) {
@@ -209,7 +232,12 @@ export const createDrizzleOpportunityRepository = (
         ),
       );
     }
-  },
+  };
+
+export const createDrizzleOpportunityRepository = (
+  db: TypedDbClient<typeof schema>,
+): OpportunityRepository => ({
+  countByExternalOperatorIds: countByExternalOperatorIds(db),
 
   create: async (input): Promise<Result<OpportunityDetail, GenericError>> => {
     try {
@@ -269,12 +297,7 @@ export const createDrizzleOpportunityRepository = (
       if (input.status)
         conditions.push(sql`${opportunity.status} = ${input.status}`);
       if (input.search) {
-        conditions.push(
-          ilike(
-            localizedMetadata.value,
-            `%${escapeIlikePattern(input.search)}%`,
-          ),
-        );
+        conditions.push(buildSearchCondition(input.search, input.searchFields));
       }
 
       const orderColumn =
@@ -356,7 +379,10 @@ export const createDrizzleOpportunityRepository = (
       await db.transaction(async (tx) => {
         const result = await tx
           .update(opportunity)
-          .set({ status: input.status, updatedAt: new Date() })
+          .set({
+            status: input.status,
+            updatedAt: new Date(),
+          })
           .where(and(...conditions));
         updateCount = result.count;
       });

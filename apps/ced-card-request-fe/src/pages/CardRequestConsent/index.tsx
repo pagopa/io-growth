@@ -1,10 +1,9 @@
 import CheckIcon from '@mui/icons-material/Check';
 import { Box, Button, useTheme } from '@mui/material';
+import { Body, LabelCaption, Title, VSpacer } from '@pagopa/io-core-ui';
 import { useNavigate } from 'react-router-dom';
 import { APP_ROUTES } from '../../app/routeConfig';
-import { Body, LabelCaption, Title } from '../../components/Typography';
 import { MarkdownRenderer } from '../../components/Typography/MarkdownRender';
-import { VSpacer } from '../../layouts/Spacer';
 
 const PRIVACY_URL = 'https://www.google.com/';
 
@@ -33,7 +32,7 @@ export default function CardRequestConsentPage() {
         <Title text="Ci dai il tuo consenso?" variant="LG" />
         <VSpacer />
         <Body>
-          Per poter richiedere la Carta Europa della Disabilita abbiamo bisogno
+          Per poter richiedere la Carta Europa della Disabilità abbiamo bisogno
           di fornire alcuni tuoi dati all&apos;INPS.
         </Body>
 

@@ -65,7 +65,10 @@ const toEntityItem = (
       : ListOnboardingsStatusesItem.COMPLETED;
   const status = parseOnboardingStatus(item.status, fallbackStatus);
   const base = {
-    city: item.institution?.city ?? item.institution?.county ?? '-',
+    city:
+      item.city && item.county
+        ? `${item.city} (${item.county})`
+        : (item.city ?? item.county ?? '-'),
     id: item.id,
     name: item.institution?.description ?? 'Ente senza nome',
     state: status,
@@ -123,6 +126,7 @@ export const useEntitiesData = ({
   );
 
   return {
+    ...query,
     isError: query.isError,
     isLoading: query.isLoading || query.isFetching,
     items,

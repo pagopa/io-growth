@@ -28,7 +28,9 @@ export const createDrizzlePlaceRepository = (
     query,
   }): Promise<Result<PlaceSearchItem[], GenericError>> => {
     try {
-      const tsQuery = sql`plainto_tsquery('italian', ${query})`;
+      const prefixQuery =
+        query.trim().split(/\s+/).filter(Boolean).join(":* & ") + ":*";
+      const tsQuery = sql`to_tsquery('simple', ${prefixQuery})`;
       const rows = await db
         .selectDistinct({
           city: placeMaterializedView.city,
@@ -97,7 +99,7 @@ export const createDrizzlePlaceRepository = (
           },
           operator: {
             columns: { name: true },
-            with: { profile: { columns: { displayName: true } } },
+            with: { profile: { columns: { displayName: true, id: true } } },
           },
           supportContacts: { columns: { type: true, value: true } },
           website: { columns: { url: true } },

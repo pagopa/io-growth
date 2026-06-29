@@ -23,7 +23,7 @@ export const partyRoleMap: Record<string, UserRole> = {
 export const productsList = [
   {
     id: 'ced',
-    title: 'Carta Europea della Disabilita',
+    title: 'Carta Europea della Disabilità',
     productUrl: '/',
     linkType: 'internal' as const,
   },

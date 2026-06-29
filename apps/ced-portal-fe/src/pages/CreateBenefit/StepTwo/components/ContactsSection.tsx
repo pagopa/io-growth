@@ -1,8 +1,9 @@
 import AddIcon from '@mui/icons-material/Add';
+import DeleteIcon from '@mui/icons-material/Delete';
 import { Box, Typography, useTheme } from '@mui/material';
 import { ButtonNaked } from '@pagopa/mui-italia';
 import type { SupportContactCreateRequest } from '../../../../core/api/generated/model';
-import { ContactRow } from './ContactRow';
+import { ContactRow } from '../../../../components/ContactRow';
 
 interface ContactsSectionProps {
   contacts: SupportContactCreateRequest[];
@@ -38,8 +39,17 @@ export function ContactsSection({
           key={index}
           contact={contact}
           index={index}
+          canRemove={index > 0}
           onRemove={onRemove}
-          onChange={onChange}
+          onChange={(i, field, value) =>
+            onChange({
+              index: i,
+              field: field as keyof SupportContactCreateRequest,
+              value,
+            })
+          }
+          removeIcon={<DeleteIcon />}
+          removeIconSx={{ color: 'error.dark', p: 2 }}
         />
       ))}
 

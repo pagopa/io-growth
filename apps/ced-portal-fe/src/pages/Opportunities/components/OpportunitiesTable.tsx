@@ -1,8 +1,5 @@
-import MoreVertIcon from '@mui/icons-material/MoreVert';
 import {
   Checkbox,
-  Chip,
-  IconButton,
   Menu,
   MenuItem,
   Table,
@@ -20,14 +17,13 @@ import {
   Button,
 } from '@mui/material';
 import WarningAmberRoundedIcon from '@mui/icons-material/WarningAmberRounded';
+import CheckCircleRounded from '@mui/icons-material/CheckCircleRounded';
 import { useCallback, useMemo, useState } from 'react';
 import { generatePath, useNavigate } from 'react-router-dom';
 import type { Opportunity } from '../../../features/opportunities/types';
-import {
-  STATE_OPTIONS,
-  STATE_COLORS,
-} from '../../../constants/opportunityState';
 import { APP_ROUTES } from '../../../app/routeConfig';
+import { emptyValue } from './constants';
+import { OpportunityRow } from './OpportunityRow';
 
 type SortDirection = 'asc' | 'desc';
 
@@ -39,6 +35,7 @@ interface OpportunitiesTableProps {
   selected: Set<string>;
   onSelectChange: (selected: Set<string>) => void;
   onPublish: (id: string) => void;
+  activeTab: number;
 }
 
 export const OpportunitiesTable = ({
@@ -49,6 +46,7 @@ export const OpportunitiesTable = ({
   selected,
   onSelectChange,
   onPublish,
+  activeTab,
 }: OpportunitiesTableProps) => {
   const theme = useTheme();
   const navigate = useNavigate();
@@ -179,13 +177,14 @@ export const OpportunitiesTable = ({
         sx={{ ...paperSx, display: 'grid', placeItems: 'center' }}
       >
         <Stack spacing={1} alignItems="center" textAlign="center">
-          <WarningAmberRoundedIcon
-            sx={{ color: 'text.secondary', fontSize: 28 }}
-          />
+          <CheckCircleRounded sx={{ color: 'text.secondary', fontSize: 28 }} />
           <Typography
             sx={{ fontSize: 18, fontWeight: 700, color: 'text.secondary' }}
           >
-            Non ci sono opportunità da mostrare
+            {emptyValue[activeTab].title}
+          </Typography>
+          <Typography sx={{ color: 'text.secondary' }}>
+            {emptyValue[activeTab].description}
           </Typography>
         </Stack>
       </Paper>
@@ -213,21 +212,29 @@ export const OpportunitiesTable = ({
                 Nome
               </TableSortLabel>
             </TableCell>
-            <TableCell>Ente</TableCell>
             <TableCell>
               <TableSortLabel
-                active={sortBy === 'created_at'}
-                direction={sortBy === 'created_at' ? sortDirection : 'asc'}
-                onClick={() => handleSort('created_at')}
+                active={sortBy === 'operatorName'}
+                direction={sortBy === 'operatorName' ? sortDirection : 'asc'}
+                onClick={() => handleSort('operatorName')}
+              >
+                Ente
+              </TableSortLabel>
+            </TableCell>
+            <TableCell>
+              <TableSortLabel
+                active={sortBy === 'dateFrom'}
+                direction={sortBy === 'dateFrom' ? sortDirection : 'asc'}
+                onClick={() => handleSort('dateFrom')}
               >
                 Creato il
               </TableSortLabel>
             </TableCell>
             <TableCell>
               <TableSortLabel
-                active={sortBy === 'state'}
-                direction={sortBy === 'state' ? sortDirection : 'asc'}
-                onClick={() => handleSort('state')}
+                active={sortBy === 'status'}
+                direction={sortBy === 'status' ? sortDirection : 'asc'}
+                onClick={() => handleSort('status')}
               >
                 Stato
               </TableSortLabel>
@@ -237,37 +244,13 @@ export const OpportunitiesTable = ({
         </TableHead>
         <TableBody>
           {sortedItems.map((item) => (
-            <TableRow key={item.id} hover>
-              <TableCell padding="checkbox">
-                <Checkbox
-                  checked={selected.has(item.id)}
-                  onChange={() => handleSelectRow(item.id)}
-                />
-              </TableCell>
-              <TableCell>{item.name}</TableCell>
-              <TableCell>{item.categoryTitle}</TableCell>
-              <TableCell>
-                {new Date(item.dateFrom).toLocaleDateString('it-IT')}
-              </TableCell>
-              <TableCell>
-                <Chip
-                  label={
-                    STATE_OPTIONS.find((o) => o.value === item.status)?.label ??
-                    item.status
-                  }
-                  color={STATE_COLORS[item.status] ?? 'default'}
-                  size="small"
-                />
-              </TableCell>
-              <TableCell>
-                <IconButton
-                  size="small"
-                  onClick={(e) => handleMenuOpen(e, item.id)}
-                >
-                  <MoreVertIcon />
-                </IconButton>
-              </TableCell>
-            </TableRow>
+            <OpportunityRow
+              key={item.id}
+              item={item}
+              selected={selected.has(item.id)}
+              onSelect={handleSelectRow}
+              onMenuOpen={handleMenuOpen}
+            />
           ))}
         </TableBody>
       </Table>

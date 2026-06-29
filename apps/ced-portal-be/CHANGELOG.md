@@ -1,5 +1,64 @@
 # ced-portal-be
 
+## 0.2.8
+
+### Patch Changes
+
+- 6e12e3c: fix count published opportunities by operator
+
+## 0.2.7
+
+### Patch Changes
+
+- 1e8e656: change approve api to publish an opportunity and refresh materialized views
+- Updated dependencies [1e8e656]
+  - @pagopa/io-core-adapter-ar@0.0.7
+
+## 0.2.6
+
+### Patch Changes
+
+- 04a397d: Department opportunities list: text search now also matches the operator (ente) name, not only the opportunity name.
+
+## 0.2.5
+
+### Patch Changes
+
+- f22d16f: add concurrently option to refresh materialized view
+
+## 0.2.4
+
+### Patch Changes
+
+- 9603c2e: added possibility to migrate cron job
+- Updated dependencies [9603c2e]
+  - @pagopa/io-core-adapter-drizzle@0.0.4
+
+## 0.2.3
+
+### Patch Changes
+
+- 6f5c703: add profile info and make user info optional
+
+## 0.2.2
+
+### Patch Changes
+
+- b8c4b22: (Chore) Refactored ALS session context
+
+## 0.2.1
+
+### Patch Changes
+
+- 1b6f9a1: add places guard on request test api
+- c9baec0: Publish opportunity now returns 412 when the operator has no profile.
+
+## 0.2.0
+
+### Minor Changes
+
+- 49dad7a: add PATCH /operator/opportunities/{opportunityId}/publish endpoint for operator-scoped opportunity publishing
+
 ## 0.1.3
 
 ### Patch Changes

@@ -12,13 +12,17 @@ import {
 import WarningAmberRoundedIcon from '@mui/icons-material/WarningAmberRounded';
 import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { useGetOpportunityDetailQuery } from '../../features/opportunities/api';
+import {
+  useApproveOpportunityMutation,
+  useGetAdminOpportunityDetailQuery,
+} from '../../features/opportunities/api';
 import { APP_ROUTES } from '../../app/routeConfig';
 import { useToast } from '../../contexts';
 import { PublishModal } from '../../components/PublishModal';
 import { RequestChangesModal } from '../../components/RequestChangesModal';
 import { OpportunityDetailCard } from './components/OpportunityDetailCard';
 import { STATE_COLORS, STATE_OPTIONS } from '../../constants/opportunityState';
+import { getDisplayStatus } from '../../utils';
 
 export default function OpportunityDetailPage() {
   const theme = useTheme();
@@ -29,7 +33,9 @@ export default function OpportunityDetailPage() {
     data: detail,
     isLoading,
     isError,
-  } = useGetOpportunityDetailQuery(id ?? '');
+  } = useGetAdminOpportunityDetailQuery(id ?? '');
+  const [approveOpportunity, { isLoading: isApproving }] =
+    useApproveOpportunityMutation();
   const [publishModalOpen, setPublishModalOpen] = useState(false);
   const [requestChangesOpen, setRequestChangesOpen] = useState(false);
 
@@ -87,6 +93,7 @@ export default function OpportunityDetailPage() {
     );
   }
 
+  const displayStatus = getDisplayStatus(detail.status, detail.dateFrom);
   return (
     <Box
       sx={{
@@ -99,7 +106,7 @@ export default function OpportunityDetailPage() {
       <Stack spacing={3} sx={{ maxWidth: 800, mx: 'auto' }}>
         <Button
           startIcon={<ArrowBackIcon />}
-          onClick={() => navigate(APP_ROUTES.OPPORTUNITIES)}
+          onClick={() => navigate(-1)}
           sx={{ alignSelf: 'flex-start', fontWeight: 600, pl: 0 }}
         >
           Indietro
@@ -123,55 +130,70 @@ export default function OpportunityDetailPage() {
           </Box>
           <Chip
             label={
-              STATE_OPTIONS.find((o) => o.value === detail.status)?.label ??
-              detail.status
+              STATE_OPTIONS.find((o) => o.value === displayStatus)?.label ??
+              displayStatus
             }
-            color={STATE_COLORS[detail.status] ?? 'default'}
+            color={STATE_COLORS[displayStatus] ?? 'default'}
             size="small"
           />
         </Stack>
 
         <OpportunityDetailCard detail={detail} />
 
-        <Stack
-          direction="row"
-          spacing={2}
-          justifyContent="center"
-          sx={{ pt: 2, pb: 4 }}
-        >
-          <Button
-            variant="outlined"
-            startIcon={<EditOutlinedIcon />}
-            onClick={() => setRequestChangesOpen(true)}
-            sx={{ fontWeight: 700, borderRadius: 2, px: 3 }}
+        {detail.status === 'test_pending' && (
+          <Stack
+            direction="row"
+            spacing={2}
+            justifyContent="flex-end"
+            sx={{ pt: 2, pb: 4 }}
           >
-            Richiedi modifiche
-          </Button>
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={() => setPublishModalOpen(true)}
-            sx={{ fontWeight: 700, borderRadius: 2, px: 4 }}
-          >
-            Pubblica
-          </Button>
-        </Stack>
+            <Button
+              variant="outlined"
+              startIcon={<EditOutlinedIcon />}
+              onClick={() => setRequestChangesOpen(true)}
+              sx={{ fontWeight: 700, borderRadius: 2, px: 3 }}
+            >
+              Richiedi modifiche
+            </Button>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={() => setPublishModalOpen(true)}
+              sx={{ fontWeight: 700, borderRadius: 2, px: 4 }}
+            >
+              Pubblica
+            </Button>
+          </Stack>
+        )}
       </Stack>
 
       <PublishModal
         open={publishModalOpen}
         onClose={() => setPublishModalOpen(false)}
-        onPublish={() => {
-          setPublishModalOpen(false);
-          navigate(APP_ROUTES.OPPORTUNITIES);
-          showToast('Fatto!', 'success');
+        onPublish={async () => {
+          if (!id || isApproving) {
+            return;
+          }
+
+          try {
+            await approveOpportunity({
+              id,
+              payload: detail?.dateFrom
+                ? { dateFrom: detail.dateFrom }
+                : undefined,
+            }).unwrap();
+            setPublishModalOpen(false);
+            navigate(APP_ROUTES.OPPORTUNITIES);
+            showToast('Opportunità approvata con successo', 'success');
+          } catch {
+            showToast(
+              "Errore durante l'approvazione dell'opportunità",
+              'error',
+            );
+          }
         }}
         count={1}
-        publishDate={
-          detail?.dateFrom
-            ? new Date(detail.dateFrom).toLocaleDateString('it-IT')
-            : undefined
-        }
+        publishDate={detail?.dateFrom}
       />
 
       <RequestChangesModal

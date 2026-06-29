@@ -1,8 +1,10 @@
+import { Box, Divider, useTheme } from '@mui/material';
+import { LabelCaption } from '@pagopa/io-core-ui';
 import type { ReactNode } from 'react';
 import { useMemo } from 'react';
-import { Box, Divider, Typography, useTheme } from '@mui/material';
 import { DiscoveryListItem } from '../../../../components/DiscoveryListItem';
-import type { EntitySearchItem } from '../../../../features/entities/types';
+import { PlaceSearchItem } from '../../../../core/api/generated/model';
+import { formatAddress } from '../../../../utils/formatAddress';
 
 function highlightText(text: string, regex: RegExp | null): ReactNode {
   if (!regex) return text;
@@ -23,9 +25,9 @@ function highlightText(text: string, regex: RegExp | null): ReactNode {
 
 type SearchResultsProps = {
   total: number;
-  items: EntitySearchItem[];
+  items: PlaceSearchItem[];
   query: string;
-  onItemPress: (entityId: string, accessPointId: string) => void;
+  onItemPress: (accessPointId: string) => void;
 };
 
 export function SearchResults({
@@ -53,16 +55,7 @@ export function SearchResults({
           mb: 1,
         }}
       >
-        <Typography
-          sx={{
-            fontSize: 14,
-            fontWeight: 700,
-            color: theme.palette.common.neutralDarkGray,
-            letterSpacing: '0.08em',
-          }}
-        >
-          RISULTATI
-        </Typography>
+        <LabelCaption>RISULTATI</LabelCaption>
         <Box
           component="span"
           sx={{
@@ -89,15 +82,11 @@ export function SearchResults({
           <DiscoveryListItem
             variant="simple"
             title={highlightText(item.name, highlightRegex)}
-            subtitle={
-              item.address
-                ? highlightText(
-                    `${item.address.street}, ${item.address.city}`,
-                    highlightRegex,
-                  )
-                : undefined
-            }
-            onClick={() => onItemPress(item.entityId, item.id)}
+            subtitle={highlightText(
+              formatAddress(item.address) || item.url || '',
+              highlightRegex,
+            )}
+            onClick={() => onItemPress(item.id)}
             sx={{ bgcolor: 'white', px: 0 }}
           />
         </Box>

@@ -1,17 +1,27 @@
-import { Stack, Typography, Box, Button, Collapse } from '@mui/material';
-import { Carousel } from './components/Carousel';
-import { PARTNERS_CARDS_CONFIG, DISCOVERY_ITEMS_CONFIG } from './constants';
+import { Box, Button, Collapse, Stack } from '@mui/material';
+import { LabelCaption, Title, VSpacer } from '@pagopa/io-core-ui';
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { APP_ROUTES, toOpportunityDetailRoute } from '../../app/routeConfig';
 import { DiscoveryListItem } from '../../components';
 import { InfoBox } from '../../components/Infobox';
-import { useNavigate } from 'react-router-dom';
-import { APP_ROUTES } from '../../app/routeConfig';
 import { theme } from '../../core/theme';
-import { useState } from 'react';
+import { useGetOpportunitiesSearchQuery } from '../../features/opportunities/api';
+import { Carousel } from './components/Carousel';
 import { EntitiesSearch } from './components/EntitiesSearch';
+import {
+  PARTNERS_CARDS_CONFIG,
+  generateDiscoveryItemsConfig,
+} from './constants';
 
 export default function HomePage() {
   const navigate = useNavigate();
   const [isSearchActive, setIsSearchActive] = useState(false);
+
+  const { data } = useGetOpportunitiesSearchQuery({
+    limit: 10,
+  });
+  const discoveryItems = generateDiscoveryItemsConfig(data?.items);
 
   return (
     <Stack
@@ -29,9 +39,8 @@ export default function HomePage() {
     >
       <Stack direction="column" px={3} pt={3}>
         <Collapse in={!isSearchActive}>
-          <Typography variant="h1" sx={{ pb: 2 }}>
-            Scopri le opportunità
-          </Typography>
+          <Title text="Scopri le opportunità" variant="LG" />
+          <VSpacer size={16} />
         </Collapse>
         <EntitiesSearch
           isSearchActive={isSearchActive}
@@ -42,17 +51,9 @@ export default function HomePage() {
       {!isSearchActive && (
         <>
           <Stack direction="column" gap={2}>
-            <Typography
-              variant="caption"
-              sx={{
-                px: 3,
-                fontWeight: 700,
-                color: 'text.secondary',
-                textTransform: 'uppercase',
-              }}
-            >
-              IN PRIMO PIANO
-            </Typography>
+            <Box px={3} sx={{ flexShrink: 0 }}>
+              <LabelCaption>IN PRIMO PIANO</LabelCaption>
+            </Box>
             <Carousel list={PARTNERS_CARDS_CONFIG} />
           </Stack>
 
@@ -62,17 +63,9 @@ export default function HomePage() {
               alignItems="center"
               justifyContent="space-between"
             >
-              <Typography
-                variant="caption"
-                sx={{
-                  px: 3,
-                  fontWeight: 700,
-                  color: 'text.secondary',
-                  textTransform: 'uppercase',
-                }}
-              >
-                NUOVE OPPORTUNITÀ
-              </Typography>
+              <Box px={3} sx={{ flexShrink: 0 }}>
+                <LabelCaption>NUOVE OPPORTUNITÀ</LabelCaption>
+              </Box>
               <Button
                 variant="text"
                 sx={{ color: theme.palette.common.primaryButton }}
@@ -81,12 +74,13 @@ export default function HomePage() {
                 Mostra tutti
               </Button>
             </Stack>
-            {DISCOVERY_ITEMS_CONFIG.map((item, index, list) => (
+            {discoveryItems?.map((item, index, list) => (
               <DiscoveryListItem
+                {...item}
                 key={item.id}
                 sx={{ backgroundColor: theme.palette.background.paper }}
                 divider={index < list.length - 1}
-                {...item}
+                onClick={() => navigate(toOpportunityDetailRoute(item.id))}
               />
             ))}
           </Stack>

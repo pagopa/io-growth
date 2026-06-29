@@ -32,13 +32,14 @@ export interface ListOpportunitiesInput {
   offset: number;
   operatorId?: string;
   search?: string;
+  searchFields?: readonly OpportunitySearchField[];
   sortBy: "createdAt" | "updatedAt";
   sortOrder: "asc" | "desc";
   status?: OpportunitySummary["status"];
 }
 
 export interface OpportunityRepository {
-  readonly countByOperatorIds: (
+  readonly countByExternalOperatorIds: (
     operatorIds: readonly string[],
   ) => Promise<Result<ReadonlyMap<string, number>, GenericError>>;
   readonly create: (
@@ -60,6 +61,8 @@ export interface OpportunityRepository {
     input: UpdateOpportunityStatusByIdAndOperatorIdInput,
   ) => Promise<Result<void, ConflictError | GenericError>>;
 }
+
+export type OpportunitySearchField = "name" | "operatorName";
 
 export interface PaginatedOpportunities {
   items: OpportunitySummary[];

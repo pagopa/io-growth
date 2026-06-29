@@ -1,6 +1,6 @@
 import { Box, Stack, Typography, useTheme } from '@mui/material';
 import type { SyntheticEvent } from 'react';
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { APP_ROUTES } from '../../app/routeConfig';
 import { FiltersBar, PageTabs, ResultsPagination } from '../../components';
@@ -14,6 +14,8 @@ import type {
   EntityItem,
 } from '../../features/entities/types.js';
 import { EntitiesTable } from './components/EntitiesTable.js';
+import type { ListOnboardingsStatusesItem } from '../../core/api/generated/model/listOnboardingsStatusesItem.js';
+import { useMemorizedTabsAndFilters } from '../../hooks/useMemorizedTabsAndFilters.js';
 
 const INITIAL_FILTERS: EntityFilters = {
   search: '',
@@ -23,21 +25,24 @@ const INITIAL_FILTERS: EntityFilters = {
 export default function EntitiesPage() {
   const theme = useTheme();
   const navigate = useNavigate();
-  const [filters, setFilters] = useState<EntityFilters>(INITIAL_FILTERS);
-  const [draftFilters, setDraftFilters] =
-    useState<EntityFilters>(INITIAL_FILTERS);
-  const [activeTab, setActiveTab] = useState(0);
-  const [page, setPage] = useState(1);
-  const [rowsPerPage, setRowsPerPage] = useState(5);
 
-  const { items, total, isLoading, isError } = useEntitiesData({
-    activeTab,
+  const { tab, page, limit, filters, updateParams } =
+    useMemorizedTabsAndFilters<EntityFilters>(INITIAL_FILTERS, 5);
+
+  const [draftFilters, setDraftFilters] = useState<EntityFilters>(filters);
+
+  useEffect(() => {
+    setDraftFilters(filters);
+  }, [filters]);
+
+  const { items, total, isLoading, isError, refetch } = useEntitiesData({
+    activeTab: tab,
     filters,
     page,
-    rowsPerPage,
+    rowsPerPage: limit,
   });
 
-  const isRequestsTab = activeTab === 0;
+  const isRequestsTab = tab === 0;
 
   const displayedItems = useMemo(
     () =>
@@ -52,33 +57,30 @@ export default function EntitiesPage() {
     : ENTITY_MANAGED_STATE_OPTIONS;
 
   const handleTabChange = (_event: SyntheticEvent, newValue: number) => {
-    setActiveTab(newValue);
-    setPage(1);
-    setDraftFilters(INITIAL_FILTERS);
-    setFilters(INITIAL_FILTERS);
+    updateParams({
+      tab: newValue,
+      page: 1,
+      search: '',
+      state: '',
+    });
   };
 
   const handleFilterChange = (
-    partial: Partial<{ search: string; state: string }>,
+    partial: Partial<{ search: string; state: ListOnboardingsStatusesItem }>,
   ) => {
-    setDraftFilters((current) => ({
-      ...current,
-      ...(partial.search === undefined ? {} : { search: partial.search }),
-      ...(partial.state === undefined
-        ? {}
-        : { state: partial.state as EntityFilters['state'] }),
-    }));
+    setDraftFilters((current) => ({ ...current, ...partial }));
   };
 
   const handleFilter = () => {
-    setFilters(draftFilters);
-    setPage(1);
+    updateParams({
+      search: draftFilters.search,
+      state: draftFilters.state,
+      page: 1,
+    });
   };
 
   const handleReset = () => {
-    setDraftFilters(INITIAL_FILTERS);
-    setFilters(INITIAL_FILTERS);
-    setPage(1);
+    updateParams({ search: '', state: '', page: 1 });
   };
 
   const handleOpenDetail = (item: EntityItem) => {
@@ -87,11 +89,7 @@ export default function EntitiesPage() {
 
   return (
     <Box
-      sx={{
-        minHeight: '100%',
-        px: { xs: 2, md: 3.5 },
-        py: { xs: 3, md: 4.5 },
-      }}
+      sx={{ minHeight: '100%', px: { xs: 2, md: 3.5 }, py: { xs: 3, md: 4.5 } }}
       bgcolor={theme.palette.common.neutralGray}
     >
       <Stack spacing={3} sx={{ minHeight: '100%' }}>
@@ -107,10 +105,14 @@ export default function EntitiesPage() {
             degli enti.
           </Typography>
         </Box>
-
         <FiltersBar
           filters={draftFilters}
-          onChange={handleFilterChange}
+          onChange={({ state, search }) =>
+            handleFilterChange({
+              search,
+              state: state as ListOnboardingsStatusesItem,
+            })
+          }
           onFilter={handleFilter}
           onReset={handleReset}
           searchPlaceholder="Cerca per ente"
@@ -119,13 +121,14 @@ export default function EntitiesPage() {
 
         <Stack spacing={0} sx={{ width: '100%' }}>
           <PageTabs
-            activeTab={activeTab}
+            activeTab={tab}
             onChange={handleTabChange}
-            tabLabels={['Richieste', 'Enti']}
+            tabLabels={['Da gestire', 'Enti']}
           />
           <EntitiesTable
-            activeTab={activeTab}
+            activeTab={tab}
             items={displayedItems}
+            onRetry={refetch}
             isLoading={isLoading}
             isError={isError}
             onRowOpen={handleOpenDetail}
@@ -133,9 +136,11 @@ export default function EntitiesPage() {
           <ResultsPagination
             totalItems={total}
             page={page}
-            rowsPerPage={rowsPerPage}
-            onPageChange={setPage}
-            onRowsPerPageChange={setRowsPerPage}
+            rowsPerPage={limit}
+            onPageChange={(newPage) => updateParams({ page: newPage })}
+            onRowsPerPageChange={(newLimit) =>
+              updateParams({ limit: newLimit, page: 1 })
+            }
             rowsPerPageOptions={[5, 10, 25, 50]}
           />
         </Stack>

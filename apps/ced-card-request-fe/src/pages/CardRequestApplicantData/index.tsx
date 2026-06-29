@@ -1,9 +1,8 @@
 import { Box, Button, useTheme } from '@mui/material';
+import { Body, Title, VSpacer } from '@pagopa/io-core-ui';
 import { useNavigate } from 'react-router-dom';
-import { AppTextField, Stepper, PageHeader } from '../../components';
 import { APP_ROUTES } from '../../app/routeConfig';
-import { Body, Title } from '../../components/Typography';
-import { VSpacer } from '../../layouts/Spacer';
+import { AppTextField, PageHeader, Stepper } from '../../components';
 
 export default function CardRequestApplicantDataPage() {
   const navigate = useNavigate();
@@ -29,7 +28,7 @@ export default function CardRequestApplicantDataPage() {
       }}
     >
       <PageHeader
-        title="Richiesta Carta Europea della Disabilita"
+        title="Richiesta Carta Europea della Disabilità"
         subtitle={<Body>Completa i passaggi e invia la richiesta.</Body>}
       />
 

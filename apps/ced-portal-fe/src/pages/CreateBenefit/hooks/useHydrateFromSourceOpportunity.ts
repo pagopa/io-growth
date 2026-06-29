@@ -6,6 +6,8 @@ import {
   setField,
   setBenefit,
   setLocalizedValue,
+  setCaregiverEnabled,
+  setCaregiverHasSameConditions,
 } from '../../../features/opportunityCreation/opportunityCreationSlice';
 import {
   setAccessPoint,
@@ -14,6 +16,7 @@ import {
 } from '../../../features/places/placesSlice';
 import { useGetPlacesQuery } from '../../../features/places/api';
 import { PlaceBaseType } from '../../../core/api/generated/model';
+import { checkBenefitEquality } from '../../../utils/checkBenefitEquality';
 
 type PlacesMap = {
   locations: Array<string>;
@@ -63,8 +66,8 @@ export const useHydrateFromSourceOpportunity = (
     }
 
     dispatch(setField({ field: 'dateFrom', value: dateFrom }));
-    dispatch(setField({ field: 'dateTo', value: dateTo }));
-    dispatch(setField({ field: 'url', value: url }));
+    dispatch(setField({ field: 'dateTo', value: dateTo ?? undefined }));
+    dispatch(setField({ field: 'url', value: url ?? undefined }));
     dispatch(setField({ field: 'categoryId', value: categoryId }));
     dispatch(setField({ field: 'placeIds', value: placeIds }));
     dispatch(
@@ -95,31 +98,45 @@ export const useHydrateFromSourceOpportunity = (
       dispatch(setSelectedLocationIds(placesIdsMapped?.locations ?? []));
       dispatch(setSelectedWebsiteIds(placesIdsMapped?.websites ?? []));
 
-      const accessPoint: PlaceBaseType | 'both' = placesIdsMapped?.websites
-        .length
-        ? 'online'
-        : placesIdsMapped?.locations.length || nationalTerritory
-          ? 'offline'
-          : 'both';
+      const hasWebsites = Boolean(placesIdsMapped?.websites.length);
+      const hasLocations = Boolean(
+        placesIdsMapped?.locations.length || nationalTerritory,
+      );
+
+      const accessPoint: PlaceBaseType | 'both' =
+        hasWebsites && hasLocations
+          ? 'both'
+          : hasLocations
+            ? 'offline'
+            : 'online';
+
       dispatch(setAccessPoint(accessPoint));
     }
 
     localizedMetadata?.map((payload) => dispatch(setLocalizedValue(payload)));
 
     if (caregiverBenefit) {
+      dispatch(setCaregiverEnabled(true));
       dispatch(
         setBenefit({
           which: 'caregiverBenefit',
-          value: caregiverBenefit ?? null,
+          value: caregiverBenefit ?? undefined,
         }),
       );
+      if (beneficiaryBenefit) {
+        dispatch(
+          setCaregiverHasSameConditions(
+            checkBenefitEquality(beneficiaryBenefit, caregiverBenefit),
+          ),
+        );
+      }
     }
 
     if (beneficiaryBenefit) {
       dispatch(
         setBenefit({
           which: 'beneficiaryBenefit',
-          value: beneficiaryBenefit ?? null,
+          value: beneficiaryBenefit ?? undefined,
         }),
       );
     }

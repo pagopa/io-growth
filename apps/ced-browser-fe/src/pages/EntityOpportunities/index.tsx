@@ -1,22 +1,20 @@
 import { Box, Divider, Stack, Typography } from '@mui/material';
 import { useNavigate, useParams } from 'react-router-dom';
-import {
-  DiscoveryListItem,
-  PageHeader,
-  QueryGuard,
-} from '../../components/index.js';
-import { toOpportunityDetailRoute } from '../../app/routeConfig.js';
-import { useGetEntityDetailQuery } from '../../features/entities/api.js';
+import { DiscoveryListItem, PageHeader, QueryGuard } from '../../components';
+import { toOpportunityDetailRoute } from '../../app/routeConfig';
+import { useGetEntityDetailQuery } from '../../features/entities/api';
+import { formatBadgeLabel } from '../../utils';
 
 export default function EntityOpportunitiesPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { data, isLoading, isError } = useGetEntityDetailQuery(id ?? '');
+  const { data, isLoading, isError, error } = useGetEntityDetailQuery(id ?? '');
 
   return (
     <QueryGuard
       isLoading={isLoading}
       isError={isError}
+      error={error}
       data={data}
       errorMessage="Impossibile caricare i dati dell'ente."
     >
@@ -36,20 +34,19 @@ export default function EntityOpportunitiesPage() {
                   component="span"
                   sx={{ fontWeight: 700, color: 'text.primary' }}
                 >
-                  {resolvedData.name}
+                  {resolvedData.displayName}
                 </Box>
               </Typography>
             }
           />
 
           <Stack divider={<Divider sx={{ mx: 2 }} />}>
-            {resolvedData.opportunities.map((item) => (
+            {resolvedData.recentOpportunities.map((item) => (
               <DiscoveryListItem
                 key={item.id}
                 variant="opportunity"
-                eyebrow={item.eyebrow}
-                title={item.title}
-                badgeLabel={item.badgeLabel}
+                title={item.name}
+                badgeLabel={formatBadgeLabel(item.beneficiaryBenefit)}
                 sx={{ px: 0, bgcolor: 'background.paper' }}
                 onClick={() => navigate(toOpportunityDetailRoute(item.id))}
               />

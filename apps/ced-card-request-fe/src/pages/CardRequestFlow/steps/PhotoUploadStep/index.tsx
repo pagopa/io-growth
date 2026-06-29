@@ -1,10 +1,9 @@
 import FileUploadOutlinedIcon from '@mui/icons-material/FileUploadOutlined';
 import { Box, Button, useTheme } from '@mui/material';
+import { Body, ErrorBody, Title, VSpacer } from '@pagopa/io-core-ui';
 import { forwardRef, useImperativeHandle, useState } from 'react';
 import { SpinnerLoader } from '../../../../components/Loader';
-import { Body, ErrorBody, Title } from '../../../../components/Typography';
 import { MarkdownRenderer } from '../../../../components/Typography/MarkdownRender';
-import { VSpacer } from '../../../../layouts/Spacer';
 import { StepCard } from '../../StepCard';
 import type { StepRef } from '../../types';
 import { PhotoGuidelinesModal } from './PhotoGuidelinesModal';

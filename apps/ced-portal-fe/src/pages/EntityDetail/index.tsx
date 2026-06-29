@@ -172,6 +172,8 @@ export default function EntityDetailPage() {
     );
   }
 
+  const isEditable = onboarding.status === 'PENDING_IN_REVIEW';
+
   return (
     <Box
       sx={{
@@ -189,7 +191,6 @@ export default function EntityDetailPage() {
         >
           Indietro
         </Button>
-
         <Stack
           direction={{ xs: 'column', md: 'row' }}
           justifyContent="space-between"
@@ -218,7 +219,6 @@ export default function EntityDetailPage() {
             size="small"
           />
         </Stack>
-
         <SectionCard title="Dati dell'ente">
           <DetailSection fields={entityFields} />
           <Box sx={{ py: 2, px: 3 }}>
@@ -235,11 +235,9 @@ export default function EntityDetailPage() {
           </Box>
           <DetailSection fields={geographicFields} />
         </SectionCard>
-
         <SectionCard title="Dati del Legale Rappresentante">
           <DetailSection fields={legalRepresentativeFields} />
         </SectionCard>
-
         <SectionCard title="Convenzione">
           <Box sx={{ py: 2, px: 3 }}>
             <Stack
@@ -250,12 +248,16 @@ export default function EntityDetailPage() {
             >
               <Box>
                 <Typography variant="caption" color="text.secondary">
-                  Richiesta di convenzionamento
+                  {isEditable
+                    ? 'Richiesta di convenzionamento'
+                    : 'Richiesta di convenzionamento controfirmata'}
                 </Typography>
+
                 <Typography sx={{ fontWeight: 700, fontSize: 15 }}>
                   contratto-{onboarding.id}.pdf
                 </Typography>
               </Box>
+
               <Button
                 startIcon={<FileDownloadOutlinedIcon />}
                 onClick={handleDownloadContract}
@@ -263,85 +265,98 @@ export default function EntityDetailPage() {
               >
                 {isDownloadingContract
                   ? 'Download in corso...'
-                  : 'Scarica e firma'}
+                  : isEditable
+                    ? 'Scarica e firma'
+                    : 'Scarica'}
               </Button>
             </Stack>
           </Box>
-          <Divider sx={{ ml: 3, mr: 3 }} />
-          <Box sx={{ py: 2, px: 3 }}>
-            <UploadDropzone
-              title="Trascina qui la richiesta di convenzionamento controfirmata"
-              subtitle="Formato PDF"
-              onFileSelect={(file) => {
-                if (file) {
-                  setUploadedFile(file);
-                  setUploadState('success');
-                } else {
-                  setUploadedFile(null);
-                  setUploadState('idle');
-                }
-              }}
-              isLoading={uploadState === 'loading' || isCompletingOnboarding}
-              isError={uploadState === 'error'}
-              isSuccess={uploadState === 'success'}
-              uploadedFileName={uploadedFile?.name}
-              uploadedFileLabel="Richiesta di convenzionamento controfirmata"
-              onRetry={() => setUploadState('idle')}
-              onDelete={() => {
-                setUploadedFile(null);
-                setUploadState('idle');
-              }}
-              onCancel={() => setUploadState('idle')}
-              acceptedTypes={['application/pdf']}
-            />
-            <Typography
-              variant="body2"
-              sx={{ mt: 3, mb: 3, fontWeight: 600, color: 'error.dark' }}
-            >
-              * Campo obbligatorio
-            </Typography>
-          </Box>
-        </SectionCard>
-        <Stack
-          direction="row"
-          spacing={2}
-          justifyContent="flex-end"
-          sx={{ pt: 2 }}
-        >
-          <Button
-            variant="outlined"
-            color="error"
-            sx={{ borderRadius: 2, px: 3 }}
-            onClick={() => setOpenRejectModal(true)}
-          >
-            Rifiuta
-          </Button>
-          <Button
-            variant="contained"
-            sx={{ borderRadius: 2, px: 4 }}
-            onClick={handlePublish}
-          >
-            Approva
-          </Button>
 
-          <RejectEntityModal
-            open={openRejectModal}
-            onClose={() => setOpenRejectModal(false)}
-            onConfirm={() => {
-              setOpenRejectModal(false);
-              navigate(APP_ROUTES.ENTITIES);
-              showToast('Fatto', 'success');
-            }}
-            entityName={entityName}
-            productName={onboarding.productId ?? '-'}
-          />
-          <PublishEntityModal
-            open={openPublishModal}
-            onClose={() => setOpenPublishModal(false)}
-            onPublish={handleApprove}
-            isLoading={isCompletingOnboarding}
-          />
-        </Stack>
+          {isEditable && (
+            <>
+              <Divider sx={{ ml: 3, mr: 3 }} />
+              <Box sx={{ py: 2, px: 3 }}>
+                <>
+                  <UploadDropzone
+                    title="Trascina qui la richiesta di convenzionamento controfirmata"
+                    subtitle="Formato PDF"
+                    onFileSelect={(file) => {
+                      if (file) {
+                        setUploadedFile(file);
+                        setUploadState('success');
+                      } else {
+                        setUploadedFile(null);
+                        setUploadState('idle');
+                      }
+                    }}
+                    isLoading={
+                      uploadState === 'loading' || isCompletingOnboarding
+                    }
+                    isError={uploadState === 'error'}
+                    isSuccess={uploadState === 'success'}
+                    uploadedFileName={uploadedFile?.name}
+                    uploadedFileLabel="Richiesta di convenzionamento controfirmata"
+                    onRetry={() => setUploadState('idle')}
+                    onDelete={() => {
+                      setUploadedFile(null);
+                      setUploadState('idle');
+                    }}
+                    onCancel={() => setUploadState('idle')}
+                    acceptedTypes={['application/pdf']}
+                  />
+                  <Typography
+                    variant="body2"
+                    sx={{ mt: 3, mb: 3, fontWeight: 600, color: 'error.dark' }}
+                  >
+                    * Campo obbligatorio
+                  </Typography>
+                </>
+              </Box>
+            </>
+          )}
+        </SectionCard>
+        {isEditable && (
+          <Stack
+            direction="row"
+            spacing={2}
+            justifyContent="flex-end"
+            sx={{ pt: 2 }}
+          >
+            <Button
+              variant="outlined"
+              color="error"
+              sx={{ borderRadius: 2, px: 3 }}
+              onClick={() => setOpenRejectModal(true)}
+            >
+              Rifiuta
+            </Button>
+            <Button
+              variant="contained"
+              sx={{ borderRadius: 2, px: 4 }}
+              onClick={handlePublish}
+            >
+              Approva
+            </Button>
+
+            <RejectEntityModal
+              open={openRejectModal}
+              onClose={() => setOpenRejectModal(false)}
+              onConfirm={() => {
+                setOpenRejectModal(false);
+                navigate(APP_ROUTES.ENTITIES);
+                showToast('Fatto', 'success');
+              }}
+              entityName={entityName}
+              productName={onboarding.productId ?? '-'}
+            />
+            <PublishEntityModal
+              open={openPublishModal}
+              onClose={() => setOpenPublishModal(false)}
+              onPublish={handleApprove}
+              isLoading={isCompletingOnboarding}
+            />
+          </Stack>
+        )}
       </Stack>
     </Box>
   );

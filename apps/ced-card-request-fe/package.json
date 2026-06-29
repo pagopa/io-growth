@@ -15,6 +15,7 @@
     "mock:start": "npx @mockoon/cli start --data mockoon/mockoon-config.json"
   },
   "dependencies": {
+    "@pagopa/io-core-ui": "workspace:^",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.1",
     "@mui/icons-material": "^5.18.0",

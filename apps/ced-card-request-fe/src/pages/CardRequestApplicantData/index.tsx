@@ -1,9 +1,8 @@
 import { Box, Button, useTheme } from '@mui/material';
+import { Body, Title, VSpacer } from '@pagopa/io-core-ui';
 import { useNavigate } from 'react-router-dom';
-import { AppTextField, Stepper, PageHeader } from '../../components';
 import { APP_ROUTES } from '../../app/routeConfig';
-import { Body, Title } from '../../components/Typography';
-import { VSpacer } from '../../layouts/Spacer';
+import { AppTextField, PageHeader, Stepper } from '../../components';
 
 export default function CardRequestApplicantDataPage() {
   const navigate = useNavigate();

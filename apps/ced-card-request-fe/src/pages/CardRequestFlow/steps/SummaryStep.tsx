@@ -8,9 +8,8 @@ import {
   Divider,
   useTheme,
 } from '@mui/material';
+import { Body, Title, VSpacer } from '@pagopa/io-core-ui';
 import { forwardRef, Fragment, useImperativeHandle } from 'react';
-import { Body, Title } from '../../../components/Typography';
-import { VSpacer } from '../../../layouts/Spacer';
 import { StepCard } from '../StepCard';
 import type { StepRef } from '../types';
 

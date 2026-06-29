@@ -144,13 +144,27 @@ export default function OpportunityDetailPage() {
 
             <Box sx={{ py: 2 }}>
               <Body fontWeight="Light" fontSize="14px">
-                Periodo di validità
+                Inizio validità
               </Body>
               <Body fontWeight="Semibold">
-                {formatDate(resolvedData.dateTo ?? resolvedData.dateFrom)}
+                {formatDate(resolvedData.dateFrom)}
               </Body>
             </Box>
             <Divider />
+
+            {resolvedData.dateTo && (
+              <>
+                <Box sx={{ py: 2 }}>
+                  <Body fontWeight="Light" fontSize="14px">
+                    Fine validità
+                  </Body>
+                  <Body fontWeight="Semibold">
+                    {formatDate(resolvedData.dateTo)}
+                  </Body>
+                </Box>
+                <Divider />
+              </>
+            )}
 
             {resolvedData.url && (
               <Box sx={{ py: 2.25 }}>

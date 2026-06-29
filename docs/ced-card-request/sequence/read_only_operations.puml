@@ -4,7 +4,7 @@ hide footbox
 
 actor "FE (User App)" as FE
 participant "BFF (Our System)" as BFF
-box "INPS Services (PDND)" #LightBlue
+box "INPS Services (ModI P3)" #LightBlue
   participant "MS INPS\n(GestioneDomandaCED)" as INPS
 end box
 

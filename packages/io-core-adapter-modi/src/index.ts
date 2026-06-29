@@ -5,16 +5,14 @@ export { buildModiConfig, modiConfigSchema } from "./config.js";
 
 export type { ModiConfig, ModiEnvConfig } from "./config.js";
 
-// Domain entities
-export type { ModiRequestContext } from "./domain/entities.js";
-
 // Port interfaces
 export type {
   HttpsClientCredentials,
   ModiCredentialProvider,
-  SigningCredentials,
+  SigningCredentials
 } from "./domain/ports/outbound/credential-provider.port.js";
 
 // Signed-fetch primitive
 export { createSignedFetch } from "./signed-fetch.js";
 export type { SignedFetch } from "./signed-fetch.js";
+

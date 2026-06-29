@@ -1,5 +1,5 @@
 import { decodeJwt, decodeProtectedHeader, generateKeyPair } from "jose";
-import { ok } from "neverthrow";
+import { err, ok } from "neverthrow";
 import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { ModiConfig } from "../config.js";
@@ -17,8 +17,17 @@ vi.mock("undici", async (importOriginal) => {
   };
 });
 
+// Mock the response verifier so tests do not need a real INPS-signed JWT in
+// the mock response. Individual tests can override with mockReturnValueOnce.
+vi.mock("../adapters/outbound/crypto/jose-response-verifier.js", () => ({
+  createResponseVerifier: vi.fn(() => ({
+    verify: vi.fn().mockResolvedValue(ok(undefined)),
+  })),
+}));
+
 import { fetch as mockFetch } from "undici";
 
+import { createResponseVerifier } from "../adapters/outbound/crypto/jose-response-verifier.js";
 import { createSignedFetch } from "../signed-fetch.js";
 
 // ──────────────────────────────────────────────────────────────────────────────
@@ -80,9 +89,16 @@ beforeAll(async () => {
 
 beforeEach(() => {
   vi.mocked(mockFetch).mockReset();
+  // Default response includes a stub Agid-JWT-Signature so P3 fail-closed check passes.
   vi.mocked(mockFetch).mockResolvedValue(
-    makeOkResponse() as unknown as Awaited<ReturnType<typeof mockFetch>>,
+    makeOkResponse({
+      "Agid-JWT-Signature": "stub.jwt.signature",
+    }) as unknown as Awaited<ReturnType<typeof mockFetch>>,
   );
+  // Default verifier returns ok — override per test to exercise error paths.
+  vi.mocked(createResponseVerifier).mockReturnValue({
+    verify: vi.fn().mockResolvedValue(ok(undefined)),
+  });
 });
 
 // ──────────────────────────────────────────────────────────────────────────────
@@ -96,7 +112,11 @@ describe("createSignedFetch", () => {
       credentialProvider,
     });
 
-    await signedFetch("/Domanda/CheckDomanda", { body: "{}", method: "POST" });
+    await signedFetch("/Domanda/CheckDomanda", {
+      body: "{}",
+      headers: { "INPS-Identity-UserId": "RSSMRA80A01H501U" },
+      method: "POST",
+    });
 
     expect(vi.mocked(mockFetch)).toHaveBeenCalledOnce();
     const [calledUrl] = vi.mocked(mockFetch).mock.calls[0];
@@ -112,6 +132,7 @@ describe("createSignedFetch", () => {
 
     await signedFetch("/Domanda/CheckDomanda", {
       body: '{"codiceFiscale":"RSSMRA80A01H501U"}',
+      headers: { "INPS-Identity-UserId": "RSSMRA80A01H501U" },
       method: "POST",
     });
 
@@ -127,7 +148,11 @@ describe("createSignedFetch", () => {
       credentialProvider,
     });
 
-    await signedFetch("/Domanda/CheckDomanda", { body: "{}", method: "POST" });
+    await signedFetch("/Domanda/CheckDomanda", {
+      body: "{}",
+      headers: { "INPS-Identity-UserId": "RSSMRA80A01H501U" },
+      method: "POST",
+    });
 
     const [, calledOptions] = vi.mocked(mockFetch).mock.calls[0];
     const headers = calledOptions?.headers as Headers;
@@ -147,7 +172,11 @@ describe("createSignedFetch", () => {
       credentialProvider,
     });
 
-    await signedFetch("/Domanda/CheckDomanda", { body: "{}", method: "POST" });
+    await signedFetch("/Domanda/CheckDomanda", {
+      body: "{}",
+      headers: { "INPS-Identity-UserId": "RSSMRA80A01H501U" },
+      method: "POST",
+    });
 
     const [, calledOptions] = vi.mocked(mockFetch).mock.calls[0];
     const jwt = (calledOptions?.headers as Headers).get("Agid-JWT-Signature");
@@ -205,7 +234,11 @@ describe("createSignedFetch", () => {
       credentialProvider,
     });
 
-    await signedFetch("/Domanda/CheckDomanda", { body: "{}", method: "POST" });
+    await signedFetch("/Domanda/CheckDomanda", {
+      body: "{}",
+      headers: { "INPS-Identity-UserId": "RSSMRA80A01H501U" },
+      method: "POST",
+    });
 
     const [, calledOptions] = vi.mocked(mockFetch).mock.calls[0];
     const headers = calledOptions?.headers as Headers;
@@ -231,11 +264,32 @@ describe("createSignedFetch", () => {
     });
 
     await expect(
-      signedFetch("/Domanda/CheckDomanda", { body: "{}", method: "POST" }),
+      signedFetch("/Domanda/CheckDomanda", {
+        body: "{}",
+        headers: { "INPS-Identity-UserId": "RSSMRA80A01H501U" },
+        method: "POST",
+      }),
     ).rejects.toThrow("vault unavailable");
   });
 
-  it("does not throw when response has no Agid-JWT-Signature (P3 verify skipped)", async () => {
+  it("throws when INPS-Identity-UserId header is not set", async () => {
+    const signedFetch = createSignedFetch({
+      audience: AUDIENCE,
+      config: CONFIG,
+      credentialProvider,
+    });
+
+    await expect(
+      signedFetch("/Domanda/CheckDomanda", { body: "{}", method: "POST" }),
+    ).rejects.toThrow("INPS-Identity-UserId header is required");
+  });
+
+  it("throws when response is missing the required Agid-JWT-Signature header (P3 fail-closed)", async () => {
+    // Override the default mock to return a response without the header
+    vi.mocked(mockFetch).mockResolvedValueOnce(
+      makeOkResponse() as unknown as Awaited<ReturnType<typeof mockFetch>>,
+    );
+
     const signedFetch = createSignedFetch({
       audience: AUDIENCE,
       config: { ...CONFIG, inpsBaseUrl: "https://api3.collaudo.inps.it" },
@@ -243,19 +297,22 @@ describe("createSignedFetch", () => {
     });
 
     await expect(
-      signedFetch("/Domanda/CheckDomanda", { body: "{}", method: "POST" }),
-    ).resolves.toBeDefined();
+      signedFetch("/Domanda/CheckDomanda", {
+        body: "{}",
+        headers: { "INPS-Identity-UserId": "RSSMRA80A01H501U" },
+        method: "POST",
+      }),
+    ).rejects.toThrow("ModI P3 violation");
   });
 
-  it("throws when response contains Agid-JWT-Signature but cert chain is invalid", async () => {
-    // The credential provider returns a fake PEM that cannot be parsed as a real
-    // X.509 certificate; importX509 will throw inside the verifier, which returns
-    // err(UnauthorizedError), and signedFetch rethrows it.
-    vi.mocked(mockFetch).mockResolvedValueOnce(
-      makeOkResponse({
-        "Agid-JWT-Signature": "fake.jwt.token",
-      }) as unknown as Awaited<ReturnType<typeof mockFetch>>,
-    );
+  it("throws when response verification returns an error", async () => {
+    const { UnauthorizedError } = await import("@pagopa/io-core-domain/errors");
+
+    vi.mocked(createResponseVerifier).mockReturnValueOnce({
+      verify: vi
+        .fn()
+        .mockResolvedValue(err(new UnauthorizedError("invalid signature"))),
+    });
 
     const signedFetch = createSignedFetch({
       audience: AUDIENCE,
@@ -264,7 +321,11 @@ describe("createSignedFetch", () => {
     });
 
     await expect(
-      signedFetch("/Domanda/CheckDomanda", { body: "{}", method: "POST" }),
-    ).rejects.toThrow();
+      signedFetch("/Domanda/CheckDomanda", {
+        body: "{}",
+        headers: { "INPS-Identity-UserId": "RSSMRA80A01H501U" },
+        method: "POST",
+      }),
+    ).rejects.toThrow("invalid signature");
   });
 });

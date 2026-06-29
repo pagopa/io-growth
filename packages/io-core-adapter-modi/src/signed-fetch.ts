@@ -3,7 +3,10 @@ import type { Agent, RequestInit as UndiciRequestInit } from "undici";
 import { fetch as undiciFetch, Headers as UndiciHeaders } from "undici";
 
 import type { ModiConfig } from "./config.js";
-import type { ModiCredentialProvider } from "./domain/ports/outbound/credential-provider.port.js";
+import type {
+  ModiCredentialProvider,
+  SigningCredentials,
+} from "./domain/ports/outbound/credential-provider.port.js";
 
 import { computeDigest } from "./adapters/outbound/crypto/digest.js";
 import { createResponseVerifier } from "./adapters/outbound/crypto/jose-response-verifier.js";
@@ -14,6 +17,15 @@ export type SignedFetch = (
   url: string,
   options: RequestInit,
 ) => Promise<Response>;
+
+/** TTL for the cached signing credentials (24 hours). */
+const SIGNING_CACHE_TTL_MS = 24 * 60 * 60 * 1000;
+
+interface CachedSigningCredentials {
+  readonly credentials: SigningCredentials;
+  readonly expiresAt: number;
+  readonly signingCa: string;
+}
 
 /**
  * Creates a fetch-compatible function that transparently applies INPS ModI P3:
@@ -28,6 +40,9 @@ export type SignedFetch = (
  * must be set on options.headers by the caller before invoking the
  * signed fetch. The signed fetch reads them, includes them in the JWT
  * signed_headers claim, and forwards them to INPS.
+ *
+ * Both the mTLS dispatcher and the signing credentials are cached for
+ * SIGNING_CACHE_TTL_MS (24 h) to avoid per-request Key Vault round-trips.
  */
 export const createSignedFetch = (options: {
   audience: string;
@@ -37,6 +52,7 @@ export const createSignedFetch = (options: {
   const { audience, config, credentialProvider } = options;
 
   let cachedDispatcher: Agent | undefined;
+  let cachedSigning: CachedSigningCredentials | undefined;
 
   const getDispatcher = async (): Promise<Agent> => {
     if (cachedDispatcher) return cachedDispatcher;
@@ -55,6 +71,25 @@ export const createSignedFetch = (options: {
       key: credsResult.value.key,
     });
     return cachedDispatcher;
+  };
+
+  const getSigningCredentials = async (): Promise<CachedSigningCredentials> => {
+    const now = Date.now();
+    if (cachedSigning && cachedSigning.expiresAt > now) return cachedSigning;
+
+    const [signingResult, signingCaResult] = await Promise.all([
+      credentialProvider.getSigningCredentials(),
+      credentialProvider.getInpsSigningCaChain(),
+    ]);
+    if (signingResult.isErr()) throw signingResult.error;
+    if (signingCaResult.isErr()) throw signingCaResult.error;
+
+    cachedSigning = {
+      credentials: signingResult.value,
+      expiresAt: now + SIGNING_CACHE_TTL_MS,
+      signingCa: signingCaResult.value,
+    };
+    return cachedSigning;
   };
 
   return async (url: string, requestInit: RequestInit): Promise<Response> => {
@@ -83,24 +118,27 @@ export const createSignedFetch = (options: {
     const digest = computeDigest(bodyForDigest);
     headers.set("Digest", digest);
 
-    // Read identity context threaded via headers by the caller
-    const userId = headers.get("INPS-Identity-UserId") ?? "";
+    // Read identity context threaded via headers by the caller.
+    // P3 requires a non-empty UserId in the signed JWT — fail fast rather than
+    // silently sign a request with a blank identity.
+    const userId = headers.get("INPS-Identity-UserId");
+    if (!userId) {
+      throw new Error(
+        "INPS-Identity-UserId header is required but was not set by the caller",
+      );
+    }
     const codiceUfficio =
       headers.get("INPS-Identity-CodiceUfficio") ?? config.defaultCodiceUfficio;
 
     headers.set("INPS-Identity-UserId", userId);
     headers.set("INPS-Identity-CodiceUfficio", codiceUfficio);
 
-    // Load signing credentials and INPS signing CA in parallel
-    const [signingResult, signingCaResult] = await Promise.all([
-      credentialProvider.getSigningCredentials(),
-      credentialProvider.getInpsSigningCaChain(),
-    ]);
-    if (signingResult.isErr()) throw signingResult.error;
-    if (signingCaResult.isErr()) throw signingCaResult.error;
+    // Load signing credentials from cache (refreshed every 24 h)
+    const { credentials: signingCredentials, signingCa } =
+      await getSigningCredentials();
 
     // Sign the request JWT
-    const tokenSigner = createTokenSigner(signingResult.value);
+    const tokenSigner = createTokenSigner(signingCredentials);
     const tokenResult = await tokenSigner.signRequest({
       audience,
       codiceUfficio,
@@ -126,13 +164,17 @@ export const createSignedFetch = (options: {
       headers,
     });
 
-    // P3 non-repudiation: verify INPS signed response
+    // P3 non-repudiation: INPS must return a signed response JWT.
+    // Fail closed — an absent header is a protocol violation under P3.
     const responseJwt = response.headers.get("Agid-JWT-Signature");
-    if (responseJwt) {
-      const verifier = createResponseVerifier(signingCaResult.value);
-      const verifyResult = await verifier.verify(responseJwt, digest);
-      if (verifyResult.isErr()) throw verifyResult.error;
+    if (!responseJwt) {
+      throw new Error(
+        "ModI P3 violation: INPS response is missing the required Agid-JWT-Signature header",
+      );
     }
+    const verifier = createResponseVerifier(signingCa);
+    const verifyResult = await verifier.verify(responseJwt, digest);
+    if (verifyResult.isErr()) throw verifyResult.error;
 
     return response as unknown as Response;
   };

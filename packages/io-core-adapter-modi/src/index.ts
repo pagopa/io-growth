@@ -9,10 +9,9 @@ export type { ModiConfig, ModiEnvConfig } from "./config.js";
 export type {
   HttpsClientCredentials,
   ModiCredentialProvider,
-  SigningCredentials
+  SigningCredentials,
 } from "./domain/ports/outbound/credential-provider.port.js";
 
 // Signed-fetch primitive
 export { createSignedFetch } from "./signed-fetch.js";
 export type { SignedFetch } from "./signed-fetch.js";
-

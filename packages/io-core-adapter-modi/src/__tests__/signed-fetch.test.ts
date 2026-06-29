@@ -104,6 +104,7 @@ beforeEach(() => {
 // ──────────────────────────────────────────────────────────────────────────────
 // Main test suite
 // ──────────────────────────────────────────────────────────────────────────────
+// eslint-disable-next-line max-lines-per-function
 describe("createSignedFetch", () => {
   it("calls the underlying fetch with the prefixed full URL", async () => {
     const signedFetch = createSignedFetch({

@@ -13,6 +13,7 @@ import {
   QueryGuard,
   SectionTitle,
 } from '../../components/index.js';
+import { PageErrorType } from '../../components/QueryGuard/ErrorScreen/types.js';
 import { useGetOpportunityDetailQuery } from '../../features/opportunities/api.js';
 import { formatAddress } from '../../utils/formatAddress.js';
 import { formatBadgeLabel } from '../../utils/formatBadgeLabel.js';
@@ -33,9 +34,8 @@ export default function OpportunityDetailPage() {
   const navigate = useNavigate();
   const theme = useTheme();
 
-  const { data, isLoading, isError, error } = useGetOpportunityDetailQuery(
-    id ?? '',
-  );
+  const { data, isLoading, isError, error, refetch } =
+    useGetOpportunityDetailQuery(id ?? '');
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -54,7 +54,8 @@ export default function OpportunityDetailPage() {
       isError={isError}
       error={error}
       data={data}
-      errorMessage="Impossibile caricare i dati dell'opportunità."
+      errorType={PageErrorType.OPPORTUNITY_NOT_FOUND}
+      reloadAction={refetch}
     >
       {(resolvedData) => (
         <Box

@@ -126,7 +126,7 @@ sequenceDiagram
     CF->>SF: signedFetch(fullUrl, opts)
 
     Note over SF,KV: P3 only
-    SF->>KV: getHttpsClientCredentials() + getInpsHttpsCaChain() [cached for process lifetime]
+    SF->>KV: getHttpsClientCredentials() + getInpsHttpsCaChain() [cached 24h]
     KV-->>SF: cert, key, CA PEM
 
     SF->>SF: assert INPS-Identity-UserId is present (fail-fast — all profiles)
@@ -179,8 +179,7 @@ flowchart LR
 Credential loading strategy:
 
 - **Signing credentials** — cached for 24 h (TTL-based, refreshed lazily on next request after expiry). All profiles.
-- **mTLS undici `Agent`** — cached for process lifetime after first Key Vault fetch. **P3 only.**
-- A process restart is required to pick up a rotated mTLS certificate (P3 only).
+- **mTLS undici `Agent`** — cached for 24 h (same TTL). **P3 only.** Lazily rebuilt from Key Vault after expiry, enabling certificate rotation without a restart.
 
 ---
 
@@ -197,7 +196,7 @@ All operations return `Result<T, BaseError>` via `neverthrow`. HTTP status codes
 | 409           | `ConflictError`   |
 | 500 / network | `GenericError`    |
 
-JWT signing/verification failures are converted to `GenericError` / `UnauthorizedError` and **thrown** (not returned as `Result`) inside `signedFetch`, propagating as exceptions to the caller. The domain adapter's `try/catch` wrapper converts them to `GenericError`. This is an accepted trade-off to keep `SignedFetch` compatible with the standard `fetch` interface.
+JWT signing/verification failures, Key Vault errors, and guard violations (missing `UserId`, missing response JWT) are returned as `err(BaseError)` values inside a `Result`. The `customFetch` mutator (in `io-core-adapter-inps-ced`) unwraps the `Result` and re-throws on error, which the domain adapter's `try/catch` wrapper converts to `GenericError`. This keeps `SignedFetch` a clean `Result`-returning API while remaining compatible with the orval-generated call chain.
 
 ### 8.2 Identity Threading
 
@@ -263,12 +262,11 @@ The consumed OpenAPI declares the ModI JWT in the `Authorization` header, but th
 ~~`getSigningCredentials()` and `getInpsSigningCaChain()` were called per request (2 Key Vault round-trips with no caching).~~
 **Applied fix:** Signing credentials are now cached inside the `createSignedFetch` closure with a 24 h TTL (`CachedSigningCredentials` + `expiresAt`), refreshed lazily on the next request after expiry.
 
-#### 🟡 P5 — signedFetch throws instead of returning Result (contract inconsistency)
+#### 🟡 P5 — signedFetch throws instead of returning Result _(FIXED)_
 
 **File:** `packages/io-core-adapter-modi/src/signed-fetch.ts`
-Key Vault failures, JWT signing errors, and response verification failures surface as thrown exceptions. The domain adapter's `try/catch` absorbs them, but callers outside that wrapper will see unhandled promise rejections.
-**Accepted trade-off:** `SignedFetch` is typed as `(url, options) => Promise<Response>` to remain compatible with the `fetch` interface. Callers must wrap in `try/catch`.
-**Future option:** Introduce `SafeSignedFetch = (...) => Promise<Result<Response, BaseError>>` as an alternative export.
+~~`SignedFetch` was typed as `(url, options) => Promise<Response>` and threw exceptions for Key Vault failures, JWT errors, and guard violations.~~
+**Applied fix:** `SignedFetch` now returns `Promise<Result<Response, BaseError>>`. All internal `throw` statements are replaced with `return err(...)`. An outer `try/catch` converts unexpected failures from internal helpers into `GenericError`. The `customFetch` mutator in `io-core-adapter-inps-ced` unwraps the `Result` and re-throws on error, bridging into the orval-generated call chain.
 
 #### 🟡 P6 — ModiRequestContext entity exported but unused _(FIXED)_
 
@@ -282,17 +280,11 @@ Key Vault failures, JWT signing errors, and response verification failures surfa
 ~~Diagrams labelled INPS as `"INPS Services (PDND)"`. PDND was administratively discarded.~~
 **Applied fix:** All 5 diagrams updated to `"INPS Services (ModI P3)"`.
 
-#### 🟡 P8 — No mTLS dispatcher cache invalidation on certificate rotation
+#### 🟡 P8 — mTLS dispatcher cache invalidation on certificate rotation _(FIXED)_
 
 **File:** `packages/io-core-adapter-modi/src/signed-fetch.ts`
-The `cachedDispatcher` lives for the process lifetime. Rotating the HTTPS client certificate in Key Vault has no effect until restart.
-**Fix:** Add TTL-based cache expiry (e.g. 24 h, matching signing credentials) or implement a forced reload path.
-
-#### 🔴 P9 — Terraform: Key Vault secrets read via data source (Trivy HIGH)
-
-**File:** `infra/resources/ced/prod/data.tf` lines 10, 15
-`AVD-DX-0001`: Terraform must not read Key Vault secrets via `data` sources — secrets read this way appear in plan output and Terraform state.
-**Fix:** Use `azurerm_key_vault_secret` with `value_wo` (write-only pattern, Terraform ≥ 1.11 / azurerm ≥ 4.23) or remove the data sources entirely and resolve secrets at runtime via Managed Identity.
+~~The `cachedDispatcher` lived for the process lifetime. Rotating the HTTPS client certificate in Key Vault had no effect until restart.~~
+**Applied fix:** The mTLS dispatcher is now cached with the same 24 h TTL as the signing credentials (`CACHE_TTL_MS`). After expiry the dispatcher is lazily rebuilt from fresh Key Vault secrets on the next request, picking up any rotated certificate without a restart.
 
 ---
 
@@ -313,6 +305,3 @@ The `cachedDispatcher` lives for the process lifetime. Rotating the HTTPS client
 | ID  | Severity | Description                                                                                                     | Status                                                                             |
 | --- | -------- | --------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------- |
 | R1  | HIGH     | Adhesion not finalised — `audience`, base URL, JWT header name are provisional; profile may be mandated by INPS | Block prod deploy on eService descriptor confirmation; P3 is the production target |
-| R2  | HIGH     | Trivy: Key Vault secrets read via Terraform data sources                                                        | Open (P9)                                                                          |
-| R3  | MED      | mTLS certificate rotation requires process restart (P3 only)                                                    | Open (P8)                                                                          |
-| R4  | LOW      | `signedFetch` throws instead of returning `Result`                                                              | Accepted trade-off (P5)                                                            |

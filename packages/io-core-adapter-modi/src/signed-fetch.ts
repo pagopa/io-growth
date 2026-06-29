@@ -1,5 +1,7 @@
 import type { Agent, RequestInit as UndiciRequestInit } from "undici";
 
+import { BaseError, GenericError } from "@pagopa/io-core-domain/errors";
+import { err, ok, type Result } from "neverthrow";
 import { fetch as undiciFetch, Headers as UndiciHeaders } from "undici";
 
 import type { ModiConfig } from "./config.js";
@@ -16,10 +18,16 @@ import { createMtlsDispatcher } from "./adapters/outbound/tls/mtls-dispatcher.js
 export type SignedFetch = (
   url: string,
   options: RequestInit,
-) => Promise<Response>;
+) => Promise<Result<Response, BaseError>>;
 
-/** TTL for the cached signing credentials (24 hours). */
-const SIGNING_CACHE_TTL_MS = 24 * 60 * 60 * 1000;
+/** Shared TTL for both the signing credentials and the mTLS dispatcher caches (24 hours). */
+const CACHE_TTL_MS = 24 * 60 * 60 * 1000;
+
+/** P3 only: the undici Agent that carries the mTLS certificate. */
+interface CachedDispatcher {
+  readonly dispatcher: Agent;
+  readonly expiresAt: number;
+}
 
 interface CachedSigningCredentials {
   readonly credentials: SigningCredentials;
@@ -56,10 +64,13 @@ export const createSignedFetch = (options: {
 }): SignedFetch => {
   const { audience, config, credentialProvider } = options;
 
-  // ── P3-only: mTLS dispatcher cache (process lifetime) ──────────────────────
-  let cachedDispatcher: Agent | undefined;
+  // ── P3-only: mTLS dispatcher cache (24 h TTL — allows certificate rotation) ─
+  let cachedDispatcher: CachedDispatcher | undefined;
   const getDispatcher = async (): Promise<Agent> => {
-    if (cachedDispatcher) return cachedDispatcher;
+    const now = Date.now();
+    if (cachedDispatcher && cachedDispatcher.expiresAt > now) {
+      return cachedDispatcher.dispatcher;
+    }
 
     const [credsResult, caResult] = await Promise.all([
       credentialProvider.getHttpsClientCredentials(),
@@ -68,12 +79,13 @@ export const createSignedFetch = (options: {
     if (credsResult.isErr()) throw credsResult.error;
     if (caResult.isErr()) throw caResult.error;
 
-    cachedDispatcher = createMtlsDispatcher({
+    const dispatcher = createMtlsDispatcher({
       ca: caResult.value,
       cert: credsResult.value.cert,
       key: credsResult.value.key,
     });
-    return cachedDispatcher;
+    cachedDispatcher = { dispatcher, expiresAt: now + CACHE_TTL_MS };
+    return dispatcher;
   };
 
   // ── All profiles: signing credentials cache (24 h TTL) ─────────────────────
@@ -90,7 +102,7 @@ export const createSignedFetch = (options: {
 
     cachedSigning = {
       credentials: signingResult.value,
-      expiresAt: now + SIGNING_CACHE_TTL_MS,
+      expiresAt: now + CACHE_TTL_MS,
     };
 
     // P3: eagerly refresh signing CA alongside credentials
@@ -103,93 +115,109 @@ export const createSignedFetch = (options: {
     return cachedSigning;
   };
 
-  return async (url: string, requestInit: RequestInit): Promise<Response> => {
-    const headers = new UndiciHeaders(
-      requestInit.headers as ConstructorParameters<typeof UndiciHeaders>[0],
-    );
-
-    // ── Common: headers ───────────────────────────────────────────────────────
-    if (!headers.has("Content-Type")) {
-      headers.set("Content-Type", "application/json");
-    }
-    headers.set("Accept", "application/json");
-
-    // ── Common guard: UserId required (all profiles) ──────────────────────────
-    const userId = headers.get("INPS-Identity-UserId");
-    if (!userId) {
-      throw new Error(
-        "INPS-Identity-UserId header is required but was not set by the caller",
+  return async (
+    url: string,
+    requestInit: RequestInit,
+  ): Promise<Result<Response, BaseError>> => {
+    try {
+      const headers = new UndiciHeaders(
+        requestInit.headers as ConstructorParameters<typeof UndiciHeaders>[0],
       );
-    }
-    const codiceUfficio =
-      headers.get("INPS-Identity-CodiceUfficio") ?? config.defaultCodiceUfficio;
-    headers.set("INPS-Identity-UserId", userId);
-    headers.set("INPS-Identity-CodiceUfficio", codiceUfficio);
 
-    // ── P2/P3: body digest ────────────────────────────────────────────────────
-    let digest: string | undefined;
-    if (config.profile === "P2" || config.profile === "P3") {
-      const rawBody = requestInit.body;
-      let bodyForDigest: Buffer | string = "";
-      if (typeof rawBody === "string") {
-        bodyForDigest = rawBody;
-      } else if (rawBody instanceof Buffer) {
-        bodyForDigest = rawBody;
-      } else if (rawBody instanceof ArrayBuffer) {
-        bodyForDigest = Buffer.from(rawBody);
-      } else if (rawBody instanceof Uint8Array) {
-        bodyForDigest = Buffer.from(rawBody);
+      // ── Common: headers ───────────────────────────────────────────────────────
+      if (!headers.has("Content-Type")) {
+        headers.set("Content-Type", "application/json");
       }
-      digest = computeDigest(bodyForDigest);
-      headers.set("Digest", digest);
-    }
+      headers.set("Accept", "application/json");
 
-    // ── All profiles: request signing ─────────────────────────────────────────
-    const { credentials: signingCredentials } = await getSigningCredentials();
-    const tokenSigner = createTokenSigner(signingCredentials);
-    const tokenResult = await tokenSigner.signRequest({
-      audience,
-      codiceUfficio,
-      contentType: headers.get("Content-Type") ?? "application/json",
-      digest, // undefined for P1 → auth-only JWT
-      issuer: config.codiceEnte,
-      userId,
-    });
-    if (tokenResult.isErr()) throw tokenResult.error;
-    headers.set("Agid-JWT-Signature", tokenResult.value.jwt);
-
-    // ── P3: mTLS fetch; P1/P2: plain fetch ────────────────────────────────────
-    const fullUrl =
-      url.startsWith("http://") || url.startsWith("https://")
-        ? url
-        : `${config.inpsBaseUrl}${url}`;
-
-    const fetchOptions: UndiciRequestInit = {
-      ...(requestInit as UndiciRequestInit),
-      headers,
-    };
-
-    if (config.profile === "P3") {
-      fetchOptions.dispatcher = await getDispatcher();
-    }
-
-    const response = await undiciFetch(fullUrl, fetchOptions);
-
-    // ── P3 guard: response non-repudiation (fail-closed) ─────────────────────
-    if (config.profile === "P3") {
-      const responseJwt = response.headers.get("Agid-JWT-Signature");
-      if (!responseJwt) {
-        throw new Error(
-          "ModI P3 violation: INPS response is missing the required Agid-JWT-Signature header",
+      // ── Common guard: UserId required (all profiles) ──────────────────────────
+      const userId = headers.get("INPS-Identity-UserId");
+      if (!userId) {
+        return err(
+          new GenericError(
+            "INPS-Identity-UserId header is required but was not set by the caller",
+          ),
         );
       }
-      // cachedSigningCa is always populated by getSigningCredentials() for P3
-      const verifier = createResponseVerifier(cachedSigningCa as string);
-      // digest is always set for P3 (set above in the P2/P3 block)
-      const verifyResult = await verifier.verify(responseJwt, digest as string);
-      if (verifyResult.isErr()) throw verifyResult.error;
-    }
+      const codiceUfficio =
+        headers.get("INPS-Identity-CodiceUfficio") ??
+        config.defaultCodiceUfficio;
+      headers.set("INPS-Identity-UserId", userId);
+      headers.set("INPS-Identity-CodiceUfficio", codiceUfficio);
 
-    return response as unknown as Response;
+      // ── P2/P3: body digest ────────────────────────────────────────────────────
+      let digest: string | undefined;
+      if (config.profile === "P2" || config.profile === "P3") {
+        const rawBody = requestInit.body;
+        let bodyForDigest: Buffer | string = "";
+        if (typeof rawBody === "string") {
+          bodyForDigest = rawBody;
+        } else if (rawBody instanceof Buffer) {
+          bodyForDigest = rawBody;
+        } else if (rawBody instanceof ArrayBuffer) {
+          bodyForDigest = Buffer.from(rawBody);
+        } else if (rawBody instanceof Uint8Array) {
+          bodyForDigest = Buffer.from(rawBody);
+        }
+        digest = computeDigest(bodyForDigest);
+        headers.set("Digest", digest);
+      }
+
+      // ── All profiles: request signing ─────────────────────────────────────────
+      const { credentials: signingCredentials } = await getSigningCredentials();
+      const tokenSigner = createTokenSigner(signingCredentials);
+      const tokenResult = await tokenSigner.signRequest({
+        audience,
+        codiceUfficio,
+        contentType: headers.get("Content-Type") ?? "application/json",
+        digest, // undefined for P1 → auth-only JWT
+        issuer: config.codiceEnte,
+        userId,
+      });
+      if (tokenResult.isErr()) return err(tokenResult.error);
+      headers.set("Agid-JWT-Signature", tokenResult.value.jwt);
+
+      // ── P3: mTLS fetch; P1/P2: plain fetch ────────────────────────────────────
+      const fullUrl =
+        url.startsWith("http://") || url.startsWith("https://")
+          ? url
+          : `${config.inpsBaseUrl}${url}`;
+
+      const fetchOptions: UndiciRequestInit = {
+        ...(requestInit as UndiciRequestInit),
+        headers,
+      };
+
+      if (config.profile === "P3") {
+        fetchOptions.dispatcher = await getDispatcher();
+      }
+
+      const response = await undiciFetch(fullUrl, fetchOptions);
+
+      // ── P3 guard: response non-repudiation (fail-closed) ─────────────────────
+      if (config.profile === "P3") {
+        const responseJwt = response.headers.get("Agid-JWT-Signature");
+        if (!responseJwt) {
+          return err(
+            new GenericError(
+              "ModI P3 violation: INPS response is missing the required Agid-JWT-Signature header",
+            ),
+          );
+        }
+        // cachedSigningCa is always populated by getSigningCredentials() for P3
+        const verifier = createResponseVerifier(cachedSigningCa as string);
+        // digest is always set for P3 (set above in the P2/P3 block)
+        const verifyResult = await verifier.verify(
+          responseJwt,
+          digest as string,
+        );
+        if (verifyResult.isErr()) return err(verifyResult.error);
+      }
+
+      return ok(response as unknown as Response);
+    } catch (error) {
+      if (error instanceof BaseError) return err(error);
+      return err(new GenericError(String(error)));
+    }
   };
 };

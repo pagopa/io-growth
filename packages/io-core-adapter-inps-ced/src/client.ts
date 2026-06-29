@@ -75,10 +75,12 @@ export const customFetch = async <T>(
     headers.set("INPS-Identity-CodiceUfficio", identity.codiceUfficio);
   }
 
-  const response = await signedFetch(`${config.baseUrl}${url}`, {
+  const fetchResult = await signedFetch(`${config.baseUrl}${url}`, {
     ...options,
     headers: Object.fromEntries(headers.entries()),
   });
+  if (fetchResult.isErr()) throw fetchResult.error;
+  const response = fetchResult.value;
 
   const hasBody =
     response.status !== 204 &&

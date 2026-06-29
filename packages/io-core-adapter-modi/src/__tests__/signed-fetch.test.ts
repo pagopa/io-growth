@@ -263,7 +263,7 @@ describe("createSignedFetch", () => {
     expect(headers.get("Content-Type")).toBe("application/json");
   });
 
-  it("throws when credential provider returns an error", async () => {
+  it("returns err when credential provider returns an error", async () => {
     const { err } = await import("neverthrow");
     const { GenericError } = await import("@pagopa/io-core-domain/errors");
 
@@ -281,28 +281,33 @@ describe("createSignedFetch", () => {
       credentialProvider: failingProvider,
     });
 
-    await expect(
-      signedFetch("/Domanda/CheckDomanda", {
-        body: "{}",
-        headers: { "INPS-Identity-UserId": "RSSMRA80A01H501U" },
-        method: "POST",
-      }),
-    ).rejects.toThrow("vault unavailable");
+    const result = await signedFetch("/Domanda/CheckDomanda", {
+      body: "{}",
+      headers: { "INPS-Identity-UserId": "RSSMRA80A01H501U" },
+      method: "POST",
+    });
+    expect(result.isErr()).toBe(true);
+    expect(result._unsafeUnwrapErr().message).toContain("vault unavailable");
   });
 
-  it("throws when INPS-Identity-UserId header is not set", async () => {
+  it("returns err when INPS-Identity-UserId header is not set", async () => {
     const signedFetch = createSignedFetch({
       audience: AUDIENCE,
       config: CONFIG,
       credentialProvider,
     });
 
-    await expect(
-      signedFetch("/Domanda/CheckDomanda", { body: "{}", method: "POST" }),
-    ).rejects.toThrow("INPS-Identity-UserId header is required");
+    const result = await signedFetch("/Domanda/CheckDomanda", {
+      body: "{}",
+      method: "POST",
+    });
+    expect(result.isErr()).toBe(true);
+    expect(result._unsafeUnwrapErr().message).toContain(
+      "INPS-Identity-UserId header is required",
+    );
   });
 
-  it("throws when response is missing the required Agid-JWT-Signature header (P3 fail-closed)", async () => {
+  it("returns err when response is missing the required Agid-JWT-Signature header (P3 fail-closed)", async () => {
     // Override the default mock to return a response without the header
     vi.mocked(mockFetch).mockResolvedValueOnce(
       makeOkResponse() as unknown as Awaited<ReturnType<typeof mockFetch>>,
@@ -314,16 +319,16 @@ describe("createSignedFetch", () => {
       credentialProvider,
     });
 
-    await expect(
-      signedFetch("/Domanda/CheckDomanda", {
-        body: "{}",
-        headers: { "INPS-Identity-UserId": "RSSMRA80A01H501U" },
-        method: "POST",
-      }),
-    ).rejects.toThrow("ModI P3 violation");
+    const result = await signedFetch("/Domanda/CheckDomanda", {
+      body: "{}",
+      headers: { "INPS-Identity-UserId": "RSSMRA80A01H501U" },
+      method: "POST",
+    });
+    expect(result.isErr()).toBe(true);
+    expect(result._unsafeUnwrapErr().message).toContain("ModI P3 violation");
   });
 
-  it("throws when response verification returns an error", async () => {
+  it("returns err when response verification returns an error", async () => {
     const { UnauthorizedError } = await import("@pagopa/io-core-domain/errors");
 
     vi.mocked(createResponseVerifier).mockReturnValueOnce({
@@ -338,13 +343,13 @@ describe("createSignedFetch", () => {
       credentialProvider,
     });
 
-    await expect(
-      signedFetch("/Domanda/CheckDomanda", {
-        body: "{}",
-        headers: { "INPS-Identity-UserId": "RSSMRA80A01H501U" },
-        method: "POST",
-      }),
-    ).rejects.toThrow("invalid signature");
+    const result = await signedFetch("/Domanda/CheckDomanda", {
+      body: "{}",
+      headers: { "INPS-Identity-UserId": "RSSMRA80A01H501U" },
+      method: "POST",
+    });
+    expect(result.isErr()).toBe(true);
+    expect(result._unsafeUnwrapErr().message).toContain("invalid signature");
   });
 });
 
@@ -412,16 +417,21 @@ describe("createSignedFetch — P1 profile", () => {
     ).resolves.toBeDefined();
   });
 
-  it("throws when INPS-Identity-UserId header is missing (guard applies to all profiles)", async () => {
+  it("returns err when INPS-Identity-UserId header is missing (guard applies to all profiles)", async () => {
     const signedFetch = createSignedFetch({
       audience: AUDIENCE,
       config: P1_CONFIG,
       credentialProvider,
     });
 
-    await expect(
-      signedFetch("/Domanda/CheckDomanda", { body: "{}", method: "POST" }),
-    ).rejects.toThrow("INPS-Identity-UserId header is required");
+    const result = await signedFetch("/Domanda/CheckDomanda", {
+      body: "{}",
+      method: "POST",
+    });
+    expect(result.isErr()).toBe(true);
+    expect(result._unsafeUnwrapErr().message).toContain(
+      "INPS-Identity-UserId header is required",
+    );
   });
 });
 

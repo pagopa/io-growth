@@ -1,5 +1,6 @@
 import type { SignedFetch } from "@pagopa/io-core-adapter-modi";
 
+import { ok } from "neverthrow";
 import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { InpsIdentityContext } from "../client.js";
@@ -35,7 +36,7 @@ const mockSignedFetch = vi.fn();
 let mockGetIdentity: () => InpsIdentityContext | undefined = () => undefined;
 
 beforeAll(() => {
-  mockSignedFetch.mockResolvedValue(makeResponse(200, {}));
+  mockSignedFetch.mockResolvedValue(ok(makeResponse(200, {})));
   // Pass a stable wrapper so tests can change `mockGetIdentity` between calls.
   initInpsCedClient(CONFIG, mockSignedFetch as unknown as SignedFetch, () =>
     mockGetIdentity(),
@@ -44,7 +45,7 @@ beforeAll(() => {
 
 beforeEach(() => {
   mockSignedFetch.mockReset();
-  mockSignedFetch.mockResolvedValue(makeResponse(200, {}));
+  mockSignedFetch.mockResolvedValue(ok(makeResponse(200, {})));
   mockGetIdentity = () => undefined;
 });
 
@@ -131,7 +132,7 @@ describe("customFetch", () => {
 
   it("returns { data, headers, status } for a response with a body", async () => {
     const responseData = { idLavorazione: "12345678901234567890" };
-    mockSignedFetch.mockResolvedValue(makeResponse(200, responseData));
+    mockSignedFetch.mockResolvedValue(ok(makeResponse(200, responseData)));
 
     const result = await customFetch<FetchResult>("/path", {
       body: "{}",
@@ -142,7 +143,7 @@ describe("customFetch", () => {
   });
 
   it("returns data: undefined for a 204 no-content response", async () => {
-    mockSignedFetch.mockResolvedValue(makeResponse(204, null));
+    mockSignedFetch.mockResolvedValue(ok(makeResponse(204, null)));
 
     const result = await customFetch<FetchResult>("/path", {
       body: "{}",

@@ -11,7 +11,7 @@ const getImageAsset = (
   extension: 'png' | 'jpg' = 'png',
 ) => `/assets/${entityId}-${type}.${extension}`;
 
-// FIXME: remember to refactor this in september
+// TODO: Refactor/replace this hardcoded PARTNERS_CARDS_CONFIG once partner data/images are provided by the real source of truth.
 export const PARTNERS_CARDS_CONFIG = [
   {
     entityId: 'comune-di-alessandria',

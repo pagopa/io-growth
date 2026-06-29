@@ -1,7 +1,8 @@
+import { MobileSpinnerLoader } from '@pagopa/io-core-ui';
 import { Suspense } from 'react';
-import { Route, Routes, Navigate } from 'react-router-dom';
-import { AppLayout } from '../layouts/AppLayout';
+import { Navigate, Route, Routes } from 'react-router-dom';
 import { ProtectedRoute } from '../core/auth/ProtectedRoute';
+import { AppLayout } from '../layouts/AppLayout';
 import {
   APP_ROUTES,
   AuthorizePage,
@@ -21,13 +22,7 @@ export function AppRoutes() {
   return (
     <Suspense
       fallback={
-        <div
-          style={{
-            padding: 24,
-          }}
-        >
-          Loading...
-        </div>
+        <MobileSpinnerLoader fullscreen title="Attendi qualche secondo" />
       }
     >
       <Routes>

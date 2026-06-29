@@ -1,10 +1,9 @@
 import { Box, Button, useTheme } from '@mui/material';
+import { Body, MobileSpinnerLoader, VSpacer } from '@pagopa/io-core-ui';
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { APP_ROUTES } from '../../app/routeConfig';
 import { PageHeader, Stepper } from '../../components';
-import { SpinnerLoader } from '../../components/Loader';
-import { Body, VSpacer } from '@pagopa/io-core-ui';
 import { SavedDraftDialog } from './SavedDraftDialog';
 import { AddressStep } from './steps/AddressStep';
 import { ApplicantDataStep } from './steps/ApplicantDataStep';
@@ -136,7 +135,7 @@ export default function CardRequestFlowPage() {
           photoPreview={photoPreview}
         />
         {isSubmitting && (
-          <SpinnerLoader
+          <MobileSpinnerLoader
             fullscreen
             title="Stiamo elaborando la tua richiesta"
             description="Attendi qualche secondo"

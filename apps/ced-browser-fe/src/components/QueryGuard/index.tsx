@@ -1,4 +1,5 @@
 import { Box, CircularProgress, Typography } from '@mui/material';
+import { ErrorBody } from '@pagopa/io-core-ui';
 import type { ReactNode } from 'react';
 
 type Props<T> = {
@@ -29,7 +30,7 @@ export function QueryGuard<T>({
   if (isError || data === undefined) {
     return (
       <Box sx={{ px: 2, pt: 4 }}>
-        <Typography color="error">{errorMessage}</Typography>
+        <ErrorBody fontWeight="Semibold">{errorMessage}</ErrorBody>
         {error !== undefined && (
           <Typography
             color="error"

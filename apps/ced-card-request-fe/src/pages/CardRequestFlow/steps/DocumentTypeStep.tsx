@@ -8,7 +8,7 @@ import {
 import { StepCard } from '../StepCard';
 import type { StepRef } from '../types';
 
-export type YesNo = 'yes' | 'no' | null;
+type YesNo = 'yes' | 'no' | null;
 type Province = 'trento' | 'bolzano' | 'aosta' | 'other' | null;
 
 type FormState = {
@@ -90,12 +90,8 @@ function RadioCard({
   );
 }
 
-type Props = {
-  onDocChange?: (value: YesNo) => void;
-};
-
-export const DocumentTypeStep = forwardRef<StepRef, Props>(
-  function DocumentTypeStep({ onDocChange }, ref) {
+export const DocumentTypeStep = forwardRef<StepRef>(
+  function DocumentTypeStep(_, ref) {
     const [form, setForm] = useState<FormState>({
       hasDoc: null,
       province: null,
@@ -146,30 +142,18 @@ export const DocumentTypeStep = forwardRef<StepRef, Props>(
       },
     ];
 
-    const handleChange = <K extends keyof FormState>(
-      field: K,
-      value: FormState[K],
-    ) => {
-      setForm((prev) => ({
-        ...prev,
-        [field]: value,
-        ...cascadeResets[field],
-      }));
-
+    const handleChange = (field: keyof FormState, value: string) => {
+      setForm((prev) => ({ ...prev, [field]: value, ...cascadeResets[field] }));
       setErrors((prev) => ({ ...prev, [field]: undefined }));
-
-      if (field === 'hasDoc') {
-        onDocChange?.(value as YesNo);
-      }
 
       const scrollTarget = scrollMap[field];
       if (scrollTarget) {
-        requestAnimationFrame(() => {
+        setTimeout(() => {
           cardRefs.current[scrollTarget]?.scrollIntoView({
             behavior: 'smooth',
             block: 'start',
           });
-        });
+        }, 0);
       }
     };
 
@@ -203,9 +187,7 @@ export const DocumentTypeStep = forwardRef<StepRef, Props>(
             value={form[c.field]}
             options={c.options}
             error={errors[c.field]}
-            onChange={(v) =>
-              handleChange(c.field, v as FormState[typeof c.field])
-            }
+            onChange={(v) => handleChange(c.field, v)}
           />
         </Box>
       ));

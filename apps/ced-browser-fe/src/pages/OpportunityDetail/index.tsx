@@ -23,7 +23,7 @@ import {
 import { useGetOpportunityDetailQuery } from '../../features/opportunities/api.js';
 import { formatAddress } from '../../utils/formatAddress.js';
 import { formatBadgeLabel } from '../../utils/formatBadgeLabel.js';
-import { PageErrorType } from '../Error/types.js';
+import { PageErrorType } from '../../components/QueryGuard/ErrorScreen/types.js';
 
 function formatPlacesAddress(venue: {
   street?: string | null;

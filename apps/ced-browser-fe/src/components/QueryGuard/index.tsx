@@ -1,7 +1,7 @@
 import { Box, CircularProgress, Typography } from '@mui/material';
 import type { ReactNode } from 'react';
-import ErrorScreen from '../../pages/Error';
-import { PageErrorType } from '../../pages/Error/types';
+import ErrorScreen from './ErrorScreen';
+import { PageErrorType } from './ErrorScreen/types';
 
 type Props<T> = {
   isLoading: boolean;

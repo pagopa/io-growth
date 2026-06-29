@@ -11,7 +11,7 @@ const getImageAsset = (
   extension: 'png' | 'jpg' = 'png',
 ) => `/assets/${entityId}-${type}.${extension}`;
 
-/// mock
+// FIXME: remember to refactor this in september
 export const PARTNERS_CARDS_CONFIG = [
   {
     entityId: 'comune-di-alessandria',

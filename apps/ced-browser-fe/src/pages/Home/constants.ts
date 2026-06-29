@@ -5,42 +5,43 @@ import {
   OpportunitySearchResultBeneficiaryBenefitType,
 } from '../../core/api/generated/model';
 
+const getImageAsset = (
+  entityId: string,
+  type: 'avatar' | 'cover',
+  extension: 'png' | 'jpg' = 'png',
+) => `/assets/${entityId}-${type}.${extension}`;
+
 /// mock
 export const PARTNERS_CARDS_CONFIG = [
   {
     entityId: 'comune-di-alessandria',
     title: 'Comune di Alessandria',
-    imageUrl: 'https://picsum.photos/id/1018/600/400',
-    logoUrl:
-      'https://upload.wikimedia.org/wikipedia/commons/d/d5/Alessandria-Stemma.png', // Placeholder stemma
-  },
-  {
-    entityId: 'comune-di-cagliari',
-    title: 'Comune di Cagliari',
-    imageUrl: 'https://picsum.photos/id/1018/600/400',
-    logoUrl:
-      'https://upload.wikimedia.org/wikipedia/commons/d/d5/Alessandria-Stemma.png', // Placeholder stemma
-  },
-  {
-    entityId: 'comune-di-agrigento',
-    title: 'Comune di Agrigento',
-    imageUrl: 'https://picsum.photos/id/1018/600/400',
-    logoUrl:
-      'https://upload.wikimedia.org/wikipedia/commons/d/d5/Alessandria-Stemma.png', // Placeholder stemma
-  },
-  {
-    entityId: 'comune-di-milano',
-    title: 'Comune di Milano',
-    imageUrl: 'https://picsum.photos/id/1018/600/400',
-    logoUrl:
-      'https://upload.wikimedia.org/wikipedia/commons/d/d5/Alessandria-Stemma.png', // Placeholder stemma
+    imageUrl: getImageAsset('comune-di-alessandria', 'cover'),
+    logoUrl: getImageAsset('comune-di-alessandria', 'avatar'),
   },
   {
     entityId: 'trenitalia',
     title: 'Trenitalia',
-    imageUrl: 'https://picsum.photos/id/1018/600/400',
-    logoUrl:
-      'https://upload.wikimedia.org/wikipedia/commons/d/d5/Alessandria-Stemma.png', // Placeholder stemma
+    imageUrl: getImageAsset('trenitalia', 'cover'),
+    logoUrl: getImageAsset('trenitalia', 'avatar'),
+  },
+  {
+    entityId: 'uci-cinema',
+    title: 'UCI Cinema',
+    imageUrl: getImageAsset('uci-cinema', 'cover'),
+    logoUrl: getImageAsset('uci-cinema', 'avatar'),
+  },
+  {
+    entityId: 'atm-milano',
+    title: 'ATM Milano',
+    imageUrl: getImageAsset('atm-milano', 'cover'),
+    logoUrl: getImageAsset('atm-milano', 'avatar'),
+  },
+  {
+    entityId: 'coop-italia',
+    title: 'Coop Italia',
+    imageUrl: getImageAsset('coop-italia', 'cover'),
+    logoUrl: getImageAsset('coop-italia', 'avatar'),
   },
 ];
 

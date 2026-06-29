@@ -42,7 +42,6 @@ export const OpportunityRow = ({
             fontWeight: 500,
             cursor: 'pointer',
           }}
-          onClick={(e) => e.stopPropagation()}
         >
           {item.name}
         </Link>

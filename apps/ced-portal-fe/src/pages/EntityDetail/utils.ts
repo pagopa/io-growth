@@ -1,13 +1,7 @@
 import type { EntityDetail } from '../../features/entities/types.js';
 
-const getMappedProductId = (prodId?: string) => {
-  switch (prodId) {
-    case 'prod-ced':
-      return 'Carta europea della disabilità';
-    default:
-      return undefined;
-  }
-};
+const getMappedProductId = (prodId?: string) =>
+  prodId === 'prod-ced' ? 'Carta europea della disabilità' : undefined;
 
 export type DetailField = {
   label: string;

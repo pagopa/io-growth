@@ -1,12 +1,12 @@
-import { useCallback, useMemo, useState, type PropsWithChildren } from 'react';
-import { Box, IconButton, keyframes, useTheme } from '@mui/material';
-import ReportIcon from '@mui/icons-material/Report';
-import InfoIcon from '@mui/icons-material/Info';
-import CloseIcon from '@mui/icons-material/Close';
 import CheckRoundedIcon from '@mui/icons-material/CheckRounded';
-import { ToastState, ToastVariant } from './types';
+import CloseIcon from '@mui/icons-material/Close';
+import InfoIcon from '@mui/icons-material/Info';
+import ReportIcon from '@mui/icons-material/Report';
+import { Box, IconButton, keyframes, useTheme } from '@mui/material';
+import { Body } from '@pagopa/io-core-ui';
+import { useCallback, useMemo, useState, type PropsWithChildren } from 'react';
 import { ToastContext } from './context';
-import { Body } from '../../components/Typography';
+import { ToastState, ToastVariant } from './types';
 
 const slideUp = keyframes`
   from { opacity: 0; transform: translateY(20px); }

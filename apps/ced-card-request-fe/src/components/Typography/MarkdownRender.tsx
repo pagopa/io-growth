@@ -1,5 +1,5 @@
 import { Box, Link } from '@mui/material';
-import { Body, Title } from '.';
+import { Body, Title } from '@pagopa/io-core-ui';
 
 type MarkdownRendererProps = {
   content: string;

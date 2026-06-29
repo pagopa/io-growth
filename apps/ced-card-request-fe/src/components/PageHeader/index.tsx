@@ -1,8 +1,8 @@
 import { ArrowBack } from '@mui/icons-material';
 import { Box, ButtonBase, useTheme } from '@mui/material';
+import { Title } from '@pagopa/io-core-ui';
 import type { ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Title } from '../Typography';
 
 type PageHeaderProps = {
   title?: string;

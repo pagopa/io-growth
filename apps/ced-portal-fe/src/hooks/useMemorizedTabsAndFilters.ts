@@ -1,17 +1,30 @@
 import { useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 
+const parseSafeInt = (
+  value: string | null,
+  defaultValue: number,
+  minValue: number,
+) => {
+  if (!value) return defaultValue;
+  const parsed = Number.parseInt(value, 10);
+  if (Number.isNaN(parsed) || parsed < minValue) {
+    return defaultValue;
+  }
+  return parsed;
+};
+
 export const useMemorizedTabsAndFilters = <
-  TFilters extends Record<string, any>,
+  TFilters extends { [K in keyof TFilters]: string },
 >(
   initialFilters: TFilters,
   defaultLimit = 5,
 ) => {
   const [searchParams, setSearchParams] = useSearchParams();
 
-  const tab = parseInt(searchParams.get('tab') || '0', 10);
-  const page = parseInt(searchParams.get('page') || '1', 10);
-  const limit = parseInt(searchParams.get('limit') || String(defaultLimit), 10);
+  const tab = parseSafeInt(searchParams.get('tab'), 0, 0);
+  const page = parseSafeInt(searchParams.get('page'), 1, 1);
+  const limit = parseSafeInt(searchParams.get('limit'), defaultLimit, 1);
 
   const filters = useMemo(() => {
     const currentFilters = { ...initialFilters };
@@ -19,20 +32,18 @@ export const useMemorizedTabsAndFilters = <
     Object.keys(initialFilters).forEach((key) => {
       const urlValue = searchParams.get(key);
       if (urlValue !== null) {
-        (currentFilters as Record<string, any>)[key] = urlValue;
+        (currentFilters as Record<string, string>)[key] = urlValue;
       }
     });
 
     return currentFilters;
   }, [initialFilters, searchParams]);
 
-  const updateParams = (
-    newValues: Record<string, string | number | undefined>,
-  ) => {
+  const updateParams = (newValues: Record<string, string | number>) => {
     const newParams = new URLSearchParams(searchParams);
 
     Object.entries(newValues).forEach(([key, value]) => {
-      if (value === undefined || value === '') {
+      if (value === '') {
         newParams.delete(key);
       } else {
         newParams.set(key, String(value));

@@ -1,4 +1,4 @@
-import { Box, Stack, useTheme } from '@mui/material';
+import { Box, Stack, Typography, useTheme } from '@mui/material';
 import type { SyntheticEvent } from 'react';
 import { useMemo, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -14,7 +14,7 @@ import type {
   EntityItem,
 } from '../../features/entities/types.js';
 import { EntitiesTable } from './components/EntitiesTable.js';
-import { ListOnboardingsStatusesItem } from '../../core/api/generated/model/listOnboardingsStatusesItem.js';
+import type { ListOnboardingsStatusesItem } from '../../core/api/generated/model/listOnboardingsStatusesItem.js';
 import { useMemorizedTabsAndFilters } from '../../hooks/useMemorizedTabsAndFilters.js';
 
 const INITIAL_FILTERS: EntityFilters = {
@@ -60,8 +60,8 @@ export default function EntitiesPage() {
     updateParams({
       tab: newValue,
       page: 1,
-      search: undefined,
-      state: undefined,
+      search: '',
+      state: '',
     });
   };
 
@@ -80,7 +80,7 @@ export default function EntitiesPage() {
   };
 
   const handleReset = () => {
-    updateParams({ search: undefined, state: undefined, page: 1 });
+    updateParams({ search: '', state: '', page: 1 });
   };
 
   const handleOpenDetail = (item: EntityItem) => {
@@ -93,8 +93,18 @@ export default function EntitiesPage() {
       bgcolor={theme.palette.common.neutralGray}
     >
       <Stack spacing={3} sx={{ minHeight: '100%' }}>
-        {/* ... Headers ... */}
-
+        <Box>
+          <Typography
+            variant="h2"
+            sx={{ fontSize: { xs: 36, md: 44 }, fontWeight: 700 }}
+          >
+            Enti
+          </Typography>
+          <Typography sx={{ mt: 0.5, color: 'text.secondary', fontSize: 18 }}>
+            Gestisci le nuove richieste di convenzionamento e monitora lo stato
+            degli enti.
+          </Typography>
+        </Box>
         <FiltersBar
           filters={draftFilters}
           onChange={({ state, search }) =>

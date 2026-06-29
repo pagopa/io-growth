@@ -7,7 +7,7 @@ import { BenefitsContentState } from './components/BenefitsContentState';
 import { BenefitsFiltersBar } from './components/BenefitsFiltersBar';
 import { BenefitsTabs } from './components/BenefitsTabs';
 import { MainContentHeader } from './components/MainContentHeader';
-import { OpportunitySummaryItemStatus } from '../../core/api/generated/model';
+import type { OpportunitySummaryItemStatus } from '../../core/api/generated/model';
 import { useMemorizedTabsAndFilters } from '../../hooks/useMemorizedTabsAndFilters';
 import {
   OPERATOR_MANAGED_STATE_OPTIONS,
@@ -17,7 +17,7 @@ import {
 const INITIAL_FILTERS = {
   search: '',
   categoryId: '',
-  status: '',
+  status: '' as OpportunitySummaryItemStatus | '',
 };
 
 export const MainContent = () => {
@@ -30,12 +30,12 @@ export const MainContent = () => {
   const [categoryIdInput, setCategoryIdInput] = useState(filters.categoryId);
   const [statusInput, setStatusInput] = useState<
     OpportunitySummaryItemStatus | ''
-  >(filters.status as OpportunitySummaryItemStatus);
+  >(filters.status);
 
   useEffect(() => {
-    setSearchInput(filters.search || '');
-    setCategoryIdInput(filters.categoryId || '');
-    setStatusInput((filters.status as any) || '');
+    setSearchInput(filters.search);
+    setCategoryIdInput(filters.categoryId);
+    setStatusInput(filters.status);
   }, [filters]);
 
   const { data: categories = [] } = useGetOpportunityCategoriesQuery();
@@ -50,13 +50,13 @@ export const MainContent = () => {
   } = useBenefitsData({
     categoryId: filters.categoryId || undefined,
     search: filters.search || undefined,
-    status: (filters.status as OpportunitySummaryItemStatus) || undefined,
-    offset: page * limit,
+    status: filters.status || undefined,
+    offset: (page - 1) * limit,
     limit: limit,
   });
 
   const handleTabChange = (_event: SyntheticEvent, newValue: number) => {
-    updateParams({ tab: newValue, page: 0 });
+    updateParams({ tab: newValue, page: 1 });
   };
 
   const handleFilter = () => {
@@ -64,7 +64,7 @@ export const MainContent = () => {
       search: searchInput,
       categoryId: categoryIdInput,
       status: statusInput,
-      page: 0,
+      page: 1,
     });
   };
 
@@ -113,7 +113,7 @@ export const MainContent = () => {
             <Box sx={{ px: { xs: 1, md: 0 }, pt: 2 }}>
               <ResultsPagination
                 totalItems={total}
-                page={page + 1}
+                page={page}
                 rowsPerPage={limit}
                 rowsPerPageOptions={[10, 20, 50]}
                 onPageChange={(newPage) => updateParams({ page: newPage - 1 })}

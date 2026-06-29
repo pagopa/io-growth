@@ -1,5 +1,8 @@
 import type { EntityDetail } from '../../features/entities/types.js';
 
+const getMappedProductId = (prodId?: string) =>
+  prodId === 'prod-ced' ? 'Carta europea della disabilità' : undefined;
+
 export type DetailField = {
   label: string;
   value: string;
@@ -33,7 +36,7 @@ export const getEntityName = (onboarding: EntityDetail | undefined) =>
 export const getEntityFields = (onboarding: EntityDetail | undefined) =>
   onboarding
     ? [
-        buildField('Prodotto', onboarding.productId),
+        buildField('Prodotto', getMappedProductId(onboarding.productId)),
         buildField(
           'Tipologia di soggetto aderente',
           onboarding.institution?.institutionType,

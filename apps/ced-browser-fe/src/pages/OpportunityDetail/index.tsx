@@ -1,14 +1,7 @@
-import { TheaterComedy } from '@mui/icons-material';
+import { TheaterComedyOutlined } from '@mui/icons-material';
 import OpenInNewOutlinedIcon from '@mui/icons-material/OpenInNewOutlined';
-import {
-  Box,
-  Button,
-  Divider,
-  Link,
-  Stack,
-  Typography,
-  useTheme,
-} from '@mui/material';
+import { Box, Button, Divider, Link, Stack, useTheme } from '@mui/material';
+import { Body } from '@pagopa/io-core-ui';
 import { useNavigate, useParams } from 'react-router-dom';
 import {
   toEntityAccessPointDetailRoute,
@@ -20,9 +13,10 @@ import {
   QueryGuard,
   SectionTitle,
 } from '../../components/index.js';
+import { PageErrorType } from '../../components/QueryGuard/ErrorScreen/types.js';
 import { useGetOpportunityDetailQuery } from '../../features/opportunities/api.js';
-import { formatBadgeLabel } from '../../utils/formatBadgeLabel.js';
 import { formatAddress } from '../../utils/formatAddress.js';
+import { formatBadgeLabel } from '../../utils/formatBadgeLabel.js';
 
 function formatPlacesAddress(venue: {
   street?: string | null;
@@ -39,23 +33,9 @@ export default function OpportunityDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const theme = useTheme();
-  const sectionSx = {
-    label: {
-      color: theme.palette.common.neutralDarkGray,
-      fontSize: 14,
-      lineHeight: 1.2,
-    },
-    body: {
-      mt: 0.5,
-      color: theme.palette.common.neutralBlack,
-      fontSize: 16,
-      lineHeight: 1.35,
-      fontWeight: 600,
-    },
-  };
-  const { data, isLoading, isError, error } = useGetOpportunityDetailQuery(
-    id ?? '',
-  );
+
+  const { data, isLoading, isError, error, refetch } =
+    useGetOpportunityDetailQuery(id ?? '');
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -74,7 +54,8 @@ export default function OpportunityDetailPage() {
       isError={isError}
       error={error}
       data={data}
-      errorMessage="Impossibile caricare i dati dell'opportunità."
+      errorType={PageErrorType.OPPORTUNITY_NOT_FOUND}
+      reloadAction={refetch}
     >
       {(resolvedData) => (
         <Box
@@ -83,114 +64,92 @@ export default function OpportunityDetailPage() {
             bgcolor: 'background.paper',
           }}
         >
-          <PageHeader />
-
-          <Box sx={{ px: 2, mt: -2 }}>
-            <Box
-              component="span"
-              sx={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                px: 1.5,
-                py: 0.75,
-                borderRadius: '999px',
-                bgcolor: '#D5F4F4',
-                color: '#0B515D',
-                fontSize: 14,
-                fontWeight: 600,
-                lineHeight: 1,
-                mb: 2,
-              }}
-            >
-              {formatBadgeLabel(resolvedData.beneficiaryBenefit)}
-            </Box>
-
-            <Typography
-              variant="h1"
-              component="h1"
-              sx={{
-                mb: 2,
-              }}
-            >
-              {resolvedData.name}
-            </Typography>
-
-            <Box
-              sx={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: 1,
-                px: 1.5,
-                py: 1,
-                borderRadius: 1.25,
-                border: '1px solid #D7DCE8',
-                mb: 2,
-              }}
-            >
-              <TheaterComedy sx={{ fontSize: 16, color: '#98A2B3' }} />
-              <Typography
+          <PageHeader
+            leadingContent={
+              <Box
                 component="span"
                 sx={{
-                  color: '#5C667F',
-                  fontSize: 12,
-                  lineHeight: 1,
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  px: 1.5,
+                  py: 0.75,
+                  borderRadius: '999px',
+                  bgcolor: '#D5F4F4',
+                  color: '#0B515D',
+                  fontSize: 14,
                   fontWeight: 600,
-                  textTransform: 'uppercase',
+                  lineHeight: 1,
+                  mb: 2,
                 }}
               >
-                {categoryLabel(resolvedData.category)}
-              </Typography>
-            </Box>
-          </Box>
-
+                {formatBadgeLabel(resolvedData.beneficiaryBenefit)}
+              </Box>
+            }
+            title={resolvedData.name}
+            subtitle={
+              <Box
+                sx={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 1,
+                  px: 1.5,
+                  py: 1,
+                  borderRadius: 1.25,
+                  border: '1px solid #D7DCE8',
+                  mb: 2,
+                }}
+              >
+                <TheaterComedyOutlined
+                  sx={{ fontSize: 16, color: '#98A2B3' }}
+                />
+                <Body fontWeight="Semibold" fontSize={'12px'}>
+                  {categoryLabel(resolvedData.category)}
+                </Body>
+              </Box>
+            }
+          />
           <Stack spacing={0} sx={{ px: 2, mb: 4 }}>
             <Box sx={{ py: 2 }}>
-              <Typography component="p" sx={sectionSx.label}>
+              <Body fontWeight="Light" fontSize="14px">
                 Descrizione
-              </Typography>
-              <Typography sx={sectionSx.body}>
-                {resolvedData.description}
-              </Typography>
+              </Body>
+              <Body fontWeight="Semibold">{resolvedData.description}</Body>
             </Box>
-
             <Divider />
-
             {resolvedData.condition && (
-              <Box sx={{ py: 2 }}>
-                <Typography component="p" sx={sectionSx.label}>
-                  Condizioni
-                </Typography>
-                <Typography sx={sectionSx.body}>
-                  {resolvedData.condition}
-                </Typography>
-              </Box>
+              <>
+                <Box sx={{ py: 2 }}>
+                  <Body fontWeight="Light" fontSize="14px">
+                    Condizioni
+                  </Body>
+                  <Body fontWeight="Semibold">{resolvedData.condition}</Body>
+                </Box>
+                <Divider />
+              </>
             )}
-
-            <Divider />
 
             {resolvedData.caregiverBenefit?.value && (
               <>
                 <Box sx={{ py: 2 }}>
-                  <Typography component="p" sx={sectionSx.label}>
+                  <Body fontWeight="Light" fontSize="14px">
                     Accompagnatore
-                  </Typography>
-                  <Typography sx={sectionSx.body}>
+                  </Body>
+                  <Body fontWeight="Semibold">
                     Stesse condizioni del titolare
-                  </Typography>
+                  </Body>
                 </Box>
                 <Divider />
               </>
             )}
 
             <Box sx={{ py: 2 }}>
-              <Typography component="p" sx={sectionSx.label}>
+              <Body fontWeight="Light" fontSize="14px">
                 Periodo di validità
-              </Typography>
-              <Typography sx={sectionSx.body}>
+              </Body>
+              <Body fontWeight="Semibold">
                 {formatDate(resolvedData.dateTo ?? resolvedData.dateFrom)}
-              </Typography>
+              </Body>
             </Box>
-
             <Divider />
 
             {resolvedData.url && (
@@ -203,7 +162,9 @@ export default function OpportunityDetailPage() {
                     }}
                   />
                   <Box>
-                    <Typography sx={sectionSx.label}>Scopri di più</Typography>
+                    <Body fontWeight="Regular" fontSize="14px">
+                      Scopri di più
+                    </Body>
                     <Link
                       href={resolvedData.url}
                       target="_blank"

@@ -116,12 +116,10 @@ export const useCompleteDataForm = ({
 
   const handleContactChange = useCallback(
     (index: number, field: keyof ContactFormData, value: string) => {
-      // reset error type primo contatto
       if (index === 0 && field === 'type') {
         setErrors(INITIAL_FIRST_CONTACT_ERRORS);
       }
 
-      // reset errore valore primo contatto
       if (index === 0 && isFirstContactValueField(field)) {
         setErrors((prev) => ({
           ...prev,

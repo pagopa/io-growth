@@ -14,7 +14,7 @@ export const resolveRole = (value?: AuthorizeResponseUserType): Role =>
   value === 'admin' || value === 'test_admin' ? 'admin' : 'operator';
 
 export const getLandingRoute = (role: AuthorizeResponseUserType): string =>
-  isAdminUser(role) ? APP_ROUTES.OPPORTUNITIES : APP_ROUTES.HOME;
+  isAdminUser(role) ? APP_ROUTES.ENTITIES : APP_ROUTES.OVERVIEW;
 
 export const getDevAssertionToken = (
   role?: AuthorizeResponseUserType,

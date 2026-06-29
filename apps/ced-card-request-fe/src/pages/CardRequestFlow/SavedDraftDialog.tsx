@@ -1,8 +1,7 @@
 import CheckRoundedIcon from '@mui/icons-material/CheckRounded';
 import { Box, Button, useTheme } from '@mui/material';
-import { Body, Title, VSpacer } from '@pagopa/io-core-ui';
+import { Body, MobileSpinnerLoader, Title, VSpacer } from '@pagopa/io-core-ui';
 import { useEffect, useState } from 'react';
-import { SpinnerLoader } from '../../components/Loader';
 
 interface SavedDraftDialogProps {
   onClose: () => void;
@@ -23,7 +22,7 @@ export function SavedDraftDialog({
 
   if (!saved) {
     return (
-      <SpinnerLoader
+      <MobileSpinnerLoader
         title="Stiamo salvando la bozza"
         description="Attendi qualche secondo"
       />

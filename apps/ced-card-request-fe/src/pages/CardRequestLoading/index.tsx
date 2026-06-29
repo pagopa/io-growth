@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { APP_ROUTES } from '../../app/routeConfig';
-import { SpinnerLoader } from '../../components/Loader';
+import { MobileSpinnerLoader } from '@pagopa/io-core-ui';
 
 const REDIRECT_DELAY_MS = 2000;
 
@@ -18,5 +18,5 @@ export default function CardRequestLoadingPage() {
     };
   }, [navigate]);
 
-  return <SpinnerLoader title="Attendi qualche secondo" />;
+  return <MobileSpinnerLoader title="Attendi qualche secondo" fullscreen />;
 }

@@ -1,15 +1,14 @@
 import { Box, Button, useTheme } from '@mui/material';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { APP_ROUTES } from '../../app/routeConfig';
 import { PageHeader, Stepper } from '../../components';
 import { SpinnerLoader } from '../../components/Loader';
-import { Body } from '../../components/Typography';
-import { VSpacer } from '../../layouts/Spacer';
+import { Body, VSpacer } from '@pagopa/io-core-ui';
 import { SavedDraftDialog } from './SavedDraftDialog';
 import { AddressStep } from './steps/AddressStep';
 import { ApplicantDataStep } from './steps/ApplicantDataStep';
-import { DocumentTypeStep, YesNo } from './steps/DocumentTypeStep';
+import { DocumentTypeStep } from './steps/DocumentTypeStep';
 import { PhotoUploadStep } from './steps/PhotoUploadStep';
 import SummaryStep from './steps/SummaryStep';
 import type { StepRef } from './types';
@@ -52,9 +51,6 @@ export default function CardRequestFlowPage() {
   const stepRef = useRef<StepRef | null>(null);
   const [photoPreview, setPhotoPreview] = useState<string>('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [docHasDoc, setDocHasDoc] = useState<YesNo>(null);
-
-  const isContinueDisabled = currentStep === 3 && docHasDoc === 'no';
 
   const {
     title,
@@ -66,6 +62,15 @@ export default function CardRequestFlowPage() {
   const actionLabel = isLastStep
     ? 'Invia richiesta'
     : (confirmLabel ?? 'Conferma');
+
+  useEffect(() => {
+    requestAnimationFrame(() => {
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth',
+      });
+    });
+  }, [currentStep]);
 
   if (draftSaved) {
     return (
@@ -129,7 +134,6 @@ export default function CardRequestFlowPage() {
           onEditJudgment={() => setCurrentStep(3)}
           onPhotoPreviewChange={(url: string) => setPhotoPreview(url)}
           photoPreview={photoPreview}
-          onDocChange={(value: YesNo) => setDocHasDoc(value)}
         />
         {isSubmitting && (
           <SpinnerLoader
@@ -151,7 +155,6 @@ export default function CardRequestFlowPage() {
           fullWidth
           variant="contained"
           onClick={isLastStep ? handleSubmit : handleNext}
-          disabled={isContinueDisabled}
           sx={{
             height: 52,
             borderRadius: '10px',

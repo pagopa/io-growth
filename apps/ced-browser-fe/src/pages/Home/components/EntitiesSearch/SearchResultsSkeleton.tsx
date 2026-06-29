@@ -1,7 +1,7 @@
-import { Box, Divider, Skeleton, Typography, useTheme } from '@mui/material';
+import { Box, Divider, Skeleton } from '@mui/material';
+import { LabelCaption } from '@pagopa/io-core-ui';
 
 export function SearchResultsSkeleton() {
-  const theme = useTheme();
   return (
     <Box sx={{ mt: 3 }}>
       <Box
@@ -12,16 +12,7 @@ export function SearchResultsSkeleton() {
           mb: 1,
         }}
       >
-        <Typography
-          sx={{
-            fontSize: 14,
-            fontWeight: 700,
-            color: theme.palette.common.neutralDarkGray,
-            letterSpacing: '0.08em',
-          }}
-        >
-          RISULTATI
-        </Typography>
+        <LabelCaption>RISULTATI</LabelCaption>
         <Skeleton variant="circular" width={24} height={24} />
       </Box>
       {Array.from({ length: 3 }, (_, i) => (

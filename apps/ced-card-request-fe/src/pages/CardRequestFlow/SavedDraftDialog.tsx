@@ -1,9 +1,8 @@
 import CheckRoundedIcon from '@mui/icons-material/CheckRounded';
 import { Box, Button, useTheme } from '@mui/material';
+import { Body, Title, VSpacer } from '@pagopa/io-core-ui';
 import { useEffect, useState } from 'react';
 import { SpinnerLoader } from '../../components/Loader';
-import { Body, Title } from '../../components/Typography';
-import { VSpacer } from '../../layouts/Spacer';
 
 interface SavedDraftDialogProps {
   onClose: () => void;

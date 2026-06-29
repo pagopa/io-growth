@@ -1,10 +1,9 @@
 import CheckIcon from '@mui/icons-material/Check';
 import { Box, Button, useTheme } from '@mui/material';
+import { Body, LabelCaption, Title, VSpacer } from '@pagopa/io-core-ui';
 import { useNavigate } from 'react-router-dom';
 import { APP_ROUTES } from '../../app/routeConfig';
-import { Body, LabelCaption, Title } from '../../components/Typography';
 import { MarkdownRenderer } from '../../components/Typography/MarkdownRender';
-import { VSpacer } from '../../layouts/Spacer';
 
 const PRIVACY_URL = 'https://www.google.com/';
 

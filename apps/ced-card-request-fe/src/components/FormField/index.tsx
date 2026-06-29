@@ -1,6 +1,6 @@
 import { Box } from '@mui/material';
+import { Body } from '@pagopa/io-core-ui';
 import { ChangeEvent, cloneElement, isValidElement, ReactElement } from 'react';
-import { Body } from '../Typography';
 
 export type FormFieldProps = {
   children: ReactElement<Record<string, unknown>>;

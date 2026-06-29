@@ -1,7 +1,7 @@
 import CloseIcon from '@mui/icons-material/Close';
 import { Box, Button, IconButton, Modal, useTheme } from '@mui/material';
-import { Title } from '../../../../components/Typography';
 import { MarkdownRenderer } from '../../../../components/Typography/MarkdownRender';
+import { Title } from '@pagopa/io-core-ui';
 
 interface Props {
   open: boolean;

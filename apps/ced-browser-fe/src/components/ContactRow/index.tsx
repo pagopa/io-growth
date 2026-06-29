@@ -1,8 +1,8 @@
-import { Box, ButtonBase, Typography, useTheme } from '@mui/material';
+import { Box, ButtonBase } from '@mui/material';
+import { Body } from '@pagopa/io-core-ui';
 import { ContactRowProps } from './types';
 
 export function ContactRow({ icon, label, href }: ContactRowProps) {
-  const theme = useTheme();
   return (
     <ButtonBase
       component="a"
@@ -24,17 +24,9 @@ export function ContactRow({ icon, label, href }: ContactRowProps) {
       <Box sx={{ display: 'flex', flexShrink: 0, color: 'text.secondary' }}>
         {icon}
       </Box>
-      <Typography
-        component="span"
-        sx={{
-          fontSize: 16,
-          fontWeight: 600,
-          color: theme.palette.common.primaryButton,
-          textDecoration: 'underline',
-        }}
-      >
+      <Body asLink onClick={() => {}} fontWeight="Semibold">
         {label}
-      </Typography>
+      </Body>
     </ButtonBase>
   );
 }

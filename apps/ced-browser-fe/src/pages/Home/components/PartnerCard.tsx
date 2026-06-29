@@ -70,7 +70,7 @@ export const PartnerCard = ({
             }}
           />
         </Box>
-
+        {/* Leave as Typography for now since we don't know how many lines the title might span */}
         <Typography
           variant="body2"
           component="div"

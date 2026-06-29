@@ -1,4 +1,5 @@
-import { Box, Typography, useTheme } from '@mui/material';
+import { Box, useTheme } from '@mui/material';
+import { Body, Title, VSpacer } from '@pagopa/io-core-ui';
 
 export function SearchInitialState() {
   const theme = useTheme();
@@ -23,29 +24,12 @@ export function SearchInitialState() {
             />
           </svg>
         </Box>
-        <Typography
-          variant="h1"
-          component="h1"
-          sx={{
-            mb: 1.5,
-            color: theme.palette.common.neutral900,
-            fontSize: 28,
-          }}
-        >
-          Inizia a cercare
-        </Typography>
-        <Typography
-          sx={{
-            color: theme.palette.common.neutral500,
-            fontSize: 17,
-            lineHeight: 1.35,
-            fontWeight: 400,
-            maxWidth: 272,
-            mx: 'auto',
-          }}
-        >
-          Prova a cercare una città, una struttura o un ente.
-        </Typography>
+        <Title text="Inizia a cercare" variant="LG" />
+        <VSpacer size={8} />
+
+        <Body fontWeight="Regular">
+          Prova a cercare una città, una <br /> struttura o un ente.
+        </Body>
       </Box>
     </Box>
   );

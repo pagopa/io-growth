@@ -1,9 +1,8 @@
 import { Check, ContentCopy } from '@mui/icons-material';
 import { Box, Button, useTheme } from '@mui/material';
+import { Title, VSpacer } from '@pagopa/io-core-ui';
 import { useState } from 'react';
-import { Title } from '../../components/Typography';
 import { MarkdownRenderer } from '../../components/Typography/MarkdownRender';
-import { VSpacer } from '../../layouts/Spacer';
 import { copyTextToClipboard } from '../../utils';
 
 interface Props {

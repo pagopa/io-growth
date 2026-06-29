@@ -74,7 +74,6 @@ export default function OpportunityDetailPage() {
       isError={isError}
       error={error}
       data={data}
-      errorMessage="Impossibile caricare i dati dell'opportunità."
       errorType={PageErrorType.OPPORTUNITY_NOT_FOUND}
       reloadAction={refetch}
     >

@@ -49,9 +49,10 @@ export const useMemorizedTabsAndFilters = <
         return;
       }
       if (value === '') {
-        return newParams.delete(key);
+        newParams.delete(key);
+        return;
       }
-      return newParams.set(key, String(value));
+      newParams.set(key, String(value));
     });
 
     setSearchParams(newParams, { replace: true });

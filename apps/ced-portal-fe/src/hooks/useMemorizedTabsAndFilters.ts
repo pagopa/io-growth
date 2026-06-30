@@ -40,7 +40,7 @@ export const useMemorizedTabsAndFilters = <
   }, [initialFilters, searchParams]);
 
   const updateParams = (
-    newValues: Record<string, string | number | undefined | null>,
+    newValues: Record<string, string | number | undefined>,
   ) => {
     const newParams = new URLSearchParams(searchParams);
 

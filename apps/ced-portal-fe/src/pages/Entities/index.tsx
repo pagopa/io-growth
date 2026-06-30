@@ -1,6 +1,6 @@
 import { Box, Stack, Typography, useTheme } from '@mui/material';
 import type { SyntheticEvent } from 'react';
-import { useMemo, useState, useEffect } from 'react';
+import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { APP_ROUTES } from '../../app/routeConfig';
 import { FiltersBar, PageTabs, ResultsPagination } from '../../components';
@@ -31,10 +31,6 @@ export default function EntitiesPage() {
 
   const [draftFilters, setDraftFilters] = useState<EntityFilters>(filters);
 
-  useEffect(() => {
-    setDraftFilters(filters);
-  }, [filters]);
-
   const { items, total, isLoading, isError, refetch } = useEntitiesData({
     activeTab: tab,
     filters,
@@ -57,6 +53,7 @@ export default function EntitiesPage() {
     : ENTITY_MANAGED_STATE_OPTIONS;
 
   const handleTabChange = (_event: SyntheticEvent, newValue: number) => {
+    setDraftFilters(INITIAL_FILTERS);
     updateParams({
       tab: newValue,
       page: 1,
@@ -80,6 +77,7 @@ export default function EntitiesPage() {
   };
 
   const handleReset = () => {
+    setDraftFilters(INITIAL_FILTERS);
     updateParams({ search: '', state: '', page: 1 });
   };
 
@@ -107,10 +105,12 @@ export default function EntitiesPage() {
         </Box>
         <FiltersBar
           filters={draftFilters}
-          onChange={({ state, search }) =>
+          onChange={(partial) =>
             handleFilterChange({
-              search,
-              state: state as ListOnboardingsStatusesItem,
+              ...(partial.search !== undefined && { search: partial.search }),
+              ...(partial.state !== undefined && {
+                state: partial.state as ListOnboardingsStatusesItem,
+              }),
             })
           }
           onFilter={handleFilter}

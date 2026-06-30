@@ -62,6 +62,7 @@ export default function OpportunityDetailPage() {
           sx={{
             minHeight: '100dvh',
             bgcolor: 'background.paper',
+            // TODO: leave this prop and handle in UI-Core component
             overflowX: 'hidden',
           }}
         >

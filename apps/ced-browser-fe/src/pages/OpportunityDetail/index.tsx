@@ -62,6 +62,7 @@ export default function OpportunityDetailPage() {
           sx={{
             minHeight: '100dvh',
             bgcolor: 'background.paper',
+            overflowX: 'hidden',
           }}
         >
           <PageHeader

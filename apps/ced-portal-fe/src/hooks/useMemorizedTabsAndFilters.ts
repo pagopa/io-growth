@@ -39,15 +39,20 @@ export const useMemorizedTabsAndFilters = <
     return currentFilters;
   }, [initialFilters, searchParams]);
 
-  const updateParams = (newValues: Record<string, string | number>) => {
+  const updateParams = (
+    newValues: Record<string, string | number | undefined>,
+  ) => {
     const newParams = new URLSearchParams(searchParams);
 
     Object.entries(newValues).forEach(([key, value]) => {
+      if (value === undefined) {
+        return;
+      }
       if (value === '') {
         newParams.delete(key);
-      } else {
-        newParams.set(key, String(value));
+        return;
       }
+      newParams.set(key, String(value));
     });
 
     setSearchParams(newParams, { replace: true });

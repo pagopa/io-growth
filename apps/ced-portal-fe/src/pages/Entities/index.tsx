@@ -108,7 +108,9 @@ export default function EntitiesPage() {
           onChange={(partial) =>
             handleFilterChange({
               ...(partial.search !== undefined && { search: partial.search }),
-              ...(partial.state !== undefined && { state: partial.state as ListOnboardingsStatusesItem }),
+              ...(partial.state !== undefined && {
+                state: partial.state as ListOnboardingsStatusesItem,
+              }),
             })
           }
           onFilter={handleFilter}

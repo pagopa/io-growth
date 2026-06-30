@@ -53,7 +53,6 @@ export const PhotoUploadStep = forwardRef<StepRef, PhotoUploadProps>(
     }));
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-      alert(e);
       const file = e.target.files?.[0];
 
       if (file) {

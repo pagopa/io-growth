@@ -45,7 +45,9 @@ export const useMemorizedTabsAndFilters = <
     const newParams = new URLSearchParams(searchParams);
 
     Object.entries(newValues).forEach(([key, value]) => {
-      if (value == null || value === '') {
+      if (value === undefined) {
+        return;
+      } else if (value === '') {
         newParams.delete(key);
       } else {
         newParams.set(key, String(value));

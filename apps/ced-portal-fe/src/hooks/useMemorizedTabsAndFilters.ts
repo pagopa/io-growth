@@ -47,11 +47,11 @@ export const useMemorizedTabsAndFilters = <
     Object.entries(newValues).forEach(([key, value]) => {
       if (value === undefined) {
         return;
-      } else if (value === '') {
-        newParams.delete(key);
-      } else {
-        newParams.set(key, String(value));
       }
+      if (value === '') {
+        return newParams.delete(key);
+      }
+      return newParams.set(key, String(value));
     });
 
     setSearchParams(newParams, { replace: true });

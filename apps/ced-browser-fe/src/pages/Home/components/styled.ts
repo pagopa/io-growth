@@ -2,8 +2,6 @@ import { Box, Stack } from '@mui/material';
 import { styled } from '@mui/system';
 
 export const StyledDots = styled(Box)`
-  cursor: pointer;
-
   &.inactive {
     width: 8px;
     height: 8px;

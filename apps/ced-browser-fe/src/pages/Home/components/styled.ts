@@ -2,8 +2,6 @@ import { Box, Stack } from '@mui/material';
 import { styled } from '@mui/system';
 
 export const StyledDots = styled(Box)`
-  cursor: none;
-
   &.inactive {
     width: 8px;
     height: 8px;
@@ -34,11 +32,10 @@ export const ScrollArea = styled(Box)({
   overflowY: 'hidden',
   scrollSnapType: 'x mandatory',
   WebkitOverflowScrolling: 'touch',
-  scrollBehavior: 'smooth',
   width: '100%',
   columnGap: '16px',
   scrollbarWidth: 'none',
-  justifyContent: 'center',
+  justifyContent: 'flex-start',
   paddingLeft: 'calc(50% - 105px)',
   paddingRight: 'calc(50% - 105px)',
   height: 'fit-content',

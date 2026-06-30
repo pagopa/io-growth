@@ -73,8 +73,8 @@ export default function EntitiesPage() {
 
   const handleFilter = () => {
     updateParams({
-      search: draftFilters.search,
-      state: draftFilters.state,
+      search: draftFilters.search ?? '',
+      state: draftFilters.state ?? '',
       page: 1,
     });
   };

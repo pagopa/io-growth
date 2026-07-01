@@ -32,6 +32,7 @@ export const ADMIN_REQUEST_STATE_OPTIONS = STATE_OPTIONS.filter(
 
 export const ADMIN_APPROVED_STATE_OPTIONS = STATE_OPTIONS.filter(
   ({ value }) =>
+    value === OpportunitySummaryItemStatus.scheduled ||
     value === OpportunitySummaryItemStatus.test_passed ||
     value === OpportunitySummaryItemStatus.published,
 );
@@ -49,6 +50,10 @@ export const OPERATOR_STATE_OPTIONS: {
   { value: OpportunitySummaryItemStatus.draft, label: 'In bozza' },
   { value: OpportunitySummaryItemStatus.test_pending, label: 'In revisione' },
   { value: OpportunitySummaryItemStatus.test_rejected, label: 'Da modificare' },
+  {
+    value: OpportunitySummaryItemStatus.scheduled,
+    label: 'Pubblicazione programmata',
+  },
   {
     value: OpportunitySummaryItemStatus.test_passed,
     label: 'Pubblicazione programmata',

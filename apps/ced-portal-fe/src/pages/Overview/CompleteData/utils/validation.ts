@@ -17,6 +17,7 @@ export const validateFirstContact = (
   contacts: ContactFormData[],
 ): FirstContactErrors => {
   const firstContact = getFirstContact(contacts);
+  console.log(firstContact.type, 'ojaojojojojojo');
 
   return {
     firstContactType: firstContact.type ? '' : 'Seleziona un tipo di contatto',

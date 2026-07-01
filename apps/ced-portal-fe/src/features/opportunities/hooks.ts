@@ -22,6 +22,7 @@ const NEW_STATES: Set<OpportunityStatus> = new Set([
 ]);
 const APPROVED_STATES: Set<OpportunityStatus> = new Set([
   OpportunityStatusEnum.test_passed,
+  OpportunityStatusEnum.scheduled,
   OpportunityStatusEnum.published,
 ]);
 const INACTIVE_STATES: Set<OpportunityStatus> = new Set([

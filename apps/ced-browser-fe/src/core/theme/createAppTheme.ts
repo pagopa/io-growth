@@ -132,6 +132,7 @@ export const createAppTheme = () =>
         styleOverrides: {
           body: {
             fontFamily: '"Titillio", Arial, sans-serif',
+            backgroundColor: muiItaliaTheme.palette.background.paper,
           },
           'input, button, textarea, select': {
             fontFamily: '"Titillio", Arial, sans-serif',

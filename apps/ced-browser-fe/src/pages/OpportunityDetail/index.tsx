@@ -13,6 +13,7 @@ import {
   QueryGuard,
   SectionTitle,
 } from '../../components/index.js';
+import { PageErrorType } from '../../components/QueryGuard/ErrorScreen/types.js';
 import { useGetOpportunityDetailQuery } from '../../features/opportunities/api.js';
 import { formatAddress } from '../../utils/formatAddress.js';
 import { formatBadgeLabel } from '../../utils/formatBadgeLabel.js';
@@ -33,9 +34,8 @@ export default function OpportunityDetailPage() {
   const navigate = useNavigate();
   const theme = useTheme();
 
-  const { data, isLoading, isError, error } = useGetOpportunityDetailQuery(
-    id ?? '',
-  );
+  const { data, isLoading, isError, error, refetch } =
+    useGetOpportunityDetailQuery(id ?? '');
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -54,13 +54,16 @@ export default function OpportunityDetailPage() {
       isError={isError}
       error={error}
       data={data}
-      errorMessage="Impossibile caricare i dati dell'opportunità."
+      errorType={PageErrorType.OPPORTUNITY_NOT_FOUND}
+      reloadAction={refetch}
     >
       {(resolvedData) => (
         <Box
           sx={{
             minHeight: '100dvh',
             bgcolor: 'background.paper',
+            // TODO: leave this prop and handle in UI-Core component
+            overflowX: 'hidden',
           }}
         >
           <PageHeader
@@ -143,13 +146,27 @@ export default function OpportunityDetailPage() {
 
             <Box sx={{ py: 2 }}>
               <Body fontWeight="Light" fontSize="14px">
-                Periodo di validità
+                Inizio validità
               </Body>
               <Body fontWeight="Semibold">
-                {formatDate(resolvedData.dateTo ?? resolvedData.dateFrom)}
+                {formatDate(resolvedData.dateFrom)}
               </Body>
             </Box>
             <Divider />
+
+            {resolvedData.dateTo && (
+              <>
+                <Box sx={{ py: 2 }}>
+                  <Body fontWeight="Light" fontSize="14px">
+                    Fine validità
+                  </Body>
+                  <Body fontWeight="Semibold">
+                    {formatDate(resolvedData.dateTo)}
+                  </Body>
+                </Box>
+                <Divider />
+              </>
+            )}
 
             {resolvedData.url && (
               <Box sx={{ py: 2.25 }}>

@@ -1,8 +1,13 @@
 import FileUploadOutlinedIcon from '@mui/icons-material/FileUploadOutlined';
 import { Box, Button, useTheme } from '@mui/material';
-import { Body, ErrorBody, Title, VSpacer } from '@pagopa/io-core-ui';
+import {
+  Body,
+  ErrorBody,
+  MobileSpinnerLoader,
+  Title,
+  VSpacer,
+} from '@pagopa/io-core-ui';
 import { forwardRef, useImperativeHandle, useState } from 'react';
-import { SpinnerLoader } from '../../../../components/Loader';
 import { MarkdownRenderer } from '../../../../components/Typography/MarkdownRender';
 import { StepCard } from '../../StepCard';
 import type { StepRef } from '../../types';
@@ -71,7 +76,7 @@ export const PhotoUploadStep = forwardRef<StepRef, PhotoUploadProps>(
 
     if (uploadState === 'loading') {
       return (
-        <SpinnerLoader
+        <MobileSpinnerLoader
           fullscreen
           title="Stiamo caricando la foto"
           description="Attendi qualche secondo"
@@ -169,7 +174,7 @@ export const PhotoUploadStep = forwardRef<StepRef, PhotoUploadProps>(
               px: 3,
             }}
           >
-            Aggiungi{' '}
+            Aggiungi
             <input
               type="file"
               accept="image/*"

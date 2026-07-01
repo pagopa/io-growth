@@ -25,7 +25,7 @@ export const benefitStateLabelMap: Record<
   draft: { text: 'In bozza', color: 'default' },
   test_rejected: { text: 'Rifiutato', color: 'error' },
   test_pending: { text: 'In revisione', color: 'info' },
-  //for now its a duplicated state, we can review it after demo
+  //TODO for now its a duplicated state, we can review it after demo
   test_passed: { text: 'Pubblicazione programmata', color: 'info' },
   scheduled: { text: 'Pubblicazione programmata', color: 'info' },
   published: { text: 'Pubblicata su IO', color: 'success' },

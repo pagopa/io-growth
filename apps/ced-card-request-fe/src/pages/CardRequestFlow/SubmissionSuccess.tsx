@@ -7,15 +7,13 @@ import { copyTextToClipboard } from '../../utils';
 
 interface Props {
   requestNumber?: string;
-  onClose?: () => void;
 }
 
-export default function SubmissionSuccess({
-  requestNumber,
-  onClose,
-}: Readonly<Props>) {
+export default function SubmissionSuccess({ requestNumber }: Readonly<Props>) {
   const theme = useTheme();
   const [copied, setCopied] = useState(false);
+
+  const onClose = () => window.location.replace('iossoapi://cancel');
 
   const number = requestNumber ?? '91238000001184';
 

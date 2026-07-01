@@ -32,11 +32,7 @@ export function AppRoutes() {
           <Route path={APP_ROUTES.APPLICATION} element={<ApplicationPage />} />
           <Route
             path={APP_ROUTES.REQUEST_SUCCESS}
-            element={
-              <RequestSuccessPage
-                onClose={() => window.location.replace('iiossoapi://cancel')}
-              />
-            }
+            element={<RequestSuccessPage />}
           />
           <Route
             path={APP_ROUTES.REQUEST_ERROR}

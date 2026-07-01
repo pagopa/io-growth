@@ -15,7 +15,7 @@ const mockPaginatedResult: PaginatedOpportunities = {
       dateTo: "2026-12-31",
       id: "01JVMK3N8XQZP5T6G2WYHAB4CF",
       name: "Discount 20%",
-      operatorName: "operator-name",
+      operatorName: "Ente Demo",
       status: "draft",
     },
   ],
@@ -58,6 +58,20 @@ describe("makeListOperatorOpportunitiesUseCase", () => {
     await useCase(inputWithFilters);
 
     expect(repository.findAll).toHaveBeenCalledWith(inputWithFilters);
+  });
+
+  it("should forward the scheduled status filter to the repository", async () => {
+    const repository = createMockOpportunityRepository({
+      findAll: vi.fn().mockResolvedValue(ok({ items: [], total: 0 })),
+    });
+    const useCase = makeListOperatorOpportunitiesUseCase(repository);
+
+    await useCase({ ...validInput, status: "scheduled" });
+
+    expect(repository.findAll).toHaveBeenCalledWith({
+      ...validInput,
+      status: "scheduled",
+    });
   });
 
   it("should pass categoryId filter to repository", async () => {

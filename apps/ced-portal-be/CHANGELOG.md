@@ -1,5 +1,11 @@
 # ced-portal-be
 
+## 0.2.9
+
+### Patch Changes
+
+- 3d07f8b: added a soft status on opportunities named scehduled
+
 ## 0.2.8
 
 ### Patch Changes

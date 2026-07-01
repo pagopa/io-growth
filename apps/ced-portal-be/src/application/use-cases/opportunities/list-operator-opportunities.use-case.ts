@@ -29,6 +29,7 @@ const ListOperatorOpportunitiesInputSchema = z.object({
       "test_rejected",
       "test_passed",
       "published",
+      "scheduled",
       "suspended",
       "deleted",
     ])

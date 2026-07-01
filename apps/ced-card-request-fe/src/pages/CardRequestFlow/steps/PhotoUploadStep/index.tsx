@@ -54,21 +54,16 @@ export const PhotoUploadStep = forwardRef<StepRef, PhotoUploadProps>(
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
       const file = e.target.files?.[0];
-
       if (file) {
-        const reader = new FileReader();
-        reader.onload = (event) => {
-          const url = event.target?.result as string;
-          setPhoto(file);
-          setPreview(url);
-          onPhotoPreviewChange?.(url);
-          setError(false);
-          setUploadState('loading');
-          setTimeout(() => {
-            setUploadState('preview');
-          }, 2000);
-        };
-        reader.readAsDataURL(file);
+        const url = URL.createObjectURL(file);
+        setPhoto(file);
+        setPreview(url);
+        onPhotoPreviewChange?.(url);
+        setError(false);
+        setUploadState('loading');
+        setTimeout(() => {
+          setUploadState('preview');
+        }, 2000);
       }
     };
 
@@ -182,19 +177,9 @@ export const PhotoUploadStep = forwardRef<StepRef, PhotoUploadProps>(
             Aggiungi
             <input
               type="file"
-              accept="image/jpeg, image/png, image/jpg"
+              accept="image/*"
+              hidden
               onChange={handleFileChange}
-              style={{
-                clip: 'rect(0 0 0 0)',
-                clipPath: 'inset(50%)',
-                height: 1,
-                overflow: 'hidden',
-                position: 'absolute',
-                bottom: 0,
-                left: 0,
-                whiteSpace: 'nowrap',
-                width: 1,
-              }}
             />
           </Button>
         </Box>

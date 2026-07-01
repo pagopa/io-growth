@@ -2,7 +2,18 @@ import type { TypedDbClient } from "@pagopa/io-core-adapter-drizzle";
 import type { Result } from "neverthrow";
 
 import { ConflictError, GenericError } from "@pagopa/io-core-domain/errors";
-import { and, count, eq, gte, ilike, inArray, lte, or, sql } from "drizzle-orm";
+import {
+  and,
+  count,
+  eq,
+  gt,
+  gte,
+  ilike,
+  inArray,
+  lte,
+  or,
+  sql,
+} from "drizzle-orm";
 import { err, ok } from "neverthrow";
 
 import type { OpportunityDetail } from "../../../domain/entities/opportunity.js";
@@ -12,6 +23,7 @@ import type {
   ListOpportunitiesInput,
   OpportunityRepository,
   OpportunitySearchField,
+  OpportunityStatusFilter,
   PaginatedOpportunities,
   UpdateOpportunityStatusByIdAndOperatorIdInput,
   UpdateOpportunityStatusByIdInput,
@@ -52,6 +64,35 @@ export const buildSearchCondition = (
   const effective = fields?.length ? fields : (["name"] as const);
   return or(...effective.map((field) => ilike(searchColumns[field], pattern)));
 };
+
+// Resolves the status filter into a SQL condition. "scheduled" and "published"
+// are refined against the server-provided referenceDate so that "scheduled"
+// matches published opportunities not yet effective (dateFrom > today) and
+// "published" matches those already effective (dateFrom <= today). Every other
+// status maps to a plain equality on the stored status column.
+export const buildStatusCondition = (
+  status: OpportunityStatusFilter,
+  referenceDate?: string,
+) => {
+  if (status === "scheduled" && referenceDate) {
+    return and(
+      sql`${opportunity.status} = 'published'`,
+      gt(opportunity.dateFrom, referenceDate),
+    );
+  }
+  if (status === "published" && referenceDate) {
+    return and(
+      sql`${opportunity.status} = 'published'`,
+      lte(opportunity.dateFrom, referenceDate),
+    );
+  }
+  return sql`${opportunity.status} = ${status}`;
+};
+
+// Server-owned reference date (YYYY-MM-DD) used to resolve the derived
+// "scheduled" / "published" statuses, both when filtering and when mapping
+// rows into entities.
+const today = (): string => new Date().toISOString().slice(0, 10);
 
 const findByIdAndOperatorId = async (
   db: DbOrTxClient,
@@ -103,7 +144,7 @@ const findByIdAndOperatorId = async (
       return ok(undefined);
     }
 
-    return mapOpportunityDetailRow(row);
+    return mapOpportunityDetailRow(row, today());
   } catch (error) {
     return err(
       new GenericError(`Failed to get operator opportunity: ${String(error)}`),
@@ -155,7 +196,7 @@ const findById =
         },
       });
       if (!row) return ok(undefined);
-      return mapOpportunityDetailRow(row);
+      return mapOpportunityDetailRow(row, today());
     } catch (error) {
       return err(
         new GenericError(`Failed to get opportunity: ${String(error)}`),
@@ -294,8 +335,9 @@ export const createDrizzleOpportunityRepository = (
       if (input.dateFrom)
         conditions.push(gte(opportunity.dateFrom, input.dateFrom));
       if (input.dateTo) conditions.push(lte(opportunity.dateTo, input.dateTo));
-      if (input.status)
-        conditions.push(sql`${opportunity.status} = ${input.status}`);
+      if (input.status) {
+        conditions.push(buildStatusCondition(input.status, today()));
+      }
       if (input.search) {
         conditions.push(buildSearchCondition(input.search, input.searchFields));
       }
@@ -344,7 +386,9 @@ export const createDrizzleOpportunityRepository = (
           .where(and(...conditions)),
       ]);
 
-      const items = dataResult.map(mapOpportunitySummaryRow);
+      const items = dataResult.map((row) =>
+        mapOpportunitySummaryRow(row, today()),
+      );
       const total = countResult[0]?.total ?? 0;
 
       return ok({ items, total });

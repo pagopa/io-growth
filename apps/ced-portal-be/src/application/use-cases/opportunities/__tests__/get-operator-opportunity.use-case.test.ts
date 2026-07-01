@@ -30,6 +30,7 @@ const mockOpportunityDetail: OpportunityDetail = {
       value: "20% discount on all services",
     },
   ],
+  nationalTerritory: false,
   placeIds: ["01JVMK3N8XQZP5T6G2WYHAB4CD"],
   status: "draft",
   updatedAt: "2026-01-01T00:00:00.000Z",

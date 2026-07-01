@@ -5,9 +5,12 @@ import { err, ok } from "neverthrow";
 
 import type {
   BenefitSummary,
+  Opportunity,
   OpportunityDetail,
   OpportunitySummary,
 } from "../../../domain/entities/opportunity.js";
+
+import { deriveOpportunityDisplayStatus } from "../../../domain/entities/opportunity.js";
 
 export interface BenefitRow {
   readonly description: null | string;
@@ -38,7 +41,7 @@ export interface OpportunityDetailRow {
   readonly nationalTerritory: boolean;
   readonly operator?: null | { readonly name: string };
   readonly opportunityPlaces: readonly { readonly placeId: string }[];
-  readonly status: OpportunitySummary["status"];
+  readonly status: Opportunity["status"];
   readonly updatedAt: Date;
   readonly url: null | string;
 }
@@ -50,7 +53,7 @@ export interface OpportunitySummaryRow {
   readonly id: string;
   readonly name: null | string;
   readonly operatorName: string;
-  readonly status: OpportunitySummary["status"];
+  readonly status: Opportunity["status"];
 }
 
 const mapBenefitRow = (row: BenefitRow): BenefitSummary | null => {
@@ -85,6 +88,7 @@ const mapBenefitRow = (row: BenefitRow): BenefitSummary | null => {
 
 export const mapOpportunityDetailRow = (
   row: OpportunityDetailRow,
+  referenceDate?: string,
 ): Result<OpportunityDetail, GenericError> => {
   const beneficiaryBenefit = row.beneficiaryBenefit
     ? mapBenefitRow(row.beneficiaryBenefit)
@@ -135,7 +139,11 @@ export const mapOpportunityDetailRow = (
     nationalTerritory: row.nationalTerritory,
     operatorName: row.operator?.name,
     placeIds: row.opportunityPlaces.map((op) => op.placeId),
-    status: row.status,
+    status: deriveOpportunityDisplayStatus(
+      row.status,
+      row.dateFrom,
+      referenceDate,
+    ),
     updatedAt: row.updatedAt.toISOString(),
     url: row.url,
   });
@@ -143,6 +151,7 @@ export const mapOpportunityDetailRow = (
 
 export const mapOpportunitySummaryRow = (
   row: OpportunitySummaryRow,
+  referenceDate?: string,
 ): OpportunitySummary => ({
   categoryTitle: row.categoryTitle,
   dateFrom: row.dateFrom,
@@ -150,5 +159,9 @@ export const mapOpportunitySummaryRow = (
   id: row.id,
   name: row.name ?? "",
   operatorName: row.operatorName,
-  status: row.status,
+  status: deriveOpportunityDisplayStatus(
+    row.status,
+    row.dateFrom,
+    referenceDate,
+  ),
 });

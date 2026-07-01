@@ -524,6 +524,11 @@ paths:
         - name: status
           in: query
           required: false
+          description: >-
+            Filter by opportunity status. "scheduled" is a derived status (not
+            stored): it matches published opportunities whose dateFrom is still
+            in the future relative to the server's current date, while
+            "published" matches those already effective (dateFrom <= today).
           schema:
             type: string
             enum:
@@ -532,6 +537,7 @@ paths:
               - test_rejected
               - test_passed
               - published
+              - scheduled
               - suspended
               - deleted
         - name: search
@@ -668,6 +674,11 @@ paths:
         - name: status
           in: query
           required: false
+          description: >-
+            Filter by opportunity status. "scheduled" is a derived status (not
+            stored): it matches published opportunities whose dateFrom is still
+            in the future relative to the server's current date, while
+            "published" matches those already effective (dateFrom <= today).
           schema:
             type: string
             enum:
@@ -676,6 +687,7 @@ paths:
               - test_rejected
               - test_passed
               - published
+              - scheduled
               - suspended
               - deleted
         - name: search
@@ -1572,6 +1584,7 @@ components:
             - test_rejected
             - test_passed
             - published
+            - scheduled
             - suspended
             - deleted
         name:
@@ -1607,6 +1620,7 @@ components:
             - test_rejected
             - test_passed
             - published
+            - scheduled
             - suspended
             - deleted
         name:
@@ -1649,6 +1663,7 @@ components:
             - test_rejected
             - test_passed
             - published
+            - scheduled
             - suspended
             - deleted
         dateFrom:
@@ -1717,6 +1732,7 @@ components:
             - test_rejected
             - test_passed
             - published
+            - scheduled
             - suspended
             - deleted
         dateFrom:

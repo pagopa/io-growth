@@ -1,7 +1,7 @@
-import type { ChangeEvent } from 'react';
 import { Paper, Stack, Typography } from '@mui/material';
 import { PrivacyTipOutlined } from '@mui/icons-material';
-import { AppTextField } from '../../../../components';
+import { AppTextField, FormField } from '../../../../components';
+import { isValidHttpsUrl } from '../../../../utils/urlValidator';
 
 type TermsAndPrivacySectionProps = {
   privacyUrl: string;
@@ -16,11 +16,9 @@ export const TermsAndPrivacySection = ({
   onPrivacyUrlChange,
   onTermsUrlChange,
 }: TermsAndPrivacySectionProps) => {
-  const handlePrivacyUrlChange = (e: ChangeEvent<HTMLInputElement>) =>
-    onPrivacyUrlChange(e.target.value);
+  const privacyUrlError = privacyUrl ? !isValidHttpsUrl(privacyUrl) : false;
 
-  const handleTermsUrlChange = (e: ChangeEvent<HTMLInputElement>) =>
-    onTermsUrlChange(e.target.value);
+  const termsUrlError = termsUrl ? !isValidHttpsUrl(termsUrl) : false;
 
   return (
     <Paper
@@ -36,22 +34,36 @@ export const TermsAndPrivacySection = ({
             Termini e privacy dei servizi erogati dall’ente
           </Typography>
         </Stack>
-        <AppTextField
-          fullWidth
+        <FormField
           label="Inserisci il link all’Informativa Privacy"
           placeholder="Inserisci il link all’Informativa Privacy"
           value={privacyUrl}
-          onChange={handlePrivacyUrlChange}
-          sx={{ '& .MuiOutlinedInput-root': { borderRadius: '8px' } }}
-        />
-        <AppTextField
-          fullWidth
+          error={privacyUrlError}
+          helperText={
+            privacyUrlError ? 'Inserisci un URL valido (es. https://...)' : ''
+          }
+          onChange={(e) => onPrivacyUrlChange(e.target.value)}
+        >
+          <AppTextField
+            fullWidth
+            sx={{ '& .MuiOutlinedInput-root': { borderRadius: '8px' } }}
+          />
+        </FormField>
+        <FormField
           label="Inserisci il link ai Termini e condizioni d’uso"
           placeholder="Inserisci il link ai Termini e condizioni d’uso"
+          error={termsUrlError}
+          helperText={
+            termsUrlError ? 'Inserisci un URL valido (es. https://...)' : ''
+          }
           value={termsUrl}
-          onChange={handleTermsUrlChange}
-          sx={{ '& .MuiOutlinedInput-root': { borderRadius: '8px' } }}
-        />
+          onChange={(e) => onTermsUrlChange(e.target.value)}
+        >
+          <AppTextField
+            fullWidth
+            sx={{ '& .MuiOutlinedInput-root': { borderRadius: '8px' } }}
+          />
+        </FormField>
       </Stack>
     </Paper>
   );

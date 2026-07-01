@@ -4,6 +4,7 @@ import { IconButton, Paper, Stack, Typography } from '@mui/material';
 import {
   AppRadioGroup,
   AppTextField,
+  FormField,
   UploadDropzone,
 } from '../../../../components';
 
@@ -93,7 +94,7 @@ export const EntityDataSection = ({
           }}
         />
 
-        <AppTextField
+        <FormField
           required
           label={locationFieldLabel}
           placeholder={locationFieldPlaceholder}
@@ -101,10 +102,13 @@ export const EntityDataSection = ({
           error={Boolean(addressError)}
           helperText={addressError}
           onChange={(e) => onAddressChange(e.target.value)}
-          sx={{
-            '& .MuiOutlinedInput-root': { borderRadius: '8px' },
-          }}
-        />
+        >
+          <AppTextField
+            sx={{
+              '& .MuiOutlinedInput-root': { borderRadius: '8px' },
+            }}
+          />
+        </FormField>
 
         <Stack spacing={2}>
           <Stack

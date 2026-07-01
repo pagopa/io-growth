@@ -6,6 +6,7 @@ import type { SupportContactCreateRequest } from '../../../../core/api/generated
 import { ContactRow } from '../../../../components/ContactRow';
 
 interface ContactsSectionProps {
+  attempted: boolean;
   contacts: SupportContactCreateRequest[];
   onAdd: () => void;
   onRemove: (index: number) => void;
@@ -21,6 +22,7 @@ export function ContactsSection({
   onAdd,
   onRemove,
   onChange,
+  attempted,
 }: ContactsSectionProps) {
   const theme = useTheme();
 
@@ -40,6 +42,7 @@ export function ContactsSection({
           contact={contact}
           index={index}
           canRemove={index > 0}
+          attempted={attempted}
           onRemove={onRemove}
           onChange={(i, field, value) =>
             onChange({

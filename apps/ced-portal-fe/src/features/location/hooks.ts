@@ -3,6 +3,7 @@ import type { PlaceResponse } from '../../core/api/generated/model';
 import { useAppDispatch, useAppSelector } from '../../hooks/store';
 import { resetLocationForm, selectLocationForm } from './locationSlice';
 import { useToast } from '../../contexts';
+import { isValidHttpsUrl } from '../../utils/urlValidator';
 
 export function useLocationSubmit(
   onConfirm: (newLocation?: PlaceResponse) => void,
@@ -29,6 +30,15 @@ export function useLocationSubmit(
       return;
 
     const supportContacts = contacts.filter((c) => c.value.trim());
+
+    const areSupportContactsValid = supportContacts.every(({ type, value }) => {
+      if (type === 'website') {
+        return value.trim() && isValidHttpsUrl(value.trim());
+      }
+      return value.trim();
+    });
+
+    if (!areSupportContactsValid) return;
 
     const result = await createPlace({
       type: 'offline',

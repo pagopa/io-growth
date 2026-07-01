@@ -11,107 +11,48 @@ import {
   Typography,
   useTheme,
 } from '@mui/material';
-import { skipToken } from '@reduxjs/toolkit/query';
-import { useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { APP_ROUTES } from '../../app/routeConfig';
-import { UploadDropzone, UploadState } from '../../components';
+import { UploadDropzone } from '../../components';
 import {
   ENTITY_STATE_COLORS,
   ENTITY_STATE_OPTIONS,
 } from '../../constants/opportunityState';
 import { useToast } from '../../contexts';
-import {
-  useCompleteOnboardingMutation,
-  useGetContractSignedMutation,
-  useGetDepartmentOnboardingQuery,
-} from '../../features/entities/api';
+import useEntityDetail from './hooks/useEntityDetail.js';
 import { DetailSection } from '../OpportunityDetail/components/DetailSection';
 import { PublishEntityModal } from './components/PublishEntityModal';
 import { RejectEntityModal } from './components/RejectEntityModal';
 import { SectionCard } from './components/SectionCard.js';
-import {
-  getEntityFields,
-  getEntityName,
-  getGeographicFields,
-  getLegalRepresentativeFields,
-} from './utils.js';
 
 export default function EntityDetailPage() {
   const theme = useTheme();
   const navigate = useNavigate();
-  const { id } = useParams<{ id: string }>();
   const {
-    data: onboarding,
+    onboarding,
     isLoading,
     isError,
     refetch,
-  } = useGetDepartmentOnboardingQuery(id ?? skipToken);
-  const [getContractSigned, { isLoading: isDownloadingContract }] =
-    useGetContractSignedMutation();
-  const [completeOnboarding, { isLoading: isCompletingOnboarding }] =
-    useCompleteOnboardingMutation();
-
+    isDownloadingContract,
+    isCompletingOnboarding,
+    uploadState,
+    setUploadState,
+    uploadedFile,
+    setUploadedFile,
+    openPublishModal,
+    setOpenPublishModal,
+    openRejectModal,
+    setOpenRejectModal,
+    handleDownloadContract,
+    handleApprove,
+    handlePublish,
+    entityName,
+    entityFields,
+    geographicFields,
+    legalRepresentativeFields,
+    isEditable,
+  } = useEntityDetail();
   const { showToast } = useToast();
-
-  const [uploadState, setUploadState] = useState<UploadState>('idle');
-  const [uploadedFile, setUploadedFile] = useState<File | null>(null);
-  const [openPublishModal, setOpenPublishModal] = useState(false);
-  const [openRejectModal, setOpenRejectModal] = useState(false);
-
-  const handleDownloadContract = async () => {
-    if (!id) {
-      return;
-    }
-
-    try {
-      const blob = await getContractSigned({ onboardingId: id }).unwrap();
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `contratto-${id}.pdf`;
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      URL.revokeObjectURL(url);
-    } catch {
-      showToast('Errore durante il download del contratto', 'error');
-    }
-  };
-
-  const handleApprove = async () => {
-    if (!id || !uploadedFile) {
-      return;
-    }
-
-    try {
-      await completeOnboarding({
-        onboardingId: id,
-        contract: uploadedFile,
-      }).unwrap();
-      setOpenPublishModal(false);
-      showToast('Ente approvato con successo', 'success');
-      navigate(APP_ROUTES.ENTITIES);
-    } catch {
-      showToast('Errore durante l’approvazione della richiesta', 'error');
-    }
-  };
-
-  const handlePublish = () => {
-    if (!uploadedFile || uploadState !== 'success') {
-      showToast(
-        'Carica la richiesta di convenzionamento controfirmata prima di approvare',
-        'error',
-      );
-      return;
-    }
-    setOpenPublishModal(true);
-  };
-
-  const entityName = getEntityName(onboarding);
-  const entityFields = getEntityFields(onboarding);
-  const geographicFields = getGeographicFields(onboarding);
-  const legalRepresentativeFields = getLegalRepresentativeFields(onboarding);
 
   if (isLoading) {
     return (
@@ -171,8 +112,6 @@ export default function EntityDetailPage() {
       </Box>
     );
   }
-
-  const isEditable = onboarding.status === 'PENDING_IN_REVIEW';
 
   return (
     <Box

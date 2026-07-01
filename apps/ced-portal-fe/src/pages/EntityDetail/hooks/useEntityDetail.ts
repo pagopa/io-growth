@@ -9,55 +9,14 @@ import {
   useGetDepartmentOnboardingQuery,
 } from '../../../features/entities/api';
 import {
-  DetailField,
   getEntityFields,
   getEntityName,
   getGeographicFields,
   getLegalRepresentativeFields,
 } from '../utils';
 import type { UploadState } from '../../../components';
-import { EntityDetail } from '../../../features/entities/types';
 
-type UseEntityDetailResult = {
-  entity: {
-    onboarding: EntityDetail | undefined;
-    name: string;
-    fields: DetailField[];
-    geographicFields: DetailField[];
-    legalRepresentativeFields: DetailField[];
-    isEditable: boolean;
-  };
-  upload: {
-    state: UploadState;
-    setState: React.Dispatch<React.SetStateAction<UploadState>>;
-    file: File | null;
-    setFile: React.Dispatch<React.SetStateAction<File | null>>;
-  };
-  actions: {
-    downloadContract: () => Promise<void>;
-    approve: () => Promise<void>;
-    publish: () => void;
-    refetch: () => void;
-  };
-  modals: {
-    publish: {
-      open: boolean;
-      setOpen: React.Dispatch<React.SetStateAction<boolean>>;
-    };
-    reject: {
-      open: boolean;
-      setOpen: React.Dispatch<React.SetStateAction<boolean>>;
-    };
-  };
-  status: {
-    isLoading: boolean;
-    isError: boolean;
-    isDownloadingContract: boolean;
-    isCompletingOnboarding: boolean;
-  };
-};
-
-export function useEntityDetail(): UseEntityDetailResult {
+export function useEntityDetail() {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
   const { showToast } = useToast();

@@ -29,28 +29,36 @@ export default function EntityDetailPage() {
   const theme = useTheme();
   const navigate = useNavigate();
   const {
-    onboarding,
-    isLoading,
-    isError,
-    refetch,
-    isDownloadingContract,
-    isCompletingOnboarding,
-    uploadState,
-    setUploadState,
-    uploadedFile,
-    setUploadedFile,
-    openPublishModal,
-    setOpenPublishModal,
-    openRejectModal,
-    setOpenRejectModal,
-    handleDownloadContract,
-    handleApprove,
-    handlePublish,
-    entityName,
-    entityFields,
-    geographicFields,
-    legalRepresentativeFields,
-    isEditable,
+    entity: {
+      onboarding,
+      name: entityName,
+      fields: entityFields,
+      geographicFields,
+      legalRepresentativeFields,
+      isEditable,
+    },
+    upload: {
+      state: uploadState,
+      setState: setUploadState,
+      file: uploadedFile,
+      setFile: setUploadedFile,
+    },
+    actions: {
+      downloadContract: handleDownloadContract,
+      approve: handleApprove,
+      publish: handlePublish,
+      refetch,
+    },
+    modals: {
+      publish: { open: openPublishModal, setOpen: setOpenPublishModal },
+      reject: { open: openRejectModal, setOpen: setOpenRejectModal },
+    },
+    status: {
+      isLoading,
+      isError,
+      isDownloadingContract,
+      isCompletingOnboarding,
+    },
   } = useEntityDetail();
   const { showToast } = useToast();
 

@@ -9,14 +9,55 @@ import {
   useGetDepartmentOnboardingQuery,
 } from '../../../features/entities/api';
 import {
+  DetailField,
   getEntityFields,
   getEntityName,
   getGeographicFields,
   getLegalRepresentativeFields,
 } from '../utils';
 import type { UploadState } from '../../../components';
+import { EntityDetail } from '../../../features/entities/types';
 
-export function useEntityDetail() {
+type UseEntityDetailResult = {
+  entity: {
+    onboarding: EntityDetail | undefined;
+    name: string;
+    fields: DetailField[];
+    geographicFields: DetailField[];
+    legalRepresentativeFields: DetailField[];
+    isEditable: boolean;
+  };
+  upload: {
+    state: UploadState;
+    setState: React.Dispatch<React.SetStateAction<UploadState>>;
+    file: File | null;
+    setFile: React.Dispatch<React.SetStateAction<File | null>>;
+  };
+  actions: {
+    downloadContract: () => Promise<void>;
+    approve: () => Promise<void>;
+    publish: () => void;
+    refetch: () => void;
+  };
+  modals: {
+    publish: {
+      open: boolean;
+      setOpen: React.Dispatch<React.SetStateAction<boolean>>;
+    };
+    reject: {
+      open: boolean;
+      setOpen: React.Dispatch<React.SetStateAction<boolean>>;
+    };
+  };
+  status: {
+    isLoading: boolean;
+    isError: boolean;
+    isDownloadingContract: boolean;
+    isCompletingOnboarding: boolean;
+  };
+};
+
+export function useEntityDetail(): UseEntityDetailResult {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
   const { showToast } = useToast();
@@ -89,29 +130,43 @@ export function useEntityDetail() {
   const isEditable = onboarding?.status === 'PENDING_IN_REVIEW';
 
   return {
-    onboarding,
-    isLoading,
-    isError,
-    refetch,
-    isDownloadingContract,
-    isCompletingOnboarding,
-    uploadState,
-    setUploadState,
-    uploadedFile,
-    setUploadedFile,
-    openPublishModal,
-    setOpenPublishModal,
-    openRejectModal,
-    setOpenRejectModal,
-    handleDownloadContract,
-    handleApprove,
-    handlePublish,
-    entityName,
-    entityFields,
-    geographicFields,
-    legalRepresentativeFields,
-    isEditable,
-  } as const;
+    entity: {
+      onboarding,
+      name: entityName,
+      fields: entityFields,
+      geographicFields,
+      legalRepresentativeFields,
+      isEditable,
+    },
+    upload: {
+      state: uploadState,
+      setState: setUploadState,
+      file: uploadedFile,
+      setFile: setUploadedFile,
+    },
+    actions: {
+      downloadContract: handleDownloadContract,
+      approve: handleApprove,
+      publish: handlePublish,
+      refetch,
+    },
+    modals: {
+      publish: {
+        open: openPublishModal,
+        setOpen: setOpenPublishModal,
+      },
+      reject: {
+        open: openRejectModal,
+        setOpen: setOpenRejectModal,
+      },
+    },
+    status: {
+      isLoading,
+      isError,
+      isDownloadingContract,
+      isCompletingOnboarding,
+    },
+  };
 }
 
 export default useEntityDetail;

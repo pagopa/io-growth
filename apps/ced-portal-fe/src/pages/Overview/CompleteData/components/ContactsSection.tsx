@@ -7,6 +7,7 @@ import { ContactRow } from '../../../../components/ContactRow';
 import type { ContactFormData } from '../types';
 
 interface ContactsSectionProps {
+  submitted: boolean;
   contacts: ContactFormData[];
   onAddContact: () => void;
   onRemoveContact: (index: number) => void;
@@ -15,18 +16,15 @@ interface ContactsSectionProps {
     field: keyof ContactFormData,
     value: string,
   ) => void;
-  firstContactTypeError?: string;
-  firstContactValueError?: string;
 }
 
 export const ContactsSection = memo(
   ({
+    submitted,
     contacts,
     onAddContact,
     onRemoveContact,
     onContactChange,
-    firstContactTypeError,
-    firstContactValueError,
   }: ContactsSectionProps) => {
     return (
       <Paper
@@ -50,16 +48,15 @@ export const ContactsSection = memo(
           {contacts.map((contact, i) => (
             <ContactRow
               key={i}
+              required={i === 0}
               contact={contact}
               index={i}
+              attempted={submitted}
               canRemove={i !== 0}
               onRemove={onRemoveContact}
               onChange={(idx, field, value) =>
                 onContactChange(idx, field as keyof ContactFormData, value)
               }
-              required={i === 0}
-              typeError={i === 0 ? firstContactTypeError : undefined}
-              contactError={i === 0 ? firstContactValueError : undefined}
               removeIcon={<CancelIcon />}
             />
           ))}

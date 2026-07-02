@@ -12,7 +12,7 @@ import type {
 } from '../../../../core/api/generated/model';
 
 const createEmptyContact = (): ContactFormData => ({
-  type: '',
+  type: 'email',
   value: '',
 });
 
@@ -35,6 +35,7 @@ type UseCompleteDataFormParams = {
 };
 
 export type UseCompleteDataFormResult = {
+  isSubmitted: boolean;
   formData: CompleteDataFormData;
   nameError: string;
   addressError: string;
@@ -59,7 +60,7 @@ export type UseCompleteDataFormResult = {
 
 const buildSupportContacts = (contacts: ContactFormData[]) =>
   contacts
-    .filter((c): c is Contact => c.type !== '' && c.value.trim() !== '')
+    .filter((c): c is Contact => !!c.type && !!c.value.trim())
     .map((c) => ({
       type: c.type,
       value: c.value.trim(),
@@ -239,6 +240,7 @@ export const useCompleteDataForm = ({
     : '';
 
   return {
+    isSubmitted,
     formData,
     nameError: nameField.error ? (nameField.helperText ?? '') : '',
     addressError: addressField.error ? (addressField.helperText ?? '') : '',

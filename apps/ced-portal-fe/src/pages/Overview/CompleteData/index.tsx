@@ -20,11 +20,10 @@ export default function OverviewCompleteDataPage() {
   const [createProfile, { isLoading }] = useCreateOperatorProfileMutation();
 
   const {
+    isSubmitted,
     formData,
     nameError,
     addressError,
-    visibleFirstContactTypeError,
-    visibleFirstContactValueError,
     handleNameChange,
     handleSedeChange,
     handleAddressChange,
@@ -89,9 +88,8 @@ export default function OverviewCompleteDataPage() {
                 />
 
                 <ContactsSection
+                  submitted={isSubmitted}
                   contacts={formData.contacts}
-                  firstContactTypeError={visibleFirstContactTypeError}
-                  firstContactValueError={visibleFirstContactValueError}
                   onAddContact={handleAddContact}
                   onRemoveContact={handleRemoveContact}
                   onContactChange={handleContactChange}

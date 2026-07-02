@@ -1,5 +1,17 @@
 import { SupportContactResponseType } from '../../core/api/generated/model';
-import { getRequiredError, isValidHttpsUrl } from '../../utils';
+import { isValidHttpsUrl } from '../../utils';
+
+const getRequiredError = (
+  attempted: boolean,
+  required?: boolean,
+  value?: string,
+): string | undefined => {
+  if (required && !value && attempted) {
+    return 'Campo obbligatorio';
+  }
+
+  return undefined;
+};
 
 type GetContactErrorParams = {
   contact: { type: SupportContactResponseType | ''; value: string };

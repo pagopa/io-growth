@@ -1,5 +1,8 @@
 import { useCreatePlaceMutation } from '../places/api';
-import type { PlaceResponse } from '../../core/api/generated/model';
+import {
+  SupportContactCreateRequestType,
+  type PlaceResponse,
+} from '../../core/api/generated/model';
 import { useAppDispatch, useAppSelector } from '../../hooks/store';
 import { resetLocationForm, selectLocationForm } from './locationSlice';
 import { useToast } from '../../contexts';
@@ -29,7 +32,15 @@ export function useLocationSubmit(
     )
       return;
 
-    const supportContacts = contacts.filter((c) => c.value.trim());
+    // const supportContacts = contacts.filter(
+    //   (c) => c.value.trim() && c.type.trim(),
+    // );
+
+    const supportContacts = contacts.filter(
+      (c): c is typeof c & { type: SupportContactCreateRequestType } => {
+        return c.value.trim() !== '' && c.type !== '';
+      },
+    );
 
     const areSupportContactsValid = supportContacts.every(({ type, value }) => {
       if (type === 'website') {

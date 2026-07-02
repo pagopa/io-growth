@@ -1,6 +1,6 @@
 import { Paper, Stack, Typography } from '@mui/material';
 import { PrivacyTipOutlined } from '@mui/icons-material';
-import { AppTextField, FormField } from '../../../../components';
+import { AppTextField } from '../../../../components';
 import { isValidHttpsUrl } from '../../../../utils/urlValidator';
 
 type TermsAndPrivacySectionProps = {

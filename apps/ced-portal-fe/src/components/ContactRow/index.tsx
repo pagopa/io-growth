@@ -1,7 +1,7 @@
 import { Box, IconButton } from '@mui/material';
 import type { SxProps, Theme } from '@mui/material';
 import { useMemo, type ReactNode } from 'react';
-import { AppSelect, AppTextField, FormField } from '../';
+import { AppSelect, AppTextField } from '../';
 import {
   CONTACT_TYPE_OPTIONS,
   getContactInputConfig,

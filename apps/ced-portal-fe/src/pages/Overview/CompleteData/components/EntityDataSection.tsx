@@ -94,7 +94,7 @@ export const EntityDataSection = ({
           }}
         />
 
-        <FormField
+        <AppTextField
           required
           label={locationFieldLabel}
           placeholder={locationFieldPlaceholder}
@@ -102,13 +102,10 @@ export const EntityDataSection = ({
           error={Boolean(addressError)}
           helperText={addressError}
           onChange={(e) => onAddressChange(e.target.value)}
-        >
-          <AppTextField
-            sx={{
-              '& .MuiOutlinedInput-root': { borderRadius: '8px' },
-            }}
-          />
-        </FormField>
+          sx={{
+            '& .MuiOutlinedInput-root': { borderRadius: '8px' },
+          }}
+        />
 
         <Stack spacing={2}>
           <Stack

@@ -34,7 +34,8 @@ export const TermsAndPrivacySection = ({
             Termini e privacy dei servizi erogati dall’ente
           </Typography>
         </Stack>
-        <FormField
+
+        <AppTextField
           label="Inserisci il link all’Informativa Privacy"
           placeholder="Inserisci il link all’Informativa Privacy"
           value={privacyUrl}
@@ -43,13 +44,11 @@ export const TermsAndPrivacySection = ({
             privacyUrlError ? 'Inserisci un URL valido (es. https://...)' : ''
           }
           onChange={(e) => onPrivacyUrlChange(e.target.value)}
-        >
-          <AppTextField
-            fullWidth
-            sx={{ '& .MuiOutlinedInput-root': { borderRadius: '8px' } }}
-          />
-        </FormField>
-        <FormField
+          fullWidth
+          sx={{ '& .MuiOutlinedInput-root': { borderRadius: '8px' } }}
+        />
+
+        <AppTextField
           label="Inserisci il link ai Termini e condizioni d’uso"
           placeholder="Inserisci il link ai Termini e condizioni d’uso"
           error={termsUrlError}
@@ -58,12 +57,9 @@ export const TermsAndPrivacySection = ({
           }
           value={termsUrl}
           onChange={(e) => onTermsUrlChange(e.target.value)}
-        >
-          <AppTextField
-            fullWidth
-            sx={{ '& .MuiOutlinedInput-root': { borderRadius: '8px' } }}
-          />
-        </FormField>
+          fullWidth
+          sx={{ '& .MuiOutlinedInput-root': { borderRadius: '8px' } }}
+        />
       </Stack>
     </Paper>
   );

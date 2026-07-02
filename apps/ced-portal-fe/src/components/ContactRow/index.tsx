@@ -10,7 +10,7 @@ import type { SupportContactResponseType } from '../../core/api/generated/model'
 import { getContactError } from './utils';
 
 export interface ContactRowProps {
-  contact: { type: SupportContactResponseType; value: string };
+  contact: { type: SupportContactResponseType | ''; value: string };
   index: number;
   canRemove: boolean;
   attempted: boolean;
@@ -73,25 +73,23 @@ export const ContactRow = ({
           required={required}
           label="Tipo di contatto"
           options={CONTACT_TYPE_OPTIONS}
-          value={contact.type || 'email'}
+          value={contact.type}
           error={Boolean(typeError)}
           helperText={typeError}
           onChange={(e) => onChange(index, 'type', e.target.value as string)}
           sx={{ '& .MuiOutlinedInput-root': { borderRadius: '8px' } }}
         />
-        <FormField
+
+        <AppTextField
           required={required}
           label={placeholder}
           error={Boolean(contactError)}
           helperText={contactError}
           value={contact.value}
           onChange={(e) => onChange(index, 'value', e.target.value)}
-        >
-          <AppTextField
-            type={inputType}
-            sx={{ '& .MuiOutlinedInput-root': { borderRadius: '8px' } }}
-          />
-        </FormField>
+          type={inputType}
+          sx={{ '& .MuiOutlinedInput-root': { borderRadius: '8px' } }}
+        />
       </Box>
     </Box>
   );

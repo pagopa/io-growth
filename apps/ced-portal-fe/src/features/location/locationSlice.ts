@@ -3,8 +3,11 @@ import type { RootState } from '../../core/store';
 import type { LocationFormState } from './types';
 import type { SupportContactCreateRequest } from '../../core/api/generated/model';
 
-const createEmptyContact = (): SupportContactCreateRequest => ({
-  type: 'email',
+const createEmptyContact = (): {
+  type: SupportContactCreateRequest['type'] | '';
+  value: string;
+} => ({
+  type: '',
   value: '',
 });
 

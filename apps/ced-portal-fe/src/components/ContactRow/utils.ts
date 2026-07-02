@@ -1,8 +1,8 @@
-import { SupportContactCreateRequest } from '../../core/api/generated/model';
+import { SupportContactResponseType } from '../../core/api/generated/model';
 import { isValidHttpsUrl } from '../../utils';
 
 type GetContactErrorParams = {
-  contact: SupportContactCreateRequest;
+  contact: { type: SupportContactResponseType | ''; value: string };
   attempted: boolean;
   required?: boolean;
   isUrl?: boolean;

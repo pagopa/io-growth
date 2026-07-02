@@ -1,17 +1,25 @@
+import EuroRoundedIcon from '@mui/icons-material/EuroRounded';
 import { AppSelect, AppTextField } from '../../../../../components';
 import { useAppSelector } from '../../../../../hooks';
 import { DiscountFields } from './DiscountFields';
 import { DetailFormField } from '../../AgreementDetailsSection/components/DetailFormField';
-import { getLocalizedOptions } from '../../../../../constants';
+import {
+  getAgreementCopy,
+  getLocalizedOptions,
+} from '../../../../../constants';
 import {
   selectActiveFormLanguage,
   selectBeneficiaryBenefit,
 } from '../../../../../features/opportunityCreation/selectors';
 import { useMemo } from 'react';
+import { benefitTypeMap } from '../../../../../constants/formOptions/types';
+import { FieldWithIcon } from '../../AgreementDetailsSection/components/FieldWithIcon';
 
 export const ViewSameConditions = () => {
   const benefit = useAppSelector(selectBeneficiaryBenefit);
   const activeLanguage = useAppSelector(selectActiveFormLanguage);
+
+  const copy = getAgreementCopy(activeLanguage);
 
   const benefitTypeOptions = useMemo(
     () => getLocalizedOptions(activeLanguage, 'benefit'),
@@ -33,6 +41,21 @@ export const ViewSameConditions = () => {
         <AppSelect options={benefitTypeOptions} />
       </DetailFormField>
       {type === 'discount' && <DiscountFields sameValues benefit={benefit} />}
+
+      <DetailFormField
+        hide={
+          benefitTypeMap[activeLanguage][benefit?.type] !==
+          benefitTypeMap[activeLanguage].reduced_fixed_price
+        }
+        disabled
+        name={'fixedPrice'}
+        path={'beneficiaryBenefit.value'}
+      >
+        <FieldWithIcon
+          icon={<EuroRoundedIcon sx={{ fontSize: 18 }} />}
+          label={copy.detailsForm.fixedPriceLabel}
+        />
+      </DetailFormField>
 
       <DetailFormField
         hide={type !== 'other'}

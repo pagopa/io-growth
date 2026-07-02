@@ -8,7 +8,7 @@ import {
 } from '../../../../features/opportunityCreation/selectors';
 import { setField } from '../../../../features/opportunityCreation/opportunityCreationSlice';
 import { isValidHttpsUrl } from '../../../../utils';
-import { AppTextField, FormField } from '../../../../components';
+import { AppTextField } from '../../../../components';
 
 export function AgreementLinkSection({
   attempted,

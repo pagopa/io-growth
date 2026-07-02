@@ -8,6 +8,18 @@ type GetContactErrorParams = {
   isUrl?: boolean;
 };
 
+export const getTypeError = ({
+  attempted,
+  contact,
+  required,
+}: GetContactErrorParams) => {
+  if (!attempted) {
+    return undefined;
+  }
+  if (required && !contact.type && attempted) return 'Campo obbligatorio';
+  return undefined;
+};
+
 export const getContactError = ({
   attempted,
   contact,

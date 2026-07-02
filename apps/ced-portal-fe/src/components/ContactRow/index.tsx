@@ -7,7 +7,7 @@ import {
   getContactInputConfig,
 } from '../../pages/Overview/CompleteData/components/constants';
 import type { SupportContactResponseType } from '../../core/api/generated/model';
-import { getContactError } from './utils';
+import { getContactError, getTypeError } from './utils';
 
 export interface ContactRowProps {
   contact: { type: SupportContactResponseType | ''; value: string };
@@ -16,7 +16,6 @@ export interface ContactRowProps {
   attempted: boolean;
   onRemove: (index: number) => void;
   onChange: (index: number, field: 'type' | 'value', value: string) => void;
-  typeError?: string;
   required?: boolean;
   removeIcon: ReactNode;
   removeIconSx?: SxProps<Theme>;
@@ -29,12 +28,17 @@ export const ContactRow = ({
   attempted,
   onRemove,
   onChange,
-  typeError,
   required,
   removeIcon,
   removeIconSx = { color: '#D13333', p: 0 },
 }: ContactRowProps) => {
   const { placeholder, type: inputType } = getContactInputConfig(contact.type);
+
+  const typeError = useMemo(
+    () => getTypeError({ contact, attempted, required }),
+    [contact, attempted, required],
+  );
+  console.log('🚀 ~ ContactRow ~ typeError:', typeError);
 
   const contactError = useMemo(
     () =>

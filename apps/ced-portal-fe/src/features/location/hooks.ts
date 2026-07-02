@@ -32,10 +32,6 @@ export function useLocationSubmit(
     )
       return;
 
-    // const supportContacts = contacts.filter(
-    //   (c) => c.value.trim() && c.type.trim(),
-    // );
-
     const supportContacts = contacts.filter(
       (c): c is typeof c & { type: SupportContactCreateRequestType } => {
         return c.value.trim() !== '' && c.type !== '';

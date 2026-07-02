@@ -38,7 +38,6 @@ export const ContactRow = ({
     () => getTypeError({ contact, attempted, required }),
     [contact, attempted, required],
   );
-  console.log('🚀 ~ ContactRow ~ typeError:', typeError);
 
   const contactError = useMemo(
     () =>

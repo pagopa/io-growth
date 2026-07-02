@@ -1,21 +1,21 @@
 import { Box, IconButton } from '@mui/material';
 import type { SxProps, Theme } from '@mui/material';
-import type { ReactNode } from 'react';
+import { useMemo, type ReactNode } from 'react';
 import { AppSelect, AppTextField } from '../';
 import {
   CONTACT_TYPE_OPTIONS,
   getContactInputConfig,
 } from '../../pages/Overview/CompleteData/components/constants';
 import type { SupportContactResponseType } from '../../core/api/generated/model';
+import { getContactError, getTypeError } from './utils';
 
 export interface ContactRowProps {
   contact: { type: SupportContactResponseType | ''; value: string };
   index: number;
   canRemove: boolean;
+  attempted: boolean;
   onRemove: (index: number) => void;
   onChange: (index: number, field: 'type' | 'value', value: string) => void;
-  typeError?: string;
-  contactError?: string;
   required?: boolean;
   removeIcon: ReactNode;
   removeIconSx?: SxProps<Theme>;
@@ -25,15 +25,30 @@ export const ContactRow = ({
   contact,
   index,
   canRemove,
+  attempted,
   onRemove,
   onChange,
-  typeError,
-  contactError,
   required,
   removeIcon,
   removeIconSx = { color: '#D13333', p: 0 },
 }: ContactRowProps) => {
   const { placeholder, type: inputType } = getContactInputConfig(contact.type);
+
+  const typeError = useMemo(
+    () => getTypeError({ contact, attempted, required }),
+    [contact, attempted, required],
+  );
+
+  const contactError = useMemo(
+    () =>
+      getContactError({
+        contact,
+        attempted,
+        required,
+        isUrl: inputType === 'url',
+      }),
+    [contact, attempted, required, inputType],
+  );
   return (
     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.25, mb: 1 }}>
       {canRemove && (
@@ -67,6 +82,7 @@ export const ContactRow = ({
           onChange={(e) => onChange(index, 'type', e.target.value as string)}
           sx={{ '& .MuiOutlinedInput-root': { borderRadius: '8px' } }}
         />
+
         <AppTextField
           required={required}
           label={placeholder}

@@ -7,6 +7,7 @@ import {
   validateWebsiteUrl,
 } from './websiteSlice';
 import { useToast } from '../../contexts';
+import { isValidHttpsUrl } from '../../utils';
 
 export function useWebsiteSubmit(
   onConfirm: (newWebsite?: PlaceResponse) => void,
@@ -26,6 +27,15 @@ export function useWebsiteSubmit(
     if (!name?.trim() || !url?.trim() || urlError) return;
 
     const supportContacts = contacts.filter((c) => c.value.trim());
+
+    const areSupportContactsValid = supportContacts.every(({ type, value }) => {
+      if (type === 'website') {
+        return value.trim() && isValidHttpsUrl(value.trim());
+      }
+      return value.trim();
+    });
+
+    if (!areSupportContactsValid) return;
 
     const result = await createPlace({
       type: 'online',

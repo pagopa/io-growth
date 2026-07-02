@@ -6,7 +6,7 @@ export interface LocationFormState {
   city: string | null;
   postalCode: string | null;
   province: string | null;
-  contacts: { type: SupportContactCreateRequest['type'] | ''; value: string }[];
+  contacts: { type: SupportContactCreateRequest['type']; value: string }[];
 }
 
 export type LocationStringFieldKey = keyof Omit<LocationFormState, 'contacts'>;

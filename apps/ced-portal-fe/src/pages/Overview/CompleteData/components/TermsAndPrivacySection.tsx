@@ -16,9 +16,9 @@ export const TermsAndPrivacySection = ({
   onPrivacyUrlChange,
   onTermsUrlChange,
 }: TermsAndPrivacySectionProps) => {
-  const privacyUrlError = privacyUrl ? !isValidHttpsUrl(privacyUrl) : false;
+  const privacyUrlError = !isValidHttpsUrl(privacyUrl);
 
-  const termsUrlError = termsUrl ? !isValidHttpsUrl(termsUrl) : false;
+  const termsUrlError = !isValidHttpsUrl(termsUrl);
 
   return (
     <Paper
@@ -41,7 +41,9 @@ export const TermsAndPrivacySection = ({
           value={privacyUrl}
           error={privacyUrlError}
           helperText={
-            privacyUrlError ? 'Inserisci un URL valido (es. https://...)' : ''
+            privacyUrlError
+              ? 'Inserisci un URL valido (es. https://...)'
+              : undefined
           }
           onChange={(e) => onPrivacyUrlChange(e.target.value)}
           fullWidth
@@ -53,7 +55,9 @@ export const TermsAndPrivacySection = ({
           placeholder="Inserisci il link ai Termini e condizioni d’uso"
           error={termsUrlError}
           helperText={
-            termsUrlError ? 'Inserisci un URL valido (es. https://...)' : ''
+            termsUrlError
+              ? 'Inserisci un URL valido (es. https://...)'
+              : undefined
           }
           value={termsUrl}
           onChange={(e) => onTermsUrlChange(e.target.value)}

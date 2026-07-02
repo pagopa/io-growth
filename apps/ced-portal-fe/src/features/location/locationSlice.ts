@@ -4,10 +4,10 @@ import type { LocationFormState } from './types';
 import type { SupportContactCreateRequest } from '../../core/api/generated/model';
 
 const createEmptyContact = (): {
-  type: SupportContactCreateRequest['type'] | '';
+  type: SupportContactCreateRequest['type'];
   value: string;
 } => ({
-  type: '',
+  type: 'email',
   value: '',
 });
 

@@ -28,11 +28,12 @@ export function AgreementLinkSection({
           <Typography sx={{ fontWeight: 600 }}>{copy.title}</Typography>
         </Stack>
 
-        <FormField
+        <AppTextField
+          fullWidth
           label={copy.benefitUrlLabel}
           error={attempted && !isValidUrl}
           helperText={
-            attempted && !isValidUrl
+            attempted && !isValidUrl && !!benefitUrl
               ? 'Inserisci un URL valido (es. https://...)'
               : ''
           }
@@ -46,9 +47,7 @@ export function AgreementLinkSection({
               }),
             )
           }
-        >
-          <AppTextField fullWidth />
-        </FormField>
+        />
       </Stack>
     </Paper>
   );

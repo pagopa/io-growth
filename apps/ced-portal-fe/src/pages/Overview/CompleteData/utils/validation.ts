@@ -21,14 +21,12 @@ export const validateFirstContact = (
 
   return {
     firstContactType: firstContact.type ? '' : 'Seleziona un tipo di contatto',
-    firstContactValue:
-      firstContact.type === 'website'
-        ? isValidHttpsUrl(firstContact.value.trim())
-          ? ''
-          : 'Inserisci un URL valido (es. https://...)'
-        : firstContact.value.trim()
-          ? ''
-          : 'Campo obbligatorio',
+    firstContactValue: !firstContact.value.trim()
+      ? 'Campo obbligatorio'
+      : firstContact.type === 'website' &&
+          !isValidHttpsUrl(firstContact.value.trim())
+        ? 'Inserisci un URL valido (es. https://...)'
+        : '',
   };
 };
 

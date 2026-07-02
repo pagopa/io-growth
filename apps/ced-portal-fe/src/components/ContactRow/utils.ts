@@ -1,5 +1,5 @@
 import { SupportContactResponseType } from '../../core/api/generated/model';
-import { isValidHttpsUrl } from '../../utils';
+import { getRequiredError, isValidHttpsUrl } from '../../utils';
 
 type GetContactErrorParams = {
   contact: { type: SupportContactResponseType | ''; value: string };
@@ -12,13 +12,8 @@ export const getTypeError = ({
   attempted,
   contact,
   required,
-}: GetContactErrorParams) => {
-  if (!attempted) {
-    return undefined;
-  }
-  if (required && !contact.type && attempted) return 'Campo obbligatorio';
-  return undefined;
-};
+}: GetContactErrorParams) =>
+  getRequiredError(attempted, required, contact.value);
 
 export const getContactError = ({
   attempted,
@@ -26,10 +21,8 @@ export const getContactError = ({
   required,
   isUrl,
 }: GetContactErrorParams): string | undefined => {
-  if (!attempted) {
-    return undefined;
-  }
-  if (required && !contact.value && attempted) return 'Campo obbligatorio';
+  const requiredError = getRequiredError(attempted, required, contact.value);
+  if (requiredError) return requiredError;
 
   if (isUrl && contact.value && !isValidHttpsUrl(contact.value)) {
     return 'Inserisci un URL valido (es. https://...)';

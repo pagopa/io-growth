@@ -76,7 +76,7 @@ export const ContactRow = ({
           required={required}
           label="Tipo di contatto"
           options={CONTACT_TYPE_OPTIONS}
-          value={contact.type}
+          value={contact.type || 'email'}
           error={Boolean(typeError)}
           helperText={typeError}
           onChange={(e) => onChange(index, 'type', e.target.value as string)}
@@ -86,11 +86,11 @@ export const ContactRow = ({
         <AppTextField
           required={required}
           label={placeholder}
+          type={inputType}
           error={Boolean(contactError)}
           helperText={contactError}
           value={contact.value}
           onChange={(e) => onChange(index, 'value', e.target.value)}
-          type={inputType}
           sx={{ '& .MuiOutlinedInput-root': { borderRadius: '8px' } }}
         />
       </Box>

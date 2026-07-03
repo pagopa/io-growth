@@ -1,19 +1,14 @@
-import { Box, Button, Collapse, Stack } from '@mui/material';
+import { Box, Collapse, Stack } from '@mui/material';
 import { LabelCaption, Title, VSpacer } from '@pagopa/io-core-ui';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { APP_ROUTES, toOpportunityDetailRoute } from '../../app/routeConfig';
-import { DiscoveryListItem } from '../../components';
+import { APP_ROUTES } from '../../app/routeConfig';
 import { InfoBox } from '../../components/Infobox';
 import { theme } from '../../core/theme';
-import { useGetOpportunitiesSearchQuery } from '../../features/opportunities/api';
 import { Carousel } from './components/Carousel';
-import { EntitiesSearch } from './components/EntitiesSearch';
-import {
-  PARTNERS_CARDS_CONFIG,
-  generateDiscoveryItemsConfig,
-} from './constants';
 import DiscoverySection from './components/DiscoverySection';
+import { EntitiesSearch } from './components/EntitiesSearch';
+import { PARTNERS_CARDS_CONFIG } from './constants';
 
 export default function HomePage() {
   const navigate = useNavigate();
@@ -61,7 +56,6 @@ export default function HomePage() {
               onLinkClick={() => navigate(APP_ROUTES.EUROPEAN_OPPORTUNITIES)}
             />
           </Box>
-
           <Box sx={{ height: '40px', flexShrink: 0 }} />
         </>
       )}

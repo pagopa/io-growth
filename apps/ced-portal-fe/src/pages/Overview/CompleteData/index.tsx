@@ -63,9 +63,24 @@ export default function OverviewCompleteDataPage() {
           </Button>
 
           <Stack spacing={3}>
-            <Box>
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
               <Typography variant="h4" fontWeight={700}>
                 Completa i dati dell’ente
+              </Typography>
+              <Typography
+                variant="body1"
+                color="text.secondary"
+                fontWeight={400}
+              >
+                Queste informazioni saranno usate per identificarti sull’app IO.
+              </Typography>
+              <Typography
+                variant="body2"
+                color="common.requiredField"
+                fontWeight={600}
+                sx={{ mt: 2 }}
+              >
+                * Campo obbligatorio
               </Typography>
             </Box>
 

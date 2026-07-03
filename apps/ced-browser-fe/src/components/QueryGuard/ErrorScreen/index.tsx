@@ -1,7 +1,6 @@
 import { Box, Button } from '@mui/material';
 import { Body, Title, VSpacer } from '@pagopa/io-core-ui';
-import { IllusMIMaintenance } from '@pagopa/mui-italia';
-import { useNavigate } from 'react-router-dom';
+import { IllusMIError, IllusMIMaintenance } from '@pagopa/mui-italia';
 import { PageErrorType } from './types';
 
 type ErrorContent = {
@@ -16,16 +15,26 @@ const errorContentMap: Record<PageErrorType, ErrorContent> = {
     title: "Non è stato possibile caricare i dettagli dell'opportunità",
     description: 'Se il problema persiste, riprova in un secondo momento.',
   },
+  [PageErrorType.UNAUTHORIZED]: {
+    icon: <IllusMIError />,
+    title: 'Qualcosa non ha funzionato',
+    description: 'Riprova più tardi.',
+  },
+};
+
+type ButtonProps = {
+  label: string;
+  onClick: () => void;
 };
 
 type Props = {
   errorType: PageErrorType;
-  reloadAction?: () => void;
+  firstAction?: ButtonProps;
+  secondAction?: ButtonProps;
 };
 
-const ErrorScreen = ({ errorType, reloadAction }: Props) => {
+const ErrorScreen = ({ errorType, firstAction, secondAction }: Props) => {
   const { icon, title, description } = errorContentMap[errorType];
-  const navigate = useNavigate();
 
   return (
     <Box
@@ -46,21 +55,27 @@ const ErrorScreen = ({ errorType, reloadAction }: Props) => {
       <VSpacer size={16} />
       <Body>{description}</Body>
       <VSpacer size={16} />
-      {reloadAction && (
+      {firstAction && (
         <>
           <Button
             variant="contained"
-            onClick={reloadAction}
+            onClick={firstAction.onClick}
             sx={{ borderRadius: '10px' }}
           >
-            Riprova
+            {firstAction.label}
           </Button>
           <VSpacer size={8} />
         </>
       )}
-      <Button variant="text" onClick={() => navigate(-1)}>
-        Torna indietro
-      </Button>
+      {secondAction && (
+        <Button
+          variant="text"
+          onClick={secondAction.onClick}
+          sx={{ borderRadius: '10px' }}
+        >
+          {secondAction.label}
+        </Button>
+      )}
     </Box>
   );
 };

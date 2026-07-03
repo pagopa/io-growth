@@ -16,7 +16,14 @@ type Props<T> = {
   errorMessage?: string;
   children: (data: T) => ReactNode;
   errorType?: PageErrorType;
-  reloadAction?: () => void;
+  firstAction?: {
+    label: string;
+    onClick: () => void;
+  };
+  secondAction?: {
+    label: string;
+    onClick: () => void;
+  };
 };
 
 export function QueryGuard<T>({
@@ -27,7 +34,8 @@ export function QueryGuard<T>({
   error,
   children,
   errorType,
-  reloadAction,
+  firstAction,
+  secondAction,
 }: Readonly<Props<T>>) {
   if (isLoading) {
     return (
@@ -39,7 +47,13 @@ export function QueryGuard<T>({
 
   if (isError || data === undefined) {
     if (errorType) {
-      return <ErrorScreen errorType={errorType} reloadAction={reloadAction} />;
+      return (
+        <ErrorScreen
+          errorType={errorType}
+          firstAction={firstAction}
+          secondAction={secondAction}
+        />
+      );
     }
 
     return (

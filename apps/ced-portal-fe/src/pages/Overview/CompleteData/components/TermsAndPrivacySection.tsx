@@ -16,9 +16,11 @@ export const TermsAndPrivacySection = ({
   onPrivacyUrlChange,
   onTermsUrlChange,
 }: TermsAndPrivacySectionProps) => {
-  const privacyUrlError = !isValidHttpsUrl(privacyUrl);
+  const privacyUrlError =
+    privacyUrl.trim().length > 0 && !isValidHttpsUrl(privacyUrl);
 
-  const termsUrlError = !isValidHttpsUrl(termsUrl);
+  const termsUrlError =
+    termsUrl.trim().length > 0 && !isValidHttpsUrl(termsUrl);
 
   return (
     <Paper

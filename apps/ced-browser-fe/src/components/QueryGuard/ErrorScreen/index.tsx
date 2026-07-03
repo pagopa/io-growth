@@ -1,6 +1,6 @@
 import { Box, Button } from '@mui/material';
 import { Body, Title, VSpacer } from '@pagopa/io-core-ui';
-import { IllusMIError, IllusMIMaintenance } from '@pagopa/mui-italia';
+import { IllusMIError } from '@pagopa/mui-italia';
 import { PageErrorType } from './types';
 
 type ErrorContent = {
@@ -11,13 +11,23 @@ type ErrorContent = {
 
 const errorContentMap: Record<PageErrorType, ErrorContent> = {
   [PageErrorType.OPPORTUNITY_NOT_FOUND]: {
-    icon: <IllusMIMaintenance />,
-    title: "Non è stato possibile caricare i dettagli dell'opportunità",
-    description: 'Se il problema persiste, riprova in un secondo momento.',
+    icon: <IllusMIError />,
+    title: 'Non siamo riusciti a caricare la pagina',
+    description: 'Riprova più tardi.',
   },
   [PageErrorType.UNAUTHORIZED]: {
     icon: <IllusMIError />,
     title: 'Qualcosa non ha funzionato',
+    description: 'Riprova più tardi.',
+  },
+  [PageErrorType.ENTITY_NOT_FOUND]: {
+    icon: <IllusMIError />,
+    title: 'Non siamo riusciti a caricare la pagina',
+    description: 'Riprova più tardi.',
+  },
+  [PageErrorType.ACCESS_POINT_NOT_FOUND]: {
+    icon: <IllusMIError />,
+    title: 'Non siamo riusciti a caricare la pagina',
     description: 'Riprova più tardi.',
   },
 };

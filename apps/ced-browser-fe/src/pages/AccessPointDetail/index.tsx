@@ -7,6 +7,7 @@ import { PageHeader, QueryGuard } from '../../components/index.js';
 import { APP_ROUTES } from '../../app/routeConfig.js';
 import { useGetAccessPointDetailQuery } from '../../features/places/api.js';
 import { formatBadgeLabel } from '../../utils';
+import { PageErrorType } from '../../components/QueryGuard/ErrorScreen/types.js';
 
 export default function AccessPointDetailPage() {
   const { accessPointId } = useParams<{
@@ -14,10 +15,11 @@ export default function AccessPointDetailPage() {
   }>();
   const navigate = useNavigate();
   const theme = useTheme();
-  const { data, isLoading, isError, error } = useGetAccessPointDetailQuery(
-    { accessPointId: accessPointId ?? '' },
-    { skip: !accessPointId },
-  );
+  const { data, isLoading, isError, error, refetch } =
+    useGetAccessPointDetailQuery(
+      { accessPointId: accessPointId ?? '' },
+      { skip: !accessPointId },
+    );
 
   const opportunities = useMemo(
     () =>
@@ -45,7 +47,11 @@ export default function AccessPointDetailPage() {
       isError={isError}
       error={error}
       data={data}
-      errorMessage="Impossibile caricare i dati del punto di accesso."
+      errorType={PageErrorType.ACCESS_POINT_NOT_FOUND}
+      firstAction={{
+        label: 'Riprova',
+        onClick: () => refetch(),
+      }}
     >
       {(resolvedData) => (
         <Box

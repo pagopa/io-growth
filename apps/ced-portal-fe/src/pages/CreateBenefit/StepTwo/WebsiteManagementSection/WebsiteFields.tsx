@@ -1,5 +1,5 @@
 import { Box } from '@mui/material';
-import { AppTextField, FormField } from '../../../../components';
+import { AppTextField } from '../../../../components';
 import {
   selectWebsiteForm,
   selectWebsiteUrlError,
@@ -36,24 +36,22 @@ export function WebsiteFields({ attempted }: WebsiteFieldsProps) {
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-      <FormField
+      <AppTextField
         value={name ?? ''}
         label="Nome"
         required
         onChange={(e) => dispatch(setWebsiteName(e.target.value))}
         {...nameField}
-      >
-        <AppTextField />
-      </FormField>
-      <FormField
+      />
+
+      <AppTextField
         value={url ?? ''}
         label="URL"
         required
         onChange={(e) => dispatch(setWebsiteUrl(e.target.value))}
         {...urlField}
-      >
-        <AppTextField onBlur={() => dispatch(validateWebsiteUrl())} />
-      </FormField>
+        onBlur={() => dispatch(validateWebsiteUrl())}
+      />
     </Box>
   );
 }

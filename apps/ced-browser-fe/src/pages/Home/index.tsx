@@ -45,6 +45,7 @@ export default function HomePage() {
             <Box px={3} sx={{ flexShrink: 0 }}>
               <LabelCaption>IN PRIMO PIANO</LabelCaption>
             </Box>
+            {/* TODO: after API implementation, attach banner and loading skeleton */}
             <Carousel list={PARTNERS_CARDS_CONFIG} />
           </Stack>
           <DiscoverySection />

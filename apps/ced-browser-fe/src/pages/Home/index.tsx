@@ -13,15 +13,11 @@ import {
   PARTNERS_CARDS_CONFIG,
   generateDiscoveryItemsConfig,
 } from './constants';
+import DiscoverySection from './components/DiscoverySection';
 
 export default function HomePage() {
   const navigate = useNavigate();
   const [isSearchActive, setIsSearchActive] = useState(false);
-
-  const { data } = useGetOpportunitiesSearchQuery({
-    limit: 10,
-  });
-  const discoveryItems = generateDiscoveryItemsConfig(data?.items);
 
   return (
     <Stack
@@ -56,35 +52,7 @@ export default function HomePage() {
             </Box>
             <Carousel list={PARTNERS_CARDS_CONFIG} />
           </Stack>
-
-          <Stack direction="column">
-            <Stack
-              direction="row"
-              alignItems="center"
-              justifyContent="space-between"
-            >
-              <Box px={3} sx={{ flexShrink: 0 }}>
-                <LabelCaption>NUOVE OPPORTUNITÀ</LabelCaption>
-              </Box>
-              <Button
-                variant="text"
-                sx={{ color: theme.palette.common.primaryButton }}
-                onClick={() => navigate(APP_ROUTES.OPPORTUNITIES_LIST)}
-              >
-                Mostra tutti
-              </Button>
-            </Stack>
-            {discoveryItems?.map((item, index, list) => (
-              <DiscoveryListItem
-                {...item}
-                key={item.id}
-                sx={{ backgroundColor: theme.palette.background.paper }}
-                divider={index < list.length - 1}
-                onClick={() => navigate(toOpportunityDetailRoute(item.id))}
-              />
-            ))}
-          </Stack>
-
+          <DiscoverySection />
           <Box px={3} sx={{ flexShrink: 0 }}>
             <InfoBox
               title="Sai che la Carta vale anche in Europa?"

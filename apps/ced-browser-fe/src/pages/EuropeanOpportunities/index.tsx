@@ -48,8 +48,6 @@ const opportunities: EuropeanOpportunity[] = [
 ];
 
 export default function EuropeanOpportunitiesPage() {
-  // TODO: after backed implementation, handle loading and error states, and fetch the opportunities from the backend instead of using a static list.
-
   const handleExternalLink = (url: string) => {
     window.open(url, '_blank', 'noopener,noreferrer');
   };
@@ -64,6 +62,16 @@ export default function EuropeanOpportunitiesPage() {
       </Box>
     );
   }
+  // TODO: after backed implementation, handle loading and error states, and fetch the opportunities from the backend instead of using a static list.
+  // if (isError) {
+  //   <WarningBanner
+  //     title="C’è stato un problema nel caricamento delle opportunità."
+  //     action={{
+  //       label: 'Ricarica',
+  //       onClick: () => void refetch(),
+  //     }}
+  //   />;
+  // }
 
   return (
     <Box>

@@ -25,7 +25,7 @@ export const getTypeError = ({
   contact,
   required,
 }: GetContactErrorParams) =>
-  getRequiredError(attempted, required, contact.value);
+  getRequiredError(attempted, required, contact.type);
 
 export const getContactError = ({
   attempted,

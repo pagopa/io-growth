@@ -48,6 +48,8 @@ const opportunities: EuropeanOpportunity[] = [
 ];
 
 export default function EuropeanOpportunitiesPage() {
+  // TODO: after backed implementation, handle loading and error states, and fetch the opportunities from the backend instead of using a static list.
+
   const handleExternalLink = (url: string) => {
     window.open(url, '_blank', 'noopener,noreferrer');
   };

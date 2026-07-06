@@ -1,5 +1,5 @@
 import { Box } from '@mui/material';
-import { WarningBanner } from '@pagopa/io-core-ui';
+import { ListSkeleton, WarningBanner } from '@pagopa/io-core-ui';
 import { useNavigate } from 'react-router-dom';
 import { toOpportunityDetailRoute } from '../../app/routeConfig';
 import { DiscoveryListItem, PageHeader } from '../../components';
@@ -29,7 +29,7 @@ export default function OpportunitiesList() {
     }
 
     if (isLoading) {
-      // TODO: common skeleton here
+      return <ListSkeleton length={10} includeMargin />;
     }
     return items.map((item, index, list) => (
       <DiscoveryListItem

@@ -1,5 +1,5 @@
 import { Box, Button, Stack, useTheme } from '@mui/material';
-import { LabelCaption, WarningBanner } from '@pagopa/io-core-ui';
+import { LabelCaption, ListSkeleton, WarningBanner } from '@pagopa/io-core-ui';
 import {
   APP_ROUTES,
   toOpportunityDetailRoute,
@@ -34,7 +34,7 @@ const DiscoverySection = () => {
     }
 
     if (isLoading) {
-      // TODO: common skeleton here
+      return <ListSkeleton length={3} includeMargin={true} />;
     }
 
     return discoveryItems?.map((item, index, list) => (

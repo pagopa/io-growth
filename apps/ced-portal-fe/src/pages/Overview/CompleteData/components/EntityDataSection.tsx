@@ -137,7 +137,11 @@ export const EntityDataSection = ({
             title="Trascina qui il logo del tuo ente"
             subtitle={'Dimensione massima 300 x 300px - Formato .jpg o .png'}
           />
-          <Typography variant="body2" sx={{ ml: 4, color: 'error.dark' }}>
+          <Typography
+            variant="body2"
+            sx={{ ml: 4 }}
+            color="common.requiredField"
+          >
             * Campo obbligatorio
           </Typography>
         </Stack>

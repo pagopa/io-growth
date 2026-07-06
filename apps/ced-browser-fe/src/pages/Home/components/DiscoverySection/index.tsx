@@ -37,6 +37,10 @@ const DiscoverySection = () => {
       return <ListSkeleton length={3} includeMargin={true} />;
     }
 
+    if (!discoveryItems || discoveryItems.length === 0) {
+      return <WarningBanner title="Non ci sono opportunità da mostrare." />;
+    }
+
     return discoveryItems?.map((item, index, list) => (
       <DiscoveryListItem
         {...item}

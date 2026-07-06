@@ -31,6 +31,11 @@ export default function OpportunitiesList() {
     if (isLoading) {
       return <ListSkeleton length={10} includeMargin />;
     }
+
+    if (!items || items.length === 0) {
+      return <WarningBanner title="Non ci sono opportunità da mostrare." />;
+    }
+
     return items.map((item, index, list) => (
       <DiscoveryListItem
         key={`${item.id}-${index}`}

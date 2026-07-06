@@ -253,7 +253,12 @@ export default function EntityDetailPage() {
                   />
                   <Typography
                     variant="body2"
-                    sx={{ mt: 3, mb: 3, fontWeight: 600, color: 'error.dark' }}
+                    sx={{
+                      mt: 3,
+                      mb: 3,
+                      fontWeight: 600,
+                    }}
+                    color="common.requiredField"
                   >
                     * Campo obbligatorio
                   </Typography>

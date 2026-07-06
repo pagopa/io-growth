@@ -30,7 +30,7 @@ export const ContactRow = ({
   onChange,
   required,
   removeIcon,
-  removeIconSx = { color: '#D13333', p: 0 },
+  removeIconSx = { color: (theme) => theme.palette.common.requiredField, p: 0 },
 }: ContactRowProps) => {
   const { placeholder, type: inputType } = getContactInputConfig(contact.type);
 

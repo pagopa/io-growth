@@ -15,6 +15,7 @@ const ALERT_WARNING_BORDER = '#FFD56B';
 const ALERT_WARNING_TEXT = '#614C15';
 const ERROR_ICON_BG = '#5D1313';
 const TOAST_ERROR_BG = ERROR_ICON_BG;
+const REQUIRED_FIELD_COLOR = '#D13333';
 
 declare module '@mui/material/styles' {
   interface CommonColors {
@@ -31,6 +32,7 @@ declare module '@mui/material/styles' {
     alertWarningBorder: string;
     alertWarningText: string;
     toastError: string;
+    requiredField: string;
   }
 }
 
@@ -57,6 +59,7 @@ export const createAppTheme = () =>
         alertWarningText: ALERT_WARNING_TEXT,
         neutralDarkGray: APP_NEUTRAL_DARK_GRAY,
         toastError: TOAST_ERROR_BG,
+        requiredField: REQUIRED_FIELD_COLOR,
       },
     },
     components: {

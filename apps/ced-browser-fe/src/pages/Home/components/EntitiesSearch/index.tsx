@@ -31,11 +31,8 @@ export function EntitiesSearch({
   const navigate = useNavigate();
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const [recentSearches, setRecentSearches] = useState<PlaceSearchItem[]>(
-    () => {
-      const saved = localStorage.getItem('search_history');
-      return saved ? JSON.parse(saved) : [];
-    },
+  const [recentSearches, setRecentSearches] = useState<PlaceSearchItem[]>(() =>
+    JSON.parse(localStorage.getItem('search_history') || '[]'),
   );
 
   const [query, setQuery] = useState('');

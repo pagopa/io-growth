@@ -17,9 +17,16 @@ import { OpportunitySummaryItem } from '../../../core/api/generated/model/opport
 
 interface BenefitsTableProps {
   items: OpportunitySummaryItem[];
+  onDeleteOpportunity: (
+    id: string,
+    payload?: { reason: string; date: string },
+  ) => void;
 }
 
-export const BenefitsTable = ({ items }: BenefitsTableProps) => {
+export const BenefitsTable = ({
+  items,
+  onDeleteOpportunity,
+}: BenefitsTableProps) => {
   const theme = useTheme();
   const [menuAnchor, setMenuAnchor] = useState<null | HTMLElement>(null);
   const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
@@ -147,6 +154,7 @@ export const BenefitsTable = ({ items }: BenefitsTableProps) => {
         anchor={menuAnchor}
         selectedItemId={selectedItemId}
         handleMenuClose={handleMenuClose}
+        onDeleteOpportunity={onDeleteOpportunity}
       />
     </TableContainer>
   );

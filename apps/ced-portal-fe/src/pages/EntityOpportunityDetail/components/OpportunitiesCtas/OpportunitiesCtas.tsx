@@ -1,6 +1,7 @@
 import { Button, Stack } from '@mui/material';
 import { OpportunitiesCtaItem, OpportunitiesCtasProps } from './types';
 import { useGetCtasConfiguration } from './useGetCtasConfiguration';
+import { DeleteOpportunityModal } from '../../../Home/components/DeleteOpportunityModal';
 
 const CTA_BUTTON_SX = { fontWeight: 700, borderRadius: 2, px: 3 };
 
@@ -18,7 +19,7 @@ const renderCta = (cta: OpportunitiesCtaItem) => (
 );
 
 export const OpportunitiesCtas = ({ status, id }: OpportunitiesCtasProps) => {
-  const { ctasConfig } = useGetCtasConfiguration(id);
+  const { ctasConfig, deleteModal } = useGetCtasConfiguration(id);
 
   const layout = ctasConfig[status];
   const ctas = layout?.ctas;
@@ -63,6 +64,11 @@ export const OpportunitiesCtas = ({ status, id }: OpportunitiesCtasProps) => {
           {ctas?.map((cta) => renderCta(cta))}
         </Stack>
       )}
+      <DeleteOpportunityModal
+        open={deleteModal.open}
+        onClose={deleteModal.onClose}
+        onConfirm={deleteModal.onConfirm}
+      />
     </>
   );
 };

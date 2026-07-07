@@ -64,7 +64,7 @@ export const useOpportunitiesData = (filters: OpportunityFilters) => {
 
   const filteredItems = useMemo(
     () => items.filter((item) => matchesState(item, filters.state)),
-    [items, filters],
+    [filters.state, items],
   );
 
   const newItems = useMemo(
@@ -78,8 +78,12 @@ export const useOpportunitiesData = (filters: OpportunityFilters) => {
   );
 
   const inactiveItems = useMemo(
-    () => filteredItems.filter((item) => INACTIVE_STATES.has(item.status)),
-    [filteredItems],
+    () =>
+      items.filter(
+        (item) =>
+          matchesState(item, filters.state) && INACTIVE_STATES.has(item.status),
+      ),
+    [filters.state, items],
   );
 
   return {
@@ -96,23 +100,28 @@ export const useBenefitsData = (params: ListOperatorOpportunitiesParams) => {
     refetchOnMountOrArgChange: true,
   });
 
-  const items = useMemo(() => query.data?.items ?? [], [query.data]);
+  const items = useMemo<Opportunity[]>(
+    () => (query.data?.items ?? []) as Opportunity[],
+    [query.data],
+  );
 
-  const total = useMemo(() => query.data?.total ?? 0, [query.data]);
+  const visibleItems = useMemo<Opportunity[]>(() => items, [items]);
+
+  const total = useMemo(() => visibleItems.length, [visibleItems]);
 
   const inManagementItems = useMemo(
-    () => items.filter((item) => NEW_STATES.has(item.status)),
-    [items],
+    () => visibleItems.filter((item) => NEW_STATES.has(item.status)),
+    [visibleItems],
   );
 
   const approvedItems = useMemo(
-    () => items.filter((item) => APPROVED_STATES.has(item.status)),
-    [items],
+    () => visibleItems.filter((item) => APPROVED_STATES.has(item.status)),
+    [visibleItems],
   );
 
   return {
     ...query,
-    items,
+    items: visibleItems,
     inManagementItems,
     approvedItems,
     total,

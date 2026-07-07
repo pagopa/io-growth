@@ -1,4 +1,4 @@
-import { useCallback, useMemo } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { APP_ROUTES } from '../../../../app/routeConfig';
 import type { OpportunityStatus } from '../../../../features/opportunities/types';
@@ -7,11 +7,24 @@ import { OpportunitiesCtaItem, OpportunitiesCtasLayout } from './types';
 
 export const useGetCtasConfiguration = (id: string) => {
   const navigate = useNavigate();
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
   const handleDelete = useCallback(() => {
-    // TODO[IEG-2722][SCOPE - RELEASE IN OCTOBER]: call delete opportunity API with { id }.
-    navigate(APP_ROUTES.HOME);
-  }, [id, navigate]);
+    setIsDeleteModalOpen(true);
+  }, []);
+
+  const handleCloseDeleteModal = useCallback(() => {
+    setIsDeleteModalOpen(false);
+  }, []);
+
+  const handleConfirmDelete = useCallback(
+    (_payload: { reason: string; date: string }) => {
+      // TODO[IEG-2722][SCOPE - RELEASE IN OCTOBER]: call delete opportunity API with { id, payload }.
+      setIsDeleteModalOpen(false);
+      navigate(APP_ROUTES.HOME);
+    },
+    [navigate],
+  );
 
   const handleModify = useCallback(() => {
     navigate(APP_ROUTES.CREATE_BENEFIT, {
@@ -21,11 +34,11 @@ export const useGetCtasConfiguration = (id: string) => {
 
   const handleSuspension = useCallback(() => {
     // TODO[IEG-2721][SCOPE - RELEASE IN OCTOBER]: call suspend opportunity API with { id }.
-  }, [id]);
+  }, []);
 
   const handlePublication = useCallback(() => {
     // TODO[OUT OF MVP SCOPE]: call publish opportunity API with { id }.
-  }, [id]);
+  }, []);
 
   const actionsMap: Record<
     NonNullable<OpportunitiesCtaItem['actionId']>,
@@ -64,5 +77,12 @@ export const useGetCtasConfiguration = (id: string) => {
     [withActions],
   );
 
-  return { ctasConfig };
+  return {
+    ctasConfig,
+    deleteModal: {
+      open: isDeleteModalOpen,
+      onClose: handleCloseDeleteModal,
+      onConfirm: handleConfirmDelete,
+    },
+  };
 };

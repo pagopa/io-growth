@@ -16,6 +16,10 @@ interface BenefitsContentStateProps {
   items: OpportunitySummaryItem[];
   activeTab: number;
   onRetry: () => void;
+  onDeleteOpportunity: (
+    id: string,
+    payload?: { reason: string; date: string },
+  ) => void;
 }
 
 export function BenefitsContentState({
@@ -24,6 +28,7 @@ export function BenefitsContentState({
   items,
   activeTab,
   onRetry,
+  onDeleteOpportunity,
 }: BenefitsContentStateProps) {
   const theme = useTheme();
   const hasData = !isLoading && !isError && items.length > 0;
@@ -80,7 +85,9 @@ export function BenefitsContentState({
           </Typography>
         </Stack>
       );
-    return <BenefitsTable items={items} />;
+    return (
+      <BenefitsTable items={items} onDeleteOpportunity={onDeleteOpportunity} />
+    );
   };
 
   return (

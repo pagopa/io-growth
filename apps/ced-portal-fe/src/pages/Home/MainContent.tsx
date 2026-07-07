@@ -3,6 +3,7 @@ import { SyntheticEvent, useEffect, useState } from 'react';
 import { ResultsPagination } from '../../components';
 import { useGetOpportunityCategoriesQuery } from '../../features/opportunities/api';
 import { useBenefitsData } from '../../features/opportunities/hooks';
+import { useToast } from '../../contexts';
 import { BenefitsContentState } from './components/BenefitsContentState';
 import { BenefitsFiltersBar } from './components/BenefitsFiltersBar';
 import { BenefitsTabs } from './components/BenefitsTabs';
@@ -22,6 +23,7 @@ const INITIAL_FILTERS = {
 
 export const MainContent = () => {
   const theme = useTheme();
+  const { showToast } = useToast();
 
   const { tab, page, limit, filters, updateParams } =
     useMemorizedTabsAndFilters<typeof INITIAL_FILTERS>(INITIAL_FILTERS, 20);
@@ -75,6 +77,13 @@ export const MainContent = () => {
     updateParams({ search: '', categoryId: '', status: '', page: 0 });
   };
 
+  const handleDeleteOpportunity = (
+    _id: string,
+    _payload?: { reason: string; date: string },
+  ) => {
+    showToast('Opportunità cancellata con successo', 'success');
+  };
+
   const displayedItems = tab === 0 ? inManagementItems : approvedItems;
   const filterForDisplayedItems =
     tab === 0 ? OPERATOR_REQUEST_STATE_OPTIONS : OPERATOR_MANAGED_STATE_OPTIONS;
@@ -108,6 +117,7 @@ export const MainContent = () => {
             items={displayedItems}
             activeTab={tab}
             onRetry={refetch}
+            onDeleteOpportunity={handleDeleteOpportunity}
           />
           {showPagination ? (
             <Box sx={{ px: { xs: 1, md: 0 }, pt: 2 }}>

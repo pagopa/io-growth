@@ -1,22 +1,29 @@
 import CancelRoundedIcon from '@mui/icons-material/CancelRounded';
 import { Menu, MenuItem, useTheme } from '@mui/material';
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
 import { generatePath, useNavigate } from 'react-router-dom';
 import { APP_ROUTES } from '../../../app/routeConfig';
+import { DeleteOpportunityModal } from './DeleteOpportunityModal';
 
 type ActionsMenuProps = {
   anchor: null | HTMLElement;
   selectedItemId: string | null;
   handleMenuClose: () => void;
+  onDeleteOpportunity: (
+    id: string,
+    payload?: { reason: string; date: string },
+  ) => void;
 };
 
 export const ActionsMenu = ({
   anchor,
   selectedItemId,
   handleMenuClose,
+  onDeleteOpportunity,
 }: ActionsMenuProps) => {
   const theme = useTheme();
   const navigate = useNavigate();
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
   const menuItemsSx = {
     color: theme.palette.common.primaryButton,
@@ -41,9 +48,33 @@ export const ActionsMenu = ({
   // TODO[IEG-2721][SCOPE - RELEASE IN OCTOBER]: call suspend opportunity API with { id }.
   // };
 
-  // const onDelete = async (id: string) => {
-  // TODO[IEG-2722][SCOPE - RELEASE IN OCTOBER]: call delete opportunity API with { id }.
-  // };
+  const handleDelete = useCallback(() => {
+    if (!selectedItemId) {
+      handleMenuClose();
+      return;
+    }
+
+    setIsDeleteModalOpen(true);
+    handleMenuClose();
+  }, [handleMenuClose, selectedItemId]);
+
+  const handleCloseDeleteModal = useCallback(() => {
+    setIsDeleteModalOpen(false);
+  }, []);
+
+  const handleConfirmDelete = useCallback(
+    (payload: { reason: string; date: string }) => {
+      if (!selectedItemId) {
+        handleCloseDeleteModal();
+        return;
+      }
+
+      onDeleteOpportunity(selectedItemId, payload);
+      handleCloseDeleteModal();
+      navigate(APP_ROUTES.HOME);
+    },
+    [handleCloseDeleteModal, navigate, onDeleteOpportunity, selectedItemId],
+  );
 
   const handleAction = useCallback(
     (cb?: (id: string) => void) => {
@@ -56,42 +87,49 @@ export const ActionsMenu = ({
   );
 
   return (
-    <Menu
-      anchorEl={anchor}
-      open={Boolean(anchor)}
-      onClose={handleMenuClose}
-      PaperProps={{
-        sx: {
-          minWidth: 220,
-          borderRadius: 2,
-          boxShadow: '0 6px 20px rgba(24, 39, 75, 0.18)',
-        },
-      }}
-    >
-      <MenuItem
-        onClick={() => {
-          handleAction(onView);
+    <>
+      <Menu
+        anchorEl={anchor}
+        open={Boolean(anchor)}
+        onClose={handleMenuClose}
+        PaperProps={{
+          sx: {
+            minWidth: 220,
+            borderRadius: 2,
+            boxShadow: '0 6px 20px rgba(24, 39, 75, 0.18)',
+          },
         }}
-        sx={menuItemsSx}
       >
-        Visualizza
-      </MenuItem>
-      <MenuItem onClick={() => handleAction(onDuplicate)} sx={menuItemsSx}>
-        Duplica
-      </MenuItem>
-      <MenuItem onClick={() => handleAction(onEdit)} sx={menuItemsSx}>
-        Modifica
-      </MenuItem>
-      <MenuItem onClick={() => handleAction(() => null)} sx={menuItemsSx}>
-        Sospendi
-      </MenuItem>
-      <MenuItem
-        onClick={() => handleAction(() => null)}
-        sx={{ color: theme.palette.error.main, gap: 1 }}
-      >
-        <CancelRoundedIcon sx={{ fontSize: 18 }} />
-        Elimina
-      </MenuItem>
-    </Menu>
+        <MenuItem
+          onClick={() => {
+            handleAction(onView);
+          }}
+          sx={menuItemsSx}
+        >
+          Visualizza
+        </MenuItem>
+        <MenuItem onClick={() => handleAction(onDuplicate)} sx={menuItemsSx}>
+          Duplica
+        </MenuItem>
+        <MenuItem onClick={() => handleAction(onEdit)} sx={menuItemsSx}>
+          Modifica
+        </MenuItem>
+        <MenuItem onClick={() => handleAction(() => null)} sx={menuItemsSx}>
+          Sospendi
+        </MenuItem>
+        <MenuItem
+          onClick={handleDelete}
+          sx={{ color: theme.palette.error.main, gap: 1 }}
+        >
+          <CancelRoundedIcon sx={{ fontSize: 18 }} />
+          Elimina
+        </MenuItem>
+      </Menu>
+      <DeleteOpportunityModal
+        open={isDeleteModalOpen}
+        onClose={handleCloseDeleteModal}
+        onConfirm={handleConfirmDelete}
+      />
+    </>
   );
 };

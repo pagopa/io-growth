@@ -102,6 +102,20 @@ export const opportunitiesApi = baseApi.injectEndpoints({
         'Opportunities',
       ],
     }),
+    deleteOpportunity: builder.mutation<
+      void,
+      { id: string; payload?: { reason: string; date: string } }
+    >({
+      query: ({ id, payload }) => ({
+        url: `/operator/opportunities/${id}`,
+        method: 'DELETE',
+        body: payload,
+      }),
+      invalidatesTags: (_result, _error, { id }) => [
+        { type: 'Opportunities', id },
+        'Opportunities',
+      ],
+    }),
   }),
 });
 
@@ -114,4 +128,5 @@ export const {
   useCreateOpportunityMutation,
   useRequestApprovalMutation,
   useApproveOpportunityMutation,
+  useDeleteOpportunityMutation,
 } = opportunitiesApi;

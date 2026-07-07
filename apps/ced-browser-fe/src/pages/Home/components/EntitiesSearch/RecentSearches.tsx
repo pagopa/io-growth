@@ -12,16 +12,14 @@ type RecentSearchesProps = {
   items: PlaceSearchItem[];
   onItemPress: (accessPointId: string) => void;
   onRemoveSearchElement: (accessPointId: string) => void;
+  onResetHistory?: () => void;
 };
 export const RecentSearches = ({
   items,
   onItemPress,
   onRemoveSearchElement,
+  onResetHistory,
 }: RecentSearchesProps) => {
-  const handleRemoveAll = useCallback(() => {
-    localStorage.removeItem('search_history');
-  }, []);
-
   if (items.length === 0) {
     return null;
   }
@@ -35,7 +33,7 @@ export const RecentSearches = ({
         <Button
           variant="text"
           sx={{ color: theme.palette.common.primaryButton, pr: 1 }}
-          onClick={handleRemoveAll}
+          onClick={onResetHistory}
         >
           Cancella tutto
         </Button>

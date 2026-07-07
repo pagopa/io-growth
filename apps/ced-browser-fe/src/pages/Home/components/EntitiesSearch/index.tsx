@@ -103,6 +103,12 @@ export function EntitiesSearch({
     [recentSearches, setIsSearchActive],
   );
 
+  const handleResetSearchHistory = useCallback(() => {
+    setRecentSearches([]);
+    localStorage.setItem('search_history', JSON.stringify([]));
+    inputRef.current?.focus();
+  }, []);
+
   const onBlur = useCallback(() => {
     if (!query && recentSearches.length === 0) {
       setIsSearchActive(false);
@@ -128,6 +134,7 @@ export function EntitiesSearch({
         <RecentSearches
           items={recentSearches}
           onItemPress={handleItemPress}
+          onResetHistory={handleResetSearchHistory}
           onRemoveSearchElement={handleRemoveSearch}
         />
       );

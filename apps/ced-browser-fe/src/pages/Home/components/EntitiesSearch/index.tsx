@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import {
   Box,
   Button,
@@ -16,6 +16,8 @@ import { SearchResultsSkeleton } from './SearchResultsSkeleton';
 import { useDebounce } from '../../../../hooks/useDebounce';
 import { APP_ROUTES } from '../../../../app/routeConfig';
 import { useSearchPlacesQuery } from '../../../../features/places/api';
+import { PlaceSearchItem } from '../../../../core/api/generated/model';
+import { RecentSearches } from './RecentSearches';
 
 type EntitiesSearchProps = {
   isSearchActive: boolean;
@@ -28,6 +30,13 @@ export function EntitiesSearch({
 }: EntitiesSearchProps) {
   const navigate = useNavigate();
   const inputRef = useRef<HTMLInputElement>(null);
+
+  const [recentSearches, setRecentSearches] = useState<PlaceSearchItem[]>(
+    () => {
+      const saved = localStorage.getItem('search_history');
+      return saved ? JSON.parse(saved) : [];
+    },
+  );
 
   const [query, setQuery] = useState('');
   const debouncedQuery = useDebounce(query, 500);
@@ -52,6 +61,54 @@ export function EntitiesSearch({
     inputRef.current?.blur();
   };
 
+  const handleItemPress = useCallback(
+    (accessPointId: string) => {
+      const selectedItem = data?.items.find(
+        (item) => item.id === accessPointId,
+      );
+      if (selectedItem) {
+        const updatedRecentSearches = [
+          selectedItem,
+          ...recentSearches.filter((item) => item.id !== accessPointId),
+        ].slice(0, 5);
+        setRecentSearches(updatedRecentSearches);
+        localStorage.setItem(
+          'search_history',
+          JSON.stringify(updatedRecentSearches),
+        );
+      }
+      navigate(
+        generatePath(APP_ROUTES.ENTITY_ACCESS_POINT_DETAIL, {
+          accessPointId,
+        }),
+      );
+    },
+    [data?.items, navigate, recentSearches],
+  );
+
+  const handleRemoveSearch = useCallback(
+    (idToRemove: string) => {
+      const updatedSearches = recentSearches.filter(
+        (item) => item.id !== idToRemove,
+      );
+      setRecentSearches(updatedSearches);
+      localStorage.setItem('search_history', JSON.stringify(updatedSearches));
+
+      // If we've removed the last recent search, refocus the search input
+      if (updatedSearches.length === 0) {
+        setIsSearchActive(true);
+        inputRef.current?.focus();
+      }
+    },
+    [recentSearches, setIsSearchActive],
+  );
+
+  const onBlur = useCallback(() => {
+    if (!query && recentSearches.length === 0) {
+      setIsSearchActive(false);
+    }
+  }, [query, recentSearches, setIsSearchActive]);
+
   const renderPanel = () => {
     if (!isSearchActive) return null;
 
@@ -62,16 +119,18 @@ export function EntitiesSearch({
           total={data.total}
           items={data.items}
           query={debouncedQuery}
-          onItemPress={(accessPointId) =>
-            navigate(
-              generatePath(APP_ROUTES.ENTITY_ACCESS_POINT_DETAIL, {
-                accessPointId,
-              }),
-            )
-          }
+          onItemPress={handleItemPress}
         />
       );
     }
+    if (recentSearches.length > 0 && !hasMinQueryLength)
+      return (
+        <RecentSearches
+          items={recentSearches}
+          onItemPress={handleItemPress}
+          onRemoveSearchElement={handleRemoveSearch}
+        />
+      );
     if (showInitialState) return <SearchInitialState />;
     if (showEmpty) return <SearchEmptyState />;
 
@@ -92,11 +151,7 @@ export function EntitiesSearch({
           value={query}
           onChange={(event) => setQuery(event.target.value)}
           onFocus={() => setIsSearchActive(true)}
-          onBlur={() => {
-            if (!query) {
-              setIsSearchActive(false);
-            }
-          }}
+          onBlur={onBlur}
           label="Cerca per città, struttura o ente"
           variant="outlined"
           fullWidth

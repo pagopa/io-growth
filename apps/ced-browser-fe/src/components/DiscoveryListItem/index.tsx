@@ -1,4 +1,6 @@
 import ChevronRightRoundedIcon from '@mui/icons-material/ChevronRightRounded';
+import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
+
 import { Box, ButtonBase, Divider, Stack, useTheme } from '@mui/material';
 import { Body } from '@pagopa/io-core-ui';
 import type {
@@ -62,8 +64,17 @@ function SimpleContent({ title, subtitle }: SimpleProps) {
 }
 
 export function DiscoveryListItem(props: DiscoveryListItemProps) {
-  const { onClick, disabled = false, sx } = props;
+  const { onClick, disabled = false, sx, deleteAction } = props;
 
+  const handleIconClick = (event: React.MouseEvent) => {
+    if (deleteAction) {
+      event.stopPropagation();
+      deleteAction();
+    }
+    return null;
+  };
+
+  const Icon = deleteAction ? CloseRoundedIcon : ChevronRightRoundedIcon;
   return (
     <ButtonBase
       onClick={onClick}
@@ -97,7 +108,7 @@ export function DiscoveryListItem(props: DiscoveryListItemProps) {
             flexShrink: 0,
           }}
         >
-          <ChevronRightRoundedIcon sx={{ fontSize: 24 }} />
+          <Icon sx={{ fontSize: 24, zIndex: 1 }} onClick={handleIconClick} />
         </Box>
       </Stack>
       {props.divider && <Divider sx={{ mt: 3 }} />}

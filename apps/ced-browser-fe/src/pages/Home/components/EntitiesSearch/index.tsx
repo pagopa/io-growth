@@ -1,4 +1,5 @@
-import { useCallback, useRef, useState } from 'react';
+import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
+import SearchRoundedIcon from '@mui/icons-material/SearchRounded';
 import {
   Box,
   Button,
@@ -6,16 +7,15 @@ import {
   InputAdornment,
   TextField,
 } from '@mui/material';
-import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
-import SearchRoundedIcon from '@mui/icons-material/SearchRounded';
+import { useRef, useState, useCallback } from 'react';
 import { generatePath, useNavigate } from 'react-router-dom';
+import { APP_ROUTES } from '../../../../app/routeConfig';
+import { useSearchPlacesQuery } from '../../../../features/places/api';
+import { useDebounce } from '../../../../hooks/useDebounce';
 import { SearchEmptyState } from './SearchEmptyState';
 import { SearchInitialState } from './SearchInitialState';
 import { SearchResults } from './SearchResults';
 import { SearchResultsSkeleton } from './SearchResultsSkeleton';
-import { useDebounce } from '../../../../hooks/useDebounce';
-import { APP_ROUTES } from '../../../../app/routeConfig';
-import { useSearchPlacesQuery } from '../../../../features/places/api';
 import { PlaceSearchItem } from '../../../../core/api/generated/model';
 import { RecentSearches } from './RecentSearches';
 
@@ -27,7 +27,7 @@ type EntitiesSearchProps = {
 export function EntitiesSearch({
   isSearchActive,
   setIsSearchActive,
-}: EntitiesSearchProps) {
+}: Readonly<EntitiesSearchProps>) {
   const navigate = useNavigate();
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -40,19 +40,14 @@ export function EntitiesSearch({
 
   const [query, setQuery] = useState('');
   const debouncedQuery = useDebounce(query, 500);
+  const trimmedQuery = query.trim();
+  const hasMinInputLength = trimmedQuery.length >= 3;
+  const shouldRunSearch = isSearchActive && debouncedQuery.trim().length >= 3;
 
-  const hasMinQueryLength = query.length >= 3;
-  const isDebouncing = query !== debouncedQuery;
-
-  const { data, isFetching } = useSearchPlacesQuery(debouncedQuery, {
-    skip: !hasMinQueryLength,
-  });
-
-  const isLoading = hasMinQueryLength && (isDebouncing || isFetching);
-  const hasResults = hasMinQueryLength && !!data?.items.length;
-  const showResults = !isLoading && hasResults;
-  const showInitialState = isSearchActive && !hasMinQueryLength;
-  const showEmpty = !isLoading && hasMinQueryLength && !hasResults;
+  const { data, isFetching, isError, isSuccess, isUninitialized, refetch } =
+    useSearchPlacesQuery(debouncedQuery, {
+      skip: !shouldRunSearch,
+    });
   const showClearButton = isSearchActive || query.length > 0;
 
   const handleCancel = () => {
@@ -117,19 +112,7 @@ export function EntitiesSearch({
 
   const renderPanel = () => {
     if (!isSearchActive) return null;
-
-    if (isLoading) return <SearchResultsSkeleton />;
-    if (showResults) {
-      return (
-        <SearchResults
-          total={data.total}
-          items={data.items}
-          query={debouncedQuery}
-          onItemPress={handleItemPress}
-        />
-      );
-    }
-    if (recentSearches.length > 0 && !hasMinQueryLength)
+    if (recentSearches.length > 0 && !hasMinInputLength)
       return (
         <RecentSearches
           items={recentSearches}
@@ -138,10 +121,24 @@ export function EntitiesSearch({
           onRemoveSearchElement={handleRemoveSearch}
         />
       );
-    if (showInitialState) return <SearchInitialState />;
-    if (showEmpty) return <SearchEmptyState />;
+    if (!hasMinInputLength || isUninitialized) return <SearchInitialState />;
 
-    return null;
+    if (isFetching) return <SearchResultsSkeleton />;
+
+    if (isSuccess && data) {
+      if (data.items.length === 0) return <SearchEmptyState />;
+    }
+
+    return (
+      <SearchResults
+        isError={isError}
+        onRetry={() => void refetch()}
+        total={data?.total}
+        items={data?.items}
+        query={debouncedQuery}
+        onItemPress={handleItemPress}
+      />
+    );
   };
   return (
     <Box>

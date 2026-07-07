@@ -4,7 +4,6 @@ import { Box, Button, Divider, Stack } from '@mui/material';
 import { DiscoveryListItem } from '../../../../components';
 import { formatAddress } from '../../../../utils/formatAddress';
 import { PlaceSearchItem } from '../../../../core/api/generated/model';
-import { useCallback } from 'react';
 import { LabelCaption } from '@pagopa/io-core-ui';
 import { theme } from '../../../../core/theme';
 

@@ -4,11 +4,14 @@ import { DiscoveryListItem, PageHeader, QueryGuard } from '../../components';
 import { toOpportunityDetailRoute } from '../../app/routeConfig';
 import { useGetEntityDetailQuery } from '../../features/entities/api';
 import { formatBadgeLabel } from '../../utils';
+import { PageErrorType } from '../../components/QueryGuard/ErrorScreen/types';
 
 export default function EntityOpportunitiesPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { data, isLoading, isError, error } = useGetEntityDetailQuery(id ?? '');
+  const { data, isLoading, isError, error, refetch } = useGetEntityDetailQuery(
+    id ?? '',
+  );
 
   return (
     <QueryGuard
@@ -16,7 +19,11 @@ export default function EntityOpportunitiesPage() {
       isError={isError}
       error={error}
       data={data}
-      errorMessage="Impossibile caricare i dati dell'ente."
+      errorType={PageErrorType.ENTITY_NOT_FOUND}
+      firstAction={{
+        label: 'Riprova',
+        onClick: () => refetch(),
+      }}
     >
       {(resolvedData) => (
         <Box

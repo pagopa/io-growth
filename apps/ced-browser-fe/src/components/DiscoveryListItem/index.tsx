@@ -64,17 +64,17 @@ function SimpleContent({ title, subtitle }: SimpleProps) {
 }
 
 export function DiscoveryListItem(props: DiscoveryListItemProps) {
-  const { onClick, disabled = false, sx, deleteAction } = props;
+  const { onClick, disabled = false, sx, onDelete } = props;
 
   const handleIconClick = (event: React.MouseEvent) => {
-    if (deleteAction) {
+    if (onDelete) {
       event.stopPropagation();
-      deleteAction();
+      onDelete();
     }
     return null;
   };
 
-  const Icon = deleteAction ? CloseRoundedIcon : ChevronRightRoundedIcon;
+  const Icon = onDelete ? CloseRoundedIcon : ChevronRightRoundedIcon;
   return (
     <ButtonBase
       onClick={onClick}

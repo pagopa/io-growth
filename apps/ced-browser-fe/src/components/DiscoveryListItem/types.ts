@@ -9,7 +9,7 @@ type DiscoveryListItemBaseProps = {
   disabled?: boolean;
   sx?: SxProps<Theme>;
   divider?: boolean;
-  deleteAction?: () => void;
+  onDelete?: () => void;
 };
 
 type VariantMap = {

@@ -41,14 +41,14 @@ export const RecentSearches = ({
         <Box key={item.id}>
           {i > 0 ? <Divider /> : null}
           <Box display="flex" alignItems="center">
-            <HistoryIcon sx={{ color: theme.palette.grey[300] }} />
+            <HistoryIcon sx={{ color: theme.palette.common.decorativeIcon }} />
             <DiscoveryListItem
               variant="simple"
               title={item.name}
-              subtitle={formatAddress(item.address) || item.url || ''}
+              subtitle={formatAddress(item.address) || item.url}
               onClick={() => onItemPress(item.id)}
               sx={{ bgcolor: 'white', px: 0 }}
-              deleteAction={() => onRemoveSearchElement(item.id)}
+              onDelete={() => onRemoveSearchElement(item.id)}
             />
           </Box>
         </Box>

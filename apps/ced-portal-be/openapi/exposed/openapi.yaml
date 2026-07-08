@@ -541,7 +541,7 @@ paths:
                 $ref: "#/components/schemas/ErrorResponse"
               example:
                 statusCode: 400
-                message: A deletion reason is required to delete a suspended opportunity
+                message: "Validation error: A deletion reason is required to delete a suspended opportunity"
         "401":
           description: Invalid or missing JWT
           content:
@@ -591,12 +591,12 @@ paths:
                   summary: Published or scheduled opportunity
                   value:
                     statusCode: 412
-                    message: Opportunity must be suspended before deletion
+                    message: "Precondition failed: Opportunity must be suspended before deletion"
                 underReview:
                   summary: Opportunity under review
                   value:
                     statusCode: 412
-                    message: Opportunity cannot be deleted while under review
+                    message: "Precondition failed: Opportunity cannot be deleted while under review"
   /operator/opportunities:
     get:
       tags:

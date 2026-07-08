@@ -1,3 +1,4 @@
+import { ok } from "neverthrow";
 import { describe, expect, it } from "vitest";
 
 import {
@@ -115,13 +116,17 @@ describe("mapOpportunityDetailRow", () => {
       status: "deleted",
     });
 
-    expect(result._unsafeUnwrap().deletionMessage).toBe("Iniziativa terminata");
+    expect(result).toEqual(
+      ok(expect.objectContaining({ deletionMessage: "Iniziativa terminata" })),
+    );
   });
 
   it("should default the deletion message to null when absent", () => {
     const result = mapOpportunityDetailRow(baseRow);
 
-    expect(result._unsafeUnwrap().deletionMessage).toBeNull();
+    expect(result).toEqual(
+      ok(expect.objectContaining({ deletionMessage: null })),
+    );
   });
 
   it("should keep an already effective published detail as published", () => {

@@ -32,7 +32,7 @@ export function EntitiesSearch({
   const inputRef = useRef<HTMLInputElement>(null);
 
   const [recentSearches, setRecentSearches] = useState<PlaceSearchItem[]>(() =>
-    JSON.parse(localStorage.getItem('search_history') || '[]'),
+    JSON.parse(sessionStorage.getItem('search_history') || '[]'),
   );
 
   const [query, setQuery] = useState('');
@@ -64,7 +64,7 @@ export function EntitiesSearch({
           ...recentSearches.filter((item) => item.id !== accessPointId),
         ].slice(0, 5);
         setRecentSearches(updatedRecentSearches);
-        localStorage.setItem(
+        sessionStorage.setItem(
           'search_history',
           JSON.stringify(updatedRecentSearches),
         );
@@ -84,7 +84,7 @@ export function EntitiesSearch({
         (item) => item.id !== idToRemove,
       );
       setRecentSearches(updatedSearches);
-      localStorage.setItem('search_history', JSON.stringify(updatedSearches));
+      sessionStorage.setItem('search_history', JSON.stringify(updatedSearches));
 
       // If we've removed the last recent search, refocus the search input
       if (updatedSearches.length === 0) {
@@ -97,7 +97,7 @@ export function EntitiesSearch({
 
   const handleResetSearchHistory = useCallback(() => {
     setRecentSearches([]);
-    localStorage.setItem('search_history', JSON.stringify([]));
+    sessionStorage.setItem('search_history', JSON.stringify([]));
     inputRef.current?.focus();
   }, []);
 

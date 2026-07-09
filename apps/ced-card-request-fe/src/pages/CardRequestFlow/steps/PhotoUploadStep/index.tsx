@@ -225,7 +225,6 @@ export const PhotoUploadStep = forwardRef<StepRef, PhotoUploadProps>(
                 width: 148,
                 aspectRatio: '3/4',
                 borderRadius: 1,
-                // objectFit: 'cover',
               }}
             />
             <Button

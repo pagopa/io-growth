@@ -7,12 +7,16 @@ import {
   Title,
   VSpacer,
 } from '@pagopa/io-core-ui';
-import imageCompression from 'browser-image-compression';
 import { forwardRef, useImperativeHandle, useState } from 'react';
 import { MarkdownRenderer } from '../../../../components/Typography/MarkdownRender';
 import { StepCard } from '../../StepCard';
 import type { StepRef } from '../../types';
 import { PhotoGuidelinesModal } from './PhotoGuidelinesModal';
+import {
+  isAllowedPhotoType,
+  compressPhotoFile,
+  processCenterCrop,
+} from './utils';
 
 type UploadState = 'idle' | 'loading' | 'preview';
 
@@ -26,95 +30,19 @@ const markdownContent = `L'immagine deve:
 - avere sfondo neutro.
 `;
 
-const TARGET_WIDTH = 381;
-const TARGET_HEIGHT = 507;
-
-const processCenterCrop = (file: File): Promise<File> => {
-  return new Promise((resolve, reject) => {
-    const img = new Image();
-    img.src = URL.createObjectURL(file);
-
-    img.onload = () => {
-      URL.revokeObjectURL(img.src);
-
-      const canvas = document.createElement('canvas');
-      canvas.width = TARGET_WIDTH;
-      canvas.height = TARGET_HEIGHT;
-      const ctx = canvas.getContext('2d');
-
-      if (!ctx) {
-        reject(new Error('Impossibile inizializzare il contesto Canvas 2D'));
-        return;
-      }
-
-      const sourceAspectRatio = img.width / img.height;
-      const targetAspectRatio = TARGET_WIDTH / TARGET_HEIGHT;
-
-      let sourceX = 0;
-      let sourceY = 0;
-      let sourceWidth = img.width;
-      let sourceHeight = img.height;
-
-      if (sourceAspectRatio > targetAspectRatio) {
-        sourceWidth = img.height * targetAspectRatio;
-        sourceX = (img.width - sourceWidth) / 2;
-      } else if (sourceAspectRatio < targetAspectRatio) {
-        sourceHeight = img.width / targetAspectRatio;
-        sourceY = (img.height - sourceHeight) / 2;
-      }
-
-      ctx.drawImage(
-        img,
-        sourceX,
-        sourceY,
-        sourceWidth,
-        sourceHeight,
-        0,
-        0,
-        TARGET_WIDTH,
-        TARGET_HEIGHT,
-      );
-
-      canvas.toBlob(
-        (blob) => {
-          if (blob) {
-            const croppedFile = new File([blob], 'processed_user_photo.jpg', {
-              type: 'image/jpeg',
-              lastModified: Date.now(),
-            });
-            resolve(croppedFile);
-          } else {
-            reject(
-              new Error('Errore durante la generazione del Blob dal Canvas'),
-            );
-          }
-        },
-        'image/jpeg',
-        0.85,
-      );
-    };
-
-    img.onerror = () => {
-      reject(
-        new Error("Errore durante il caricamento dell'immagine in memoria"),
-      );
-    };
-  });
-};
-
 export const PhotoUploadStep = forwardRef<StepRef, PhotoUploadProps>(
   function PhotoUploadStep({ onPhotoPreviewChange }, ref) {
     const theme = useTheme();
     const [photo, setPhoto] = useState<File | null>(null);
     const [preview, setPreview] = useState<string | null>(null);
-    const [error, setError] = useState(false);
+    const [error, setError] = useState<string | boolean>(false);
     const [uploadState, setUploadState] = useState<UploadState>('idle');
     const [guidelinesOpen, setGuidelinesOpen] = useState(false);
 
     useImperativeHandle(ref, () => ({
       validate() {
         if (!photo) {
-          setError(true);
+          setError('È necessario caricare una foto per procedere');
           return false;
         }
         return true;
@@ -128,41 +56,39 @@ export const PhotoUploadStep = forwardRef<StepRef, PhotoUploadProps>(
       setError(false);
       setUploadState('loading');
 
-      const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png'];
-      if (!allowedTypes.includes(file.type)) {
-        setError(true);
+      if (!isAllowedPhotoType(file.type)) {
+        setError('Formato file non valido. Carica un file JPG, JPEG o PNG.');
         setUploadState('idle');
         return;
       }
 
       try {
-        const compressionOptions = {
-          maxSizeMB: 1.5,
-          maxWidthOrHeight: 1024,
-          useWebWorker: true,
-        };
-        const compressedBaseFile = await imageCompression(
-          file,
-          compressionOptions,
-        );
-
+        const compressedBaseFile = await compressPhotoFile(file);
         const finalProcessedFile = await processCenterCrop(compressedBaseFile);
+
         const imgVerifica = new Image();
         imgVerifica.src = URL.createObjectURL(finalProcessedFile);
 
         imgVerifica.onload = () => {
-          //TODO | START ----------------------------------------------------
-          //TODO | TEST-PURPOSE | POP-UP visible to verify the dimensions and weight of the processed image | remove in production
+          /**
+           * TODO | START ----------------------------------------------------
+           * TEST-PURPOSE
+           * POP-UP visible to verify the dimensions and weight of the processed image
+           * remove in production
+           */
           alert(
             `[FOTO ELABORATA]\n` +
               `Risoluzione: ${imgVerifica.width} x ${imgVerifica.height} px\n` +
               `Peso: ${(finalProcessedFile.size / 1024).toFixed(2)} KB\n` +
               `Formato: ${finalProcessedFile.type}`,
           );
-
+          //TODO | END ---------------------------------------------------------
           URL.revokeObjectURL(imgVerifica.src);
         };
-        //TODO | END ---------------------------------------------------------
+
+        imgVerifica.onerror = () => {
+          URL.revokeObjectURL(imgVerifica.src);
+        };
 
         const url = URL.createObjectURL(finalProcessedFile);
 
@@ -172,7 +98,9 @@ export const PhotoUploadStep = forwardRef<StepRef, PhotoUploadProps>(
         setUploadState('preview');
       } catch (err) {
         console.error("Errore durante l'elaborazione dell'immagine:", err);
-        setError(true);
+        setError(
+          "Si è verificato un errore durante l'elaborazione della foto.",
+        );
         setUploadState('idle');
       }
     };
@@ -297,7 +225,11 @@ export const PhotoUploadStep = forwardRef<StepRef, PhotoUploadProps>(
           </Button>
         </Box>
 
-        {error && <ErrorBody fontSize="14px">{error}</ErrorBody>}
+        {error && (
+          <ErrorBody fontSize="14px">
+            {typeof error === 'string' ? error : 'Errore nel caricamento'}
+          </ErrorBody>
+        )}
       </StepCard>
     );
   },

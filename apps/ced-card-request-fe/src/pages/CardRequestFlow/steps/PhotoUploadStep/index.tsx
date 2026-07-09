@@ -152,7 +152,7 @@ export const PhotoUploadStep = forwardRef<StepRef, PhotoUploadProps>(
 
         imgVerifica.onload = () => {
           //TODO | START ----------------------------------------------------
-          //TODO | TEST-PURPOSE | POP-UP VISIBILE per verificare le dimensioni e il peso dell'immagine elaborata | rimuovere in produzione
+          //TODO | TEST-PURPOSE | POP-UP visible to verify the dimensions and weight of the processed image | remove in production
           alert(
             `[FOTO ELABORATA]\n` +
               `Risoluzione: ${imgVerifica.width} x ${imgVerifica.height} px\n` +

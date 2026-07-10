@@ -525,15 +525,16 @@ paths:
                   minLength: 1
                   maxLength: 4096
                   description: >-
-                    Reason for deletion. Required only when the opportunity is
-                    in "suspended" status. Leading/trailing whitespace is
-                    trimmed; must be non-empty once trimmed.
+                    Reason for deletion. Required for every deletable status
+                    except "draft" (i.e. required for test_rejected, scheduled
+                    and suspended). Leading/trailing whitespace is trimmed; must
+                    be non-empty once trimmed.
       responses:
         "204":
           description: Opportunity deleted successfully
         "400":
           description: >-
-            Invalid payload, or deletion reason missing for a suspended
+            Invalid payload, or deletion reason missing for a non-draft
             opportunity
           content:
             application/json:
@@ -541,7 +542,7 @@ paths:
                 $ref: "#/components/schemas/ErrorResponse"
               example:
                 statusCode: 400
-                message: "Validation error: A deletion reason is required to delete a suspended opportunity"
+                message: "Validation error: A deletion reason is required to delete this opportunity"
         "401":
           description: Invalid or missing JWT
           content:
@@ -580,15 +581,16 @@ paths:
                 message: Opportunity status was modified concurrently
         "412":
           description: >-
-            The opportunity is in a status that cannot be deleted (e.g.
-            published/scheduled must be suspended first, or under review)
+            The opportunity is in a status that cannot be deleted (an
+            already-effective published opportunity must be suspended first, or
+            it is under review)
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
               examples:
                 mustBeSuspended:
-                  summary: Published or scheduled opportunity
+                  summary: Already-effective published opportunity
                   value:
                     statusCode: 412
                     message: "Precondition failed: Opportunity must be suspended before deletion"

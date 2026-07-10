@@ -40,26 +40,41 @@ export type DeleteOpportunityUseCase = UseCase<
   | ValidationError
 >;
 
-// Statuses an operator is allowed to delete an opportunity from. This list is
-// also passed as the expected-status guard to the repository, so it must only
-// contain persisted statuses (never the derived "scheduled" display status).
-const deletableStatuses: Opportunity["status"][] = [
+// Display (post-derivation) statuses an operator is allowed to delete from.
+// "scheduled" is a published opportunity whose dateFrom is still in the future
+// (not yet live): it can be deleted directly. An already-effective "published"
+// opportunity (dateFrom <= today) must be suspended first, so it is NOT here.
+const deletableDisplayStatuses: OpportunityDetail["status"][] = [
   "draft",
+  "scheduled",
+  "suspended",
+  "test_rejected",
+];
+
+// Persisted statuses passed as the optimistic-concurrency guard to the repo.
+// "scheduled" is not a stored value (it is a "published" row with a future
+// dateFrom), so the guard uses "published" instead. The use-case precondition
+// above (on the derived status) is what blocks already-effective published
+// opportunities from reaching the repository.
+const deletablePersistedStatuses: Opportunity["status"][] = [
+  "draft",
+  "published",
   "suspended",
   "test_rejected",
 ];
 
 const isDeletable = (status: OpportunityDetail["status"]): boolean =>
-  deletableStatuses.some((deletable) => deletable === status);
+  deletableDisplayStatuses.some((deletable) => deletable === status);
 
-// "scheduled" is a published opportunity with a future dateFrom: it must be
-// suspended before it can be deleted, exactly like "published".
+// A deletion reason is required for every deletable status except "draft".
+const requiresReason = (status: OpportunityDetail["status"]): boolean =>
+  status !== "draft";
+
 const blockedDeletionMessage = (
   status: OpportunityDetail["status"],
 ): string => {
   switch (status) {
     case "published":
-    case "scheduled":
       return "Opportunity must be suspended before deletion";
     case "test_pending":
       return "Opportunity cannot be deleted while under review";
@@ -87,18 +102,17 @@ export const makeDeleteOpportunityUseCase =
               new PreconditionFailedError(blockedDeletionMessage(data.status)),
             );
 
-          // A reason is required only when deleting a suspended opportunity.
-          if (data.status === "suspended" && !validatedInput.deletionMessage)
+          if (requiresReason(data.status) && !validatedInput.deletionMessage)
             return errAsync(
               new ValidationError(
-                "A deletion reason is required to delete a suspended opportunity",
+                "A deletion reason is required to delete this opportunity",
               ),
             );
 
           return new ResultAsync(
             opportunityRepository.deleteByIdAndOperatorId({
               deletionMessage: validatedInput.deletionMessage,
-              expectedStatuses: deletableStatuses,
+              expectedStatuses: deletablePersistedStatuses,
               operatorId: validatedInput.operatorId,
               opportunityId: validatedInput.opportunityId,
             }),

@@ -47,11 +47,40 @@ const validInput = {
   opportunityId: MOCK_OPPORTUNITY_ID,
 };
 
-const deletableExpectedStatuses = ["draft", "suspended", "test_rejected"];
+const deletableExpectedStatuses = [
+  "draft",
+  "published",
+  "suspended",
+  "test_rejected",
+];
 
 describe("makeDeleteOpportunityUseCase - deletable statuses", () => {
-  it.each(["draft", "test_rejected"] as const)(
-    "should delete a %s opportunity without a reason",
+  it("should delete a draft opportunity without a reason", async () => {
+    const deps = makeDeps({
+      opportunityRepository: {
+        deleteByIdAndOperatorId: vi.fn().mockResolvedValue(ok(undefined)),
+        findByIdAndOperatorId: vi
+          .fn()
+          .mockResolvedValue(ok(mockOpportunity("draft"))),
+      },
+    });
+    const useCase = makeDeleteOpportunityUseCase(deps.opportunityRepository);
+
+    const result = await useCase(validInput);
+
+    expect(result).toEqual(ok(undefined));
+    expect(
+      deps.opportunityRepository.deleteByIdAndOperatorId,
+    ).toHaveBeenCalledWith({
+      deletionMessage: undefined,
+      expectedStatuses: deletableExpectedStatuses,
+      operatorId: MOCK_OPERATOR_ID,
+      opportunityId: MOCK_OPPORTUNITY_ID,
+    });
+  });
+
+  it.each(["test_rejected", "scheduled", "suspended"] as const)(
+    "should delete a %s opportunity when a reason is provided",
     async (status) => {
       const deps = makeDeps({
         opportunityRepository: {
@@ -63,68 +92,47 @@ describe("makeDeleteOpportunityUseCase - deletable statuses", () => {
       });
       const useCase = makeDeleteOpportunityUseCase(deps.opportunityRepository);
 
-      const result = await useCase(validInput);
+      const result = await useCase({
+        ...validInput,
+        deletionMessage: "No longer available",
+      });
 
       expect(result).toEqual(ok(undefined));
       expect(
         deps.opportunityRepository.deleteByIdAndOperatorId,
       ).toHaveBeenCalledWith({
-        deletionMessage: undefined,
+        deletionMessage: "No longer available",
         expectedStatuses: deletableExpectedStatuses,
         operatorId: MOCK_OPERATOR_ID,
         opportunityId: MOCK_OPPORTUNITY_ID,
       });
     },
   );
-
-  it("should delete a suspended opportunity when a reason is provided", async () => {
-    const deps = makeDeps({
-      opportunityRepository: {
-        deleteByIdAndOperatorId: vi.fn().mockResolvedValue(ok(undefined)),
-        findByIdAndOperatorId: vi
-          .fn()
-          .mockResolvedValue(ok(mockOpportunity("suspended"))),
-      },
-    });
-    const useCase = makeDeleteOpportunityUseCase(deps.opportunityRepository);
-
-    const result = await useCase({
-      ...validInput,
-      deletionMessage: "No longer available",
-    });
-
-    expect(result).toEqual(ok(undefined));
-    expect(
-      deps.opportunityRepository.deleteByIdAndOperatorId,
-    ).toHaveBeenCalledWith({
-      deletionMessage: "No longer available",
-      expectedStatuses: deletableExpectedStatuses,
-      operatorId: MOCK_OPERATOR_ID,
-      opportunityId: MOCK_OPPORTUNITY_ID,
-    });
-  });
 });
 
 describe("makeDeleteOpportunityUseCase - reason requirement", () => {
-  it("should return ValidationError when deleting a suspended opportunity without a reason", async () => {
-    const deps = makeDeps({
-      opportunityRepository: {
-        findByIdAndOperatorId: vi
-          .fn()
-          .mockResolvedValue(ok(mockOpportunity("suspended"))),
-      },
-    });
-    const useCase = makeDeleteOpportunityUseCase(deps.opportunityRepository);
+  it.each(["test_rejected", "scheduled", "suspended"] as const)(
+    "should return ValidationError when deleting a %s opportunity without a reason",
+    async (status) => {
+      const deps = makeDeps({
+        opportunityRepository: {
+          findByIdAndOperatorId: vi
+            .fn()
+            .mockResolvedValue(ok(mockOpportunity(status))),
+        },
+      });
+      const useCase = makeDeleteOpportunityUseCase(deps.opportunityRepository);
 
-    const result = await useCase(validInput);
+      const result = await useCase(validInput);
 
-    expect(result).toEqual(
-      err(expect.objectContaining({ kind: "ValidationError" })),
-    );
-    expect(
-      deps.opportunityRepository.deleteByIdAndOperatorId,
-    ).not.toHaveBeenCalled();
-  });
+      expect(result).toEqual(
+        err(expect.objectContaining({ kind: "ValidationError" })),
+      );
+      expect(
+        deps.opportunityRepository.deleteByIdAndOperatorId,
+      ).not.toHaveBeenCalled();
+    },
+  );
 
   it("should reject a whitespace-only reason before reaching the repository", async () => {
     const deps = makeDeps({
@@ -186,34 +194,31 @@ describe("makeDeleteOpportunityUseCase - status guard", () => {
     ).not.toHaveBeenCalled();
   });
 
-  it.each(["published", "scheduled"] as const)(
-    "should return PreconditionFailedError when deleting a %s opportunity",
-    async (status) => {
-      const deps = makeDeps({
-        opportunityRepository: {
-          findByIdAndOperatorId: vi
-            .fn()
-            .mockResolvedValue(ok(mockOpportunity(status))),
-        },
-      });
-      const useCase = makeDeleteOpportunityUseCase(deps.opportunityRepository);
+  it("should return PreconditionFailedError when deleting an already-effective published opportunity", async () => {
+    const deps = makeDeps({
+      opportunityRepository: {
+        findByIdAndOperatorId: vi
+          .fn()
+          .mockResolvedValue(ok(mockOpportunity("published"))),
+      },
+    });
+    const useCase = makeDeleteOpportunityUseCase(deps.opportunityRepository);
 
-      const result = await useCase(validInput);
+    const result = await useCase(validInput);
 
-      expect(result).toEqual(
-        err(
-          expect.objectContaining({
-            kind: "PreconditionFailedError",
-            message:
-              "Precondition failed: Opportunity must be suspended before deletion",
-          }),
-        ),
-      );
-      expect(
-        deps.opportunityRepository.deleteByIdAndOperatorId,
-      ).not.toHaveBeenCalled();
-    },
-  );
+    expect(result).toEqual(
+      err(
+        expect.objectContaining({
+          kind: "PreconditionFailedError",
+          message:
+            "Precondition failed: Opportunity must be suspended before deletion",
+        }),
+      ),
+    );
+    expect(
+      deps.opportunityRepository.deleteByIdAndOperatorId,
+    ).not.toHaveBeenCalled();
+  });
 
   it("should return PreconditionFailedError when deleting an opportunity under review", async () => {
     const deps = makeDeps({

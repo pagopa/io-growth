@@ -66,10 +66,10 @@ export const PhotoUploadStep = forwardRef<StepRef, PhotoUploadProps>(
         const compressedBaseFile = await compressPhotoFile(file);
         const finalProcessedFile = await processCenterCrop(compressedBaseFile);
 
-        const imgVerifica = new Image();
-        imgVerifica.src = URL.createObjectURL(finalProcessedFile);
+        const imgVerify = new Image();
+        imgVerify.src = URL.createObjectURL(finalProcessedFile);
 
-        imgVerifica.onload = () => {
+        imgVerify.onload = () => {
           /**
            * TODO | START ----------------------------------------------------
            * TEST-PURPOSE
@@ -78,16 +78,16 @@ export const PhotoUploadStep = forwardRef<StepRef, PhotoUploadProps>(
            */
           alert(
             `[FOTO ELABORATA]\n` +
-              `Risoluzione: ${imgVerifica.width} x ${imgVerifica.height} px\n` +
+              `Risoluzione: ${imgVerify.width} x ${imgVerify.height} px\n` +
               `Peso: ${(finalProcessedFile.size / 1024).toFixed(2)} KB\n` +
               `Formato: ${finalProcessedFile.type}`,
           );
           //TODO | END ---------------------------------------------------------
-          URL.revokeObjectURL(imgVerifica.src);
+          URL.revokeObjectURL(imgVerify.src);
         };
 
-        imgVerifica.onerror = () => {
-          URL.revokeObjectURL(imgVerifica.src);
+        imgVerify.onerror = () => {
+          URL.revokeObjectURL(imgVerify.src);
         };
 
         const url = URL.createObjectURL(finalProcessedFile);

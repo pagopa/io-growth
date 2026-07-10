@@ -7,7 +7,7 @@ import {
   InputAdornment,
   TextField,
 } from '@mui/material';
-import { useRef, useState } from 'react';
+import { useRef, useState, useCallback } from 'react';
 import { generatePath, useNavigate } from 'react-router-dom';
 import { APP_ROUTES } from '../../../../app/routeConfig';
 import { useSearchPlacesQuery } from '../../../../features/places/api';
@@ -16,6 +16,8 @@ import { SearchEmptyState } from './SearchEmptyState';
 import { SearchInitialState } from './SearchInitialState';
 import { SearchResults } from './SearchResults';
 import { SearchResultsSkeleton } from './SearchResultsSkeleton';
+import { PlaceSearchItem } from '../../../../core/api/generated/model';
+import { RecentSearches } from './RecentSearches';
 
 type EntitiesSearchProps = {
   isSearchActive: boolean;
@@ -28,6 +30,10 @@ export function EntitiesSearch({
 }: Readonly<EntitiesSearchProps>) {
   const navigate = useNavigate();
   const inputRef = useRef<HTMLInputElement>(null);
+
+  const [recentSearches, setRecentSearches] = useState<PlaceSearchItem[]>(() =>
+    JSON.parse(sessionStorage.getItem('search_history') || '[]'),
+  );
 
   const [query, setQuery] = useState('');
   const debouncedQuery = useDebounce(query, 500);
@@ -47,8 +53,71 @@ export function EntitiesSearch({
     inputRef.current?.blur();
   };
 
+  const handleItemPress = useCallback(
+    (accessPointId: string) => {
+      const selectedItem = data?.items.find(
+        (item) => item.id === accessPointId,
+      );
+      if (selectedItem) {
+        const updatedRecentSearches = [
+          selectedItem,
+          ...recentSearches.filter((item) => item.id !== accessPointId),
+        ].slice(0, 5);
+        setRecentSearches(updatedRecentSearches);
+        sessionStorage.setItem(
+          'search_history',
+          JSON.stringify(updatedRecentSearches),
+        );
+      }
+      navigate(
+        generatePath(APP_ROUTES.ENTITY_ACCESS_POINT_DETAIL, {
+          accessPointId,
+        }),
+      );
+    },
+    [data?.items, navigate, recentSearches],
+  );
+
+  const handleRemoveSearch = useCallback(
+    (idToRemove: string) => {
+      const updatedSearches = recentSearches.filter(
+        (item) => item.id !== idToRemove,
+      );
+      setRecentSearches(updatedSearches);
+      sessionStorage.setItem('search_history', JSON.stringify(updatedSearches));
+
+      // If we've removed the last recent search, refocus the search input
+      if (updatedSearches.length === 0) {
+        setIsSearchActive(true);
+        inputRef.current?.focus();
+      }
+    },
+    [recentSearches, setIsSearchActive],
+  );
+
+  const handleResetSearchHistory = useCallback(() => {
+    setRecentSearches([]);
+    sessionStorage.setItem('search_history', JSON.stringify([]));
+    inputRef.current?.focus();
+  }, []);
+
+  const onBlur = useCallback(() => {
+    if (!query && recentSearches.length === 0) {
+      setIsSearchActive(false);
+    }
+  }, [query, recentSearches, setIsSearchActive]);
+
   const renderPanel = () => {
     if (!isSearchActive) return null;
+    if (recentSearches.length > 0 && !hasMinInputLength)
+      return (
+        <RecentSearches
+          items={recentSearches}
+          onItemPress={handleItemPress}
+          onResetHistory={handleResetSearchHistory}
+          onRemoveSearchElement={handleRemoveSearch}
+        />
+      );
     if (!hasMinInputLength || isUninitialized) return <SearchInitialState />;
 
     if (isFetching) return <SearchResultsSkeleton />;
@@ -56,6 +125,7 @@ export function EntitiesSearch({
     if (isSuccess && data) {
       if (data.items.length === 0) return <SearchEmptyState />;
     }
+
     return (
       <SearchResults
         isError={isError}
@@ -63,13 +133,7 @@ export function EntitiesSearch({
         total={data?.total}
         items={data?.items}
         query={debouncedQuery}
-        onItemPress={(accessPointId) =>
-          navigate(
-            generatePath(APP_ROUTES.ENTITY_ACCESS_POINT_DETAIL, {
-              accessPointId,
-            }),
-          )
-        }
+        onItemPress={handleItemPress}
       />
     );
   };
@@ -88,11 +152,7 @@ export function EntitiesSearch({
           value={query}
           onChange={(event) => setQuery(event.target.value)}
           onFocus={() => setIsSearchActive(true)}
-          onBlur={() => {
-            if (!query) {
-              setIsSearchActive(false);
-            }
-          }}
+          onBlur={onBlur}
           label="Cerca per città, struttura o ente"
           variant="outlined"
           fullWidth

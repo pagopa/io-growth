@@ -1,6 +1,5 @@
 import { Box, Button, Stack, TextField, Typography } from '@mui/material';
 import { useState } from 'react';
-import { AppDatePicker } from '../../../components/DatePicker';
 import { AppModal } from '../../../components/Modal';
 
 interface DeleteOpportunityModalProps {
@@ -19,13 +18,11 @@ export function DeleteOpportunityModal({
   const [reason, setReason] = useState('');
   const [date, setDate] = useState('');
   const [reasonError, setReasonError] = useState(false);
-  const [dateError, setDateError] = useState(false);
 
   const handleClose = () => {
     setReason('');
     setDate('');
     setReasonError(false);
-    setDateError(false);
     onClose();
   };
 
@@ -34,7 +31,6 @@ export function DeleteOpportunityModal({
     const validDate = date.trim().length > 0;
 
     setReasonError(!validReason);
-    setDateError(!validDate);
 
     if (!validReason || !validDate) {
       return;

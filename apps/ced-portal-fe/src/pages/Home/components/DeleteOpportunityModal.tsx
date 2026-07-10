@@ -49,7 +49,7 @@ export function DeleteOpportunityModal({
       open={open}
       onClose={handleClose}
       title="Elimina opportunità"
-      description="Il Dipartimento dovrà confermare la tua richiesta. L’opportunità sarà rimossa da IO a partire dalla data di eliminazione che hai indicato."
+      description="L’opportunità sarà eliminata e invieremo comunicazione al Dipartimento."
     >
       <Stack spacing={3}>
         <Box>
@@ -74,24 +74,6 @@ export function DeleteOpportunityModal({
                 setReasonError(false);
               }
             }}
-          />
-        </Box>
-
-        <Box>
-          <Typography sx={{ fontWeight: 700, mb: 1 }}>
-            Data di eliminazione
-          </Typography>
-          <AppDatePicker
-            value={date}
-            onChange={(nextDate) => {
-              setDate(nextDate);
-              if (dateError) {
-                setDateError(false);
-              }
-            }}
-            label="Seleziona una data *"
-            error={dateError}
-            helperText={dateError ? 'Seleziona una data' : 'Indica gg/mm/aaaa'}
           />
         </Box>
 

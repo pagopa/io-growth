@@ -3,11 +3,13 @@ import { Menu, MenuItem, useTheme } from '@mui/material';
 import { useCallback, useState } from 'react';
 import { generatePath, useNavigate } from 'react-router-dom';
 import { APP_ROUTES } from '../../../app/routeConfig';
+import type { OpportunitySummaryItemStatus } from '../../../core/api/generated/model';
 import { DeleteOpportunityModal } from './DeleteOpportunityModal';
 
 type ActionsMenuProps = {
   anchor: null | HTMLElement;
   selectedItemId: string | null;
+  selectedItemStatus?: OpportunitySummaryItemStatus | null;
   handleMenuClose: () => void;
   onDeleteOpportunity: (
     id: string,
@@ -18,6 +20,7 @@ type ActionsMenuProps = {
 export const ActionsMenu = ({
   anchor,
   selectedItemId,
+  selectedItemStatus,
   handleMenuClose,
   onDeleteOpportunity,
 }: ActionsMenuProps) => {
@@ -76,6 +79,13 @@ export const ActionsMenu = ({
     [handleCloseDeleteModal, navigate, onDeleteOpportunity, selectedItemId],
   );
 
+  const canDelete =
+    selectedItemStatus === 'draft' ||
+    selectedItemStatus === 'scheduled' ||
+    selectedItemStatus === 'test_passed' ||
+    selectedItemStatus === 'test_rejected' ||
+    selectedItemStatus === 'suspended';
+
   const handleAction = useCallback(
     (cb?: (id: string) => void) => {
       if (selectedItemId && cb) {
@@ -108,22 +118,32 @@ export const ActionsMenu = ({
         >
           Visualizza
         </MenuItem>
-        <MenuItem onClick={() => handleAction(onDuplicate)} sx={menuItemsSx}>
-          Duplica
-        </MenuItem>
-        <MenuItem onClick={() => handleAction(onEdit)} sx={menuItemsSx}>
-          Modifica
-        </MenuItem>
+        {canDelete && (
+          <>
+            <MenuItem
+              onClick={() => handleAction(onDuplicate)}
+              sx={menuItemsSx}
+            >
+              Duplica
+            </MenuItem>
+            <MenuItem onClick={() => handleAction(onEdit)} sx={menuItemsSx}>
+              Modifica
+            </MenuItem>
+          </>
+        )}
         <MenuItem onClick={() => handleAction(() => null)} sx={menuItemsSx}>
           Sospendi
         </MenuItem>
-        <MenuItem
-          onClick={handleDelete}
-          sx={{ color: theme.palette.error.main, gap: 1 }}
-        >
-          <CancelRoundedIcon sx={{ fontSize: 18 }} />
-          Elimina
-        </MenuItem>
+
+        {canDelete && (
+          <MenuItem
+            onClick={handleDelete}
+            sx={{ color: theme.palette.error.main, gap: 1 }}
+          >
+            <CancelRoundedIcon sx={{ fontSize: 18 }} />
+            Elimina
+          </MenuItem>
+        )}
       </Menu>
       <DeleteOpportunityModal
         open={isDeleteModalOpen}

@@ -5,13 +5,20 @@ import type { OpportunityStatus } from '../../../../features/opportunities/types
 import { CTAS_BY_STATUS } from './constants';
 import { OpportunitiesCtaItem, OpportunitiesCtasLayout } from './types';
 
-export const useGetCtasConfiguration = (id: string) => {
+export const useGetCtasConfiguration = (
+  id: string,
+  status?: OpportunityStatus,
+) => {
   const navigate = useNavigate();
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
   const handleDelete = useCallback(() => {
-    setIsDeleteModalOpen(true);
-  }, []);
+    if (status !== 'draft') {
+      setIsDeleteModalOpen(true);
+    }
+    // TODO[IEG-2722][SCOPE - RELEASE IN OCTOBER]: call delete opportunity API with { id }.
+    navigate(APP_ROUTES.HOME);
+  }, [status, navigate]);
 
   const handleCloseDeleteModal = useCallback(() => {
     setIsDeleteModalOpen(false);

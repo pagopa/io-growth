@@ -57,9 +57,19 @@ export const ActionsMenu = ({
       return;
     }
 
-    setIsDeleteModalOpen(true);
-    handleMenuClose();
-  }, [handleMenuClose, selectedItemId]);
+    if (selectedItemStatus === 'draft') {
+      onDeleteOpportunity(selectedItemId);
+      handleMenuClose();
+    } else {
+      setIsDeleteModalOpen(true);
+      handleMenuClose();
+    }
+  }, [
+    handleMenuClose,
+    selectedItemId,
+    selectedItemStatus,
+    onDeleteOpportunity,
+  ]);
 
   const handleCloseDeleteModal = useCallback(() => {
     setIsDeleteModalOpen(false);

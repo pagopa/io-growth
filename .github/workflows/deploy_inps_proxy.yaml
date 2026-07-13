@@ -1,0 +1,24 @@
+name: Deploy INPS Proxy to Azure Container App
+
+permissions:
+  contents: read
+  attestations: write
+  packages: write
+  id-token: write
+
+on:
+  workflow_dispatch: {}
+
+jobs:
+  deploy_inps_proxy:
+    uses: pagopa/dx/.github/workflows/release-azure-containerapp-v1.yaml@main
+    name: Deploy INPS Proxy
+    secrets: inherit
+    with:
+      dockerfile_context: infra/resources/ced/_modules/inps_proxy_container_app
+      dockerfile_path: infra/resources/ced/_modules/inps_proxy_container_app/Dockerfile
+      container_app: ced-p-itn-inps-proxy-ca-01
+      resource_group_name: ced-p-itn-rg-01
+      environment: app-prod
+      docker_image_description: "INPS reverse proxy — routes requests to INPS APIs through the whitelisted NAT gateway outbound IP"
+      docker_image_name: pagopa/inps-proxy

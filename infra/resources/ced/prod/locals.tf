@@ -157,7 +157,7 @@ locals {
     # Hostname only (no scheme, no trailing slash).
     # Local .env: set MODI_INPS_BASE_URL and INPS_CED_BASE_URL to https://<proxy-fqdn>
     # (keeping the same path prefix used in the real INPS base URLs).
-    upstream_host = "api-coll.inps.it" # TODO: replace with the confirmed INPS collaudo hostname
+    upstream_host = "api.collaudo.inps.it" # TODO: replace with the confirmed INPS collaudo hostname
 
     health_path = "/healthz"
   }

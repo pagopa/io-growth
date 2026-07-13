@@ -152,7 +152,7 @@ locals {
   inps_proxy = {
     target_port = 8080
 
-    image = "ghcr.io/pagopa/io-growth/inps-proxy:latest"
+    image = "ghcr.io/pagopa/inps-proxy:latest"
 
     # Hostname only (no scheme, no trailing slash).
     # Local .env: set MODI_INPS_BASE_URL and INPS_CED_BASE_URL to https://<proxy-fqdn>

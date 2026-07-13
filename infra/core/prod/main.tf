@@ -10,5 +10,7 @@ module "azure-PROD-CED_core" {
     app_name = "core"
   })
 
+  nat_enabled = true
+
   tags = local.tags
 }

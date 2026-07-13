@@ -19,7 +19,7 @@ const renderCta = (cta: OpportunitiesCtaItem) => (
 );
 
 export const OpportunitiesCtas = ({ status, id }: OpportunitiesCtasProps) => {
-  const { ctasConfig, deleteModal } = useGetCtasConfiguration(id);
+  const { ctasConfig, deleteModal } = useGetCtasConfiguration(id, status);
 
   const layout = ctasConfig[status];
   const ctas = layout?.ctas;

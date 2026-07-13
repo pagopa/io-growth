@@ -105,7 +105,7 @@ export const useBenefitsData = (params: ListOperatorOpportunitiesParams) => {
     [query.data],
   );
 
-  const visibleItems = useMemo<Opportunity[]>(() => items, [items]);
+  const visibleItems = useMemo(() => items, [items]);
 
   const total = useMemo(() => visibleItems.length, [visibleItems]);
 

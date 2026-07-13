@@ -43,6 +43,7 @@ export const CTAS_BY_STATUS: Partial<
   },
   deleted: {},
   suspended: {
+    leftCtas: [DELETE_CTA],
     rightCtas: [
       {
         label: 'Modifica',

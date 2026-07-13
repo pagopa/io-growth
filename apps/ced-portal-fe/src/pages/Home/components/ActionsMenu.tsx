@@ -95,6 +95,7 @@ export const ActionsMenu = ({
   const canDelete =
     selectedItemStatus === 'draft' ||
     selectedItemStatus === 'test_rejected' ||
+    selectedItemStatus === 'suspended' ||
     selectedItemStatus === 'scheduled';
 
   const handleAction = useCallback(

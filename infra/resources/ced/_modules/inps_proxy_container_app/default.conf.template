@@ -1,3 +1,18 @@
+log_format debug_upstream
+    '$remote_addr - [$time_iso8601] "$request" '
+    'status=$status bytes=$body_bytes_sent '
+    'upstream_status=$upstream_status '
+    'upstream_addr=$upstream_addr '
+    'upstream_response_time=$upstream_response_time '
+    'req_content_type="$http_content_type" '
+    'req_authorization="$http_authorization" '
+    'req_agid_jwt="$http_agid_jwt_signature" '
+    'req_inps_user="$http_inps_identity_userid" '
+    'req_inps_ufficio="$http_inps_identity_codiceufficio" '
+    'req_digest="$http_digest" '
+    'resp_content_type="$upstream_http_content_type" '
+    'resp_www_authenticate="$upstream_http_www_authenticate"';
+
 server {
     listen 8080;
     server_name _;
@@ -9,6 +24,8 @@ server {
     }
 
     location / {
+        access_log /dev/stdout debug_upstream;
+
         proxy_pass                  https://${INPS_UPSTREAM};
         proxy_set_header            Host ${INPS_UPSTREAM};
 

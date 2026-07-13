@@ -13,16 +13,29 @@ import { useMemo, useState } from 'react';
 import { useTableSort } from '../../../hooks/useTableSort';
 import { ActionsMenu } from './ActionsMenu';
 import { benefitsTableColumns } from './BenefitsTable.config';
-import { OpportunitySummaryItem } from '../../../core/api/generated/model/opportunitySummaryItem';
+import type {
+  OperatorDeleteOpportunityBody,
+  OpportunitySummaryItem,
+  OpportunitySummaryItemStatus,
+} from '../../../core/api/generated/model';
 
 interface BenefitsTableProps {
   items: OpportunitySummaryItem[];
+  onDeleteOpportunity: (
+    id: string,
+    payload?: OperatorDeleteOpportunityBody,
+  ) => void;
 }
 
-export const BenefitsTable = ({ items }: BenefitsTableProps) => {
+export const BenefitsTable = ({
+  items,
+  onDeleteOpportunity,
+}: BenefitsTableProps) => {
   const theme = useTheme();
   const [menuAnchor, setMenuAnchor] = useState<null | HTMLElement>(null);
   const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
+  const [selectedItemStatus, setSelectedItemStatus] =
+    useState<OpportunitySummaryItemStatus | null>(null);
 
   const { sortedItems, sortBy, sortDirection, handleSort } = useTableSort({
     items,
@@ -34,8 +47,10 @@ export const BenefitsTable = ({ items }: BenefitsTableProps) => {
   const handleMenuOpen = (
     event: React.MouseEvent<HTMLElement>,
     itemId: string,
+    itemStatus: OpportunitySummaryItemStatus,
   ) => {
     setSelectedItemId(itemId);
+    setSelectedItemStatus(itemStatus);
     setMenuAnchor(event.currentTarget);
   };
 
@@ -146,7 +161,9 @@ export const BenefitsTable = ({ items }: BenefitsTableProps) => {
       <ActionsMenu
         anchor={menuAnchor}
         selectedItemId={selectedItemId}
+        selectedItemStatus={selectedItemStatus}
         handleMenuClose={handleMenuClose}
+        onDeleteOpportunity={onDeleteOpportunity}
       />
     </TableContainer>
   );

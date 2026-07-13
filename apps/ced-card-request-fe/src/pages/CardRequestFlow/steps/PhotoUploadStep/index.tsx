@@ -12,6 +12,11 @@ import { MarkdownRenderer } from '../../../../components/Typography/MarkdownRend
 import { StepCard } from '../../StepCard';
 import type { StepRef } from '../../types';
 import { PhotoGuidelinesModal } from './PhotoGuidelinesModal';
+import {
+  isAllowedPhotoType,
+  compressPhotoFile,
+  processCenterCrop,
+} from './utils';
 
 type UploadState = 'idle' | 'loading' | 'preview';
 
@@ -30,44 +35,67 @@ export const PhotoUploadStep = forwardRef<StepRef, PhotoUploadProps>(
     const theme = useTheme();
     const [photo, setPhoto] = useState<File | null>(null);
     const [preview, setPreview] = useState<string | null>(null);
-    const [error, setError] = useState(false);
+    const [error, setError] = useState<string>('');
     const [uploadState, setUploadState] = useState<UploadState>('idle');
     const [guidelinesOpen, setGuidelinesOpen] = useState(false);
 
     useImperativeHandle(ref, () => ({
       validate() {
         if (!photo) {
-          setError(true);
+          setError('È necessario caricare una foto per procedere');
           return false;
-        }
-        if (uploadState === 'preview') {
-          setUploadState('loading');
-          return new Promise<boolean>((resolve) => {
-            setTimeout(() => {
-              resolve(true);
-            }, 2000);
-          });
         }
         return true;
       },
     }));
 
-    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
       const file = e.target.files?.[0];
-      if (file) {
-        const url = URL.createObjectURL(file);
-        setPhoto(file);
+      if (!file) return;
+
+      setError('');
+      setUploadState('loading');
+
+      if (!isAllowedPhotoType(file.type)) {
+        setError('Formato file non valido. Carica un file JPG, JPEG o PNG.');
+        setUploadState('idle');
+        return;
+      }
+
+      try {
+        const compressedBaseFile = await compressPhotoFile(file);
+        const finalProcessedFile = await processCenterCrop(compressedBaseFile);
+
+        const imgVerify = new Image();
+        imgVerify.src = URL.createObjectURL(finalProcessedFile);
+
+        imgVerify.onload = () => {
+          URL.revokeObjectURL(imgVerify.src);
+        };
+
+        imgVerify.onerror = () => {
+          URL.revokeObjectURL(imgVerify.src);
+        };
+
+        const url = URL.createObjectURL(finalProcessedFile);
+
+        setPhoto(finalProcessedFile);
         setPreview(url);
         onPhotoPreviewChange?.(url);
-        setError(false);
-        setUploadState('loading');
-        setTimeout(() => {
-          setUploadState('preview');
-        }, 2000);
+        setUploadState('preview');
+      } catch (err) {
+        console.error("Errore durante l'elaborazione dell'immagine:", err);
+        setError(
+          "Si è verificato un errore durante l'elaborazione della foto.",
+        );
+        setUploadState('idle');
       }
     };
 
     const handleChangePhoto = () => {
+      if (preview) {
+        URL.revokeObjectURL(preview);
+      }
       setPhoto(null);
       setPreview(null);
       onPhotoPreviewChange?.('');
@@ -177,18 +205,14 @@ export const PhotoUploadStep = forwardRef<StepRef, PhotoUploadProps>(
             Aggiungi
             <input
               type="file"
-              accept="image/*"
+              accept="image/jpeg, image/jpg, image/png"
               hidden
               onChange={handleFileChange}
             />
           </Button>
         </Box>
 
-        {error && (
-          <ErrorBody fontSize="14px">
-            *Devi caricare una foto per continuare
-          </ErrorBody>
-        )}
+        {error && <ErrorBody fontSize="14px">{error}</ErrorBody>}
       </StepCard>
     );
   },

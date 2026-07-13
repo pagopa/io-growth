@@ -70,19 +70,6 @@ export const PhotoUploadStep = forwardRef<StepRef, PhotoUploadProps>(
         imgVerify.src = URL.createObjectURL(finalProcessedFile);
 
         imgVerify.onload = () => {
-          /**
-           * TODO | START ----------------------------------------------------
-           * TEST-PURPOSE
-           * POP-UP visible to verify the dimensions and weight of the processed image
-           * remove in production
-           */
-          alert(
-            `[FOTO ELABORATA]\n` +
-              `Risoluzione: ${imgVerify.width} x ${imgVerify.height} px\n` +
-              `Peso: ${(finalProcessedFile.size / 1024).toFixed(2)} KB\n` +
-              `Formato: ${finalProcessedFile.type}`,
-          );
-          //TODO | END ---------------------------------------------------------
           URL.revokeObjectURL(imgVerify.src);
         };
 

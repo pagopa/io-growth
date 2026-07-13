@@ -3,7 +3,10 @@ import { Chip, IconButton } from '@mui/material';
 import type { Theme } from '@mui/material/styles';
 import { format, parseISO } from 'date-fns';
 import type { MouseEvent, ReactNode } from 'react';
-import type { OpportunitySummaryItem } from '../../../core/api/generated/model';
+import type {
+  OpportunitySummaryItem,
+  OpportunitySummaryItemStatus,
+} from '../../../core/api/generated/model';
 import { publicationStatusLabels } from '../../../features/benefitsFilters/types';
 import { getChipConfig } from './utils';
 import { generatePath, Link } from 'react-router-dom';
@@ -19,7 +22,11 @@ export interface BenefitsTableColumn {
   renderCell: (
     item: OpportunitySummaryItem,
     theme: Theme,
-    action: (event: MouseEvent<HTMLElement>, itemId: string) => void,
+    action: (
+      event: MouseEvent<HTMLElement>,
+      itemId: string,
+      itemStatus: OpportunitySummaryItemStatus,
+    ) => void,
   ) => ReactNode;
 }
 
@@ -73,7 +80,10 @@ export const benefitsTableColumns: BenefitsTableColumn[] = [
     width: 48,
     align: 'right',
     renderCell: (item, _theme, action) => (
-      <IconButton size="small" onClick={(event) => action(event, item.id)}>
+      <IconButton
+        size="small"
+        onClick={(event) => action(event, item.id, item.status)}
+      >
         <MoreVertIcon sx={{ fontSize: 22 }} />
       </IconButton>
     ),

@@ -35,7 +35,7 @@ export const PhotoUploadStep = forwardRef<StepRef, PhotoUploadProps>(
     const theme = useTheme();
     const [photo, setPhoto] = useState<File | null>(null);
     const [preview, setPreview] = useState<string | null>(null);
-    const [error, setError] = useState<string | boolean>(false);
+    const [error, setError] = useState<string | null>(null);
     const [uploadState, setUploadState] = useState<UploadState>('idle');
     const [guidelinesOpen, setGuidelinesOpen] = useState(false);
 
@@ -53,7 +53,7 @@ export const PhotoUploadStep = forwardRef<StepRef, PhotoUploadProps>(
       const file = e.target.files?.[0];
       if (!file) return;
 
-      setError(false);
+      setError(null);
       setUploadState('loading');
 
       if (!isAllowedPhotoType(file.type)) {

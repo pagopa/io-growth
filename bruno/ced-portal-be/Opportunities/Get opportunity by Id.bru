@@ -1,0 +1,15 @@
+meta {
+  name: Get opportunity by Id
+  type: http
+  seq: 8
+}
+
+get {
+  url: {{baseUrl}}/operator/opportunities/:opportunityId
+  body: none
+  auth: inherit
+}
+
+params:path {
+  opportunityId: 
+}

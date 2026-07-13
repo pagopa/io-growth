@@ -81,12 +81,12 @@ locals {
       APPINSIGHTS_SAMPLING_PERCENTAGE           = "100"
       TELEMETRY_SERVICE_NAME                    = local.browser_be_container_app_name
 
-      PORT            = "8080"
+      PORT = "8080"
 
-      POSTGRES_HOST   = "${module.postgresql.postgres.name}.postgres.database.azure.com"
-      POSTGRES_PORT   = "6432"
-      POSTGRES_DB     = azurerm_postgresql_flexible_server_database.ced_test.name
-      POSTGRES_SSL    = "true"
+      POSTGRES_HOST = "${module.postgresql.postgres.name}.postgres.database.azure.com"
+      POSTGRES_PORT = "6432"
+      POSTGRES_DB   = azurerm_postgresql_flexible_server_database.ced_test.name
+      POSTGRES_SSL  = "true"
 
       REDIS_ENDPOINT  = module.redis_dx.endpoint
       REDIS_TLS       = "true"
@@ -125,7 +125,7 @@ locals {
       APPINSIGHTS_SAMPLING_PERCENTAGE           = "100"
       TELEMETRY_SERVICE_NAME                    = local.card_request_be_container_app_name
 
-      PORT            = "8080"
+      PORT = "8080"
 
       REDIS_ENDPOINT  = module.redis_dx.endpoint
       REDIS_TLS       = "true"

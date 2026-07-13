@@ -11,10 +11,13 @@ import type {
 } from '../../features/entities/types.js';
 import { formatBadgeLabel } from '../../utils/formatBadgeLabel.js';
 import { EntityPlaceholderIcon } from './components/EntityPlaceholderIcon';
+import { PageErrorType } from '../../components/QueryGuard/ErrorScreen/types.js';
 
 export default function EntityDetailPage() {
   const { id } = useParams<{ id: string }>();
-  const { data, isLoading, isError, error } = useGetEntityDetailQuery(id ?? '');
+  const { data, isLoading, isError, error, refetch } = useGetEntityDetailQuery(
+    id ?? '',
+  );
 
   return (
     <QueryGuard
@@ -22,7 +25,11 @@ export default function EntityDetailPage() {
       isError={isError}
       error={error}
       data={data}
-      errorMessage="Impossibile caricare i dati dell'ente."
+      errorType={PageErrorType.ENTITY_NOT_FOUND}
+      firstAction={{
+        label: 'Riprova',
+        onClick: () => refetch(),
+      }}
     >
       {(resolvedData) => {
         const opportunities: EntityOpportunity[] =

@@ -1,6 +1,10 @@
+import { ok } from "neverthrow";
 import { describe, expect, it } from "vitest";
 
-import { mapOpportunityDetailRow } from "../opportunity-row.mapper.js";
+import {
+  mapOpportunityDetailRow,
+  mapOpportunitySummaryRow,
+} from "../opportunity-row.mapper.js";
 
 const baseRow = {
   beneficiaryBenefit: {
@@ -80,6 +84,7 @@ describe("mapOpportunityDetailRow", () => {
       createdAt: "2026-01-01T00:00:00.000Z",
       dateFrom: "2026-01-01",
       dateTo: "2026-12-31",
+      deletionMessage: null,
       id: "01KRJXEYD44B58700GT982CCZZ",
       localizedMetadata: [
         {
@@ -93,5 +98,91 @@ describe("mapOpportunityDetailRow", () => {
       updatedAt: "2026-01-02T00:00:00.000Z",
       url: "https://example.org/promo",
     });
+  });
+
+  it("should report a published detail not yet effective as scheduled", () => {
+    const result = mapOpportunityDetailRow(
+      { ...baseRow, dateFrom: "2026-12-31", status: "published" },
+      "2026-06-26",
+    );
+
+    expect(result._unsafeUnwrap().status).toBe("scheduled");
+  });
+
+  it("should map the deletion message when present", () => {
+    const result = mapOpportunityDetailRow({
+      ...baseRow,
+      deletionMessage: "Iniziativa terminata",
+      status: "deleted",
+    });
+
+    expect(result).toEqual(
+      ok(expect.objectContaining({ deletionMessage: "Iniziativa terminata" })),
+    );
+  });
+
+  it("should default the deletion message to null when absent", () => {
+    const result = mapOpportunityDetailRow(baseRow);
+
+    expect(result).toEqual(
+      ok(expect.objectContaining({ deletionMessage: null })),
+    );
+  });
+
+  it("should keep an already effective published detail as published", () => {
+    const result = mapOpportunityDetailRow(
+      { ...baseRow, dateFrom: "2026-01-01", status: "published" },
+      "2026-06-26",
+    );
+
+    expect(result._unsafeUnwrap().status).toBe("published");
+  });
+});
+
+describe("mapOpportunitySummaryRow", () => {
+  const baseSummaryRow = {
+    categoryTitle: "Culture",
+    dateFrom: "2026-01-01",
+    dateTo: "2026-12-31" as null | string,
+    id: "01KRJXEYD44B58700GT982CCZZ",
+    name: "Sconto 20%" as null | string,
+    operatorName: "Ente Demo",
+    status: "published" as const,
+  };
+
+  it("should report a published summary not yet effective as scheduled", () => {
+    const result = mapOpportunitySummaryRow(
+      { ...baseSummaryRow, dateFrom: "2026-12-31" },
+      "2026-06-26",
+    );
+
+    expect(result.status).toBe("scheduled");
+  });
+
+  it("should keep an already effective published summary as published", () => {
+    const result = mapOpportunitySummaryRow(
+      { ...baseSummaryRow, dateFrom: "2026-01-01" },
+      "2026-06-26",
+    );
+
+    expect(result.status).toBe("published");
+  });
+
+  it("should leave non-published statuses unchanged", () => {
+    const result = mapOpportunitySummaryRow(
+      { ...baseSummaryRow, dateFrom: "2026-12-31", status: "draft" },
+      "2026-06-26",
+    );
+
+    expect(result.status).toBe("draft");
+  });
+
+  it("should not derive scheduled without a reference date", () => {
+    const result = mapOpportunitySummaryRow({
+      ...baseSummaryRow,
+      dateFrom: "2026-12-31",
+    });
+
+    expect(result.status).toBe("published");
   });
 });

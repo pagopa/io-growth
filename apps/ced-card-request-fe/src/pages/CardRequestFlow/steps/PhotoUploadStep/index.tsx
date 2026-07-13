@@ -174,7 +174,7 @@ export const PhotoUploadStep = forwardRef<StepRef, PhotoUploadProps>(
               px: 3,
             }}
           >
-            Aggiungi{' '}
+            Aggiungi
             <input
               type="file"
               accept="image/*"

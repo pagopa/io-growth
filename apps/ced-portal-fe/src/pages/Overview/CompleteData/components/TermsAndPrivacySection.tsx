@@ -1,7 +1,7 @@
-import type { ChangeEvent } from 'react';
 import { Paper, Stack, Typography } from '@mui/material';
 import { PrivacyTipOutlined } from '@mui/icons-material';
 import { AppTextField } from '../../../../components';
+import { isValidHttpsUrl } from '../../../../utils/urlValidator';
 
 type TermsAndPrivacySectionProps = {
   privacyUrl: string;
@@ -16,11 +16,9 @@ export const TermsAndPrivacySection = ({
   onPrivacyUrlChange,
   onTermsUrlChange,
 }: TermsAndPrivacySectionProps) => {
-  const handlePrivacyUrlChange = (e: ChangeEvent<HTMLInputElement>) =>
-    onPrivacyUrlChange(e.target.value);
+  const privacyUrlError = !isValidHttpsUrl(privacyUrl);
 
-  const handleTermsUrlChange = (e: ChangeEvent<HTMLInputElement>) =>
-    onTermsUrlChange(e.target.value);
+  const termsUrlError = !isValidHttpsUrl(termsUrl);
 
   return (
     <Paper
@@ -36,20 +34,34 @@ export const TermsAndPrivacySection = ({
             Termini e privacy dei servizi erogati dall’ente
           </Typography>
         </Stack>
+
         <AppTextField
-          fullWidth
           label="Inserisci il link all’Informativa Privacy"
           placeholder="Inserisci il link all’Informativa Privacy"
           value={privacyUrl}
-          onChange={handlePrivacyUrlChange}
+          error={privacyUrlError}
+          helperText={
+            privacyUrlError
+              ? 'Inserisci un URL valido (es. https://...)'
+              : undefined
+          }
+          onChange={(e) => onPrivacyUrlChange(e.target.value)}
+          fullWidth
           sx={{ '& .MuiOutlinedInput-root': { borderRadius: '8px' } }}
         />
+
         <AppTextField
-          fullWidth
           label="Inserisci il link ai Termini e condizioni d’uso"
           placeholder="Inserisci il link ai Termini e condizioni d’uso"
+          error={termsUrlError}
+          helperText={
+            termsUrlError
+              ? 'Inserisci un URL valido (es. https://...)'
+              : undefined
+          }
           value={termsUrl}
-          onChange={handleTermsUrlChange}
+          onChange={(e) => onTermsUrlChange(e.target.value)}
+          fullWidth
           sx={{ '& .MuiOutlinedInput-root': { borderRadius: '8px' } }}
         />
       </Stack>

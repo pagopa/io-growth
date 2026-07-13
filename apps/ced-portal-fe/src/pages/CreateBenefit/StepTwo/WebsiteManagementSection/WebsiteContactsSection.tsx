@@ -7,7 +7,7 @@ import {
 import { useAppDispatch, useAppSelector } from '../../../../hooks/store';
 import { ContactsSection } from '../components/ContactsSection';
 
-export function WebsiteContactsSection() {
+export function WebsiteContactsSection({ attempted }: { attempted: boolean }) {
   const dispatch = useAppDispatch();
   const { contacts } = useAppSelector(selectWebsiteForm);
 
@@ -17,6 +17,7 @@ export function WebsiteContactsSection() {
       onAdd={() => dispatch(addWebsiteContact())}
       onRemove={(i) => dispatch(removeWebsiteContact(i))}
       onChange={(p) => dispatch(updateWebsiteContact(p))}
+      attempted={attempted}
     />
   );
 }

@@ -15,7 +15,7 @@ const mockPaginatedResult: PaginatedOpportunities = {
       dateTo: "2026-12-31",
       id: "01JVMK3N8XQZP5T6G2WYHAB4CF",
       name: "Discount 20%",
-      operatorName: "operator-name",
+      operatorName: "Ente Demo",
       status: "draft",
     },
   ],
@@ -40,7 +40,23 @@ describe("makeListOperatorOpportunitiesUseCase", () => {
     const result = await useCase(validInput);
 
     expect(result).toEqual(ok(mockPaginatedResult));
-    expect(repository.findAll).toHaveBeenCalledWith(validInput);
+    expect(repository.findAll).toHaveBeenCalledWith({
+      ...validInput,
+      excludeDeleted: true,
+    });
+  });
+
+  it("should always exclude deleted opportunities from operator reads", async () => {
+    const repository = createMockOpportunityRepository({
+      findAll: vi.fn().mockResolvedValue(ok({ items: [], total: 0 })),
+    });
+    const useCase = makeListOperatorOpportunitiesUseCase(repository);
+
+    await useCase(validInput);
+
+    expect(repository.findAll).toHaveBeenCalledWith(
+      expect.objectContaining({ excludeDeleted: true }),
+    );
   });
 
   it("should pass optional filters to repository", async () => {
@@ -57,7 +73,25 @@ describe("makeListOperatorOpportunitiesUseCase", () => {
 
     await useCase(inputWithFilters);
 
-    expect(repository.findAll).toHaveBeenCalledWith(inputWithFilters);
+    expect(repository.findAll).toHaveBeenCalledWith({
+      ...inputWithFilters,
+      excludeDeleted: true,
+    });
+  });
+
+  it("should forward the scheduled status filter to the repository", async () => {
+    const repository = createMockOpportunityRepository({
+      findAll: vi.fn().mockResolvedValue(ok({ items: [], total: 0 })),
+    });
+    const useCase = makeListOperatorOpportunitiesUseCase(repository);
+
+    await useCase({ ...validInput, status: "scheduled" });
+
+    expect(repository.findAll).toHaveBeenCalledWith({
+      ...validInput,
+      excludeDeleted: true,
+      status: "scheduled",
+    });
   });
 
   it("should pass categoryId filter to repository", async () => {
@@ -73,7 +107,10 @@ describe("makeListOperatorOpportunitiesUseCase", () => {
 
     await useCase(inputWithCategory);
 
-    expect(repository.findAll).toHaveBeenCalledWith(inputWithCategory);
+    expect(repository.findAll).toHaveBeenCalledWith({
+      ...inputWithCategory,
+      excludeDeleted: true,
+    });
   });
 
   it("should propagate repository errors", async () => {
@@ -115,6 +152,7 @@ describe("makeListOperatorOpportunitiesUseCase", () => {
     });
 
     expect(repository.findAll).toHaveBeenCalledWith({
+      excludeDeleted: true,
       limit: 20,
       offset: 0,
       operatorId: MOCK_OPERATOR_ID,

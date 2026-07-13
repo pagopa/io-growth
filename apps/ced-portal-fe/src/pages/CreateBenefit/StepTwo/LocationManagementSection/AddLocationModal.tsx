@@ -36,7 +36,7 @@ export function AddLocationModal({
     >
       <LocationFields attempted={attempted} />
 
-      <LocationContactsSection />
+      <LocationContactsSection attempted={attempted} />
 
       <Button
         variant="contained"

@@ -94,6 +94,7 @@ export const OpportunitySummarySchema = z.object({
   categoryTitle: z.string(),
   dateFrom: z.string(),
   dateTo: z.string().nullable(),
+  deletionMessage: z.string().max(4096).nullish(),
   id: z.ulid(),
   name: z.string(),
   operatorName: z.string(),
@@ -103,12 +104,25 @@ export const OpportunitySummarySchema = z.object({
     "test_rejected",
     "test_passed",
     "published",
+    "scheduled",
     "suspended",
     "deleted",
   ]),
 });
 
 export type OpportunitySummary = z.infer<typeof OpportunitySummarySchema>;
+
+// "scheduled" is a derived, response-only status: a published opportunity whose
+// dateFrom is still in the future relative to the server's reference date is
+// reported as "scheduled". Every other status is returned unchanged.
+export const deriveOpportunityDisplayStatus = (
+  status: OpportunitySummary["status"],
+  dateFrom: string,
+  referenceDate?: string,
+): OpportunitySummary["status"] =>
+  status === "published" && referenceDate && dateFrom > referenceDate
+    ? "scheduled"
+    : status;
 
 const localizedMetadataSummarySchema = z.object({
   key: z.enum(["name", "description", "condition"]),
@@ -124,6 +138,7 @@ export const OpportunityDetailSchema = z.object({
   createdAt: z.string(),
   dateFrom: z.string(),
   dateTo: z.string().nullable(),
+  deletionMessage: z.string().max(4096).nullish(),
   id: z.ulid(),
   localizedMetadata: z.array(localizedMetadataSummarySchema),
   nationalTerritory: z.boolean(),
@@ -135,6 +150,7 @@ export const OpportunityDetailSchema = z.object({
     "test_rejected",
     "test_passed",
     "published",
+    "scheduled",
     "suspended",
     "deleted",
   ]),

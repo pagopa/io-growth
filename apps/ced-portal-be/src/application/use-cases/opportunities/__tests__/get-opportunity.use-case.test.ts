@@ -30,6 +30,7 @@ const mockOpportunityDetail: OpportunityDetail = {
       value: "20% discount on all services",
     },
   ],
+  nationalTerritory: false,
   operatorName: "Comune di Roma",
   placeIds: ["01JVMK3N8XQZP5T6G2WYHAB4CD"],
   status: "test_pending",

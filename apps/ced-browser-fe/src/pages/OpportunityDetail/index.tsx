@@ -55,13 +55,22 @@ export default function OpportunityDetailPage() {
       error={error}
       data={data}
       errorType={PageErrorType.OPPORTUNITY_NOT_FOUND}
-      reloadAction={refetch}
+      firstAction={{
+        label: 'Ricarica',
+        onClick: refetch,
+      }}
+      secondAction={{
+        label: 'Torna indietro',
+        onClick: () => navigate(-1),
+      }}
     >
       {(resolvedData) => (
         <Box
           sx={{
             minHeight: '100dvh',
             bgcolor: 'background.paper',
+            // TODO: leave this prop and handle in UI-Core component
+            overflowX: 'hidden',
           }}
         >
           <PageHeader

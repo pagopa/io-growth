@@ -148,6 +148,7 @@ export const opportunity = pgTable("opportunity", {
     .defaultNow(),
   dateFrom: date("date_from").notNull(),
   dateTo: date("date_to"),
+  deletionMessage: varchar("deletion_message", { length: 4096 }),
   id: char({ length: 26 })
     .primaryKey()
     .$defaultFn(() => ulid()),

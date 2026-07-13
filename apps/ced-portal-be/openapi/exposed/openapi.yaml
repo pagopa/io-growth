@@ -497,6 +497,108 @@ paths:
                   value:
                     statusCode: 412
                     message: "Precondition failed: Operator must have a profile to publish an opportunity"
+  /operator/opportunities/{opportunityId}/delete:
+    patch:
+      tags:
+        - Opportunities
+      summary: Delete an operator's own opportunity (soft delete)
+      operationId: operatorDeleteOpportunity
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: opportunityId
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: "^[0-9A-HJKMNP-TV-Z]{26}$"
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              properties:
+                deletionMessage:
+                  type: string
+                  minLength: 1
+                  maxLength: 4096
+                  description: >-
+                    Reason for deletion. Required for every deletable status
+                    except "draft" (i.e. required for test_rejected, scheduled
+                    and suspended). Leading/trailing whitespace is trimmed; must
+                    be non-empty once trimmed.
+      responses:
+        "204":
+          description: Opportunity deleted successfully
+        "400":
+          description: >-
+            Invalid payload, or deletion reason missing for a non-draft
+            opportunity
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 400
+                message: "Validation error: A deletion reason is required to delete this opportunity"
+        "401":
+          description: Invalid or missing JWT
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 401
+                message: Unauthorized
+        "403":
+          description: Authenticated user is not an operator
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 403
+                message: Forbidden
+        "404":
+          description: Opportunity not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 404
+                message: Opportunity not found
+        "409":
+          description: Opportunity status was modified concurrently
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 409
+                message: Opportunity status was modified concurrently
+        "412":
+          description: >-
+            The opportunity is in a status that cannot be deleted (an
+            already-effective published opportunity must be suspended first, or
+            it is under review)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              examples:
+                mustBeSuspended:
+                  summary: Already-effective published opportunity
+                  value:
+                    statusCode: 412
+                    message: "Precondition failed: Opportunity must be suspended before deletion"
+                underReview:
+                  summary: Opportunity under review
+                  value:
+                    statusCode: 412
+                    message: "Precondition failed: Opportunity cannot be deleted while under review"
   /operator/opportunities:
     get:
       tags:
@@ -539,7 +641,6 @@ paths:
               - published
               - scheduled
               - suspended
-              - deleted
         - name: search
           in: query
           required: false
@@ -1636,6 +1737,14 @@ components:
           nullable: true
         operatorName:
           type: string
+        deletionMessage:
+          type: string
+          maxLength: 4096
+          nullable: true
+          description: >-
+            Reason the opportunity was deleted (raw text). Present only for
+            opportunities deleted from a suspended state; null otherwise.
+            Exposed to department/admin only.
     OpportunityDetailResponse:
       type: object
       additionalProperties: false
@@ -1774,6 +1883,14 @@ components:
           format: date-time
         operatorName:
           type: string
+        deletionMessage:
+          type: string
+          maxLength: 4096
+          nullable: true
+          description: >-
+            Reason the opportunity was deleted (raw text). Present only for
+            opportunities deleted from a suspended state; null otherwise.
+            Exposed to department/admin only.
     ErrorResponse:
       type: object
       additionalProperties: false

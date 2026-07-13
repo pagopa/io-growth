@@ -4,6 +4,7 @@ import {
   ListOperatorOpportunitiesParams,
   OpportunityCategoryItem,
   OpportunityCreateRequest,
+  OperatorDeleteOpportunityBody,
 } from '../../core/api/generated/model';
 import {
   getApproveOpportunityUrl,
@@ -104,7 +105,7 @@ export const opportunitiesApi = baseApi.injectEndpoints({
     }),
     deleteOpportunity: builder.mutation<
       void,
-      { id: string; payload?: { reason: string; date: string } }
+      { id: string; payload?: OperatorDeleteOpportunityBody }
     >({
       query: ({ id, payload }) => ({
         url: `/operator/opportunities/${id}/delete`,

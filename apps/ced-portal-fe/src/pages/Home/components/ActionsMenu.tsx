@@ -3,7 +3,10 @@ import { Menu, MenuItem, useTheme } from '@mui/material';
 import { useCallback, useState } from 'react';
 import { generatePath, useNavigate } from 'react-router-dom';
 import { APP_ROUTES } from '../../../app/routeConfig';
-import type { OpportunitySummaryItemStatus } from '../../../core/api/generated/model';
+import type {
+  OperatorDeleteOpportunityBody,
+  OpportunitySummaryItemStatus,
+} from '../../../core/api/generated/model';
 import { DeleteOpportunityModal } from './DeleteOpportunityModal';
 
 type ActionsMenuProps = {
@@ -13,7 +16,7 @@ type ActionsMenuProps = {
   handleMenuClose: () => void;
   onDeleteOpportunity: (
     id: string,
-    payload?: { reason: string; date: string },
+    payload?: OperatorDeleteOpportunityBody,
   ) => void;
 };
 
@@ -76,7 +79,7 @@ export const ActionsMenu = ({
   }, []);
 
   const handleConfirmDelete = useCallback(
-    (payload: { reason: string; date: string }) => {
+    (payload: OperatorDeleteOpportunityBody) => {
       if (!selectedItemId) {
         handleCloseDeleteModal();
         return;

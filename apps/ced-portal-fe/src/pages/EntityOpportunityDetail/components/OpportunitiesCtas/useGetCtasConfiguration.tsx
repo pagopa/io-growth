@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useDeleteOpportunityMutation } from '../../../../features/opportunities/api';
 import { useToast } from '../../../../contexts';
 import { APP_ROUTES } from '../../../../app/routeConfig';
+import type { OperatorDeleteOpportunityBody } from '../../../../core/api/generated/model';
 import type { OpportunityStatus } from '../../../../features/opportunities/types';
 import { CTAS_BY_STATUS } from './constants';
 import { OpportunitiesCtaItem, OpportunitiesCtasLayout } from './types';
@@ -17,7 +18,7 @@ export const useGetCtasConfiguration = (
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
   const handleConfirmDelete = useCallback(
-    async (payload?: { reason: string; date: string }) => {
+    async (payload?: OperatorDeleteOpportunityBody) => {
       try {
         await deleteOpportunity({ id, payload }).unwrap();
         showToast('Opportunità cancellata con successo', 'success');

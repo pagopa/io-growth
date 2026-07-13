@@ -14,6 +14,7 @@ import { useTableSort } from '../../../hooks/useTableSort';
 import { ActionsMenu } from './ActionsMenu';
 import { benefitsTableColumns } from './BenefitsTable.config';
 import type {
+  OperatorDeleteOpportunityBody,
   OpportunitySummaryItem,
   OpportunitySummaryItemStatus,
 } from '../../../core/api/generated/model';
@@ -22,7 +23,7 @@ interface BenefitsTableProps {
   items: OpportunitySummaryItem[];
   onDeleteOpportunity: (
     id: string,
-    payload?: { reason: string; date: string },
+    payload?: OperatorDeleteOpportunityBody,
   ) => void;
 }
 

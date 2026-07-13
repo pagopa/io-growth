@@ -8,7 +8,10 @@ import {
   useTheme,
 } from '@mui/material';
 import { BenefitsTable } from './BenefitsTable';
-import type { OpportunitySummaryItem } from '../../../core/api/generated/model';
+import type {
+  OperatorDeleteOpportunityBody,
+  OpportunitySummaryItem,
+} from '../../../core/api/generated/model';
 
 interface BenefitsContentStateProps {
   isLoading: boolean;
@@ -18,7 +21,7 @@ interface BenefitsContentStateProps {
   onRetry: () => void;
   onDeleteOpportunity: (
     id: string,
-    payload?: { reason: string; date: string },
+    payload?: OperatorDeleteOpportunityBody,
   ) => void;
 }
 

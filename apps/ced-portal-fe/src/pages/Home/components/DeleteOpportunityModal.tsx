@@ -1,42 +1,40 @@
 import { Box, Button, Stack, TextField, Typography } from '@mui/material';
 import { useState } from 'react';
+import type { OperatorDeleteOpportunityBody } from '../../../core/api/generated/model';
 import { AppModal } from '../../../components/Modal';
 
 interface DeleteOpportunityModalProps {
   open: boolean;
   onClose: () => void;
-  onConfirm: (payload: { reason: string; date: string }) => void;
+  onConfirm: (payload: OperatorDeleteOpportunityBody) => void;
 }
 
-const MAX_REASON_LENGTH = 200;
+const MAX_REASON_LENGTH = 4096;
 
 export function DeleteOpportunityModal({
   open,
   onClose,
   onConfirm,
 }: DeleteOpportunityModalProps) {
-  const [reason, setReason] = useState('');
-  const [date, setDate] = useState('');
-  const [reasonError, setReasonError] = useState(false);
+  const [deletionMessage, setDeletionMessage] = useState('');
+  const [messageError, setMessageError] = useState(false);
 
   const handleClose = () => {
-    setReason('');
-    setDate('');
-    setReasonError(false);
+    setDeletionMessage('');
+    setMessageError(false);
     onClose();
   };
 
   const handleConfirm = () => {
-    const validReason = reason.trim().length > 0;
-    const validDate = date.trim().length > 0;
+    const validMessage = deletionMessage.trim().length > 0;
 
-    setReasonError(!validReason);
+    setMessageError(!validMessage);
 
-    if (!validReason || !validDate) {
+    if (!validMessage) {
       return;
     }
 
-    onConfirm({ reason: reason.trim(), date });
+    onConfirm({ deletionMessage: deletionMessage.trim() });
     handleClose();
   };
 
@@ -55,19 +53,21 @@ export function DeleteOpportunityModal({
           <TextField
             fullWidth
             required
-            value={reason}
-            error={reasonError}
+            value={deletionMessage}
+            error={messageError}
             helperText={
-              reasonError
+              messageError
                 ? 'Inserisci un motivo'
                 : `Inserisci un testo di max ${MAX_REASON_LENGTH} caratteri`
             }
             inputProps={{ maxLength: MAX_REASON_LENGTH }}
             placeholder="Spiega il motivo *"
             onChange={(event) => {
-              setReason(event.target.value.slice(0, MAX_REASON_LENGTH));
-              if (reasonError) {
-                setReasonError(false);
+              setDeletionMessage(
+                event.target.value.slice(0, MAX_REASON_LENGTH),
+              );
+              if (messageError) {
+                setMessageError(false);
               }
             }}
           />

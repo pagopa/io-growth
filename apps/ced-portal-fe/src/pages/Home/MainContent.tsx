@@ -11,7 +11,10 @@ import { BenefitsContentState } from './components/BenefitsContentState';
 import { BenefitsFiltersBar } from './components/BenefitsFiltersBar';
 import { BenefitsTabs } from './components/BenefitsTabs';
 import { MainContentHeader } from './components/MainContentHeader';
-import type { OpportunitySummaryItemStatus } from '../../core/api/generated/model';
+import type {
+  ListOperatorOpportunitiesStatus,
+  OperatorDeleteOpportunityBody,
+} from '../../core/api/generated/model';
 import { useMemorizedTabsAndFilters } from '../../hooks/useMemorizedTabsAndFilters';
 import {
   OPERATOR_MANAGED_STATE_OPTIONS,
@@ -21,7 +24,7 @@ import {
 const INITIAL_FILTERS = {
   search: '',
   categoryId: '',
-  status: '' as OpportunitySummaryItemStatus | '',
+  status: '' as ListOperatorOpportunitiesStatus | '',
 };
 
 export const MainContent = () => {
@@ -34,7 +37,7 @@ export const MainContent = () => {
   const [searchInput, setSearchInput] = useState(filters.search);
   const [categoryIdInput, setCategoryIdInput] = useState(filters.categoryId);
   const [statusInput, setStatusInput] = useState<
-    OpportunitySummaryItemStatus | ''
+    ListOperatorOpportunitiesStatus | ''
   >(filters.status);
 
   useEffect(() => {
@@ -84,7 +87,7 @@ export const MainContent = () => {
 
   const handleDeleteOpportunity = async (
     id: string,
-    payload?: { reason: string; date: string },
+    payload?: OperatorDeleteOpportunityBody,
   ) => {
     try {
       await deleteOpportunity({ id, payload }).unwrap();

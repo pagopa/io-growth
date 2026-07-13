@@ -40,3 +40,10 @@ module "common_container_app_environment" {
 
   azure_subscription_id = data.azurerm_subscription.current.subscription_id
 }
+
+# Associate the CAE subnet with the NAT gateway so all Container Apps share
+# a stable outbound public IP. Required for INPS ModI adhesion (IP whitelisting).
+resource "azurerm_subnet_nat_gateway_association" "common_cae" {
+  subnet_id      = module.common_container_app_environment.subnet.id
+  nat_gateway_id = module.azure_core_values.common_nat_gateways[0].id
+}

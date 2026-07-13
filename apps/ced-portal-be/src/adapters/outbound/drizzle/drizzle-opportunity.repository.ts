@@ -11,6 +11,7 @@ import {
   ilike,
   inArray,
   lte,
+  ne,
   or,
   sql,
 } from "drizzle-orm";
@@ -18,6 +19,7 @@ import { err, ok } from "neverthrow";
 
 import type { OpportunityDetail } from "../../../domain/entities/opportunity.js";
 import type {
+  DeleteOpportunityByIdAndOperatorIdInput,
   FindByIdAndOperatorIdInput,
   FindByIdInput,
   ListOpportunitiesInput,
@@ -114,6 +116,7 @@ const findByIdAndOperatorId = async (
       where: and(
         eq(opportunity.id, input.opportunityId),
         eq(opportunity.operatorId, input.operatorId),
+        ne(opportunity.status, "deleted"),
       ),
       with: {
         beneficiaryBenefit: {
@@ -163,6 +166,7 @@ const findById =
           createdAt: true,
           dateFrom: true,
           dateTo: true,
+          deletionMessage: true,
           id: true,
           nationalTerritory: true,
           status: true,
@@ -233,6 +237,47 @@ const updateStatusById =
         new GenericError(
           `Failed to update opportunity status: ${String(error)}`,
         ),
+      );
+    }
+  };
+
+const deleteByIdAndOperatorId =
+  (db: TypedDbClient<typeof schema>) =>
+  async (
+    input: DeleteOpportunityByIdAndOperatorIdInput,
+  ): Promise<Result<void, ConflictError | GenericError>> => {
+    try {
+      let updateCount = 0;
+      await db.transaction(async (tx) => {
+        const result = await tx
+          .update(opportunity)
+          .set({
+            ...(input.deletionMessage
+              ? { deletionMessage: input.deletionMessage }
+              : {}),
+            status: "deleted",
+            updatedAt: new Date(),
+          })
+          .where(
+            and(
+              eq(opportunity.id, input.opportunityId),
+              eq(opportunity.operatorId, input.operatorId),
+              inArray(opportunity.status, input.expectedStatuses),
+            ),
+          );
+        updateCount = result.count;
+      });
+
+      if (updateCount === 0) {
+        return err(
+          new ConflictError("Opportunity status was modified concurrently"),
+        );
+      }
+
+      return ok(undefined);
+    } catch (error) {
+      return err(
+        new GenericError(`Failed to delete opportunity: ${String(error)}`),
       );
     }
   };
@@ -317,6 +362,8 @@ export const createDrizzleOpportunityRepository = (
     }
   },
 
+  deleteByIdAndOperatorId: deleteByIdAndOperatorId(db),
+
   findAll: async (
     input: ListOpportunitiesInput,
   ): Promise<Result<PaginatedOpportunities, GenericError>> => {
@@ -338,6 +385,9 @@ export const createDrizzleOpportunityRepository = (
       if (input.status) {
         conditions.push(buildStatusCondition(input.status, today()));
       }
+      if (input.excludeDeleted) {
+        conditions.push(ne(opportunity.status, "deleted"));
+      }
       if (input.search) {
         conditions.push(buildSearchCondition(input.search, input.searchFields));
       }
@@ -355,6 +405,7 @@ export const createDrizzleOpportunityRepository = (
             categoryTitle: opportunityCategory.title,
             dateFrom: opportunity.dateFrom,
             dateTo: opportunity.dateTo,
+            deletionMessage: opportunity.deletionMessage,
             id: opportunity.id,
             name: localizedMetadata.value,
             operatorName: operator.name,

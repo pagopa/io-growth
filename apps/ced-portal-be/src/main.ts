@@ -43,6 +43,7 @@ import {
   mountListOperatorPlacesHandler,
   mountListOpportunityCategoriesHandler,
   mountListPendingOnboardingsHandler,
+  mountOperatorDeleteOpportunityHandler,
   mountOperatorPublishOpportunityHandler,
   mountOperatorRequestOpportunityTestHandler,
 } from "./adapters/inbound/fastify/index.js";
@@ -69,6 +70,7 @@ import { makeGetInfoStartupUseCase } from "./application/use-cases/health/info-s
 import { makeAdminListOpportunitiesUseCase } from "./application/use-cases/opportunities/admin-list-opportunities.use-case.js";
 import { makeApproveOpportunityUseCase } from "./application/use-cases/opportunities/approve-opportunity.use-case.js";
 import { makeCreateOperatorOpportunityUseCase } from "./application/use-cases/opportunities/create-operator-opportunity.use-case.js";
+import { makeDeleteOpportunityUseCase } from "./application/use-cases/opportunities/delete-opportunity.use-case.js";
 import { makeGetOperatorOpportunityUseCase } from "./application/use-cases/opportunities/get-operator-opportunity.use-case.js";
 import { makeGetOpportunityUseCase } from "./application/use-cases/opportunities/get-opportunity.use-case.js";
 import { makeListOperatorOpportunitiesUseCase } from "./application/use-cases/opportunities/list-operator-opportunities.use-case.js";
@@ -241,6 +243,10 @@ app.register(async (app) => {
       materializedViewRepository,
       profileRepository,
     ),
+  );
+  mountOperatorDeleteOpportunityHandler(
+    app,
+    makeDeleteOpportunityUseCase(opportunityRepository),
   );
   mountListPendingOnboardingsHandler(
     app,

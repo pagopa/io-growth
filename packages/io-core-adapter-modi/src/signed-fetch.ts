@@ -105,8 +105,8 @@ export const createSignedFetch = (options: {
       expiresAt: now + CACHE_TTL_MS,
     };
 
-    // P3: eagerly refresh signing CA alongside credentials
-    if (config.profile === "P3" && !cachedSigningCa) {
+    // P3: refresh signing CA alongside credentials (same 24 h TTL)
+    if (config.profile === "P3") {
       const signingCaResult = await credentialProvider.getInpsSigningCaChain();
       if (signingCaResult.isErr()) throw signingCaResult.error;
       cachedSigningCa = signingCaResult.value;

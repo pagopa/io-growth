@@ -1,5 +1,7 @@
 import { useCallback, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useDeleteOpportunityMutation } from '../../../../features/opportunities/api';
+import { useToast } from '../../../../contexts';
 import { APP_ROUTES } from '../../../../app/routeConfig';
 import type { OpportunityStatus } from '../../../../features/opportunities/types';
 import { CTAS_BY_STATUS } from './constants';
@@ -10,28 +12,35 @@ export const useGetCtasConfiguration = (
   status?: OpportunityStatus,
 ) => {
   const navigate = useNavigate();
+  const { showToast } = useToast();
+  const [deleteOpportunity] = useDeleteOpportunityMutation();
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+
+  const handleConfirmDelete = useCallback(
+    async (payload?: { reason: string; date: string }) => {
+      try {
+        await deleteOpportunity({ id, payload }).unwrap();
+        showToast('Opportunità cancellata con successo', 'success');
+        setIsDeleteModalOpen(false);
+        navigate(APP_ROUTES.HOME);
+      } catch {
+        showToast("Errore durante l'eliminazione dell'opportunità", 'error');
+      }
+    },
+    [deleteOpportunity, id, navigate, showToast],
+  );
 
   const handleDelete = useCallback(() => {
     if (status !== 'draft') {
       setIsDeleteModalOpen(true);
+    } else {
+      handleConfirmDelete();
     }
-    // TODO[IEG-2722][SCOPE - RELEASE IN OCTOBER]: call delete opportunity API with { id }.
-    navigate(APP_ROUTES.HOME);
-  }, [status, navigate]);
+  }, [handleConfirmDelete, status]);
 
   const handleCloseDeleteModal = useCallback(() => {
     setIsDeleteModalOpen(false);
   }, []);
-
-  const handleConfirmDelete = useCallback(
-    (_payload: { reason: string; date: string }) => {
-      // TODO[IEG-2722][SCOPE - RELEASE IN OCTOBER]: call delete opportunity API with { id, payload }.
-      setIsDeleteModalOpen(false);
-      navigate(APP_ROUTES.HOME);
-    },
-    [navigate],
-  );
 
   const handleModify = useCallback(() => {
     navigate(APP_ROUTES.CREATE_BENEFIT, {

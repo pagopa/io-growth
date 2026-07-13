@@ -107,9 +107,9 @@ export const opportunitiesApi = baseApi.injectEndpoints({
       { id: string; payload?: { reason: string; date: string } }
     >({
       query: ({ id, payload }) => ({
-        url: `/operator/opportunities/${id}`,
-        method: 'DELETE',
-        body: payload,
+        url: `/operator/opportunities/${id}/delete`,
+        method: 'PATCH',
+        ...(payload ? { body: payload } : {}),
       }),
       invalidatesTags: (_result, _error, { id }) => [
         { type: 'Opportunities', id },

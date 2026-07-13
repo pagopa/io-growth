@@ -1,7 +1,10 @@
 import { Box, Stack, useTheme } from '@mui/material';
 import { SyntheticEvent, useEffect, useState } from 'react';
 import { ResultsPagination } from '../../components';
-import { useGetOpportunityCategoriesQuery } from '../../features/opportunities/api';
+import {
+  useGetOpportunityCategoriesQuery,
+  useDeleteOpportunityMutation,
+} from '../../features/opportunities/api';
 import { useBenefitsData } from '../../features/opportunities/hooks';
 import { useToast } from '../../contexts';
 import { BenefitsContentState } from './components/BenefitsContentState';
@@ -77,11 +80,19 @@ export const MainContent = () => {
     updateParams({ search: '', categoryId: '', status: '', page: 0 });
   };
 
-  const handleDeleteOpportunity = (
-    _id: string,
-    _payload?: { reason: string; date: string },
+  const [deleteOpportunity] = useDeleteOpportunityMutation();
+
+  const handleDeleteOpportunity = async (
+    id: string,
+    payload?: { reason: string; date: string },
   ) => {
-    showToast('Opportunità cancellata con successo', 'success');
+    try {
+      await deleteOpportunity({ id, payload }).unwrap();
+      showToast('Opportunità cancellata con successo', 'success');
+      refetch();
+    } catch {
+      showToast("Errore durante l'eliminazione dell'opportunità", 'error');
+    }
   };
 
   const displayedItems = tab === 0 ? inManagementItems : approvedItems;

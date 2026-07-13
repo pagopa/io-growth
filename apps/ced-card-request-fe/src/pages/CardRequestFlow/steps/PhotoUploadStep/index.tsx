@@ -35,7 +35,7 @@ export const PhotoUploadStep = forwardRef<StepRef, PhotoUploadProps>(
     const theme = useTheme();
     const [photo, setPhoto] = useState<File | null>(null);
     const [preview, setPreview] = useState<string | null>(null);
-    const [error, setError] = useState<string | null>(null);
+    const [error, setError] = useState<string>('');
     const [uploadState, setUploadState] = useState<UploadState>('idle');
     const [guidelinesOpen, setGuidelinesOpen] = useState(false);
 
@@ -53,7 +53,7 @@ export const PhotoUploadStep = forwardRef<StepRef, PhotoUploadProps>(
       const file = e.target.files?.[0];
       if (!file) return;
 
-      setError(null);
+      setError('');
       setUploadState('loading');
 
       if (!isAllowedPhotoType(file.type)) {
@@ -225,11 +225,7 @@ export const PhotoUploadStep = forwardRef<StepRef, PhotoUploadProps>(
           </Button>
         </Box>
 
-        {error && (
-          <ErrorBody fontSize="14px">
-            {typeof error === 'string' ? error : 'Errore nel caricamento'}
-          </ErrorBody>
-        )}
+        {error && <ErrorBody fontSize="14px">{error}</ErrorBody>}
       </StepCard>
     );
   },

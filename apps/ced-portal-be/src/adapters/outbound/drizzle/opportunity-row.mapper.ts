@@ -32,6 +32,7 @@ export interface OpportunityDetailRow {
   readonly createdAt: Date;
   readonly dateFrom: string;
   readonly dateTo: null | string;
+  readonly deletionMessage?: null | string;
   readonly id: string;
   readonly localizedMetadata: readonly {
     readonly key: "condition" | "description" | "name";
@@ -50,6 +51,7 @@ export interface OpportunitySummaryRow {
   readonly categoryTitle: string;
   readonly dateFrom: string;
   readonly dateTo: null | string;
+  readonly deletionMessage?: null | string;
   readonly id: string;
   readonly name: null | string;
   readonly operatorName: string;
@@ -130,6 +132,7 @@ export const mapOpportunityDetailRow = (
     createdAt: row.createdAt.toISOString(),
     dateFrom: row.dateFrom,
     dateTo: row.dateTo,
+    deletionMessage: row.deletionMessage ?? null,
     id: row.id,
     localizedMetadata: row.localizedMetadata.map((lm) => ({
       key: lm.key,
@@ -156,6 +159,7 @@ export const mapOpportunitySummaryRow = (
   categoryTitle: row.categoryTitle,
   dateFrom: row.dateFrom,
   dateTo: row.dateTo,
+  deletionMessage: row.deletionMessage ?? null,
   id: row.id,
   name: row.name ?? "",
   operatorName: row.operatorName,

@@ -107,6 +107,7 @@ CREATE TABLE opportunity (
   url VARCHAR(2048),
   national_territory BOOLEAN NOT NULL DEFAULT false,
   rejection_message VARCHAR(4096),
+  deletion_message VARCHAR(4096),
   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );

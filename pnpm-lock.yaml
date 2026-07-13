@@ -295,6 +295,12 @@ importers:
       '@pagopa/io-core-adapter-fims':
         specifier: workspace:^
         version: link:../../packages/io-core-adapter-fims
+      '@pagopa/io-core-adapter-inps-ced':
+        specifier: workspace:^
+        version: link:../../packages/io-core-adapter-inps-ced
+      '@pagopa/io-core-adapter-modi':
+        specifier: workspace:^
+        version: link:../../packages/io-core-adapter-modi
       '@pagopa/io-core-adapter-redis':
         specifier: workspace:^
         version: link:../../packages/io-core-adapter-redis

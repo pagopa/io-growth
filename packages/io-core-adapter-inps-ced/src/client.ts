@@ -89,7 +89,30 @@ export const customFetch = async <T>(
     response.body !== null &&
     response.headers.get("content-length") !== "0";
 
-  const data = !hasBody ? undefined : await response.json();
+  let data: unknown;
+  if (hasBody) {
+    const rawBody = await response.text();
+    if (response.status < 200 || response.status >= 300) {
+      // Log the raw upstream error so it appears in structured traces
+      // eslint-disable-next-line no-console
+      console.error(
+        "[inps-ced] upstream error",
+        JSON.stringify({
+          body: rawBody.slice(0, 2000),
+          contentType: response.headers.get("content-type"),
+          method: options.method ?? "POST",
+          status: response.status,
+        }),
+      );
+    }
+    try {
+      data = JSON.parse(rawBody);
+    } catch {
+      throw new SyntaxError(
+        `upstream returned non-JSON (status=${String(response.status)}, content-type=${response.headers.get("content-type") ?? "unknown"}): ${rawBody.slice(0, 500)}`,
+      );
+    }
+  }
 
   return { data, headers: response.headers, status: response.status } as T;
 };

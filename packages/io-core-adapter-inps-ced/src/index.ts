@@ -17,3 +17,7 @@ export type {
   GestioneDomandaCedRepository,
   IdempotencyOptions,
 } from "./domain/ports/outbound/gestione-domanda-ced.repository.js";
+
+// Generated model types & enums — needed by the app layer to build requests
+// and map INPS responses (e.g. TipoEsitoCheck milestone → application state).
+export * from "./generated/model/index.js";

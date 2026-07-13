@@ -118,6 +118,16 @@ services:
       redis-cli --cluster create redis:6379 redis-2:6380 redis-3:6381
       --cluster-replicas 0 --cluster-yes
 
+  cosmosdb:
+    image: mcr.microsoft.com/cosmosdb/linux/azure-cosmos-emulator:vnext-preview
+    ports:
+      - "8081:8081"
+      - "1234:1234"
+    environment:
+      AZURE_COSMOS_EMULATOR_PARTITION_COUNT: 1
+      AZURE_COSMOS_EMULATOR_ENABLE_DATA_PERSISTENCE: "true"
+      PROTOCOL: https
+
 volumes:
   postgres-data:
   azurite-data:

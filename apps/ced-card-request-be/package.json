@@ -25,6 +25,8 @@
     "@azure/storage-blob": "^12.31.0",
     "@pagopa/io-core-adapter-fastify": "workspace:^",
     "@pagopa/io-core-adapter-fims": "workspace:^",
+    "@pagopa/io-core-adapter-inps-ced": "workspace:^",
+    "@pagopa/io-core-adapter-modi": "workspace:^",
     "@pagopa/io-core-adapter-redis": "workspace:^",
     "@pagopa/io-core-adapter-tracing": "workspace:^",
     "@pagopa/io-core-domain": "workspace:^",

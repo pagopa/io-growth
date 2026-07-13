@@ -16,7 +16,7 @@ module "inps_proxy_container_app" {
   user_assigned_identity_id    = module.common_container_app_environment.user_assigned_identity.id
 
   target_port           = local.inps_proxy.target_port
-  public_access_enabled = false
+  public_access_enabled = true
 
   container_app_templates = [
     {

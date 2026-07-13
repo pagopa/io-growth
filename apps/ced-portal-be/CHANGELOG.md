@@ -1,5 +1,11 @@
 # ced-portal-be
 
+## 0.2.10
+
+### Patch Changes
+
+- 7f28292: add operator soft-delete API for opportunities (PATCH /operator/opportunities/{id}/delete)
+
 ## 0.2.9
 
 ### Patch Changes

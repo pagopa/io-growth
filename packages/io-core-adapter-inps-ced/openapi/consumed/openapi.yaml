@@ -1,0 +1,823 @@
+openapi: 3.0.1
+info:
+  title: MS01995 - Gestione CED
+  description: Servizio per la gestione delle domande CED
+  version: 1.0.0
+paths:
+  /Domanda/NuovaDomandaInBozza:
+    post:
+      tags:
+        - Domanda
+      summary: Crea una nuova domanda CED in stato di bozza.
+      operationId: nuovaDomandaInBozza
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        description: Dati per la creazione della domanda.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/NuovaDomandaInBozzaRequest"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NuovaDomandaInBozzaResponse"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetails"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetails"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetails"
+  /Domanda/FornisciFoto:
+    post:
+      tags:
+        - Domanda
+      summary: >-
+        Fornisce la foto necessaria per completare la domanda CED e terminare la
+        fase di presentazione.
+      operationId: fornisciFoto
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        description: Dati per il completamento della domanda.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FornisciFotoRequest"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FornisciFotoResponse"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetails"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetails"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetails"
+  /Domanda/RichiediRicevuta:
+    post:
+      tags:
+        - Domanda
+      summary: >-
+        Consente di scaricare la ricevuta in formato PDF della domanda CED, se
+        questa e' almeno nello stato protocollata.
+      operationId: richiediRicevuta
+      requestBody:
+        description: Dati identificativi della domanda.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RichiediRicevutaRequest"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RichiediRicevutaResponse"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetails"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetails"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetails"
+  /Domanda/RichiediRiepilogo:
+    post:
+      tags:
+        - Domanda
+      summary: >-
+        Consente di scaricare il riepilogo della domanda CED, se questa e'
+        almeno nello stato acquisita.
+      operationId: richiediRiepilogo
+      requestBody:
+        description: Dati identificativi della domanda.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RichiediRiepilogoRequest"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RichiediRiepilogoResponse"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetails"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetails"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetails"
+  /Domanda/RichiediStato:
+    post:
+      tags:
+        - Domanda
+      summary: >-
+        Restituisce lo stato attuale della domanda CED e lo stato della carta
+        associata alla domanda stessa, se presente.
+      operationId: richiediStato
+      requestBody:
+        description: Dati identificativi della domanda.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RichiediStatoRequest"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RichiediStatoResponse"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetails"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetails"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetails"
+  /Domanda/CheckDomanda:
+    post:
+      tags:
+        - Domanda
+      summary: >-
+        Restituisce lo stato attuale della domanda CED per l'acquisizione tramite
+        AppIO.
+      operationId: checkDomanda
+      requestBody:
+        description: Dati identificativi della domanda.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CheckDomandaRequest"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CheckDomandaResponse"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetails"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetails"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetails"
+  /Domanda/ConfermaDomanda:
+    post:
+      tags:
+        - Domanda
+      summary: >-
+        Consente di confermare la presentazione della domanda CED, con o senza
+        eventuale documentazione aggiuntiva.
+      operationId: confermaDomanda
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        description: Eventuale documentazione aggiuntiva da allegare alla domanda.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ConfermaDomandaRequest"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ConfermaDomandaResponse"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetails"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetails"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetails"
+  /Domanda/RecuperoDatiDomanda:
+    post:
+      tags:
+        - Domanda
+      summary: Restituisce i dati della domanda AppIO in stato Bozza.
+      operationId: recuperoDatiDomanda
+      requestBody:
+        description: Dati identificativi della domanda.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RecuperoDatiDomandaRequest"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RecuperoDatiDomandaResponse"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetails"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetails"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetails"
+components:
+  parameters:
+    IdempotencyKey:
+      name: Idempotency-Key
+      in: header
+      description: >-
+        Chiave univoca (GUID) per garantire l'idempotenza della richiesta.
+        Previene l'elaborazione duplicata della stessa operazione.
+      required: true
+      schema:
+        type: string
+        format: uuid
+  schemas:
+    CheckDomandaRequest:
+      required:
+        - codiceFiscale
+      type: object
+      properties:
+        codiceFiscale:
+          maxLength: 16
+          minLength: 16
+          type: string
+          nullable: true
+      additionalProperties: false
+    CheckDomandaResponse:
+      type: object
+      properties:
+        idLavorazione:
+          maxLength: 20
+          minLength: 20
+          type: string
+          nullable: true
+        esitoCheck:
+          $ref: "#/components/schemas/TipoEsitoCheck"
+      additionalProperties: false
+    ConfermaDomandaRequest:
+      required:
+        - codiceFiscale
+        - idLavorazione
+      type: object
+      properties:
+        idLavorazione:
+          maxLength: 20
+          minLength: 20
+          type: string
+        codiceFiscale:
+          maxLength: 16
+          minLength: 16
+          type: string
+        ulterioreDocumentazione:
+          $ref: "#/components/schemas/DatiDocumentazione"
+      additionalProperties: false
+    ConfermaDomandaResponse:
+      type: object
+      properties:
+        idLavorazione:
+          maxLength: 20
+          minLength: 20
+          type: string
+          nullable: true
+        numDomus:
+          type: string
+          nullable: true
+      additionalProperties: false
+    DatiAnagrafica:
+      required:
+        - codiceFiscale
+        - cognome
+        - dataNascita
+        - idCittadinanza
+        - nome
+        - sesso
+        - statoNascita
+      type: object
+      properties:
+        codiceFiscale:
+          maxLength: 16
+          minLength: 16
+          type: string
+          nullable: true
+        nome:
+          maxLength: 50
+          minLength: 0
+          type: string
+          nullable: true
+        cognome:
+          maxLength: 50
+          minLength: 0
+          type: string
+          nullable: true
+        dataNascita:
+          type: string
+          format: date-time
+        sesso:
+          maxLength: 1
+          minLength: 1
+          pattern: "^(M|F)$"
+          type: string
+          nullable: true
+        statoNascita:
+          maxLength: 60
+          minLength: 0
+          type: string
+          nullable: true
+        comuneNascita:
+          maxLength: 60
+          minLength: 0
+          type: string
+          nullable: true
+        siglaProvinciaNascita:
+          maxLength: 2
+          minLength: 2
+          type: string
+          nullable: true
+        idCittadinanza:
+          $ref: "#/components/schemas/TipoCittadinanza"
+        dataScadenzaPermessoSoggiorno:
+          type: string
+          format: date-time
+          nullable: true
+      additionalProperties: false
+    DatiDocumentazione:
+      required:
+        - tipologiaUlterioreDocumentazione
+      type: object
+      properties:
+        tipologiaUlterioreDocumentazione:
+          $ref: "#/components/schemas/TipoDocumentazione"
+        nomeFile:
+          maxLength: 255
+          minLength: 0
+          type: string
+          nullable: true
+        allegato:
+          type: string
+          nullable: true
+        siglaProvinciaTribunale:
+          maxLength: 2
+          minLength: 2
+          type: string
+          nullable: true
+        descrizioneComuneTribunale:
+          maxLength: 60
+          minLength: 0
+          type: string
+          nullable: true
+        dataSentenza:
+          type: string
+          format: date-time
+          nullable: true
+        dirittoAccompagnatore:
+          type: boolean
+          nullable: true
+        dichiarazioneConformitaVerbale:
+          type: boolean
+          nullable: true
+        autodichiarazioneSentenza:
+          type: boolean
+          nullable: true
+      additionalProperties: false
+    DatiRecapito:
+      required:
+        - cap
+        - descrizioneComune
+        - indirizzo
+        - siglaProvincia
+      type: object
+      properties:
+        pressoNome:
+          type: string
+          nullable: true
+        pressoCognome:
+          type: string
+          nullable: true
+        pressoDenominazione:
+          maxLength: 40
+          minLength: 0
+          type: string
+          nullable: true
+        siglaProvincia:
+          maxLength: 2
+          minLength: 2
+          type: string
+          nullable: true
+        descrizioneComune:
+          maxLength: 60
+          minLength: 0
+          type: string
+          nullable: true
+        cap:
+          maxLength: 5
+          minLength: 5
+          type: string
+          nullable: true
+        indirizzo:
+          maxLength: 30
+          minLength: 0
+          type: string
+          nullable: true
+        civico:
+          maxLength: 10
+          minLength: 0
+          type: string
+          nullable: true
+        datiAggiuntivi:
+          maxLength: 45
+          minLength: 0
+          type: string
+          nullable: true
+      additionalProperties: false
+    FornisciFotoRequest:
+      required:
+        - codiceFiscale
+        - fotoCED
+        - idLavorazione
+        - informativaFoto
+      type: object
+      properties:
+        idLavorazione:
+          maxLength: 20
+          minLength: 20
+          type: string
+        codiceFiscale:
+          maxLength: 16
+          minLength: 16
+          type: string
+        fotoCED:
+          minLength: 1
+          type: string
+          format: byte
+        informativaFoto:
+          type: boolean
+      additionalProperties: false
+    FornisciFotoResponse:
+      type: object
+      properties:
+        idLavorazione:
+          maxLength: 20
+          minLength: 20
+          type: string
+          nullable: true
+      additionalProperties: false
+    NuovaDomandaInBozzaRequest:
+      required:
+        - anagrafica
+        - informativaPrivacy
+        - recapito
+      type: object
+      properties:
+        informativaPrivacy:
+          type: boolean
+        anagrafica:
+          $ref: "#/components/schemas/DatiAnagrafica"
+        recapito:
+          $ref: "#/components/schemas/DatiRecapito"
+      additionalProperties: false
+    NuovaDomandaInBozzaResponse:
+      type: object
+      properties:
+        idLavorazione:
+          maxLength: 20
+          minLength: 20
+          type: string
+          nullable: true
+      additionalProperties: false
+    ProblemDetails:
+      type: object
+      properties:
+        type:
+          type: string
+          nullable: true
+        title:
+          type: string
+          nullable: true
+        status:
+          type: integer
+          format: int32
+          nullable: true
+        detail:
+          type: string
+          nullable: true
+        instance:
+          type: string
+          nullable: true
+      additionalProperties: {}
+    RecuperoDatiDomandaRequest:
+      required:
+        - codiceFiscale
+        - idLavorazione
+      type: object
+      properties:
+        idLavorazione:
+          maxLength: 20
+          minLength: 20
+          type: string
+        codiceFiscale:
+          maxLength: 16
+          minLength: 16
+          type: string
+      additionalProperties: false
+    RecuperoDatiDomandaResponse:
+      required:
+        - anagrafica
+        - recapito
+      type: object
+      properties:
+        idLavorazione:
+          maxLength: 20
+          minLength: 20
+          type: string
+          nullable: true
+        anagrafica:
+          $ref: "#/components/schemas/DatiAnagrafica"
+        recapito:
+          $ref: "#/components/schemas/DatiRecapito"
+        fotoCED:
+          type: string
+          format: byte
+          nullable: true
+      additionalProperties: false
+    RichiediRicevutaRequest:
+      required:
+        - codiceFiscale
+        - idLavorazione
+      type: object
+      properties:
+        idLavorazione:
+          maxLength: 20
+          minLength: 20
+          type: string
+        codiceFiscale:
+          maxLength: 16
+          minLength: 16
+          type: string
+      additionalProperties: false
+    RichiediRicevutaResponse:
+      type: object
+      properties:
+        idLavorazione:
+          maxLength: 20
+          minLength: 20
+          type: string
+          nullable: true
+        ricevutaDomanda:
+          type: string
+          format: byte
+          nullable: true
+      additionalProperties: false
+    RichiediRiepilogoRequest:
+      required:
+        - codiceFiscale
+        - idLavorazione
+      type: object
+      properties:
+        idLavorazione:
+          maxLength: 20
+          minLength: 20
+          type: string
+        codiceFiscale:
+          maxLength: 16
+          minLength: 16
+          type: string
+      additionalProperties: false
+    RichiediRiepilogoResponse:
+      type: object
+      properties:
+        idLavorazione:
+          maxLength: 20
+          minLength: 20
+          type: string
+          nullable: true
+        riepilogoDatiDomanda:
+          type: string
+          format: byte
+          nullable: true
+      additionalProperties: false
+    RichiediStatoRequest:
+      required:
+        - codiceFiscale
+        - idLavorazione
+      type: object
+      properties:
+        idLavorazione:
+          maxLength: 20
+          minLength: 20
+          type: string
+        codiceFiscale:
+          maxLength: 16
+          minLength: 16
+          type: string
+      additionalProperties: false
+    RichiediStatoResponse:
+      type: object
+      properties:
+        idLavorazione:
+          maxLength: 20
+          minLength: 20
+          type: string
+          nullable: true
+        numDomus:
+          type: string
+          nullable: true
+        statoDomanda:
+          $ref: "#/components/schemas/StatiDomanda"
+        note:
+          maxLength: 255
+          minLength: 0
+          type: string
+          nullable: true
+        statoCarta:
+          $ref: "#/components/schemas/StatiCarta"
+        cartaAttiva:
+          type: boolean
+          nullable: true
+        annotazione:
+          maxLength: 255
+          minLength: 0
+          type: string
+          nullable: true
+        dataSpedizione:
+          type: string
+          format: date-time
+          nullable: true
+        numeroSpedizione:
+          type: string
+          nullable: true
+      additionalProperties: false
+    StatiCarta:
+      enum:
+        - 1
+        - 10
+        - 11
+        - 12
+        - 13
+        - 14
+        - 15
+        - 16
+        - 17
+        - 18
+        - 19
+        - 20
+        - 99
+      type: integer
+      description: Elenco degli stati di una carta
+      format: int32
+    StatiDomanda:
+      enum:
+        - 10
+        - 20
+        - 30
+        - 40
+        - 50
+        - 60
+        - 70
+        - 90
+        - 99
+      type: integer
+      description: Elenco degli stati di una domanda
+      format: int32
+    TipoCittadinanza:
+      enum:
+        - 0
+        - 2
+        - 3
+      type: integer
+      description: Tipo Cittadinanza
+      format: int32
+    TipoDocumentazione:
+      enum:
+        - 1
+        - 2
+        - 3
+      type: integer
+      description: Tipo Documentazione
+      format: int32
+    TipoEsitoCheck:
+      enum:
+        - 10
+        - 20
+        - 30
+        - 40
+        - 50
+      type: integer
+      format: int32
+  securitySchemes:
+    Bearer:
+      type: apiKey
+      description: >-
+        ModI signed JWT. Set 'Bearer <jwt>' in Authorization header.
+        NOTE: confirm with INPS whether the ModI JWT goes in Authorization or
+        Agid-JWT-Signature header (open item — verify against eService descriptor).
+      name: Authorization
+      in: header
+security:
+  - Bearer: []

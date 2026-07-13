@@ -146,6 +146,22 @@ locals {
     readiness_probe_path = "/api/info/readiness"
   }
 
+  # INPS ModI reverse proxy — allows local devcontainers connected to the VPN to reach
+  # INPS APIs through the whitelisted NAT gateway outbound IP of the Container App Environment.
+  # Replace upstream_host with the actual INPS collaudo hostname once confirmed.
+  inps_proxy = {
+    target_port = 8080
+
+    image = "ghcr.io/pagopa/inps-proxy:latest"
+
+    # Hostname only (no scheme, no trailing slash).
+    # Local .env: set MODI_INPS_BASE_URL and INPS_CED_BASE_URL to https://<proxy-fqdn>
+    # (keeping the same path prefix used in the real INPS base URLs).
+    upstream_host = "api.collaudo.inps.it" # TODO: replace with the confirmed INPS collaudo hostname
+
+    health_path = "/healthz"
+  }
+
   tags = {
     CostCenter     = "TS000 - Tecnologia e Servizi"
     CreatedBy      = "Terraform"

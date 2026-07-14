@@ -116,24 +116,30 @@ export const customFetch = async <T>(
   let data: unknown;
   if (hasBody) {
     const rawBody = await response.text();
+
     if (response.status < 200 || response.status >= 300) {
+      // Log ALL non-2xx responses unconditionally, including non-JSON or empty bodies.
+      const bodyPreview = rawBody || '(empty)';
       globalTelemetry?.trackException({
         error: new Error(
           `HTTP ${String(response.status)} from upstream` +
-            ` content-type=${response.headers.get("content-type") ?? "unknown"}` +
-            ` body=${rawBody.slice(0, 2000)}`,
+            ` content-type=${response.headers.get('content-type') ?? 'unknown'}` +
+            ` body=${bodyPreview}`,
         ),
-        method: options.method ?? "POST",
+        method: options.method ?? 'POST',
         route: url,
         url: `${config.baseUrl}${url}`,
       });
-    }
-    try {
+      // Don't throw on non-JSON error bodies -- let the adapter handle the
+      // status code. data=undefined is safe; adapters check response.status first.
+      try {
+        data = JSON.parse(rawBody);
+      } catch {
+        data = undefined;
+      }
+    } else {
+      // 2xx: the contract requires valid JSON -- throw if malformed.
       data = JSON.parse(rawBody);
-    } catch {
-      throw new SyntaxError(
-        `upstream returned non-JSON (status=${String(response.status)}, content-type=${response.headers.get("content-type") ?? "unknown"}): ${rawBody.slice(0, 500)}`,
-      );
     }
   }
 

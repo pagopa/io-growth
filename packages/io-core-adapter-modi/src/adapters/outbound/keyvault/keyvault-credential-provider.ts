@@ -36,10 +36,10 @@ const pemCertsToDerBase64 = (pemChain: string): string[] =>
  *
  * | Method                       | P1 | P2 | P3 |
  * |------------------------------|----|----|-----|
- * | `getSigningCredentials`      | ✅ | ✅ | ✅ |
+ * | `getSigningCredentials`      | ❌ | ✅ | ✅ |
  * | `getInpsSigningCaChain`      | ❌ | ❌ | ✅ |
- * | `getHttpsClientCredentials`  | ❌ | ❌ | ✅ |
- * | `getInpsHttpsCaChain`        | ❌ | ❌ | ✅ |
+ * | `getHttpsClientCredentials`  | ✅ | ✅ | ✅ |
+ * | `getInpsHttpsCaChain`        | ✅ | ✅ | ✅ |
  */
 export const createKeyvaultCredentialProvider = async (
   config: ModiConfig,
@@ -86,9 +86,6 @@ export const createKeyvaultCredentialProvider = async (
     getHttpsClientCredentials: async (): Promise<
       Result<HttpsClientCredentials, BaseError>
     > => {
-      if (config.profile !== "P3") {
-        return profileGuard("getHttpsClientCredentials");
-      }
       try {
         const [cert, key] = await Promise.all([
           fetchSecret(config.secretNames.httpsClientCert),
@@ -104,15 +101,11 @@ export const createKeyvaultCredentialProvider = async (
       }
     },
 
-    getInpsHttpsCaChain: (): Promise<Result<string, BaseError>> => {
-      if (config.profile !== "P3") {
-        return profileGuard("getInpsHttpsCaChain");
-      }
-      return getSecret(
+    getInpsHttpsCaChain: (): Promise<Result<string, BaseError>> =>
+      getSecret(
         config.secretNames.inpsHttpsCa,
         (msg) => new GenericError(`Failed to load INPS HTTPS CA chain: ${msg}`),
-      );
-    },
+      ),
 
     getInpsSigningCaChain: (): Promise<Result<string, BaseError>> => {
       if (config.profile !== "P3") {
@@ -128,6 +121,15 @@ export const createKeyvaultCredentialProvider = async (
     getSigningCredentials: async (): Promise<
       Result<SigningCredentials, BaseError>
     > => {
+      if (config.profile === "P1") {
+        return Promise.resolve(
+          err(
+            new GenericError(
+              "'getSigningCredentials' is not used by ModI profile P1 (mTLS only)",
+            ),
+          ),
+        );
+      }
       try {
         const [certPem, keyPem] = await Promise.all([
           fetchSecret(config.secretNames.signingCert),

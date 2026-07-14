@@ -23,7 +23,7 @@ export type SignedFetch = (
 /** Shared TTL for both the signing credentials and the mTLS dispatcher caches (24 hours). */
 const CACHE_TTL_MS = 24 * 60 * 60 * 1000;
 
-/** P3 only: the undici Agent that carries the mTLS certificate. */
+/** Undici Agent carrying the mTLS client certificate (ID_AUTH_CHANNEL_02 — all profiles). */
 interface CachedDispatcher {
   readonly dispatcher: Agent;
   readonly expiresAt: number;
@@ -42,16 +42,16 @@ interface CachedSigningCredentials {
  *
  * | Profile | `config.profile` | mTLS | Digest | Response JWT |
  * |---------|-----------------|------|--------|--------------|
- * | P1 — ID_AUTH_REST_01          | `"P1"` | ❌ | ❌ | ❌ |
- * | P2 — INTEGRITY_REST_01        | `"P2"` | ❌ | ✅ | ❌ |
- * | P3 — Full (non-repudiation)   | `"P3"` | ✅ | ✅ | ✅ required |
+ * | P1 — ID_AUTH_CHANNEL_02                   | `"P1"` | ✅ | ❌ | ❌ |
+ * | P2 — ID_AUTH_CHANNEL_02 + CONF_ID_AUTH_01 | `"P2"` | ✅ | ✅ | ❌ |
+ * | P3 — Full (non-repudiation)               | `"P3"` | ✅ | ✅ | ✅ required |
  *
  * ## Common behaviour (all profiles)
  * - Injects `Content-Type` / `Accept` headers.
  * - Reads `INPS-Identity-UserId` (required) and
  *   `INPS-Identity-CodiceUfficio` (falls back to `config.defaultCodiceUfficio`).
- * - Signs the request with a JWT placed in `Agid-JWT-Signature`.
- * - Caches signing credentials for 24 h to avoid per-request Key Vault round-trips.
+ * - P2/P3: Signs the request with a JWT placed in `Agid-JWT-Signature`.
+ * - P2/P3: Caches signing credentials for 24 h to avoid per-request Key Vault round-trips.
  *
  * ## Profile guards
  * - All profiles: throws if `INPS-Identity-UserId` is absent or empty (fail-fast).
@@ -64,7 +64,7 @@ export const createSignedFetch = (options: {
 }): SignedFetch => {
   const { audience, config, credentialProvider } = options;
 
-  // ── P3-only: mTLS dispatcher cache (24 h TTL — allows certificate rotation) ─
+  // ── All profiles: mTLS dispatcher cache (24 h TTL — allows certificate rotation) ─
   let cachedDispatcher: CachedDispatcher | undefined;
   const getDispatcher = async (): Promise<Agent> => {
     const now = Date.now();
@@ -88,7 +88,7 @@ export const createSignedFetch = (options: {
     return dispatcher;
   };
 
-  // ── All profiles: signing credentials cache (24 h TTL) ─────────────────────
+  // ── P2/P3 only: signing credentials cache (24 h TTL) ───────────────────────
   let cachedSigning: CachedSigningCredentials | undefined;
   // P3 only: signing CA cached alongside credentials
   let cachedSigningCa: string | undefined;
@@ -163,21 +163,24 @@ export const createSignedFetch = (options: {
         headers.set("Digest", digest);
       }
 
-      // ── All profiles: request signing ─────────────────────────────────────────
-      const { credentials: signingCredentials } = await getSigningCredentials();
-      const tokenSigner = createTokenSigner(signingCredentials);
-      const tokenResult = await tokenSigner.signRequest({
-        audience,
-        codiceUfficio,
-        contentType: headers.get("Content-Type") ?? "application/json",
-        digest, // undefined for P1 → auth-only JWT
-        issuer: config.codiceEnte,
-        userId,
-      });
-      if (tokenResult.isErr()) return err(tokenResult.error);
-      headers.set("Agid-JWT-Signature", tokenResult.value.jwt);
+      // ── P2/P3: request signing (Agid-JWT-Signature) ──────────────────────────
+      if (config.profile !== "P1") {
+        const { credentials: signingCredentials } =
+          await getSigningCredentials();
+        const tokenSigner = createTokenSigner(signingCredentials);
+        const tokenResult = await tokenSigner.signRequest({
+          audience,
+          codiceUfficio,
+          contentType: headers.get("Content-Type") ?? "application/json",
+          digest,
+          issuer: config.codiceEnte,
+          userId,
+        });
+        if (tokenResult.isErr()) return err(tokenResult.error);
+        headers.set("Agid-JWT-Signature", tokenResult.value.jwt);
+      }
 
-      // ── P3: mTLS fetch; P1/P2: plain fetch ────────────────────────────────────
+      // ── All profiles: mTLS fetch (ID_AUTH_CHANNEL_02) ─────────────────────────
       const fullUrl =
         url.startsWith("http://") || url.startsWith("https://")
           ? url
@@ -188,9 +191,7 @@ export const createSignedFetch = (options: {
         headers,
       };
 
-      if (config.profile === "P3") {
-        fetchOptions.dispatcher = await getDispatcher();
-      }
+      fetchOptions.dispatcher = await getDispatcher();
 
       const response = await undiciFetch(fullUrl, fetchOptions);
 

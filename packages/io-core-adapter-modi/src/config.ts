@@ -9,16 +9,19 @@ import { z } from "zod";
  * All profiles use ID_AUTH_CHANNEL_02 (mTLS): the HTTPS client cert/key and the
  * INPS HTTPS server CA chain are common to P1, P2, and P3 because INPS uses a
  * private CA that is not in the system trust store.
+ * When these three vars are absent the app delegates mTLS to an upstream
+ * nginx proxy (local-dev scenario). When present the app performs mTLS itself
+ * (production direct-to-INPS scenario).
  */
 const baseEnvSchema = z.object({
   MODI_CODICE_ENTE: z.string().min(1),
   MODI_DEFAULT_CODICE_UFFICIO: z.string().min(1),
   MODI_ENVIRONMENT: z.enum(["collaudo", "produzione"]),
-  MODI_HTTPS_CLIENT_CERT_SECRET_NAME: z.string().min(1),
-  MODI_HTTPS_CLIENT_KEY_SECRET_NAME: z.string().min(1),
+  MODI_HTTPS_CLIENT_CERT_SECRET_NAME: z.string().min(1).optional(),
+  MODI_HTTPS_CLIENT_KEY_SECRET_NAME: z.string().min(1).optional(),
   MODI_ID_TIPO_UTENTE: z.string().min(1),
   MODI_INPS_BASE_URL: z.string().url(),
-  MODI_INPS_HTTPS_CA_SECRET_NAME: z.string().min(1),
+  MODI_INPS_HTTPS_CA_SECRET_NAME: z.string().min(1).optional(),
   MODI_KEYVAULT_URL: z.string().url(),
 });
 
@@ -68,11 +71,15 @@ export type ModiConfig = ModiP1Config | ModiP2Config | ModiP3Config;
 
 export type ModiEnvConfig = z.infer<typeof modiConfigSchema>;
 
-/** mTLS secret names — required by every profile (ID_AUTH_CHANNEL_02). */
+/**
+ * mTLS secret names — all optional.
+ * Set when the app connects directly to INPS (production).
+ * Omit when an upstream nginx proxy handles mTLS on the app’s behalf (local-dev).
+ */
 export interface ModiMtlsSecretNames {
-  readonly httpsClientCert: string;
-  readonly httpsClientKey: string;
-  readonly inpsHttpsCa: string;
+  readonly httpsClientCert?: string;
+  readonly httpsClientKey?: string;
+  readonly inpsHttpsCa?: string;
 }
 
 export interface ModiP1Config extends ModiBaseConfig {

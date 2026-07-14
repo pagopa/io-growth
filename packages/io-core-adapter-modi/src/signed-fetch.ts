@@ -25,7 +25,7 @@ const CACHE_TTL_MS = 24 * 60 * 60 * 1000;
 
 /** Undici Agent carrying the mTLS client certificate (ID_AUTH_CHANNEL_02 — all profiles). */
 interface CachedDispatcher {
-  readonly dispatcher: Agent;
+  readonly dispatcher: Agent | undefined;
   readonly expiresAt: number;
 }
 
@@ -66,10 +66,19 @@ export const createSignedFetch = (options: {
 
   // ── All profiles: mTLS dispatcher cache (24 h TTL — allows certificate rotation) ─
   let cachedDispatcher: CachedDispatcher | undefined;
-  const getDispatcher = async (): Promise<Agent> => {
+  const getDispatcher = async (): Promise<Agent | undefined> => {
     const now = Date.now();
     if (cachedDispatcher && cachedDispatcher.expiresAt > now) {
       return cachedDispatcher.dispatcher;
+    }
+
+    // mTLS secret names are optional: omit them when an upstream nginx proxy
+    // handles the mTLS hop on the app’s behalf (local-dev). Set them for
+    // direct app → INPS connections (production).
+    const { httpsClientCert, httpsClientKey, inpsHttpsCa } = config.secretNames;
+    if (!httpsClientCert || !httpsClientKey || !inpsHttpsCa) {
+      cachedDispatcher = { dispatcher: undefined, expiresAt: now + CACHE_TTL_MS };
+      return undefined;
     }
 
     const [credsResult, caResult] = await Promise.all([
@@ -191,7 +200,10 @@ export const createSignedFetch = (options: {
         headers,
       };
 
-      fetchOptions.dispatcher = await getDispatcher();
+      const dispatcher = await getDispatcher();
+      if (dispatcher !== undefined) {
+        fetchOptions.dispatcher = dispatcher;
+      }
 
       const response = await undiciFetch(fullUrl, fetchOptions);
 

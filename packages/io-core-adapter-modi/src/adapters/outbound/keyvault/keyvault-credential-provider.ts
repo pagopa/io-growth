@@ -86,10 +86,20 @@ export const createKeyvaultCredentialProvider = async (
     getHttpsClientCredentials: async (): Promise<
       Result<HttpsClientCredentials, BaseError>
     > => {
+      const { httpsClientCert, httpsClientKey } = config.secretNames;
+      if (!httpsClientCert || !httpsClientKey) {
+        return Promise.resolve(
+          err(
+            new GenericError(
+              "HTTPS client credentials are not configured (set MODI_HTTPS_CLIENT_CERT/KEY_SECRET_NAME for direct INPS connections)",
+            ),
+          ),
+        );
+      }
       try {
         const [cert, key] = await Promise.all([
-          fetchSecret(config.secretNames.httpsClientCert),
-          fetchSecret(config.secretNames.httpsClientKey),
+          fetchSecret(httpsClientCert),
+          fetchSecret(httpsClientKey),
         ]);
         return ok({ cert, key });
       } catch (error) {
@@ -101,11 +111,22 @@ export const createKeyvaultCredentialProvider = async (
       }
     },
 
-    getInpsHttpsCaChain: (): Promise<Result<string, BaseError>> =>
-      getSecret(
-        config.secretNames.inpsHttpsCa,
+    getInpsHttpsCaChain: (): Promise<Result<string, BaseError>> => {
+      const { inpsHttpsCa } = config.secretNames;
+      if (!inpsHttpsCa) {
+        return Promise.resolve(
+          err(
+            new GenericError(
+              "INPS HTTPS CA is not configured (set MODI_INPS_HTTPS_CA_SECRET_NAME for direct INPS connections)",
+            ),
+          ),
+        );
+      }
+      return getSecret(
+        inpsHttpsCa,
         (msg) => new GenericError(`Failed to load INPS HTTPS CA chain: ${msg}`),
-      ),
+      );
+    },
 
     getInpsSigningCaChain: (): Promise<Result<string, BaseError>> => {
       if (config.profile !== "P3") {

@@ -30,9 +30,11 @@ server {
         proxy_set_header            Host ${INPS_UPSTREAM};
 
         # TLS to upstream (ID_AUTH_CHANNEL_02 — mTLS with INPS private CA)
+        # Set INPS_UPSTREAM_SSL_VERIFY=off to skip server-cert verification
+        # (acceptable for collaudo until the complete INPS root CA chain is available).
         proxy_ssl_server_name         on;
         proxy_ssl_protocols           TLSv1.2 TLSv1.3;
-        proxy_ssl_verify              on;
+        proxy_ssl_verify              ${INPS_UPSTREAM_SSL_VERIFY};
         proxy_ssl_trusted_certificate /etc/ssl/inps/ca.crt;
         proxy_ssl_certificate         /etc/ssl/inps/client.crt;
         proxy_ssl_certificate_key     /etc/ssl/inps/client.key;

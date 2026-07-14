@@ -140,6 +140,23 @@ locals {
       FIMS_REDIRECT_URL    = "https://api.ced.pagopa.it/api/ced-card/v1/fcb"
       FIMS_SCOPE           = "openid profile lollipop"
       TEST_USERS           = ""
+
+      # INPS ModI integration — direct mTLS connection (no proxy in production).
+      # The app fetches PEM values from Key Vault at runtime via managed identity.
+      MODI_PROFILE                       = "P1"
+      MODI_ENVIRONMENT                   = "collaudo"
+      MODI_INPS_BASE_URL                 = "https://api.collaudo.inps.it"
+      MODI_CODICE_ENTE                   = "SPSPAGOPA"
+      MODI_DEFAULT_CODICE_UFFICIO        = "AppIO"
+      MODI_ID_TIPO_UTENTE                = "16"
+      MODI_KEYVAULT_URL                  = trimsuffix(data.azurerm_key_vault.common.vault_uri, "/")
+      MODI_HTTPS_CLIENT_CERT_SECRET_NAME = "inps-ced-modi-https-client-cert"
+      MODI_HTTPS_CLIENT_KEY_SECRET_NAME  = "inps-ced-modi-https-client-key"
+      MODI_INPS_HTTPS_CA_SECRET_NAME     = "inps-ced-modi-inps-https-ca"
+
+      # INPS CED API — confirm audience from the INPS eService descriptor.
+      INPS_CED_BASE_URL = "https://api.collaudo.inps.it/modi/rest/GestioneCED/v1"
+      INPS_CED_AUDIENCE = "AppIO"
     }
 
     startup_probe_path   = "/api/info/startup"

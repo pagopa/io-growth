@@ -16,7 +16,22 @@ module "inps_proxy_container_app" {
   user_assigned_identity_id    = module.common_container_app_environment.user_assigned_identity.id
 
   target_port           = local.inps_proxy.target_port
-  public_access_enabled = false
+  public_access_enabled = true
+
+  secrets = [
+    {
+      name                = "INPS_CLIENT_CERT"
+      key_vault_secret_id = format(local.secrets_id_template, "inps-ced-modi-https-client-cert")
+    },
+    {
+      name                = "INPS_CLIENT_KEY"
+      key_vault_secret_id = format(local.secrets_id_template, "inps-ced-modi-https-client-key")
+    },
+    {
+      name                = "INPS_CLIENT_CA"
+      key_vault_secret_id = format(local.secrets_id_template, "inps-ced-modi-inps-https-ca")
+    },
+  ]
 
   container_app_templates = [
     {

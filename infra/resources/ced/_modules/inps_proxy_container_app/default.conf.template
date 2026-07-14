@@ -29,11 +29,13 @@ server {
         proxy_pass                  https://${INPS_UPSTREAM};
         proxy_set_header            Host ${INPS_UPSTREAM};
 
-        # TLS to upstream
-        proxy_ssl_server_name       on;
-        proxy_ssl_protocols         TLSv1.2 TLSv1.3;
-        proxy_ssl_verify            on;
-        proxy_ssl_trusted_certificate /etc/ssl/certs/ca-certificates.crt;
+        # TLS to upstream (ID_AUTH_CHANNEL_02 — mTLS with INPS private CA)
+        proxy_ssl_server_name         on;
+        proxy_ssl_protocols           TLSv1.2 TLSv1.3;
+        proxy_ssl_verify              on;
+        proxy_ssl_trusted_certificate /etc/ssl/inps/ca.crt;
+        proxy_ssl_certificate         /etc/ssl/inps/client.crt;
+        proxy_ssl_certificate_key     /etc/ssl/inps/client.key;
 
         proxy_http_version          1.1;
         proxy_set_header            Connection "";

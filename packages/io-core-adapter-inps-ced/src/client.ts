@@ -2,6 +2,21 @@ import type { SignedFetch } from "@pagopa/io-core-adapter-modi";
 
 import type { InpsCedConfig } from "./config.js";
 
+/**
+ * Minimal structural subset of `TelemetryClient.trackException` used by this
+ * package. Defined locally so the package does not take a hard dependency on
+ * `@pagopa/io-core-adapter-tracing`; pass `getTelemetryClient()` from the app
+ * layer and TypeScript's structural typing handles the rest.
+ */
+export interface InpsCedTelemetry {
+  readonly trackException: (exception: {
+    readonly error: Error;
+    readonly method: string;
+    readonly route: string;
+    readonly url: string;
+  }) => void;
+}
+
 export interface InpsIdentityContext {
   readonly codiceUfficio: string;
   readonly userId: string;
@@ -10,6 +25,7 @@ export interface InpsIdentityContext {
 let globalConfig: InpsCedConfig | undefined;
 let globalSignedFetch: SignedFetch | undefined;
 let globalGetIdentity: (() => InpsIdentityContext | undefined) | undefined;
+let globalTelemetry: InpsCedTelemetry | undefined;
 
 export const initInpsCedClient = (
   config: InpsCedConfig,
@@ -25,10 +41,18 @@ export const initInpsCedClient = (
    * adapters that need session data.
    */
   getIdentity: () => InpsIdentityContext | undefined,
+  /**
+   * Optional telemetry client injected by the app layer (e.g.
+   * `getTelemetryClient()` from `@pagopa/io-core-adapter-tracing`). When
+   * provided, upstream non-2xx responses are recorded as exceptions so they
+   * appear in Application Insights alongside the inbound request trace.
+   */
+  telemetry?: InpsCedTelemetry,
 ): void => {
   globalConfig = config;
   globalSignedFetch = signedFetch;
   globalGetIdentity = getIdentity;
+  globalTelemetry = telemetry;
 };
 
 const getClient = (): {
@@ -93,17 +117,16 @@ export const customFetch = async <T>(
   if (hasBody) {
     const rawBody = await response.text();
     if (response.status < 200 || response.status >= 300) {
-      // Log the raw upstream error so it appears in structured traces
-      // eslint-disable-next-line no-console
-      console.error(
-        "[inps-ced] upstream error",
-        JSON.stringify({
-          body: rawBody.slice(0, 2000),
-          contentType: response.headers.get("content-type"),
-          method: options.method ?? "POST",
-          status: response.status,
-        }),
-      );
+      globalTelemetry?.trackException({
+        error: new Error(
+          `HTTP ${String(response.status)} from upstream` +
+            ` content-type=${response.headers.get("content-type") ?? "unknown"}` +
+            ` body=${rawBody.slice(0, 2000)}`,
+        ),
+        method: options.method ?? "POST",
+        route: url,
+        url: `${config.baseUrl}${url}`,
+      });
     }
     try {
       data = JSON.parse(rawBody);

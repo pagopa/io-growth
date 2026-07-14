@@ -28,7 +28,10 @@ import {
   createSignedFetch,
 } from "@pagopa/io-core-adapter-modi";
 import { createResilientRedisClient } from "@pagopa/io-core-adapter-redis";
-import { tracingPlugin } from "@pagopa/io-core-adapter-tracing";
+import {
+  getTelemetryClient,
+  tracingPlugin,
+} from "@pagopa/io-core-adapter-tracing";
 import Fastify from "fastify";
 
 import { CardRequestSessionSchema } from "./adapters/inbound/fastify/auth/session.js";
@@ -106,15 +109,20 @@ const inpsSignedFetch = createSignedFetch({
 // Per-request INPS identity is resolved from the session held in ALS. The
 // codiceUfficio falls back to the ModI default when the request has no session
 // (e.g. background calls), matching the signed-fetch fallback behaviour.
-initInpsCedClient(inpsCedConfig, inpsSignedFetch, () => {
-  const session = getRequestSession();
-  return session
-    ? {
-        codiceUfficio: modiConfig.defaultCodiceUfficio,
-        userId: session.fiscalCode,
-      }
-    : undefined;
-});
+initInpsCedClient(
+  inpsCedConfig,
+  inpsSignedFetch,
+  () => {
+    const session = getRequestSession();
+    return session
+      ? {
+          codiceUfficio: modiConfig.defaultCodiceUfficio,
+          userId: session.fiscalCode,
+        }
+      : undefined;
+  },
+  getTelemetryClient(),
+);
 const gestioneDomandaCedRepository = createGestioneDomandaCedClient();
 
 const app = Fastify({ logger: true });

@@ -3,9 +3,8 @@ export { createGestioneDomandaCedClient } from "./adapters/outbound/gestione-dom
 // Client initialisation
 export { initInpsCedClient } from "./client.js";
 
-// Identity context type — used by the app layer to type the getter it passes
-// to initInpsCedClient. The adapter itself has no AsyncLocalStorage.
-export type { InpsIdentityContext } from "./client.js";
+// Types used by the app layer to type the values it passes to initInpsCedClient
+export type { InpsCedTelemetry, InpsIdentityContext } from "./client.js";
 
 // Config
 export { buildInpsCedConfig, inpsCedConfigSchema } from "./config.js";

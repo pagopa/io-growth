@@ -5,7 +5,7 @@
  * Servizio per la gestione delle domande CED
  * OpenAPI spec version: 1.0.0
  */
-import type { TipoDocumentazione } from './tipoDocumentazione.js';
+import type { TipoDocumentazione } from './tipoDocumentazione';
 
 export interface DatiDocumentazione {
   tipologiaUlterioreDocumentazione: TipoDocumentazione;

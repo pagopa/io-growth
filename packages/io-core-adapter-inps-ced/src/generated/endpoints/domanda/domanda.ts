@@ -23,7 +23,7 @@ import type {
   RichiediRiepilogoResponse,
   RichiediStatoRequest,
   RichiediStatoResponse
-} from '../../model/index.js';
+} from '../../model';
 
 import { customFetch } from '../../../client.js';
 

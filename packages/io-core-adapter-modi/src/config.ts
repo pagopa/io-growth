@@ -96,9 +96,9 @@ export interface ModiP2Config extends ModiBaseConfig {
 export interface ModiP3Config extends ModiBaseConfig {
   readonly profile: "P3";
   readonly secretNames: ModiMtlsSecretNames &
-  ModiSigningSecretNames & {
-    readonly inpsSigningCa: string;
-  };
+    ModiSigningSecretNames & {
+      readonly inpsSigningCa: string;
+    };
 }
 
 /** JWT signing secret names — required by P2 and P3. */

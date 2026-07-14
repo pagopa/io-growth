@@ -5,8 +5,8 @@
  * Servizio per la gestione delle domande CED
  * OpenAPI spec version: 1.0.0
  */
-import type { StatiCarta } from './statiCarta.js';
-import type { StatiDomanda } from './statiDomanda.js';
+import type { StatiCarta } from './statiCarta';
+import type { StatiDomanda } from './statiDomanda';
 
 export interface RichiediStatoResponse {
   /**

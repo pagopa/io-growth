@@ -77,7 +77,10 @@ export const createSignedFetch = (options: {
     // direct app → INPS connections (production).
     const { httpsClientCert, httpsClientKey, inpsHttpsCa } = config.secretNames;
     if (!httpsClientCert || !httpsClientKey || !inpsHttpsCa) {
-      cachedDispatcher = { dispatcher: undefined, expiresAt: now + CACHE_TTL_MS };
+      cachedDispatcher = {
+        dispatcher: undefined,
+        expiresAt: now + CACHE_TTL_MS,
+      };
       return undefined;
     }
 
@@ -127,6 +130,7 @@ export const createSignedFetch = (options: {
   return async (
     url: string,
     requestInit: RequestInit,
+    // eslint-disable-next-line complexity
   ): Promise<Result<Response, BaseError>> => {
     try {
       const headers = new UndiciHeaders(

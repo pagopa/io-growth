@@ -5,7 +5,7 @@
  * Servizio per la gestione delle domande CED
  * OpenAPI spec version: 1.0.0
  */
-import type { DatiDocumentazione } from './datiDocumentazione.js';
+import type { DatiDocumentazione } from './datiDocumentazione';
 
 export interface ConfermaDomandaRequest {
   /**

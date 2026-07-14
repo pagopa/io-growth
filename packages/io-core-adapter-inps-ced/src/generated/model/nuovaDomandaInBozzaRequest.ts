@@ -5,8 +5,8 @@
  * Servizio per la gestione delle domande CED
  * OpenAPI spec version: 1.0.0
  */
-import type { DatiAnagrafica } from './datiAnagrafica.js';
-import type { DatiRecapito } from './datiRecapito.js';
+import type { DatiAnagrafica } from './datiAnagrafica';
+import type { DatiRecapito } from './datiRecapito';
 
 export interface NuovaDomandaInBozzaRequest {
   informativaPrivacy: boolean;

@@ -119,14 +119,14 @@ export const customFetch = async <T>(
 
     if (response.status < 200 || response.status >= 300) {
       // Log ALL non-2xx responses unconditionally, including non-JSON or empty bodies.
-      const bodyPreview = rawBody || '(empty)';
+      const bodyPreview = rawBody || "(empty)";
       globalTelemetry?.trackException({
         error: new Error(
           `HTTP ${String(response.status)} from upstream` +
-            ` content-type=${response.headers.get('content-type') ?? 'unknown'}` +
+            ` content-type=${response.headers.get("content-type") ?? "unknown"}` +
             ` body=${bodyPreview}`,
         ),
-        method: options.method ?? 'POST',
+        method: options.method ?? "POST",
         route: url,
         url: `${config.baseUrl}${url}`,
       });

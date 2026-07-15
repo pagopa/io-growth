@@ -2,6 +2,21 @@ import type { SignedFetch } from "@pagopa/io-core-adapter-modi";
 
 import type { InpsCedConfig } from "./config.js";
 
+/**
+ * Minimal structural subset of `TelemetryClient.trackException` used by this
+ * package. Defined locally so the package does not take a hard dependency on
+ * `@pagopa/io-core-adapter-tracing`; pass `getTelemetryClient()` from the app
+ * layer and TypeScript's structural typing handles the rest.
+ */
+export interface InpsCedTelemetry {
+  readonly trackException: (exception: {
+    readonly error: Error;
+    readonly method: string;
+    readonly route: string;
+    readonly url: string;
+  }) => void;
+}
+
 export interface InpsIdentityContext {
   readonly codiceUfficio: string;
   readonly userId: string;
@@ -10,6 +25,7 @@ export interface InpsIdentityContext {
 let globalConfig: InpsCedConfig | undefined;
 let globalSignedFetch: SignedFetch | undefined;
 let globalGetIdentity: (() => InpsIdentityContext | undefined) | undefined;
+let globalTelemetry: InpsCedTelemetry | undefined;
 
 export const initInpsCedClient = (
   config: InpsCedConfig,
@@ -25,10 +41,18 @@ export const initInpsCedClient = (
    * adapters that need session data.
    */
   getIdentity: () => InpsIdentityContext | undefined,
+  /**
+   * Optional telemetry client injected by the app layer (e.g.
+   * `getTelemetryClient()` from `@pagopa/io-core-adapter-tracing`). When
+   * provided, upstream non-2xx responses are recorded as exceptions so they
+   * appear in Application Insights alongside the inbound request trace.
+   */
+  telemetry?: InpsCedTelemetry,
 ): void => {
   globalConfig = config;
   globalSignedFetch = signedFetch;
   globalGetIdentity = getIdentity;
+  globalTelemetry = telemetry;
 };
 
 const getClient = (): {
@@ -89,7 +113,35 @@ export const customFetch = async <T>(
     response.body !== null &&
     response.headers.get("content-length") !== "0";
 
-  const data = !hasBody ? undefined : await response.json();
+  let data: unknown;
+  if (hasBody) {
+    const rawBody = await response.text();
+
+    if (response.status < 200 || response.status >= 300) {
+      // Log ALL non-2xx responses unconditionally, including non-JSON or empty bodies.
+      const bodyPreview = rawBody || "(empty)";
+      globalTelemetry?.trackException({
+        error: new Error(
+          `HTTP ${String(response.status)} from upstream` +
+            ` content-type=${response.headers.get("content-type") ?? "unknown"}` +
+            ` body=${bodyPreview}`,
+        ),
+        method: options.method ?? "POST",
+        route: url,
+        url: `${config.baseUrl}${url}`,
+      });
+      // Don't throw on non-JSON error bodies -- let the adapter handle the
+      // status code. data=undefined is safe; adapters check response.status first.
+      try {
+        data = JSON.parse(rawBody);
+      } catch {
+        data = undefined;
+      }
+    } else {
+      // 2xx: the contract requires valid JSON -- throw if malformed.
+      data = JSON.parse(rawBody);
+    }
+  }
 
   return { data, headers: response.headers, status: response.status } as T;
 };

@@ -36,10 +36,10 @@ const pemCertsToDerBase64 = (pemChain: string): string[] =>
  *
  * | Method                       | P1 | P2 | P3 |
  * |------------------------------|----|----|-----|
- * | `getSigningCredentials`      | ✅ | ✅ | ✅ |
+ * | `getSigningCredentials`      | ❌ | ✅ | ✅ |
  * | `getInpsSigningCaChain`      | ❌ | ❌ | ✅ |
- * | `getHttpsClientCredentials`  | ❌ | ❌ | ✅ |
- * | `getInpsHttpsCaChain`        | ❌ | ❌ | ✅ |
+ * | `getHttpsClientCredentials`  | ✅ | ✅ | ✅ |
+ * | `getInpsHttpsCaChain`        | ✅ | ✅ | ✅ |
  */
 export const createKeyvaultCredentialProvider = async (
   config: ModiConfig,
@@ -86,13 +86,20 @@ export const createKeyvaultCredentialProvider = async (
     getHttpsClientCredentials: async (): Promise<
       Result<HttpsClientCredentials, BaseError>
     > => {
-      if (config.profile !== "P3") {
-        return profileGuard("getHttpsClientCredentials");
+      const { httpsClientCert, httpsClientKey } = config.secretNames;
+      if (!httpsClientCert || !httpsClientKey) {
+        return Promise.resolve(
+          err(
+            new GenericError(
+              "HTTPS client credentials are not configured (set MODI_HTTPS_CLIENT_CERT/KEY_SECRET_NAME for direct INPS connections)",
+            ),
+          ),
+        );
       }
       try {
         const [cert, key] = await Promise.all([
-          fetchSecret(config.secretNames.httpsClientCert),
-          fetchSecret(config.secretNames.httpsClientKey),
+          fetchSecret(httpsClientCert),
+          fetchSecret(httpsClientKey),
         ]);
         return ok({ cert, key });
       } catch (error) {
@@ -105,11 +112,18 @@ export const createKeyvaultCredentialProvider = async (
     },
 
     getInpsHttpsCaChain: (): Promise<Result<string, BaseError>> => {
-      if (config.profile !== "P3") {
-        return profileGuard("getInpsHttpsCaChain");
+      const { inpsHttpsCa } = config.secretNames;
+      if (!inpsHttpsCa) {
+        return Promise.resolve(
+          err(
+            new GenericError(
+              "INPS HTTPS CA is not configured (set MODI_INPS_HTTPS_CA_SECRET_NAME for direct INPS connections)",
+            ),
+          ),
+        );
       }
       return getSecret(
-        config.secretNames.inpsHttpsCa,
+        inpsHttpsCa,
         (msg) => new GenericError(`Failed to load INPS HTTPS CA chain: ${msg}`),
       );
     },
@@ -128,6 +142,15 @@ export const createKeyvaultCredentialProvider = async (
     getSigningCredentials: async (): Promise<
       Result<SigningCredentials, BaseError>
     > => {
+      if (config.profile === "P1") {
+        return Promise.resolve(
+          err(
+            new GenericError(
+              "'getSigningCredentials' is not used by ModI profile P1 (mTLS only)",
+            ),
+          ),
+        );
+      }
       try {
         const [certPem, keyPem] = await Promise.all([
           fetchSecret(config.secretNames.signingCert),

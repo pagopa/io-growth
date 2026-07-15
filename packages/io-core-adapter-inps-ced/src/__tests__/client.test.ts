@@ -24,8 +24,8 @@ function makeResponse(status: number, data: unknown): Response {
   return {
     body: status !== 204 ? "x" : null,
     headers: new Headers({ "content-type": "application/json" }),
-    json: vi.fn().mockResolvedValue(data),
     status,
+    text: vi.fn().mockResolvedValue(data !== null ? JSON.stringify(data) : ""),
   } as unknown as Response;
 }
 

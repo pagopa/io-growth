@@ -84,3 +84,12 @@ variable "public_access_enabled" {
   description = "If true, the container app is accessible via a public FQDN. If false (default), the app is only accessible from within the virtual network."
   default     = false
 }
+
+variable "secrets" {
+  type = list(object({
+    name                = string
+    key_vault_secret_id = string
+  }))
+  description = "Secrets sourced from Azure Key Vault and injected as environment variables into the container. The secret name is used as the environment variable name."
+  default     = []
+}

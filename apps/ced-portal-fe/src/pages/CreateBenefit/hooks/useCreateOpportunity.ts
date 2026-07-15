@@ -1,9 +1,6 @@
-import { useAppDispatch, useAppSelector } from '../../../hooks';
+import { useAppSelector } from '../../../hooks';
 import { selectOpportunityForm } from '../../../features/opportunityCreation/selectors';
-import {
-  OpportunityCreationForm,
-  resetForm,
-} from '../../../features/opportunityCreation/opportunityCreationSlice';
+import { OpportunityCreationForm } from '../../../features/opportunityCreation/opportunityCreationSlice';
 import { OpportunityCreateRequest } from '../../../core/api/generated/model';
 import { useCreateOpportunityMutation } from '../../../features/opportunities/api';
 import { useToast } from '../../../contexts';
@@ -19,8 +16,6 @@ const typedObjectEntries = <T extends Record<PropertyKey, unknown>>(
   Object.entries(object) as Array<[keyof T, T[keyof T]]>;
 
 export const useCreateOpportunity = () => {
-  const dispatch = useAppDispatch();
-
   const [createOpportunity, { isLoading }] = useCreateOpportunityMutation();
   const opportunity: OpportunityCreationForm = useAppSelector(
     selectOpportunityForm,
@@ -60,7 +55,6 @@ export const useCreateOpportunity = () => {
 
       try {
         const data = await createOpportunity(payload).unwrap();
-        dispatch(resetForm());
         showToast(
           isDraft
             ? 'Bozza salvata con successo'
@@ -78,14 +72,7 @@ export const useCreateOpportunity = () => {
         throw error;
       }
     },
-    [
-      createOpportunity,
-      dispatch,
-      locationsIds,
-      opportunity,
-      showToast,
-      websiteIds,
-    ],
+    [createOpportunity, locationsIds, opportunity, showToast, websiteIds],
   );
 
   return [handleCreation, { isLoading }] as const;

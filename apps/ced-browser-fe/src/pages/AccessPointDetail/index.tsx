@@ -1,6 +1,6 @@
 import { Box, ButtonBase, Stack, useTheme } from '@mui/material';
 import { useMemo } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { ContactsSection } from '../../components/ContactsSection/index.js';
 import { ItemsSection } from '../../components/ItemsSection/index.js';
 import { PageHeader, QueryGuard } from '../../components/index.js';
@@ -8,8 +8,17 @@ import { APP_ROUTES } from '../../app/routeConfig.js';
 import { useGetAccessPointDetailQuery } from '../../features/places/api.js';
 import { formatBadgeLabel } from '../../utils';
 import { PageErrorType } from '../../components/QueryGuard/ErrorScreen/types.js';
+import { useTrackLandedInPage } from '../../mixpanel/useTrackLandedInPage.js';
+import {
+  EntityOpportunityItems,
+  PlaceDetailItems,
+} from '../../components/ItemsSection/types.js';
 
 export default function AccessPointDetailPage() {
+  const location = useLocation();
+
+  const state = location.state as { source: string };
+
   const { accessPointId } = useParams<{
     accessPointId: string;
   }>();
@@ -21,24 +30,49 @@ export default function AccessPointDetailPage() {
       { skip: !accessPointId },
     );
 
-  const opportunities = useMemo(
+  const opportunities: EntityOpportunityItems[] = useMemo(
     () =>
       data?.opportunities.map(({ id, title, benefit }) => ({
         id,
         title,
         badgeLabel: formatBadgeLabel(benefit),
+        organization_name: data?.entityName,
+        // The organization fiscal code is not exposed by the current API response.
+        organization_fiscal_code: '',
       })) ?? [],
     [data],
   );
 
-  const relatedAccessPoints = useMemo(
+  const relatedAccessPoints: PlaceDetailItems[] = useMemo(
     () =>
       data?.relatedPlaces.map(({ id, title, address }) => ({
         id,
         title,
         subtitle: address ? `${address.street}, ${address.city}` : '',
+        organization_name: data?.entityName,
+        organization_fiscal_code: '',
+        location_name: data?.title,
       })) ?? [],
     [data],
+  );
+
+  const trackExtraProperties = useMemo(
+    () => ({
+      location_name: data?.title ?? '',
+      organization_name: data?.entityName ?? '',
+      // The organization fiscal code is not exposed by the current API response.
+      organization_fiscal_code: '',
+    }),
+    [data],
+  );
+
+  useTrackLandedInPage(
+    'CED_LOCATION_DETAIL',
+    {
+      ...trackExtraProperties,
+      source: state.source,
+    },
+    !!data,
   );
 
   return (
@@ -91,7 +125,10 @@ export default function AccessPointDetailPage() {
               items={opportunities}
               hideEyebrow
             />
-            <ContactsSection contacts={resolvedData.contacts} />
+            <ContactsSection
+              contacts={resolvedData.contacts}
+              trackExtraProperties={trackExtraProperties}
+            />
             <ItemsSection
               variant="access-point"
               entityId={data?.entityId ?? ''}

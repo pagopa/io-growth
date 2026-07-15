@@ -17,7 +17,7 @@ type WindowMPValues = {
   initMixPanel?: boolean;
 } & Window;
 
-type EventType = 'error' | 'screen_view' | undefined;
+type EventType = 'error' | 'screen_view' | 'tap' | undefined;
 
 export interface EventProperties {
   [key: string]: unknown;

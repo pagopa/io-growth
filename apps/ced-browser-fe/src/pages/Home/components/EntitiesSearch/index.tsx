@@ -7,7 +7,7 @@ import {
   InputAdornment,
   TextField,
 } from '@mui/material';
-import { useRef, useState, useCallback } from 'react';
+import { useRef, useState, useCallback, useEffect } from 'react';
 import { generatePath, useNavigate } from 'react-router-dom';
 import { APP_ROUTES } from '../../../../app/routeConfig';
 import { useSearchPlacesQuery } from '../../../../features/places/api';
@@ -18,6 +18,7 @@ import { SearchResults } from './SearchResults';
 import { SearchResultsSkeleton } from './SearchResultsSkeleton';
 import { PlaceSearchItem } from '../../../../core/api/generated/model';
 import { RecentSearches } from './RecentSearches';
+import { trackBrowserEvent } from '../../../../mixpanel/trackEvent';
 
 type EntitiesSearchProps = {
   isSearchActive: boolean;
@@ -45,6 +46,26 @@ export function EntitiesSearch({
     useSearchPlacesQuery(debouncedQuery, {
       skip: !shouldRunSearch,
     });
+
+  useEffect(() => {
+    // event tracking after debouncedQuery changes
+    if (shouldRunSearch && hasMinInputLength) {
+      trackBrowserEvent('CED_SEARCH_INPUT', {
+        search_term: debouncedQuery,
+      });
+    }
+  }, [debouncedQuery, shouldRunSearch, hasMinInputLength]);
+
+  useEffect(() => {
+    // event tracking search completed after api response
+    if (data) {
+      trackBrowserEvent('CED_SEARCH_RESULT_PAGE', {
+        search_term: debouncedQuery,
+        results_count: data?.total,
+      });
+    }
+  }, [debouncedQuery, data]);
+
   const showClearButton = isSearchActive || query.length > 0;
 
   const handleCancel = () => {
@@ -69,6 +90,13 @@ export function EntitiesSearch({
           JSON.stringify(updatedRecentSearches),
         );
       }
+      trackBrowserEvent('CED_SEARCH_RESULTS_TAPPED', {
+        type: selectedItem?.type,
+        location_name: selectedItem?.name,
+        organization_name: selectedItem?.entityId,
+        // The API currently returns the entity identifier rather than the display name.
+        city_name: selectedItem?.address?.city,
+      });
       navigate(
         generatePath(APP_ROUTES.ENTITY_ACCESS_POINT_DETAIL, {
           accessPointId,
@@ -107,8 +135,16 @@ export function EntitiesSearch({
     }
   }, [query, recentSearches, setIsSearchActive]);
 
+  const onFocus = useCallback(() => {
+    trackBrowserEvent('CED_SEARCH_START', { event_type: 'tap' });
+    setIsSearchActive(true);
+  }, [setIsSearchActive]);
+
   const renderPanel = () => {
     if (!isSearchActive) return null;
+
+    trackBrowserEvent('CED_SEARCH_PAGE', { event_type: 'screen_view' });
+
     if (recentSearches.length > 0 && !hasMinInputLength)
       return (
         <RecentSearches
@@ -151,7 +187,7 @@ export function EntitiesSearch({
           inputRef={inputRef}
           value={query}
           onChange={(event) => setQuery(event.target.value)}
-          onFocus={() => setIsSearchActive(true)}
+          onFocus={onFocus}
           onBlur={onBlur}
           label="Cerca per città, struttura o ente"
           variant="outlined"

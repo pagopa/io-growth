@@ -1,5 +1,5 @@
 import { Box, Stack } from '@mui/material';
-import { useParams } from 'react-router-dom';
+import { useLocation, useParams } from 'react-router-dom';
 import { PageHeader, QueryGuard } from '../../components';
 import { ContactsSection } from '../../components/ContactsSection';
 import { ItemsSection } from '../../components/ItemsSection/index';
@@ -12,11 +12,36 @@ import type {
 import { formatBadgeLabel } from '../../utils/formatBadgeLabel.js';
 import { EntityPlaceholderIcon } from './components/EntityPlaceholderIcon';
 import { PageErrorType } from '../../components/QueryGuard/ErrorScreen/types.js';
+import { useTrackLandedInPage } from '../../mixpanel/useTrackLandedInPage.js';
+import { useMemo } from 'react';
 
 export default function EntityDetailPage() {
   const { id } = useParams<{ id: string }>();
+  const location = useLocation();
+  const state = location.state as { source: string };
+
   const { data, isLoading, isError, error, refetch } = useGetEntityDetailQuery(
     id ?? '',
+  );
+
+  useTrackLandedInPage(
+    'CED_ORGANIZATION_DETAIL',
+    {
+      organization_name: data?.displayName ?? '',
+      organization_fiscal_code: '',
+      has_locations: !!data?.place.address ? 'yes' : 'no',
+      source: state.source,
+    },
+    !!data,
+  );
+
+  const trackExtraProperties = useMemo(
+    () => ({
+      location_name: data?.place.name ?? '',
+      organization_name: data?.displayName ?? '',
+      organization_fiscal_code: '',
+    }),
+    [data],
   );
 
   return (
@@ -94,7 +119,10 @@ export default function EntityDetailPage() {
                 entityId={id ?? ''}
                 items={accessPoints}
               />
-              <ContactsSection contacts={contacts} />
+              <ContactsSection
+                contacts={contacts}
+                trackExtraProperties={trackExtraProperties}
+              />
             </Stack>
           </Box>
         );

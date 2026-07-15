@@ -10,8 +10,17 @@ import { buildGoogleMapsUrl } from '../../utils';
 import { SectionTitle } from '../SectionTitle';
 import { ContactRow } from '../ContactRow';
 import { EntityContacts } from '../../features/entities/types';
+import { trackBrowserEvent } from '../../mixpanel/trackEvent';
 
-export function ContactsSection({ contacts }: { contacts: EntityContacts }) {
+type ContactsSectionProps = {
+  contacts: EntityContacts;
+  trackExtraProperties: Record<string, string>;
+};
+
+export function ContactsSection({
+  contacts,
+  trackExtraProperties,
+}: ContactsSectionProps) {
   const hasAny =
     contacts.phone ||
     contacts.website ||
@@ -22,6 +31,14 @@ export function ContactsSection({ contacts }: { contacts: EntityContacts }) {
 
   const googleMapsUrl = buildGoogleMapsUrl(contacts.address);
 
+  const trackContactEvent = (
+    cta_type: 'telephone' | 'website' | 'directions',
+  ) =>
+    trackBrowserEvent('CED_LOCATION_CONTACT', {
+      ...trackExtraProperties,
+      cta_type,
+    });
+
   return (
     <Box sx={{ bgcolor: 'background.paper' }}>
       <SectionTitle label="Contatti e informazioni" />
@@ -31,6 +48,7 @@ export function ContactsSection({ contacts }: { contacts: EntityContacts }) {
             icon={<Call sx={{ fontSize: 20, color: '#BBC2D6' }} />}
             label={`Chiama ${contacts.phone}`}
             href={`tel:${contacts.phone}`}
+            onClick={() => trackContactEvent('telephone')}
           />
         )}
         {contacts.website && (
@@ -38,6 +56,7 @@ export function ContactsSection({ contacts }: { contacts: EntityContacts }) {
             icon={<Language sx={{ fontSize: 20, color: '#BBC2D6' }} />}
             label="Visita il sito"
             href={contacts.website}
+            onClick={() => trackContactEvent('website')}
           />
         )}
         {googleMapsUrl && (
@@ -45,6 +64,7 @@ export function ContactsSection({ contacts }: { contacts: EntityContacts }) {
             icon={<LocationOn sx={{ fontSize: 20, color: '#BBC2D6' }} />}
             label="Ottieni indicazioni stradali"
             href={googleMapsUrl}
+            onClick={() => trackContactEvent('directions')}
           />
         )}
         {contacts.privacyUrl && (

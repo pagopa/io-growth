@@ -10,6 +10,9 @@ import {
 } from '@mui/material';
 import { Body } from '@pagopa/io-core-ui';
 import { PageHeader } from '../../components';
+import { useTrackLandedInPage } from '../../mixpanel/useTrackLandedInPage';
+import { useCallback } from 'react';
+import { trackBrowserEvent } from '../../mixpanel/trackEvent';
 
 interface EuropeanOpportunity {
   country: string;
@@ -48,9 +51,17 @@ const opportunities: EuropeanOpportunity[] = [
 ];
 
 export default function EuropeanOpportunitiesPage() {
-  const handleExternalLink = (url: string) => {
-    window.open(url, '_blank', 'noopener,noreferrer');
-  };
+  useTrackLandedInPage('CED_EUROPE_OPPORTUNITY_LIST');
+
+  const euOpportunityClick = useCallback(
+    ({ url, country }: { url: string; country: string }) => {
+      trackBrowserEvent('CED_EUROPE_COUNTRY_SELECTED', {
+        country_selected: country,
+      });
+      window.open(url, '_blank', 'noopener,noreferrer');
+    },
+    [],
+  );
 
   if (opportunities.length === 0) {
     return (
@@ -81,8 +92,8 @@ export default function EuropeanOpportunitiesPage() {
       />
       <Box sx={{ px: 2 }}>
         <List disablePadding>
-          {opportunities.map((opportunity, index) => (
-            <Box key={opportunity.country}>
+          {opportunities.map(({ url, country }, index) => (
+            <Box key={country}>
               <ListItem disablePadding>
                 <ListItemButton sx={{ py: 2 }}>
                   <ListItemIcon sx={{ minWidth: 40 }}>
@@ -91,11 +102,11 @@ export default function EuropeanOpportunitiesPage() {
                   <ListItemText
                     primary={
                       <Body
-                        onClick={() => handleExternalLink(opportunity.url)}
+                        onClick={() => euOpportunityClick({ url, country })}
                         fontWeight="Semibold"
                         asLink
                       >
-                        {opportunity.country}
+                        {country}
                       </Body>
                     }
                   />

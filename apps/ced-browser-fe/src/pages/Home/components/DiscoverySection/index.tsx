@@ -5,10 +5,10 @@ import {
   toOpportunityDetailRoute,
 } from '../../../../app/routeConfig';
 import { DiscoveryListItem } from '../../../../components';
-
 import { useNavigate } from 'react-router-dom';
 import { useGetOpportunitiesSearchQuery } from '../../../../features/opportunities/api';
 import { generateDiscoveryItemsConfig } from '../../constants';
+import { trackBrowserEvent } from '../../../../mixpanel/trackEvent';
 
 const DiscoverySection = () => {
   const navigate = useNavigate();
@@ -19,6 +19,11 @@ const DiscoverySection = () => {
   });
 
   const discoveryItems = generateDiscoveryItemsConfig(data?.items);
+
+  const handleShowAllClick = () => {
+    trackBrowserEvent('CED_SHOW_OPPORTUNITY_LIST', { event_type: 'tap' });
+    navigate(APP_ROUTES.OPPORTUNITIES_LIST);
+  };
 
   const renderList = () => {
     if (isError) {
@@ -61,7 +66,7 @@ const DiscoverySection = () => {
         <Button
           variant="text"
           sx={{ color: theme.palette.common.primaryButton }}
-          onClick={() => navigate(APP_ROUTES.OPPORTUNITIES_LIST)}
+          onClick={handleShowAllClick}
         >
           Mostra tutti
         </Button>

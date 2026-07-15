@@ -15,6 +15,13 @@ export interface CreateOpportunityInput {
   opportunity: Opportunity;
 }
 
+export interface DeleteOpportunityByIdAndOperatorIdInput {
+  deletionMessage?: string;
+  expectedStatuses: Opportunity["status"][];
+  operatorId: string;
+  opportunityId: string;
+}
+
 export interface FindByIdAndOperatorIdInput {
   operatorId: string;
   opportunityId: string;
@@ -28,6 +35,9 @@ export interface ListOpportunitiesInput {
   categoryId?: string;
   dateFrom?: string;
   dateTo?: string;
+  // When true, "deleted" opportunities are excluded regardless of the status
+  // filter. Operator reads set this; department/admin reads leave it unset.
+  excludeDeleted?: boolean;
   limit: number;
   offset: number;
   operatorId?: string;
@@ -45,6 +55,9 @@ export interface OpportunityRepository {
   readonly create: (
     input: CreateOpportunityInput,
   ) => Promise<Result<OpportunityDetail, GenericError>>;
+  readonly deleteByIdAndOperatorId: (
+    input: DeleteOpportunityByIdAndOperatorIdInput,
+  ) => Promise<Result<void, ConflictError | GenericError>>;
   readonly findAll: (
     input: ListOpportunitiesInput,
   ) => Promise<Result<PaginatedOpportunities, GenericError>>;

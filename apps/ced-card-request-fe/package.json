@@ -15,7 +15,6 @@
     "mock:start": "npx @mockoon/cli start --data mockoon/mockoon-config.json"
   },
   "dependencies": {
-    "@pagopa/io-core-ui": "workspace:^",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.1",
     "@mui/icons-material": "^5.18.0",
@@ -23,8 +22,10 @@
     "@mui/material": "^5.18.0",
     "@mui/system": "^5.18.0",
     "@mui/x-date-pickers": "^6.20.2",
-    "@reduxjs/toolkit": "^2.7.0",
+    "@pagopa/io-core-ui": "workspace:^",
     "@pagopa/mui-italia": "2.4.1",
+    "@reduxjs/toolkit": "^2.7.0",
+    "browser-image-compression": "^2.0.2",
     "date-fns": "^4.1.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",

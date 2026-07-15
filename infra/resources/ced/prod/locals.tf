@@ -146,6 +146,16 @@ locals {
     readiness_probe_path = "/api/info/readiness"
   }
 
+  # INPS ModI reverse proxy — allows local devcontainers connected to the VPN to reach
+  # INPS APIs through the whitelisted NAT gateway outbound IP of the Container App Environment.
+  inps_proxy = {
+    target_port = 8080
+
+    image = "ghcr.io/pagopa/inps-proxy:latest"
+
+    health_path = "/healthz"
+  }
+
   tags = {
     CostCenter     = "TS000 - Tecnologia e Servizi"
     CreatedBy      = "Terraform"

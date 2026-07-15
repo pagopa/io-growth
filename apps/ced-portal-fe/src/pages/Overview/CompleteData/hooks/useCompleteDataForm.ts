@@ -12,7 +12,7 @@ import type {
 } from '../../../../core/api/generated/model';
 
 const createEmptyContact = (): ContactFormData => ({
-  type: '',
+  type: 'email',
   value: '',
 });
 

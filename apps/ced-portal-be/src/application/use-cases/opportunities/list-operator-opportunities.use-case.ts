@@ -31,7 +31,6 @@ const ListOperatorOpportunitiesInputSchema = z.object({
       "published",
       "scheduled",
       "suspended",
-      "deleted",
     ])
     .optional(),
 });
@@ -53,5 +52,10 @@ export const makeListOperatorOpportunitiesUseCase =
   async (input) =>
     validateUseCaseInput(ListOperatorOpportunitiesInputSchema, input).andThen(
       (validatedInput) =>
-        new ResultAsync(opportunityRepository.findAll(validatedInput)),
+        new ResultAsync(
+          opportunityRepository.findAll({
+            ...validatedInput,
+            excludeDeleted: true,
+          }),
+        ),
     );

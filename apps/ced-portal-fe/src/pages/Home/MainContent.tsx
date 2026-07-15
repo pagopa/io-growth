@@ -1,13 +1,20 @@
 import { Box, Stack, useTheme } from '@mui/material';
 import { SyntheticEvent, useEffect, useState } from 'react';
 import { ResultsPagination } from '../../components';
-import { useGetOpportunityCategoriesQuery } from '../../features/opportunities/api';
+import {
+  useGetOpportunityCategoriesQuery,
+  useDeleteOpportunityMutation,
+} from '../../features/opportunities/api';
 import { useBenefitsData } from '../../features/opportunities/hooks';
+import { useToast } from '../../contexts';
 import { BenefitsContentState } from './components/BenefitsContentState';
 import { BenefitsFiltersBar } from './components/BenefitsFiltersBar';
 import { BenefitsTabs } from './components/BenefitsTabs';
 import { MainContentHeader } from './components/MainContentHeader';
-import type { OpportunitySummaryItemStatus } from '../../core/api/generated/model';
+import type {
+  ListOperatorOpportunitiesStatus,
+  OperatorDeleteOpportunityBody,
+} from '../../core/api/generated/model';
 import { useMemorizedTabsAndFilters } from '../../hooks/useMemorizedTabsAndFilters';
 import {
   OPERATOR_MANAGED_STATE_OPTIONS,
@@ -17,11 +24,12 @@ import {
 const INITIAL_FILTERS = {
   search: '',
   categoryId: '',
-  status: '' as OpportunitySummaryItemStatus | '',
+  status: '' as ListOperatorOpportunitiesStatus | '',
 };
 
 export const MainContent = () => {
   const theme = useTheme();
+  const { showToast } = useToast();
 
   const { tab, page, limit, filters, updateParams } =
     useMemorizedTabsAndFilters<typeof INITIAL_FILTERS>(INITIAL_FILTERS, 20);
@@ -29,7 +37,7 @@ export const MainContent = () => {
   const [searchInput, setSearchInput] = useState(filters.search);
   const [categoryIdInput, setCategoryIdInput] = useState(filters.categoryId);
   const [statusInput, setStatusInput] = useState<
-    OpportunitySummaryItemStatus | ''
+    ListOperatorOpportunitiesStatus | ''
   >(filters.status);
 
   useEffect(() => {
@@ -75,6 +83,21 @@ export const MainContent = () => {
     updateParams({ search: '', categoryId: '', status: '', page: 0 });
   };
 
+  const [deleteOpportunity] = useDeleteOpportunityMutation();
+
+  const handleDeleteOpportunity = async (
+    id: string,
+    payload?: OperatorDeleteOpportunityBody,
+  ) => {
+    try {
+      await deleteOpportunity({ id, payload }).unwrap();
+      showToast('Opportunità cancellata con successo', 'success');
+      refetch();
+    } catch {
+      showToast("Errore durante l'eliminazione dell'opportunità", 'error');
+    }
+  };
+
   const displayedItems = tab === 0 ? inManagementItems : approvedItems;
   const filterForDisplayedItems =
     tab === 0 ? OPERATOR_REQUEST_STATE_OPTIONS : OPERATOR_MANAGED_STATE_OPTIONS;
@@ -108,6 +131,7 @@ export const MainContent = () => {
             items={displayedItems}
             activeTab={tab}
             onRetry={refetch}
+            onDeleteOpportunity={handleDeleteOpportunity}
           />
           {showPagination ? (
             <Box sx={{ px: { xs: 1, md: 0 }, pt: 2 }}>

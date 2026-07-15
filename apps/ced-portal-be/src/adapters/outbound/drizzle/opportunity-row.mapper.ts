@@ -43,6 +43,9 @@ export interface OpportunityDetailRow {
   readonly operator?: null | { readonly name: string };
   readonly opportunityPlaces: readonly { readonly placeId: string }[];
   readonly status: Opportunity["status"];
+  readonly suspendedByType?: "department" | "operator" | null;
+  readonly suspendFrom?: null | string;
+  readonly suspensionMessage?: null | string;
   readonly updatedAt: Date;
   readonly url: null | string;
 }
@@ -56,6 +59,8 @@ export interface OpportunitySummaryRow {
   readonly name: null | string;
   readonly operatorName: string;
   readonly status: Opportunity["status"];
+  readonly suspendedByType?: "department" | "operator" | null;
+  readonly suspendFrom?: null | string;
 }
 
 const mapBenefitRow = (row: BenefitRow): BenefitSummary | null => {
@@ -146,7 +151,11 @@ export const mapOpportunityDetailRow = (
       row.status,
       row.dateFrom,
       referenceDate,
+      row.suspendFrom,
     ),
+    suspendedByType: row.suspendedByType ?? null,
+    suspendFrom: row.suspendFrom ?? null,
+    suspensionMessage: row.suspensionMessage ?? null,
     updatedAt: row.updatedAt.toISOString(),
     url: row.url,
   });
@@ -167,5 +176,8 @@ export const mapOpportunitySummaryRow = (
     row.status,
     row.dateFrom,
     referenceDate,
+    row.suspendFrom,
   ),
+  suspendedByType: row.suspendedByType ?? null,
+  suspendFrom: row.suspendFrom ?? null,
 });

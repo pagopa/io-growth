@@ -16,6 +16,7 @@ import {
 import { ulid } from "ulid";
 
 import {
+  actorTypeEnum,
   benefitDiscountTypeEnum,
   benefitTypeEnum,
   changeAuditChangeTypeEnum,
@@ -158,6 +159,9 @@ export const opportunity = pgTable("opportunity", {
     .references(() => operator.id, { onDelete: "cascade" }),
   rejectionMessage: varchar("rejection_message", { length: 4096 }),
   status: opportunityStatusEnum().notNull(),
+  suspendedByType: actorTypeEnum("suspended_by_type"),
+  suspendFrom: date("suspend_from"),
+  suspensionMessage: varchar("suspension_message", { length: 4096 }),
   updatedAt: timestamp("updated_at", { withTimezone: true })
     .notNull()
     .defaultNow(),

@@ -32,6 +32,7 @@ const baseRow = {
       value: "Sconto 20%",
     },
   ],
+  nationalTerritory: false,
   opportunityPlaces: [{ placeId: "01JVMK3N8XQZP5T6G2WYHAB4CE" }],
   status: "draft" as const,
   updatedAt: new Date("2026-01-02T00:00:00.000Z"),
@@ -48,6 +49,7 @@ describe("mapOpportunityDetailRow", () => {
         type: "discount",
         value: null,
       },
+      nationalTerritory: false,
     });
 
     expect(result.isErr()).toBe(true);
@@ -60,6 +62,7 @@ describe("mapOpportunityDetailRow", () => {
     const result = mapOpportunityDetailRow({
       ...baseRow,
       category: null,
+      nationalTerritory: false,
     });
 
     expect(result.isErr()).toBe(true);
@@ -93,16 +96,58 @@ describe("mapOpportunityDetailRow", () => {
           value: "Sconto 20%",
         },
       ],
+      nationalTerritory: false,
       placeIds: ["01JVMK3N8XQZP5T6G2WYHAB4CE"],
       status: "draft",
+      suspendedByType: null,
+      suspendFrom: null,
+      suspensionMessage: null,
       updatedAt: "2026-01-02T00:00:00.000Z",
       url: "https://example.org/promo",
     });
   });
 
+  it("should map the suspension fields when present", () => {
+    const result = mapOpportunityDetailRow({
+      ...baseRow,
+      nationalTerritory: false,
+      status: "suspended",
+      suspendedByType: "operator",
+      suspensionMessage: "Chiuso per manutenzione",
+    });
+
+    expect(result).toEqual(
+      ok(
+        expect.objectContaining({
+          suspendedByType: "operator",
+          suspendFrom: null,
+          suspensionMessage: "Chiuso per manutenzione",
+        }),
+      ),
+    );
+  });
+
+  it("should map a pending scheduled suspension date", () => {
+    const result = mapOpportunityDetailRow({
+      ...baseRow,
+      nationalTerritory: false,
+      status: "published",
+      suspendFrom: "2026-08-01",
+    });
+
+    expect(result).toEqual(
+      ok(expect.objectContaining({ suspendFrom: "2026-08-01" })),
+    );
+  });
+
   it("should report a published detail not yet effective as scheduled", () => {
     const result = mapOpportunityDetailRow(
-      { ...baseRow, dateFrom: "2026-12-31", status: "published" },
+      {
+        ...baseRow,
+        dateFrom: "2026-12-31",
+        nationalTerritory: false,
+        status: "published",
+      },
       "2026-06-26",
     );
 
@@ -113,6 +158,7 @@ describe("mapOpportunityDetailRow", () => {
     const result = mapOpportunityDetailRow({
       ...baseRow,
       deletionMessage: "Iniziativa terminata",
+      nationalTerritory: false,
       status: "deleted",
     });
 
@@ -131,11 +177,31 @@ describe("mapOpportunityDetailRow", () => {
 
   it("should keep an already effective published detail as published", () => {
     const result = mapOpportunityDetailRow(
-      { ...baseRow, dateFrom: "2026-01-01", status: "published" },
+      {
+        ...baseRow,
+        dateFrom: "2026-01-01",
+        nationalTerritory: false,
+        status: "published",
+      },
       "2026-06-26",
     );
 
     expect(result._unsafeUnwrap().status).toBe("published");
+  });
+
+  it("should report a live published detail with a future suspendFrom as scheduled_suspension", () => {
+    const result = mapOpportunityDetailRow(
+      {
+        ...baseRow,
+        dateFrom: "2026-01-01",
+        nationalTerritory: false,
+        status: "published",
+        suspendFrom: "2026-08-01",
+      },
+      "2026-06-26",
+    );
+
+    expect(result._unsafeUnwrap().status).toBe("scheduled_suspension");
   });
 });
 
@@ -181,6 +247,25 @@ describe("mapOpportunitySummaryRow", () => {
     const result = mapOpportunitySummaryRow({
       ...baseSummaryRow,
       dateFrom: "2026-12-31",
+    });
+
+    expect(result.status).toBe("published");
+  });
+
+  it("should report a live published summary with a future suspendFrom as scheduled_suspension", () => {
+    const result = mapOpportunitySummaryRow(
+      { ...baseSummaryRow, dateFrom: "2026-01-01", suspendFrom: "2026-08-01" },
+      "2026-06-26",
+    );
+
+    expect(result.status).toBe("scheduled_suspension");
+  });
+
+  it("should not derive scheduled_suspension without a reference date", () => {
+    const result = mapOpportunitySummaryRow({
+      ...baseSummaryRow,
+      dateFrom: "2026-01-01",
+      suspendFrom: "2026-08-01",
     });
 
     expect(result.status).toBe("published");

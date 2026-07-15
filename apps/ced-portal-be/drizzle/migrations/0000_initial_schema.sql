@@ -1,5 +1,7 @@
 -- Custom SQL migration: Initial schema based on ER diagram
 
+CREATE TYPE actor_type AS ENUM ('operator', 'department');
+
 CREATE TYPE operator_status AS ENUM ('active', 'suspended', 'revoked');
 
 CREATE TYPE place_type AS ENUM ('online', 'offline');
@@ -108,8 +110,13 @@ CREATE TABLE opportunity (
   national_territory BOOLEAN NOT NULL DEFAULT false,
   rejection_message VARCHAR(4096),
   deletion_message VARCHAR(4096),
+  suspension_message VARCHAR(4096),
+  suspended_by_type actor_type,
+  suspend_from DATE,
   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-  updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  CONSTRAINT ck_suspend_from_published
+    CHECK (suspend_from IS NULL OR status = 'published')
 );
 
 CREATE TABLE opportunity_place (

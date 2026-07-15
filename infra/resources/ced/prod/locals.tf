@@ -139,7 +139,7 @@ locals {
       FIMS_AUDIT_CONTAINER = "ced-card-request-logs"
       FIMS_REDIRECT_URL    = "https://api.ced.pagopa.it/api/ced-card/v1/fcb"
       FIMS_SCOPE           = "openid profile lollipop"
-      TEST_USERS           = ""
+      TEST_USERS           = "6960f673e4bf8cc073a32b3b4579bfdb97b50b8df29964bdea6fcd1576d16f82"
     }
 
     startup_probe_path   = "/api/info/startup"

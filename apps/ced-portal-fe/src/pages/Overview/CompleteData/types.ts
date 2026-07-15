@@ -6,7 +6,7 @@ export type Contact = {
 };
 
 export type ContactFormData = {
-  type: SupportContactResponseType | '';
+  type: SupportContactResponseType;
   value: string;
 };
 

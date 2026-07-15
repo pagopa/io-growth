@@ -11,4 +11,11 @@ RUN chmod +x /docker-entrypoint.d/10-write-inps-certs.sh
 # This replaces the default /etc/nginx/conf.d/default.conf.
 COPY default.conf.template /etc/nginx/templates/default.conf.template
 
+# Default: verify INPS server cert. Override with INPS_UPSTREAM_SSL_VERIFY=off
+# (collaudo only, until the full INPS root CA chain is provisioned).
+# Must be set here so envsubst in 20-envsubst-on-templates.sh sees it;
+# the /docker-entrypoint.d/ scripts run as separate processes and cannot
+# export variables to each other.
+ENV INPS_UPSTREAM_SSL_VERIFY=on
+
 EXPOSE 8080

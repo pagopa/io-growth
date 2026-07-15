@@ -64,7 +64,7 @@ export default function OpportunityDetailPage() {
       organizazion_name: data?.profile.displayName ?? '',
       organizazion_fiscal_code: '',
       location_name: data?.places[0].name ?? '',
-      source: state.source,
+      source: state?.source,
     },
     !!data,
   );
@@ -82,7 +82,9 @@ export default function OpportunityDetailPage() {
         organization_name: data.profile.displayName,
         organization_fiscal_code: '',
       });
-      navigate(toEntityDetailRoute(data.id));
+      navigate(toEntityDetailRoute(data.id), {
+        state: { source: 'opportunity_detail' },
+      });
     },
     [navigate],
   );
@@ -100,7 +102,9 @@ export default function OpportunityDetailPage() {
         organization_fiscal_code: '',
         location_name: name,
       });
-      navigate(toEntityAccessPointDetailRoute(placeId));
+      navigate(toEntityAccessPointDetailRoute(placeId), {
+        state: { source: 'opportunity_detail' },
+      });
     },
     [navigate],
   );

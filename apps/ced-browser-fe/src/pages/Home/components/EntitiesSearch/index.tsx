@@ -8,8 +8,8 @@ import {
   TextField,
 } from '@mui/material';
 import { useRef, useState, useCallback, useEffect } from 'react';
-import { generatePath, useNavigate } from 'react-router-dom';
-import { APP_ROUTES } from '../../../../app/routeConfig';
+import { useNavigate } from 'react-router-dom';
+import { toEntityAccessPointDetailRoute } from '../../../../app/routeConfig';
 import { useSearchPlacesQuery } from '../../../../features/places/api';
 import { useDebounce } from '../../../../hooks/useDebounce';
 import { SearchEmptyState } from './SearchEmptyState';
@@ -41,11 +41,24 @@ export function EntitiesSearch({
   const trimmedQuery = query.trim();
   const hasMinInputLength = trimmedQuery.length >= 3;
   const shouldRunSearch = isSearchActive && debouncedQuery.trim().length >= 3;
+  const hasTrackedSearchPageView = useRef(false);
 
   const { data, isFetching, isError, isSuccess, isUninitialized, refetch } =
     useSearchPlacesQuery(debouncedQuery, {
       skip: !shouldRunSearch,
     });
+
+  useEffect(() => {
+    if (!isSearchActive) {
+      hasTrackedSearchPageView.current = false;
+      return;
+    }
+
+    if (!hasTrackedSearchPageView.current) {
+      trackBrowserEvent('CED_SEARCH_PAGE', { event_type: 'screen_view' });
+      hasTrackedSearchPageView.current = true;
+    }
+  }, [isSearchActive]);
 
   useEffect(() => {
     // event tracking after debouncedQuery changes
@@ -97,11 +110,9 @@ export function EntitiesSearch({
         // The API currently returns the entity identifier rather than the display name.
         city_name: selectedItem?.address?.city,
       });
-      navigate(
-        generatePath(APP_ROUTES.ENTITY_ACCESS_POINT_DETAIL, {
-          accessPointId,
-        }),
-      );
+      navigate(toEntityAccessPointDetailRoute(accessPointId), {
+        state: { source: 'search_result' },
+      });
     },
     [data?.items, navigate, recentSearches],
   );
@@ -142,8 +153,6 @@ export function EntitiesSearch({
 
   const renderPanel = () => {
     if (!isSearchActive) return null;
-
-    trackBrowserEvent('CED_SEARCH_PAGE', { event_type: 'screen_view' });
 
     if (recentSearches.length > 0 && !hasMinInputLength)
       return (

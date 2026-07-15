@@ -30,7 +30,7 @@ export default function EntityDetailPage() {
       organization_name: data?.displayName ?? '',
       organization_fiscal_code: '',
       has_locations: !!data?.place.address ? 'yes' : 'no',
-      source: state.source,
+      source: state?.source,
     },
     !!data,
   );

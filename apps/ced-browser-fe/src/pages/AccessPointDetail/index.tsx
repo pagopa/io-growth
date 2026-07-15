@@ -70,7 +70,7 @@ export default function AccessPointDetailPage() {
     'CED_LOCATION_DETAIL',
     {
       ...trackExtraProperties,
-      source: state.source,
+      source: state?.source,
     },
     !!data,
   );

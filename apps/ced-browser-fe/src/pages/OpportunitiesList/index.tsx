@@ -24,7 +24,9 @@ export default function OpportunitiesList() {
   ) => {
     // Tracking values are kept in the event payload for now; they may move into the item config in a future refactor.
     const findInfo = data?.items.find(({ id }) => id === item.id);
-    navigate(toOpportunityDetailRoute(item.id));
+    navigate(toOpportunityDetailRoute(item.id), {
+      state: { source: 'opportunity_list' },
+    });
 
     // Some values from the search API are not yet available in the current response model.
     trackBrowserEvent('CED_OPPORTUNITY_SELECTED', {

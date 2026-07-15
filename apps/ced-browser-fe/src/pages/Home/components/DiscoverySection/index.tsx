@@ -52,7 +52,11 @@ const DiscoverySection = () => {
         key={item.id}
         sx={{ backgroundColor: theme.palette.background.paper }}
         divider={index < list.length - 1}
-        onClick={() => navigate(toOpportunityDetailRoute(item.id))}
+        onClick={() =>
+          navigate(toOpportunityDetailRoute(item.id), {
+            state: { source: 'home' },
+          })
+        }
       />
     ));
   };

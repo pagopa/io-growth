@@ -16,6 +16,6 @@ COPY default.conf.template /etc/nginx/templates/default.conf.template
 # Must be set here so envsubst in 20-envsubst-on-templates.sh sees it;
 # the /docker-entrypoint.d/ scripts run as separate processes and cannot
 # export variables to each other.
-ENV INPS_UPSTREAM_SSL_VERIFY=on
+ENV INPS_UPSTREAM_SSL_VERIFY=off
 
 EXPOSE 8080

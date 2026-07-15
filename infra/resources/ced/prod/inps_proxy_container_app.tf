@@ -31,15 +31,17 @@ module "inps_proxy_container_app" {
       name                = "INPS_CLIENT_CA"
       key_vault_secret_id = format(local.secrets_id_template, "inps-ced-modi-inps-https-ca")
     },
+    {
+      name                = "INPS_UPSTREAM"
+      key_vault_secret_id = format(local.secrets_id_template, "ced-p-itn-inps-proxy-upstream-host")
+    },
   ]
 
   container_app_templates = [
     {
       image = local.inps_proxy.image
 
-      app_settings = {
-        INPS_UPSTREAM = local.inps_proxy.upstream_host
-      }
+      app_settings = {}
 
       liveness_probe = {
         path      = local.inps_proxy.health_path

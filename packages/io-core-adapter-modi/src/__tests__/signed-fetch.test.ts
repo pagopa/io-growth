@@ -59,12 +59,28 @@ const P1_CONFIG: ModiConfig = {
   inpsBaseUrl: "https://api.collaudo.inps.it",
   keyVaultUrl: "https://kv.example.com",
   profile: "P1",
-  secretNames: { signingCert: "sigcert", signingKey: "sigkey" },
+  secretNames: {
+    httpsClientCert: "cert",
+    httpsClientKey: "key",
+    inpsHttpsCa: "inpsca",
+  },
 };
 
 const P2_CONFIG: ModiConfig = {
-  ...P1_CONFIG,
+  codiceEnte: "pagopa-01",
+  defaultCodiceUfficio: "UFFDEFAULT",
+  environment: "collaudo",
+  idTipoUtente: "01",
+  inpsBaseUrl: "https://api.collaudo.inps.it",
+  keyVaultUrl: "https://kv.example.com",
   profile: "P2",
+  secretNames: {
+    httpsClientCert: "cert",
+    httpsClientKey: "key",
+    inpsHttpsCa: "inpsca",
+    signingCert: "sigcert",
+    signingKey: "sigkey",
+  },
 };
 
 const AUDIENCE = "urn:inps:api:gestione-ced";
@@ -354,7 +370,7 @@ describe("createSignedFetch", () => {
 });
 
 // ──────────────────────────────────────────────────────────────────────────────
-// P1 profile — ID_AUTH_REST_01 (auth-only JWT, no mTLS, no digest, no response check)
+// P1 profile — ID_AUTH_CHANNEL_02 (mTLS-only, no message-level JWT, no digest)
 // ──────────────────────────────────────────────────────────────────────────────
 describe("createSignedFetch — P1 profile", () => {
   it("does NOT set a Digest header (no body integrity)", async () => {
@@ -374,7 +390,7 @@ describe("createSignedFetch — P1 profile", () => {
     expect((calledOptions?.headers as Headers).has("Digest")).toBe(false);
   });
 
-  it("sets Agid-JWT-Signature (auth JWT) without digest claim", async () => {
+  it("does NOT set Agid-JWT-Signature (mTLS-only, no message-level JWT)", async () => {
     const signedFetch = createSignedFetch({
       audience: AUDIENCE,
       config: P1_CONFIG,
@@ -388,12 +404,66 @@ describe("createSignedFetch — P1 profile", () => {
     });
 
     const [, calledOptions] = vi.mocked(mockFetch).mock.calls[0];
-    const jwt = (calledOptions?.headers as Headers).get("Agid-JWT-Signature");
-    expect(jwt).toBeTruthy();
+    expect((calledOptions?.headers as Headers).has("Agid-JWT-Signature")).toBe(
+      false,
+    );
+  });
 
-    const payload = decodeJwt(String(jwt));
-    expect(payload["digest"]).toBeUndefined();
-    expect(payload["signed_headers"]).toBeUndefined();
+  it("uses the mTLS dispatcher — calls getHttpsClientCredentials and getInpsHttpsCaChain", async () => {
+    const freshProvider: ModiCredentialProvider = {
+      ...credentialProvider,
+      getHttpsClientCredentials: vi
+        .fn()
+        .mockResolvedValue(ok({ cert: "CERT_PEM", key: "KEY_PEM" })),
+      getInpsHttpsCaChain: vi.fn().mockResolvedValue(ok("CA_PEM")),
+    };
+
+    const signedFetch = createSignedFetch({
+      audience: AUDIENCE,
+      config: {
+        ...P1_CONFIG,
+        inpsBaseUrl: "https://api-p1mtls.collaudo.inps.it",
+      },
+      credentialProvider: freshProvider,
+    });
+
+    const result = await signedFetch("/Domanda/CheckDomanda", {
+      body: "{}",
+      headers: { "INPS-Identity-UserId": "RSSMRA80A01H501U" },
+      method: "POST",
+    });
+
+    expect(result.isOk()).toBe(true);
+    expect(
+      vi.mocked(freshProvider.getHttpsClientCredentials),
+    ).toHaveBeenCalledOnce();
+    expect(vi.mocked(freshProvider.getInpsHttpsCaChain)).toHaveBeenCalledOnce();
+  });
+
+  it("does NOT call getSigningCredentials (no message-level signing for P1)", async () => {
+    const freshProvider: ModiCredentialProvider = {
+      ...credentialProvider,
+      getSigningCredentials: vi.fn(),
+    };
+
+    const signedFetch = createSignedFetch({
+      audience: AUDIENCE,
+      config: {
+        ...P1_CONFIG,
+        inpsBaseUrl: "https://api-p1nosign.collaudo.inps.it",
+      },
+      credentialProvider: freshProvider,
+    });
+
+    await signedFetch("/Domanda/CheckDomanda", {
+      body: "{}",
+      headers: { "INPS-Identity-UserId": "RSSMRA80A01H501U" },
+      method: "POST",
+    });
+
+    expect(
+      vi.mocked(freshProvider.getSigningCredentials),
+    ).not.toHaveBeenCalled();
   });
 
   it("does NOT throw when response is missing Agid-JWT-Signature (no non-repudiation)", async () => {
@@ -436,7 +506,7 @@ describe("createSignedFetch — P1 profile", () => {
 });
 
 // ──────────────────────────────────────────────────────────────────────────────
-// P2 profile — INTEGRITY_REST_01 (auth + digest JWT, no mTLS, no response check)
+// P2 profile — ID_AUTH_CHANNEL_02 + CONF_ID_AUTH_01 (mTLS + JWT signing + digest, no response check)
 // ──────────────────────────────────────────────────────────────────────────────
 describe("createSignedFetch — P2 profile", () => {
   it("sets Digest header on the outgoing request", async () => {

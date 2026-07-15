@@ -3,6 +3,7 @@ import mixpanel, { Persistence } from 'mixpanel-browser';
 import { isEnvConfigEnabled } from './utils';
 
 type CONFIG = {
+  deviceId?: string | null;
   ANALYTICS_ENABLE: string;
   ANALYTICS_TOKEN: string;
   ANALYTICS_API_HOST: string;
@@ -27,8 +28,9 @@ export interface EventProperties {
 
 /** To call in order to start the analytics service, otherwise no event will be sent */
 export const initAnalytics = (
-  deviceId: string | undefined,
+  shouldInitialize: boolean,
   {
+    deviceId,
     ANALYTICS_API_HOST,
     ANALYTICS_DEBUG,
     ANALYTICS_LOG_IP,
@@ -37,16 +39,7 @@ export const initAnalytics = (
     ANALYTICS_TOKEN,
   }: CONFIG,
 ): void => {
-  console.log('Initializing analytics with deviceId:', {
-    deviceId,
-    ANALYTICS_API_HOST,
-    ANALYTICS_DEBUG,
-    ANALYTICS_LOG_IP,
-    ANALYTICS_ENABLE,
-    ANALYTICS_PERSISTENCE,
-    ANALYTICS_TOKEN,
-  });
-  if (ANALYTICS_ENABLE && !(window as WindowMPValues).initMixPanel && !!deviceId) {
+  if (ANALYTICS_ENABLE && !(window as WindowMPValues).initMixPanel && shouldInitialize) {
     mixpanel.init(ANALYTICS_TOKEN, {
       api_host: ANALYTICS_API_HOST,
       cookie_domain: '.ioapp.it', // change this value with your dev domain
@@ -57,7 +50,9 @@ export const initAnalytics = (
       secure_cookie: true, // change this value as false if you run in local .env
     });
 
-    mixpanel.identify(deviceId);
+    if (deviceId) {
+      mixpanel.identify(deviceId);
+    }
 
     (window as WindowMPValues).initMixPanel = true;
   }

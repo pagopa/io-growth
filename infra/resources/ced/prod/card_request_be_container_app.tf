@@ -90,6 +90,10 @@ module "card_request_be_container_app" {
       key_vault_secret_id = format(local.secrets_id_template, "ced-p-itn-card-request-be-modi-inps-https-ca-secret-name")
     },
     {
+      name                = "MODI_INPS_TLS_REJECT_UNAUTHORIZED"
+      key_vault_secret_id = format(local.secrets_id_template, "ced-p-itn-card-request-be-modi-inps-tls-reject-unauthorized")
+    },
+    {
       name                = "INPS_CED_BASE_URL"
       key_vault_secret_id = format(local.secrets_id_template, "ced-p-itn-card-request-be-inps-ced-base-url")
     },

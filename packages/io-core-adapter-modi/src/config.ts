@@ -22,6 +22,7 @@ const baseEnvSchema = z.object({
   MODI_ID_TIPO_UTENTE: z.string().min(1),
   MODI_INPS_BASE_URL: z.string().url(),
   MODI_INPS_HTTPS_CA_SECRET_NAME: z.string().min(1).optional(),
+  MODI_INPS_TLS_REJECT_UNAUTHORIZED: z.enum(["true", "false"]).optional(),
   MODI_KEYVAULT_URL: z.string().url(),
 });
 
@@ -113,6 +114,7 @@ interface ModiBaseConfig {
   readonly environment: "collaudo" | "produzione";
   readonly idTipoUtente: string;
   readonly inpsBaseUrl: string;
+  readonly inpsTlsRejectUnauthorized: boolean;
   readonly keyVaultUrl: string;
 }
 
@@ -127,6 +129,8 @@ export const buildModiConfig = (env: ModiEnvConfig): ModiConfig => {
     environment: env.MODI_ENVIRONMENT,
     idTipoUtente: env.MODI_ID_TIPO_UTENTE,
     inpsBaseUrl: env.MODI_INPS_BASE_URL,
+    inpsTlsRejectUnauthorized:
+      env.MODI_INPS_TLS_REJECT_UNAUTHORIZED !== "false",
     keyVaultUrl: env.MODI_KEYVAULT_URL,
   };
 

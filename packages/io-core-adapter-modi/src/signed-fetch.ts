@@ -95,6 +95,7 @@ export const createSignedFetch = (options: {
       ca: caResult.value,
       cert: credsResult.value.cert,
       key: credsResult.value.key,
+      rejectUnauthorized: config.inpsTlsRejectUnauthorized,
     });
     cachedDispatcher = { dispatcher, expiresAt: now + CACHE_TTL_MS };
     return dispatcher;

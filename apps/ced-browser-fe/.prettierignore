@@ -1,0 +1,2 @@
+# ignore files that are generated from openapi by the build process
+src/core/api/generated

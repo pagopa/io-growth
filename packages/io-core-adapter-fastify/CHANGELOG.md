@@ -1,5 +1,13 @@
 # @pagopa/io-core-adapter-fastify
 
+## 0.0.7
+
+### Patch Changes
+
+- 6e01232: added card request bff api
+- Updated dependencies [6e01232]
+  - @pagopa/io-core-domain@0.0.5
+
 ## 0.0.6
 
 ### Patch Changes

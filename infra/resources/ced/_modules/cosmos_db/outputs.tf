@@ -4,5 +4,7 @@ output "cosmos_db" {
     name                = module.ced_cosmos_account.name
     resource_group_name = module.ced_cosmos_account.resource_group_name
     endpoint            = module.ced_cosmos_account.endpoint
+    database_name       = azurerm_cosmosdb_sql_database.ced_cosmos_db.name
+    container_name      = azurerm_cosmosdb_sql_container.card_requests.name
   }
 }

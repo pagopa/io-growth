@@ -14,7 +14,7 @@ const appConfigSchema = fimsConfigSchema
     z.object({
       AZURE_CLIENT_ID: z.string().optional(),
       AZURE_STORAGE_CONNECTION_STRING: z.string().optional(),
-      COSMOS_CONTAINER_NAME: z.string().min(1).default("ced-applications"),
+      COSMOS_CONTAINER_NAME: z.string().min(1),
       COSMOS_DATABASE_NAME: z.string().min(1),
       COSMOS_ENDPOINT: z.url(),
       /**

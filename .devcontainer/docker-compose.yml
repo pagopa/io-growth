@@ -126,7 +126,6 @@ services:
     environment:
       AZURE_COSMOS_EMULATOR_PARTITION_COUNT: 1
       AZURE_COSMOS_EMULATOR_ENABLE_DATA_PERSISTENCE: "true"
-      PROTOCOL: https
 
 volumes:
   postgres-data:

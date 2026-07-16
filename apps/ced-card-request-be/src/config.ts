@@ -14,7 +14,16 @@ const appConfigSchema = fimsConfigSchema
     z.object({
       AZURE_CLIENT_ID: z.string().optional(),
       AZURE_STORAGE_CONNECTION_STRING: z.string().optional(),
-      COSMOS_ENDPOINT: z.string().url(),
+      COSMOS_CONTAINER_NAME: z.string().min(1),
+      COSMOS_DATABASE_NAME: z.string().min(1),
+      COSMOS_ENDPOINT: z.url(),
+      /**
+       * Account master/readonly key. Set only for local development against
+       * the Cosmos DB Emulator, which does not support Azure AD auth. Leave
+       * unset in every real environment so the client authenticates via
+       * `DefaultAzureCredential` (Managed Identity).
+       */
+      COSMOS_KEY: z.string().optional(),
       HOST: z.string().default("0.0.0.0"),
       PORT: z.coerce.number().int().min(1).max(65535).default(8080),
       REDIS_ENDPOINT: z.string().min(1),

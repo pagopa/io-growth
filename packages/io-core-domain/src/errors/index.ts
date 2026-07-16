@@ -57,6 +57,15 @@ export class PreconditionFailedError extends BaseError {
   }
 }
 
+export class ServiceUnavailableError extends BaseError {
+  override readonly kind = "ServiceUnavailableError" as const;
+  override tag = "service-unavailable";
+
+  constructor(message: string) {
+    super("Service unavailable: " + message);
+  }
+}
+
 export class UnauthorizedError extends BaseError {
   override readonly kind = "UnauthorizedError" as const;
   override tag = "unauthorized";

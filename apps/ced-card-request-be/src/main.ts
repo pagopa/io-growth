@@ -37,6 +37,7 @@ import { Agent as HttpsAgent } from "node:https";
 
 import { CardRequestSessionSchema } from "./adapters/inbound/fastify/auth/session.js";
 import {
+  mountConfirmApplicationHandler,
   mountCreateDraftHandler,
   mountGetApplicationStatusHandler,
   mountInfoReadinessHandler,
@@ -47,6 +48,7 @@ import { createCosmosHealthCheckRepository } from "./adapters/outbound/cosmos/co
 import { createCosmosSupportRecordRepository } from "./adapters/outbound/cosmos/cosmos-support-record.repository.js";
 import { createRedisHealthCheckRepository } from "./adapters/outbound/redis/redis-health-check.repository.js";
 import { createRedisSessionRepository } from "./adapters/outbound/redis/redis-session.repository.js";
+import { makeConfirmApplicationUseCase } from "./application/use-cases/confirm/confirm-application.use-case.js";
 import { makeGetInfoReadinessUseCase } from "./application/use-cases/health/info-readiness.use-case.js";
 import { makeGetInfoStartupUseCase } from "./application/use-cases/health/info-startup.use-case.js";
 import { makeUploadPhotoUseCase } from "./application/use-cases/image/upload-photo.use-case.js";
@@ -198,6 +200,14 @@ app.register(async (authenticatedApp) => {
   mountUploadPhotoHandler(
     authenticatedApp,
     makeUploadPhotoUseCase(
+      supportRecordRepository,
+      gestioneDomandaCedRepository,
+    ),
+  );
+
+  mountConfirmApplicationHandler(
+    authenticatedApp,
+    makeConfirmApplicationUseCase(
       supportRecordRepository,
       gestioneDomandaCedRepository,
     ),

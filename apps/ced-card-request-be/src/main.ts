@@ -33,7 +33,6 @@ import {
   tracingPlugin,
 } from "@pagopa/io-core-adapter-tracing";
 import Fastify from "fastify";
-import { Agent as HttpsAgent } from "node:https";
 
 import { CardRequestSessionSchema } from "./adapters/inbound/fastify/auth/session.js";
 import {
@@ -70,7 +69,6 @@ const config = parseConfig();
 // to reach it, which fails when the app runs in a different container.
 const cosmosClient = config.COSMOS_KEY
   ? new CosmosClient({
-      agent: new HttpsAgent({ rejectUnauthorized: false }),
       connectionPolicy: { enableEndpointDiscovery: false },
       endpoint: config.COSMOS_ENDPOINT,
       key: config.COSMOS_KEY,

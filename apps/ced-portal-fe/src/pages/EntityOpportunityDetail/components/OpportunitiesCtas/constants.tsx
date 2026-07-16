@@ -27,10 +27,25 @@ export const CTAS_BY_STATUS: Partial<
   test_rejected: {
     leftCtas: [DELETE_CTA],
   },
-  test_pending: {},
+  test_pending: {
+    rightCtas: [
+      {
+        label: 'Sospendi',
+        variant: 'outlined',
+        actionId: 'SUSPEND',
+      },
+    ],
+  },
   test_passed: {},
   scheduled: {
     leftCtas: [DELETE_CTA],
+    rightCtas: [
+      {
+        label: 'Sospendi',
+        variant: 'outlined',
+        actionId: 'SUSPEND',
+      },
+    ],
   },
   published: {
     rightCtas: [

@@ -1,7 +1,10 @@
 import { Button, Stack } from '@mui/material';
 import { OpportunitiesCtaItem, OpportunitiesCtasProps } from './types';
 import { useGetCtasConfiguration } from './useGetCtasConfiguration';
-import { DeleteOpportunityModal } from '../../../Home/components/DeleteOpportunityModal';
+import {
+  DeleteOpportunityModal,
+  OpportunityActionModal,
+} from '../../../Home/components/DeleteOpportunityModal';
 
 const CTA_BUTTON_SX = { fontWeight: 700, borderRadius: 2, px: 3 };
 
@@ -18,8 +21,16 @@ const renderCta = (cta: OpportunitiesCtaItem) => (
   </Button>
 );
 
-export const OpportunitiesCtas = ({ status, id }: OpportunitiesCtasProps) => {
-  const { ctasConfig, deleteModal } = useGetCtasConfiguration(id, status);
+export const OpportunitiesCtas = ({
+  status,
+  id,
+  suspendFrom,
+}: OpportunitiesCtasProps) => {
+  const { ctasConfig, deleteModal, suspendModal } = useGetCtasConfiguration(
+    id,
+    status,
+    suspendFrom,
+  );
 
   const layout = ctasConfig[status];
   const ctas = layout?.ctas;
@@ -68,6 +79,17 @@ export const OpportunitiesCtas = ({ status, id }: OpportunitiesCtasProps) => {
         open={deleteModal.open}
         onClose={deleteModal.onClose}
         onConfirm={deleteModal.onConfirm}
+      />
+      <OpportunityActionModal
+        actionType="suspend"
+        open={suspendModal.open}
+        onClose={suspendModal.onClose}
+        onConfirm={(payload) =>
+          suspendModal.onConfirm({
+            suspendFrom: payload.suspendDate ?? '',
+            suspensionMessage: payload.message,
+          })
+        }
       />
     </>
   );

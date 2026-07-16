@@ -1,8 +1,6 @@
 import { ChipProps } from '@mui/material';
-import type {
-  OpportunityDetailResponse,
-  OpportunitySummaryItem,
-} from '../../../core/api/generated/model';
+import type { OpportunitySummaryItem } from '../../../core/api/generated/model';
+import type { OpportunityDetail } from '../../../features/opportunities/types';
 import { benefitStateLabelMap, opportunityStatusLabelMap } from './constants';
 
 type ChipConfig = {
@@ -33,9 +31,23 @@ export const getChipConfig = ({ item, role }: ChipConfig): ChipProps => {
   };
 };
 
-export const getDetailChipConfig = (
-  item: OpportunityDetailResponse,
-): ChipProps => {
+export const getDetailChipConfig = (item: OpportunityDetail): ChipProps => {
+  if (item.suspendFrom?.trim()) {
+    return {
+      size: 'small',
+      label: 'Sospensione programmata',
+      color: 'info',
+      sx: {
+        fontSize: 12,
+        fontWeight: 700,
+        height: 24,
+        '& .MuiChip-label': {
+          px: 1.2,
+        },
+      },
+    };
+  }
+
   const config = benefitStateLabelMap[item.status];
 
   const color = config?.color ?? 'default';

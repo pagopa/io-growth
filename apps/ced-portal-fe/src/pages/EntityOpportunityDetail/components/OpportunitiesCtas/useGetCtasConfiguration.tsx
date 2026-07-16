@@ -1,21 +1,39 @@
 import { useCallback, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useDeleteOpportunityMutation } from '../../../../features/opportunities/api';
+import {
+  useCancelScheduledSuspensionMutation,
+  useDeleteOpportunityMutation,
+  useSuspendOpportunityMutation,
+} from '../../../../features/opportunities/api';
 import { useToast } from '../../../../contexts';
 import { APP_ROUTES } from '../../../../app/routeConfig';
 import type { OperatorDeleteOpportunityBody } from '../../../../core/api/generated/model';
-import type { OpportunityStatus } from '../../../../features/opportunities/types';
+import type {
+  OpportunityStatus,
+  SuspendOpportunityPayload,
+} from '../../../../features/opportunities/types';
 import { CTAS_BY_STATUS } from './constants';
 import { OpportunitiesCtaItem, OpportunitiesCtasLayout } from './types';
 
 export const useGetCtasConfiguration = (
   id: string,
   status?: OpportunityStatus,
+  suspendFrom?: string | null,
 ) => {
   const navigate = useNavigate();
   const { showToast } = useToast();
   const [deleteOpportunity] = useDeleteOpportunityMutation();
+  const [suspendOpportunity] = useSuspendOpportunityMutation();
+  const [cancelScheduledSuspension] = useCancelScheduledSuspensionMutation();
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isSuspendModalOpen, setIsSuspendModalOpen] = useState(false);
+
+  const canShowSuspendAction =
+    status === 'published' ||
+    status === 'scheduled' ||
+    status === 'test_pending';
+  const hasScheduledSuspension =
+    canShowSuspendAction && Boolean(suspendFrom?.trim());
 
   const handleConfirmDelete = useCallback(
     async (payload?: OperatorDeleteOpportunityBody) => {
@@ -43,6 +61,23 @@ export const useGetCtasConfiguration = (
     setIsDeleteModalOpen(false);
   }, []);
 
+  const handleConfirmSuspension = useCallback(
+    async (payload: SuspendOpportunityPayload) => {
+      try {
+        await suspendOpportunity({ id, payload }).unwrap();
+        showToast('Sospensione impostata con successo', 'success');
+        setIsSuspendModalOpen(false);
+      } catch {
+        showToast("Errore durante la sospensione dell'opportunita", 'error');
+      }
+    },
+    [id, showToast, suspendOpportunity],
+  );
+
+  const handleCloseSuspendModal = useCallback(() => {
+    setIsSuspendModalOpen(false);
+  }, []);
+
   const handleModify = useCallback(() => {
     navigate(APP_ROUTES.CREATE_BENEFIT, {
       state: { sourceOpportunityId: id },
@@ -50,8 +85,20 @@ export const useGetCtasConfiguration = (
   }, [id, navigate]);
 
   const handleSuspension = useCallback(() => {
-    // TODO[IEG-2721][SCOPE - RELEASE IN OCTOBER]: call suspend opportunity API with { id }.
+    setIsSuspendModalOpen(true);
   }, []);
+
+  const handleCancelScheduledSuspension = useCallback(async () => {
+    try {
+      await cancelScheduledSuspension({ id }).unwrap();
+      showToast('Sospensione pianificata annullata con successo', 'success');
+    } catch {
+      showToast(
+        "Errore durante l'annullamento della sospensione pianificata",
+        'error',
+      );
+    }
+  }, [cancelScheduledSuspension, id, showToast]);
 
   const handlePublication = useCallback(() => {
     // TODO[OUT OF MVP SCOPE]: call publish opportunity API with { id }.
@@ -66,8 +113,15 @@ export const useGetCtasConfiguration = (
       MODIFY: handleModify,
       PUBLISH: handlePublication,
       SUSPEND: handleSuspension,
+      CANCEL_SUSPENSION: handleCancelScheduledSuspension,
     }),
-    [handleDelete, handleModify, handlePublication, handleSuspension],
+    [
+      handleCancelScheduledSuspension,
+      handleDelete,
+      handleModify,
+      handlePublication,
+      handleSuspension,
+    ],
   );
 
   const withActions = useCallback(
@@ -79,20 +133,45 @@ export const useGetCtasConfiguration = (
     [actionsMap],
   );
 
-  const ctasConfig = useMemo(
-    () =>
-      Object.fromEntries(
-        Object.entries(CTAS_BY_STATUS).map(([key, layout]) => [
-          key,
-          {
-            ctas: withActions(layout?.ctas),
-            leftCtas: withActions(layout?.leftCtas),
-            rightCtas: withActions(layout?.rightCtas),
-          } satisfies OpportunitiesCtasLayout,
-        ]),
-      ) as Partial<Record<OpportunityStatus, OpportunitiesCtasLayout>>,
-    [withActions],
-  );
+  const ctasConfig = useMemo(() => {
+    const mapped = Object.fromEntries(
+      Object.entries(CTAS_BY_STATUS).map(([key, layout]) => {
+        const mappedLayout = {
+          ctas: withActions(layout?.ctas),
+          leftCtas: withActions(layout?.leftCtas),
+          rightCtas: withActions(layout?.rightCtas),
+        } satisfies OpportunitiesCtasLayout;
+
+        if (
+          (key === 'published' ||
+            key === 'scheduled' ||
+            key === 'test_pending') &&
+          hasScheduledSuspension
+        ) {
+          return [
+            key,
+            {
+              ...mappedLayout,
+              rightCtas: mappedLayout.rightCtas?.map((cta) =>
+                cta.actionId === 'SUSPEND'
+                  ? {
+                      ...cta,
+                      label: 'Annulla sospensione',
+                      actionId: 'CANCEL_SUSPENSION',
+                      action: actionsMap.CANCEL_SUSPENSION,
+                    }
+                  : cta,
+              ),
+            } satisfies OpportunitiesCtasLayout,
+          ];
+        }
+
+        return [key, mappedLayout];
+      }),
+    ) as Partial<Record<OpportunityStatus, OpportunitiesCtasLayout>>;
+
+    return mapped;
+  }, [actionsMap.CANCEL_SUSPENSION, hasScheduledSuspension, withActions]);
 
   return {
     ctasConfig,
@@ -100,6 +179,11 @@ export const useGetCtasConfiguration = (
       open: isDeleteModalOpen,
       onClose: handleCloseDeleteModal,
       onConfirm: handleConfirmDelete,
+    },
+    suspendModal: {
+      open: isSuspendModalOpen,
+      onClose: handleCloseSuspendModal,
+      onConfirm: handleConfirmSuspension,
     },
   };
 };

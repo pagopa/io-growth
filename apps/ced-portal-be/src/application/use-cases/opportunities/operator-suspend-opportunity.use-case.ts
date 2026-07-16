@@ -66,19 +66,22 @@ export const makeOperatorSuspendOpportunityUseCase =
               ),
             );
 
-          if (data.status !== "published")
-            return errAsync(
-              new PreconditionFailedError(
-                "Opportunity must be in published status to be suspended",
-              ),
-            );
-
           // A pending scheduled suspension must be cancelled before a new
-          // suspension (immediate or scheduled) can be requested.
+          // suspension (immediate or scheduled) can be requested. Checked
+          // before the generic status guard: a pending suspension surfaces
+          // as the derived "scheduled_suspension" status, which would
+          // otherwise fall through with a misleading message.
           if (data.suspendFrom)
             return errAsync(
               new PreconditionFailedError(
                 "A scheduled suspension is already pending for this opportunity",
+              ),
+            );
+
+          if (data.status !== "published")
+            return errAsync(
+              new PreconditionFailedError(
+                "Opportunity must be in published status to be suspended",
               ),
             );
 

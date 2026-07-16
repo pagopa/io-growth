@@ -273,6 +273,40 @@ describe("makeOperatorSuspendOpportunityUseCase - status guard", () => {
     ).not.toHaveBeenCalled();
   });
 
+  it("should report the pending suspension when the derived status is scheduled_suspension", async () => {
+    // In the real read path the mapper derives "scheduled_suspension" for a
+    // published opportunity with a pending suspendFrom: the pending check must
+    // win over the generic non-published guard.
+    const deps = makeDeps({
+      opportunityRepository: {
+        findByIdAndOperatorId: vi
+          .fn()
+          .mockResolvedValue(
+            ok(mockOpportunity("scheduled_suspension", "2026-08-01")),
+          ),
+      },
+    });
+    const useCase = makeOperatorSuspendOpportunityUseCase(
+      deps.opportunityRepository,
+      deps.materializedViewRepository,
+    );
+
+    const result = await useCase(validInput);
+
+    expect(result).toEqual(
+      err(
+        expect.objectContaining({
+          kind: "PreconditionFailedError",
+          message:
+            "Precondition failed: A scheduled suspension is already pending for this opportunity",
+        }),
+      ),
+    );
+    expect(
+      deps.opportunityRepository.suspendByIdAndOperatorId,
+    ).not.toHaveBeenCalled();
+  });
+
   it("should reject an immediate suspension when a scheduled one is already pending", async () => {
     const deps = makeDeps({
       opportunityRepository: {

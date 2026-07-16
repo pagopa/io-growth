@@ -159,7 +159,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
 
-  /status:
+  /api/status:
     get:
       tags:
         - Status Check and Reconciliation
@@ -196,7 +196,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
 
-  /request:
+  /api/request:
     post:
       tags:
         - Application Creation
@@ -250,7 +250,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
 
-  /image:
+  /api/image:
     post:
       tags:
         - Photo Upload
@@ -298,7 +298,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
 
-  /confirm:
+  /api/confirm:
     post:
       tags:
         - Confirmation and Documentation
@@ -349,7 +349,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
 
-  /draft:
+  /api/draft:
     get:
       tags:
         - Read-Only Operations
@@ -393,7 +393,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
 
-  /details:
+  /api/details:
     get:
       tags:
         - Read-Only Operations
@@ -436,7 +436,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
 
-  /summary:
+  /api/summary:
     get:
       tags:
         - Read-Only Operations
@@ -478,7 +478,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
 
-  /receipt:
+  /api/receipt:
     get:
       tags:
         - Read-Only Operations

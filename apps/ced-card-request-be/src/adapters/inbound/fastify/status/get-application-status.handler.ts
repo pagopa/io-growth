@@ -21,7 +21,7 @@ export const mountGetApplicationStatusHandler = (
   useCase: CheckRequestUseCase,
 ) => {
   fastify.get(
-    "/status",
+    "/api/status",
     createHttpHandler(useCase, getApplicationStatusValidator, {
       successCode: 200,
     }),

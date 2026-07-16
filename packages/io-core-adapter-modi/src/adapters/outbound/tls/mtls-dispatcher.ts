@@ -11,11 +11,13 @@ export const createMtlsDispatcher = (options: {
   ca: string;
   cert: string;
   key: string;
+  rejectUnauthorized?: boolean;
 }): Agent =>
   new Agent({
     connect: {
       ca: options.ca,
       cert: options.cert,
       key: options.key,
+      rejectUnauthorized: options.rejectUnauthorized ?? true,
     },
   });

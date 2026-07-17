@@ -19,6 +19,13 @@
                 <header>Accept</header>
                 <header>signature</header>
                 <header>signature-input</header>
+                <header>Pragma</header>
+                <header>Authorization</header>
+                <header>Cache-Control</header>
+                <header>Sec-Fetch-Site</header>
+                <header>Sec-Fetch-Mode</header>
+                <header>Sec-Fetch-Dest</header>
+                <header>Origin</header>
             </allowed-headers>
             <expose-headers>
                 <header>*</header>

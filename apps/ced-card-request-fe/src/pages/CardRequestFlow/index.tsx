@@ -1,7 +1,7 @@
 import { Box, Button, useTheme } from '@mui/material';
 import { Body, MobileSpinnerLoader, VSpacer } from '@pagopa/io-core-ui';
 import { useEffect, useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { APP_ROUTES } from '../../app/routeConfig';
 import { PageHeader, Stepper } from '../../components';
 import { SavedDraftDialog } from './SavedDraftDialog';
@@ -46,9 +46,12 @@ const steps = [
 const TOTAL_STEPS = steps.length;
 
 export default function CardRequestFlowPage() {
+  const location = useLocation();
+  const state = location.state as { step: number };
   const navigate = useNavigate();
   const theme = useTheme();
-  const [currentStep, setCurrentStep] = useState(0);
+  const [currentStep, setCurrentStep] = useState(state?.step ?? 0);
+  console.log('🚀 ~ CardRequestFlowPage ~ currentStep:', currentStep);
   const [draftSaved, setDraftSaved] = useState(false);
   const stepRef = useRef<StepRef | null>(null);
   const [photoPreview, setPhotoPreview] = useState<string>('');

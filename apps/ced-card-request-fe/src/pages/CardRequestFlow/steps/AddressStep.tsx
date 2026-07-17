@@ -1,21 +1,11 @@
 import { Box } from '@mui/material';
 import { Body, Title, VSpacer } from '@pagopa/io-core-ui';
 import { forwardRef, useImperativeHandle, useState } from 'react';
-import { AppAutocomplete, AppSelect, AppTextField } from '../../../components';
+import { AppSelect, AppTextField } from '../../../components';
 import { StepCard } from '../StepCard';
 import type { StepRef } from '../types';
 import { useAddressDataForm } from '../hooks/useAddressDataForm';
 import { NuovaDomandaInBozzaRequest } from '../../../core/api/generated/model';
-
-interface AddressFormState {
-  provincia: string;
-  comune: string;
-  cap: string;
-  indirizzo: string;
-  civico: string;
-  intercomName: string;
-  altriDettagli: string;
-}
 
 export const AddressStep = forwardRef<StepRef>(function AddressStep(_, ref) {
   const addressFields = useAddressDataForm();

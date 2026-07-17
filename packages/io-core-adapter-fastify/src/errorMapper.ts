@@ -22,6 +22,7 @@ const errorKindToHttpConfig: Record<string, HttpErrorConfig> = {
   GenericError: { status: 500, title: "Internal Server Error" },
   NotFoundError: { status: 404, title: "Not Found" },
   PreconditionFailedError: { status: 412, title: "Precondition Failed" },
+  ServiceUnavailableError: { status: 503, title: "Service Unavailable" },
   UnauthorizedError: { status: 401, title: "Unauthorized" },
   ValidationError: { status: 400, title: "Validation Error" },
 };

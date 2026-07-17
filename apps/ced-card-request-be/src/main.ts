@@ -36,15 +36,22 @@ import Fastify from "fastify";
 
 import { CardRequestSessionSchema } from "./adapters/inbound/fastify/auth/session.js";
 import {
+  mountConfirmApplicationHandler,
+  mountCreateDraftHandler,
   mountGetApplicationStatusHandler,
   mountInfoReadinessHandler,
   mountInfoStartupHandler,
+  mountUploadPhotoHandler,
 } from "./adapters/inbound/fastify/index.js";
 import { createCosmosHealthCheckRepository } from "./adapters/outbound/cosmos/cosmos-health-check.repository.js";
+import { createCosmosSupportRecordRepository } from "./adapters/outbound/cosmos/cosmos-support-record.repository.js";
 import { createRedisHealthCheckRepository } from "./adapters/outbound/redis/redis-health-check.repository.js";
 import { createRedisSessionRepository } from "./adapters/outbound/redis/redis-session.repository.js";
+import { makeConfirmApplicationUseCase } from "./application/use-cases/confirm/confirm-application.use-case.js";
 import { makeGetInfoReadinessUseCase } from "./application/use-cases/health/info-readiness.use-case.js";
 import { makeGetInfoStartupUseCase } from "./application/use-cases/health/info-startup.use-case.js";
+import { makeUploadPhotoUseCase } from "./application/use-cases/image/upload-photo.use-case.js";
+import { makeCreateDraftUseCase } from "./application/use-cases/request/create-draft.use-case.js";
 import { makeCheckRequestUseCase } from "./application/use-cases/status/check-request.use-case.js";
 import {
   createSessionContextPreHandler,
@@ -54,10 +61,22 @@ import { parseConfig } from "./config.js";
 
 const config = parseConfig();
 
-const cosmosClient = new CosmosClient({
-  aadCredentials: new DefaultAzureCredential(),
-  endpoint: config.COSMOS_ENDPOINT,
-});
+// The Cosmos DB Emulator (local dev) only supports key-based auth and serves
+// a self-signed certificate; every real environment omits COSMOS_KEY and
+// authenticates via DefaultAzureCredential over a properly signed endpoint.
+// Endpoint discovery is also disabled for the emulator: it advertises its
+// read/write region as https://127.0.0.1:8081 regardless of the endpoint used
+// to reach it, which fails when the app runs in a different container.
+const cosmosClient = config.COSMOS_KEY
+  ? new CosmosClient({
+      connectionPolicy: { enableEndpointDiscovery: false },
+      endpoint: config.COSMOS_ENDPOINT,
+      key: config.COSMOS_KEY,
+    })
+  : new CosmosClient({
+      aadCredentials: new DefaultAzureCredential(),
+      endpoint: config.COSMOS_ENDPOINT,
+    });
 
 const redisClient = await createResilientRedisClient({
   endpoint: config.REDIS_ENDPOINT,
@@ -72,6 +91,13 @@ const redisHealthCheckRepository =
 const cosmosHealthCheckRepository =
   createCosmosHealthCheckRepository(cosmosClient);
 const sessionStore = createRedisSessionRepository(redisClient);
+
+const supportRecordContainer = cosmosClient
+  .database(config.COSMOS_DATABASE_NAME)
+  .container(config.COSMOS_CONTAINER_NAME);
+const supportRecordRepository = createCosmosSupportRecordRepository(
+  supportRecordContainer,
+);
 
 const containerClient = (
   config.AZURE_STORAGE_CONNECTION_STRING
@@ -159,6 +185,30 @@ app.register(async (authenticatedApp) => {
   mountGetApplicationStatusHandler(
     authenticatedApp,
     makeCheckRequestUseCase(gestioneDomandaCedRepository),
+  );
+
+  mountCreateDraftHandler(
+    authenticatedApp,
+    makeCreateDraftUseCase(
+      supportRecordRepository,
+      gestioneDomandaCedRepository,
+    ),
+  );
+
+  mountUploadPhotoHandler(
+    authenticatedApp,
+    makeUploadPhotoUseCase(
+      supportRecordRepository,
+      gestioneDomandaCedRepository,
+    ),
+  );
+
+  mountConfirmApplicationHandler(
+    authenticatedApp,
+    makeConfirmApplicationUseCase(
+      supportRecordRepository,
+      gestioneDomandaCedRepository,
+    ),
   );
 });
 

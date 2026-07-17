@@ -1,6 +1,9 @@
 {
   "version": "1",
-  "name": "BFF - CED Application Management (INPS Cooperation)",
+  "name": "ced-card-request-be",
   "type": "collection",
-  "ignore": []
+  "ignore": [
+    "node_modules",
+    ".git"
+  ]
 }

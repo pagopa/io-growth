@@ -318,6 +318,7 @@ terraform.rc
 apps/ced-portal-be/src/adapters/inbound/fastify/contracts/
 apps/**/src/core/api/generated/
 apps/ced-browser-be/src/adapters/inbound/fastify/contracts/
+apps/ced-card-request-be/src/adapters/inbound/fastify/contracts/
 apps/ced-portal-fe/src/core/api/generated/
 packages/io-core-adapter-ar/src/generated/
 packages/io-core-adapter-inps-ced/src/generated/

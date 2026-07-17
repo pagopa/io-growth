@@ -1,7 +1,7 @@
 import { Box, Button, useTheme } from '@mui/material';
 import { Body, MobileSpinnerLoader, VSpacer } from '@pagopa/io-core-ui';
 import { useEffect, useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { APP_ROUTES } from '../../app/routeConfig';
 import { PageHeader, Stepper } from '../../components';
 import { SavedDraftDialog } from './SavedDraftDialog';
@@ -11,6 +11,9 @@ import { DocumentTypeStep } from './steps/DocumentTypeStep';
 import { PhotoUploadStep } from './steps/PhotoUploadStep';
 import SummaryStep from './steps/SummaryStep';
 import type { StepRef } from './types';
+import { useCreateDraftRequestMutation } from '../../features/request-form/api';
+import { useAppSelector } from '../../hooks';
+import { selectRequestForm } from '../../features/request-form/selectors';
 
 const steps = [
   {
@@ -43,13 +46,17 @@ const steps = [
 const TOTAL_STEPS = steps.length;
 
 export default function CardRequestFlowPage() {
+  const location = useLocation();
+  const state = location.state as { step: number };
   const navigate = useNavigate();
   const theme = useTheme();
-  const [currentStep, setCurrentStep] = useState(0);
+  const [currentStep, setCurrentStep] = useState(state?.step ?? 0);
   const [draftSaved, setDraftSaved] = useState(false);
   const stepRef = useRef<StepRef | null>(null);
   const [photoPreview, setPhotoPreview] = useState<string>('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const firstDraftForm = useAppSelector(selectRequestForm);
 
   const {
     title,
@@ -61,6 +68,8 @@ export default function CardRequestFlowPage() {
   const actionLabel = isLastStep
     ? 'Invia richiesta'
     : (confirmLabel ?? 'Conferma');
+
+  const [saveFirstDraft] = useCreateDraftRequestMutation();
 
   useEffect(() => {
     requestAnimationFrame(() => {
@@ -84,6 +93,22 @@ export default function CardRequestFlowPage() {
     if (stepRef.current) {
       const isValid = await stepRef.current.validate();
       if (!isValid) return;
+      if (currentStep === 1) {
+        const idempotencyKey = globalThis.crypto?.randomUUID?.();
+        if (!idempotencyKey) {
+          navigate(APP_ROUTES.GENERIC_ERROR, { replace: true });
+          return;
+        }
+        try {
+          await saveFirstDraft({
+            body: firstDraftForm,
+            idempotency_key: idempotencyKey,
+          }).unwrap();
+        } catch {
+          navigate(APP_ROUTES.GENERIC_ERROR, { replace: true });
+          return;
+        }
+      }
     }
     if (!isLastStep) {
       setCurrentStep((s) => s + 1);

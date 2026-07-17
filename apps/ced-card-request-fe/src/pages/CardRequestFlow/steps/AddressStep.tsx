@@ -1,9 +1,11 @@
 import { Box } from '@mui/material';
 import { Body, Title, VSpacer } from '@pagopa/io-core-ui';
 import { forwardRef, useImperativeHandle, useState } from 'react';
-import { AppAutocomplete, AppTextField } from '../../../components';
+import { AppAutocomplete, AppSelect, AppTextField } from '../../../components';
 import { StepCard } from '../StepCard';
 import type { StepRef } from '../types';
+import { useAddressDataForm } from '../hooks/useAddressDataForm';
+import { NuovaDomandaInBozzaRequest } from '../../../core/api/generated/model';
 
 interface AddressFormState {
   provincia: string;
@@ -15,77 +17,41 @@ interface AddressFormState {
   altriDettagli: string;
 }
 
-const REQUIRED_FIELDS: (keyof AddressFormState)[] = [
-  'provincia',
-  'comune',
-  'cap',
-  'indirizzo',
-  'civico',
-];
-
-const provinceOptions = [
-  { label: 'Milano', value: 'MI' },
-  { label: 'Roma', value: 'RM' },
-  { label: 'Napoli', value: 'NA' },
-];
-
-const comuneOptions = [
-  { label: 'Milano', value: 'Milano' },
-  { label: 'Roma', value: 'Roma' },
-  { label: 'Napoli', value: 'Napoli' },
-];
-
-const capOptions = [
-  { label: '20100', value: '20100' },
-  { label: '00100', value: '00100' },
-  { label: '80100', value: '80100' },
-];
-
 export const AddressStep = forwardRef<StepRef>(function AddressStep(_, ref) {
-  const [form, setForm] = useState<AddressFormState>({
-    provincia: '',
-    comune: '',
-    cap: '',
-    indirizzo: '',
-    civico: '',
-    intercomName: '',
-    altriDettagli: '',
-  });
+  const addressFields = useAddressDataForm();
+
   const [errors, setErrors] = useState<
-    Partial<Record<keyof AddressFormState, string>>
+    Partial<Record<keyof NuovaDomandaInBozzaRequest, string>>
   >({});
 
-  const MAX_LENGTHS: Partial<Record<keyof AddressFormState, number>> = {
-    indirizzo: 30,
-    civico: 10,
-    altriDettagli: 45,
-  };
+  const MAX_LENGTHS: Partial<Record<keyof NuovaDomandaInBozzaRequest, number>> =
+    {
+      indirizzoRec: 30,
+      civicoRec: 10,
+      datiAggiuntiviRec: 45,
+    };
 
   useImperativeHandle(ref, () => ({
     validate() {
-      const newErrors: Partial<Record<keyof AddressFormState, string>> = {};
-      for (const field of REQUIRED_FIELDS) {
-        if (!form[field].trim()) {
-          newErrors[field] = 'Campo obbligatorio';
+      const newErrors: Partial<
+        Record<keyof NuovaDomandaInBozzaRequest, string>
+      > = {};
+      for (const item of addressFields) {
+        if (!item.value.trim() && item.required) {
+          newErrors[item.field] = 'Campo obbligatorio';
         }
-      }
-      for (const [field, max] of Object.entries(MAX_LENGTHS)) {
-        const key = field as keyof AddressFormState;
-        if (form[key].length > max) {
-          newErrors[key] = `Massimo ${max} caratteri`;
+
+        for (const [field, max] of Object.entries(MAX_LENGTHS)) {
+          const key = field as keyof NuovaDomandaInBozzaRequest;
+          if (item.field === key && item.value.length > max) {
+            newErrors[key] = `Massimo ${max} caratteri`;
+          }
         }
       }
       setErrors(newErrors);
       return Object.keys(newErrors).length === 0;
     },
   }));
-
-  const handleChange = (field: keyof AddressFormState, value: string) => {
-    setForm((prev) => ({ ...prev, [field]: value }));
-    if (errors[field]) {
-      setErrors((prev) => ({ ...prev, [field]: undefined }));
-    }
-  };
 
   return (
     <StepCard>
@@ -97,70 +63,18 @@ export const AddressStep = forwardRef<StepRef>(function AddressStep(_, ref) {
       </Body>
 
       <Box sx={{ mt: 3, display: 'grid', gap: 2.25 }}>
-        <AppTextField
-          label="Indirizzo"
-          required
-          value={form.indirizzo}
-          error={!!errors.indirizzo}
-          helperText={errors.indirizzo}
-          inputProps={{ maxLength: 30 }}
-          onChange={(e) => handleChange('indirizzo', e.target.value)}
-        />
-        <AppTextField
-          label="Civico"
-          required
-          value={form.civico}
-          error={!!errors.civico}
-          helperText={errors.civico}
-          inputProps={{ maxLength: 10 }}
-          onChange={(e) => handleChange('civico', e.target.value)}
-        />
-        <AppAutocomplete
-          label="Comune"
-          required
-          options={comuneOptions}
-          inputValue={form.comune}
-          error={!!errors.comune}
-          helperText={errors.comune}
-          onValueChange={(value) => handleChange('comune', value)}
-          onSelect={(option) => handleChange('comune', option.label)}
-        />
-        <AppAutocomplete
-          label="Provincia"
-          required
-          options={provinceOptions}
-          inputValue={form.provincia}
-          error={!!errors.provincia}
-          helperText={errors.provincia}
-          onValueChange={(value) => handleChange('provincia', value)}
-          onSelect={(option) => handleChange('provincia', option.label)}
-        />
-        <AppAutocomplete
-          label="CAP"
-          required
-          options={capOptions}
-          inputValue={form.cap}
-          error={!!errors.cap}
-          helperText={errors.cap}
-          onValueChange={(value) => handleChange('cap', value)}
-          onSelect={(option) => handleChange('cap', option.label)}
-        />
-        <AppTextField
-          label="Nome sul citofono"
-          value={form.intercomName}
-          error={!!errors.intercomName}
-          helperText={errors.intercomName}
-          inputProps={{ maxLength: 45 }}
-          onChange={(e) => handleChange('intercomName', e.target.value)}
-        />
-        <AppTextField
-          label="Altri dettagli"
-          value={form.altriDettagli}
-          error={!!errors.altriDettagli}
-          helperText={errors.altriDettagli}
-          inputProps={{ maxLength: 45 }}
-          onChange={(e) => handleChange('altriDettagli', e.target.value)}
-        />
+        {addressFields.map(({ field, type, ...rest }) => {
+          const Component = type === 'text' ? AppTextField : AppSelect;
+          const error = errors[field];
+          return (
+            <Component
+              key={field}
+              error={!!error}
+              helperText={error}
+              {...rest}
+            />
+          );
+        })}
       </Box>
     </StepCard>
   );

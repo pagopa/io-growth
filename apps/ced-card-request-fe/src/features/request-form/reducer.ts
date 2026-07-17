@@ -17,7 +17,7 @@ const requestFormSlice = createSlice({
       }>,
     ) => {
       const { field, value } = action.payload;
-      state = {
+      return {
         ...state,
         [field]: value,
       };

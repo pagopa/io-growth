@@ -11,6 +11,9 @@ import { DocumentTypeStep } from './steps/DocumentTypeStep';
 import { PhotoUploadStep } from './steps/PhotoUploadStep';
 import SummaryStep from './steps/SummaryStep';
 import type { StepRef } from './types';
+import { useCreateDraftRequestMutation } from '../../features/request-form/api';
+import { useAppSelector } from '../../hooks';
+import { selectRequestForm } from '../../features/request-form/selectors';
 
 const steps = [
   {
@@ -51,6 +54,8 @@ export default function CardRequestFlowPage() {
   const [photoPreview, setPhotoPreview] = useState<string>('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const firstDraftForm = useAppSelector(selectRequestForm);
+
   const {
     title,
     content: StepContent,
@@ -61,6 +66,8 @@ export default function CardRequestFlowPage() {
   const actionLabel = isLastStep
     ? 'Invia richiesta'
     : (confirmLabel ?? 'Conferma');
+
+  const [saveFirstDraft] = useCreateDraftRequestMutation();
 
   useEffect(() => {
     requestAnimationFrame(() => {
@@ -84,6 +91,13 @@ export default function CardRequestFlowPage() {
     if (stepRef.current) {
       const isValid = await stepRef.current.validate();
       if (!isValid) return;
+      if (currentStep === 1) {
+        const idempotencyKey = globalThis.crypto?.randomUUID?.();
+        await saveFirstDraft({
+          body: firstDraftForm,
+          idempotency_key: idempotencyKey ?? '',
+        });
+      }
     }
     if (!isLastStep) {
       setCurrentStep((s) => s + 1);

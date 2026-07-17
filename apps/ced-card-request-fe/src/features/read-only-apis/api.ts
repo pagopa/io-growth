@@ -7,22 +7,22 @@ import {
 export const readOnlyApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     getStatus: builder.query<StateResponse, void>({
-      query: () => '/api/status',
+      query: () => '/status',
     }),
     getDraft: builder.query<DraftDataResponse, void>({
-      query: () => '/api/draft',
+      query: () => '/draft',
       providesTags: ['ReadOnly'],
     }),
     getDetails: builder.query<DraftDataResponse, void>({
-      query: () => '/api/details',
+      query: () => '/details',
       providesTags: ['ReadOnly'],
     }),
     getSummary: builder.query<DraftDataResponse, void>({
-      query: () => '/api/summary',
+      query: () => '/summary',
       providesTags: ['ReadOnly'],
     }),
     getReceipt: builder.query<DraftDataResponse, void>({
-      query: () => '/api/receipt',
+      query: () => '/receipt',
       providesTags: ['ReadOnly'],
     }),
   }),

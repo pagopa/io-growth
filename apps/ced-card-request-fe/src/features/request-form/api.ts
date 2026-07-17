@@ -14,7 +14,7 @@ export const requestFormApi = baseApi.injectEndpoints({
     createDraftRequest: builder.mutation<DraftDataResponse, createDraftRequest>(
       {
         query: ({ body, idempotency_key }) => ({
-          url: '/api/request',
+          url: '/request',
           method: 'POST',
           body,
           headers: {

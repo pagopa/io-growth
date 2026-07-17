@@ -11,7 +11,7 @@ export const photoUploadApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     uploadPhoto: builder.mutation<uploadPhotoResponse, uploadPhotoRequest>({
       query: ({ body, idempotency_key }) => ({
-        url: '/api/image',
+        url: '/image',
         method: 'POST',
         body,
         headers: {

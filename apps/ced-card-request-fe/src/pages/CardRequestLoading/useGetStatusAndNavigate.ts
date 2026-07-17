@@ -33,7 +33,7 @@ export const useGetStatusAndNavigate = () => {
         }
       } catch (error) {
         console.error(error);
-        return navigate(APP_ROUTES.APPLICATION, { replace: true });
+        return navigate(APP_ROUTES.GENERIC_ERROR, { replace: true });
       }
     };
 

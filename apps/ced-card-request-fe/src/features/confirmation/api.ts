@@ -14,7 +14,7 @@ export const confirmationApi = baseApi.injectEndpoints({
       ConfirmApplicationRequest
     >({
       query: ({ body, idempotency_key }) => ({
-        url: '/api/confirm',
+        url: '/confirm',
         method: 'POST',
         body,
         headers: {

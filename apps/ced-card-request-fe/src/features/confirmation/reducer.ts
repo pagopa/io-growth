@@ -1,9 +1,7 @@
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
 import { ConfermaDomandaRequest } from '../../core/api/generated/model';
 
-export type ConfirmRequestFormState = ConfermaDomandaRequest;
-
-const initialState: ConfirmRequestFormState = {} as ConfirmRequestFormState;
+const initialState: ConfermaDomandaRequest = {} as ConfermaDomandaRequest;
 
 const confirmRequestFormSlice = createSlice({
   name: 'confirmRequestForm',
@@ -12,8 +10,8 @@ const confirmRequestFormSlice = createSlice({
     setField: (
       state,
       action: PayloadAction<{
-        field: keyof ConfirmRequestFormState;
-        value: ConfirmRequestFormState[keyof ConfirmRequestFormState];
+        field: keyof ConfermaDomandaRequest;
+        value: ConfermaDomandaRequest[keyof ConfermaDomandaRequest];
       }>,
     ) => {
       const { field, value } = action.payload;
@@ -24,7 +22,7 @@ const confirmRequestFormSlice = createSlice({
     },
     setForm: (
       state,
-      action: PayloadAction<Partial<ConfirmRequestFormState>>,
+      action: PayloadAction<Partial<ConfermaDomandaRequest>>,
     ) => ({
       ...state,
       ...action.payload,

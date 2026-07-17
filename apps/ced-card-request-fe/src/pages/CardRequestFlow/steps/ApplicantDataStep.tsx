@@ -20,10 +20,13 @@ export const ApplicantDataStep = forwardRef<StepRef>(
         <VSpacer />
         <Body>Conferma i tuoi dati anagrafici.</Body>
         <Box sx={{ mt: 3, display: 'grid', gap: 2.25 }}>
-          {personalData.map(({ field, type, ...rest }) => {
-            const Component = type === 'text' ? AppTextField : AppSelect;
-            return <Component key={field} {...rest} />;
-          })}
+          {personalData.map(({ field, type, ...rest }) =>
+            type === 'text' ? (
+              <AppTextField key={field} {...rest} />
+            ) : (
+              <AppSelect key={field} {...rest} />
+            ),
+          )}
         </Box>
       </StepCard>
     );

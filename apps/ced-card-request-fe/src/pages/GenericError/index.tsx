@@ -6,6 +6,7 @@ interface Props {
   onClose?: () => void;
 }
 
+//TODO should use the DS error screen in the future
 export default function GenericError({ onClose }: Props) {
   const theme = useTheme();
 

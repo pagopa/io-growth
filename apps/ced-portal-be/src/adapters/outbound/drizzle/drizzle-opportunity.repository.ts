@@ -22,6 +22,7 @@ import { err, ok } from "neverthrow";
 import type { OpportunityDetail } from "../../../domain/entities/opportunity.js";
 import type {
   CancelScheduledSuspensionByIdAndOperatorIdInput,
+  CancelScheduledSuspensionByIdInput,
   DeleteOpportunityByIdAndOperatorIdInput,
   FindByIdAndOperatorIdInput,
   FindByIdInput,
@@ -31,6 +32,7 @@ import type {
   OpportunityStatusFilter,
   PaginatedOpportunities,
   SuspendByIdAndOperatorIdInput,
+  SuspendByIdInput,
   UpdateOpportunityStatusByIdAndOperatorIdInput,
   UpdateOpportunityStatusByIdInput,
 } from "../../../domain/ports/outbound/persistence/opportunity.repository.js";
@@ -361,6 +363,9 @@ const cancelScheduledSuspensionByIdAndOperatorId =
             eq(opportunity.operatorId, input.operatorId),
             eq(opportunity.status, "published"),
             isNotNull(opportunity.suspendFrom),
+            // Operators can only cancel their own schedule: a
+            // department-scheduled suspension is out of their reach.
+            eq(opportunity.suspendedByType, "operator"),
           ),
         );
       if (result.count === 0) {
@@ -374,6 +379,77 @@ const cancelScheduledSuspensionByIdAndOperatorId =
         new GenericError(
           `Failed to cancel scheduled suspension: ${String(error)}`,
         ),
+      );
+    }
+  };
+
+const cancelScheduledSuspensionById =
+  (db: TypedDbClient<typeof schema>) =>
+  async (
+    input: CancelScheduledSuspensionByIdInput,
+  ): Promise<Result<void, ConflictError | GenericError>> => {
+    try {
+      const result = await db
+        .update(opportunity)
+        .set({
+          suspendedByType: null,
+          suspendFrom: null,
+          suspensionMessage: null,
+          updatedAt: new Date(),
+        })
+        .where(
+          and(
+            eq(opportunity.id, input.opportunityId),
+            eq(opportunity.status, "published"),
+            isNotNull(opportunity.suspendFrom),
+          ),
+        );
+      if (result.count === 0) {
+        return err(
+          new ConflictError("Opportunity status was modified concurrently"),
+        );
+      }
+      return ok(undefined);
+    } catch (error) {
+      return err(
+        new GenericError(
+          `Failed to cancel scheduled suspension: ${String(error)}`,
+        ),
+      );
+    }
+  };
+
+const suspendById =
+  (db: TypedDbClient<typeof schema>) =>
+  async (
+    input: SuspendByIdInput,
+  ): Promise<Result<void, ConflictError | GenericError>> => {
+    try {
+      const result = await db
+        .update(opportunity)
+        .set({
+          ...(input.suspendFrom
+            ? { suspendFrom: input.suspendFrom }
+            : { status: "suspended" as const, suspendFrom: null }),
+          suspendedByType: "department",
+          suspensionMessage: input.suspensionMessage,
+          updatedAt: new Date(),
+        })
+        .where(
+          and(
+            eq(opportunity.id, input.opportunityId),
+            eq(opportunity.status, "published"),
+          ),
+        );
+      if (result.count === 0) {
+        return err(
+          new ConflictError("Opportunity status was modified concurrently"),
+        );
+      }
+      return ok(undefined);
+    } catch (error) {
+      return err(
+        new GenericError(`Failed to suspend opportunity: ${String(error)}`),
       );
     }
   };
@@ -419,11 +495,10 @@ const countByExternalOperatorIds =
 export const createDrizzleOpportunityRepository = (
   db: TypedDbClient<typeof schema>,
 ): OpportunityRepository => ({
+  cancelScheduledSuspensionById: cancelScheduledSuspensionById(db),
   cancelScheduledSuspensionByIdAndOperatorId:
     cancelScheduledSuspensionByIdAndOperatorId(db),
-
   countByExternalOperatorIds: countByExternalOperatorIds(db),
-
   create: async (input): Promise<Result<OpportunityDetail, GenericError>> => {
     try {
       const created = await db.transaction(async (tx) => {
@@ -555,6 +630,8 @@ export const createDrizzleOpportunityRepository = (
 
   findByIdAndOperatorId: async (input: FindByIdAndOperatorIdInput) =>
     findByIdAndOperatorId(db, input),
+
+  suspendById: suspendById(db),
 
   suspendByIdAndOperatorId: suspendByIdAndOperatorId(db),
 

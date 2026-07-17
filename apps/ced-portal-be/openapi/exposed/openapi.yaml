@@ -727,6 +727,9 @@ paths:
       tags:
         - Opportunities
       summary: Cancel a pending scheduled suspension for an operator's own opportunity
+      description: >-
+        Only suspensions scheduled by the operator can be cancelled: a
+        department-scheduled suspension is out of the operator's reach.
       operationId: operatorCancelScheduledSuspension
       security:
         - bearerAuth: []
@@ -779,14 +782,24 @@ paths:
                 statusCode: 409
                 message: Opportunity status was modified concurrently
         "412":
-          description: No scheduled suspension is pending for this opportunity
+          description: >-
+            No scheduled suspension is pending for this opportunity, or the
+            pending suspension was scheduled by the department.
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
-              example:
-                statusCode: 412
-                message: "Precondition failed: No scheduled suspension is pending for this opportunity"
+              examples:
+                noPendingSuspension:
+                  summary: No scheduled suspension is pending
+                  value:
+                    statusCode: 412
+                    message: "Precondition failed: No scheduled suspension is pending for this opportunity"
+                departmentScheduled:
+                  summary: The pending suspension was scheduled by the department
+                  value:
+                    statusCode: 412
+                    message: "Precondition failed: Only the department can cancel a department-scheduled suspension"
   /operator/opportunities:
     get:
       tags:
@@ -1185,6 +1198,198 @@ paths:
               example:
                 statusCode: 412
                 message: Precondition Failed
+  /opportunities/{opportunityId}/suspend:
+    patch:
+      tags:
+        - Opportunities
+      summary: Suspend a partner opportunity (department only, immediate or scheduled)
+      description: >-
+        Suspends a published partner opportunity, immediately or from a future
+        date. A pending scheduled suspension does not block the department: an
+        immediate suspension absorbs it, a new scheduled date overwrites it
+        (date, message and actor).
+      operationId: suspendOpportunity
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: opportunityId
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: "^[0-9A-HJKMNP-TV-Z]{26}$"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required:
+                - suspensionMessage
+                - suspendFrom
+              properties:
+                suspensionMessage:
+                  type: string
+                  minLength: 1
+                  maxLength: 4096
+                  description: >-
+                    Reason for suspension. Leading/trailing whitespace is
+                    trimmed; must be non-empty once trimmed.
+                suspendFrom:
+                  type: string
+                  format: date
+                  description: >-
+                    Calendar date (ISO 8601) from which the suspension takes
+                    effect. If it is today or in the past, the suspension is
+                    applied immediately; if it is a future day, the suspension
+                    is scheduled for that day.
+      responses:
+        "204":
+          description: Opportunity suspended or suspension scheduled successfully
+        "400":
+          description: >-
+            Invalid payload: suspensionMessage missing/empty, or suspendFrom
+            missing or not a valid ISO 8601 date.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              examples:
+                missingSuspensionMessage:
+                  summary: Suspension message is missing or empty
+                  value:
+                    statusCode: 400
+                    message: "Validation error: suspensionMessage is required"
+                missingSuspendFrom:
+                  summary: suspendFrom is missing or not a valid date
+                  value:
+                    statusCode: 400
+                    message: "Validation error: suspendFrom is required"
+        "401":
+          description: Invalid or missing JWT
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 401
+                message: Unauthorized
+        "403":
+          description: Forbidden — operator userType not allowed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 403
+                message: Forbidden
+        "404":
+          description: Opportunity not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 404
+                message: Opportunity not found
+        "409":
+          description: Opportunity status was modified concurrently
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 409
+                message: Opportunity status was modified concurrently
+        "412":
+          description: >-
+            Precondition failed: the opportunity cannot be suspended in its
+            current state. A pending scheduled suspension is NOT a precondition
+            failure for the department (override).
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              examples:
+                notPublished:
+                  summary: Opportunity is not in published status
+                  value:
+                    statusCode: 412
+                    message: "Precondition failed: Opportunity must be in published status to be suspended"
+                notYetLive:
+                  summary: Opportunity is published but not yet live (dateFrom in the future)
+                  value:
+                    statusCode: 412
+                    message: "Precondition failed: Opportunity is not yet live and cannot be suspended"
+  /opportunities/{opportunityId}/suspend/cancel:
+    patch:
+      tags:
+        - Opportunities
+      summary: Cancel a pending scheduled suspension (department only, absolute)
+      description: >-
+        Cancels any pending scheduled suspension, whether it was scheduled by
+        the department or by the operator.
+      operationId: cancelScheduledSuspension
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: opportunityId
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: "^[0-9A-HJKMNP-TV-Z]{26}$"
+      responses:
+        "204":
+          description: Scheduled suspension cancelled successfully
+        "401":
+          description: Invalid or missing JWT
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 401
+                message: Unauthorized
+        "403":
+          description: Forbidden — operator userType not allowed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 403
+                message: Forbidden
+        "404":
+          description: Opportunity not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 404
+                message: Opportunity not found
+        "409":
+          description: >-
+            The scheduled suspension was already applied by the background job
+            before this request was processed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 409
+                message: Opportunity status was modified concurrently
+        "412":
+          description: No scheduled suspension is pending for this opportunity
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 412
+                message: "Precondition failed: No scheduled suspension is pending for this opportunity"
   /opportunity-categories:
     get:
       tags:

@@ -24,7 +24,9 @@ import Fastify from "fastify";
 import { SessionSchema } from "./adapters/inbound/fastify/auth/session.js";
 import {
   mountAcsHandler,
+  mountAdminCancelScheduledSuspensionHandler,
   mountAdminListOpportunitiesHandler,
+  mountAdminSuspendOpportunityHandler,
   mountApproveOpportunityHandler,
   mountAuthorizeHandler,
   mountCompleteOnboardingHandler,
@@ -69,7 +71,9 @@ import { makeGetOnboardingUseCase } from "./application/use-cases/department/get
 import { makeListOnboardingsUseCase } from "./application/use-cases/department/list-onboardings.use-case.js";
 import { makeGetInfoReadinessUseCase } from "./application/use-cases/health/info-readiness.use-case.js";
 import { makeGetInfoStartupUseCase } from "./application/use-cases/health/info-startup.use-case.js";
+import { makeAdminCancelScheduledSuspensionUseCase } from "./application/use-cases/opportunities/admin-cancel-scheduled-suspension.use-case.js";
 import { makeAdminListOpportunitiesUseCase } from "./application/use-cases/opportunities/admin-list-opportunities.use-case.js";
+import { makeAdminSuspendOpportunityUseCase } from "./application/use-cases/opportunities/admin-suspend-opportunity.use-case.js";
 import { makeApproveOpportunityUseCase } from "./application/use-cases/opportunities/approve-opportunity.use-case.js";
 import { makeCreateOperatorOpportunityUseCase } from "./application/use-cases/opportunities/create-operator-opportunity.use-case.js";
 import { makeDeleteOpportunityUseCase } from "./application/use-cases/opportunities/delete-opportunity.use-case.js";
@@ -293,6 +297,17 @@ app.register(async (app) => {
       opportunityRepository,
       materializedViewRepository,
     ),
+  );
+  mountAdminSuspendOpportunityHandler(
+    app,
+    makeAdminSuspendOpportunityUseCase(
+      opportunityRepository,
+      materializedViewRepository,
+    ),
+  );
+  mountAdminCancelScheduledSuspensionHandler(
+    app,
+    makeAdminCancelScheduledSuspensionUseCase(opportunityRepository),
   );
 });
 

@@ -6,7 +6,7 @@ export type ConfirmRequestFormState = ConfermaDomandaRequest;
 const initialState: ConfirmRequestFormState = {} as ConfirmRequestFormState;
 
 const confirmRequestFormSlice = createSlice({
-  name: 'requestForm',
+  name: 'confirmRequestForm',
   initialState,
   reducers: {
     setField: (
@@ -17,7 +17,7 @@ const confirmRequestFormSlice = createSlice({
       }>,
     ) => {
       const { field, value } = action.payload;
-      state = {
+      return {
         ...state,
         [field]: value,
       };

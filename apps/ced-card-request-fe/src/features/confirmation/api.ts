@@ -9,7 +9,7 @@ type ConfirmApplicationRequest = {
 
 export const confirmationApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
-    createDraftRequest: builder.mutation<
+    confirm: builder.mutation<
       confirmApplicationResponse,
       ConfirmApplicationRequest
     >({
@@ -25,4 +25,4 @@ export const confirmationApi = baseApi.injectEndpoints({
   }),
 });
 
-export const { useCreateDraftRequestMutation } = confirmationApi;
+export const { useConfirmMutation } = confirmationApi;

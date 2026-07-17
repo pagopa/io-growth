@@ -29,10 +29,11 @@ export const useGetStatusAndNavigate = () => {
             // TODO Temporary navigation
             return navigate(APP_ROUTES.REQUEST_SUCCESS, { replace: true });
           default:
-            return;
+            return navigate(APP_ROUTES.GENERIC_ERROR, { replace: true });
         }
       } catch (error) {
-        return navigate(APP_ROUTES.GENERIC_ERROR, { replace: true });
+        console.error(error);
+        return navigate(APP_ROUTES.APPLICATION, { replace: true });
       }
     };
 

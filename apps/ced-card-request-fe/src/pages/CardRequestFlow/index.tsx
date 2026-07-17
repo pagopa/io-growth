@@ -51,7 +51,6 @@ export default function CardRequestFlowPage() {
   const navigate = useNavigate();
   const theme = useTheme();
   const [currentStep, setCurrentStep] = useState(state?.step ?? 0);
-  console.log('🚀 ~ CardRequestFlowPage ~ currentStep:', currentStep);
   const [draftSaved, setDraftSaved] = useState(false);
   const stepRef = useRef<StepRef | null>(null);
   const [photoPreview, setPhotoPreview] = useState<string>('');
@@ -96,10 +95,19 @@ export default function CardRequestFlowPage() {
       if (!isValid) return;
       if (currentStep === 1) {
         const idempotencyKey = globalThis.crypto?.randomUUID?.();
-        await saveFirstDraft({
-          body: firstDraftForm,
-          idempotency_key: idempotencyKey ?? '',
-        });
+        if (!idempotencyKey) {
+          navigate(APP_ROUTES.GENERIC_ERROR, { replace: true });
+          return;
+        }
+        try {
+          await saveFirstDraft({
+            body: firstDraftForm,
+            idempotency_key: idempotencyKey,
+          }).unwrap();
+        } catch {
+          navigate(APP_ROUTES.GENERIC_ERROR, { replace: true });
+          return;
+        }
       }
     }
     if (!isLastStep) {

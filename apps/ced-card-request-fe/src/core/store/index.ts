@@ -9,7 +9,7 @@ import { confirmRequestFormReducer } from '../../features/confirmation/reducer';
 const persistConfig = {
   key: 'root',
   storage,
-  whitelist: ['token', 'savedAt', 'route', 'redirectToken', 'deviceId'],
+  whitelist: ['token', 'savedAt', 'redirectToken', 'deviceId'],
 };
 
 const persistedReducer = persistReducer(persistConfig, authReducer);

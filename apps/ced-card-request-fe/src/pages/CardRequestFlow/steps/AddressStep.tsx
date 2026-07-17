@@ -21,6 +21,10 @@ export const AddressStep = forwardRef<StepRef>(function AddressStep(_, ref) {
       datiAggiuntiviRec: 45,
     };
 
+  const resetFieldError = (key: keyof NuovaDomandaInBozzaRequest) => {
+    setErrors((prev) => (prev[key] ? { ...prev, [key]: undefined } : prev));
+  };
+
   useImperativeHandle(ref, () => ({
     validate() {
       const newErrors: Partial<
@@ -53,7 +57,7 @@ export const AddressStep = forwardRef<StepRef>(function AddressStep(_, ref) {
       </Body>
 
       <Box sx={{ mt: 3, display: 'grid', gap: 2.25 }}>
-        {addressFields.map(({ field, type, ...rest }) => {
+        {addressFields.map(({ field, type, onChange, ...rest }) => {
           const Component = type === 'text' ? AppTextField : AppSelect;
           const error = errors[field];
           return (
@@ -61,6 +65,10 @@ export const AddressStep = forwardRef<StepRef>(function AddressStep(_, ref) {
               key={field}
               error={!!error}
               helperText={error}
+              onChange={(e) => {
+                onChange(e);
+                resetFieldError(field);
+              }}
               {...rest}
             />
           );

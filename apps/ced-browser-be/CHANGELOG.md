@@ -1,5 +1,11 @@
 # ced-browser-be
 
+## 0.1.10
+
+### Patch Changes
+
+- 100cbb2: remove /api from openapi
+
 ## 0.1.9
 
 ### Patch Changes

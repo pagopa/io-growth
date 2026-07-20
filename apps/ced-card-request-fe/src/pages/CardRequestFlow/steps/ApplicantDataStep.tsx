@@ -26,7 +26,6 @@ export const ApplicantDataStep = forwardRef<StepRef>(
                 <AppDatePicker
                   key={field}
                   onChange={(value) => onChange({ target: { value } })}
-                  format="yyyy-MM-dd"
                   {...rest}
                 />
               );

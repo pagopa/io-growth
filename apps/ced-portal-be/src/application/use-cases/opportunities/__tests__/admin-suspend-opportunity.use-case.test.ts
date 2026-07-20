@@ -18,7 +18,7 @@ const TODAY = "2026-07-15";
 const mockOpportunity = (
   status: OpportunityDetail["status"],
   suspendFrom: null | string = null,
-  suspendedByType: "department" | "operator" | null = suspendFrom
+  suspendedBy: "department" | "operator" | null = suspendFrom
     ? "operator"
     : null,
 ): OpportunityDetail => ({
@@ -38,7 +38,7 @@ const mockOpportunity = (
   nationalTerritory: false,
   placeIds: ["01JVMK3N8XQZP5T6G2WYHAB4CD"],
   status,
-  suspendedByType,
+  suspendedBy,
   suspendFrom,
   updatedAt: "2026-01-01T00:00:00.000Z",
   url: "https://example.org/promo",

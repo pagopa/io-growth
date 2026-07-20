@@ -1198,7 +1198,7 @@ paths:
               example:
                 statusCode: 412
                 message: Precondition Failed
-  /opportunities/{opportunityId}/suspend:
+  /opportunities/{opportunityId}/suspension/schedule:
     patch:
       tags:
         - Opportunities
@@ -1322,7 +1322,7 @@ paths:
                   value:
                     statusCode: 412
                     message: "Precondition failed: Opportunity is not yet live and cannot be suspended"
-  /opportunities/{opportunityId}/suspend/cancel:
+  /opportunities/{opportunityId}/suspension/cancel:
     patch:
       tags:
         - Opportunities

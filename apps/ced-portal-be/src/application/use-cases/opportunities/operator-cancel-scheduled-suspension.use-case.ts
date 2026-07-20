@@ -60,7 +60,7 @@ export const makeOperatorCancelScheduledSuspensionUseCase =
             ),
           );
 
-        if (data.suspendedByType !== "operator")
+        if (data.suspendedBy !== "operator")
           return errAsync(
             new PreconditionFailedError(
               "Only the department can cancel a department-scheduled suspension",

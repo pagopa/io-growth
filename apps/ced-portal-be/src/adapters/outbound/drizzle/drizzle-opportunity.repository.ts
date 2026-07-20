@@ -365,7 +365,7 @@ const cancelScheduledSuspensionByIdAndOperatorId =
             isNotNull(opportunity.suspendFrom),
             // Operators can only cancel their own schedule: a
             // department-scheduled suspension is out of their reach.
-            eq(opportunity.suspendedByType, "operator"),
+            eq(opportunity.suspendedBy, "operator"),
           ),
         );
       if (result.count === 0) {
@@ -392,7 +392,7 @@ const cancelScheduledSuspensionById =
       const result = await db
         .update(opportunity)
         .set({
-          suspendedByType: null,
+          suspendedBy: null,
           suspendFrom: null,
           suspensionMessage: null,
           updatedAt: new Date(),
@@ -431,7 +431,7 @@ const suspendById =
           ...(input.suspendFrom
             ? { suspendFrom: input.suspendFrom }
             : { status: "suspended" as const, suspendFrom: null }),
-          suspendedByType: "department",
+          suspendedBy: "department",
           suspensionMessage: input.suspensionMessage,
           updatedAt: new Date(),
         })

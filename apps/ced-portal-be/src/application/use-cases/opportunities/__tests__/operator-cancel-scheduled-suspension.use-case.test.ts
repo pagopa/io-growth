@@ -11,7 +11,7 @@ const MOCK_OPPORTUNITY_ID = "01JVMK3N8XQZP5T6G2WYHAB4CF";
 
 const mockOpportunity = (
   suspendFrom: null | string,
-  suspendedByType: "department" | "operator" | null = suspendFrom
+  suspendedBy: "department" | "operator" | null = suspendFrom
     ? "operator"
     : null,
 ): OpportunityDetail => ({
@@ -31,7 +31,7 @@ const mockOpportunity = (
   nationalTerritory: false,
   placeIds: ["01JVMK3N8XQZP5T6G2WYHAB4CD"],
   status: "published",
-  suspendedByType,
+  suspendedBy,
   suspendFrom,
   updatedAt: "2026-01-01T00:00:00.000Z",
   url: "https://example.org/promo",

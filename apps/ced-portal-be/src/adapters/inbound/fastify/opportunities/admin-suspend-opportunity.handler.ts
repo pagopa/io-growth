@@ -39,7 +39,7 @@ export const mountAdminSuspendOpportunityHandler = (
   useCase: AdminSuspendOpportunityUseCase,
 ) => {
   fastify.patch(
-    "/api/opportunities/:opportunityId/suspend",
+    "/api/opportunities/:opportunityId/suspension/schedule",
     createHttpHandler(useCase, adminSuspendOpportunityValidator, {
       successCode: 204,
     }),

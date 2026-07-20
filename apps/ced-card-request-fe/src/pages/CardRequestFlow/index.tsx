@@ -11,9 +11,7 @@ import { DocumentTypeStep } from './steps/DocumentTypeStep';
 import { PhotoUploadStep } from './steps/PhotoUploadStep';
 import SummaryStep from './steps/SummaryStep';
 import type { StepRef } from './types';
-import { useCreateDraftRequestMutation } from '../../features/request-form/api';
-import { useAppSelector } from '../../hooks';
-import { selectRequestForm } from '../../features/request-form/selectors';
+import { useSaveDataByStep } from './hooks/useSaveDataByStep';
 
 const steps = [
   {
@@ -56,8 +54,6 @@ export default function CardRequestFlowPage() {
   const [photoPreview, setPhotoPreview] = useState<string>('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const firstDraftForm = useAppSelector(selectRequestForm);
-
   const {
     title,
     content: StepContent,
@@ -69,7 +65,7 @@ export default function CardRequestFlowPage() {
     ? 'Invia richiesta'
     : (confirmLabel ?? 'Conferma');
 
-  const [saveFirstDraft] = useCreateDraftRequestMutation();
+  const { saveFirstDraftData, savePhoto, confirmRequest } = useSaveDataByStep();
 
   useEffect(() => {
     requestAnimationFrame(() => {
@@ -94,20 +90,13 @@ export default function CardRequestFlowPage() {
       const isValid = await stepRef.current.validate();
       if (!isValid) return;
       if (currentStep === 1) {
-        const idempotencyKey = globalThis.crypto?.randomUUID?.();
-        if (!idempotencyKey) {
-          navigate(APP_ROUTES.GENERIC_ERROR, { replace: true });
-          return;
-        }
-        try {
-          await saveFirstDraft({
-            body: firstDraftForm,
-            idempotency_key: idempotencyKey,
-          }).unwrap();
-        } catch {
-          navigate(APP_ROUTES.GENERIC_ERROR, { replace: true });
-          return;
-        }
+        saveFirstDraftData();
+      }
+      if (currentStep === 2) {
+        savePhoto();
+      }
+      if (isLastStep) {
+        confirmRequest();
       }
     }
     if (!isLastStep) {

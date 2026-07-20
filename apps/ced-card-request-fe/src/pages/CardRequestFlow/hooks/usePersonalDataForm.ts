@@ -5,7 +5,7 @@ import { makeSelectRequestFormField } from '../../../features/request-form/selec
 
 type PersonalDataFormType = {
   label: string;
-  type: 'text' | 'select';
+  type: 'text' | 'select' | 'date';
   field: keyof NuovaDomandaInBozzaRequest;
   options?: Array<{ value: string; label: string }>;
 };
@@ -24,7 +24,7 @@ export const PERSONAL_DATA_FORM_CONFIG: PersonalDataFormType[] = [
   { label: 'Nome', field: 'nome', type: 'text' },
   { label: 'Cognome', field: 'cognome', type: 'text' },
   { label: 'Sesso', field: 'sesso', type: 'select', options: sessoOptions },
-  { label: 'Data di nascita', field: 'dataNascita', type: 'text' },
+  { label: 'Data di nascita', field: 'dataNascita', type: 'date' },
   { label: 'Comune di nascita', field: 'comuneNascita', type: 'text' },
   {
     label: 'Provincia di nascita',

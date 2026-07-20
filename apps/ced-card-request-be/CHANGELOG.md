@@ -1,5 +1,24 @@
 # ced-card-request-be
 
+## 0.0.16
+
+### Patch Changes
+
+- 100cbb2: remove /api from openapi
+
+## 0.0.15
+
+### Patch Changes
+
+- 6e01232: added card request bff api
+- Updated dependencies [6e01232]
+  - @pagopa/io-core-adapter-fastify@0.0.7
+  - @pagopa/io-core-adapter-modi@0.0.2
+  - @pagopa/io-core-domain@0.0.5
+  - @pagopa/io-core-adapter-inps-ced@0.0.2
+  - @pagopa/io-core-adapter-fims@0.0.8
+  - @pagopa/io-core-adapter-redis@0.0.9
+
 ## 0.0.14
 
 ### Patch Changes

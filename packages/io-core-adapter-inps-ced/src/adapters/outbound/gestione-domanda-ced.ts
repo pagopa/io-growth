@@ -43,6 +43,14 @@ export const createGestioneDomandaCedClient =
       try {
         const response = await checkDomandaGen(request);
         if (response.status === 200) return ok(response.data);
+        // 401 is not declared in the OpenAPI spec but INPS returns it when the
+        // mTLS certificate is not yet registered/activated for this API.
+        if ((response.status as number) === 401)
+          return err(
+            new GenericError(
+              `INPS returned 401 | ${JSON.stringify(response.data)}`,
+            ),
+          );
         if (response.status === 404)
           return err(
             new NotFoundError("domanda", JSON.stringify(response.data)),

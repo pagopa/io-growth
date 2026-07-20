@@ -1,5 +1,11 @@
 # @pagopa/io-core-domain
 
+## 0.0.5
+
+### Patch Changes
+
+- 6e01232: added card request bff api
+
 ## 0.0.4
 
 ### Patch Changes

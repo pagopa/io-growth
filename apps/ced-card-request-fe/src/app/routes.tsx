@@ -8,6 +8,7 @@ import {
   ApplicationPage,
   Authorize,
   ConsentPage,
+  GenericErrorPage,
   HomePage,
   LoadingPage,
   NotFoundPage,
@@ -40,6 +41,7 @@ export function AppRoutes() {
           />
           <Route element={<ProtectedRoute />} />
         </Route>
+        <Route path={APP_ROUTES.GENERIC_ERROR} element={<GenericErrorPage />} />
         <Route path={APP_ROUTES.UNAUTHORIZED} element={<UnauthorizedPage />} />
         <Route path={APP_ROUTES.NOT_FOUND} element={<NotFoundPage />} />
         <Route

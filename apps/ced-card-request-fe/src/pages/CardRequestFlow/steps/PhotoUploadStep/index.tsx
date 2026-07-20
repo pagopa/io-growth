@@ -17,6 +17,8 @@ import {
   compressPhotoFile,
   processCenterCrop,
 } from './utils';
+import { useAppDispatch } from '../../../../hooks';
+import { setFile } from '../../../../features/photo-upload/reducer';
 
 type UploadState = 'idle' | 'loading' | 'preview';
 
@@ -30,8 +32,18 @@ const markdownContent = `L'immagine deve:
 - avere sfondo neutro.
 `;
 
+const fileToBase64 = (file: File | Blob): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => resolve(reader.result as string);
+    reader.onerror = (error) => reject(error);
+  });
+};
+
 export const PhotoUploadStep = forwardRef<StepRef, PhotoUploadProps>(
   function PhotoUploadStep({ onPhotoPreviewChange }, ref) {
+    const dispatch = useAppDispatch();
     const theme = useTheme();
     const [photo, setPhoto] = useState<File | null>(null);
     const [preview, setPreview] = useState<string | null>(null);
@@ -82,6 +94,8 @@ export const PhotoUploadStep = forwardRef<StepRef, PhotoUploadProps>(
         setPhoto(finalProcessedFile);
         setPreview(url);
         onPhotoPreviewChange?.(url);
+        const photoB64 = await fileToBase64(finalProcessedFile);
+        dispatch(setFile(photoB64));
         setUploadState('preview');
       } catch (err) {
         console.error("Errore durante l'elaborazione dell'immagine:", err);

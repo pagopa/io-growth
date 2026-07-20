@@ -4,14 +4,18 @@ import { Body, LabelCaption, Title, VSpacer } from '@pagopa/io-core-ui';
 import { useNavigate } from 'react-router-dom';
 import { APP_ROUTES } from '../../app/routeConfig';
 import { MarkdownRenderer } from '../../components/Typography/MarkdownRender';
+import { useAppDispatch } from '../../hooks';
+import { setField } from '../../features/request-form/reducer';
 
 const PRIVACY_URL = 'https://www.google.com/';
 
 export default function CardRequestConsentPage() {
   const navigate = useNavigate();
   const theme = useTheme();
+  const dispatch = useAppDispatch();
 
   const handleContinue = () => {
+    dispatch(setField({ field: 'informativaPrivacy', value: true }));
     navigate(APP_ROUTES.LOADING);
   };
 

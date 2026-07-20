@@ -1,5 +1,15 @@
 # ced-portal-be
 
+## 0.2.11
+
+### Patch Changes
+
+- Updated dependencies [6e01232]
+  - @pagopa/io-core-adapter-fastify@0.0.7
+  - @pagopa/io-core-domain@0.0.5
+  - @pagopa/io-core-adapter-ar@0.0.8
+  - @pagopa/io-core-adapter-redis@0.0.9
+
 ## 0.2.10
 
 ### Patch Changes

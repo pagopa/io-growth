@@ -1,0 +1,22 @@
+meta {
+  name: Confirm application
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/api/confirm
+  body: json
+  auth: inherit
+}
+
+headers {
+  Idempotency-Key: {{$guid}}
+}
+
+body:json {
+  {
+    "idLavorazione": "REPLACE_WITH_ID_LAVORAZIONE",
+    "dirittoAccompagnatore": false
+  }
+}

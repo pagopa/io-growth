@@ -48,6 +48,58 @@ module "card_request_be_container_app" {
     {
       name                = "APPINSIGHTS_INSTRUMENTATION_KEY"
       key_vault_secret_id = module.azure_core_values.application_insights.instrumentation_key_kv_secret_id
+    },
+    {
+      name                = "MODI_PROFILE"
+      key_vault_secret_id = format(local.secrets_id_template, "ced-p-itn-card-request-be-modi-profile")
+    },
+    {
+      name                = "MODI_ENVIRONMENT"
+      key_vault_secret_id = format(local.secrets_id_template, "ced-p-itn-card-request-be-modi-environment")
+    },
+    {
+      name                = "MODI_INPS_BASE_URL"
+      key_vault_secret_id = format(local.secrets_id_template, "ced-p-itn-card-request-be-modi-inps-base-url")
+    },
+    {
+      name                = "MODI_CODICE_ENTE"
+      key_vault_secret_id = format(local.secrets_id_template, "ced-p-itn-card-request-be-modi-codice-ente")
+    },
+    {
+      name                = "MODI_DEFAULT_CODICE_UFFICIO"
+      key_vault_secret_id = format(local.secrets_id_template, "ced-p-itn-card-request-be-modi-default-codice-ufficio")
+    },
+    {
+      name                = "MODI_ID_TIPO_UTENTE"
+      key_vault_secret_id = format(local.secrets_id_template, "ced-p-itn-card-request-be-modi-id-tipo-utente")
+    },
+    {
+      name                = "MODI_KEYVAULT_URL"
+      key_vault_secret_id = format(local.secrets_id_template, "ced-p-itn-card-request-be-modi-keyvault-url")
+    },
+    {
+      name                = "MODI_HTTPS_CLIENT_CERT_SECRET_NAME"
+      key_vault_secret_id = format(local.secrets_id_template, "ced-p-itn-card-request-be-modi-https-client-cert-secret-name")
+    },
+    {
+      name                = "MODI_HTTPS_CLIENT_KEY_SECRET_NAME"
+      key_vault_secret_id = format(local.secrets_id_template, "ced-p-itn-card-request-be-modi-https-client-key-secret-name")
+    },
+    {
+      name                = "MODI_INPS_HTTPS_CA_SECRET_NAME"
+      key_vault_secret_id = format(local.secrets_id_template, "ced-p-itn-card-request-be-modi-inps-https-ca-secret-name")
+    },
+    {
+      name                = "MODI_INPS_TLS_REJECT_UNAUTHORIZED"
+      key_vault_secret_id = format(local.secrets_id_template, "ced-p-itn-card-request-be-modi-inps-tls-reject-unauthorized")
+    },
+    {
+      name                = "INPS_CED_BASE_URL"
+      key_vault_secret_id = format(local.secrets_id_template, "ced-p-itn-card-request-be-inps-ced-base-url")
+    },
+    {
+      name                = "INPS_CED_AUDIENCE"
+      key_vault_secret_id = format(local.secrets_id_template, "ced-p-itn-card-request-be-inps-ced-audience")
     }
   ]
 

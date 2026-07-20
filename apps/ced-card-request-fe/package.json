@@ -12,7 +12,8 @@
     "lint:check": "eslint .",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "mock:start": "npx @mockoon/cli start --data mockoon/mockoon-config.json"
+    "mock:start": "npx @mockoon/cli start --data mockoon/mockoon-config.json",
+    "generate": "orval"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",
@@ -53,6 +54,7 @@
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-react-refresh": "^0.4.19",
     "globals": "^16.0.0",
+    "orval": "^8.9.0",
     "prettier": "^3.5.3",
     "typescript": "^5.8.2",
     "typescript-eslint": "^8.26.1",

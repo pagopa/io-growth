@@ -30,7 +30,7 @@ export const mountOperatorCancelScheduledSuspensionHandler = (
   useCase: OperatorCancelScheduledSuspensionUseCase,
 ) => {
   fastify.patch(
-    "/api/operator/opportunities/:opportunityId/suspend/cancel",
+    "/api/operator/opportunities/:opportunityId/suspension/cancel",
     createHttpHandler(useCase, operatorCancelScheduledSuspensionValidator, {
       successCode: 204,
     }),

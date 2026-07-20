@@ -99,7 +99,7 @@ describe("mapOpportunityDetailRow", () => {
       nationalTerritory: false,
       placeIds: ["01JVMK3N8XQZP5T6G2WYHAB4CE"],
       status: "draft",
-      suspendedByType: null,
+      suspendedBy: null,
       suspendFrom: null,
       suspensionMessage: null,
       updatedAt: "2026-01-02T00:00:00.000Z",
@@ -112,14 +112,14 @@ describe("mapOpportunityDetailRow", () => {
       ...baseRow,
       nationalTerritory: false,
       status: "suspended",
-      suspendedByType: "operator",
+      suspendedBy: "operator",
       suspensionMessage: "Chiuso per manutenzione",
     });
 
     expect(result).toEqual(
       ok(
         expect.objectContaining({
-          suspendedByType: "operator",
+          suspendedBy: "operator",
           suspendFrom: null,
           suspensionMessage: "Chiuso per manutenzione",
         }),

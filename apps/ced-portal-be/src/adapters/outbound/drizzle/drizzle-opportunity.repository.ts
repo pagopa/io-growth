@@ -126,7 +126,7 @@ const findByIdAndOperatorId = async (
         id: true,
         nationalTerritory: true,
         status: true,
-        suspendedByType: true,
+        suspendedBy: true,
         suspendFrom: true,
         suspensionMessage: true,
         updatedAt: true,
@@ -189,7 +189,7 @@ const findById =
           id: true,
           nationalTerritory: true,
           status: true,
-          suspendedByType: true,
+          suspendedBy: true,
           suspendFrom: true,
           suspensionMessage: true,
           updatedAt: true,
@@ -316,7 +316,7 @@ const suspendByIdAndOperatorId =
           ...(input.suspendFrom
             ? { suspendFrom: input.suspendFrom }
             : { status: "suspended" }),
-          suspendedByType: "operator",
+          suspendedBy: "operator",
           suspensionMessage: input.suspensionMessage,
           updatedAt: new Date(),
         })
@@ -350,7 +350,7 @@ const cancelScheduledSuspensionByIdAndOperatorId =
       const result = await db
         .update(opportunity)
         .set({
-          suspendedByType: null,
+          suspendedBy: null,
           suspendFrom: null,
           suspensionMessage: null,
           updatedAt: new Date(),
@@ -509,7 +509,7 @@ export const createDrizzleOpportunityRepository = (
             name: localizedMetadata.value,
             operatorName: operator.name,
             status: opportunity.status,
-            suspendedByType: opportunity.suspendedByType,
+            suspendedBy: opportunity.suspendedBy,
             suspendFrom: opportunity.suspendFrom,
           })
           .from(opportunity)

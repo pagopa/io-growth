@@ -111,7 +111,7 @@ CREATE TABLE opportunity (
   rejection_message VARCHAR(4096),
   deletion_message VARCHAR(4096),
   suspension_message VARCHAR(4096),
-  suspended_by_type actor_type,
+  suspended_by actor_type,
   suspend_from DATE,
   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),

@@ -109,7 +109,7 @@ export const OpportunitySummarySchema = z.object({
     "suspended",
     "deleted",
   ]),
-  suspendedByType: z.enum(["operator", "department"]).nullish(),
+  suspendedBy: z.enum(["operator", "department"]).nullish(),
   suspendFrom: z.string().nullish(),
 });
 
@@ -162,7 +162,7 @@ export const OpportunityDetailSchema = z.object({
     "suspended",
     "deleted",
   ]),
-  suspendedByType: z.enum(["operator", "department"]).nullish(),
+  suspendedBy: z.enum(["operator", "department"]).nullish(),
   suspendFrom: z.string().nullish(),
   suspensionMessage: z.string().max(4096).nullish(),
   updatedAt: z.string(),

@@ -36,7 +36,11 @@ const fileToBase64 = (file: File | Blob): Promise<string> => {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.readAsDataURL(file);
-    reader.onload = () => resolve(reader.result as string);
+    reader.onload = () => {
+      const result = reader.result as string;
+      const base64Clean = result.split(',')[1];
+      resolve(base64Clean);
+    };
     reader.onerror = (error) => reject(error);
   });
 };

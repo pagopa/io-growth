@@ -65,7 +65,8 @@ export default function CardRequestFlowPage() {
     ? 'Invia richiesta'
     : (confirmLabel ?? 'Conferma');
 
-  const { saveFirstDraftData, savePhoto, confirmRequest } = useSaveDataByStep();
+  const { saveFirstDraftData, savePhoto, confirmRequest, isConfirmSuccess } =
+    useSaveDataByStep();
 
   useEffect(() => {
     requestAnimationFrame(() => {
@@ -75,6 +76,13 @@ export default function CardRequestFlowPage() {
       });
     });
   }, [currentStep]);
+
+  useEffect(() => {
+    if (isConfirmSuccess && isSubmitting) {
+      setIsSubmitting(false);
+      navigate(APP_ROUTES.REQUEST_SUCCESS);
+    }
+  }, [isConfirmSuccess, isSubmitting, navigate]);
 
   if (draftSaved) {
     return (
@@ -95,23 +103,20 @@ export default function CardRequestFlowPage() {
       if (currentStep === 2) {
         savePhoto();
       }
-      if (isLastStep) {
-        confirmRequest();
-      }
     }
     if (!isLastStep) {
       setCurrentStep((s) => s + 1);
     }
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     // show loading overlay and simulate submit
     setIsSubmitting(true);
-    setTimeout(() => {
-      // after simulated submit, navigate to success route
+    try {
+      await confirmRequest();
+    } catch (error) {
       setIsSubmitting(false);
-      navigate(APP_ROUTES.REQUEST_SUCCESS);
-    }, 2000);
+    }
   };
 
   const handleBack = () => {
@@ -167,6 +172,7 @@ export default function CardRequestFlowPage() {
         <Button
           fullWidth
           variant="contained"
+          disabled={isSubmitting}
           onClick={isLastStep ? handleSubmit : handleNext}
           sx={{
             height: 52,
@@ -181,6 +187,7 @@ export default function CardRequestFlowPage() {
           <Button
             fullWidth
             variant="text"
+            disabled={isSubmitting}
             onClick={
               cancelLabel === 'Riprendi più tardi'
                 ? () => setDraftSaved(true)

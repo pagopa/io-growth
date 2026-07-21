@@ -12,27 +12,7 @@ import { Body, Title, VSpacer } from '@pagopa/io-core-ui';
 import { forwardRef, Fragment, useImperativeHandle } from 'react';
 import { StepCard } from '../StepCard';
 import type { StepRef } from '../types';
-
-const personalData = [
-  { label: 'Nome', value: 'Anna' },
-  { label: 'Cognome', value: 'Verdi' },
-  { label: 'Sesso', value: 'F' },
-  { label: 'Data di nascita', value: '31/03/1995' },
-  { label: 'Comune di nascita', value: 'Como' },
-  { label: 'Provincia di nascita', value: 'CO' },
-  { label: 'Codice Fiscale', value: 'VRDNNA95C71C933I' },
-  { label: 'Cittadinanza', value: 'Italiana' },
-];
-
-const addressData = [
-  { label: 'Indirizzo', value: 'Corso Vittorio Emanuele' },
-  { label: 'Civico', value: '10' },
-  { label: 'CAP', value: '12100' },
-  { label: 'Comune', value: 'Alessandria' },
-  { label: 'Provincia', value: 'AL' },
-  { label: 'Nome sul citofono', value: 'Anna Verdi' },
-  { label: 'Altri dettagli', value: 'Scala B' },
-];
+import { useGetSummaryValue } from '../hooks/useGetSummaryValue';
 
 const judgmentData = [
   {
@@ -67,6 +47,8 @@ export const SummaryStep = forwardRef<StepRef, SummaryProps>(
     useImperativeHandle(ref, () => ({
       validate: () => true,
     }));
+
+    const { addressData, personalData } = useGetSummaryValue();
 
     const accordionSx = {
       bgcolor: theme.palette.background.paper,
@@ -225,31 +207,33 @@ export const SummaryStep = forwardRef<StepRef, SummaryProps>(
                 <Body>Attesta la tua condizione.</Body>
               </Box>
             </AccordionSummary>
-            <AccordionDetails sx={detailsSx}>
-              <Box sx={{ display: 'grid', gap: 0.75 }}>
-                {judgmentData.map((f, i) => (
-                  <Row
-                    key={f.label}
-                    label={f.label}
-                    value={f.value}
-                    showDivider={i < judgmentData.length - 1}
-                  />
-                ))}
-                <Box sx={{ ml: -2.5, mt: -2 }}>
-                  <Button
-                    size="small"
-                    sx={{
-                      fontWeight: 600,
-                      fontSize: 17,
-                      color: theme.palette.common.primaryButton,
-                    }}
-                    onClick={() => onEditJudgment?.()}
-                  >
-                    Modifica dati
-                  </Button>
+            {false && (
+              <AccordionDetails sx={detailsSx}>
+                <Box sx={{ display: 'grid', gap: 0.75 }}>
+                  {judgmentData.map((f, i) => (
+                    <Row
+                      key={f.label}
+                      label={f.label}
+                      value={f.value}
+                      showDivider={i < judgmentData.length - 1}
+                    />
+                  ))}
+                  <Box sx={{ ml: -2.5, mt: -2 }}>
+                    <Button
+                      size="small"
+                      sx={{
+                        fontWeight: 600,
+                        fontSize: 17,
+                        color: theme.palette.common.primaryButton,
+                      }}
+                      onClick={() => onEditJudgment?.()}
+                    >
+                      Modifica dati
+                    </Button>
+                  </Box>
                 </Box>
-              </Box>
-            </AccordionDetails>
+              </AccordionDetails>
+            )}
           </Accordion>
         </Box>
       </Fragment>

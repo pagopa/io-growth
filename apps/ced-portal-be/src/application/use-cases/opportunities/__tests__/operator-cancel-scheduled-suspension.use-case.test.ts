@@ -9,7 +9,12 @@ import { createMockOpportunityRepository, MOCK_OPERATOR_ID } from "./mocks.js";
 
 const MOCK_OPPORTUNITY_ID = "01JVMK3N8XQZP5T6G2WYHAB4CF";
 
-const mockOpportunity = (suspendFrom: null | string): OpportunityDetail => ({
+const mockOpportunity = (
+  suspendFrom: null | string,
+  suspendedBy: "department" | "operator" | null = suspendFrom
+    ? "operator"
+    : null,
+): OpportunityDetail => ({
   beneficiaryBenefit: {
     discountType: "percentage",
     type: "discount",
@@ -26,6 +31,7 @@ const mockOpportunity = (suspendFrom: null | string): OpportunityDetail => ({
   nationalTerritory: false,
   placeIds: ["01JVMK3N8XQZP5T6G2WYHAB4CD"],
   status: "published",
+  suspendedBy,
   suspendFrom,
   updatedAt: "2026-01-01T00:00:00.000Z",
   url: "https://example.org/promo",
@@ -115,6 +121,34 @@ describe("makeOperatorCancelScheduledSuspensionUseCase - guard", () => {
           kind: "PreconditionFailedError",
           message:
             "Precondition failed: No scheduled suspension is pending for this opportunity",
+        }),
+      ),
+    );
+    expect(
+      deps.opportunityRepository.cancelScheduledSuspensionByIdAndOperatorId,
+    ).not.toHaveBeenCalled();
+  });
+
+  it("should return PreconditionFailedError when the suspension was scheduled by the department", async () => {
+    const deps = makeDeps({
+      opportunityRepository: {
+        findByIdAndOperatorId: vi
+          .fn()
+          .mockResolvedValue(ok(mockOpportunity("2026-08-01", "department"))),
+      },
+    });
+    const useCase = makeOperatorCancelScheduledSuspensionUseCase(
+      deps.opportunityRepository,
+    );
+
+    const result = await useCase(validInput);
+
+    expect(result).toEqual(
+      err(
+        expect.objectContaining({
+          kind: "PreconditionFailedError",
+          message:
+            "Precondition failed: Only the department can cancel a department-scheduled suspension",
         }),
       ),
     );

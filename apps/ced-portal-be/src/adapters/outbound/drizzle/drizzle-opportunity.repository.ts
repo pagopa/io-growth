@@ -19,9 +19,9 @@ import {
 } from "drizzle-orm";
 import { err, ok } from "neverthrow";
 
-import type { OpportunityDetail } from "../../../domain/entities/opportunity.js";
 import type {
   CancelScheduledSuspensionByIdAndOperatorIdInput,
+  CancelScheduledSuspensionByIdInput,
   DeleteOpportunityByIdAndOperatorIdInput,
   FindByIdAndOperatorIdInput,
   FindByIdInput,
@@ -31,10 +31,16 @@ import type {
   OpportunityStatusFilter,
   PaginatedOpportunities,
   SuspendByIdAndOperatorIdInput,
+  SuspendByIdInput,
   UpdateOpportunityStatusByIdAndOperatorIdInput,
   UpdateOpportunityStatusByIdInput,
 } from "../../../domain/ports/outbound/persistence/opportunity.repository.js";
 
+import {
+  ACTOR_TYPE,
+  OPPORTUNITY_STATUS,
+  type OpportunityDetail,
+} from "../../../domain/entities/opportunity.js";
 import {
   mapOpportunityDetailRow,
   mapOpportunitySummaryRow,
@@ -86,7 +92,7 @@ export const buildStatusCondition = (
       gt(opportunity.dateFrom, referenceDate),
     );
   }
-  if (status === "published" && referenceDate) {
+  if (status === OPPORTUNITY_STATUS.PUBLISHED && referenceDate) {
     return and(
       sql`${opportunity.status} = 'published'`,
       lte(opportunity.dateFrom, referenceDate),
@@ -135,7 +141,7 @@ const findByIdAndOperatorId = async (
       where: and(
         eq(opportunity.id, input.opportunityId),
         eq(opportunity.operatorId, input.operatorId),
-        ne(opportunity.status, "deleted"),
+        ne(opportunity.status, OPPORTUNITY_STATUS.DELETED),
       ),
       with: {
         beneficiaryBenefit: {
@@ -277,7 +283,7 @@ const deleteByIdAndOperatorId =
             ...(input.deletionMessage
               ? { deletionMessage: input.deletionMessage }
               : {}),
-            status: "deleted",
+            status: OPPORTUNITY_STATUS.DELETED,
             updatedAt: new Date(),
           })
           .where(
@@ -315,8 +321,8 @@ const suspendByIdAndOperatorId =
         .set({
           ...(input.suspendFrom
             ? { suspendFrom: input.suspendFrom }
-            : { status: "suspended" }),
-          suspendedBy: "operator",
+            : { status: OPPORTUNITY_STATUS.SUSPENDED }),
+          suspendedBy: ACTOR_TYPE.OPERATOR,
           suspensionMessage: input.suspensionMessage,
           updatedAt: new Date(),
         })
@@ -324,7 +330,7 @@ const suspendByIdAndOperatorId =
           and(
             eq(opportunity.id, input.opportunityId),
             eq(opportunity.operatorId, input.operatorId),
-            eq(opportunity.status, "published"),
+            eq(opportunity.status, OPPORTUNITY_STATUS.PUBLISHED),
             isNull(opportunity.suspendFrom),
           ),
         );
@@ -359,7 +365,46 @@ const cancelScheduledSuspensionByIdAndOperatorId =
           and(
             eq(opportunity.id, input.opportunityId),
             eq(opportunity.operatorId, input.operatorId),
-            eq(opportunity.status, "published"),
+            eq(opportunity.status, OPPORTUNITY_STATUS.PUBLISHED),
+            isNotNull(opportunity.suspendFrom),
+            // Operators can only cancel their own schedule: a
+            // department-scheduled suspension is out of their reach.
+            eq(opportunity.suspendedBy, ACTOR_TYPE.OPERATOR),
+          ),
+        );
+      if (result.count === 0) {
+        return err(
+          new ConflictError("Opportunity status was modified concurrently"),
+        );
+      }
+      return ok(undefined);
+    } catch (error) {
+      return err(
+        new GenericError(
+          `Failed to cancel scheduled suspension: ${String(error)}`,
+        ),
+      );
+    }
+  };
+
+const cancelScheduledSuspensionById =
+  (db: TypedDbClient<typeof schema>) =>
+  async (
+    input: CancelScheduledSuspensionByIdInput,
+  ): Promise<Result<void, ConflictError | GenericError>> => {
+    try {
+      const result = await db
+        .update(opportunity)
+        .set({
+          suspendedBy: null,
+          suspendFrom: null,
+          suspensionMessage: null,
+          updatedAt: new Date(),
+        })
+        .where(
+          and(
+            eq(opportunity.id, input.opportunityId),
+            eq(opportunity.status, OPPORTUNITY_STATUS.PUBLISHED),
             isNotNull(opportunity.suspendFrom),
           ),
         );
@@ -374,6 +419,41 @@ const cancelScheduledSuspensionByIdAndOperatorId =
         new GenericError(
           `Failed to cancel scheduled suspension: ${String(error)}`,
         ),
+      );
+    }
+  };
+
+const suspendById =
+  (db: TypedDbClient<typeof schema>) =>
+  async (
+    input: SuspendByIdInput,
+  ): Promise<Result<void, ConflictError | GenericError>> => {
+    try {
+      const result = await db
+        .update(opportunity)
+        .set({
+          ...(input.suspendFrom
+            ? { suspendFrom: input.suspendFrom }
+            : { status: OPPORTUNITY_STATUS.SUSPENDED, suspendFrom: null }),
+          suspendedBy: ACTOR_TYPE.DEPARTMENT,
+          suspensionMessage: input.suspensionMessage,
+          updatedAt: new Date(),
+        })
+        .where(
+          and(
+            eq(opportunity.id, input.opportunityId),
+            eq(opportunity.status, OPPORTUNITY_STATUS.PUBLISHED),
+          ),
+        );
+      if (result.count === 0) {
+        return err(
+          new ConflictError("Opportunity status was modified concurrently"),
+        );
+      }
+      return ok(undefined);
+    } catch (error) {
+      return err(
+        new GenericError(`Failed to suspend opportunity: ${String(error)}`),
       );
     }
   };
@@ -398,7 +478,7 @@ const countByExternalOperatorIds =
         .where(
           and(
             inArray(operator.externalId, [...externalOperatorIds]),
-            eq(opportunity.status, "published"),
+            eq(opportunity.status, OPPORTUNITY_STATUS.PUBLISHED),
             lte(opportunity.dateFrom, today),
           ),
         )
@@ -419,11 +499,10 @@ const countByExternalOperatorIds =
 export const createDrizzleOpportunityRepository = (
   db: TypedDbClient<typeof schema>,
 ): OpportunityRepository => ({
+  cancelScheduledSuspensionById: cancelScheduledSuspensionById(db),
   cancelScheduledSuspensionByIdAndOperatorId:
     cancelScheduledSuspensionByIdAndOperatorId(db),
-
   countByExternalOperatorIds: countByExternalOperatorIds(db),
-
   create: async (input): Promise<Result<OpportunityDetail, GenericError>> => {
     try {
       const created = await db.transaction(async (tx) => {
@@ -485,7 +564,7 @@ export const createDrizzleOpportunityRepository = (
         conditions.push(buildStatusCondition(input.status, today()));
       }
       if (input.excludeDeleted) {
-        conditions.push(ne(opportunity.status, "deleted"));
+        conditions.push(ne(opportunity.status, OPPORTUNITY_STATUS.DELETED));
       }
       if (input.search) {
         conditions.push(buildSearchCondition(input.search, input.searchFields));
@@ -555,6 +634,8 @@ export const createDrizzleOpportunityRepository = (
 
   findByIdAndOperatorId: async (input: FindByIdAndOperatorIdInput) =>
     findByIdAndOperatorId(db, input),
+
+  suspendById: suspendById(db),
 
   suspendByIdAndOperatorId: suspendByIdAndOperatorId(db),
 

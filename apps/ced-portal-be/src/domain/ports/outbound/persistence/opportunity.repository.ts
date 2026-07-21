@@ -15,6 +15,10 @@ export interface CancelScheduledSuspensionByIdAndOperatorIdInput {
   opportunityId: string;
 }
 
+export interface CancelScheduledSuspensionByIdInput {
+  opportunityId: string;
+}
+
 export interface CreateOpportunityInput {
   operatorId: string;
   opportunity: Opportunity;
@@ -54,6 +58,9 @@ export interface ListOpportunitiesInput {
 }
 
 export interface OpportunityRepository {
+  readonly cancelScheduledSuspensionById: (
+    input: CancelScheduledSuspensionByIdInput,
+  ) => Promise<Result<void, ConflictError | GenericError>>;
   readonly cancelScheduledSuspensionByIdAndOperatorId: (
     input: CancelScheduledSuspensionByIdAndOperatorIdInput,
   ) => Promise<Result<void, ConflictError | GenericError>>;
@@ -75,6 +82,9 @@ export interface OpportunityRepository {
   readonly findByIdAndOperatorId: (
     input: FindByIdAndOperatorIdInput,
   ) => Promise<Result<OpportunityDetail | undefined, GenericError>>;
+  readonly suspendById: (
+    input: SuspendByIdInput,
+  ) => Promise<Result<void, ConflictError | GenericError>>;
   readonly suspendByIdAndOperatorId: (
     input: SuspendByIdAndOperatorIdInput,
   ) => Promise<Result<void, ConflictError | GenericError>>;
@@ -95,7 +105,6 @@ export type OpportunityStatusFilter =
   | "scheduled"
   | "scheduled_suspension"
   | Opportunity["status"];
-
 export interface PaginatedOpportunities {
   items: OpportunitySummary[];
   total: number;
@@ -107,6 +116,12 @@ export interface SuspendByIdAndOperatorIdInput {
   // When provided (a future calendar date), the suspension is deferred: the
   // opportunity stays "published" and "suspend_from" is set. When absent, the
   // suspension is applied immediately (status -> "suspended").
+  suspendFrom?: string;
+  suspensionMessage: string;
+}
+
+export interface SuspendByIdInput {
+  opportunityId: string;
   suspendFrom?: string;
   suspensionMessage: string;
 }

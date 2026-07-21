@@ -16,17 +16,16 @@ import type { OpportunityRepository } from "../../../domain/ports/outbound/persi
 
 import { validateUseCaseInput } from "../utils/validate-use-case-input.js";
 
-const OperatorCancelScheduledSuspensionInputSchema = z.object({
-  operatorId: z.ulid(),
+const AdminCancelScheduledSuspensionInputSchema = z.object({
   opportunityId: z.ulid(),
 });
 
-export type OperatorCancelScheduledSuspensionInput = z.infer<
-  typeof OperatorCancelScheduledSuspensionInputSchema
+export type AdminCancelScheduledSuspensionInput = z.infer<
+  typeof AdminCancelScheduledSuspensionInputSchema
 >;
 
-export type OperatorCancelScheduledSuspensionUseCase = UseCase<
-  OperatorCancelScheduledSuspensionInput,
+export type AdminCancelScheduledSuspensionUseCase = UseCase<
+  AdminCancelScheduledSuspensionInput,
   void,
   | ConflictError
   | GenericError
@@ -35,18 +34,17 @@ export type OperatorCancelScheduledSuspensionUseCase = UseCase<
   | ValidationError
 >;
 
-export const makeOperatorCancelScheduledSuspensionUseCase =
+export const makeAdminCancelScheduledSuspensionUseCase =
   (
     opportunityRepository: OpportunityRepository,
-  ): OperatorCancelScheduledSuspensionUseCase =>
+  ): AdminCancelScheduledSuspensionUseCase =>
   async (input) =>
     validateUseCaseInput(
-      OperatorCancelScheduledSuspensionInputSchema,
+      AdminCancelScheduledSuspensionInputSchema,
       input,
     ).andThen((validatedInput) =>
       new ResultAsync(
-        opportunityRepository.findByIdAndOperatorId({
-          operatorId: validatedInput.operatorId,
+        opportunityRepository.findById({
           opportunityId: validatedInput.opportunityId,
         }),
       ).andThen((data) => {
@@ -60,16 +58,8 @@ export const makeOperatorCancelScheduledSuspensionUseCase =
             ),
           );
 
-        if (data.suspendedBy !== "operator")
-          return errAsync(
-            new PreconditionFailedError(
-              "Only the department can cancel a department-scheduled suspension",
-            ),
-          );
-
         return new ResultAsync(
-          opportunityRepository.cancelScheduledSuspensionByIdAndOperatorId({
-            operatorId: validatedInput.operatorId,
+          opportunityRepository.cancelScheduledSuspensionById({
             opportunityId: validatedInput.opportunityId,
           }),
         );

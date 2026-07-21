@@ -12,7 +12,7 @@ export { OpportunitySummaryItemStatus as OpportunityStatusEnum } from '../../cor
 export interface OpportunitySuspensionMetadata {
   suspendFrom?: string | null;
   suspensionMessage?: string | null;
-  suspendedByType?: 'operator' | 'department' | null;
+  suspendedBy?: 'operator' | 'department' | null;
 }
 
 export type OpportunityDetail = OpportunityDetailResponse &

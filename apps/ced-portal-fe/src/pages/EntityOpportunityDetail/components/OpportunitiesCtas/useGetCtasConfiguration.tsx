@@ -142,12 +142,7 @@ export const useGetCtasConfiguration = (
           rightCtas: withActions(layout?.rightCtas),
         } satisfies OpportunitiesCtasLayout;
 
-        if (
-          (key === 'published' ||
-            key === 'scheduled' ||
-            key === 'test_pending') &&
-          hasScheduledSuspension
-        ) {
+        if (key === 'published' && hasScheduledSuspension) {
           return [
             key,
             {

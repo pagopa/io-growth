@@ -9,6 +9,25 @@ type ChipConfig = {
 };
 
 export const getChipConfig = ({ item, role }: ChipConfig): ChipProps => {
+  if (
+    role === 'operator' &&
+    (item as { suspendFrom?: string | null }).suspendFrom?.trim()
+  ) {
+    return {
+      size: 'small',
+      label: 'Sospensione programmata',
+      color: 'info',
+      sx: {
+        fontSize: 12,
+        fontWeight: 700,
+        height: 24,
+        '& .MuiChip-label': {
+          px: 1.2,
+        },
+      },
+    };
+  }
+
   const config = (
     role === 'admin' ? opportunityStatusLabelMap : benefitStateLabelMap
   )[item.status];

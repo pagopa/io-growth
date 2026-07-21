@@ -123,7 +123,7 @@ export const opportunitiesApi = baseApi.injectEndpoints({
       { id: string; payload: SuspendOpportunityPayload }
     >({
       query: ({ id, payload }) => ({
-        url: `/operator/opportunities/${id}/suspend`,
+        url: `/operator/opportunities/${id}/suspension/schedule`,
         method: 'PATCH',
         body: payload,
       }),
@@ -134,7 +134,7 @@ export const opportunitiesApi = baseApi.injectEndpoints({
     }),
     cancelScheduledSuspension: builder.mutation<void, { id: string }>({
       query: ({ id }) => ({
-        url: `/operator/opportunities/${id}/suspend/cancel`,
+        url: `/operator/opportunities/${id}/suspension/cancel`,
         method: 'PATCH',
       }),
       invalidatesTags: (_result, _error, { id }) => [

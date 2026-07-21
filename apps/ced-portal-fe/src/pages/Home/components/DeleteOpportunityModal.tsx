@@ -112,6 +112,7 @@ export function OpportunityActionModal({
             </Typography>
             <AppDatePicker
               value={suspendDate}
+              valueFormat="iso"
               onChange={(value) => {
                 setSuspendDate(value);
                 if (dateError) {

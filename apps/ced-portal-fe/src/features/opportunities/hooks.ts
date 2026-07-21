@@ -30,6 +30,26 @@ const INACTIVE_STATES: Set<OpportunityStatus> = new Set([
   OpportunityStatusEnum.deleted,
 ]);
 
+const isScheduledSuspension = (item: Opportunity): boolean => {
+  const status = item.status as string;
+
+  return (
+    status === 'scheduled_suspension' ||
+    (status === OpportunityStatusEnum.published &&
+      Boolean(item.suspendFrom?.trim()))
+  );
+};
+
+const isManagedOperatorState = (item: Opportunity): boolean => {
+  const status = item.status as string;
+
+  return (
+    APPROVED_STATES.has(item.status) ||
+    INACTIVE_STATES.has(item.status) ||
+    status === 'scheduled_suspension'
+  );
+};
+
 const matchesState = (item: Opportunity, state: string): boolean => {
   if (!state) return true;
   return item.status === state;
@@ -73,7 +93,11 @@ export const useOpportunitiesData = (filters: OpportunityFilters) => {
   );
 
   const approvedItems = useMemo(
-    () => filteredItems.filter((item) => APPROVED_STATES.has(item.status)),
+    () =>
+      filteredItems.filter(
+        (item) =>
+          APPROVED_STATES.has(item.status) || isScheduledSuspension(item),
+      ),
     [filteredItems],
   );
 
@@ -115,7 +139,7 @@ export const useBenefitsData = (params: ListOperatorOpportunitiesParams) => {
   );
 
   const approvedItems = useMemo(
-    () => visibleItems.filter((item) => APPROVED_STATES.has(item.status)),
+    () => visibleItems.filter(isManagedOperatorState),
     [visibleItems],
   );
 

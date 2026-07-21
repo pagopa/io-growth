@@ -4,8 +4,12 @@ import {
   OpportunitySummaryItemStatus,
 } from '../core/api/generated/model';
 
+type OpportunityStateValue =
+  | OpportunitySummaryItemStatus
+  | 'scheduled_suspension';
+
 export const STATE_OPTIONS: {
-  value: OpportunitySummaryItemStatus;
+  value: OpportunityStateValue;
   label: string;
 }[] = [
   { value: OpportunitySummaryItemStatus.draft, label: 'In bozza' },
@@ -17,6 +21,10 @@ export const STATE_OPTIONS: {
   {
     value: OpportunitySummaryItemStatus.scheduled,
     label: 'Pubblicazione programmata',
+  },
+  {
+    value: 'scheduled_suspension',
+    label: 'Sospensione programmata',
   },
   { value: OpportunitySummaryItemStatus.published, label: 'Pubblicata su IO' },
   { value: OpportunitySummaryItemStatus.suspended, label: 'Sospesa' },
@@ -33,6 +41,7 @@ export const ADMIN_REQUEST_STATE_OPTIONS = STATE_OPTIONS.filter(
 export const ADMIN_APPROVED_STATE_OPTIONS = STATE_OPTIONS.filter(
   ({ value }) =>
     value === OpportunitySummaryItemStatus.scheduled ||
+    value === 'scheduled_suspension' ||
     value === OpportunitySummaryItemStatus.test_passed ||
     value === OpportunitySummaryItemStatus.published,
 );
@@ -79,12 +88,13 @@ export const OPERATOR_MANAGED_STATE_OPTIONS = OPERATOR_STATE_OPTIONS.filter(
 );
 
 export const STATE_COLORS: Record<
-  OpportunitySummaryItemStatus,
+  OpportunityStateValue,
   ChipOwnProps['color']
 > = {
   draft: 'default',
   test_pending: 'warning',
   scheduled: 'info',
+  scheduled_suspension: 'info',
   test_passed: 'info',
   published: 'success',
   suspended: 'warning',

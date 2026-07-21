@@ -1,5 +1,11 @@
 # ced-portal-be
 
+## 0.2.13
+
+### Patch Changes
+
+- 3b78198: feat: add department suspension API for opportunities
+
 ## 0.2.12
 
 ### Patch Changes

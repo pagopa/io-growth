@@ -46,6 +46,21 @@ const localizedMetadataSchema = z.object({
   value: z.string().min(1),
 });
 
+export const ACTOR_TYPE = {
+  DEPARTMENT: "department",
+  OPERATOR: "operator",
+} as const;
+
+export const OPPORTUNITY_STATUS = {
+  DELETED: "deleted",
+  DRAFT: "draft",
+  PUBLISHED: "published",
+  SUSPENDED: "suspended",
+  TEST_PASSED: "test_passed",
+  TEST_PENDING: "test_pending",
+  TEST_REJECTED: "test_rejected",
+} as const;
+
 export const OpportunitySchema = z.object({
   beneficiaryBenefit: BenefitSchema,
   caregiverBenefit: BenefitSchema.optional(),

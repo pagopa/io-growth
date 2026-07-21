@@ -19,7 +19,6 @@ import {
 } from "drizzle-orm";
 import { err, ok } from "neverthrow";
 
-import type { OpportunityDetail } from "../../../domain/entities/opportunity.js";
 import type {
   CancelScheduledSuspensionByIdAndOperatorIdInput,
   CancelScheduledSuspensionByIdInput,
@@ -37,6 +36,11 @@ import type {
   UpdateOpportunityStatusByIdInput,
 } from "../../../domain/ports/outbound/persistence/opportunity.repository.js";
 
+import {
+  ACTOR_TYPE,
+  OPPORTUNITY_STATUS,
+  type OpportunityDetail,
+} from "../../../domain/entities/opportunity.js";
 import {
   mapOpportunityDetailRow,
   mapOpportunitySummaryRow,
@@ -88,7 +92,7 @@ export const buildStatusCondition = (
       gt(opportunity.dateFrom, referenceDate),
     );
   }
-  if (status === "published" && referenceDate) {
+  if (status === OPPORTUNITY_STATUS.PUBLISHED && referenceDate) {
     return and(
       sql`${opportunity.status} = 'published'`,
       lte(opportunity.dateFrom, referenceDate),
@@ -137,7 +141,7 @@ const findByIdAndOperatorId = async (
       where: and(
         eq(opportunity.id, input.opportunityId),
         eq(opportunity.operatorId, input.operatorId),
-        ne(opportunity.status, "deleted"),
+        ne(opportunity.status, OPPORTUNITY_STATUS.DELETED),
       ),
       with: {
         beneficiaryBenefit: {
@@ -279,7 +283,7 @@ const deleteByIdAndOperatorId =
             ...(input.deletionMessage
               ? { deletionMessage: input.deletionMessage }
               : {}),
-            status: "deleted",
+            status: OPPORTUNITY_STATUS.DELETED,
             updatedAt: new Date(),
           })
           .where(
@@ -317,8 +321,8 @@ const suspendByIdAndOperatorId =
         .set({
           ...(input.suspendFrom
             ? { suspendFrom: input.suspendFrom }
-            : { status: "suspended" }),
-          suspendedBy: "operator",
+            : { status: OPPORTUNITY_STATUS.SUSPENDED }),
+          suspendedBy: ACTOR_TYPE.OPERATOR,
           suspensionMessage: input.suspensionMessage,
           updatedAt: new Date(),
         })
@@ -326,7 +330,7 @@ const suspendByIdAndOperatorId =
           and(
             eq(opportunity.id, input.opportunityId),
             eq(opportunity.operatorId, input.operatorId),
-            eq(opportunity.status, "published"),
+            eq(opportunity.status, OPPORTUNITY_STATUS.PUBLISHED),
             isNull(opportunity.suspendFrom),
           ),
         );
@@ -361,11 +365,11 @@ const cancelScheduledSuspensionByIdAndOperatorId =
           and(
             eq(opportunity.id, input.opportunityId),
             eq(opportunity.operatorId, input.operatorId),
-            eq(opportunity.status, "published"),
+            eq(opportunity.status, OPPORTUNITY_STATUS.PUBLISHED),
             isNotNull(opportunity.suspendFrom),
             // Operators can only cancel their own schedule: a
             // department-scheduled suspension is out of their reach.
-            eq(opportunity.suspendedBy, "operator"),
+            eq(opportunity.suspendedBy, ACTOR_TYPE.OPERATOR),
           ),
         );
       if (result.count === 0) {
@@ -400,7 +404,7 @@ const cancelScheduledSuspensionById =
         .where(
           and(
             eq(opportunity.id, input.opportunityId),
-            eq(opportunity.status, "published"),
+            eq(opportunity.status, OPPORTUNITY_STATUS.PUBLISHED),
             isNotNull(opportunity.suspendFrom),
           ),
         );
@@ -430,15 +434,15 @@ const suspendById =
         .set({
           ...(input.suspendFrom
             ? { suspendFrom: input.suspendFrom }
-            : { status: "suspended" as const, suspendFrom: null }),
-          suspendedBy: "department",
+            : { status: OPPORTUNITY_STATUS.SUSPENDED, suspendFrom: null }),
+          suspendedBy: ACTOR_TYPE.DEPARTMENT,
           suspensionMessage: input.suspensionMessage,
           updatedAt: new Date(),
         })
         .where(
           and(
             eq(opportunity.id, input.opportunityId),
-            eq(opportunity.status, "published"),
+            eq(opportunity.status, OPPORTUNITY_STATUS.PUBLISHED),
           ),
         );
       if (result.count === 0) {
@@ -474,7 +478,7 @@ const countByExternalOperatorIds =
         .where(
           and(
             inArray(operator.externalId, [...externalOperatorIds]),
-            eq(opportunity.status, "published"),
+            eq(opportunity.status, OPPORTUNITY_STATUS.PUBLISHED),
             lte(opportunity.dateFrom, today),
           ),
         )
@@ -560,7 +564,7 @@ export const createDrizzleOpportunityRepository = (
         conditions.push(buildStatusCondition(input.status, today()));
       }
       if (input.excludeDeleted) {
-        conditions.push(ne(opportunity.status, "deleted"));
+        conditions.push(ne(opportunity.status, OPPORTUNITY_STATUS.DELETED));
       }
       if (input.search) {
         conditions.push(buildSearchCondition(input.search, input.searchFields));

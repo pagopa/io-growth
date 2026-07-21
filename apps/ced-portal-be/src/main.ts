@@ -43,9 +43,11 @@ import {
   mountListOperatorPlacesHandler,
   mountListOpportunityCategoriesHandler,
   mountListPendingOnboardingsHandler,
+  mountOperatorCancelScheduledSuspensionHandler,
   mountOperatorDeleteOpportunityHandler,
   mountOperatorPublishOpportunityHandler,
   mountOperatorRequestOpportunityTestHandler,
+  mountOperatorSuspendOpportunityHandler,
 } from "./adapters/inbound/fastify/index.js";
 import { createArOnboardingRepository } from "./adapters/outbound/ar/ar-onboarding.repository.js";
 import { injectDbAuditContext } from "./adapters/outbound/drizzle/drizzle-audit-context.js";
@@ -75,7 +77,9 @@ import { makeGetOperatorOpportunityUseCase } from "./application/use-cases/oppor
 import { makeGetOpportunityUseCase } from "./application/use-cases/opportunities/get-opportunity.use-case.js";
 import { makeListOperatorOpportunitiesUseCase } from "./application/use-cases/opportunities/list-operator-opportunities.use-case.js";
 import { makeListOpportunityCategoriesUseCase } from "./application/use-cases/opportunities/list-opportunity-categories.use-case.js";
+import { makeOperatorCancelScheduledSuspensionUseCase } from "./application/use-cases/opportunities/operator-cancel-scheduled-suspension.use-case.js";
 import { makeOperatorRequestOpportunityTestUseCase } from "./application/use-cases/opportunities/operator-request-opportunity-test.use-case.js";
+import { makeOperatorSuspendOpportunityUseCase } from "./application/use-cases/opportunities/operator-suspend-opportunity.use-case.js";
 import { makePublishOpportunityUseCase } from "./application/use-cases/opportunities/publish-opportunity.use-case.js";
 import { makeCreateOperatorPlaceUseCase } from "./application/use-cases/places/create-operator-place.use-case.js";
 import { makeGetOperatorPlaceUseCase } from "./application/use-cases/places/get-operator-place.use-case.js";
@@ -247,6 +251,17 @@ app.register(async (app) => {
   mountOperatorDeleteOpportunityHandler(
     app,
     makeDeleteOpportunityUseCase(opportunityRepository),
+  );
+  mountOperatorSuspendOpportunityHandler(
+    app,
+    makeOperatorSuspendOpportunityUseCase(
+      opportunityRepository,
+      materializedViewRepository,
+    ),
+  );
+  mountOperatorCancelScheduledSuspensionHandler(
+    app,
+    makeOperatorCancelScheduledSuspensionUseCase(opportunityRepository),
   );
   mountListPendingOnboardingsHandler(
     app,

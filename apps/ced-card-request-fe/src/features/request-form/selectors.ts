@@ -1,11 +1,16 @@
 import { createSelector } from '@reduxjs/toolkit';
 import { RootState } from '../../core/store';
 import { RequestFormState } from './reducer';
-import { parse } from 'date-fns';
 
 const toIsoString = (dateStr: string | undefined) => {
   if (!dateStr) return '';
-  return parse(dateStr, 'dd/MM/yyyy', new Date()).toISOString();
+  const [day, month, year] = dateStr.split('/');
+
+  if (!day || !month || !year) return '';
+
+  const utcDate = new Date(Date.UTC(+year, +month - 1, +day));
+
+  return utcDate.toISOString();
 };
 
 export const selectRequestForm = (state: RootState) => {

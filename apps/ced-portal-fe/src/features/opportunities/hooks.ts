@@ -8,6 +8,7 @@ import {
   useGetOperatorOpportunitiesQuery,
 } from './api';
 import type {
+  AdminOpportunityStatusFilter,
   AdminOpportunity,
   Opportunity,
   OpportunityFilters,
@@ -24,6 +25,7 @@ const APPROVED_STATES: Set<OpportunityStatus> = new Set([
   OpportunityStatusEnum.test_passed,
   OpportunityStatusEnum.scheduled,
   OpportunityStatusEnum.published,
+  'suspension_scheduled',
 ]);
 const INACTIVE_STATES: Set<OpportunityStatus> = new Set([
   OpportunityStatusEnum.suspended,
@@ -37,7 +39,8 @@ const matchesState = (item: Opportunity, state: string): boolean => {
 
 const isListOperatorOpportunitiesStatus = (
   value: string,
-): value is ListOperatorOpportunitiesStatus =>
+): value is AdminOpportunityStatusFilter =>
+  value === 'suspension_scheduled' ||
   Object.values(ListOperatorOpportunitiesStatus).includes(
     value as ListOperatorOpportunitiesStatus,
   );

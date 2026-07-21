@@ -4,21 +4,47 @@ import type { ListOperatorOpportunitiesStatus } from '../../core/api/generated/m
 import type { OpportunityDetailAdminResponse } from '../../core/api/generated/model/opportunityDetailAdminResponse';
 import type { OpportunityDetailResponse } from '../../core/api/generated/model/opportunityDetailResponse';
 import type { OpportunityListResponse } from '../../core/api/generated/model/opportunityListResponse';
+import type { OpportunitySummaryItemStatus } from '../../core/api/generated/model/opportunitySummaryItemStatus';
 export { type LocalizedMetadataItem } from '../../core/api/generated/model/localizedMetadataItem';
-export type { OpportunitySummaryItemStatus as OpportunityStatus } from '../../core/api/generated/model/opportunitySummaryItemStatus';
 export { OpportunitySummaryItemStatus as OpportunityStatusEnum } from '../../core/api/generated/model/opportunitySummaryItemStatus';
+
+type ScheduledSuspensionStatus = 'suspension_scheduled';
+type SuspensionActorType = 'operator' | 'department';
+
+export type OpportunityStatus =
+  | OpportunitySummaryItemStatus
+  | ScheduledSuspensionStatus;
+
+interface OpportunitySuspensionFields {
+  suspendFrom?: string | null;
+  suspendedByType?: SuspensionActorType | null;
+  suspensionMessage?: string | null;
+}
+
+type OpportunityWithExtendedStatus<T extends { status: string }> = Omit<
+  T,
+  'status'
+> & {
+  status: OpportunityStatus;
+} & OpportunitySuspensionFields;
 
 export type OpportunityDetail = OpportunityDetailResponse;
 export type OpportunitiesResponse = OpportunityListResponse;
-export type Opportunity = AdminOpportunitySummaryItem;
+export type Opportunity =
+  OpportunityWithExtendedStatus<AdminOpportunitySummaryItem>;
 
-export type AdminOpportunity = AdminOpportunitySummaryItem;
-export type AdminOpportunityDetail = OpportunityDetailAdminResponse;
+export type AdminOpportunity = Opportunity;
+export type AdminOpportunityDetail =
+  OpportunityWithExtendedStatus<OpportunityDetailAdminResponse>;
+
+export type AdminOpportunityStatusFilter =
+  | ListOperatorOpportunitiesStatus
+  | ScheduledSuspensionStatus;
 
 export interface ListAdminOpportunitiesParams {
   offset?: number;
   limit?: number;
-  status?: ListOperatorOpportunitiesStatus;
+  status?: AdminOpportunityStatusFilter;
   search?: string;
   sortBy?: 'createdAt' | 'updatedAt';
   sortOrder?: 'asc' | 'desc';
@@ -29,6 +55,11 @@ export interface ListAdminOpportunitiesParams {
 }
 
 export type ApproveOpportunityPayload = ApproveOpportunityBody;
+
+export interface SuspendOpportunityPayload {
+  suspensionMessage: string;
+  suspendFrom: string;
+}
 
 // UI-only filter state
 export interface OpportunityFilters {

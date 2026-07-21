@@ -35,6 +35,8 @@ interface OpportunitiesTableProps {
   selected: Set<string>;
   onSelectChange: (selected: Set<string>) => void;
   onPublish: (id: string) => void;
+  onSuspend: (item: Opportunity) => void;
+  onCancelSuspension: (id: string) => void;
   activeTab: number;
 }
 
@@ -46,6 +48,8 @@ export const OpportunitiesTable = ({
   selected,
   onSelectChange,
   onPublish,
+  onSuspend,
+  onCancelSuspension,
   activeTab,
 }: OpportunitiesTableProps) => {
   const theme = useTheme();
@@ -75,6 +79,35 @@ export const OpportunitiesTable = ({
   const handlePublish = () => {
     if (menuItemId) {
       onPublish(menuItemId);
+    }
+    handleMenuClose();
+  };
+
+  const menuItem = useMemo(
+    () => items.find((item) => item.id === menuItemId),
+    [items, menuItemId],
+  );
+
+  const menuItemStatus = menuItem?.status;
+  const menuItemSuspendFrom = menuItem?.suspendFrom;
+  const hasScheduledSuspension =
+    menuItemStatus === 'suspension_scheduled' ||
+    (menuItemStatus === 'published' && Boolean(menuItemSuspendFrom));
+
+  const canPublish = menuItemStatus === 'test_pending';
+  const canSuspend =
+    menuItemStatus === 'published' || menuItemStatus === 'suspension_scheduled';
+
+  const handleSuspend = () => {
+    if (menuItem) {
+      onSuspend(menuItem);
+    }
+    handleMenuClose();
+  };
+
+  const handleCancelSuspension = () => {
+    if (menuItemId) {
+      onCancelSuspension(menuItemId);
     }
     handleMenuClose();
   };
@@ -260,7 +293,15 @@ export const OpportunitiesTable = ({
         onClose={handleMenuClose}
       >
         <MenuItem onClick={handleView}>Visualizza</MenuItem>
-        <MenuItem onClick={handlePublish}>Pubblica su IO</MenuItem>
+        {canPublish && (
+          <MenuItem onClick={handlePublish}>Pubblica su IO</MenuItem>
+        )}
+        {canSuspend && <MenuItem onClick={handleSuspend}>Sospendi</MenuItem>}
+        {hasScheduledSuspension && (
+          <MenuItem onClick={handleCancelSuspension}>
+            Annulla sospensione programmata
+          </MenuItem>
+        )}
       </Menu>
     </TableContainer>
   );

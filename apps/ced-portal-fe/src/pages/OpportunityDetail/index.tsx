@@ -14,7 +14,9 @@ import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import {
   useApproveOpportunityMutation,
+  useCancelScheduledSuspensionMutation,
   useGetAdminOpportunityDetailQuery,
+  useSuspendOpportunityMutation,
 } from '../../features/opportunities/api';
 import { APP_ROUTES } from '../../app/routeConfig';
 import { useToast } from '../../contexts';
@@ -22,6 +24,8 @@ import { PublishModal } from '../../components/PublishModal';
 import { RequestChangesModal } from '../../components/RequestChangesModal';
 import { OpportunityDetailCard } from './components/OpportunityDetailCard';
 import { STATE_COLORS, STATE_OPTIONS } from '../../constants/opportunityState';
+import { SuspendOpportunityModal } from '../../components/SuspendOpportunityModal';
+import type { SuspendOpportunityPayload } from '../../features/opportunities/types';
 
 export default function OpportunityDetailPage() {
   const theme = useTheme();
@@ -35,8 +39,48 @@ export default function OpportunityDetailPage() {
   } = useGetAdminOpportunityDetailQuery(id ?? '');
   const [approveOpportunity, { isLoading: isApproving }] =
     useApproveOpportunityMutation();
+  const [suspendOpportunity, { isLoading: isSuspending }] =
+    useSuspendOpportunityMutation();
+  const [cancelScheduledSuspension, { isLoading: isCancelingSuspension }] =
+    useCancelScheduledSuspensionMutation();
   const [publishModalOpen, setPublishModalOpen] = useState(false);
+  const [suspendModalOpen, setSuspendModalOpen] = useState(false);
   const [requestChangesOpen, setRequestChangesOpen] = useState(false);
+
+  const detailStatus = detail?.status;
+  const detailSuspendFrom = detail?.suspendFrom;
+  const hasScheduledSuspension =
+    detailStatus === 'suspension_scheduled' ||
+    (detailStatus === 'published' && Boolean(detailSuspendFrom));
+  const canSuspendOpportunity =
+    detailStatus === 'published' || detailStatus === 'suspension_scheduled';
+
+  const handleSuspend = async (payload: SuspendOpportunityPayload) => {
+    if (!id || isSuspending) {
+      return;
+    }
+
+    try {
+      await suspendOpportunity({ id, payload }).unwrap();
+      setSuspendModalOpen(false);
+      showToast('Sospensione impostata con successo', 'success');
+    } catch {
+      showToast("Errore durante la sospensione dell'opportunità", 'error');
+    }
+  };
+
+  const handleCancelSuspension = async () => {
+    if (!id || isCancelingSuspension) {
+      return;
+    }
+
+    try {
+      await cancelScheduledSuspension({ id }).unwrap();
+      showToast('Sospensione programmata annullata con successo', 'success');
+    } catch {
+      showToast("Errore durante l'annullamento della sospensione", 'error');
+    }
+  };
 
   if (isLoading) {
     return (
@@ -163,6 +207,35 @@ export default function OpportunityDetailPage() {
             </Button>
           </Stack>
         )}
+
+        {canSuspendOpportunity && (
+          <Stack
+            direction={{ xs: 'column', sm: 'row' }}
+            spacing={2}
+            justifyContent="flex-end"
+            sx={{ pt: 2, pb: 4 }}
+          >
+            {hasScheduledSuspension && (
+              <Button
+                variant="outlined"
+                onClick={handleCancelSuspension}
+                disabled={isCancelingSuspension}
+                sx={{ fontWeight: 700, borderRadius: 2, px: 3 }}
+              >
+                Annulla sospensione programmata
+              </Button>
+            )}
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={() => setSuspendModalOpen(true)}
+              disabled={isSuspending}
+              sx={{ fontWeight: 700, borderRadius: 2, px: 4 }}
+            >
+              Sospendi
+            </Button>
+          </Stack>
+        )}
       </Stack>
 
       <PublishModal
@@ -202,6 +275,14 @@ export default function OpportunityDetailPage() {
           navigate(APP_ROUTES.OPPORTUNITIES);
           showToast('Fatto!', 'success');
         }}
+      />
+
+      <SuspendOpportunityModal
+        open={suspendModalOpen}
+        isLoading={isSuspending}
+        opportunityName={detail.categoryTitle}
+        onClose={() => setSuspendModalOpen(false)}
+        onConfirm={handleSuspend}
       />
     </Box>
   );

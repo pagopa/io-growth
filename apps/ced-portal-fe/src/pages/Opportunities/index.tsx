@@ -7,9 +7,17 @@ import {
   useState,
 } from 'react';
 import { FiltersBar, PageTabs, ResultsPagination } from '../../components';
-import { useApproveOpportunityMutation } from '../../features/opportunities/api';
+import {
+  useApproveOpportunityMutation,
+  useCancelScheduledSuspensionMutation,
+  useSuspendOpportunityMutation,
+} from '../../features/opportunities/api';
 import { useOpportunitiesData } from '../../features/opportunities/hooks';
-import type { OpportunityFilters } from '../../features/opportunities/types';
+import type {
+  Opportunity,
+  OpportunityFilters,
+  SuspendOpportunityPayload,
+} from '../../features/opportunities/types';
 import { PublishModal } from '../../components/PublishModal';
 import { OpportunitiesTable } from './components/OpportunitiesTable';
 import { useToast } from '../../contexts';
@@ -18,6 +26,7 @@ import {
   ADMIN_NOT_ACTIVE_STATE_OPTIONS,
   ADMIN_REQUEST_STATE_OPTIONS,
 } from '../../constants';
+import { SuspendOpportunityModal } from '../../components/SuspendOpportunityModal';
 
 import { useMemorizedTabsAndFilters } from '../../hooks/useMemorizedTabsAndFilters';
 
@@ -38,9 +47,16 @@ export default function OpportunitiesPage() {
   const [publishModalOpen, setPublishModalOpen] = useState(false);
   const [publishCount, setPublishCount] = useState(0);
   const [idsToPublish, setIdsToPublish] = useState<string[]>([]);
+  const [suspendModalOpen, setSuspendModalOpen] = useState(false);
+  const [opportunityToSuspend, setOpportunityToSuspend] =
+    useState<Opportunity | null>(null);
 
   const [approveOpportunity, { isLoading: isApproving }] =
     useApproveOpportunityMutation();
+  const [suspendOpportunity, { isLoading: isSuspending }] =
+    useSuspendOpportunityMutation();
+  const [cancelScheduledSuspension, { isLoading: isCancelingSuspension }] =
+    useCancelScheduledSuspensionMutation();
 
   useEffect(() => {
     setSelected(new Set());
@@ -153,6 +169,53 @@ export default function OpportunitiesPage() {
     approveOpportunity,
   ]);
 
+  const handleOpenSuspendModal = useCallback((item: Opportunity) => {
+    setOpportunityToSuspend(item);
+    setSuspendModalOpen(true);
+  }, []);
+
+  const handleSuspend = useCallback(
+    async (payload: SuspendOpportunityPayload) => {
+      if (!opportunityToSuspend || isSuspending) {
+        return;
+      }
+
+      try {
+        await suspendOpportunity({
+          id: opportunityToSuspend.id,
+          payload,
+        }).unwrap();
+        setSuspendModalOpen(false);
+        setOpportunityToSuspend(null);
+        setSelected((prev) => {
+          const next = new Set(prev);
+          next.delete(opportunityToSuspend.id);
+          return next;
+        });
+        showToast('Sospensione impostata con successo', 'success');
+      } catch {
+        showToast("Errore durante la sospensione dell'opportunità", 'error');
+      }
+    },
+    [isSuspending, opportunityToSuspend, showToast, suspendOpportunity],
+  );
+
+  const handleCancelSuspension = useCallback(
+    async (id: string) => {
+      if (isCancelingSuspension) {
+        return;
+      }
+
+      try {
+        await cancelScheduledSuspension({ id }).unwrap();
+        showToast('Sospensione programmata annullata con successo', 'success');
+      } catch {
+        showToast("Errore durante l'annullamento della sospensione", 'error');
+      }
+    },
+    [cancelScheduledSuspension, isCancelingSuspension, showToast],
+  );
+
   return (
     <Box
       sx={{
@@ -224,6 +287,8 @@ export default function OpportunitiesPage() {
               onRetry={refetch}
               selected={selected}
               onSelectChange={setSelected}
+              onSuspend={handleOpenSuspendModal}
+              onCancelSuspension={handleCancelSuspension}
               onPublish={(id) => {
                 setIdsToPublish([id]);
                 setPublishCount(1);
@@ -252,6 +317,17 @@ export default function OpportunitiesPage() {
           displayedItems.find((item) => idsToPublish.includes(item.id))
             ?.dateFrom
         }
+      />
+
+      <SuspendOpportunityModal
+        open={suspendModalOpen}
+        isLoading={isSuspending}
+        opportunityName={opportunityToSuspend?.name}
+        onClose={() => {
+          setSuspendModalOpen(false);
+          setOpportunityToSuspend(null);
+        }}
+        onConfirm={handleSuspend}
       />
     </Box>
   );

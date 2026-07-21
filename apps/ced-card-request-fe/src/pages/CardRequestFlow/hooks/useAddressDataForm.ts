@@ -11,46 +11,25 @@ type AddressDataFormType = {
   options?: Array<{ value: string; label: string }>;
 };
 
-const provinceOptions = [
-  { label: 'Milano', value: 'MI' },
-  { label: 'Roma', value: 'RM' },
-  { label: 'Napoli', value: 'NA' },
-];
-
-const comuneOptions = [
-  { label: 'Milano', value: 'Milano' },
-  { label: 'Roma', value: 'Roma' },
-  { label: 'Napoli', value: 'Napoli' },
-];
-
-const capOptions = [
-  { label: '20100', value: '20100' },
-  { label: '00100', value: '00100' },
-  { label: '80100', value: '80100' },
-];
-
 export const ADDRESS_DATA_FORM_CONFIG: AddressDataFormType[] = [
   { label: 'Indirizzo', field: 'indirizzoRec', type: 'text', required: true },
   { label: 'Civico', field: 'civicoRec', type: 'text', required: true },
   {
     label: 'Comune',
     field: 'descrizioneComuneRec',
-    type: 'select',
-    options: comuneOptions,
+    type: 'text',
     required: true,
   },
   {
     label: 'Provincia',
     field: 'siglaProvinciaRec',
-    type: 'select',
-    options: provinceOptions,
+    type: 'text',
     required: true,
   },
   {
     label: 'CAP',
     field: 'capRec',
-    type: 'select',
-    options: capOptions,
+    type: 'text',
     required: true,
   },
   {

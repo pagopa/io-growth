@@ -91,10 +91,6 @@ resource "azurerm_web_application_firewall_policy" "this" {
           id      = "941130"
           enabled = false
         }
-      }
-
-      rule_group_override {
-        rule_group_name = "REQUEST-941-APPLICATION-ATTACK-XSS"
         rule {
           id      = "941170"
           enabled = false
@@ -107,10 +103,6 @@ resource "azurerm_web_application_firewall_policy" "this" {
           id      = "942340"
           enabled = false
         }
-      }
-
-      rule_group_override {
-        rule_group_name = "REQUEST-942-APPLICATION-ATTACK-SQLI"
         rule {
           id      = "942450"
           enabled = false

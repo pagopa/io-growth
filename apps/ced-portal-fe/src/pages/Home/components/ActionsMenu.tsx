@@ -145,10 +145,7 @@ export const ActionsMenu = ({
     selectedItemStatus === 'test_rejected' ||
     selectedItemStatus === 'suspended' ||
     selectedItemStatus === 'scheduled';
-  const canSuspend =
-    selectedItemStatus === 'published' ||
-    selectedItemStatus === 'scheduled' ||
-    selectedItemStatus === 'test_pending';
+  const canSuspend = selectedItemStatus === 'published';
 
   const handleAction = useCallback(
     (cb?: (id: string) => void) => {

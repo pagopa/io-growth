@@ -9,8 +9,8 @@ import type {
 } from '../../../core/api/generated/model';
 import {
   DeleteOpportunityModal,
-  OpportunityActionModal,
-} from './DeleteOpportunityModal';
+  SuspendOpportunityModal,
+} from './OpportunityActionModal';
 import type { SuspendOpportunityPayload } from '../../../features/opportunities/types';
 
 type ActionsMenuProps = {
@@ -213,16 +213,10 @@ export const ActionsMenu = ({
         onClose={handleCloseDeleteModal}
         onConfirm={handleConfirmDelete}
       />
-      <OpportunityActionModal
-        actionType="suspend"
+      <SuspendOpportunityModal
         open={isSuspendModalOpen}
         onClose={handleCloseSuspendModal}
-        onConfirm={(payload) =>
-          handleConfirmSuspend({
-            suspendFrom: payload.suspendDate ?? '',
-            suspensionMessage: payload.message,
-          })
-        }
+        onConfirm={handleConfirmSuspend}
       />
     </>
   );

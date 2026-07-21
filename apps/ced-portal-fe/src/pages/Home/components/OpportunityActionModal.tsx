@@ -1,6 +1,7 @@
 import { Box, Button, Stack, TextField, Typography } from '@mui/material';
 import { useState } from 'react';
 import type { OperatorDeleteOpportunityBody } from '../../../core/api/generated/model';
+import type { SuspendOpportunityPayload } from '../../../features/opportunities/types';
 import { AppDatePicker } from '../../../components';
 import { AppModal } from '../../../components/Modal';
 
@@ -63,13 +64,13 @@ export function OpportunityActionModal({
     ? 'Sospendi opportunita'
     : 'Elimina opportunita';
   const description = isSuspendAction
-    ? "L'opportunita verra sospesa a partire dalla data selezionata e invieremo comunicazione al Dipartimento."
-    : "L'opportunita sara eliminata e invieremo comunicazione al Dipartimento.";
+    ? "L'opportunità verrà sospesa a partire dalla data selezionata e invieremo comunicazione al Dipartimento."
+    : "L'opportunità sarà eliminata e invieremo comunicazione al Dipartimento.";
   const questionLabel = isSuspendAction
-    ? "Perche vuoi sospendere l'opportunita?"
-    : "Perche vuoi eliminare l'opportunita?";
+    ? "Perché vuoi sospendere l'opportunita?"
+    : "Perché vuoi eliminare l'opportunita?";
   const placeholder = isSuspendAction
-    ? 'Spiega il motivo'
+    ? 'Spiega il motivo *'
     : 'Spiega il motivo *';
 
   return (
@@ -161,6 +162,32 @@ export function DeleteOpportunityModal({
       open={open}
       onClose={onClose}
       onConfirm={(payload) => onConfirm({ deletionMessage: payload.message })}
+    />
+  );
+}
+
+interface SuspendOpportunityModalProps {
+  open: boolean;
+  onClose: () => void;
+  onConfirm: (payload: SuspendOpportunityPayload) => void;
+}
+
+export function SuspendOpportunityModal({
+  open,
+  onClose,
+  onConfirm,
+}: SuspendOpportunityModalProps) {
+  return (
+    <OpportunityActionModal
+      actionType="suspend"
+      open={open}
+      onClose={onClose}
+      onConfirm={(payload) =>
+        onConfirm({
+          suspendFrom: payload.suspendDate ?? '',
+          suspensionMessage: payload.message,
+        })
+      }
     />
   );
 }

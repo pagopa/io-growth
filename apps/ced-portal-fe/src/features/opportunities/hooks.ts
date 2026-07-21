@@ -24,6 +24,7 @@ const APPROVED_STATES: Set<OpportunityStatus> = new Set([
   OpportunityStatusEnum.test_passed,
   OpportunityStatusEnum.scheduled,
   OpportunityStatusEnum.published,
+  OpportunityStatusEnum.scheduled_suspension,
 ]);
 const INACTIVE_STATES: Set<OpportunityStatus> = new Set([
   OpportunityStatusEnum.suspended,
@@ -31,22 +32,18 @@ const INACTIVE_STATES: Set<OpportunityStatus> = new Set([
 ]);
 
 const isScheduledSuspension = (item: Opportunity): boolean => {
-  const status = item.status as string;
-
   return (
-    status === 'scheduled_suspension' ||
-    (status === OpportunityStatusEnum.published &&
+    item.status === OpportunityStatusEnum.scheduled_suspension ||
+    (item.status === OpportunityStatusEnum.published &&
       Boolean(item.suspendFrom?.trim()))
   );
 };
 
 const isManagedOperatorState = (item: Opportunity): boolean => {
-  const status = item.status as string;
-
   return (
     APPROVED_STATES.has(item.status) ||
     INACTIVE_STATES.has(item.status) ||
-    status === 'scheduled_suspension'
+    isScheduledSuspension(item)
   );
 };
 

@@ -4,12 +4,8 @@ import {
   OpportunitySummaryItemStatus,
 } from '../core/api/generated/model';
 
-type OpportunityStateValue =
-  | OpportunitySummaryItemStatus
-  | 'scheduled_suspension';
-
 export const STATE_OPTIONS: {
-  value: OpportunityStateValue;
+  value: OpportunitySummaryItemStatus;
   label: string;
 }[] = [
   { value: OpportunitySummaryItemStatus.draft, label: 'In bozza' },
@@ -93,7 +89,7 @@ export const OPERATOR_MANAGED_STATE_OPTIONS = OPERATOR_STATE_OPTIONS.filter(
 );
 
 export const STATE_COLORS: Record<
-  OpportunityStateValue,
+  OpportunitySummaryItemStatus,
   ChipOwnProps['color']
 > = {
   draft: 'default',

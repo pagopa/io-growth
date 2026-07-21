@@ -3,8 +3,8 @@ import { OpportunitiesCtaItem, OpportunitiesCtasProps } from './types';
 import { useGetCtasConfiguration } from './useGetCtasConfiguration';
 import {
   DeleteOpportunityModal,
-  OpportunityActionModal,
-} from '../../../Home/components/DeleteOpportunityModal';
+  SuspendOpportunityModal,
+} from '../../../Home/components/OpportunityActionModal';
 
 const CTA_BUTTON_SX = { fontWeight: 700, borderRadius: 2, px: 3 };
 
@@ -80,16 +80,10 @@ export const OpportunitiesCtas = ({
         onClose={deleteModal.onClose}
         onConfirm={deleteModal.onConfirm}
       />
-      <OpportunityActionModal
-        actionType="suspend"
+      <SuspendOpportunityModal
         open={suspendModal.open}
         onClose={suspendModal.onClose}
-        onConfirm={(payload) =>
-          suspendModal.onConfirm({
-            suspendFrom: payload.suspendDate ?? '',
-            suspensionMessage: payload.message,
-          })
-        }
+        onConfirm={suspendModal.onConfirm}
       />
     </>
   );

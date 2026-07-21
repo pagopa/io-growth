@@ -1,15 +1,19 @@
 import { ButtonProps } from '@mui/material';
 import type { OpportunityDetail } from '../../../../features/opportunities/types';
 
-type ActionId = 'MODIFY' | 'DELETE' | 'SUSPEND' | 'PUBLISH';
-type ExtendedActionId = ActionId | 'CANCEL_SUSPENSION';
+type ActionId =
+  | 'MODIFY'
+  | 'DELETE'
+  | 'SUSPEND'
+  | 'PUBLISH'
+  | 'CANCEL_SUSPENSION';
 
 export type OpportunitiesCtaItem = {
   label: string;
   variant: NonNullable<ButtonProps['variant']>;
   color?: ButtonProps['color'];
   startIcon?: React.ReactNode;
-  actionId?: ExtendedActionId;
+  actionId?: ActionId;
   action?: () => void;
 };
 

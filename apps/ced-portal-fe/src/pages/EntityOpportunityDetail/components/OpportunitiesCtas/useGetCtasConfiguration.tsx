@@ -12,8 +12,15 @@ import type {
   OpportunityStatus,
   SuspendOpportunityPayload,
 } from '../../../../features/opportunities/types';
+import { OpportunityStatusEnum } from '../../../../features/opportunities/types';
 import { CTAS_BY_STATUS } from './constants';
 import { OpportunitiesCtaItem, OpportunitiesCtasLayout } from './types';
+
+const SUSPENSION_ACTION_STATES: Set<OpportunityStatus> = new Set([
+  OpportunityStatusEnum.published,
+  OpportunityStatusEnum.scheduled,
+  OpportunityStatusEnum.test_pending,
+]);
 
 export const useGetCtasConfiguration = (
   id: string,
@@ -28,10 +35,9 @@ export const useGetCtasConfiguration = (
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isSuspendModalOpen, setIsSuspendModalOpen] = useState(false);
 
-  const canShowSuspendAction =
-    status === 'published' ||
-    status === 'scheduled' ||
-    status === 'test_pending';
+  const canShowSuspendAction = Boolean(
+    status && SUSPENSION_ACTION_STATES.has(status),
+  );
   const hasScheduledSuspension =
     canShowSuspendAction && Boolean(suspendFrom?.trim());
 
@@ -142,7 +148,10 @@ export const useGetCtasConfiguration = (
           rightCtas: withActions(layout?.rightCtas),
         } satisfies OpportunitiesCtasLayout;
 
-        if (key === 'published' && hasScheduledSuspension) {
+        if (
+          SUSPENSION_ACTION_STATES.has(key as OpportunityStatus) &&
+          hasScheduledSuspension
+        ) {
           return [
             key,
             {

@@ -11,19 +11,80 @@ export type AllowedPhotoType = (typeof ALLOWED_PHOTO_TYPES)[number];
 export const isAllowedPhotoType = (type: string): type is AllowedPhotoType =>
   ALLOWED_PHOTO_TYPES.includes(type as AllowedPhotoType);
 
+const MAX_FILE_SIZE_MB = 2;
+const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024;
+const MIN_WIDTH = 381;
+const MIN_HEIGHT = 507;
+const TARGET_RATIO = MIN_HEIGHT / MIN_WIDTH; // ~1.33
+const RATIO_TOLERANCE = 0.1;
+
 export const IMAGE_COMPRESSION_OPTIONS = {
-  maxSizeMB: 2,
-  maxWidthOrHeight: 1024,
+  maxSizeMB: MAX_FILE_SIZE_MB,
+  maxWidthOrHeight: 1920,
   useWebWorker: true,
 } as const;
+
+//TODO - debug only --- LOGGER CONFIGURATION ---
+const LOG_STORAGE_KEY = 'photo_processor_logs';
+const MAX_STORED_LOGS = 50;
+
+// TODO debug only
+const logProcessor = (
+  message: string,
+  level: 'info' | 'warn' | 'error' = 'info',
+) => {
+  try {
+    const logEntry = `[${level.toUpperCase()}] ${message}`;
+
+    const existingLogsStr = localStorage.getItem(LOG_STORAGE_KEY);
+    let logs: string[] = [];
+    if (existingLogsStr) {
+      logs = JSON.parse(existingLogsStr);
+    }
+
+    logs.push(logEntry);
+
+    if (logs.length > MAX_STORED_LOGS) {
+      logs = logs.slice(logs.length - MAX_STORED_LOGS);
+    }
+
+    localStorage.setItem(LOG_STORAGE_KEY, JSON.stringify(logs));
+  } catch (e) {
+    console.warn('Impossibile salvare i log nel localStorage', e);
+  }
+};
+//TODO -----------------------------
+
+const getImageDimensions = (
+  file: File,
+): Promise<{ width: number; height: number }> => {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    const objectUrl = URL.createObjectURL(file);
+
+    img.onload = () => {
+      resolve({ width: img.width, height: img.height });
+      URL.revokeObjectURL(objectUrl);
+    };
+    img.onerror = () => {
+      reject(new Error("Impossibile leggere le dimensioni dell'immagine"));
+      URL.revokeObjectURL(objectUrl);
+    };
+    img.src = objectUrl;
+  });
+};
 
 export const compressPhotoFile = (file: File): Promise<File> =>
   imageCompression(file, IMAGE_COMPRESSION_OPTIONS);
 
-const TARGET_WIDTH = 381;
-const TARGET_HEIGHT = 507;
-
-export const processCenterCrop = async (file: File): Promise<File> => {
+export const processCenterCrop = async (
+  file: File,
+  targetWidth: number,
+  targetHeight: number,
+): Promise<File> => {
+  logProcessor(
+    `[PhotoProcessor] ✂️ Inizio processCenterCrop. Target: ${targetWidth}x${targetHeight}`,
+  );
   const imageBitmap = await createImageBitmap(file);
 
   const workerCode = `
@@ -60,7 +121,7 @@ export const processCenterCrop = async (file: File): Promise<File> => {
           0, 0, targetWidth, targetHeight
         );
         
-        const blob = await canvas.convertToBlob({ type: 'image/jpeg', quality: 0.85 });
+        const blob = await canvas.convertToBlob({ type: 'image/jpeg', quality: 0.95 });
         bitmap.close();
         
         self.postMessage({ success: true, blob });
@@ -85,11 +146,11 @@ export const processCenterCrop = async (file: File): Promise<File> => {
       if (e.data.success) {
         const croppedFile = new File(
           [e.data.blob],
-          'processed_user_photo.jpg',
-          {
-            type: 'image/jpeg',
-            lastModified: Date.now(),
-          },
+          file.name.replace(/\.[^/.]+$/, '') + '_cropped.jpg',
+          { type: 'image/jpeg', lastModified: Date.now() },
+        );
+        logProcessor(
+          `[PhotoProcessor] ✅ processCenterCrop completato. Nuovo peso: ${(croppedFile.size / 1024 / 1024).toFixed(2)} MB`,
         );
         resolve(croppedFile);
       } else {
@@ -103,13 +164,95 @@ export const processCenterCrop = async (file: File): Promise<File> => {
       reject(err);
     };
 
-    worker.postMessage(
-      {
-        bitmap: imageBitmap,
-        targetWidth: TARGET_WIDTH,
-        targetHeight: TARGET_HEIGHT,
-      },
-      [imageBitmap],
-    );
+    worker.postMessage({ bitmap: imageBitmap, targetWidth, targetHeight }, [
+      imageBitmap,
+    ]);
   });
+};
+
+export const processInpsPhoto = async (file: File): Promise<File> => {
+  logProcessor(`\n--- [PhotoProcessor] INIZIO ELABORAZIONE ---`);
+  logProcessor(
+    `[PhotoProcessor] File: ${file.name} | Tipo: ${file.type} | Peso originario: ${(file.size / 1024 / 1024).toFixed(2)} MB`,
+  );
+
+  if (!isAllowedPhotoType(file.type)) {
+    logProcessor(
+      `[PhotoProcessor] ❌ Errore: Formato non supportato (${file.type})`,
+      'error',
+    );
+    throw new Error('Formato file non supportato. Usa JPEG, JPG o PNG.');
+  }
+
+  logProcessor(`[PhotoProcessor] Lettura dimensioni in corso...`);
+  const { width: L, height: H } = await getImageDimensions(file);
+  logProcessor(
+    `[PhotoProcessor] 📏 Dimensioni originali: Larghezza (L)=${L}px, Altezza (H)=${H}px`,
+  );
+
+  if (H < MIN_HEIGHT || L < MIN_WIDTH) {
+    logProcessor(
+      `[PhotoProcessor] ❌ Errore: Dimensioni minime non rispettate. Minimo: ${MIN_WIDTH}x${MIN_HEIGHT}`,
+      'error',
+    );
+    throw new Error(
+      `Immagine troppo piccola. Dimensioni minime richieste: ${MIN_WIDTH}x${MIN_HEIGHT} pixel.`,
+    );
+  }
+
+  const currentRatio = H / L;
+  const minAllowedRatio = TARGET_RATIO - RATIO_TOLERANCE; // ~1.23
+  const maxAllowedRatio = TARGET_RATIO + RATIO_TOLERANCE; // ~1.43
+
+  logProcessor(
+    `[PhotoProcessor] 🧮 Rapporto attuale (H/L): ${currentRatio.toFixed(3)} (Range accettato: ${minAllowedRatio.toFixed(2)} - ${maxAllowedRatio.toFixed(2)})`,
+  );
+
+  let processedFile = file;
+
+  if (currentRatio < minAllowedRatio || currentRatio > maxAllowedRatio) {
+    logProcessor(
+      `[PhotoProcessor] ⚠️ Rapporto fuori tolleranza. Avvio calcolo per Crop Dinamico...`,
+      'warn',
+    );
+    let newWidth = L;
+    let newHeight = H;
+
+    if (currentRatio > maxAllowedRatio) {
+      newHeight = Math.round(L * TARGET_RATIO);
+      logProcessor(
+        `[PhotoProcessor] Immagine troppo "alta". Si taglierà in altezza -> Nuova altezza: ${newHeight}px`,
+      );
+    } else {
+      newWidth = Math.round(H / TARGET_RATIO);
+      logProcessor(
+        `[PhotoProcessor] Immagine troppo "larga". Si taglierà in larghezza -> Nuova larghezza: ${newWidth}px`,
+      );
+    }
+
+    processedFile = await processCenterCrop(processedFile, newWidth, newHeight);
+  } else {
+    logProcessor(`[PhotoProcessor] ✔️ Rapporto corretto, NO CROP necessario.`);
+  }
+
+  logProcessor(
+    `[PhotoProcessor] Controllo peso: ${(processedFile.size / 1024 / 1024).toFixed(2)} MB vs MAX ${MAX_FILE_SIZE_MB} MB`,
+  );
+  if (processedFile.size > MAX_FILE_SIZE_BYTES) {
+    logProcessor(
+      `[PhotoProcessor] ⚠️ Peso eccessivo. Avvio Compressione...`,
+      'warn',
+    );
+    processedFile = await compressPhotoFile(processedFile);
+    logProcessor(
+      `[PhotoProcessor] ✅ Compressione completata. Nuovo peso: ${(processedFile.size / 1024 / 1024).toFixed(2)} MB`,
+    );
+  } else {
+    logProcessor(
+      `[PhotoProcessor] ✔️ Peso nei limiti, NO COMPRESSIONE necessaria.`,
+    );
+  }
+
+  logProcessor(`--- [PhotoProcessor] FINE ELABORAZIONE ---\n`);
+  return processedFile;
 };

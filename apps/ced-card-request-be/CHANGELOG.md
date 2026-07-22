@@ -1,5 +1,11 @@
 # ced-card-request-be
 
+## 0.1.0
+
+### Minor Changes
+
+- f6ec619: Returned numdomus
+
 ## 0.0.18
 
 ### Patch Changes

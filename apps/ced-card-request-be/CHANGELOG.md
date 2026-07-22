@@ -1,5 +1,12 @@
 # ced-card-request-be
 
+## 0.0.18
+
+### Patch Changes
+
+- Updated dependencies [d5f5968]
+  - @pagopa/io-core-adapter-inps-ced@0.0.4
+
 ## 0.0.17
 
 ### Patch Changes

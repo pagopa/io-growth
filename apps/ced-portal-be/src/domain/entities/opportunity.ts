@@ -46,6 +46,21 @@ const localizedMetadataSchema = z.object({
   value: z.string().min(1),
 });
 
+export const ACTOR_TYPE = {
+  DEPARTMENT: "department",
+  OPERATOR: "operator",
+} as const;
+
+export const OPPORTUNITY_STATUS = {
+  DELETED: "deleted",
+  DRAFT: "draft",
+  PUBLISHED: "published",
+  SUSPENDED: "suspended",
+  TEST_PASSED: "test_passed",
+  TEST_PENDING: "test_pending",
+  TEST_REJECTED: "test_rejected",
+} as const;
+
 export const OpportunitySchema = z.object({
   beneficiaryBenefit: BenefitSchema,
   caregiverBenefit: BenefitSchema.optional(),
@@ -105,24 +120,31 @@ export const OpportunitySummarySchema = z.object({
     "test_passed",
     "published",
     "scheduled",
+    "scheduled_suspension",
     "suspended",
     "deleted",
   ]),
+  suspendedBy: z.enum(["operator", "department"]).nullish(),
+  suspendFrom: z.string().nullish(),
 });
 
 export type OpportunitySummary = z.infer<typeof OpportunitySummarySchema>;
 
-// "scheduled" is a derived, response-only status: a published opportunity whose
-// dateFrom is still in the future relative to the server's reference date is
-// reported as "scheduled". Every other status is returned unchanged.
+// Derived, response-only statuses:
+// - "scheduled": published opportunity whose dateFrom is still in the future.
+// - "scheduled_suspension": published, live opportunity with a future suspendFrom.
+// Both are computed from stored columns; the DB status column stays "published".
 export const deriveOpportunityDisplayStatus = (
   status: OpportunitySummary["status"],
   dateFrom: string,
   referenceDate?: string,
-): OpportunitySummary["status"] =>
-  status === "published" && referenceDate && dateFrom > referenceDate
-    ? "scheduled"
-    : status;
+  suspendFrom?: null | string,
+): OpportunitySummary["status"] => {
+  if (status !== "published" || !referenceDate) return status;
+  if (dateFrom > referenceDate) return "scheduled";
+  if (suspendFrom && suspendFrom > referenceDate) return "scheduled_suspension";
+  return status;
+};
 
 const localizedMetadataSummarySchema = z.object({
   key: z.enum(["name", "description", "condition"]),
@@ -151,9 +173,13 @@ export const OpportunityDetailSchema = z.object({
     "test_passed",
     "published",
     "scheduled",
+    "scheduled_suspension",
     "suspended",
     "deleted",
   ]),
+  suspendedBy: z.enum(["operator", "department"]).nullish(),
+  suspendFrom: z.string().nullish(),
+  suspensionMessage: z.string().max(4096).nullish(),
   updatedAt: z.string(),
   url: z.url().max(2048).nullable(),
 });

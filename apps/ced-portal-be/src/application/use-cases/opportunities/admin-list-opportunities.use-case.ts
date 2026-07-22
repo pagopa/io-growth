@@ -33,6 +33,7 @@ const AdminListOpportunitiesInputSchema = z.object({
       "test_passed",
       "published",
       "scheduled",
+      "scheduled_suspension",
       "suspended",
       "deleted",
     ])

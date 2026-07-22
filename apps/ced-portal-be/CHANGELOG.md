@@ -1,5 +1,17 @@
 # ced-portal-be
 
+## 0.2.13
+
+### Patch Changes
+
+- 3b78198: feat: add department suspension API for opportunities
+
+## 0.2.12
+
+### Patch Changes
+
+- 914a2c2: feat: add operator suspension API with scheduled_suspension derived status
+
 ## 0.2.11
 
 ### Patch Changes

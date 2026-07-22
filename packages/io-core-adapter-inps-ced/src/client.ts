@@ -137,6 +137,13 @@ export const customFetch = async <T>(
   const headers = new Headers(options.headers);
   headers.set("Content-Type", "application/json");
   headers.set("Accept", "application/json");
+  // Request an uncompressed response (like plain `curl`). undici otherwise
+  // auto-adds `Accept-Encoding: gzip, deflate`, so INPS gzips the body. When
+  // INPS closes the mTLS connection uncleanly (no TLS close_notify), a
+  // truncated gzip stream decompresses to ZERO bytes and the ProblemDetails
+  // payload is lost — surfacing as `rejected: undefined`. An identity-encoded
+  // body stays readable, so `readBodyText` can still recover the JSON.
+  headers.set("Accept-Encoding", "identity");
 
   const identity = getIdentity();
   if (identity) {

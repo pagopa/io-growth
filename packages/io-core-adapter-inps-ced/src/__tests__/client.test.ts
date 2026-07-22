@@ -136,6 +136,20 @@ describe("customFetch", () => {
     expect(headers["accept"]).toBe("application/json");
   });
 
+  it("requests an identity (uncompressed) response so error payloads stay readable", async () => {
+    await customFetch<FetchResult>("/Domanda/CheckDomanda", {
+      body: "{}",
+      method: "POST",
+    });
+
+    const [, calledOptions] = mockSignedFetch.mock.calls[0] as [
+      string,
+      RequestInit,
+    ];
+    const headers = calledOptions.headers as Record<string, string>;
+    expect(headers["accept-encoding"]).toBe("identity");
+  });
+
   it("sets INPS-Identity headers when the getter returns an identity", async () => {
     mockGetIdentity = () => ({
       codiceUfficio: "UFFICIO01",

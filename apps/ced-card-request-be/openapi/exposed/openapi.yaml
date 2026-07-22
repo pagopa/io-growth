@@ -323,11 +323,15 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/StateResponse"
+                type: object
                 properties:
                   state:
                     $ref: "#/components/schemas/ApplicationState"
                     example: ACQUIRED
+                  numDomus:
+                    type: string
+                    nullable: true
+                    description: INPS-assigned document number for the acquired application.
         "400":
           description:
             Documentation validation or state inconsistency error (Codes

@@ -24,7 +24,7 @@ describe("makeConfirmApplicationUseCase — optional documentation mapping", () 
     });
     gestioneDomandaCedRepository = createMockGestioneDomandaCedRepository();
     vi.mocked(gestioneDomandaCedRepository.confermaDomanda).mockResolvedValue(
-      ok({ idLavorazione: MOCK_ID_LAVORAZIONE }),
+      ok({ idLavorazione: MOCK_ID_LAVORAZIONE, numDomus: null }),
     );
   });
 

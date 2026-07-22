@@ -12,6 +12,7 @@ import { PhotoUploadStep } from './steps/PhotoUploadStep';
 import SummaryStep from './steps/SummaryStep';
 import type { StepRef } from './types';
 import { useSaveDataByStep } from './hooks/useSaveDataByStep';
+import GenericError from '../GenericError';
 
 const steps = [
   {
@@ -65,8 +66,14 @@ export default function CardRequestFlowPage() {
     ? 'Invia richiesta'
     : (confirmLabel ?? 'Conferma');
 
-  const { saveFirstDraftData, savePhoto, confirmRequest, isConfirmSuccess } =
-    useSaveDataByStep();
+  const {
+    saveFirstDraftData,
+    savePhoto,
+    confirmRequest,
+    isConfirmSuccess,
+    isDraftError,
+    isPhotoError,
+  } = useSaveDataByStep();
 
   useEffect(() => {
     requestAnimationFrame(() => {
@@ -83,6 +90,15 @@ export default function CardRequestFlowPage() {
       navigate(APP_ROUTES.REQUEST_SUCCESS);
     }
   }, [isConfirmSuccess, isSubmitting, navigate]);
+
+  // // TODO debug only
+  if (isDraftError) {
+    return <GenericError onRetry={saveFirstDraftData} />;
+  }
+  // TODO debug only
+  if (isPhotoError) {
+    return <GenericError onRetry={savePhoto} />;
+  }
 
   if (draftSaved) {
     return (

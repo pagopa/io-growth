@@ -46,7 +46,7 @@ resource "azurerm_api_management_api" "ced_card_be_v1" {
 
   import {
     content_format = "openapi-link"
-    content_value  = "https://raw.githubusercontent.com/pagopa/io-growth/100cbb2051381508acd71bb99512795288a44f06/apps/ced-card-request-be/openapi/exposed/openapi.yaml"
+    content_value  = "https://raw.githubusercontent.com/pagopa/io-growth/e058408e3650e48d9e71e31c68e061d38744bb55/apps/ced-card-request-be/openapi/exposed/openapi.yaml"
   }
 }
 

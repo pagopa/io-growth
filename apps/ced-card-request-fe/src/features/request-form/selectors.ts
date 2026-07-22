@@ -18,6 +18,7 @@ export const selectRequestForm = (state: RootState) => {
 
   return {
     ...rest,
+    informativaPrivacy: true,
     dataNascita: toIsoString(dataNascita),
   };
 };

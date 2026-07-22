@@ -14,8 +14,9 @@ export const useSaveDataByStep = () => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const { showToast } = useToast();
-  const [saveFirstDraft] = useCreateDraftRequestMutation();
-  const [uploadPhoto] = useUploadPhotoMutation();
+  const [saveFirstDraft, { isError: isDraftError }] =
+    useCreateDraftRequestMutation();
+  const [uploadPhoto, { isError: isPhotoError }] = useUploadPhotoMutation();
   const [confirm, { isSuccess: isConfirmSuccess }] = useConfirmMutation();
 
   const firstDraftForm = useAppSelector(selectRequestForm);
@@ -100,5 +101,7 @@ export const useSaveDataByStep = () => {
     savePhoto,
     confirmRequest,
     isConfirmSuccess,
+    isPhotoError,
+    isDraftError,
   };
 };

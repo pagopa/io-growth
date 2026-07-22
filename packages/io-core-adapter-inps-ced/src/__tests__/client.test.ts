@@ -29,6 +29,47 @@ function makeResponse(status: number, data: unknown): Response {
   } as unknown as Response;
 }
 
+/**
+ * Builds a Response whose body is a real ReadableStream. When `terminatedAfter`
+ * is provided, the stream enqueues the payload and then errors with a
+ * `TypeError: terminated` — reproducing undici's behaviour when INPS closes the
+ * mTLS connection without a clean close_notify after a 4xx.
+ */
+function makeStreamedResponse(
+  status: number,
+  rawBody: string,
+  options: { terminated?: boolean } = {},
+): Response {
+  const encoder = new TextEncoder();
+  let chunkSent = false;
+  const stream = new ReadableStream<Uint8Array>({
+    pull(controller) {
+      if (!chunkSent) {
+        chunkSent = true;
+        if (rawBody) controller.enqueue(encoder.encode(rawBody));
+        return;
+      }
+      if (options.terminated) {
+        const error = new TypeError("terminated");
+        (error as { cause?: unknown }).cause = new Error("other side closed");
+        controller.error(error);
+        return;
+      }
+      controller.close();
+    },
+  });
+
+  return {
+    body: stream,
+    headers: new Headers({
+      "content-length": String(encoder.encode(rawBody).byteLength),
+      "content-type": "application/json",
+    }),
+    status,
+    text: vi.fn().mockRejectedValue(new TypeError("terminated")),
+  } as unknown as Response;
+}
+
 // Module-scoped mock — set up once, reset before each test.
 const mockSignedFetch = vi.fn();
 
@@ -95,6 +136,20 @@ describe("customFetch", () => {
     expect(headers["accept"]).toBe("application/json");
   });
 
+  it("requests an identity (uncompressed) response so error payloads stay readable", async () => {
+    await customFetch<FetchResult>("/Domanda/CheckDomanda", {
+      body: "{}",
+      method: "POST",
+    });
+
+    const [, calledOptions] = mockSignedFetch.mock.calls[0] as [
+      string,
+      RequestInit,
+    ];
+    const headers = calledOptions.headers as Record<string, string>;
+    expect(headers["accept-encoding"]).toBe("identity");
+  });
+
   it("sets INPS-Identity headers when the getter returns an identity", async () => {
     mockGetIdentity = () => ({
       codiceUfficio: "UFFICIO01",
@@ -151,5 +206,119 @@ describe("customFetch", () => {
     });
 
     expect(result).toMatchObject({ data: undefined, status: 204 });
+  });
+
+  it("recovers a fully-received body when the connection is terminated after a 4xx", async () => {
+    const problemDetails = {
+      errors: [
+        {
+          Codice: 204,
+          Descrizione:
+            "Data nascita non corrispondente negli archivi dell'Istituto.",
+        },
+      ],
+      instance: "/Domanda/NuovaDomandaInBozza",
+      status: 400,
+      title: "Bad Request",
+      type: "about:blank",
+    };
+    mockSignedFetch.mockResolvedValue(
+      ok(
+        makeStreamedResponse(400, JSON.stringify(problemDetails), {
+          terminated: true,
+        }),
+      ),
+    );
+
+    const result = await customFetch<FetchResult>("/path", {
+      body: "{}",
+      method: "POST",
+    });
+
+    expect(result).toMatchObject({ data: problemDetails, status: 400 });
+  });
+
+  it("returns data: undefined when a terminated body is truncated (unparseable)", async () => {
+    mockSignedFetch.mockResolvedValue(
+      ok(makeStreamedResponse(400, '{"status":400,"err', { terminated: true })),
+    );
+
+    const result = await customFetch<FetchResult>("/path", {
+      body: "{}",
+      method: "POST",
+    });
+
+    expect(result).toMatchObject({ data: undefined, status: 400 });
+  });
+
+  it("throws when a 2xx response body is terminated mid-read", async () => {
+    mockSignedFetch.mockResolvedValue(
+      ok(
+        makeStreamedResponse(200, '{"idLavorazione":"1', { terminated: true }),
+      ),
+    );
+
+    await expect(
+      customFetch<FetchResult>("/path", { body: "{}", method: "POST" }),
+    ).rejects.toThrow("terminated");
+  });
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Telemetry on non-2xx responses
+// ─────────────────────────────────────────────────────────────────────────────
+describe("customFetch telemetry", () => {
+  const trackException = vi.fn();
+
+  beforeAll(() => {
+    initInpsCedClient(
+      CONFIG,
+      mockSignedFetch as unknown as SignedFetch,
+      () => mockGetIdentity(),
+      { trackException },
+    );
+  });
+
+  beforeEach(() => {
+    trackException.mockReset();
+  });
+
+  it("traces the recovered INPS payload for a terminated 4xx response", async () => {
+    const problemDetails = {
+      errors: [
+        { Codice: 204, Descrizione: "Data nascita non corrispondente." },
+      ],
+      status: 400,
+      title: "Bad Request",
+    };
+    mockSignedFetch.mockResolvedValue(
+      ok(
+        makeStreamedResponse(400, JSON.stringify(problemDetails), {
+          terminated: true,
+        }),
+      ),
+    );
+
+    await customFetch<FetchResult>("/path", { body: "{}", method: "POST" });
+
+    expect(trackException).toHaveBeenCalledOnce();
+    const [{ error }] = trackException.mock.calls[0] as [{ error: Error }];
+    expect(error.message).toContain("HTTP 400 from upstream");
+    expect(error.message).toContain('"Codice":204');
+    expect(error.message).toContain("connection terminated");
+  });
+
+  it("traces the payload for a cleanly-received non-2xx response", async () => {
+    mockSignedFetch.mockResolvedValue(
+      ok(makeStreamedResponse(404, '{"title":"Not Found"}')),
+    );
+
+    await customFetch<FetchResult>("/path", { body: "{}", method: "POST" });
+
+    expect(trackException).toHaveBeenCalledOnce();
+    const [{ error }] = trackException.mock.calls[0] as [{ error: Error }];
+    expect(error.message).toContain("HTTP 404 from upstream");
+    expect(error.message).toContain('"title":"Not Found"');
+    expect(error.message).not.toContain("connection terminated");
   });
 });

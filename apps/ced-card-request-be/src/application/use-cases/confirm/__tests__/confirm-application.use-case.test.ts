@@ -95,7 +95,7 @@ describe("makeConfirmApplicationUseCase — validation, ownership, replay, retry
 
     const result = await useCase()(mockConfirmApplicationInput);
 
-    expect(result).toEqual(ok({ state: "ACQUIRED" }));
+    expect(result).toEqual(ok({ numDomus: null, state: "ACQUIRED" }));
     expect(gestioneDomandaCedRepository.confermaDomanda).not.toHaveBeenCalled();
     expect(supportRecordRepository.save).not.toHaveBeenCalled();
   });
@@ -121,12 +121,12 @@ describe("makeConfirmApplicationUseCase — validation, ownership, replay, retry
       ok(existing),
     );
     vi.mocked(gestioneDomandaCedRepository.confermaDomanda).mockResolvedValue(
-      ok({ idLavorazione: MOCK_ID_LAVORAZIONE }),
+      ok({ idLavorazione: MOCK_ID_LAVORAZIONE, numDomus: "DOMUS-001" }),
     );
 
     const result = await useCase()(mockConfirmApplicationInput);
 
-    expect(result).toEqual(ok({ state: "ACQUIRED" }));
+    expect(result).toEqual(ok({ numDomus: "DOMUS-001", state: "ACQUIRED" }));
     expect(gestioneDomandaCedRepository.confermaDomanda).toHaveBeenCalledWith(
       expect.anything(),
       { idempotencyKey: "inps-key-1" },
@@ -161,12 +161,12 @@ describe("makeConfirmApplicationUseCase — validation, ownership, replay, retry
       ok(existing),
     );
     vi.mocked(gestioneDomandaCedRepository.confermaDomanda).mockResolvedValue(
-      ok({ idLavorazione: MOCK_ID_LAVORAZIONE }),
+      ok({ idLavorazione: MOCK_ID_LAVORAZIONE, numDomus: null }),
     );
 
     const result = await useCase()(mockConfirmApplicationInput);
 
-    expect(result).toEqual(ok({ state: "ACQUIRED" }));
+    expect(result).toEqual(ok({ numDomus: null, state: "ACQUIRED" }));
     expect(supportRecordRepository.save).toHaveBeenNthCalledWith(
       1,
       expect.objectContaining({

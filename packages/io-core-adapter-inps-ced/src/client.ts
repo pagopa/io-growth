@@ -73,6 +73,51 @@ const getClient = (): {
 };
 
 /**
+ * Reads the full response body as text while tolerating an abrupt connection
+ * termination.
+ *
+ * INPS sometimes sends a complete 4xx JSON payload (ProblemDetails) and then
+ * closes the mTLS connection without a clean TLS `close_notify`. undici
+ * surfaces this as a `TypeError: terminated` and — critically —
+ * `Response.text()` rejects and discards every byte it had already buffered,
+ * so the payload (e.g. `{ "errors": [{ "Codice": 204, ... }] }`) is lost and
+ * the trace only shows the opaque "terminated" error.
+ *
+ * Draining the body stream chunk-by-chunk keeps whatever arrived before the
+ * socket died — usually the complete payload. The termination is returned
+ * (not thrown) so the caller can still parse a fully-received body; genuinely
+ * truncated bodies simply fail the downstream `JSON.parse` and fall back to
+ * `data: undefined`.
+ */
+const readBodyText = async (
+  response: Response,
+): Promise<{ readonly terminated?: unknown; readonly text: string }> => {
+  const stream = response.body;
+  // Non-stream bodies (e.g. test doubles) fall back to text().
+  if (!stream || typeof stream.getReader !== "function") {
+    return { text: await response.text() };
+  }
+
+  const reader = stream.getReader();
+  const decoder = new TextDecoder();
+  let text = "";
+  try {
+    for (;;) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      if (value) text += decoder.decode(value, { stream: true });
+    }
+    text += decoder.decode();
+    return { text };
+  } catch (terminated) {
+    // Keep the bytes decoded so far — often the complete payload INPS sent
+    // right before resetting the connection.
+    text += decoder.decode();
+    return { terminated, text };
+  }
+};
+
+/**
  * orval customFetch mutator.
  *
  * Calls the identity getter injected at initialisation time to obtain
@@ -92,6 +137,13 @@ export const customFetch = async <T>(
   const headers = new Headers(options.headers);
   headers.set("Content-Type", "application/json");
   headers.set("Accept", "application/json");
+  // Request an uncompressed response (like plain `curl`). undici otherwise
+  // auto-adds `Accept-Encoding: gzip, deflate`, so INPS gzips the body. When
+  // INPS closes the mTLS connection uncleanly (no TLS close_notify), a
+  // truncated gzip stream decompresses to ZERO bytes and the ProblemDetails
+  // payload is lost — surfacing as `rejected: undefined`. An identity-encoded
+  // body stays readable, so `readBodyText` can still recover the JSON.
+  headers.set("Accept-Encoding", "identity");
 
   const identity = getIdentity();
   if (identity) {
@@ -115,16 +167,24 @@ export const customFetch = async <T>(
 
   let data: unknown;
   if (hasBody) {
-    const rawBody = await response.text();
+    const { terminated, text: rawBody } = await readBodyText(response);
 
     if (response.status < 200 || response.status >= 300) {
-      // Log ALL non-2xx responses unconditionally, including non-JSON or empty bodies.
+      // Log ALL non-2xx responses unconditionally, including non-JSON or empty
+      // bodies. When the connection was terminated mid-read, surface the
+      // underlying cause alongside whatever payload we recovered so the trace
+      // shows the INPS ProblemDetails instead of an opaque "terminated".
       const bodyPreview = rawBody || "(empty)";
       globalTelemetry?.trackException({
         error: new Error(
           `HTTP ${String(response.status)} from upstream` +
             ` content-type=${response.headers.get("content-type") ?? "unknown"}` +
-            ` body=${bodyPreview}`,
+            ` body=${bodyPreview}` +
+            (terminated
+              ? ` (connection terminated: ${String(
+                  (terminated as { cause?: unknown }).cause ?? terminated,
+                )})`
+              : ""),
         ),
         method: options.method ?? "POST",
         route: url,
@@ -138,7 +198,9 @@ export const customFetch = async <T>(
         data = undefined;
       }
     } else {
-      // 2xx: the contract requires valid JSON -- throw if malformed.
+      // 2xx: the contract requires a valid, fully-received JSON body -- throw
+      // if the connection was terminated or the payload is malformed.
+      if (terminated) throw terminated;
       data = JSON.parse(rawBody);
     }
   }

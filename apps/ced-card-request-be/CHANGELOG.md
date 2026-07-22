@@ -1,5 +1,25 @@
 # ced-card-request-be
 
+## 0.1.0
+
+### Minor Changes
+
+- f6ec619: Returned numdomus
+
+## 0.0.18
+
+### Patch Changes
+
+- Updated dependencies [d5f5968]
+  - @pagopa/io-core-adapter-inps-ced@0.0.4
+
+## 0.0.17
+
+### Patch Changes
+
+- Updated dependencies [c931177]
+  - @pagopa/io-core-adapter-inps-ced@0.0.3
+
 ## 0.0.16
 
 ### Patch Changes

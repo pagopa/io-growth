@@ -99,7 +99,7 @@ describe("makeConfirmApplicationUseCase — INPS and persistence outcomes", () =
 
     it("returns a GenericError when Write 2 fails after INPS already succeeded", async () => {
       vi.mocked(gestioneDomandaCedRepository.confermaDomanda).mockResolvedValue(
-        ok({ idLavorazione: "ABC-12345" }),
+        ok({ idLavorazione: "ABC-12345", numDomus: "DOMUS-999" }),
       );
       vi.mocked(supportRecordRepository.save)
         .mockImplementationOnce((record) => Promise.resolve(ok(record)))

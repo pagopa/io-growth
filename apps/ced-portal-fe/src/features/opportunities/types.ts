@@ -8,7 +8,7 @@ import type { OpportunitySummaryItemStatus } from '../../core/api/generated/mode
 export { type LocalizedMetadataItem } from '../../core/api/generated/model/localizedMetadataItem';
 export { OpportunitySummaryItemStatus as OpportunityStatusEnum } from '../../core/api/generated/model/opportunitySummaryItemStatus';
 
-type ScheduledSuspensionStatus = 'suspension_scheduled';
+type ScheduledSuspensionStatus = 'scheduled_suspension';
 type SuspensionActorType = 'operator' | 'department';
 
 export type OpportunityStatus =

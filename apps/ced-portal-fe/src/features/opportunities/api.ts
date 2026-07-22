@@ -8,7 +8,9 @@ import {
 } from '../../core/api/generated/model';
 import {
   getApproveOpportunityUrl,
+  getCancelScheduledSuspensionUrl,
   getGetOpportunityUrl,
+  getSuspendOpportunityUrl,
 } from '../../core/api/generated/endpoints/opportunities/opportunities';
 import type {
   AdminOpportunityDetail,
@@ -109,7 +111,7 @@ export const opportunitiesApi = baseApi.injectEndpoints({
       { id: string; payload: SuspendOpportunityPayload }
     >({
       query: ({ id, payload }) => ({
-        url: `/opportunities/${id}/suspend`,
+        url: getSuspendOpportunityUrl(id),
         method: 'PATCH',
         body: payload,
       }),
@@ -120,7 +122,7 @@ export const opportunitiesApi = baseApi.injectEndpoints({
     }),
     cancelScheduledSuspension: builder.mutation<void, { id: string }>({
       query: ({ id }) => ({
-        url: `/opportunities/${id}/suspend/cancel`,
+        url: getCancelScheduledSuspensionUrl(id),
         method: 'PATCH',
       }),
       invalidatesTags: (_result, _error, { id }) => [

@@ -19,7 +19,10 @@ export const STATE_OPTIONS: {
     value: OpportunitySummaryItemStatus.scheduled,
     label: 'Pubblicazione programmata',
   },
-  { value: 'suspension_scheduled', label: 'Sospensione programmata' },
+  {
+    value: OpportunitySummaryItemStatus.scheduled_suspension,
+    label: 'Sospensione programmata',
+  },
   { value: OpportunitySummaryItemStatus.published, label: 'Pubblicata su IO' },
   { value: OpportunitySummaryItemStatus.suspended, label: 'Sospesa' },
   { value: OpportunitySummaryItemStatus.deleted, label: 'Eliminata' },
@@ -34,7 +37,7 @@ export const ADMIN_REQUEST_STATE_OPTIONS = STATE_OPTIONS.filter(
 
 export const ADMIN_APPROVED_STATE_OPTIONS = STATE_OPTIONS.filter(
   ({ value }) =>
-    value === 'suspension_scheduled' ||
+    value === OpportunitySummaryItemStatus.scheduled_suspension ||
     value === OpportunitySummaryItemStatus.scheduled ||
     value === OpportunitySummaryItemStatus.test_passed ||
     value === OpportunitySummaryItemStatus.published,
@@ -57,7 +60,10 @@ export const OPERATOR_STATE_OPTIONS: {
     value: OpportunitySummaryItemStatus.scheduled,
     label: 'Pubblicazione programmata',
   },
-  { value: 'suspension_scheduled', label: 'Sospensione programmata' },
+  {
+    value: OpportunitySummaryItemStatus.scheduled_suspension,
+    label: 'Sospensione programmata',
+  },
   {
     value: OpportunitySummaryItemStatus.test_passed,
     label: 'Pubblicazione programmata',
@@ -76,7 +82,7 @@ export const OPERATOR_REQUEST_STATE_OPTIONS = OPERATOR_STATE_OPTIONS.filter(
 
 export const OPERATOR_MANAGED_STATE_OPTIONS = OPERATOR_STATE_OPTIONS.filter(
   ({ value }) =>
-    value === 'suspension_scheduled' ||
+    value === OpportunitySummaryItemStatus.scheduled_suspension ||
     value === OpportunitySummaryItemStatus.scheduled ||
     value === OpportunitySummaryItemStatus.published ||
     value === OpportunitySummaryItemStatus.suspended ||
@@ -87,7 +93,7 @@ export const STATE_COLORS: Record<OpportunityStatus, ChipOwnProps['color']> = {
   draft: 'default',
   test_pending: 'warning',
   scheduled: 'info',
-  suspension_scheduled: 'warning',
+  scheduled_suspension: 'warning',
   test_passed: 'info',
   published: 'success',
   suspended: 'warning',

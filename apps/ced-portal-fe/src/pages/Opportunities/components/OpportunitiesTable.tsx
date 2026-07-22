@@ -91,12 +91,12 @@ export const OpportunitiesTable = ({
   const menuItemStatus = menuItem?.status;
   const menuItemSuspendFrom = menuItem?.suspendFrom;
   const hasScheduledSuspension =
-    menuItemStatus === 'suspension_scheduled' ||
+    menuItemStatus === 'scheduled_suspension' ||
     (menuItemStatus === 'published' && Boolean(menuItemSuspendFrom));
 
   const canPublish = menuItemStatus === 'test_pending';
   const canSuspend =
-    menuItemStatus === 'published' || menuItemStatus === 'suspension_scheduled';
+    menuItemStatus === 'published' || menuItemStatus === 'scheduled_suspension';
 
   const handleSuspend = () => {
     if (menuItem) {

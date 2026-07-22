@@ -1,5 +1,7 @@
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
+import WarningAmberRoundedIcon from '@mui/icons-material/WarningAmberRounded';
+import WarningIcon from '@mui/icons-material/WarningRounded';
 import {
   Box,
   Button,
@@ -9,7 +11,7 @@ import {
   Typography,
   useTheme,
 } from '@mui/material';
-import WarningAmberRoundedIcon from '@mui/icons-material/WarningAmberRounded';
+import { format, parseISO } from 'date-fns';
 import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import {
@@ -36,6 +38,7 @@ export default function OpportunityDetailPage() {
     data: detail,
     isLoading,
     isError,
+    refetch,
   } = useGetAdminOpportunityDetailQuery(id ?? '');
   const [approveOpportunity, { isLoading: isApproving }] =
     useApproveOpportunityMutation();
@@ -49,11 +52,13 @@ export default function OpportunityDetailPage() {
 
   const detailStatus = detail?.status;
   const detailSuspendFrom = detail?.suspendFrom;
+  const formattedSuspendFrom = detailSuspendFrom?.trim()
+    ? format(parseISO(detailSuspendFrom), 'dd/MM/yyyy')
+    : null;
   const hasScheduledSuspension =
-    detailStatus === 'suspension_scheduled' ||
+    detailStatus === 'scheduled_suspension' ||
     (detailStatus === 'published' && Boolean(detailSuspendFrom));
-  const canSuspendOpportunity =
-    detailStatus === 'published' || detailStatus === 'suspension_scheduled';
+  const canSuspendOpportunity = detailStatus === 'published';
 
   const handleSuspend = async (payload: SuspendOpportunityPayload) => {
     if (!id || isSuspending) {
@@ -76,6 +81,7 @@ export default function OpportunityDetailPage() {
 
     try {
       await cancelScheduledSuspension({ id }).unwrap();
+      await refetch();
       showToast('Sospensione programmata annullata con successo', 'success');
     } catch {
       showToast("Errore durante l'annullamento della sospensione", 'error');
@@ -180,6 +186,70 @@ export default function OpportunityDetailPage() {
           />
         </Stack>
 
+        {hasScheduledSuspension && formattedSuspendFrom && (
+          <Box
+            sx={{
+              borderRadius: '8px',
+              pt: 2.5,
+              pb: 1,
+              px: 2,
+              border: (theme) =>
+                `1px solid ${theme.palette.common.alertWarningBorder}`,
+              backgroundColor: (theme) => theme.palette.common.alertWarningBg,
+            }}
+          >
+            <Stack spacing={2}>
+              <Stack direction="row" spacing={1.5} alignItems="flex-start">
+                <WarningIcon
+                  sx={{
+                    color: (theme) => theme.palette.common.alertWarningText,
+                    fontSize: 24,
+                    mt: 0.25,
+                  }}
+                />
+                <Stack spacing={0.5} alignItems="flex-start">
+                  <Typography
+                    sx={{
+                      fontWeight: 700,
+                      fontSize: 18,
+                      color: (theme) => theme.palette.common.alertWarningText,
+                    }}
+                  >
+                    {`L'opportunità sarà sospesa dal ${formattedSuspendFrom}`}
+                  </Typography>
+                  <Typography
+                    sx={{
+                      fontSize: 16,
+                      color: (theme) => theme.palette.common.alertWarningText,
+                    }}
+                  >
+                    {detail.suspensionMessage?.trim() || '-'}
+                  </Typography>
+                  <Button
+                    variant="text"
+                    disableRipple
+                    onClick={handleCancelSuspension}
+                    sx={{
+                      alignSelf: 'flex-start',
+                      px: 0,
+                      minWidth: 0,
+                      fontSize: 16,
+                      fontWeight: 700,
+                      color: (theme) => theme.palette.common.alertWarningText,
+                      textTransform: 'none',
+                      '&:hover': {
+                        backgroundColor: 'transparent',
+                      },
+                    }}
+                  >
+                    Annulla sospensione
+                  </Button>
+                </Stack>
+              </Stack>
+            </Stack>
+          </Box>
+        )}
+
         <OpportunityDetailCard detail={detail} />
 
         {detail.status === 'test_pending' && (
@@ -215,16 +285,6 @@ export default function OpportunityDetailPage() {
             justifyContent="flex-end"
             sx={{ pt: 2, pb: 4 }}
           >
-            {hasScheduledSuspension && (
-              <Button
-                variant="outlined"
-                onClick={handleCancelSuspension}
-                disabled={isCancelingSuspension}
-                sx={{ fontWeight: 700, borderRadius: 2, px: 3 }}
-              >
-                Annulla sospensione programmata
-              </Button>
-            )}
             <Button
               variant="contained"
               color="primary"

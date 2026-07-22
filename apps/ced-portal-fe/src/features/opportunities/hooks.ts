@@ -25,7 +25,7 @@ const APPROVED_STATES: Set<OpportunityStatus> = new Set([
   OpportunityStatusEnum.test_passed,
   OpportunityStatusEnum.scheduled,
   OpportunityStatusEnum.published,
-  'suspension_scheduled',
+  OpportunityStatusEnum.scheduled_suspension,
 ]);
 const INACTIVE_STATES: Set<OpportunityStatus> = new Set([
   OpportunityStatusEnum.suspended,
@@ -40,7 +40,6 @@ const matchesState = (item: Opportunity, state: string): boolean => {
 const isListOperatorOpportunitiesStatus = (
   value: string,
 ): value is AdminOpportunityStatusFilter =>
-  value === 'suspension_scheduled' ||
   Object.values(ListOperatorOpportunitiesStatus).includes(
     value as ListOperatorOpportunitiesStatus,
   );

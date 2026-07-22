@@ -4,22 +4,21 @@ import { Title, VSpacer } from '@pagopa/io-core-ui';
 import { useState } from 'react';
 import { MarkdownRenderer } from '../../components/Typography/MarkdownRender';
 import { copyTextToClipboard } from '../../utils';
+import { useAppSelector } from '../../hooks';
+import { selectNumDomus } from '../../features/status/selectors';
 
-interface Props {
-  requestNumber?: string;
-}
-
-export default function SubmissionSuccess({ requestNumber }: Readonly<Props>) {
+export default function SubmissionSuccess() {
   const theme = useTheme();
   const [copied, setCopied] = useState(false);
 
   const onClose = () => window.location.replace('iossoapi://cancel');
 
-  const number = requestNumber ?? '91238000001184';
+  const numDomus = useAppSelector(selectNumDomus);
 
   const handleCopy = async () => {
+    if (!numDomus) return;
     try {
-      const success = await copyTextToClipboard(number);
+      const success = await copyTextToClipboard(numDomus);
       if (!success) throw new Error('Copy failed');
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
@@ -36,7 +35,7 @@ export default function SubmissionSuccess({ requestNumber }: Readonly<Props>) {
 
   const markdownContent = `Riceverai un messaggio su IO con gli aggiornamenti sulla tua richiesta.
 Per identificare la tua richiesta in caso di problemi, salva questo codice:
-Numero Domus: **${number}**.`;
+Numero Domus: **${numDomus}**.`;
 
   return (
     <Box

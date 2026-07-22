@@ -55,6 +55,8 @@ export default function CardRequestFlowPage() {
   const [photoPreview, setPhotoPreview] = useState<string>('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const goNextStep = () => setCurrentStep((s) => s + 1);
+
   const {
     title,
     content: StepContent,
@@ -73,7 +75,18 @@ export default function CardRequestFlowPage() {
     isConfirmSuccess,
     isDraftError,
     isPhotoError,
-  } = useSaveDataByStep();
+    isLoading,
+    resetDraft,
+    resetPhoto,
+  } = useSaveDataByStep(goNextStep);
+
+  const handleBack = () => {
+    if (currentStep > 0) {
+      setCurrentStep((s) => s - 1);
+    } else {
+      navigate(-1);
+    }
+  };
 
   useEffect(() => {
     requestAnimationFrame(() => {
@@ -93,11 +106,11 @@ export default function CardRequestFlowPage() {
 
   // // TODO debug only
   if (isDraftError) {
-    return <GenericError onRetry={saveFirstDraftData} />;
+    return <GenericError onRetry={saveFirstDraftData} onBack={resetDraft} />;
   }
   // TODO debug only
   if (isPhotoError) {
-    return <GenericError onRetry={savePhoto} />;
+    return <GenericError onRetry={savePhoto} onBack={resetPhoto} />;
   }
 
   if (draftSaved) {
@@ -109,19 +122,25 @@ export default function CardRequestFlowPage() {
     );
   }
 
+  if (isLoading) {
+    return <MobileSpinnerLoader title="Attendi qualche secondo" fullscreen />;
+  }
+
   const handleNext = async () => {
     if (stepRef.current) {
       const isValid = await stepRef.current.validate();
       if (!isValid) return;
       if (currentStep === 1) {
         saveFirstDraftData();
+        return;
       }
       if (currentStep === 2) {
         savePhoto();
+        return;
       }
     }
     if (!isLastStep) {
-      setCurrentStep((s) => s + 1);
+      goNextStep();
     }
   };
 
@@ -132,14 +151,6 @@ export default function CardRequestFlowPage() {
       await confirmRequest();
     } catch (error) {
       setIsSubmitting(false);
-    }
-  };
-
-  const handleBack = () => {
-    if (currentStep > 0) {
-      setCurrentStep((s) => s - 1);
-    } else {
-      navigate(-1);
     }
   };
 

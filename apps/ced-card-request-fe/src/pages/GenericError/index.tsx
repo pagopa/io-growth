@@ -4,10 +4,11 @@ import { Body, Title, VSpacer } from '@pagopa/io-core-ui';
 
 interface Props {
   onClose?: () => void;
+  onRetry?: () => void;
 }
 
 //TODO should use the DS error screen in the future
-export default function GenericError({ onClose }: Props) {
+export default function GenericError({ onClose, onRetry }: Props) {
   const theme = useTheme();
 
   const handleClose = () => {
@@ -64,6 +65,15 @@ export default function GenericError({ onClose }: Props) {
             alignItems: 'center',
           }}
         >
+          {onRetry && (
+            <Button
+              variant="text"
+              onClick={onRetry}
+              sx={{ color: theme.palette.common.primaryButton, fontSize: 16 }}
+            >
+              Riprova
+            </Button>
+          )}
           <Button
             variant="text"
             onClick={handleClose}

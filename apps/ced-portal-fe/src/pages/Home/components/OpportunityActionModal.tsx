@@ -69,9 +69,7 @@ export function OpportunityActionModal({
   const questionLabel = isSuspendAction
     ? "Perché vuoi sospendere l'opportunita?"
     : "Perché vuoi eliminare l'opportunita?";
-  const placeholder = isSuspendAction
-    ? 'Spiega il motivo *'
-    : 'Spiega il motivo *';
+  const placeholder = 'Spiega il motivo *';
 
   return (
     <AppModal

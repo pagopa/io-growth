@@ -1,4 +1,4 @@
-import { AdminOpportunitySummaryItem } from '../../core/api/generated/model';
+import type { AdminOpportunitySummaryItem } from '../../core/api/generated/model';
 import type { ApproveOpportunityBody } from '../../core/api/generated/model/approveOpportunityBody';
 import type { ListOperatorOpportunitiesStatus } from '../../core/api/generated/model/listOperatorOpportunitiesStatus';
 import type { OpportunityDetailAdminResponse } from '../../core/api/generated/model/opportunityDetailAdminResponse';
@@ -26,6 +26,8 @@ export type AdminOpportunityDetail = OpportunityDetailAdminResponse &
   OpportunitySuspensionMetadata;
 export type OperatorOpportunitySummary = OpportunitySummaryItem &
   OpportunitySuspensionMetadata;
+export type OpportunityStatus = OpportunitySummaryItem['status'];
+export type AdminOpportunityStatusFilter = ListOperatorOpportunitiesStatus;
 
 export interface ListAdminOpportunitiesParams {
   offset?: number;

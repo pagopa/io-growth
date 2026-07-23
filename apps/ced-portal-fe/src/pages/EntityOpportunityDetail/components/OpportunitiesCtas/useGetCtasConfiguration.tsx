@@ -1,9 +1,9 @@
 import { useCallback, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-  useCancelScheduledSuspensionMutation,
   useDeleteOpportunityMutation,
-  useSuspendOpportunityMutation,
+  useOperatorCancelScheduledSuspensionMutation,
+  useOperatorSuspendOpportunityMutation,
 } from '../../../../features/opportunities/api';
 import { useToast } from '../../../../contexts';
 import { APP_ROUTES } from '../../../../app/routeConfig';
@@ -30,8 +30,9 @@ export const useGetCtasConfiguration = (
   const navigate = useNavigate();
   const { showToast } = useToast();
   const [deleteOpportunity] = useDeleteOpportunityMutation();
-  const [suspendOpportunity] = useSuspendOpportunityMutation();
-  const [cancelScheduledSuspension] = useCancelScheduledSuspensionMutation();
+  const [suspendOpportunity] = useOperatorSuspendOpportunityMutation();
+  const [cancelScheduledSuspension] =
+    useOperatorCancelScheduledSuspensionMutation();
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isSuspendModalOpen, setIsSuspendModalOpen] = useState(false);
 

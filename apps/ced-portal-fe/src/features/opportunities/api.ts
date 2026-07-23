@@ -10,6 +10,8 @@ import {
   getApproveOpportunityUrl,
   getCancelScheduledSuspensionUrl,
   getGetOpportunityUrl,
+  getOperatorCancelScheduledSuspensionUrl,
+  getOperatorSuspendOpportunityUrl,
   getSuspendOpportunityUrl,
 } from '../../core/api/generated/endpoints/opportunities/opportunities';
 import type {
@@ -106,7 +108,7 @@ export const opportunitiesApi = baseApi.injectEndpoints({
         'Opportunities',
       ],
     }),
-    suspendOpportunity: builder.mutation<
+    adminSuspendOpportunity: builder.mutation<
       void,
       { id: string; payload: SuspendOpportunityPayload }
     >({
@@ -120,7 +122,7 @@ export const opportunitiesApi = baseApi.injectEndpoints({
         'Opportunities',
       ],
     }),
-    cancelScheduledSuspension: builder.mutation<void, { id: string }>({
+    adminCancelScheduledSuspension: builder.mutation<void, { id: string }>({
       query: ({ id }) => ({
         url: getCancelScheduledSuspensionUrl(id),
         method: 'PATCH',
@@ -144,12 +146,12 @@ export const opportunitiesApi = baseApi.injectEndpoints({
         'Opportunities',
       ],
     }),
-    suspendOpportunity: builder.mutation<
+    operatorSuspendOpportunity: builder.mutation<
       void,
       { id: string; payload: SuspendOpportunityPayload }
     >({
       query: ({ id, payload }) => ({
-        url: `/operator/opportunities/${id}/suspension/schedule`,
+        url: getOperatorSuspendOpportunityUrl(id),
         method: 'PATCH',
         body: payload,
       }),
@@ -158,9 +160,9 @@ export const opportunitiesApi = baseApi.injectEndpoints({
         'Opportunities',
       ],
     }),
-    cancelScheduledSuspension: builder.mutation<void, { id: string }>({
+    operatorCancelScheduledSuspension: builder.mutation<void, { id: string }>({
       query: ({ id }) => ({
-        url: `/operator/opportunities/${id}/suspension/cancel`,
+        url: getOperatorCancelScheduledSuspensionUrl(id),
         method: 'PATCH',
       }),
       invalidatesTags: (_result, _error, { id }) => [
@@ -180,9 +182,9 @@ export const {
   useCreateOpportunityMutation,
   useRequestApprovalMutation,
   useApproveOpportunityMutation,
-  useSuspendOpportunityMutation,
-  useCancelScheduledSuspensionMutation,
+  useAdminSuspendOpportunityMutation,
+  useAdminCancelScheduledSuspensionMutation,
   useDeleteOpportunityMutation,
-  useSuspendOpportunityMutation,
-  useCancelScheduledSuspensionMutation,
+  useOperatorSuspendOpportunityMutation,
+  useOperatorCancelScheduledSuspensionMutation,
 } = opportunitiesApi;

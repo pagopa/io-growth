@@ -9,8 +9,8 @@ import {
 import { FiltersBar, PageTabs, ResultsPagination } from '../../components';
 import {
   useApproveOpportunityMutation,
-  useCancelScheduledSuspensionMutation,
-  useSuspendOpportunityMutation,
+  useAdminCancelScheduledSuspensionMutation,
+  useAdminSuspendOpportunityMutation,
 } from '../../features/opportunities/api';
 import { useOpportunitiesData } from '../../features/opportunities/hooks';
 import type {
@@ -54,9 +54,9 @@ export default function OpportunitiesPage() {
   const [approveOpportunity, { isLoading: isApproving }] =
     useApproveOpportunityMutation();
   const [suspendOpportunity, { isLoading: isSuspending }] =
-    useSuspendOpportunityMutation();
+    useAdminSuspendOpportunityMutation();
   const [cancelScheduledSuspension, { isLoading: isCancelingSuspension }] =
-    useCancelScheduledSuspensionMutation();
+    useAdminCancelScheduledSuspensionMutation();
 
   useEffect(() => {
     setSelected(new Set());

@@ -16,9 +16,9 @@ import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import {
   useApproveOpportunityMutation,
-  useCancelScheduledSuspensionMutation,
+  useAdminCancelScheduledSuspensionMutation,
+  useAdminSuspendOpportunityMutation,
   useGetAdminOpportunityDetailQuery,
-  useSuspendOpportunityMutation,
 } from '../../features/opportunities/api';
 import { APP_ROUTES } from '../../app/routeConfig';
 import { useToast } from '../../contexts';
@@ -43,9 +43,9 @@ export default function OpportunityDetailPage() {
   const [approveOpportunity, { isLoading: isApproving }] =
     useApproveOpportunityMutation();
   const [suspendOpportunity, { isLoading: isSuspending }] =
-    useSuspendOpportunityMutation();
+    useAdminSuspendOpportunityMutation();
   const [cancelScheduledSuspension, { isLoading: isCancelingSuspension }] =
-    useCancelScheduledSuspensionMutation();
+    useAdminCancelScheduledSuspensionMutation();
   const [publishModalOpen, setPublishModalOpen] = useState(false);
   const [suspendModalOpen, setSuspendModalOpen] = useState(false);
   const [requestChangesOpen, setRequestChangesOpen] = useState(false);

@@ -87,5 +87,11 @@ export const makeCheckRequestUseCase =
       }
     }
 
-    return ok({ idLavorazione: response.idLavorazione, numDomus, state });
+    const output: CheckRequestOutput = {
+      idLavorazione: response.idLavorazione,
+      state,
+      ...(numDomus !== undefined ? { numDomus } : {}),
+    };
+
+    return ok(output);
   };

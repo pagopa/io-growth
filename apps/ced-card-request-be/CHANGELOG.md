@@ -1,5 +1,11 @@
 # ced-card-request-be
 
+## 0.2.1
+
+### Patch Changes
+
+- b3d13eb: fixed repository
+
 ## 0.2.0
 
 ### Minor Changes

@@ -58,7 +58,8 @@ export default function OpportunityDetailPage() {
   const hasScheduledSuspension =
     detailStatus === 'scheduled_suspension' ||
     (detailStatus === 'published' && Boolean(detailSuspendFrom));
-  const canSuspendOpportunity = detailStatus === 'published';
+  const canSuspendOpportunity =
+    detailStatus === 'published' && !hasScheduledSuspension;
 
   const handleSuspend = async (payload: SuspendOpportunityPayload) => {
     if (!id || isSuspending) {
@@ -340,7 +341,6 @@ export default function OpportunityDetailPage() {
       <SuspendOpportunityModal
         open={suspendModalOpen}
         isLoading={isSuspending}
-        opportunityName={detail.categoryTitle}
         onClose={() => setSuspendModalOpen(false)}
         onConfirm={handleSuspend}
       />

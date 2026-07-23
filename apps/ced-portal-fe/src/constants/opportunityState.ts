@@ -39,6 +39,7 @@ export const ADMIN_APPROVED_STATE_OPTIONS = STATE_OPTIONS.filter(
   ({ value }) =>
     value === OpportunitySummaryItemStatus.scheduled_suspension ||
     value === OpportunitySummaryItemStatus.scheduled ||
+    value === OpportunitySummaryItemStatus.scheduled_suspension ||
     value === OpportunitySummaryItemStatus.test_passed ||
     value === OpportunitySummaryItemStatus.published,
 );
@@ -70,6 +71,10 @@ export const OPERATOR_STATE_OPTIONS: {
   },
   { value: OpportunitySummaryItemStatus.published, label: 'Pubblicata su IO' },
   { value: OpportunitySummaryItemStatus.suspended, label: 'Sospesa' },
+  {
+    value: OpportunitySummaryItemStatus.scheduled_suspension,
+    label: 'Sospensione programmata',
+  },
   { value: OpportunitySummaryItemStatus.deleted, label: 'Eliminata' },
 ];
 
@@ -84,6 +89,7 @@ export const OPERATOR_MANAGED_STATE_OPTIONS = OPERATOR_STATE_OPTIONS.filter(
   ({ value }) =>
     value === OpportunitySummaryItemStatus.scheduled_suspension ||
     value === OpportunitySummaryItemStatus.scheduled ||
+    value === OpportunitySummaryItemStatus.scheduled_suspension ||
     value === OpportunitySummaryItemStatus.published ||
     value === OpportunitySummaryItemStatus.suspended ||
     value === OpportunitySummaryItemStatus.deleted,

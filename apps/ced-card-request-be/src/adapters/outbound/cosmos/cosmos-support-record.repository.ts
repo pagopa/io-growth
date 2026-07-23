@@ -14,6 +14,7 @@ interface SupportRecordDocument extends ItemDefinition {
   readonly createdAt: string;
   readonly idLavorazione: null | string;
   readonly lastReconciliation: SupportRecord["lastReconciliation"];
+  readonly numDomus?: null | string;
   readonly partitionKey: string;
   readonly pendingStep: SupportRecord["pendingStep"];
   readonly previousIdLavorazione: null | string;
@@ -29,6 +30,7 @@ const toDocument = (record: SupportRecord): SupportRecordDocument => ({
   id: record.codiceFiscale,
   idLavorazione: record.idLavorazione,
   lastReconciliation: record.lastReconciliation,
+  numDomus: record.numDomus,
   partitionKey: record.codiceFiscale,
   pendingStep: record.pendingStep,
   previousIdLavorazione: record.previousIdLavorazione,
@@ -48,6 +50,7 @@ const fromDocument = (
   createdAt: document.createdAt,
   idLavorazione: document.idLavorazione,
   lastReconciliation: document.lastReconciliation,
+  numDomus: document.numDomus,
   pendingStep: document.pendingStep,
   previousIdLavorazione: document.previousIdLavorazione,
   schemaVersion: document.schemaVersion,

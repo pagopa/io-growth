@@ -4,42 +4,28 @@ import type { ListOperatorOpportunitiesStatus } from '../../core/api/generated/m
 import type { OpportunityDetailAdminResponse } from '../../core/api/generated/model/opportunityDetailAdminResponse';
 import type { OpportunityDetailResponse } from '../../core/api/generated/model/opportunityDetailResponse';
 import type { OpportunityListResponse } from '../../core/api/generated/model/opportunityListResponse';
-import type { OpportunitySummaryItemStatus } from '../../core/api/generated/model/opportunitySummaryItemStatus';
+import type { OpportunitySummaryItem } from '../../core/api/generated/model/opportunitySummaryItem';
 export { type LocalizedMetadataItem } from '../../core/api/generated/model/localizedMetadataItem';
 export { OpportunitySummaryItemStatus as OpportunityStatusEnum } from '../../core/api/generated/model/opportunitySummaryItemStatus';
 
-type ScheduledSuspensionStatus = 'scheduled_suspension';
-type SuspensionActorType = 'operator' | 'department';
-
-export type OpportunityStatus =
-  | OpportunitySummaryItemStatus
-  | ScheduledSuspensionStatus;
-
-interface OpportunitySuspensionFields {
+export interface OpportunitySuspensionMetadata {
   suspendFrom?: string | null;
-  suspendedByType?: SuspensionActorType | null;
   suspensionMessage?: string | null;
+  suspendedBy?: 'operator' | 'department' | null;
 }
 
-type OpportunityWithExtendedStatus<T extends { status: string }> = Omit<
-  T,
-  'status'
-> & {
-  status: OpportunityStatus;
-} & OpportunitySuspensionFields;
-
-export type OpportunityDetail = OpportunityDetailResponse;
+export type OpportunityDetail = OpportunityDetailResponse &
+  OpportunitySuspensionMetadata;
 export type OpportunitiesResponse = OpportunityListResponse;
-export type Opportunity =
-  OpportunityWithExtendedStatus<AdminOpportunitySummaryItem>;
+export type Opportunity = AdminOpportunitySummaryItem &
+  OpportunitySuspensionMetadata;
 
-export type AdminOpportunity = Opportunity;
-export type AdminOpportunityDetail =
-  OpportunityWithExtendedStatus<OpportunityDetailAdminResponse>;
-
-export type AdminOpportunityStatusFilter =
-  | ListOperatorOpportunitiesStatus
-  | ScheduledSuspensionStatus;
+export type AdminOpportunity = AdminOpportunitySummaryItem &
+  OpportunitySuspensionMetadata;
+export type AdminOpportunityDetail = OpportunityDetailAdminResponse &
+  OpportunitySuspensionMetadata;
+export type OperatorOpportunitySummary = OpportunitySummaryItem &
+  OpportunitySuspensionMetadata;
 
 export interface ListAdminOpportunitiesParams {
   offset?: number;

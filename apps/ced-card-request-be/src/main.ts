@@ -184,7 +184,10 @@ app.register(async (authenticatedApp) => {
 
   mountGetApplicationStatusHandler(
     authenticatedApp,
-    makeCheckRequestUseCase(gestioneDomandaCedRepository),
+    makeCheckRequestUseCase(
+      gestioneDomandaCedRepository,
+      supportRecordRepository,
+    ),
   );
 
   mountCreateDraftHandler(

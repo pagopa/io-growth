@@ -95,8 +95,7 @@ export const OpportunitiesTable = ({
     (menuItemStatus === 'published' && Boolean(menuItemSuspendFrom));
 
   const canPublish = menuItemStatus === 'test_pending';
-  const canSuspend =
-    menuItemStatus === 'published' || menuItemStatus === 'scheduled_suspension';
+  const canSuspend = menuItemStatus === 'published' && !hasScheduledSuspension;
 
   const handleSuspend = () => {
     if (menuItem) {

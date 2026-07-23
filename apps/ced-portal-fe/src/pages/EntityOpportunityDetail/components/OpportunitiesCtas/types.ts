@@ -1,7 +1,12 @@
 import { ButtonProps } from '@mui/material';
 import type { OpportunityDetail } from '../../../../features/opportunities/types';
 
-type ActionId = 'MODIFY' | 'DELETE' | 'SUSPEND' | 'PUBLISH';
+type ActionId =
+  | 'MODIFY'
+  | 'DELETE'
+  | 'SUSPEND'
+  | 'PUBLISH'
+  | 'CANCEL_SUSPENSION';
 
 export type OpportunitiesCtaItem = {
   label: string;
@@ -15,6 +20,7 @@ export type OpportunitiesCtaItem = {
 export type OpportunitiesCtasProps = {
   status: OpportunityDetail['status'];
   id: OpportunityDetail['id'];
+  suspendFrom?: OpportunityDetail['suspendFrom'];
 };
 
 export type OpportunitiesCtasLayout = {

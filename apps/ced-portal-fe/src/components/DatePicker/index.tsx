@@ -4,16 +4,19 @@ import {
 } from '@mui/x-date-pickers/DatePicker';
 import { format, isValid, parse } from 'date-fns';
 
-const DATE_FORMAT = 'dd/MM/yyyy';
+const DISPLAY_DATE_FORMAT = 'dd/MM/yyyy';
+const ISO_DATE_FORMAT = 'yyyy-MM-dd';
 const REFERENCE_DATE = new Date();
+type DateValueFormat = 'display' | 'iso';
 
 export interface AppDatePickerProps extends Omit<
   DatePickerProps<Date>,
   'value' | 'onChange'
 > {
-  /** String in dd/MM/yyyy format — empty string = no date */
+  /** String date value in the selected valueFormat — empty string = no date */
   value: string;
   onChange: (value: string) => void;
+  valueFormat?: DateValueFormat;
   onBlur?: () => void;
   error?: boolean;
   helperText?: string;
@@ -22,13 +25,16 @@ export interface AppDatePickerProps extends Omit<
 export function AppDatePicker({
   value,
   onChange,
+  valueFormat = 'display',
   onBlur,
   error,
   helperText,
   sx,
   ...props
 }: AppDatePickerProps) {
-  const parsedValue = value ? parse(value, DATE_FORMAT, REFERENCE_DATE) : null;
+  const parserFormat =
+    valueFormat === 'iso' ? ISO_DATE_FORMAT : DISPLAY_DATE_FORMAT;
+  const parsedValue = value ? parse(value, parserFormat, REFERENCE_DATE) : null;
   const dateValue = parsedValue && isValid(parsedValue) ? parsedValue : null;
 
   const handleChange = (date: Date | null) => {
@@ -36,14 +42,16 @@ export function AppDatePicker({
       onChange('');
       return;
     }
-    onChange(format(date, DATE_FORMAT));
+    const outputFormat =
+      valueFormat === 'iso' ? ISO_DATE_FORMAT : DISPLAY_DATE_FORMAT;
+    onChange(format(date, outputFormat));
   };
 
   return (
     <DatePicker
       value={dateValue}
       onChange={handleChange}
-      format={DATE_FORMAT}
+      format={DISPLAY_DATE_FORMAT}
       sx={Array.isArray(sx) ? sx : [sx]}
       slotProps={{
         textField: {

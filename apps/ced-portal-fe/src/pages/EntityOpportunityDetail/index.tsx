@@ -31,6 +31,7 @@ export default function OpportunityDetailPage() {
     data: detail,
     isLoading,
     isError,
+    refetch,
   } = useGetOpportunityDetailQuery(id ?? '');
   const { data: places } = useGetPlacesByIdsQuery(detail?.placeIds ?? [], {
     skip: !detail?.placeIds || detail.placeIds.length === 0,
@@ -158,7 +159,13 @@ export default function OpportunityDetailPage() {
           </Box>
         </Stack>
 
-        <OpportunityAlert status={detail.status} />
+        <OpportunityAlert
+          id={detail.id}
+          status={detail.status}
+          suspendFrom={detail.suspendFrom}
+          suspensionMessage={detail.suspensionMessage}
+          onCancelSuccess={refetch}
+        />
 
         <OpportunityDetailCard detail={detail} />
 
@@ -191,7 +198,11 @@ export default function OpportunityDetailPage() {
           </Typography>
         </Stack>
 
-        <OpportunitiesCtas status={detail.status} id={detail.id} />
+        <OpportunitiesCtas
+          status={detail.status}
+          id={detail.id}
+          suspendFrom={detail.suspendFrom}
+        />
       </Stack>
     </Box>
   );

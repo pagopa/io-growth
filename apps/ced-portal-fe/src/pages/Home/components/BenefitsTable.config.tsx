@@ -26,6 +26,7 @@ export interface BenefitsTableColumn {
       event: MouseEvent<HTMLElement>,
       itemId: string,
       itemStatus: OpportunitySummaryItemStatus,
+      itemSuspendFrom?: string,
     ) => void,
   ) => ReactNode;
 }
@@ -82,7 +83,9 @@ export const benefitsTableColumns: BenefitsTableColumn[] = [
     renderCell: (item, _theme, action) => (
       <IconButton
         size="small"
-        onClick={(event) => action(event, item.id, item.status)}
+        onClick={(event) =>
+          action(event, item.id, item.status, item.suspendFrom ?? undefined)
+        }
       >
         <MoreVertIcon sx={{ fontSize: 22 }} />
       </IconButton>

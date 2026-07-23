@@ -12,6 +12,7 @@ import type {
   OperatorDeleteOpportunityBody,
   OpportunitySummaryItem,
 } from '../../../core/api/generated/model';
+import type { SuspendOpportunityPayload } from '../../../features/opportunities/types';
 
 interface BenefitsContentStateProps {
   isLoading: boolean;
@@ -23,6 +24,11 @@ interface BenefitsContentStateProps {
     id: string,
     payload?: OperatorDeleteOpportunityBody,
   ) => void;
+  onSuspendOpportunity: (
+    id: string,
+    payload: SuspendOpportunityPayload,
+  ) => void;
+  onCancelScheduledSuspension: (id: string) => void;
 }
 
 export function BenefitsContentState({
@@ -32,6 +38,8 @@ export function BenefitsContentState({
   activeTab,
   onRetry,
   onDeleteOpportunity,
+  onSuspendOpportunity,
+  onCancelScheduledSuspension,
 }: BenefitsContentStateProps) {
   const theme = useTheme();
   const hasData = !isLoading && !isError && items.length > 0;
@@ -89,7 +97,12 @@ export function BenefitsContentState({
         </Stack>
       );
     return (
-      <BenefitsTable items={items} onDeleteOpportunity={onDeleteOpportunity} />
+      <BenefitsTable
+        items={items}
+        onDeleteOpportunity={onDeleteOpportunity}
+        onSuspendOpportunity={onSuspendOpportunity}
+        onCancelScheduledSuspension={onCancelScheduledSuspension}
+      />
     );
   };
 

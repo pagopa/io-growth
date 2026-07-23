@@ -174,7 +174,18 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/StateResponse"
+                type: object
+                properties:
+                  state:
+                    $ref: "#/components/schemas/ApplicationState"
+                    description: Current or final application state.
+                  idLavorazione:
+                    type: string
+                    nullable: true
+                    description: INPS idLavorazione bound to the application, when one exists.
+                  numDomus:
+                    type: string
+                    description: INPS-assigned document number, present when state is ACQUIRED.
         "400":
           description:
             INPS business/logic error (e.g., Active Card, foreign residence,

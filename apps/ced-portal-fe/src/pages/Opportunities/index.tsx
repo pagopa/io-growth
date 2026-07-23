@@ -322,7 +322,6 @@ export default function OpportunitiesPage() {
       <SuspendOpportunityModal
         open={suspendModalOpen}
         isLoading={isSuspending}
-        opportunityName={opportunityToSuspend?.name}
         onClose={() => {
           setSuspendModalOpen(false);
           setOpportunityToSuspend(null);

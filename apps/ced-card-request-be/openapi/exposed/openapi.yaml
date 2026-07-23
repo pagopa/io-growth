@@ -179,6 +179,10 @@ paths:
                   state:
                     $ref: "#/components/schemas/ApplicationState"
                     description: Current or final application state.
+                  idLavorazione:
+                    type: string
+                    nullable: true
+                    description: INPS idLavorazione bound to the application, when one exists.
                   numDomus:
                     type: string
                     description: INPS-assigned document number, present when state is ACQUIRED.

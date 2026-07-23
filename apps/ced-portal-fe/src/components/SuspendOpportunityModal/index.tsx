@@ -8,7 +8,6 @@ import type { SuspendOpportunityPayload } from '../../features/opportunities/typ
 interface SuspendOpportunityModalProps {
   open: boolean;
   isLoading?: boolean;
-  opportunityName?: string;
   onClose: () => void;
   onConfirm: (payload: SuspendOpportunityPayload) => void;
 }

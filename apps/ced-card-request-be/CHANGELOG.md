@@ -1,5 +1,11 @@
 # ced-card-request-be
 
+## 0.2.0
+
+### Minor Changes
+
+- 623e4ab: Added numDomus to /status for acquired requests
+
 ## 0.1.0
 
 ### Minor Changes

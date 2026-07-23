@@ -2,7 +2,7 @@ import { useNavigate } from 'react-router-dom';
 import { useToast } from '../../../contexts';
 import { useCreateDraftRequestMutation } from '../../../features/request-form/api';
 import { selectRequestForm } from '../../../features/request-form/selectors';
-import { setStatus } from '../../../features/status/reducer';
+import { setStatus, setStatusField } from '../../../features/status/reducer';
 import { useAppDispatch, useAppSelector } from '../../../hooks';
 import { APP_ROUTES } from '../../../app/routeConfig';
 import { useUploadPhotoMutation } from '../../../features/photo-upload/api';
@@ -10,19 +10,28 @@ import { selectB64Photo } from '../../../features/photo-upload/reducer';
 import { selectIdLavorazione } from '../../../features/status/selectors';
 import { useConfirmMutation } from '../../../features/confirmation/api';
 
-export const useSaveDataByStep = () => {
+export const useSaveDataByStep = (next: () => void) => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const { showToast } = useToast();
-  const [saveFirstDraft, { isError: isDraftError }] =
-    useCreateDraftRequestMutation();
-  const [uploadPhoto, { isError: isPhotoError }] = useUploadPhotoMutation();
-  const [confirm, { isSuccess: isConfirmSuccess }] = useConfirmMutation();
+  const [
+    saveFirstDraft,
+    { isError: isDraftError, isLoading: isDraftLoading, reset: resetDraft },
+  ] = useCreateDraftRequestMutation();
+  const [
+    uploadPhoto,
+    { isError: isPhotoError, isLoading: isPhotoLoading, reset: resetPhoto },
+  ] = useUploadPhotoMutation();
+  const [
+    confirm,
+    { isSuccess: isConfirmSuccess, isLoading: isConfirmLoading },
+  ] = useConfirmMutation();
 
   const firstDraftForm = useAppSelector(selectRequestForm);
-
   const idLavorazione = useAppSelector(selectIdLavorazione);
   const photo = useAppSelector(selectB64Photo);
+
+  const isLoading = isDraftLoading || isPhotoLoading || isConfirmLoading;
 
   const getIdempotencyKey = () => {
     const idempotencyKey = globalThis.crypto?.randomUUID?.();
@@ -48,6 +57,7 @@ export const useSaveDataByStep = () => {
           }),
         );
       }
+      next();
     } catch {
       showToast(
         'Si è verificato un problema nel salvataggio dei dati. Riprova',
@@ -69,6 +79,7 @@ export const useSaveDataByStep = () => {
         },
         idempotency_key: idempotencyKey,
       }).unwrap();
+      next();
     } catch {
       showToast(
         'Si è verificato un problema nel salvataggio dei dati. Riprova',
@@ -81,12 +92,20 @@ export const useSaveDataByStep = () => {
   const confirmRequest = async () => {
     const idempotencyKey = getIdempotencyKey();
     try {
-      await confirm({
+      const { data } = await confirm({
         body: {
           idLavorazione,
         },
         idempotency_key: idempotencyKey,
       }).unwrap();
+      if ('numDomus' in data) {
+        dispatch(
+          setStatusField({
+            field: 'numDomus',
+            value: data?.numDomus ?? undefined,
+          }),
+        );
+      }
     } catch {
       showToast(
         'Si è verificato un problema nel salvataggio dei dati. Riprova',
@@ -100,8 +119,11 @@ export const useSaveDataByStep = () => {
     saveFirstDraftData,
     savePhoto,
     confirmRequest,
+    isLoading,
     isConfirmSuccess,
     isPhotoError,
     isDraftError,
+    resetDraft,
+    resetPhoto,
   };
 };

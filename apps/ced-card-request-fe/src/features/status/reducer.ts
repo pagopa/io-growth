@@ -4,6 +4,7 @@ import { ApplicationState } from '../../core/api/generated/model';
 export type StatusState = {
   idLavorazione: string;
   state?: ApplicationState;
+  numDomus?: string;
 };
 
 const initialState: StatusState = {} as StatusState;

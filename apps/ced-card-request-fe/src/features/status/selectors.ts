@@ -12,3 +12,8 @@ export const selectApplicationStatus = createSelector(
   selectStatus,
   (status) => status.state,
 );
+
+export const selectNumDomus = createSelector(
+  selectStatus,
+  (status) => status.numDomus,
+);

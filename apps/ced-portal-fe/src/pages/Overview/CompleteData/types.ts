@@ -12,8 +12,12 @@ export type ContactFormData = {
 
 export interface CompleteDataFormData {
   name: string;
-  sede: 'fisica' | 'sito_web';
-  address: string;
+  sede: '' | 'fisica' | 'sito_web';
+  websiteUrl: string;
+  street: string;
+  city: string;
+  postalCode: string;
+  province: string;
   contacts: ContactFormData[];
   logoFile: File | null;
   coverFile: File | null;

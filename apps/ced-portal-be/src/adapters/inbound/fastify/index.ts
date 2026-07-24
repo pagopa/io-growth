@@ -20,6 +20,7 @@ export { mountOperatorDeleteOpportunityHandler } from "./opportunities/operator-
 export { mountOperatorPublishOpportunityHandler } from "./opportunities/operator-publish-opportunity.handler.js";
 export { mountOperatorRequestOpportunityTestHandler } from "./opportunities/operator-request-opportunity-test.handler.js";
 export { mountOperatorSuspendOpportunityHandler } from "./opportunities/operator-suspend-opportunity.handler.js";
+export { mountOperatorUpdateOpportunityHandler } from "./opportunities/operator-update-opportunity.handler.js";
 export { mountCreateOperatorPlaceHandler } from "./places/create-operator-place.handler.js";
 export { mountGetOperatorPlaceHandler } from "./places/get-operator-place.handler.js";
 export { mountListOperatorPlacesHandler } from "./places/list-operator-places.handler.js";

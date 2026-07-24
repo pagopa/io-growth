@@ -103,6 +103,8 @@ export const createMockOpportunityRepository = (
   findByIdAndOperatorId: overrides.findByIdAndOperatorId ?? vi.fn(),
   suspendById: overrides.suspendById ?? vi.fn(),
   suspendByIdAndOperatorId: overrides.suspendByIdAndOperatorId ?? vi.fn(),
+  updateFieldsByIdAndOperatorId:
+    overrides.updateFieldsByIdAndOperatorId ?? vi.fn(),
   updateStatusById: overrides.updateStatusById ?? vi.fn(),
   updateStatusByIdAndOperatorId:
     overrides.updateStatusByIdAndOperatorId ?? vi.fn(),

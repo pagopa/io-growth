@@ -368,6 +368,95 @@ paths:
               example:
                 statusCode: 404
                 message: Opportunity not found
+    patch:
+      tags:
+        - Opportunities
+      summary: Update an opportunity for the authenticated operator
+      description: >-
+        Partial update (JSON Merge Patch): omitted fields are left untouched, an
+        explicit null clears the field (where allowed: caregiverBenefit, dateTo,
+        url). A real change to the benefit economics on a
+        scheduled/published/suspended opportunity moves it back to review
+        (test_pending); every other change applies immediately. The current
+        updatedAt must be echoed back for optimistic-concurrency control.
+      operationId: operatorUpdateOpportunity
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: opportunityId
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: "^[0-9A-HJKMNP-TV-Z]{26}$"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OpportunityUpdateRequest"
+            example:
+              updatedAt: "2026-01-01T00:00:00.000Z"
+              url: https://example.org/updated-promo
+      responses:
+        "204":
+          description: Opportunity updated (applied immediately or moved to review)
+        "400":
+          description: Invalid update payload or empty body
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 400
+                message: Validation error
+        "401":
+          description: Invalid or missing JWT
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 401
+                message: Unauthorized
+        "403":
+          description: Authenticated user is not an operator
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 403
+                message: Forbidden
+        "404":
+          description: Opportunity not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 404
+                message: Opportunity not found
+        "409":
+          description: Opportunity was modified concurrently (stale updatedAt)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 409
+                message: Opportunity was modified concurrently
+        "412":
+          description: >-
+            Precondition failed: the opportunity cannot be modified in its
+            current state (under review, or a scheduled suspension is pending).
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 412
+                message: "Precondition failed: Opportunity is under review and cannot be modified"
   /operator/opportunities/{opportunityId}/request-test:
     patch:
       tags:
@@ -1925,6 +2014,57 @@ components:
           $ref: "#/components/schemas/BenefitRequest"
         caregiverBenefit:
           $ref: "#/components/schemas/BenefitRequest"
+        localizedMetadata:
+          type: array
+          minItems: 1
+          items:
+            $ref: "#/components/schemas/LocalizedMetadataItem"
+    OpportunityUpdateRequest:
+      type: object
+      additionalProperties: false
+      description: >-
+        Partial update (JSON Merge Patch). Every field except updatedAt is
+        optional; an explicit null on caregiverBenefit/dateTo/url clears it.
+        At least one editable field (any property other than updatedAt) must be
+        present; an empty patch is rejected with 400.
+      required:
+        - updatedAt
+      properties:
+        updatedAt:
+          type: string
+          format: date-time
+          description: >-
+            Value previously read from the opportunity, echoed back for
+            optimistic-concurrency control. A stale value yields 409.
+        dateFrom:
+          type: string
+          format: date
+        dateTo:
+          type: string
+          format: date
+          nullable: true
+        url:
+          type: string
+          format: uri
+          maxLength: 2048
+          nullable: true
+        categoryId:
+          type: string
+          pattern: "^[0-9A-HJKMNP-TV-Z]{26}$"
+        nationalTerritory:
+          type: boolean
+        placeIds:
+          type: array
+          minItems: 0
+          items:
+            type: string
+            pattern: "^[0-9A-HJKMNP-TV-Z]{26}$"
+        beneficiaryBenefit:
+          $ref: "#/components/schemas/BenefitRequest"
+        caregiverBenefit:
+          nullable: true
+          allOf:
+            - $ref: "#/components/schemas/BenefitRequest"
         localizedMetadata:
           type: array
           minItems: 1

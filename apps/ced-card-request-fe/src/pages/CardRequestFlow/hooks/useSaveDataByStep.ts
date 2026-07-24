@@ -70,25 +70,31 @@ export const useSaveDataByStep = (next: () => void) => {
         attempts++;
         return await fn(idempotencyKey);
       } catch (error) {
-        // Check if it is a 504 (gateway timeout) - trigger retry only in this case
         const errObj = error as {
           status?: number | string;
           originalStatus?: number | string;
-          data?: { status?: number };
+          error?: string;
         };
-        const status =
-          errObj?.status ?? errObj?.originalStatus ?? errObj?.data?.status;
-        const is504 = Number(status) === 504;
-        if (!is504 || attempts >= retries) {
+
+        const status = errObj?.status ?? errObj?.originalStatus;
+        const errorMessage = String(errObj?.error || '');
+
+        const isNetworkTimeout =
+          status === 'FETCH_ERROR' ||
+          errorMessage.includes('Failed to fetch') ||
+          status === 504 ||
+          status === '504';
+
+        if (!isNetworkTimeout || attempts >= retries) {
           throw error;
         }
 
+        // Aspettiamo il delay prima di effettuare il tentativo successivo con la stessa idempotency-key
         await new Promise((resolve) => setTimeout(resolve, delayMs));
       }
     }
     throw new Error('Max retries reached');
   };
-
   const saveFirstDraftData = async () => {
     setIsActionLoading(true);
     try {

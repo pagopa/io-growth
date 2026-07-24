@@ -1,5 +1,12 @@
 # ced-card-request-be
 
+## 0.2.2
+
+### Patch Changes
+
+- Updated dependencies [8c9e086]
+  - @pagopa/io-core-adapter-fims@0.0.9
+
 ## 0.2.1
 
 ### Patch Changes

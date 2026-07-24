@@ -11,7 +11,7 @@ export type AllowedPhotoType = (typeof ALLOWED_PHOTO_TYPES)[number];
 export const isAllowedPhotoType = (type: string): type is AllowedPhotoType =>
   ALLOWED_PHOTO_TYPES.includes(type as AllowedPhotoType);
 
-const MAX_FILE_SIZE_MB = 2;
+const MAX_FILE_SIZE_MB = 1;
 const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024;
 const MIN_WIDTH = 381;
 const MIN_HEIGHT = 507;
@@ -121,7 +121,7 @@ export const processCenterCrop = async (
           0, 0, targetWidth, targetHeight
         );
         
-        const blob = await canvas.convertToBlob({ type: 'image/jpeg', quality: 0.95 });
+        const blob = await canvas.convertToBlob({ type: 'image/jpeg', quality: 0.90 });
         bitmap.close();
         
         self.postMessage({ success: true, blob });

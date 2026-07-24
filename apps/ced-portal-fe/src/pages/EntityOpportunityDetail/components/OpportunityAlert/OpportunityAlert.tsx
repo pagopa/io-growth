@@ -76,7 +76,7 @@ export const OpportunityAlert = ({
                   color: (theme) => theme.palette.common.alertWarningText,
                 }}
               >
-                {`L'opportunità sarà sospesa dal ${formattedSuspendDate}`}
+                {`Hai richiesto la sospensione a partire dal ${formattedSuspendDate}`}
               </Typography>
               <Typography
                 sx={{

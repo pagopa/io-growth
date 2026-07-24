@@ -34,7 +34,7 @@ export const ADDRESS_DATA_FORM_CONFIG: AddressDataFormType[] = [
   },
   {
     label: 'Nome sul citofono',
-    field: 'pressoCognome',
+    field: 'pressoDenominazione',
     type: 'text',
   },
   { label: 'Altri dettagli', field: 'datiAggiuntiviRec', type: 'text' },

@@ -8,7 +8,11 @@ import {
 } from '../../core/api/generated/model';
 import {
   getApproveOpportunityUrl,
+  getCancelScheduledSuspensionUrl,
   getGetOpportunityUrl,
+  getOperatorCancelScheduledSuspensionUrl,
+  getOperatorSuspendOpportunityUrl,
+  getSuspendOpportunityUrl,
 } from '../../core/api/generated/endpoints/opportunities/opportunities';
 import type {
   AdminOpportunityDetail,
@@ -104,6 +108,30 @@ export const opportunitiesApi = baseApi.injectEndpoints({
         'Opportunities',
       ],
     }),
+    adminSuspendOpportunity: builder.mutation<
+      void,
+      { id: string; payload: SuspendOpportunityPayload }
+    >({
+      query: ({ id, payload }) => ({
+        url: getSuspendOpportunityUrl(id),
+        method: 'PATCH',
+        body: payload,
+      }),
+      invalidatesTags: (_result, _error, { id }) => [
+        { type: 'Opportunities', id },
+        'Opportunities',
+      ],
+    }),
+    adminCancelScheduledSuspension: builder.mutation<void, { id: string }>({
+      query: ({ id }) => ({
+        url: getCancelScheduledSuspensionUrl(id),
+        method: 'PATCH',
+      }),
+      invalidatesTags: (_result, _error, { id }) => [
+        { type: 'Opportunities', id },
+        'Opportunities',
+      ],
+    }),
     deleteOpportunity: builder.mutation<
       void,
       { id: string; payload?: OperatorDeleteOpportunityBody }
@@ -118,12 +146,12 @@ export const opportunitiesApi = baseApi.injectEndpoints({
         'Opportunities',
       ],
     }),
-    suspendOpportunity: builder.mutation<
+    operatorSuspendOpportunity: builder.mutation<
       void,
       { id: string; payload: SuspendOpportunityPayload }
     >({
       query: ({ id, payload }) => ({
-        url: `/operator/opportunities/${id}/suspension/schedule`,
+        url: getOperatorSuspendOpportunityUrl(id),
         method: 'PATCH',
         body: payload,
       }),
@@ -132,9 +160,9 @@ export const opportunitiesApi = baseApi.injectEndpoints({
         'Opportunities',
       ],
     }),
-    cancelScheduledSuspension: builder.mutation<void, { id: string }>({
+    operatorCancelScheduledSuspension: builder.mutation<void, { id: string }>({
       query: ({ id }) => ({
-        url: `/operator/opportunities/${id}/suspension/cancel`,
+        url: getOperatorCancelScheduledSuspensionUrl(id),
         method: 'PATCH',
       }),
       invalidatesTags: (_result, _error, { id }) => [
@@ -154,7 +182,9 @@ export const {
   useCreateOpportunityMutation,
   useRequestApprovalMutation,
   useApproveOpportunityMutation,
+  useAdminSuspendOpportunityMutation,
+  useAdminCancelScheduledSuspensionMutation,
   useDeleteOpportunityMutation,
-  useSuspendOpportunityMutation,
-  useCancelScheduledSuspensionMutation,
+  useOperatorSuspendOpportunityMutation,
+  useOperatorCancelScheduledSuspensionMutation,
 } = opportunitiesApi;

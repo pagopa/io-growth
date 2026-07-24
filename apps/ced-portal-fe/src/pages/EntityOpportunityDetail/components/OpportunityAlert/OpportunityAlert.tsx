@@ -2,7 +2,7 @@ import InfoIcon from '@mui/icons-material/InfoRounded';
 import WarningIcon from '@mui/icons-material/WarningRounded';
 import { Alert, Box, Button, Stack, Typography } from '@mui/material';
 import { format, parseISO } from 'date-fns';
-import { useCancelScheduledSuspensionMutation } from '../../../../features/opportunities/api';
+import { useOperatorCancelScheduledSuspensionMutation } from '../../../../features/opportunities/api';
 import { useToast } from '../../../../contexts';
 import type { OpportunityStatus } from '../../../../features/opportunities/types';
 import { opportunityAlertMap } from './constants';
@@ -23,7 +23,8 @@ export const OpportunityAlert = ({
   onCancelSuccess,
 }: OpportunityAlertProps) => {
   const { showToast } = useToast();
-  const [cancelScheduledSuspension] = useCancelScheduledSuspensionMutation();
+  const [cancelScheduledSuspension] =
+    useOperatorCancelScheduledSuspensionMutation();
 
   const normalizedSuspendFrom = suspendFrom?.trim();
   const hasScheduledSuspension = Boolean(normalizedSuspendFrom);
@@ -75,7 +76,7 @@ export const OpportunityAlert = ({
                   color: (theme) => theme.palette.common.alertWarningText,
                 }}
               >
-                {`L'opportunità sarà sospesa dal ${formattedSuspendDate}`}
+                {`Hai richiesto la sospensione a partire dal ${formattedSuspendDate}`}
               </Typography>
               <Typography
                 sx={{

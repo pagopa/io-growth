@@ -104,7 +104,11 @@ export default function CardRequestFlowPage() {
     }
   }, [isConfirmSuccess, isSubmitting, navigate]);
 
-  // // TODO debug only
+  if (isLoading) {
+    return <MobileSpinnerLoader title="Attendi qualche secondo" fullscreen />;
+  }
+
+  // TODO debug only
   if (isDraftError) {
     return <GenericError onRetry={saveFirstDraftData} onBack={resetDraft} />;
   }
@@ -120,10 +124,6 @@ export default function CardRequestFlowPage() {
         onResume={() => setDraftSaved(false)}
       />
     );
-  }
-
-  if (isLoading) {
-    return <MobileSpinnerLoader title="Attendi qualche secondo" fullscreen />;
   }
 
   const handleNext = async () => {

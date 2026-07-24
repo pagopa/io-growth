@@ -8,6 +8,7 @@ import {
   useGetOperatorOpportunitiesQuery,
 } from './api';
 import type {
+  AdminOpportunityStatusFilter,
   AdminOpportunity,
   Opportunity,
   OpportunityFilters,
@@ -54,7 +55,7 @@ const matchesState = (item: Opportunity, state: string): boolean => {
 
 const isListOperatorOpportunitiesStatus = (
   value: string,
-): value is ListOperatorOpportunitiesStatus =>
+): value is AdminOpportunityStatusFilter =>
   Object.values(ListOperatorOpportunitiesStatus).includes(
     value as ListOperatorOpportunitiesStatus,
   );

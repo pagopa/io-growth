@@ -74,9 +74,11 @@ export const useSaveDataByStep = (next: () => void) => {
         const errObj = error as {
           status?: number | string;
           originalStatus?: number | string;
+          data?: { status?: number };
         };
-        const status = errObj?.status ?? errObj?.originalStatus;
-        const is504 = status === 504 || status === '504';
+        const status =
+          errObj?.status ?? errObj?.originalStatus ?? errObj?.data?.status;
+        const is504 = Number(status) === 504;
         if (!is504 || attempts >= retries) {
           throw error;
         }

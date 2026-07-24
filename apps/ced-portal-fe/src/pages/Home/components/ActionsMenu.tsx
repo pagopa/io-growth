@@ -7,29 +7,43 @@ import type {
   OperatorDeleteOpportunityBody,
   OpportunitySummaryItemStatus,
 } from '../../../core/api/generated/model';
-import { DeleteOpportunityModal } from './DeleteOpportunityModal';
+import {
+  DeleteOpportunityModal,
+  SuspendOpportunityModal,
+} from './OpportunityActionModal';
+import type { SuspendOpportunityPayload } from '../../../features/opportunities/types';
 
 type ActionsMenuProps = {
   anchor: null | HTMLElement;
   selectedItemId: string | null;
   selectedItemStatus?: OpportunitySummaryItemStatus | null;
+  selectedItemSuspendFrom?: string | null;
   handleMenuClose: () => void;
   onDeleteOpportunity: (
     id: string,
     payload?: OperatorDeleteOpportunityBody,
   ) => void;
+  onSuspendOpportunity: (
+    id: string,
+    payload: SuspendOpportunityPayload,
+  ) => void;
+  onCancelScheduledSuspension: (id: string) => void;
 };
 
 export const ActionsMenu = ({
   anchor,
   selectedItemId,
   selectedItemStatus,
+  selectedItemSuspendFrom,
   handleMenuClose,
   onDeleteOpportunity,
+  onSuspendOpportunity,
+  onCancelScheduledSuspension,
 }: ActionsMenuProps) => {
   const theme = useTheme();
   const navigate = useNavigate();
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isSuspendModalOpen, setIsSuspendModalOpen] = useState(false);
 
   const menuItemsSx = {
     color: theme.palette.common.primaryButton,
@@ -50,9 +64,26 @@ export const ActionsMenu = ({
     });
   };
 
-  // const onSuspend = async (id: string) => {
-  // TODO[IEG-2721][SCOPE - RELEASE IN OCTOBER]: call suspend opportunity API with { id }.
-  // };
+  const handleSuspend = useCallback(() => {
+    if (!selectedItemId) {
+      handleMenuClose();
+      return;
+    }
+
+    if (selectedItemSuspendFrom) {
+      onCancelScheduledSuspension(selectedItemId);
+      handleMenuClose();
+      return;
+    }
+
+    setIsSuspendModalOpen(true);
+    handleMenuClose();
+  }, [
+    handleMenuClose,
+    onCancelScheduledSuspension,
+    selectedItemId,
+    selectedItemSuspendFrom,
+  ]);
 
   const handleDelete = useCallback(() => {
     if (!selectedItemId) {
@@ -78,6 +109,10 @@ export const ActionsMenu = ({
     setIsDeleteModalOpen(false);
   }, []);
 
+  const handleCloseSuspendModal = useCallback(() => {
+    setIsSuspendModalOpen(false);
+  }, []);
+
   const handleConfirmDelete = useCallback(
     (payload: OperatorDeleteOpportunityBody) => {
       if (!selectedItemId) {
@@ -92,11 +127,25 @@ export const ActionsMenu = ({
     [handleCloseDeleteModal, navigate, onDeleteOpportunity, selectedItemId],
   );
 
+  const handleConfirmSuspend = useCallback(
+    (payload: SuspendOpportunityPayload) => {
+      if (!selectedItemId) {
+        handleCloseSuspendModal();
+        return;
+      }
+
+      onSuspendOpportunity(selectedItemId, payload);
+      handleCloseSuspendModal();
+    },
+    [handleCloseSuspendModal, onSuspendOpportunity, selectedItemId],
+  );
+
   const canDelete =
     selectedItemStatus === 'draft' ||
     selectedItemStatus === 'test_rejected' ||
     selectedItemStatus === 'suspended' ||
     selectedItemStatus === 'scheduled';
+  const canSuspend = selectedItemStatus === 'published';
 
   const handleAction = useCallback(
     (cb?: (id: string) => void) => {
@@ -143,9 +192,11 @@ export const ActionsMenu = ({
             </MenuItem>
           </>
         )}
-        <MenuItem onClick={() => handleAction(() => null)} sx={menuItemsSx}>
-          Sospendi
-        </MenuItem>
+        {canSuspend ? (
+          <MenuItem onClick={handleSuspend} sx={menuItemsSx}>
+            {selectedItemSuspendFrom ? 'Annulla sospensione' : 'Sospendi'}
+          </MenuItem>
+        ) : null}
 
         {canDelete && (
           <MenuItem
@@ -161,6 +212,11 @@ export const ActionsMenu = ({
         open={isDeleteModalOpen}
         onClose={handleCloseDeleteModal}
         onConfirm={handleConfirmDelete}
+      />
+      <SuspendOpportunityModal
+        open={isSuspendModalOpen}
+        onClose={handleCloseSuspendModal}
+        onConfirm={handleConfirmSuspend}
       />
     </>
   );

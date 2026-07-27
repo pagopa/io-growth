@@ -31,10 +31,7 @@ export const useSaveDataByStep = (next: () => void) => {
     uploadPhoto,
     { isError: isPhotoError, isLoading: isPhotoLoading, reset: resetPhoto },
   ] = useUploadPhotoMutation();
-  const [
-    confirm,
-    { isSuccess: isConfirmSuccess, isLoading: isConfirmLoading },
-  ] = useConfirmMutation();
+  const [confirm, { isLoading: isConfirmLoading }] = useConfirmMutation();
 
   const [isActionLoading, setIsActionLoading] = useState(false);
 
@@ -55,51 +52,14 @@ export const useSaveDataByStep = (next: () => void) => {
     }
     return idempotencyKey;
   };
-  const retryWithSameIdempotency = async <T>(
-    fn: (idempotencyKey: string) => Promise<T>,
-    retries = 3,
-    delayMs = 1000,
-  ): Promise<T> => {
-    const idempotencyKey = getIdempotencyKey();
-    if (!idempotencyKey) throw new Error('No idempotency key');
-
-    let attempts = 0;
-
-    while (attempts < retries) {
-      try {
-        attempts++;
-        return await fn(idempotencyKey);
-      } catch (error) {
-        // Check if it is a 504 (gateway timeout) - trigger retry only in this case
-        const errObj = error as {
-          status?: number | string;
-          originalStatus?: number | string;
-          data?: { status?: number };
-        };
-        const status =
-          errObj?.status ?? errObj?.originalStatus ?? errObj?.data?.status;
-        const is504 = Number(status) === 504;
-        if (!is504 || attempts >= retries) {
-          throw error;
-        }
-
-        await new Promise((resolve) => setTimeout(resolve, delayMs));
-      }
-    }
-    throw new Error('Max retries reached');
-  };
-
   const saveFirstDraftData = async () => {
     setIsActionLoading(true);
     try {
-      const response = await retryWithSameIdempotency(
-        (idempotencyKey) =>
-          saveFirstDraft({
-            body: sanitazedFirstDataForm,
-            idempotency_key: idempotencyKey,
-          }).unwrap(),
-        3,
-      );
+      const idempotencyKey = getIdempotencyKey();
+      const response = await saveFirstDraft({
+        body: sanitazedFirstDataForm,
+        idempotency_key: idempotencyKey,
+      }).unwrap();
 
       if (response?.idLavorazione) {
         dispatch(
@@ -126,18 +86,15 @@ export const useSaveDataByStep = (next: () => void) => {
     if (!photo) return;
     setIsActionLoading(true);
     try {
-      await retryWithSameIdempotency(
-        (idempotencyKey) =>
-          uploadPhoto({
-            body: {
-              fotoCED: photo,
-              idLavorazione,
-              informativaFoto: true,
-            },
-            idempotency_key: idempotencyKey,
-          }).unwrap(),
-        3,
-      );
+      const idempotencyKey = getIdempotencyKey();
+      await uploadPhoto({
+        body: {
+          fotoCED: photo,
+          idLavorazione,
+          informativaFoto: true,
+        },
+        idempotency_key: idempotencyKey,
+      }).unwrap();
       next();
     } catch (error) {
       //TODO debug only
@@ -154,29 +111,25 @@ export const useSaveDataByStep = (next: () => void) => {
   const confirmRequest = async () => {
     setIsActionLoading(true);
     try {
-      const response = await retryWithSameIdempotency(
-        (idempotencyKey) =>
-          confirm({
-            body: {
-              idLavorazione,
-            },
-            idempotency_key: idempotencyKey,
-          }).unwrap(),
-        3,
-      );
+      const idempotencyKey = getIdempotencyKey();
+      const response = await confirm({
+        body: {
+          idLavorazione,
+        },
+        idempotency_key: idempotencyKey,
+      }).unwrap();
 
-      if (response) {
-        const data = response?.data;
-        if (data && 'numDomus' in data) {
-          dispatch(
-            setStatusField({
-              field: 'numDomus',
-              value: data?.numDomus ?? undefined,
-            }),
-          );
-        }
+      if (response.status === 200) {
+        const { numDomus } = response.data;
+        dispatch(
+          setStatusField({
+            field: 'numDomus',
+            value: numDomus ?? undefined,
+          }),
+        );
       }
-      next();
+
+      navigate(APP_ROUTES.REQUEST_SUCCESS);
     } catch (error) {
       //TODO debug only
       localStorage.setItem('log-error', JSON.stringify(error));
@@ -194,7 +147,6 @@ export const useSaveDataByStep = (next: () => void) => {
     savePhoto,
     confirmRequest,
     isLoading,
-    isConfirmSuccess,
     isPhotoError,
     isDraftError,
     resetDraft,

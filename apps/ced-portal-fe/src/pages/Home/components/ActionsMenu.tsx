@@ -145,7 +145,10 @@ export const ActionsMenu = ({
     selectedItemStatus === 'test_rejected' ||
     selectedItemStatus === 'suspended' ||
     selectedItemStatus === 'scheduled';
-  const canSuspend = selectedItemStatus === 'published';
+  const canSuspend =
+    selectedItemStatus === 'published' ||
+    selectedItemStatus === 'scheduled_suspension';
+  const hasScheduledSuspension = Boolean(selectedItemSuspendFrom?.trim());
 
   const handleAction = useCallback(
     (cb?: (id: string) => void) => {
@@ -194,7 +197,7 @@ export const ActionsMenu = ({
         )}
         {canSuspend ? (
           <MenuItem onClick={handleSuspend} sx={menuItemsSx}>
-            {selectedItemSuspendFrom ? 'Annulla sospensione' : 'Sospendi'}
+            {hasScheduledSuspension ? 'Annulla sospensione' : 'Sospendi'}
           </MenuItem>
         ) : null}
 

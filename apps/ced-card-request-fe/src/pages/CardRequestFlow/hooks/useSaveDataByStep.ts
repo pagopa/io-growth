@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '../../../contexts';
 import { useCreateDraftRequestMutation } from '../../../features/request-form/api';
@@ -9,6 +10,14 @@ import { useUploadPhotoMutation } from '../../../features/photo-upload/api';
 import { selectB64Photo } from '../../../features/photo-upload/reducer';
 import { selectIdLavorazione } from '../../../features/status/selectors';
 import { useConfirmMutation } from '../../../features/confirmation/api';
+
+export const sanitazeObject = <T extends Record<string, unknown>>(data: T): T =>
+  Object.fromEntries(
+    Object.entries(data).map(([key, value]) => [
+      key,
+      typeof value === 'string' ? value.trim() : value,
+    ]),
+  ) as T;
 
 export const useSaveDataByStep = (next: () => void) => {
   const navigate = useNavigate();
@@ -22,16 +31,18 @@ export const useSaveDataByStep = (next: () => void) => {
     uploadPhoto,
     { isError: isPhotoError, isLoading: isPhotoLoading, reset: resetPhoto },
   ] = useUploadPhotoMutation();
-  const [
-    confirm,
-    { isSuccess: isConfirmSuccess, isLoading: isConfirmLoading },
-  ] = useConfirmMutation();
+  const [confirm, { isLoading: isConfirmLoading }] = useConfirmMutation();
+
+  const [isActionLoading, setIsActionLoading] = useState(false);
 
   const firstDraftForm = useAppSelector(selectRequestForm);
+  const sanitazedFirstDataForm = sanitazeObject(firstDraftForm);
+
   const idLavorazione = useAppSelector(selectIdLavorazione);
   const photo = useAppSelector(selectB64Photo);
 
-  const isLoading = isDraftLoading || isPhotoLoading || isConfirmLoading;
+  const isLoading =
+    isDraftLoading || isPhotoLoading || isConfirmLoading || isActionLoading;
 
   const getIdempotencyKey = () => {
     const idempotencyKey = globalThis.crypto?.randomUUID?.();
@@ -41,15 +52,16 @@ export const useSaveDataByStep = (next: () => void) => {
     }
     return idempotencyKey;
   };
-
   const saveFirstDraftData = async () => {
-    const idempotencyKey = getIdempotencyKey();
+    setIsActionLoading(true);
     try {
+      const idempotencyKey = getIdempotencyKey();
       const response = await saveFirstDraft({
-        body: firstDraftForm,
+        body: sanitazedFirstDataForm,
         idempotency_key: idempotencyKey,
       }).unwrap();
-      if (response.idLavorazione) {
+
+      if (response?.idLavorazione) {
         dispatch(
           setStatus({
             idLavorazione: response.idLavorazione,
@@ -58,19 +70,23 @@ export const useSaveDataByStep = (next: () => void) => {
         );
       }
       next();
-    } catch {
+    } catch (error) {
+      //TODO debug only
+      localStorage.setItem('log-error', JSON.stringify(error));
       showToast(
         'Si è verificato un problema nel salvataggio dei dati. Riprova',
         'error',
       );
-      return;
+    } finally {
+      setIsActionLoading(false);
     }
   };
 
   const savePhoto = async () => {
-    const idempotencyKey = getIdempotencyKey();
+    if (!photo) return;
+    setIsActionLoading(true);
     try {
-      if (!photo) return;
+      const idempotencyKey = getIdempotencyKey();
       await uploadPhoto({
         body: {
           fotoCED: photo,
@@ -80,38 +96,49 @@ export const useSaveDataByStep = (next: () => void) => {
         idempotency_key: idempotencyKey,
       }).unwrap();
       next();
-    } catch {
+    } catch (error) {
+      //TODO debug only
+      localStorage.setItem('log-error', JSON.stringify(error));
       showToast(
         'Si è verificato un problema nel salvataggio dei dati. Riprova',
         'error',
       );
-      return;
+    } finally {
+      setIsActionLoading(false);
     }
   };
 
   const confirmRequest = async () => {
-    const idempotencyKey = getIdempotencyKey();
+    setIsActionLoading(true);
     try {
-      const { data } = await confirm({
+      const idempotencyKey = getIdempotencyKey();
+      const response = await confirm({
         body: {
           idLavorazione,
         },
         idempotency_key: idempotencyKey,
       }).unwrap();
-      if ('numDomus' in data) {
+
+      if (response.status === 200) {
+        const { numDomus } = response.data;
         dispatch(
           setStatusField({
             field: 'numDomus',
-            value: data?.numDomus ?? undefined,
+            value: numDomus ?? undefined,
           }),
         );
       }
-    } catch {
+
+      navigate(APP_ROUTES.REQUEST_SUCCESS);
+    } catch (error) {
+      //TODO debug only
+      localStorage.setItem('log-error', JSON.stringify(error));
       showToast(
         'Si è verificato un problema nel salvataggio dei dati. Riprova',
         'error',
       );
-      return;
+    } finally {
+      setIsActionLoading(false);
     }
   };
 
@@ -120,7 +147,6 @@ export const useSaveDataByStep = (next: () => void) => {
     savePhoto,
     confirmRequest,
     isLoading,
-    isConfirmSuccess,
     isPhotoError,
     isDraftError,
     resetDraft,

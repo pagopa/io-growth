@@ -1,4 +1,4 @@
-import { ArrowBack, PriorityHigh } from '@mui/icons-material';
+import { ArrowBack, Download, PriorityHigh } from '@mui/icons-material';
 import { Box, Button, ButtonBase, useTheme } from '@mui/material';
 import { Body, Title, VSpacer } from '@pagopa/io-core-ui';
 
@@ -11,6 +11,33 @@ interface Props {
 //TODO should use the DS error screen in the future
 export default function GenericError({ onClose, onBack, onRetry }: Props) {
   const theme = useTheme();
+
+  /**
+   * TODO debug only
+   * ----------------------------------------------------------------------------
+   */
+  const error = localStorage.getItem('log-error');
+
+  const handleDownloadError = () => {
+    if (!error) return;
+
+    try {
+      const parsedError = JSON.parse(error);
+      const dataStr =
+        'data:text/json;charset=utf-8,' +
+        encodeURIComponent(JSON.stringify(parsedError, null, 2));
+
+      const downloadAnchor = document.createElement('a');
+      downloadAnchor.setAttribute('href', dataStr);
+      downloadAnchor.setAttribute('download', `error-log-${Date.now()}.json`);
+      document.body.appendChild(downloadAnchor);
+      downloadAnchor.click();
+      downloadAnchor.remove();
+    } catch (e) {
+      console.error('Impossibile scaricare il file di errore', e);
+    }
+  };
+  // --------------------------------------------------------------------------------
 
   const handleClose = () => {
     if (onClose) {
@@ -75,6 +102,31 @@ export default function GenericError({ onClose, onBack, onRetry }: Props) {
           <Title variant="MD" text="Errore generico" />
           <VSpacer size={8} />
           <Body>Generic error</Body>
+
+          {/* START- TODO debug only */}
+          {error && (
+            <>
+              <VSpacer size={16} />
+              <ButtonBase
+                onClick={handleDownloadError}
+                sx={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 0.5,
+                  color: theme.palette.primary.main,
+                  fontSize: 14,
+                  fontWeight: 500,
+                  textDecoration: 'underline',
+                  '&:hover': { opacity: 0.8 },
+                }}
+              >
+                <Download sx={{ fontSize: 16 }} />
+                Scarica dettagli errore (JSON)
+              </ButtonBase>
+            </>
+          )}
+          {/* END- TODO debug only */}
+
           <VSpacer size={32} />
           <Box
             sx={{

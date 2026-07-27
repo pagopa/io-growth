@@ -156,7 +156,7 @@ resource "azurerm_application_gateway" "this" {
     cookie_based_affinity = "Disabled"
     protocol              = "Https"
     port                  = 443
-    request_timeout       = 2
+    request_timeout       = 30
     host_name             = var.apim_hostname
     probe_name            = "probe-apim"
   }

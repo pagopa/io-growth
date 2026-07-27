@@ -8,6 +8,7 @@ import type { PlaceRepository } from "../../../../domain/ports/outbound/persiste
 
 import {
   LocalizedMetadataListInputSchema,
+  PlaceIdsInputSchema,
   validateExistence,
 } from "../opportunity-input.js";
 
@@ -172,5 +173,24 @@ describe("LocalizedMetadataListInputSchema", () => {
 
   it("rejects an empty list (min 1)", () => {
     expect(LocalizedMetadataListInputSchema.safeParse([]).success).toBe(false);
+  });
+});
+
+describe("PlaceIdsInputSchema", () => {
+  const A = "01JVMK3N8XQZP5T6G2WYHAB4CD";
+  const B = "01JVMK3N8XQZP5T6G2WYHAB4CE";
+
+  it("accepts a list of unique ids", () => {
+    expect(PlaceIdsInputSchema.safeParse([A, B]).success).toBe(true);
+  });
+
+  it("accepts an empty list", () => {
+    expect(PlaceIdsInputSchema.safeParse([]).success).toBe(true);
+  });
+
+  it("rejects a list with a duplicate id (refine)", () => {
+    // opportunity_place has a composite PK on (opportunityId, placeId): a
+    // duplicate would otherwise abort the transaction with a raw 500.
+    expect(PlaceIdsInputSchema.safeParse([A, A]).success).toBe(false);
   });
 });

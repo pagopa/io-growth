@@ -42,6 +42,15 @@ export const LocalizedMetadataListInputSchema = z
     },
   );
 
+// opportunity_place has a composite PK on (opportunityId, placeId): a
+// duplicate id in the same insert statement violates it, aborting the
+// transaction with a raw Postgres error (-> 500) instead of a clean 400.
+export const PlaceIdsInputSchema = z
+  .array(z.ulid())
+  .refine((placeIds) => new Set(placeIds).size === placeIds.length, {
+    message: "placeIds must not contain duplicates",
+  });
+
 export interface ValidateExistenceInput {
   readonly categoryId: string;
   readonly operatorId: string;

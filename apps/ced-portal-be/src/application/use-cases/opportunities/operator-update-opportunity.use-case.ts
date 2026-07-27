@@ -19,6 +19,7 @@ import { validateUseCaseInput } from "../utils/validate-use-case-input.js";
 import {
   BenefitInputSchema,
   LocalizedMetadataListInputSchema,
+  PlaceIdsInputSchema,
   validateExistence,
 } from "./opportunity-input.js";
 
@@ -36,7 +37,7 @@ const OperatorUpdateOpportunityInputSchema = z
     nationalTerritory: z.boolean().optional(),
     operatorId: z.ulid(),
     opportunityId: z.ulid(),
-    placeIds: z.array(z.ulid()).optional(),
+    placeIds: PlaceIdsInputSchema.optional(),
     url: z.url().max(2048).nullable().optional(),
   })
   .refine(

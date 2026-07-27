@@ -61,6 +61,7 @@ export const useGetStatusAndNavigate = () => {
             return navigate(APP_ROUTES.GENERIC_ERROR, { replace: true });
         }
       } catch (error) {
+        localStorage.setItem('log-error', JSON.stringify(error));
         console.error(error);
         return navigate(APP_ROUTES.GENERIC_ERROR, { replace: true });
       }

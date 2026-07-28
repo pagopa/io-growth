@@ -1,6 +1,8 @@
 import { baseApi } from '../../core/api/baseApi';
-import { confirmApplicationResponse } from '../../core/api/generated/endpoints/confirmation-and-documentation/confirmation-and-documentation';
-import { ConfermaDomandaRequest } from '../../core/api/generated/model';
+import {
+  ConfermaDomandaRequest,
+  ConfirmApplication200,
+} from '../../core/api/generated/model';
 
 type ConfirmApplicationRequest = {
   body: ConfermaDomandaRequest;
@@ -9,19 +11,18 @@ type ConfirmApplicationRequest = {
 
 export const confirmationApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
-    confirm: builder.mutation<
-      confirmApplicationResponse,
-      ConfirmApplicationRequest
-    >({
-      query: ({ body, idempotency_key }) => ({
-        url: '/confirm',
-        method: 'POST',
-        body,
-        headers: {
-          'Idempotency-Key': idempotency_key,
-        },
-      }),
-    }),
+    confirm: builder.mutation<ConfirmApplication200, ConfirmApplicationRequest>(
+      {
+        query: ({ body, idempotency_key }) => ({
+          url: '/confirm',
+          method: 'POST',
+          body,
+          headers: {
+            'Idempotency-Key': idempotency_key,
+          },
+        }),
+      },
+    ),
   }),
 });
 

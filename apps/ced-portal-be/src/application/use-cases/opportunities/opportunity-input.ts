@@ -8,27 +8,34 @@ import type { OperatorRepository } from "../../../domain/ports/outbound/persiste
 import type { OpportunityCategoryRepository } from "../../../domain/ports/outbound/persistence/opportunity-category.repository.js";
 import type { PlaceRepository } from "../../../domain/ports/outbound/persistence/place.repository.js";
 
+import {
+  BENEFIT_DISCOUNT_TYPE,
+  BENEFIT_TYPE,
+  LANGUAGE,
+  LOCALIZED_METADATA_KEY,
+} from "../../../domain/entities/opportunity.js";
+
 export const BenefitInputSchema = z.discriminatedUnion("type", [
-  z.object({ type: z.literal("free") }),
-  z.object({ type: z.literal("priority") }),
+  z.object({ type: z.literal(BENEFIT_TYPE.FREE) }),
+  z.object({ type: z.literal(BENEFIT_TYPE.PRIORITY) }),
   z.object({
-    type: z.literal("reduced_fixed_price"),
+    type: z.literal(BENEFIT_TYPE.REDUCED_FIXED_PRICE),
     value: z.number().int(),
   }),
   z.object({
-    discountType: z.enum(["percentage", "fixed_amount"]),
-    type: z.literal("discount"),
+    discountType: z.enum(BENEFIT_DISCOUNT_TYPE),
+    type: z.literal(BENEFIT_TYPE.DISCOUNT),
     value: z.number().int(),
   }),
   z.object({
     description: z.string().min(1).max(4096),
-    type: z.literal("other"),
+    type: z.literal(BENEFIT_TYPE.OTHER),
   }),
 ]);
 
 const LocalizedMetadataInputSchema = z.object({
-  key: z.enum(["name", "description", "condition"]),
-  language: z.enum(["en", "fr", "de", "sl", "it"]),
+  key: z.enum(LOCALIZED_METADATA_KEY),
+  language: z.enum(LANGUAGE),
   value: z.string().min(1),
 });
 
@@ -36,7 +43,11 @@ export const LocalizedMetadataListInputSchema = z
   .array(LocalizedMetadataInputSchema)
   .min(1)
   .refine(
-    (metadata) => metadata.some((e) => e.key === "name" && e.language === "it"),
+    (metadata) =>
+      metadata.some(
+        (e) =>
+          e.key === LOCALIZED_METADATA_KEY.NAME && e.language === LANGUAGE.IT,
+      ),
     {
       message: "localizedMetadata must contain at least one Italian name entry",
     },

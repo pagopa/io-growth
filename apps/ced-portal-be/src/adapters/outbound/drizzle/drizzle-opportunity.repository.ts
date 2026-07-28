@@ -39,6 +39,7 @@ import type {
 
 import {
   ACTOR_TYPE,
+  BENEFIT_TYPE,
   type BenefitSummary,
   OPPORTUNITY_STATUS,
   type OpportunityDetail,
@@ -506,11 +507,13 @@ const countByExternalOperatorIds =
 // discount -> free) clears stale value/discountType/description; a partial
 // .set() would leave them behind.
 const benefitColumns = (benefit: BenefitSummary) => ({
-  description: benefit.type === "other" ? benefit.description : null,
-  discountType: benefit.type === "discount" ? benefit.discountType : null,
+  description: benefit.type === BENEFIT_TYPE.OTHER ? benefit.description : null,
+  discountType:
+    benefit.type === BENEFIT_TYPE.DISCOUNT ? benefit.discountType : null,
   type: benefit.type,
   value:
-    benefit.type === "discount" || benefit.type === "reduced_fixed_price"
+    benefit.type === BENEFIT_TYPE.DISCOUNT ||
+    benefit.type === BENEFIT_TYPE.REDUCED_FIXED_PRICE
       ? benefit.value
       : null,
 });

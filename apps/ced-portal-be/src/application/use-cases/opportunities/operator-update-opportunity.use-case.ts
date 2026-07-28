@@ -8,13 +8,18 @@ import {
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { z } from "zod";
 
-import type { BenefitSummary } from "../../../domain/entities/opportunity.js";
 import type { MaterializedViewRepository } from "../../../domain/ports/outbound/materialized-view.repository.js";
 import type { OperatorRepository } from "../../../domain/ports/outbound/persistence/operator.repository.js";
 import type { OpportunityCategoryRepository } from "../../../domain/ports/outbound/persistence/opportunity-category.repository.js";
 import type { OpportunityRepository } from "../../../domain/ports/outbound/persistence/opportunity.repository.js";
 import type { PlaceRepository } from "../../../domain/ports/outbound/persistence/place.repository.js";
 
+import {
+  type BenefitSummary,
+  OPPORTUNITY_DISPLAY_STATUS,
+  OPPORTUNITY_STATUS,
+  type OpportunityDetail,
+} from "../../../domain/entities/opportunity.js";
 import { validateUseCaseInput } from "../utils/validate-use-case-input.js";
 import {
   BenefitInputSchema,
@@ -66,7 +71,11 @@ export type OperatorUpdateOpportunityUseCase = UseCase<
 
 // States where a benefit change is "binding" (requires re-review). On the free
 // states (draft/test_rejected/test_passed) no edit ever changes the state.
-const DICHOTOMY_STATUSES = new Set(["published", "scheduled", "suspended"]);
+const DICHOTOMY_STATUSES = new Set<OpportunityDetail["status"]>([
+  OPPORTUNITY_DISPLAY_STATUS.SCHEDULED,
+  OPPORTUNITY_STATUS.PUBLISHED,
+  OPPORTUNITY_STATUS.SUSPENDED,
+]);
 
 const benefitChanged = (
   incoming: BenefitSummary,
@@ -101,14 +110,14 @@ export const makeOperatorUpdateOpportunityUseCase =
           if (!data)
             return errAsync(new NotFoundError("Opportunity", "not found"));
 
-          if (data.status === "test_pending")
+          if (data.status === OPPORTUNITY_STATUS.TEST_PENDING)
             return errAsync(
               new PreconditionFailedError(
                 "Opportunity is under review and cannot be modified",
               ),
             );
 
-          if (data.status === "scheduled_suspension")
+          if (data.status === OPPORTUNITY_DISPLAY_STATUS.SCHEDULED_SUSPENSION)
             return errAsync(
               new PreconditionFailedError(
                 "A scheduled suspension is pending: cancel it or wait for it to apply before modifying",
@@ -129,7 +138,7 @@ export const makeOperatorUpdateOpportunityUseCase =
           const transitionToTestPending =
             DICHOTOMY_STATUSES.has(data.status) && benefitIsBinding;
 
-          const wasPublishedLive = data.status === "published";
+          const wasPublishedLive = data.status === OPPORTUNITY_STATUS.PUBLISHED;
 
           // validateExistence requires BOTH categoryId and placeIds: fill the
           // one not being edited from the current opportunity. Skip entirely

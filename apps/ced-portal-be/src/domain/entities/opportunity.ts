@@ -1,32 +1,45 @@
 import { z } from "zod";
 
+export const BENEFIT_TYPE = {
+  DISCOUNT: "discount",
+  FREE: "free",
+  OTHER: "other",
+  PRIORITY: "priority",
+  REDUCED_FIXED_PRICE: "reduced_fixed_price",
+} as const;
+
+export const BENEFIT_DISCOUNT_TYPE = {
+  FIXED_AMOUNT: "fixed_amount",
+  PERCENTAGE: "percentage",
+} as const;
+
 const BenefitFreeSchema = z.object({
   id: z.ulid(),
-  type: z.literal("free"),
+  type: z.literal(BENEFIT_TYPE.FREE),
 });
 
 const BenefitPrioritySchema = z.object({
   id: z.ulid(),
-  type: z.literal("priority"),
+  type: z.literal(BENEFIT_TYPE.PRIORITY),
 });
 
 const BenefitReducedFixedPriceSchema = z.object({
   id: z.ulid(),
-  type: z.literal("reduced_fixed_price"),
+  type: z.literal(BENEFIT_TYPE.REDUCED_FIXED_PRICE),
   value: z.number().int(),
 });
 
 const BenefitDiscountSchema = z.object({
-  discountType: z.enum(["percentage", "fixed_amount"]),
+  discountType: z.enum(BENEFIT_DISCOUNT_TYPE),
   id: z.ulid(),
-  type: z.literal("discount"),
+  type: z.literal(BENEFIT_TYPE.DISCOUNT),
   value: z.number().int(),
 });
 
 const BenefitOtherSchema = z.object({
   description: z.string().min(1).max(4096),
   id: z.ulid(),
-  type: z.literal("other"),
+  type: z.literal(BENEFIT_TYPE.OTHER),
 });
 
 export const BenefitSchema = z.discriminatedUnion("type", [
@@ -39,10 +52,24 @@ export const BenefitSchema = z.discriminatedUnion("type", [
 
 export type Benefit = z.infer<typeof BenefitSchema>;
 
+export const LOCALIZED_METADATA_KEY = {
+  CONDITION: "condition",
+  DESCRIPTION: "description",
+  NAME: "name",
+} as const;
+
+export const LANGUAGE = {
+  DE: "de",
+  EN: "en",
+  FR: "fr",
+  IT: "it",
+  SL: "sl",
+} as const;
+
 const localizedMetadataSchema = z.object({
   id: z.ulid(),
-  key: z.enum(["name", "description", "condition"]),
-  language: z.enum(["en", "fr", "de", "sl", "it"]),
+  key: z.enum(LOCALIZED_METADATA_KEY),
+  language: z.enum(LANGUAGE),
   value: z.string().min(1),
 });
 
@@ -59,6 +86,14 @@ export const OPPORTUNITY_STATUS = {
   TEST_PASSED: "test_passed",
   TEST_PENDING: "test_pending",
   TEST_REJECTED: "test_rejected",
+} as const;
+
+// Derived, response-only statuses: never persisted in the DB status column
+// (see deriveOpportunityDisplayStatus below). Kept separate from
+// OPPORTUNITY_STATUS since these are not valid values to write.
+export const OPPORTUNITY_DISPLAY_STATUS = {
+  SCHEDULED: "scheduled",
+  SCHEDULED_SUSPENSION: "scheduled_suspension",
 } as const;
 
 export const OpportunitySchema = z.object({
@@ -86,20 +121,20 @@ export const OpportunitySchema = z.object({
 export type Opportunity = z.infer<typeof OpportunitySchema>;
 
 export const BenefitSummarySchema = z.discriminatedUnion("type", [
-  z.object({ type: z.literal("free") }),
-  z.object({ type: z.literal("priority") }),
+  z.object({ type: z.literal(BENEFIT_TYPE.FREE) }),
+  z.object({ type: z.literal(BENEFIT_TYPE.PRIORITY) }),
   z.object({
-    type: z.literal("reduced_fixed_price"),
+    type: z.literal(BENEFIT_TYPE.REDUCED_FIXED_PRICE),
     value: z.number().int(),
   }),
   z.object({
-    discountType: z.enum(["percentage", "fixed_amount"]),
-    type: z.literal("discount"),
+    discountType: z.enum(BENEFIT_DISCOUNT_TYPE),
+    type: z.literal(BENEFIT_TYPE.DISCOUNT),
     value: z.number().int(),
   }),
   z.object({
     description: z.string().max(4096),
-    type: z.literal("other"),
+    type: z.literal(BENEFIT_TYPE.OTHER),
   }),
 ]);
 
@@ -124,7 +159,7 @@ export const OpportunitySummarySchema = z.object({
     "suspended",
     "deleted",
   ]),
-  suspendedBy: z.enum(["operator", "department"]).nullish(),
+  suspendedBy: z.enum(ACTOR_TYPE).nullish(),
   suspendFrom: z.string().nullish(),
 });
 
@@ -140,15 +175,16 @@ export const deriveOpportunityDisplayStatus = (
   referenceDate?: string,
   suspendFrom?: null | string,
 ): OpportunitySummary["status"] => {
-  if (status !== "published" || !referenceDate) return status;
-  if (dateFrom > referenceDate) return "scheduled";
-  if (suspendFrom && suspendFrom > referenceDate) return "scheduled_suspension";
+  if (status !== OPPORTUNITY_STATUS.PUBLISHED || !referenceDate) return status;
+  if (dateFrom > referenceDate) return OPPORTUNITY_DISPLAY_STATUS.SCHEDULED;
+  if (suspendFrom && suspendFrom > referenceDate)
+    return OPPORTUNITY_DISPLAY_STATUS.SCHEDULED_SUSPENSION;
   return status;
 };
 
 const localizedMetadataSummarySchema = z.object({
-  key: z.enum(["name", "description", "condition"]),
-  language: z.enum(["en", "fr", "de", "sl", "it"]),
+  key: z.enum(LOCALIZED_METADATA_KEY),
+  language: z.enum(LANGUAGE),
   value: z.string().min(1),
 });
 
@@ -177,7 +213,7 @@ export const OpportunityDetailSchema = z.object({
     "suspended",
     "deleted",
   ]),
-  suspendedBy: z.enum(["operator", "department"]).nullish(),
+  suspendedBy: z.enum(ACTOR_TYPE).nullish(),
   suspendFrom: z.string().nullish(),
   suspensionMessage: z.string().max(4096).nullish(),
   updatedAt: z.string(),

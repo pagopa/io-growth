@@ -1,5 +1,11 @@
 # @pagopa/io-core-adapter-fims
 
+## 0.0.9
+
+### Patch Changes
+
+- 8c9e086: Changed default session ttl
+
 ## 0.0.8
 
 ### Patch Changes

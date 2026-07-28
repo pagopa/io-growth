@@ -2,10 +2,10 @@ import { Box, Stack, useTheme } from '@mui/material';
 import { SyntheticEvent, useEffect, useState } from 'react';
 import { ResultsPagination } from '../../components';
 import {
-  useCancelScheduledSuspensionMutation,
   useGetOpportunityCategoriesQuery,
   useDeleteOpportunityMutation,
-  useSuspendOpportunityMutation,
+  useOperatorCancelScheduledSuspensionMutation,
+  useOperatorSuspendOpportunityMutation,
 } from '../../features/opportunities/api';
 import { useBenefitsData } from '../../features/opportunities/hooks';
 import { useToast } from '../../contexts';
@@ -87,8 +87,9 @@ export const MainContent = () => {
   };
 
   const [deleteOpportunity] = useDeleteOpportunityMutation();
-  const [suspendOpportunity] = useSuspendOpportunityMutation();
-  const [cancelScheduledSuspension] = useCancelScheduledSuspensionMutation();
+  const [suspendOpportunity] = useOperatorSuspendOpportunityMutation();
+  const [cancelScheduledSuspension] =
+    useOperatorCancelScheduledSuspensionMutation();
 
   const handleDeleteOpportunity = async (
     id: string,

@@ -17,7 +17,7 @@ import type { FimsSessionStore } from "../../domain/ports/outbound/session.repos
 import { buildSessionAndRedirect } from "./session.helpers.js";
 import { isTestUser } from "./test-users.js";
 
-const DEFAULT_SESSION_TTL = 1800;
+const DEFAULT_SESSION_TTL = 3600;
 const DEFAULT_OTP_TTL = 60;
 
 export type HandleCallback = UseCase<

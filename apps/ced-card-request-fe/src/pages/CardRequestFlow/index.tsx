@@ -72,7 +72,6 @@ export default function CardRequestFlowPage() {
     saveFirstDraftData,
     savePhoto,
     confirmRequest,
-    isConfirmSuccess,
     isDraftError,
     isPhotoError,
     isLoading,
@@ -97,14 +96,11 @@ export default function CardRequestFlowPage() {
     });
   }, [currentStep]);
 
-  useEffect(() => {
-    if (isConfirmSuccess && isSubmitting) {
-      setIsSubmitting(false);
-      navigate(APP_ROUTES.REQUEST_SUCCESS);
-    }
-  }, [isConfirmSuccess, isSubmitting, navigate]);
+  if (isLoading) {
+    return <MobileSpinnerLoader title="Attendi qualche secondo" fullscreen />;
+  }
 
-  // // TODO debug only
+  // TODO debug only
   if (isDraftError) {
     return <GenericError onRetry={saveFirstDraftData} onBack={resetDraft} />;
   }
@@ -120,10 +116,6 @@ export default function CardRequestFlowPage() {
         onResume={() => setDraftSaved(false)}
       />
     );
-  }
-
-  if (isLoading) {
-    return <MobileSpinnerLoader title="Attendi qualche secondo" fullscreen />;
   }
 
   const handleNext = async () => {

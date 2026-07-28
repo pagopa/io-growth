@@ -22,11 +22,20 @@ export default function OverviewCompleteDataPage() {
   const {
     isSubmitted,
     formData,
+    sedeError,
     nameError,
-    addressError,
+    websiteUrlError,
+    streetError,
+    cityError,
+    postalCodeError,
+    provinceError,
     handleNameChange,
     handleSedeChange,
-    handleAddressChange,
+    handleWebsiteUrlChange,
+    handleStreetChange,
+    handleCityChange,
+    handlePostalCodeChange,
+    handleProvinceChange,
     handleLogoSelect,
     handleCoverSelect,
     handlePrivacyUrlChange,
@@ -89,14 +98,27 @@ export default function OverviewCompleteDataPage() {
                 <EntityDataSection
                   name={formData.name}
                   sede={formData.sede}
-                  address={formData.address}
+                  sedeError={sedeError}
+                  websiteUrl={formData.websiteUrl}
+                  street={formData.street}
+                  city={formData.city}
+                  postalCode={formData.postalCode}
+                  province={formData.province}
                   logoFile={formData.logoFile}
                   coverFile={formData.coverFile}
                   nameError={nameError}
-                  addressError={addressError}
+                  websiteUrlError={websiteUrlError}
+                  streetError={streetError}
+                  cityError={cityError}
+                  postalCodeError={postalCodeError}
+                  provinceError={provinceError}
                   onNameChange={handleNameChange}
                   onSedeChange={handleSedeChange}
-                  onAddressChange={handleAddressChange}
+                  onWebsiteUrlChange={handleWebsiteUrlChange}
+                  onStreetChange={handleStreetChange}
+                  onCityChange={handleCityChange}
+                  onPostalCodeChange={handlePostalCodeChange}
+                  onProvinceChange={handleProvinceChange}
                   onLogoSelect={handleLogoSelect}
                   onCoverSelect={handleCoverSelect}
                   onInfoClick={setInfoModalType}

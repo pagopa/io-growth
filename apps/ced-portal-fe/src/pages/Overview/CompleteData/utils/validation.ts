@@ -37,18 +37,43 @@ export type CompleteDataValidationResult = {
 
 export const validateCompleteDataForm = ({
   name,
-  address,
+  sede,
+  websiteUrl,
+  street,
+  city,
+  postalCode,
+  province,
   contacts,
 }: Pick<
   CompleteDataFormData,
-  'name' | 'address' | 'contacts'
+  | 'name'
+  | 'sede'
+  | 'websiteUrl'
+  | 'street'
+  | 'city'
+  | 'postalCode'
+  | 'province'
+  | 'contacts'
 >): CompleteDataValidationResult => {
   const nameError = name.trim() ? '' : 'Campo obbligatorio';
-  const addressError = address.trim() ? '' : 'Campo obbligatorio';
+  const isWebsite = sede === 'sito_web';
+  const isPhysical = sede === 'fisica';
+  const websiteUrlError =
+    isWebsite && !websiteUrl.trim() ? 'Campo obbligatorio' : '';
+  const streetError = isPhysical && !street.trim() ? 'Campo obbligatorio' : '';
+  const cityError = isPhysical && !city.trim() ? 'Campo obbligatorio' : '';
+  const postalCodeError =
+    isPhysical && !postalCode.trim() ? 'Campo obbligatorio' : '';
+  const provinceError =
+    isPhysical && !province.trim() ? 'Campo obbligatorio' : '';
   const firstContactErrors = validateFirstContact(contacts);
   const isValid = [
     nameError,
-    addressError,
+    websiteUrlError,
+    streetError,
+    cityError,
+    postalCodeError,
+    provinceError,
     firstContactErrors.firstContactType,
     firstContactErrors.firstContactValue,
   ].every((error) => !error);

@@ -40,6 +40,7 @@ export type ConfirmApplicationInput = z.infer<
 >;
 
 export interface ConfirmApplicationOutput {
+  readonly numDomus: null | string;
   readonly state: ApplicationState;
 }
 
@@ -130,8 +131,10 @@ const buildFailedOutcome = (
 const buildCompletedOutcome = (
   persistedIntent: SupportRecord,
   pendingConfirmStep: StepInfo,
+  numDomus: null | string,
 ): SupportRecord => ({
   ...persistedIntent,
+  numDomus,
   pendingStep: null,
   state: "ACQUIRED",
   steps: {
@@ -183,7 +186,7 @@ export const makeConfirmApplicationUseCase =
       existingConfirmStep.clientRequestId === clientRequestId &&
       existingConfirmStep.status === "COMPLETED"
     ) {
-      return ok({ state: existing.state });
+      return ok({ numDomus: existing.numDomus ?? null, state: existing.state });
     }
 
     const now = new Date().toISOString();
@@ -236,9 +239,11 @@ export const makeConfirmApplicationUseCase =
       return err(new GenericError(`confermaDomanda failed: ${error.message}`));
     }
 
+    const numDomus = inpsResult.value.numDomus ?? null;
+
     // INPS succeeded: Write 2 persists the outcome.
     const write2Result = await supportRecordRepository.save(
-      buildCompletedOutcome(persistedIntent, pendingConfirmStep),
+      buildCompletedOutcome(persistedIntent, pendingConfirmStep, numDomus),
     );
 
     if (write2Result.isErr()) {
@@ -252,5 +257,5 @@ export const makeConfirmApplicationUseCase =
       );
     }
 
-    return ok({ state: "ACQUIRED" });
+    return ok({ numDomus, state: "ACQUIRED" });
   };

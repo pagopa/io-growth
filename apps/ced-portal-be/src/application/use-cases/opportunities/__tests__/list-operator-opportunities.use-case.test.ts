@@ -94,6 +94,21 @@ describe("makeListOperatorOpportunitiesUseCase", () => {
     });
   });
 
+  it("should forward the scheduled_suspension status filter to the repository", async () => {
+    const repository = createMockOpportunityRepository({
+      findAll: vi.fn().mockResolvedValue(ok({ items: [], total: 0 })),
+    });
+    const useCase = makeListOperatorOpportunitiesUseCase(repository);
+
+    await useCase({ ...validInput, status: "scheduled_suspension" });
+
+    expect(repository.findAll).toHaveBeenCalledWith({
+      ...validInput,
+      excludeDeleted: true,
+      status: "scheduled_suspension",
+    });
+  });
+
   it("should pass categoryId filter to repository", async () => {
     const repository = createMockOpportunityRepository({
       findAll: vi.fn().mockResolvedValue(ok({ items: [], total: 0 })),

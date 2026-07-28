@@ -3,9 +3,10 @@ import {
   ListOnboardingsStatusesItem,
   OpportunitySummaryItemStatus,
 } from '../core/api/generated/model';
+import type { OpportunityStatus } from '../features/opportunities/types';
 
 export const STATE_OPTIONS: {
-  value: OpportunitySummaryItemStatus;
+  value: OpportunityStatus;
   label: string;
 }[] = [
   { value: OpportunitySummaryItemStatus.draft, label: 'In bozza' },
@@ -17,6 +18,10 @@ export const STATE_OPTIONS: {
   {
     value: OpportunitySummaryItemStatus.scheduled,
     label: 'Pubblicazione programmata',
+  },
+  {
+    value: OpportunitySummaryItemStatus.scheduled_suspension,
+    label: 'Sospensione programmata',
   },
   { value: OpportunitySummaryItemStatus.published, label: 'Pubblicata su IO' },
   { value: OpportunitySummaryItemStatus.suspended, label: 'Sospesa' },
@@ -32,6 +37,7 @@ export const ADMIN_REQUEST_STATE_OPTIONS = STATE_OPTIONS.filter(
 
 export const ADMIN_APPROVED_STATE_OPTIONS = STATE_OPTIONS.filter(
   ({ value }) =>
+    value === OpportunitySummaryItemStatus.scheduled_suspension ||
     value === OpportunitySummaryItemStatus.scheduled ||
     value === OpportunitySummaryItemStatus.test_passed ||
     value === OpportunitySummaryItemStatus.published,
@@ -44,7 +50,7 @@ export const ADMIN_NOT_ACTIVE_STATE_OPTIONS = STATE_OPTIONS.filter(
 );
 
 export const OPERATOR_STATE_OPTIONS: {
-  value: OpportunitySummaryItemStatus;
+  value: OpportunityStatus;
   label: string;
 }[] = [
   { value: OpportunitySummaryItemStatus.draft, label: 'In bozza' },
@@ -55,11 +61,19 @@ export const OPERATOR_STATE_OPTIONS: {
     label: 'Pubblicazione programmata',
   },
   {
+    value: OpportunitySummaryItemStatus.scheduled_suspension,
+    label: 'Sospensione programmata',
+  },
+  {
     value: OpportunitySummaryItemStatus.test_passed,
     label: 'Pubblicazione programmata',
   },
   { value: OpportunitySummaryItemStatus.published, label: 'Pubblicata su IO' },
   { value: OpportunitySummaryItemStatus.suspended, label: 'Sospesa' },
+  {
+    value: OpportunitySummaryItemStatus.scheduled_suspension,
+    label: 'Sospensione programmata',
+  },
   { value: OpportunitySummaryItemStatus.deleted, label: 'Eliminata' },
 ];
 
@@ -72,19 +86,18 @@ export const OPERATOR_REQUEST_STATE_OPTIONS = OPERATOR_STATE_OPTIONS.filter(
 
 export const OPERATOR_MANAGED_STATE_OPTIONS = OPERATOR_STATE_OPTIONS.filter(
   ({ value }) =>
+    value === OpportunitySummaryItemStatus.scheduled_suspension ||
     value === OpportunitySummaryItemStatus.scheduled ||
     value === OpportunitySummaryItemStatus.published ||
     value === OpportunitySummaryItemStatus.suspended ||
     value === OpportunitySummaryItemStatus.deleted,
 );
 
-export const STATE_COLORS: Record<
-  OpportunitySummaryItemStatus,
-  ChipOwnProps['color']
-> = {
+export const STATE_COLORS: Record<OpportunityStatus, ChipOwnProps['color']> = {
   draft: 'default',
   test_pending: 'warning',
   scheduled: 'info',
+  scheduled_suspension: 'warning',
   test_passed: 'info',
   published: 'success',
   suspended: 'warning',

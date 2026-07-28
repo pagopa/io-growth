@@ -91,12 +91,18 @@ export const createMockMaterializedViewRepository = (
 export const createMockOpportunityRepository = (
   overrides: Partial<OpportunityRepository> = {},
 ): OpportunityRepository => ({
+  cancelScheduledSuspensionById:
+    overrides.cancelScheduledSuspensionById ?? vi.fn(),
+  cancelScheduledSuspensionByIdAndOperatorId:
+    overrides.cancelScheduledSuspensionByIdAndOperatorId ?? vi.fn(),
   countByExternalOperatorIds: overrides.countByExternalOperatorIds ?? vi.fn(),
   create: overrides.create ?? vi.fn(),
   deleteByIdAndOperatorId: overrides.deleteByIdAndOperatorId ?? vi.fn(),
   findAll: overrides.findAll ?? vi.fn(),
   findById: overrides.findById ?? vi.fn(),
   findByIdAndOperatorId: overrides.findByIdAndOperatorId ?? vi.fn(),
+  suspendById: overrides.suspendById ?? vi.fn(),
+  suspendByIdAndOperatorId: overrides.suspendByIdAndOperatorId ?? vi.fn(),
   updateStatusById: overrides.updateStatusById ?? vi.fn(),
   updateStatusByIdAndOperatorId:
     overrides.updateStatusByIdAndOperatorId ?? vi.fn(),

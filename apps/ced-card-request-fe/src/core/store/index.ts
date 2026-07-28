@@ -5,6 +5,8 @@ import { authReducer } from '../auth/authSlice';
 import { persistReducer, persistStore } from 'redux-persist';
 import { requestFormReducer } from '../../features/request-form/reducer';
 import { confirmRequestFormReducer } from '../../features/confirmation/reducer';
+import { statusReducer } from '../../features/status/reducer';
+import { photoReducer } from '../../features/photo-upload/reducer';
 
 const persistConfig = {
   key: 'root',
@@ -19,6 +21,8 @@ export const store = configureStore({
     auth: persistedReducer,
     request: requestFormReducer,
     confirmation: confirmRequestFormReducer,
+    status: statusReducer,
+    photo: photoReducer,
     [baseApi.reducerPath]: baseApi.reducer,
   },
   middleware: (getDefaultMiddleware) =>

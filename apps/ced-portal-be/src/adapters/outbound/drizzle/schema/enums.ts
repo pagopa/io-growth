@@ -1,5 +1,7 @@
 import { pgEnum } from "drizzle-orm/pg-core";
 
+export const actorTypeEnum = pgEnum("actor_type", ["operator", "department"]);
+
 export const operatorStatusEnum = pgEnum("operator_status", [
   "active",
   "suspended",

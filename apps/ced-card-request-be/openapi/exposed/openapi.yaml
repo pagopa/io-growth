@@ -159,7 +159,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
 
-  /api/status:
+  /status:
     get:
       tags:
         - Status Check and Reconciliation
@@ -174,7 +174,18 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/StateResponse"
+                type: object
+                properties:
+                  state:
+                    $ref: "#/components/schemas/ApplicationState"
+                    description: Current or final application state.
+                  idLavorazione:
+                    type: string
+                    nullable: true
+                    description: INPS idLavorazione bound to the application, when one exists.
+                  numDomus:
+                    type: string
+                    description: INPS-assigned document number, present when state is ACQUIRED.
         "400":
           description:
             INPS business/logic error (e.g., Active Card, foreign residence,
@@ -196,7 +207,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
 
-  /api/request:
+  /request:
     post:
       tags:
         - Application Creation
@@ -250,7 +261,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
 
-  /api/image:
+  /image:
     post:
       tags:
         - Photo Upload
@@ -298,7 +309,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
 
-  /api/confirm:
+  /confirm:
     post:
       tags:
         - Confirmation and Documentation
@@ -323,11 +334,15 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/StateResponse"
+                type: object
                 properties:
                   state:
                     $ref: "#/components/schemas/ApplicationState"
                     example: ACQUIRED
+                  numDomus:
+                    type: string
+                    nullable: true
+                    description: INPS-assigned document number for the acquired application.
         "400":
           description:
             Documentation validation or state inconsistency error (Codes
@@ -349,7 +364,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
 
-  /api/draft:
+  /draft:
     get:
       tags:
         - Read-Only Operations
@@ -393,7 +408,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
 
-  /api/details:
+  /details:
     get:
       tags:
         - Read-Only Operations
@@ -436,7 +451,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
 
-  /api/summary:
+  /summary:
     get:
       tags:
         - Read-Only Operations
@@ -478,7 +493,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
 
-  /api/receipt:
+  /receipt:
     get:
       tags:
         - Read-Only Operations

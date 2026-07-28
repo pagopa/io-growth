@@ -12,6 +12,7 @@ export const publicationStatusLabels: Record<
   published: 'Pubblicata su IO',
   suspended: 'Sospesa',
   deleted: 'Eliminata',
+  scheduled_suspension: 'Sospensione programmata',
 };
 
 export enum BenefitCategory {

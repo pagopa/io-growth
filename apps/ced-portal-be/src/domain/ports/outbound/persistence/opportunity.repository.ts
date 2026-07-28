@@ -10,6 +10,15 @@ import type {
   OpportunitySummary,
 } from "../../../entities/opportunity.js";
 
+export interface CancelScheduledSuspensionByIdAndOperatorIdInput {
+  operatorId: string;
+  opportunityId: string;
+}
+
+export interface CancelScheduledSuspensionByIdInput {
+  opportunityId: string;
+}
+
 export interface CreateOpportunityInput {
   operatorId: string;
   opportunity: Opportunity;
@@ -49,6 +58,12 @@ export interface ListOpportunitiesInput {
 }
 
 export interface OpportunityRepository {
+  readonly cancelScheduledSuspensionById: (
+    input: CancelScheduledSuspensionByIdInput,
+  ) => Promise<Result<void, ConflictError | GenericError>>;
+  readonly cancelScheduledSuspensionByIdAndOperatorId: (
+    input: CancelScheduledSuspensionByIdAndOperatorIdInput,
+  ) => Promise<Result<void, ConflictError | GenericError>>;
   readonly countByExternalOperatorIds: (
     operatorIds: readonly string[],
   ) => Promise<Result<ReadonlyMap<string, number>, GenericError>>;
@@ -67,6 +82,12 @@ export interface OpportunityRepository {
   readonly findByIdAndOperatorId: (
     input: FindByIdAndOperatorIdInput,
   ) => Promise<Result<OpportunityDetail | undefined, GenericError>>;
+  readonly suspendById: (
+    input: SuspendByIdInput,
+  ) => Promise<Result<void, ConflictError | GenericError>>;
+  readonly suspendByIdAndOperatorId: (
+    input: SuspendByIdAndOperatorIdInput,
+  ) => Promise<Result<void, ConflictError | GenericError>>;
   readonly updateStatusById: (
     input: UpdateOpportunityStatusByIdInput,
   ) => Promise<Result<void, ConflictError | GenericError>>;
@@ -77,14 +98,32 @@ export interface OpportunityRepository {
 
 export type OpportunitySearchField = "name" | "operatorName";
 
-// "scheduled" is a request-only, derived filter value: it is not a stored
-// status. It selects published opportunities whose dateFrom is still in the
-// future relative to the reference date.
-export type OpportunityStatusFilter = "scheduled" | Opportunity["status"];
-
+// Derived filter values (not stored in DB):
+// - "scheduled": published opportunities whose dateFrom is in the future.
+// - "scheduled_suspension": published, live opportunities with a future suspendFrom.
+export type OpportunityStatusFilter =
+  | "scheduled"
+  | "scheduled_suspension"
+  | Opportunity["status"];
 export interface PaginatedOpportunities {
   items: OpportunitySummary[];
   total: number;
+}
+
+export interface SuspendByIdAndOperatorIdInput {
+  operatorId: string;
+  opportunityId: string;
+  // When provided (a future calendar date), the suspension is deferred: the
+  // opportunity stays "published" and "suspend_from" is set. When absent, the
+  // suspension is applied immediately (status -> "suspended").
+  suspendFrom?: string;
+  suspensionMessage: string;
+}
+
+export interface SuspendByIdInput {
+  opportunityId: string;
+  suspendFrom?: string;
+  suspensionMessage: string;
 }
 
 export interface UpdateOpportunityStatusByIdAndOperatorIdInput {

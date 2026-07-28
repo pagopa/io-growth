@@ -12,11 +12,13 @@ import { MarkdownRenderer } from '../../../../components/Typography/MarkdownRend
 import { StepCard } from '../../StepCard';
 import type { StepRef } from '../../types';
 import { PhotoGuidelinesModal } from './PhotoGuidelinesModal';
+import { isAllowedPhotoType, processInpsPhoto } from './utils';
+import { useAppDispatch, useAppSelector } from '../../../../hooks';
 import {
-  isAllowedPhotoType,
-  compressPhotoFile,
-  processCenterCrop,
-} from './utils';
+  selectPhotoPreview,
+  setFile,
+  setPreview,
+} from '../../../../features/photo-upload/reducer';
 
 type UploadState = 'idle' | 'loading' | 'preview';
 
@@ -30,14 +32,29 @@ const markdownContent = `L'immagine deve:
 - avere sfondo neutro.
 `;
 
+const fileToBase64 = (file: File | Blob): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => {
+      const result = reader.result as string;
+      const base64Clean = result.split(',')[1];
+      resolve(base64Clean);
+    };
+    reader.onerror = (error) => reject(error);
+  });
+};
+
 export const PhotoUploadStep = forwardRef<StepRef, PhotoUploadProps>(
   function PhotoUploadStep({ onPhotoPreviewChange }, ref) {
+    const dispatch = useAppDispatch();
     const theme = useTheme();
     const [photo, setPhoto] = useState<File | null>(null);
-    const [preview, setPreview] = useState<string | null>(null);
     const [error, setError] = useState<string>('');
     const [uploadState, setUploadState] = useState<UploadState>('idle');
     const [guidelinesOpen, setGuidelinesOpen] = useState(false);
+
+    const preview = useAppSelector(selectPhotoPreview);
 
     useImperativeHandle(ref, () => ({
       validate() {
@@ -54,17 +71,16 @@ export const PhotoUploadStep = forwardRef<StepRef, PhotoUploadProps>(
       if (!file) return;
 
       setError('');
-      setUploadState('loading');
 
       if (!isAllowedPhotoType(file.type)) {
         setError('Formato file non valido. Carica un file JPG, JPEG o PNG.');
-        setUploadState('idle');
         return;
       }
 
+      setUploadState('loading');
+
       try {
-        const compressedBaseFile = await compressPhotoFile(file);
-        const finalProcessedFile = await processCenterCrop(compressedBaseFile);
+        const finalProcessedFile = await processInpsPhoto(file);
 
         const imgVerify = new Image();
         imgVerify.src = URL.createObjectURL(finalProcessedFile);
@@ -80,14 +96,19 @@ export const PhotoUploadStep = forwardRef<StepRef, PhotoUploadProps>(
         const url = URL.createObjectURL(finalProcessedFile);
 
         setPhoto(finalProcessedFile);
-        setPreview(url);
+        dispatch(setPreview(url));
         onPhotoPreviewChange?.(url);
+        const photoB64 = await fileToBase64(finalProcessedFile);
+        dispatch(setFile(photoB64));
         setUploadState('preview');
       } catch (err) {
         console.error("Errore durante l'elaborazione dell'immagine:", err);
-        setError(
-          "Si è verificato un errore durante l'elaborazione della foto.",
-        );
+        const errorMessage =
+          err instanceof Error
+            ? err.message
+            : "Si è verificato un errore durante l'elaborazione della foto.";
+
+        setError(errorMessage);
         setUploadState('idle');
       }
     };
@@ -97,7 +118,7 @@ export const PhotoUploadStep = forwardRef<StepRef, PhotoUploadProps>(
         URL.revokeObjectURL(preview);
       }
       setPhoto(null);
-      setPreview(null);
+      setPreview(undefined);
       onPhotoPreviewChange?.('');
       setUploadState('idle');
     };

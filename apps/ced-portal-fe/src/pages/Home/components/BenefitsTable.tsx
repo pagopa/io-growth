@@ -18,6 +18,7 @@ import type {
   OpportunitySummaryItem,
   OpportunitySummaryItemStatus,
 } from '../../../core/api/generated/model';
+import type { SuspendOpportunityPayload } from '../../../features/opportunities/types';
 
 interface BenefitsTableProps {
   items: OpportunitySummaryItem[];
@@ -25,17 +26,27 @@ interface BenefitsTableProps {
     id: string,
     payload?: OperatorDeleteOpportunityBody,
   ) => void;
+  onSuspendOpportunity: (
+    id: string,
+    payload: SuspendOpportunityPayload,
+  ) => void;
+  onCancelScheduledSuspension: (id: string) => void;
 }
 
 export const BenefitsTable = ({
   items,
   onDeleteOpportunity,
+  onSuspendOpportunity,
+  onCancelScheduledSuspension,
 }: BenefitsTableProps) => {
   const theme = useTheme();
   const [menuAnchor, setMenuAnchor] = useState<null | HTMLElement>(null);
   const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
   const [selectedItemStatus, setSelectedItemStatus] =
     useState<OpportunitySummaryItemStatus | null>(null);
+  const [selectedItemSuspendFrom, setSelectedItemSuspendFrom] = useState<
+    string | null
+  >(null);
 
   const { sortedItems, sortBy, sortDirection, handleSort } = useTableSort({
     items,
@@ -48,9 +59,11 @@ export const BenefitsTable = ({
     event: React.MouseEvent<HTMLElement>,
     itemId: string,
     itemStatus: OpportunitySummaryItemStatus,
+    itemSuspendFrom?: string,
   ) => {
     setSelectedItemId(itemId);
     setSelectedItemStatus(itemStatus);
+    setSelectedItemSuspendFrom(itemSuspendFrom ?? null);
     setMenuAnchor(event.currentTarget);
   };
 
@@ -162,8 +175,11 @@ export const BenefitsTable = ({
         anchor={menuAnchor}
         selectedItemId={selectedItemId}
         selectedItemStatus={selectedItemStatus}
+        selectedItemSuspendFrom={selectedItemSuspendFrom}
         handleMenuClose={handleMenuClose}
         onDeleteOpportunity={onDeleteOpportunity}
+        onSuspendOpportunity={onSuspendOpportunity}
+        onCancelScheduledSuspension={onCancelScheduledSuspension}
       />
     </TableContainer>
   );

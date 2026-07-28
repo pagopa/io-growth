@@ -1,5 +1,18 @@
 # ced-browser-be
 
+## 0.1.11
+
+### Patch Changes
+
+- Updated dependencies [8c9e086]
+  - @pagopa/io-core-adapter-fims@0.0.9
+
+## 0.1.10
+
+### Patch Changes
+
+- 100cbb2: remove /api from openapi
+
 ## 0.1.9
 
 ### Patch Changes

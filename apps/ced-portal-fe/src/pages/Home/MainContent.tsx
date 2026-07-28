@@ -4,6 +4,8 @@ import { ResultsPagination } from '../../components';
 import {
   useGetOpportunityCategoriesQuery,
   useDeleteOpportunityMutation,
+  useOperatorCancelScheduledSuspensionMutation,
+  useOperatorSuspendOpportunityMutation,
 } from '../../features/opportunities/api';
 import { useBenefitsData } from '../../features/opportunities/hooks';
 import { useToast } from '../../contexts';
@@ -20,6 +22,7 @@ import {
   OPERATOR_MANAGED_STATE_OPTIONS,
   OPERATOR_REQUEST_STATE_OPTIONS,
 } from '../../constants';
+import type { SuspendOpportunityPayload } from '../../features/opportunities/types';
 
 const INITIAL_FILTERS = {
   search: '',
@@ -84,6 +87,9 @@ export const MainContent = () => {
   };
 
   const [deleteOpportunity] = useDeleteOpportunityMutation();
+  const [suspendOpportunity] = useOperatorSuspendOpportunityMutation();
+  const [cancelScheduledSuspension] =
+    useOperatorCancelScheduledSuspensionMutation();
 
   const handleDeleteOpportunity = async (
     id: string,
@@ -95,6 +101,32 @@ export const MainContent = () => {
       refetch();
     } catch {
       showToast("Errore durante l'eliminazione dell'opportunità", 'error');
+    }
+  };
+
+  const handleSuspendOpportunity = async (
+    id: string,
+    payload: SuspendOpportunityPayload,
+  ) => {
+    try {
+      await suspendOpportunity({ id, payload }).unwrap();
+      showToast('Sospensione impostata con successo', 'success');
+      refetch();
+    } catch {
+      showToast("Errore durante la sospensione dell'opportunita", 'error');
+    }
+  };
+
+  const handleCancelScheduledSuspension = async (id: string) => {
+    try {
+      await cancelScheduledSuspension({ id }).unwrap();
+      showToast('Sospensione pianificata annullata con successo', 'success');
+      refetch();
+    } catch {
+      showToast(
+        "Errore durante l'annullamento della sospensione pianificata",
+        'error',
+      );
     }
   };
 
@@ -132,6 +164,8 @@ export const MainContent = () => {
             activeTab={tab}
             onRetry={refetch}
             onDeleteOpportunity={handleDeleteOpportunity}
+            onSuspendOpportunity={handleSuspendOpportunity}
+            onCancelScheduledSuspension={handleCancelScheduledSuspension}
           />
           {showPagination ? (
             <Box sx={{ px: { xs: 1, md: 0 }, pt: 2 }}>

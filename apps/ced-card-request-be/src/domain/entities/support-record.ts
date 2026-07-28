@@ -53,6 +53,8 @@ export interface SupportRecord {
   readonly createdAt: string;
   readonly idLavorazione: null | string;
   readonly lastReconciliation: null | ReconciliationSnapshot;
+  /** INPS-assigned document number, populated once the application is ACQUIRED. */
+  readonly numDomus?: null | string;
   readonly pendingStep: null | PendingStep;
   readonly previousIdLavorazione: null | string;
   readonly schemaVersion: 2;

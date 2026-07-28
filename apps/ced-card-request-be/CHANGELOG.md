@@ -1,5 +1,50 @@
 # ced-card-request-be
 
+## 0.2.2
+
+### Patch Changes
+
+- Updated dependencies [8c9e086]
+  - @pagopa/io-core-adapter-fims@0.0.9
+
+## 0.2.1
+
+### Patch Changes
+
+- b3d13eb: fixed repository
+
+## 0.2.0
+
+### Minor Changes
+
+- 623e4ab: Added numDomus to /status for acquired requests
+
+## 0.1.0
+
+### Minor Changes
+
+- f6ec619: Returned numdomus
+
+## 0.0.18
+
+### Patch Changes
+
+- Updated dependencies [d5f5968]
+  - @pagopa/io-core-adapter-inps-ced@0.0.4
+
+## 0.0.17
+
+### Patch Changes
+
+- Updated dependencies [c931177]
+  - @pagopa/io-core-adapter-inps-ced@0.0.3
+
+## 0.0.16
+
+### Patch Changes
+
+- 100cbb2: remove /api from openapi
+
 ## 0.0.15
 
 ### Patch Changes

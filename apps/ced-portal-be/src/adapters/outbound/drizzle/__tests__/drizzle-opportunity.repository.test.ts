@@ -73,12 +73,30 @@ describe("buildStatusCondition", () => {
     expect(params).toEqual(["2026-06-26"]);
   });
 
-  it("matches published as already effective (dateFrom <= today)", () => {
+  it("matches published as already effective with no future suspendFrom", () => {
     const { params, sql } = renderStatus("published", "2026-06-26");
 
     expect(sql).toContain("= 'published'");
     expect(sql).toContain('"date_from" <= $1');
-    expect(params).toEqual(["2026-06-26"]);
+    expect(sql).toContain('"suspend_from"');
+    expect(params).toEqual(["2026-06-26", "2026-06-26"]);
+  });
+
+  it("matches scheduled_suspension as published+live with a future suspendFrom", () => {
+    const { params, sql } = renderStatus("scheduled_suspension", "2026-06-26");
+
+    expect(sql).toContain("= 'published'");
+    expect(sql).toContain('"date_from" <= $1');
+    expect(sql).toContain('"suspend_from" is not null');
+    expect(sql).toContain('"suspend_from" > $2');
+    expect(params).toEqual(["2026-06-26", "2026-06-26"]);
+  });
+
+  it("falls back to plain equality for scheduled_suspension without a reference date", () => {
+    const { params, sql } = renderStatus("scheduled_suspension");
+
+    expect(sql).not.toContain("date_from");
+    expect(params).toEqual(["scheduled_suspension"]);
   });
 
   it("uses a plain status equality for non-derived statuses", () => {

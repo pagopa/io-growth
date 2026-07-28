@@ -81,6 +81,19 @@ describe("makeAdminListOpportunitiesUseCase", () => {
     );
   });
 
+  it("should forward the scheduled_suspension status filter to the repository", async () => {
+    const repository = createMockOpportunityRepository({
+      findAll: vi.fn().mockResolvedValue(ok({ items: [], total: 0 })),
+    });
+    const useCase = makeAdminListOpportunitiesUseCase(repository);
+
+    await useCase({ ...validInput, status: "scheduled_suspension" });
+
+    expect(repository.findAll).toHaveBeenCalledWith(
+      expect.objectContaining({ status: "scheduled_suspension" }),
+    );
+  });
+
   it("should request operator-name search on the department list", async () => {
     const repository = createMockOpportunityRepository({
       findAll: vi.fn().mockResolvedValue(ok({ items: [], total: 0 })),

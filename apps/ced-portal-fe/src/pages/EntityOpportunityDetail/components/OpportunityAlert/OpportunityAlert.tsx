@@ -6,13 +6,14 @@ import { useOperatorCancelScheduledSuspensionMutation } from '../../../../featur
 import { useToast } from '../../../../contexts';
 import type { OpportunityStatus } from '../../../../features/opportunities/types';
 import { opportunityAlertMap } from './constants';
+import { OpportunitySummaryItemSuspendedBy } from '../../../../core/api/generated/model';
 
 type OpportunityAlertProps = {
   id: string;
   status: OpportunityStatus;
   suspendFrom?: string | null;
   suspensionMessage?: string | null;
-  suspendedBy?: 'operator' | 'department' | null;
+  suspendedBy?: OpportunitySummaryItemSuspendedBy;
   onCancelSuccess?: () => void;
 };
 

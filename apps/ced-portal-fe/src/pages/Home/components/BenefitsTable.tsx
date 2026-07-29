@@ -49,7 +49,7 @@ export const BenefitsTable = ({
     string | null
   >(null);
   const [selectedItemSuspendedBy, setSelectedItemSuspendedBy] =
-    useState<OpportunitySummaryItemSuspendedBy>(null);
+    useState<OpportunitySummaryItemSuspendedBy | null>(null);
 
   const { sortedItems, sortBy, sortDirection, handleSort } = useTableSort({
     items,

@@ -19,7 +19,7 @@ type ActionsMenuProps = {
   selectedItemId: string | null;
   selectedItemStatus?: OpportunitySummaryItemStatus | null;
   selectedItemSuspendFrom?: string | null;
-  selectedItemSuspendedBy?: OpportunitySummaryItemSuspendedBy;
+  selectedItemSuspendedBy?: OpportunitySummaryItemSuspendedBy | null;
   handleMenuClose: () => void;
   onDeleteOpportunity: (
     id: string,

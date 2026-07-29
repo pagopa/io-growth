@@ -243,7 +243,7 @@ export default function OpportunityDetailPage() {
                       },
                     }}
                   >
-                    Annulla sospensione
+                    Annulla sospensione programmata
                   </Button>
                 </Stack>
               </Stack>

@@ -6,6 +6,7 @@ import { APP_ROUTES } from '../../../app/routeConfig';
 import type {
   OperatorDeleteOpportunityBody,
   OpportunitySummaryItemStatus,
+  OpportunitySummaryItemSuspendedBy,
 } from '../../../core/api/generated/model';
 import {
   DeleteOpportunityModal,
@@ -18,6 +19,7 @@ type ActionsMenuProps = {
   selectedItemId: string | null;
   selectedItemStatus?: OpportunitySummaryItemStatus | null;
   selectedItemSuspendFrom?: string | null;
+  selectedItemSuspendedBy?: OpportunitySummaryItemSuspendedBy | null;
   handleMenuClose: () => void;
   onDeleteOpportunity: (
     id: string,
@@ -35,6 +37,7 @@ export const ActionsMenu = ({
   selectedItemId,
   selectedItemStatus,
   selectedItemSuspendFrom,
+  selectedItemSuspendedBy,
   handleMenuClose,
   onDeleteOpportunity,
   onSuspendOpportunity,
@@ -64,13 +67,26 @@ export const ActionsMenu = ({
     });
   };
 
+  const canDelete =
+    selectedItemStatus === 'draft' ||
+    selectedItemStatus === 'test_rejected' ||
+    selectedItemStatus === 'suspended' ||
+    selectedItemStatus === 'scheduled';
+  const canSuspend =
+    selectedItemStatus === 'published' ||
+    selectedItemStatus === 'scheduled_suspension';
+  const hasScheduledSuspension = Boolean(selectedItemSuspendFrom?.trim());
+  const canCancelScheduledSuspension =
+    hasScheduledSuspension && selectedItemSuspendedBy === 'operator';
+  const canOpenSuspendModal = canSuspend && !hasScheduledSuspension;
+
   const handleSuspend = useCallback(() => {
     if (!selectedItemId) {
       handleMenuClose();
       return;
     }
 
-    if (selectedItemSuspendFrom) {
+    if (canCancelScheduledSuspension) {
       onCancelScheduledSuspension(selectedItemId);
       handleMenuClose();
       return;
@@ -79,10 +95,10 @@ export const ActionsMenu = ({
     setIsSuspendModalOpen(true);
     handleMenuClose();
   }, [
+    canCancelScheduledSuspension,
     handleMenuClose,
     onCancelScheduledSuspension,
     selectedItemId,
-    selectedItemSuspendFrom,
   ]);
 
   const handleDelete = useCallback(() => {
@@ -140,16 +156,6 @@ export const ActionsMenu = ({
     [handleCloseSuspendModal, onSuspendOpportunity, selectedItemId],
   );
 
-  const canDelete =
-    selectedItemStatus === 'draft' ||
-    selectedItemStatus === 'test_rejected' ||
-    selectedItemStatus === 'suspended' ||
-    selectedItemStatus === 'scheduled';
-  const canSuspend =
-    selectedItemStatus === 'published' ||
-    selectedItemStatus === 'scheduled_suspension';
-  const hasScheduledSuspension = Boolean(selectedItemSuspendFrom?.trim());
-
   const handleAction = useCallback(
     (cb?: (id: string) => void) => {
       if (selectedItemId && cb) {
@@ -195,9 +201,14 @@ export const ActionsMenu = ({
             </MenuItem>
           </>
         )}
-        {canSuspend ? (
+        {canOpenSuspendModal ? (
           <MenuItem onClick={handleSuspend} sx={menuItemsSx}>
-            {hasScheduledSuspension ? 'Annulla sospensione' : 'Sospendi'}
+            Sospendi
+          </MenuItem>
+        ) : null}
+        {canCancelScheduledSuspension ? (
+          <MenuItem onClick={handleSuspend} sx={menuItemsSx}>
+            Annulla sospensione programmata
           </MenuItem>
         ) : null}
 

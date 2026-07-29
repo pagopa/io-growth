@@ -112,15 +112,16 @@ export const useSaveDataByStep = (next: () => void) => {
     setIsActionLoading(true);
     try {
       const idempotencyKey = getIdempotencyKey();
-      const response = await confirm({
+      const responseUnwrapped = await confirm({
         body: {
           idLavorazione,
         },
         idempotency_key: idempotencyKey,
       }).unwrap();
 
-      if (response.status === 200) {
-        const { numDomus } = response.data;
+      const numDomus = responseUnwrapped?.numDomus ?? undefined;
+
+      if (numDomus) {
         dispatch(
           setStatusField({
             field: 'numDomus',

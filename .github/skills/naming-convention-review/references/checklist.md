@@ -3,7 +3,7 @@
 Detailed, per-layer checks derived from `docs/naming-conventions.md`. For each
 finding, record: **severity**, **rule §**, **file (link + line if symbol)**, the
 **observed** name, and the **expected** name. Tag `(known)` when the item also
-appears in §9 of the source doc.
+appears as an inline "⚠️ Known deviation" callout in the source doc.
 
 Legend: 🔴 ERROR · 🟡 WARNING
 
@@ -110,5 +110,5 @@ layer affix. **File and symbol must encode the same `actor-verb-object`.**
 
 - Concrete, unambiguous rule break → **🔴 ERROR**.
 - Consistency/style/ambiguity → **🟡 WARNING**.
-- Anything already listed in §9 of `docs/naming-conventions.md` → keep the
-  severity above and append `(known)`.
+- Anything already listed as an inline "⚠️ Known deviation" callout in
+  `docs/naming-conventions.md` → keep the severity above and append `(known)`.

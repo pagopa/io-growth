@@ -46,9 +46,10 @@ errors, warnings, and references to the offending files/symbols.
 ### 2. Load the rules
 
 - Read [docs/naming-conventions.md](../../../docs/naming-conventions.md) in full.
-- Treat §1–§7 as the checkable rules and §9 as the catalog of _known_
-  deviations. Still report known deviations, but tag them `(known)` so the user
-  can distinguish pre-existing debt from newly introduced issues.
+- Treat §1–§7 as the checkable rules. Known deviations are recorded inline
+  throughout those sections as "⚠️ Known deviation" callouts. Still report
+  known deviations, but tag them `(known)` so the user can distinguish
+  pre-existing debt from newly introduced issues.
 
 ### 3. Enumerate the app's artifacts (scoped to the target only)
 
@@ -109,7 +110,7 @@ Produce a single Markdown report using
   when a symbol is involved, its line (`path.ts#L42`).
 - For each finding include: severity, rule section (`§n`), the observed name,
   and the **expected** name.
-- Tag findings that match §9 with `(known)`.
+- Tag findings that match an inline "⚠️ Known deviation" callout with `(known)`.
 - End with a summary count (errors, warnings, files reviewed) and note that **no
   files were modified**.
 

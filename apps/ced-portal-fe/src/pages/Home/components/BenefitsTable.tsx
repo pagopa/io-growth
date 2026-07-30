@@ -17,6 +17,7 @@ import type {
   OperatorDeleteOpportunityBody,
   OpportunitySummaryItem,
   OpportunitySummaryItemStatus,
+  OpportunitySummaryItemSuspendedBy,
 } from '../../../core/api/generated/model';
 import type { SuspendOpportunityPayload } from '../../../features/opportunities/types';
 
@@ -47,6 +48,8 @@ export const BenefitsTable = ({
   const [selectedItemSuspendFrom, setSelectedItemSuspendFrom] = useState<
     string | null
   >(null);
+  const [selectedItemSuspendedBy, setSelectedItemSuspendedBy] =
+    useState<OpportunitySummaryItemSuspendedBy | null>(null);
 
   const { sortedItems, sortBy, sortDirection, handleSort } = useTableSort({
     items,
@@ -60,10 +63,12 @@ export const BenefitsTable = ({
     itemId: string,
     itemStatus: OpportunitySummaryItemStatus,
     itemSuspendFrom?: string,
+    itemSuspendedBy?: OpportunitySummaryItemSuspendedBy,
   ) => {
     setSelectedItemId(itemId);
     setSelectedItemStatus(itemStatus);
     setSelectedItemSuspendFrom(itemSuspendFrom ?? null);
+    setSelectedItemSuspendedBy(itemSuspendedBy ?? null);
     setMenuAnchor(event.currentTarget);
   };
 
@@ -176,6 +181,7 @@ export const BenefitsTable = ({
         selectedItemId={selectedItemId}
         selectedItemStatus={selectedItemStatus}
         selectedItemSuspendFrom={selectedItemSuspendFrom}
+        selectedItemSuspendedBy={selectedItemSuspendedBy}
         handleMenuClose={handleMenuClose}
         onDeleteOpportunity={onDeleteOpportunity}
         onSuspendOpportunity={onSuspendOpportunity}

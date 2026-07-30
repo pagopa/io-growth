@@ -10,6 +10,7 @@ import { z } from "zod";
 
 import type { ApproveOpportunityUseCase } from "../../../../application/use-cases/opportunities/approve-opportunity.use-case.js";
 
+import { ADMIN_USER_TYPES } from "../../../../domain/entities/user-type.js";
 import { UserTypeSessionSchema } from "../auth/session.js";
 import { withUserTypeAuthorization } from "../auth/utils/authorization.js";
 import {
@@ -23,13 +24,13 @@ const approveOpportunityHttpSchema = z.object({
 });
 
 const approveOpportunityValidator = withUserTypeAuthorization(
+  ADMIN_USER_TYPES,
   withSession(
     UserTypeSessionSchema,
     createHttpRequestValidator(approveOpportunityHttpSchema),
-    (session, { body, path }) => ({
+    (_session, { body, path }) => ({
       dateFrom: body?.dateFrom,
       opportunityId: path.opportunityId,
-      userType: session.userType,
     }),
   ),
 );

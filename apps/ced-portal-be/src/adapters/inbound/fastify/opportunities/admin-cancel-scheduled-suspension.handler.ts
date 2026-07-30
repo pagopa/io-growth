@@ -9,6 +9,7 @@ import { z as zod } from "zod";
 
 import type { AdminCancelScheduledSuspensionUseCase } from "../../../../application/use-cases/opportunities/admin-cancel-scheduled-suspension.use-case.js";
 
+import { ADMIN_USER_TYPES } from "../../../../domain/entities/user-type.js";
 import { UserTypeSessionSchema } from "../auth/session.js";
 import { withUserTypeAuthorization } from "../auth/utils/authorization.js";
 import { CancelScheduledSuspensionParams } from "../contracts/opportunities/opportunities.js";
@@ -18,12 +19,12 @@ const adminCancelScheduledSuspensionHttpSchema = zod.object({
 });
 
 const adminCancelScheduledSuspensionValidator = withUserTypeAuthorization(
+  ADMIN_USER_TYPES,
   withSession(
     UserTypeSessionSchema,
     createHttpRequestValidator(adminCancelScheduledSuspensionHttpSchema),
-    (session, { path }) => ({
+    (_session, { path }) => ({
       opportunityId: path.opportunityId,
-      userType: session.userType,
     }),
   ),
 );

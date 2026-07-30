@@ -54,7 +54,6 @@ const makeDeps = (overrides?: {
 
 const validInput = {
   opportunityId: MOCK_OPPORTUNITY_ID,
-  userType: "admin" as const,
 };
 
 // eslint-disable-next-line max-lines-per-function

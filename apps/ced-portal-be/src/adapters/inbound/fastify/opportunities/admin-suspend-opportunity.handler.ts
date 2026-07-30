@@ -9,6 +9,7 @@ import { z as zod } from "zod";
 
 import type { AdminSuspendOpportunityUseCase } from "../../../../application/use-cases/opportunities/admin-suspend-opportunity.use-case.js";
 
+import { ADMIN_USER_TYPES } from "../../../../domain/entities/user-type.js";
 import { UserTypeSessionSchema } from "../auth/session.js";
 import { withUserTypeAuthorization } from "../auth/utils/authorization.js";
 import {
@@ -22,14 +23,14 @@ const adminSuspendOpportunityHttpSchema = zod.object({
 });
 
 const adminSuspendOpportunityValidator = withUserTypeAuthorization(
+  ADMIN_USER_TYPES,
   withSession(
     UserTypeSessionSchema,
     createHttpRequestValidator(adminSuspendOpportunityHttpSchema),
-    (session, { body, path }) => ({
+    (_session, { body, path }) => ({
       opportunityId: path.opportunityId,
       suspendFrom: body.suspendFrom,
       suspensionMessage: body.suspensionMessage,
-      userType: session.userType,
     }),
   ),
 );

@@ -15,6 +15,7 @@ import type {
   CompleteOnboardingUseCase,
 } from "../../../../application/use-cases/department/complete-onboarding.use-case.js";
 
+import { ADMIN_USER_TYPES } from "../../../../domain/entities/user-type.js";
 import { SessionSchema } from "../auth/session.js";
 import { withUserTypeAuthorization } from "../auth/utils/authorization.js";
 import { CompleteOnboardingParams } from "../contracts/department/department.js";
@@ -50,13 +51,11 @@ const completeOnboardingInnerValidator: InputValidator<
 };
 
 const completeOnboardingValidator = withUserTypeAuthorization(
+  ADMIN_USER_TYPES,
   withSession(
     SessionSchema,
     completeOnboardingInnerValidator,
-    (session, input) => ({
-      ...input,
-      userType: session.userType,
-    }),
+    (_session, input) => input,
   ),
 );
 

@@ -10,7 +10,9 @@ import { z as zod } from "zod";
 
 import type { CreateOperatorProfileUseCase } from "../../../../application/use-cases/profile/create-operator-profile.use-case.js";
 
+import { OPERATOR_USER_TYPES } from "../../../../domain/entities/user-type.js";
 import { OperatorSessionSchema } from "../auth/session.js";
+import { withUserTypeAuthorization } from "../auth/utils/authorization.js";
 import {
   CreateOperatorProfileBody,
   GetOperatorProfileResponse,
@@ -20,14 +22,17 @@ const createProfileHttpSchema = zod.object({
   body: CreateOperatorProfileBody,
 });
 
-const createOperatorProfileValidator = withSession(
-  OperatorSessionSchema,
-  createHttpRequestValidator(createProfileHttpSchema),
-  (session, { body }) => ({
-    displayName: body.displayName,
-    operatorId: session.operatorId,
-    place: body.place,
-  }),
+const createOperatorProfileValidator = withUserTypeAuthorization(
+  OPERATOR_USER_TYPES,
+  withSession(
+    OperatorSessionSchema,
+    createHttpRequestValidator(createProfileHttpSchema),
+    (session, { body }) => ({
+      displayName: body.displayName,
+      operatorId: session.operatorId,
+      place: body.place,
+    }),
+  ),
 );
 
 const createOperatorProfileFormatter = createHttpResponseFormatter(

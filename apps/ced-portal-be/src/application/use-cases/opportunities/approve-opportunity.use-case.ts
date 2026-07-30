@@ -14,15 +14,12 @@ import { z } from "zod";
 
 import type { OpportunityRepository } from "../../../domain/ports/outbound/persistence/opportunity.repository.js";
 
-import { USER_TYPES } from "../../../domain/entities/user-type.js";
 import { MaterializedViewRepository } from "../../../domain/ports/outbound/materialized-view.repository.js";
 import { validateUseCaseInput } from "../utils/validate-use-case-input.js";
 
 const ApproveOpportunityInputSchema = z.object({
   dateFrom: z.iso.date().optional(),
   opportunityId: z.ulid(),
-  // kept for future per-userType branching
-  userType: z.enum(USER_TYPES),
 });
 
 export type ApproveOpportunityInput = z.infer<

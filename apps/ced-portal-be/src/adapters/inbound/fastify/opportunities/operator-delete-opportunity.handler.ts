@@ -9,7 +9,9 @@ import { z as zod } from "zod";
 
 import type { DeleteOpportunityUseCase } from "../../../../application/use-cases/opportunities/delete-opportunity.use-case.js";
 
+import { OPERATOR_USER_TYPES } from "../../../../domain/entities/user-type.js";
 import { OperatorSessionSchema } from "../auth/session.js";
+import { withUserTypeAuthorization } from "../auth/utils/authorization.js";
 import {
   OperatorDeleteOpportunityBody,
   OperatorDeleteOpportunityParams,
@@ -20,14 +22,17 @@ const operatorDeleteOpportunityHttpSchema = zod.object({
   path: OperatorDeleteOpportunityParams,
 });
 
-const operatorDeleteOpportunityValidator = withSession(
-  OperatorSessionSchema,
-  createHttpRequestValidator(operatorDeleteOpportunityHttpSchema),
-  (session, { body, path }) => ({
-    deletionMessage: body?.deletionMessage,
-    operatorId: session.operatorId,
-    opportunityId: path.opportunityId,
-  }),
+const operatorDeleteOpportunityValidator = withUserTypeAuthorization(
+  OPERATOR_USER_TYPES,
+  withSession(
+    OperatorSessionSchema,
+    createHttpRequestValidator(operatorDeleteOpportunityHttpSchema),
+    (session, { body, path }) => ({
+      deletionMessage: body?.deletionMessage,
+      operatorId: session.operatorId,
+      opportunityId: path.opportunityId,
+    }),
+  ),
 );
 
 export const mountOperatorDeleteOpportunityHandler = (

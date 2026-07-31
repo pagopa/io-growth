@@ -40,14 +40,23 @@ export const ApplicantDataStep = forwardRef<StepRef>(
                 />
               );
             }
-
-            const Component = type === 'select' ? AppSelect : AppTextField;
+            if (type === 'select') {
+              return (
+                <AppSelect
+                  key={field}
+                  onChange={onChange}
+                  error={!!error}
+                  helperText={error}
+                  {...rest}
+                />
+              );
+            }
             return (
-              <Component
+              <AppTextField
                 key={field}
+                onChange={onChange}
                 error={!!error}
                 helperText={error}
-                onChange={handleChange}
                 {...rest}
               />
             );

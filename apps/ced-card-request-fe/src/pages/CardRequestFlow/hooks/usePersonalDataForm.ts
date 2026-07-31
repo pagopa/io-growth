@@ -22,20 +22,39 @@ const cittadinanzaOptions = [
 ];
 
 export const PERSONAL_DATA_FORM_CONFIG: PersonalDataFormType[] = [
-  { label: 'Nome', field: 'nome', type: 'text', maxLength: 50 },
-  { label: 'Cognome', field: 'cognome', type: 'text', maxLength: 50 },
-  { label: 'Sesso', field: 'sesso', type: 'select', options: sessoOptions },
-  { label: 'Data di nascita', field: 'dataNascita', type: 'date' },
+  { label: 'Nome', field: 'nome', type: 'text', required: true, maxLength: 50 },
+  {
+    label: 'Cognome',
+    field: 'cognome',
+    type: 'text',
+    required: true,
+    maxLength: 50,
+  },
+  {
+    label: 'Sesso',
+    field: 'sesso',
+    type: 'select',
+    required: true,
+    options: sessoOptions,
+  },
+  {
+    label: 'Data di nascita',
+    field: 'dataNascita',
+    type: 'date',
+    required: true,
+  },
   {
     label: 'Comune di nascita',
     field: 'comuneNascita',
     type: 'text',
+    required: true,
     maxLength: 60,
   },
   {
     label: 'Provincia di nascita',
     field: 'siglaProvinciaNascita',
     type: 'text',
+    required: true,
     maxLength: 2,
     pattern: /^[A-Za-z]{2}$/,
     patternMessage: 'Inserisci la sigla di 2 lettere (es. RM)',
@@ -44,12 +63,14 @@ export const PERSONAL_DATA_FORM_CONFIG: PersonalDataFormType[] = [
     label: 'Stato di nascita',
     field: 'statoNascita',
     type: 'text',
+    required: true,
     maxLength: 60,
   },
   {
     label: 'Cittadinanza',
     field: 'idCittadinanza',
     type: 'select',
+    required: true,
     options: cittadinanzaOptions,
   },
 ];

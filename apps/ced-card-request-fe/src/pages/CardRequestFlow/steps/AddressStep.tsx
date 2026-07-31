@@ -1,51 +1,19 @@
 import { Box } from '@mui/material';
 import { Body, Title, VSpacer } from '@pagopa/io-core-ui';
-import { forwardRef, useImperativeHandle, useState } from 'react';
+import { forwardRef, useImperativeHandle } from 'react';
 import { AppSelect, AppTextField } from '../../../components';
 import { StepCard } from '../StepCard';
 import type { StepRef } from '../types';
 import { useAddressDataForm } from '../hooks/useAddressDataForm';
-import { NuovaDomandaInBozzaRequest } from '../../../core/api/generated/model';
+import { useStepValidation } from '../hooks/useStepValidation';
 
 export const AddressStep = forwardRef<StepRef>(function AddressStep(_, ref) {
   const addressFields = useAddressDataForm();
 
-  const [errors, setErrors] = useState<
-    Partial<Record<keyof NuovaDomandaInBozzaRequest, string>>
-  >({});
+  const { errors, validate, resetFieldError } =
+    useStepValidation(addressFields);
 
-  const MAX_LENGTHS: Partial<Record<keyof NuovaDomandaInBozzaRequest, number>> =
-    {
-      indirizzoRec: 30,
-      civicoRec: 10,
-      datiAggiuntiviRec: 45,
-    };
-
-  const resetFieldError = (key: keyof NuovaDomandaInBozzaRequest) => {
-    setErrors((prev) => (prev[key] ? { ...prev, [key]: undefined } : prev));
-  };
-
-  useImperativeHandle(ref, () => ({
-    validate() {
-      const newErrors: Partial<
-        Record<keyof NuovaDomandaInBozzaRequest, string>
-      > = {};
-      for (const item of addressFields) {
-        if (!item.value.trim() && item.required) {
-          newErrors[item.field] = 'Campo obbligatorio';
-        }
-
-        for (const [field, max] of Object.entries(MAX_LENGTHS)) {
-          const key = field as keyof NuovaDomandaInBozzaRequest;
-          if (item.field === key && item.value.length > max) {
-            newErrors[key] = `Massimo ${max} caratteri`;
-          }
-        }
-      }
-      setErrors(newErrors);
-      return Object.keys(newErrors).length === 0;
-    },
-  }));
+  useImperativeHandle(ref, () => ({ validate }));
 
   return (
     <StepCard>

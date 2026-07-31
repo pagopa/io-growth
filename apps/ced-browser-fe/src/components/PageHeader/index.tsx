@@ -32,6 +32,9 @@ export function PageHeader({
           fontSize: 16,
           fontWeight: 600,
           mb: 3,
+          '&:focus-visible': {
+            outline: 'auto',
+          },
         }}
       >
         <ArrowBack sx={{ fontSize: 20 }} />

@@ -86,6 +86,9 @@ export function DiscoveryListItem(props: DiscoveryListItemProps) {
           display: 'block',
           py: 2,
           bgcolor: 'common.neutralGray',
+          '&:focus-visible': {
+            outline: 'auto',
+          },
           '&:disabled': {
             opacity: 0.7,
           },

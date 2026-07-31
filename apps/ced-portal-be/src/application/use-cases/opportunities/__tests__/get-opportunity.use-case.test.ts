@@ -40,7 +40,6 @@ const mockOpportunityDetail: OpportunityDetail = {
 
 const validInput = {
   opportunityId: MOCK_OPPORTUNITY_ID,
-  userType: "admin" as const,
 };
 
 describe("makeGetOpportunityUseCase", () => {
@@ -96,31 +95,5 @@ describe("makeGetOpportunityUseCase", () => {
       err(expect.objectContaining({ kind: "ValidationError" })),
     );
     expect(repository.findById).not.toHaveBeenCalled();
-  });
-
-  it("should return ValidationError when userType is invalid", async () => {
-    const repository = createMockOpportunityRepository();
-    const useCase = makeGetOpportunityUseCase(repository);
-
-    const result = await useCase({
-      opportunityId: MOCK_OPPORTUNITY_ID,
-      userType: "superadmin" as never,
-    });
-
-    expect(result).toEqual(
-      err(expect.objectContaining({ kind: "ValidationError" })),
-    );
-    expect(repository.findById).not.toHaveBeenCalled();
-  });
-
-  it("should work with test_admin userType", async () => {
-    const repository = createMockOpportunityRepository({
-      findById: vi.fn().mockResolvedValue(ok(mockOpportunityDetail)),
-    });
-    const useCase = makeGetOpportunityUseCase(repository);
-
-    const result = await useCase({ ...validInput, userType: "test_admin" });
-
-    expect(result).toEqual(ok(mockOpportunityDetail));
   });
 });

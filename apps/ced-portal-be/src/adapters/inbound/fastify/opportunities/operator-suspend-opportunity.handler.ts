@@ -9,7 +9,9 @@ import { z as zod } from "zod";
 
 import type { OperatorSuspendOpportunityUseCase } from "../../../../application/use-cases/opportunities/operator-suspend-opportunity.use-case.js";
 
+import { OPERATOR_USER_TYPES } from "../../../../domain/entities/user-type.js";
 import { OperatorSessionSchema } from "../auth/session.js";
+import { withUserTypeAuthorization } from "../auth/utils/authorization.js";
 import {
   OperatorSuspendOpportunityBody,
   OperatorSuspendOpportunityParams,
@@ -20,15 +22,18 @@ const operatorSuspendOpportunityHttpSchema = zod.object({
   path: OperatorSuspendOpportunityParams,
 });
 
-const operatorSuspendOpportunityValidator = withSession(
-  OperatorSessionSchema,
-  createHttpRequestValidator(operatorSuspendOpportunityHttpSchema),
-  (session, { body, path }) => ({
-    operatorId: session.operatorId,
-    opportunityId: path.opportunityId,
-    suspendFrom: body.suspendFrom,
-    suspensionMessage: body.suspensionMessage,
-  }),
+const operatorSuspendOpportunityValidator = withUserTypeAuthorization(
+  OPERATOR_USER_TYPES,
+  withSession(
+    OperatorSessionSchema,
+    createHttpRequestValidator(operatorSuspendOpportunityHttpSchema),
+    (session, { body, path }) => ({
+      operatorId: session.operatorId,
+      opportunityId: path.opportunityId,
+      suspendFrom: body.suspendFrom,
+      suspensionMessage: body.suspensionMessage,
+    }),
+  ),
 );
 
 export const mountOperatorSuspendOpportunityHandler = (

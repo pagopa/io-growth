@@ -10,7 +10,9 @@ import { z as zod } from "zod";
 
 import type { ListOperatorOpportunitiesUseCase } from "../../../../application/use-cases/opportunities/list-operator-opportunities.use-case.js";
 
+import { OPERATOR_USER_TYPES } from "../../../../domain/entities/user-type.js";
 import { OperatorSessionSchema } from "../auth/session.js";
+import { withUserTypeAuthorization } from "../auth/utils/authorization.js";
 import {
   listOperatorOpportunitiesQueryLimitDefault,
   listOperatorOpportunitiesQueryLimitMax,
@@ -39,19 +41,22 @@ const listOperatorOpportunitiesHttpSchema = zod.object({
   query: listOperatorOpportunitiesQuerySchema,
 });
 
-const listOperatorOpportunitiesValidator = withSession(
-  OperatorSessionSchema,
-  createHttpRequestValidator(listOperatorOpportunitiesHttpSchema),
-  (session, { query }) => ({
-    categoryId: query.categoryId,
-    limit: query.limit,
-    offset: query.offset,
-    operatorId: session.operatorId,
-    search: query.search,
-    sortBy: query.sortBy,
-    sortOrder: query.sortOrder,
-    status: query.status,
-  }),
+const listOperatorOpportunitiesValidator = withUserTypeAuthorization(
+  OPERATOR_USER_TYPES,
+  withSession(
+    OperatorSessionSchema,
+    createHttpRequestValidator(listOperatorOpportunitiesHttpSchema),
+    (session, { query }) => ({
+      categoryId: query.categoryId,
+      limit: query.limit,
+      offset: query.offset,
+      operatorId: session.operatorId,
+      search: query.search,
+      sortBy: query.sortBy,
+      sortOrder: query.sortOrder,
+      status: query.status,
+    }),
+  ),
 );
 
 const listOperatorOpportunitiesFormatter = createHttpResponseFormatter(

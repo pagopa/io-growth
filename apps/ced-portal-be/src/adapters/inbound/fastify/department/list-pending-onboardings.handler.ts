@@ -14,6 +14,7 @@ import {
   OnboardingStatusSchema,
   PaginatedOnboardingsSchema,
 } from "../../../../domain/entities/onboarding.js";
+import { ADMIN_USER_TYPES } from "../../../../domain/entities/user-type.js";
 import { SessionSchema } from "../auth/session.js";
 import { withUserTypeAuthorization } from "../auth/utils/authorization.js";
 import {
@@ -46,15 +47,15 @@ const listPendingOnboardingsHttpSchema = zod.object({
 });
 
 const listPendingOnboardingsValidator = withUserTypeAuthorization(
+  ADMIN_USER_TYPES,
   withSession(
     SessionSchema,
     createHttpRequestValidator(listPendingOnboardingsHttpSchema),
-    (session, { query }) => ({
+    (_session, { query }) => ({
       name: query.name,
       page: query.page,
       size: query.size,
       statuses: query.statuses,
-      userType: session.userType,
     }),
   ),
 );

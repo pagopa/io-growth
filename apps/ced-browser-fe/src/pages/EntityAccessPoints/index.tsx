@@ -58,7 +58,9 @@ export default function EntityAccessPointsPage() {
                     : undefined
                 }
                 onClick={() =>
-                  navigate(toEntityAccessPointDetailRoute(item.id))
+                  navigate(toEntityAccessPointDetailRoute(item.id), {
+                    state: { source: 'location_detail' },
+                  })
                 }
                 sx={{ px: 0, bgcolor: 'background.paper' }}
               />

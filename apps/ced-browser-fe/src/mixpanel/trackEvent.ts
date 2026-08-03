@@ -9,5 +9,5 @@ export const trackBrowserEvent = (
   event_name: string,
   properties?: EventProperties,
 ) => {
-  sendEvent(event_name, properties);
+  sendEvent(event_name, { event_category: 'UX', ...properties, webview: true });
 };

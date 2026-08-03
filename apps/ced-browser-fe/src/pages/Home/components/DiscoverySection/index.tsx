@@ -5,10 +5,10 @@ import {
   toOpportunityDetailRoute,
 } from '../../../../app/routeConfig';
 import { DiscoveryListItem } from '../../../../components';
-
 import { useNavigate } from 'react-router-dom';
 import { useGetOpportunitiesSearchQuery } from '../../../../features/opportunities/api';
 import { generateDiscoveryItemsConfig } from '../../constants';
+import { trackBrowserEvent } from '../../../../mixpanel/trackEvent';
 
 const DiscoverySection = () => {
   const navigate = useNavigate();
@@ -20,8 +20,16 @@ const DiscoverySection = () => {
 
   const discoveryItems = generateDiscoveryItemsConfig(data?.items);
 
+  const handleShowAllClick = () => {
+    trackBrowserEvent('CED_SHOW_OPPORTUNITY_LIST', { event_type: 'tap' });
+    navigate(APP_ROUTES.OPPORTUNITIES_LIST);
+  };
+
   const renderList = () => {
     if (isError) {
+      trackBrowserEvent('CED_OPPORTUNITIES_OVERVIEW_ERROR', {
+        event_type: 'error',
+      });
       return (
         <WarningBanner
           title="C’è stato un problema nel caricamento delle opportunità."
@@ -47,7 +55,11 @@ const DiscoverySection = () => {
         key={item.id}
         sx={{ backgroundColor: theme.palette.background.paper }}
         divider={index < list.length - 1}
-        onClick={() => navigate(toOpportunityDetailRoute(item.id))}
+        onClick={() =>
+          navigate(toOpportunityDetailRoute(item.id), {
+            state: { source: 'home' },
+          })
+        }
       />
     ));
   };
@@ -61,7 +73,7 @@ const DiscoverySection = () => {
         <Button
           variant="text"
           sx={{ color: theme.palette.common.primaryButton }}
-          onClick={() => navigate(APP_ROUTES.OPPORTUNITIES_LIST)}
+          onClick={handleShowAllClick}
         >
           Mostra tutti
         </Button>

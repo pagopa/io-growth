@@ -3,7 +3,11 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { Box, Button, Container, Typography } from '@mui/material';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { APP_ROUTES } from '../../app/routeConfig';
-import { useRequestApprovalMutation } from '../../features/opportunities/api';
+import { hasStatus } from '../../core/api/baseApi';
+import {
+  useGetOpportunityDetailQuery,
+  useRequestApprovalMutation,
+} from '../../features/opportunities/api';
 import { resetPlaces } from '../../features/places/placesSlice';
 import {
   selectAccessPoint,
@@ -18,7 +22,13 @@ import { StepOne } from './StepOne';
 import { StepTwo } from './StepTwo';
 import { useToast } from '../../contexts';
 import { useGetFirstStepValidation } from './hooks/useGetFirstStepValidation';
-import { useCreateOpportunity } from './hooks/useCreateOpportunity';
+import {
+  OPPORTUNITY_CONFLICT_ERROR,
+  OPPORTUNITY_NOT_EDITABLE_ERROR,
+  OPPORTUNITY_NOT_FOUND_ERROR,
+  OPPORTUNITY_SOURCE_NOT_READY_ERROR,
+  useCreateOpportunity,
+} from './hooks/useCreateOpportunity';
 import type { CreateBenefitNavigationState } from './types';
 import { useHydrateFromSourceOpportunity } from './hooks/useHydrateFromSourceOpportunity';
 import { selectNationalTerritory } from '../../features/opportunityCreation/selectors';
@@ -47,6 +57,10 @@ export default function CreateBenefitPage() {
 
   const sourceOpportunityId = location.state?.sourceOpportunityId ?? null;
   useHydrateFromSourceOpportunity(sourceOpportunityId);
+  const { data: sourceOpportunity } = useGetOpportunityDetailQuery(
+    sourceOpportunityId ?? '',
+    { skip: !sourceOpportunityId },
+  );
 
   const [currentStep, setCurrentStep] = useState(0);
   const [attempted, setAttempted] = useState(false);
@@ -80,10 +94,34 @@ export default function CreateBenefitPage() {
   };
 
   const handleSaveDraft = async () => {
-    await createOpportunity({ isDraft: true });
-    dispatch(resetForm());
-    dispatch(resetPlaces());
-    navigate(APP_ROUTES.HOME);
+    try {
+      await createOpportunity({
+        isDraft: true,
+        sourceOpportunityId,
+        sourceOpportunityUpdatedAt: sourceOpportunity?.updatedAt,
+      });
+      dispatch(resetForm());
+      dispatch(resetPlaces());
+      navigate(APP_ROUTES.HOME);
+    } catch (error) {
+      if (
+        error instanceof Error &&
+        [
+          OPPORTUNITY_CONFLICT_ERROR,
+          OPPORTUNITY_NOT_EDITABLE_ERROR,
+          OPPORTUNITY_NOT_FOUND_ERROR,
+        ].includes(error.message)
+      ) {
+        navigate(APP_ROUTES.HOME);
+      }
+
+      if (
+        error instanceof Error &&
+        error.message === OPPORTUNITY_SOURCE_NOT_READY_ERROR
+      ) {
+        return;
+      }
+    }
   };
 
   const handleBack = () => {
@@ -116,7 +154,16 @@ export default function CreateBenefitPage() {
       dispatch(resetPlaces());
       showToast('Richiesta di approvazione inviata con successo', 'success');
       navigate(APP_ROUTES.HOME);
-    } catch {
+    } catch (error) {
+      if (hasStatus(error, 409)) {
+        showToast(
+          'È già in corso una modifica dell’opportunità. Riprova più tardi.',
+          'error',
+        );
+        navigate(APP_ROUTES.HOME);
+        return;
+      }
+
       showToast(
         "Errore durante l'invio della richiesta di approvazione",
         'error',
@@ -137,7 +184,7 @@ export default function CreateBenefitPage() {
           );
           return;
         }
-        handleRequestApproval(result.id);
+        await handleRequestApproval(result.id);
         dispatch(resetForm());
         dispatch(resetPlaces());
       } catch {
@@ -146,7 +193,42 @@ export default function CreateBenefitPage() {
       return;
     }
 
-    handleRequestApproval(sourceOpportunityId);
+    try {
+      await createOpportunity({
+        sourceOpportunityId,
+        sourceOpportunityUpdatedAt: sourceOpportunity?.updatedAt,
+        showSuccessToast: sourceOpportunity?.status !== 'draft',
+      });
+
+      if (
+        sourceOpportunity?.status === 'draft' ||
+        sourceOpportunity?.status === 'test_rejected'
+      ) {
+        await handleRequestApproval(sourceOpportunityId);
+      } else {
+        dispatch(resetForm());
+        dispatch(resetPlaces());
+        navigate(APP_ROUTES.HOME);
+      }
+    } catch (error) {
+      if (
+        error instanceof Error &&
+        [
+          OPPORTUNITY_CONFLICT_ERROR,
+          OPPORTUNITY_NOT_EDITABLE_ERROR,
+          OPPORTUNITY_NOT_FOUND_ERROR,
+        ].includes(error.message)
+      ) {
+        navigate(APP_ROUTES.HOME);
+      }
+
+      if (
+        error instanceof Error &&
+        error.message === OPPORTUNITY_SOURCE_NOT_READY_ERROR
+      ) {
+        return;
+      }
+    }
   };
 
   const CurrentStep = STEPS[currentStep]?.component ?? null;

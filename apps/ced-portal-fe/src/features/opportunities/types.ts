@@ -44,6 +44,19 @@ export interface ListAdminOpportunitiesParams {
 
 export type ApproveOpportunityPayload = ApproveOpportunityBody;
 
+export interface OpportunityUpdatePayload {
+  updatedAt: string;
+  dateFrom?: string;
+  dateTo?: string | null;
+  url?: string | null;
+  categoryId?: string;
+  nationalTerritory?: boolean;
+  placeIds?: string[];
+  beneficiaryBenefit?: OpportunityDetail['beneficiaryBenefit'];
+  caregiverBenefit?: OpportunityDetail['caregiverBenefit'] | null;
+  localizedMetadata?: OpportunityDetail['localizedMetadata'];
+}
+
 export interface SuspendOpportunityPayload {
   suspensionMessage: string;
   suspendFrom: string;

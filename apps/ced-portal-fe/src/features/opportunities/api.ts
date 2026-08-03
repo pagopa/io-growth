@@ -20,6 +20,7 @@ import type {
   ListAdminOpportunitiesParams,
   OpportunitiesResponse,
   OpportunityDetail,
+  OpportunityUpdatePayload,
   SuspendOpportunityPayload,
 } from './types';
 import { compactQueryParams } from '../../utils';
@@ -82,6 +83,20 @@ export const opportunitiesApi = baseApi.injectEndpoints({
         method: 'POST',
         body: opportunity,
       }),
+    }),
+    updateOpportunity: builder.mutation<
+      void,
+      { id: string; payload: OpportunityUpdatePayload }
+    >({
+      query: ({ id, payload }) => ({
+        url: `/operator/opportunities/${id}`,
+        method: 'PATCH',
+        body: payload,
+      }),
+      invalidatesTags: (_result, _error, { id }) => [
+        { type: 'Opportunities', id },
+        'Opportunities',
+      ],
     }),
     requestApproval: builder.mutation<void, string>({
       query: (id) => ({
@@ -180,6 +195,7 @@ export const {
   useGetOpportunityCategoriesQuery,
   useGetAdminOpportunityDetailQuery,
   useCreateOpportunityMutation,
+  useUpdateOpportunityMutation,
   useRequestApprovalMutation,
   useApproveOpportunityMutation,
   useAdminSuspendOpportunityMutation,

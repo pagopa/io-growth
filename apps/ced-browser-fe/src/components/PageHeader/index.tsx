@@ -1,7 +1,7 @@
 import { ArrowBack } from '@mui/icons-material';
 import { Box, ButtonBase } from '@mui/material';
 import { Body, Title, VSpacer } from '@pagopa/io-core-ui';
-import type { ReactNode } from 'react';
+import type { MouseEvent, ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 type PageHeaderProps = {
@@ -19,10 +19,15 @@ export function PageHeader({
 }: PageHeaderProps) {
   const navigate = useNavigate();
 
+  const handleBackClick = (event: MouseEvent<HTMLButtonElement>) => {
+    (onBack ?? (() => navigate(-1)))();
+    event.currentTarget.blur();
+  };
+
   return (
     <Box sx={{ px: 3, pt: 3, pb: 2 }}>
       <ButtonBase
-        onClick={onBack ?? (() => navigate(-1))}
+        onClick={handleBackClick}
         sx={{
           display: 'inline-flex',
           alignItems: 'center',
@@ -32,8 +37,17 @@ export function PageHeader({
           fontSize: 16,
           fontWeight: 600,
           mb: 3,
+          WebkitTapHighlightColor: 'transparent',
+          '&:focus': {
+            outline: 'none',
+          },
           '&:focus-visible': {
             outline: 'auto',
+          },
+          '@media (hover: none) and (pointer: coarse)': {
+            '&:focus-visible': {
+              outline: 'none',
+            },
           },
         }}
       >

@@ -19,15 +19,12 @@ export function PageHeader({
 }: PageHeaderProps) {
   const navigate = useNavigate();
 
-  const handleBackClick = (event: MouseEvent<HTMLButtonElement>) => {
-    (onBack ?? (() => navigate(-1)))();
-    event.currentTarget.blur();
-  };
+
 
   return (
     <Box sx={{ px: 3, pt: 3, pb: 2 }}>
       <ButtonBase
-        onClick={handleBackClick}
+        onClick={onBack ?? (() => navigate(-1))}
         sx={{
           display: 'inline-flex',
           alignItems: 'center',

@@ -1,7 +1,7 @@
 import { ArrowBack } from '@mui/icons-material';
 import { Box, ButtonBase } from '@mui/material';
 import { Body, Title, VSpacer } from '@pagopa/io-core-ui';
-import type { MouseEvent, ReactNode } from 'react';
+import type { ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 type PageHeaderProps = {

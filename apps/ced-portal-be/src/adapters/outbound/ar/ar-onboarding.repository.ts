@@ -1,7 +1,7 @@
 import type {
+  OnboardingRepository as ArOnboardingRepository,
   DocumentContentRepository,
   InstitutionRepository,
-  OnboardingRepository,
   UserRepository,
 } from "@pagopa/io-core-adapter-ar";
 
@@ -13,9 +13,9 @@ import type {
   OnboardingDetail,
 } from "../../../domain/entities/onboarding.js";
 import type {
-  ArOnboardingRepository,
   ListOnboardingsInput,
-} from "../../../domain/ports/outbound/ar-onboarding.repository.js";
+  OnboardingRepository,
+} from "../../../domain/ports/outbound/onboarding.repository.js";
 
 import { OnboardingStatusSchema } from "../../../domain/entities/onboarding.js";
 
@@ -83,10 +83,10 @@ const enrichManagerUser = async (
 
 export const createArOnboardingRepository = (
   institutionClient: InstitutionRepository,
-  onboardingClient: OnboardingRepository,
+  onboardingClient: ArOnboardingRepository,
   documentContentClient: DocumentContentRepository,
   userClient: UserRepository,
-): ArOnboardingRepository => ({
+): OnboardingRepository => ({
   completeOnboarding: async (input) =>
     onboardingClient.completeOnboarding(input.onboardingId, {
       contract: input.contract,

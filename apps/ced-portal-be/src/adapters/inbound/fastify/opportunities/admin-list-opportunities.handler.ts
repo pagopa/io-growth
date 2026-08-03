@@ -10,6 +10,7 @@ import { z as zod } from "zod";
 
 import type { AdminListOpportunitiesUseCase } from "../../../../application/use-cases/opportunities/admin-list-opportunities.use-case.js";
 
+import { ADMIN_USER_TYPES } from "../../../../domain/entities/user-type.js";
 import { UserTypeSessionSchema } from "../auth/session.js";
 import { withUserTypeAuthorization } from "../auth/utils/authorization.js";
 import {
@@ -41,10 +42,11 @@ const adminListOpportunitiesHttpSchema = zod.object({
 });
 
 const adminListOpportunitiesValidator = withUserTypeAuthorization(
+  ADMIN_USER_TYPES,
   withSession(
     UserTypeSessionSchema,
     createHttpRequestValidator(adminListOpportunitiesHttpSchema),
-    (session, { query }) => ({
+    (_session, { query }) => ({
       categoryId: query.categoryId,
       dateFrom: query.dateFrom,
       dateTo: query.dateTo,
@@ -55,7 +57,6 @@ const adminListOpportunitiesValidator = withUserTypeAuthorization(
       sortBy: query.sortBy,
       sortOrder: query.sortOrder,
       status: query.status,
-      userType: session.userType,
     }),
   ),
 );

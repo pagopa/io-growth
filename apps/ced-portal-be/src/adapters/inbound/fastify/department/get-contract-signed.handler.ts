@@ -9,6 +9,7 @@ import { z as zod } from "zod";
 
 import type { GetContractSignedUseCase } from "../../../../application/use-cases/department/get-contract-signed.use-case.js";
 
+import { ADMIN_USER_TYPES } from "../../../../domain/entities/user-type.js";
 import { SessionSchema } from "../auth/session.js";
 import { withUserTypeAuthorization } from "../auth/utils/authorization.js";
 import { GetContractSignedParams } from "../contracts/department/department.js";
@@ -18,12 +19,12 @@ const getContractSignedHttpSchema = zod.object({
 });
 
 const getContractSignedValidator = withUserTypeAuthorization(
+  ADMIN_USER_TYPES,
   withSession(
     SessionSchema,
     createHttpRequestValidator(getContractSignedHttpSchema),
-    (session, { path }) => ({
+    (_session, { path }) => ({
       onboardingId: path.onboardingId,
-      userType: session.userType,
     }),
   ),
 );

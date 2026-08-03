@@ -11,6 +11,7 @@ import { z as zod } from "zod";
 import type { GetOnboardingUseCase } from "../../../../application/use-cases/department/get-onboarding.use-case.js";
 
 import { OnboardingDetailSchema } from "../../../../domain/entities/onboarding.js";
+import { ADMIN_USER_TYPES } from "../../../../domain/entities/user-type.js";
 import { SessionSchema } from "../auth/session.js";
 import { withUserTypeAuthorization } from "../auth/utils/authorization.js";
 import { GetOnboardingParams } from "../contracts/department/department.js";
@@ -20,12 +21,12 @@ const getOnboardingHttpSchema = zod.object({
 });
 
 const getOnboardingValidator = withUserTypeAuthorization(
+  ADMIN_USER_TYPES,
   withSession(
     SessionSchema,
     createHttpRequestValidator(getOnboardingHttpSchema),
-    (session, { path }) => ({
+    (_session, { path }) => ({
       onboardingId: path.onboardingId,
-      userType: session.userType,
     }),
   ),
 );

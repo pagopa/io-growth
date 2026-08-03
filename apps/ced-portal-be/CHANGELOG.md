@@ -1,5 +1,11 @@
 # ced-portal-be
 
+## 0.2.14
+
+### Patch Changes
+
+- 545ab4b: Reject non-operator sessions on the 14 operator API routes with 403 instead of a misleading 400.
+
 ## 0.2.13
 
 ### Patch Changes

@@ -11,13 +11,10 @@ import { z } from "zod";
 import type { OpportunityDetail } from "../../../domain/entities/opportunity.js";
 import type { OpportunityRepository } from "../../../domain/ports/outbound/persistence/opportunity.repository.js";
 
-import { USER_TYPES } from "../../../domain/entities/user-type.js";
 import { validateUseCaseInput } from "../utils/validate-use-case-input.js";
 
 const GetOpportunityInputSchema = z.object({
   opportunityId: z.ulid(),
-  // kept for future per-userType branching
-  userType: z.enum(USER_TYPES),
 });
 
 export type GetOpportunityInput = z.infer<typeof GetOpportunityInputSchema>;

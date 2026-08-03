@@ -9,13 +9,16 @@ import {
 
 import type { GetOperatorProfileUseCase } from "../../../../application/use-cases/profile/get-operator-profile.use-case.js";
 
+import { OPERATOR_USER_TYPES } from "../../../../domain/entities/user-type.js";
 import { OperatorSessionSchema } from "../auth/session.js";
+import { withUserTypeAuthorization } from "../auth/utils/authorization.js";
 import { GetOperatorProfileResponse } from "../contracts/profile/profile.js";
 
-const getOperatorProfileValidator = withSession(
-  OperatorSessionSchema,
-  emptyValidator,
-  (session) => ({ operatorId: session.operatorId }),
+const getOperatorProfileValidator = withUserTypeAuthorization(
+  OPERATOR_USER_TYPES,
+  withSession(OperatorSessionSchema, emptyValidator, (session) => ({
+    operatorId: session.operatorId,
+  })),
 );
 
 const getOperatorProfileFormatter = createHttpResponseFormatter(

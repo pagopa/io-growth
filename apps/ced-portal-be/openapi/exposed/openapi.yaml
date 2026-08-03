@@ -77,6 +77,15 @@ paths:
               example:
                 statusCode: 401
                 message: Unauthorized
+        "403":
+          description: Authenticated user is not an operator
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 403
+                message: Forbidden
         "404":
           description: No data associated with the authenticated operator
           content:
@@ -144,6 +153,15 @@ paths:
               example:
                 statusCode: 401
                 message: Unauthorized
+        "403":
+          description: Authenticated user is not an operator
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 403
+                message: Forbidden
   /operator/places:
     get:
       tags:
@@ -196,6 +214,15 @@ paths:
               example:
                 statusCode: 401
                 message: Unauthorized
+        "403":
+          description: Authenticated user is not an operator
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 403
+                message: Forbidden
     post:
       tags:
         - Places
@@ -259,6 +286,15 @@ paths:
               example:
                 statusCode: 401
                 message: Unauthorized
+        "403":
+          description: Authenticated user is not an operator
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 403
+                message: Forbidden
   /operator/places/{placeId}:
     get:
       tags:
@@ -319,6 +355,15 @@ paths:
               example:
                 statusCode: 401
                 message: Unauthorized
+        "403":
+          description: Authenticated user is not an operator
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 403
+                message: Forbidden
         "404":
           description: Place not found
           content:
@@ -359,6 +404,15 @@ paths:
               example:
                 statusCode: 401
                 message: Unauthorized
+        "403":
+          description: Authenticated user is not an operator
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 403
+                message: Forbidden
         "404":
           description: Opportunity not found
           content:
@@ -395,6 +449,15 @@ paths:
               example:
                 statusCode: 401
                 message: Unauthorized
+        "403":
+          description: Authenticated user is not an operator
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 403
+                message: Forbidden
         "404":
           description: Opportunity not found
           content:
@@ -891,6 +954,15 @@ paths:
               example:
                 statusCode: 401
                 message: Unauthorized
+        "403":
+          description: Authenticated user is not an operator
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 403
+                message: Forbidden
     post:
       tags:
         - Opportunities
@@ -952,6 +1024,15 @@ paths:
               example:
                 statusCode: 401
                 message: Unauthorized
+        "403":
+          description: Authenticated user is not an operator
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 403
+                message: Forbidden
   /opportunities:
     get:
       tags:
@@ -1416,6 +1497,15 @@ paths:
               example:
                 statusCode: 401
                 message: Unauthorized
+        "403":
+          description: Authenticated user is not an operator
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 403
+                message: Forbidden
   /acs:
     get:
       tags:
@@ -1551,6 +1641,15 @@ paths:
               example:
                 statusCode: 401
                 message: Unauthorized
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 403
+                message: Forbidden
   /department/onboardings/{onboardingId}:
     get:
       tags:
@@ -1584,6 +1683,15 @@ paths:
               example:
                 statusCode: 401
                 message: Unauthorized
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 403
+                message: Forbidden
         "404":
           description: Not Found
           content:

@@ -9,13 +9,14 @@ import {
 
 import type { ListOpportunityCategoriesUseCase } from "../../../../application/use-cases/opportunities/list-opportunity-categories.use-case.js";
 
+import { OPERATOR_USER_TYPES } from "../../../../domain/entities/user-type.js";
 import { OperatorSessionSchema } from "../auth/session.js";
+import { withUserTypeAuthorization } from "../auth/utils/authorization.js";
 import { ListOpportunityCategoriesResponse } from "../contracts/categories/categories.js";
 
-const listOpportunityCategoriesValidator = withSession(
-  OperatorSessionSchema,
-  emptyValidator,
-  () => ({}),
+const listOpportunityCategoriesValidator = withUserTypeAuthorization(
+  OPERATOR_USER_TYPES,
+  withSession(OperatorSessionSchema, emptyValidator, () => ({})),
 );
 
 const listOpportunityCategoriesFormatter = createHttpResponseFormatter(

@@ -1,12 +1,12 @@
 import { z } from "zod";
 
-const supportContactSchema = z.object({
+const SupportContactSchema = z.object({
   id: z.ulid(),
   type: z.enum(["email", "phone", "website"]),
   value: z.string().min(1).max(2048),
 });
 
-const addressSchema = z.object({
+const AddressSchema = z.object({
   city: z.string().min(1).max(64),
   country: z.string().min(1).max(64),
   postalCode: z.string().min(1).max(64),
@@ -14,29 +14,29 @@ const addressSchema = z.object({
   street: z.string().min(1).max(512),
 });
 
-const websiteSchema = z.object({
+const WebsiteSchema = z.object({
   url: z.url().max(2048),
 });
 
-const placeBaseSchema = z.object({
+const PlaceBaseSchema = z.object({
   id: z.ulid(),
   name: z.string().min(1).max(512),
-  supportContacts: z.array(supportContactSchema),
+  supportContacts: z.array(SupportContactSchema),
 });
 
-const offlinePlaceSchema = placeBaseSchema.extend({
-  address: addressSchema,
+const OfflinePlaceSchema = PlaceBaseSchema.extend({
+  address: AddressSchema,
   type: z.literal("offline"),
 });
 
-const onlinePlaceSchema = placeBaseSchema.extend({
+const OnlinePlaceSchema = PlaceBaseSchema.extend({
   type: z.literal("online"),
-  website: websiteSchema,
+  website: WebsiteSchema,
 });
 
 export const PlaceSchema = z.discriminatedUnion("type", [
-  offlinePlaceSchema,
-  onlinePlaceSchema,
+  OfflinePlaceSchema,
+  OnlinePlaceSchema,
 ]);
 
 export type Place = z.infer<typeof PlaceSchema>;

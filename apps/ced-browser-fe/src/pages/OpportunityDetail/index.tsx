@@ -124,6 +124,11 @@ export default function OpportunityDetailPage() {
         label: 'Torna indietro',
         onClick: () => navigate(-1),
       }}
+      trackErrorEvent={() =>
+        trackBrowserEvent('CED_PAGE_DETAIL_ERROR', {
+          event_type: 'error',
+        })
+      }
     >
       {(resolvedData) => (
         <Box

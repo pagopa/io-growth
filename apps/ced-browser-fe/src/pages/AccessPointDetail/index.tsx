@@ -4,7 +4,7 @@ import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { ContactsSection } from '../../components/ContactsSection/index.js';
 import { ItemsSection } from '../../components/ItemsSection/index.js';
 import { PageHeader, QueryGuard } from '../../components/index.js';
-import { APP_ROUTES } from '../../app/routeConfig.js';
+import { toEntityDetailRoute } from '../../app/routeConfig.js';
 import { useGetAccessPointDetailQuery } from '../../features/places/api.js';
 import { formatBadgeLabel } from '../../utils';
 import { PageErrorType } from '../../components/QueryGuard/ErrorScreen/types.js';
@@ -99,12 +99,9 @@ export default function AccessPointDetailPage() {
             subtitle={
               <ButtonBase
                 onClick={() =>
-                  navigate(
-                    APP_ROUTES.ENTITY_DETAIL.replace(
-                      ':id',
-                      resolvedData.entityId,
-                    ),
-                  )
+                  navigate(toEntityDetailRoute(resolvedData.entityId), {
+                    state: { source: 'location_detail' },
+                  })
                 }
                 sx={{
                   fontSize: 16,

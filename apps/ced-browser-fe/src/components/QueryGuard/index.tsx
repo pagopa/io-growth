@@ -24,6 +24,7 @@ type Props<T> = {
     label: string;
     onClick: () => void;
   };
+  trackErrorEvent?: () => void;
 };
 
 export function QueryGuard<T>({
@@ -36,6 +37,7 @@ export function QueryGuard<T>({
   errorType,
   firstAction,
   secondAction,
+  trackErrorEvent,
 }: Readonly<Props<T>>) {
   if (isLoading) {
     return (
@@ -46,6 +48,9 @@ export function QueryGuard<T>({
   }
 
   if (isError || data === undefined) {
+    if (trackErrorEvent) {
+      trackErrorEvent();
+    }
     if (errorType) {
       return (
         <ErrorScreen

@@ -40,6 +40,9 @@ export default function OpportunitiesList() {
 
   const renderContent = () => {
     if (isError) {
+      trackBrowserEvent('CED_OPPORTUNITY_LIST_ERROR', {
+        event_type: 'error',
+      });
       return (
         <WarningBanner
           title="C’è stato un problema nel caricamento delle opportunità."
@@ -56,6 +59,9 @@ export default function OpportunitiesList() {
     }
 
     if (!items || items.length === 0) {
+      trackBrowserEvent('CED_OPPORTUNITY_LIST_EMPTY', {
+        event_type: 'error',
+      });
       return <WarningBanner title="Non ci sono opportunità da mostrare." />;
     }
 

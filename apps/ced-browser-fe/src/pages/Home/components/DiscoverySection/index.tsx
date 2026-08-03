@@ -27,6 +27,9 @@ const DiscoverySection = () => {
 
   const renderList = () => {
     if (isError) {
+      trackBrowserEvent('CED_OPPORTUNITIES_OVERVIEW_ERROR', {
+        event_type: 'error',
+      });
       return (
         <WarningBanner
           title="C’è stato un problema nel caricamento delle opportunità."

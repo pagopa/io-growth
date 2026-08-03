@@ -19,8 +19,6 @@ export function PageHeader({
 }: PageHeaderProps) {
   const navigate = useNavigate();
 
-
-
   return (
     <Box sx={{ px: 3, pt: 3, pb: 2 }}>
       <ButtonBase

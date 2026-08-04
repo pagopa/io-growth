@@ -130,7 +130,7 @@ export function DiscoveryListItem(props: DiscoveryListItemProps) {
           </Box>
         </Stack>
       </ButtonBase>
-      {props.divider && <Divider />}
+      {props.divider && <Divider aria-hidden />}
     </>
   );
 }

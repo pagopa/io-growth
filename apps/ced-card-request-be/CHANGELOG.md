@@ -1,5 +1,11 @@
 # ced-card-request-be
 
+## 0.2.3
+
+### Patch Changes
+
+- b9975a6: Reject missing/expired sessions with 401 instead of a 500 leaking from a second validation gate.
+
 ## 0.2.2
 
 ### Patch Changes

@@ -74,6 +74,72 @@ const getImageDimensions = (
   });
 };
 
+const JFIF_IDENTIFIER = [0x4a, 0x46, 0x49, 0x46, 0x00];
+const JFIF_DPI = 72;
+
+const findJfifIdentifier = (bytes: Uint8Array): number => {
+  for (let index = 0; index <= bytes.length - JFIF_IDENTIFIER.length; index++) {
+    if (
+      JFIF_IDENTIFIER.every(
+        (identifierByte, offset) => bytes[index + offset] === identifierByte,
+      )
+    ) {
+      return index;
+    }
+  }
+
+  return -1;
+};
+
+export const setJpegDensityDpi = async (
+  file: File,
+  dpi = JFIF_DPI,
+): Promise<File> => {
+  const bytes = new Uint8Array(await file.arrayBuffer());
+
+  if (bytes[0] !== 0xff || bytes[1] !== 0xd8) {
+    throw new Error('Il file compresso non è un JPEG valido.');
+  }
+
+  const jfifIdentifierIndex = findJfifIdentifier(bytes);
+  let outputBytes = bytes;
+
+  if (jfifIdentifierIndex >= 0) {
+    outputBytes = bytes.slice();
+    outputBytes[jfifIdentifierIndex + 7] = 1;
+    outputBytes[jfifIdentifierIndex + 8] = dpi >> 8;
+    outputBytes[jfifIdentifierIndex + 9] = dpi & 0xff;
+    outputBytes[jfifIdentifierIndex + 10] = dpi >> 8;
+    outputBytes[jfifIdentifierIndex + 11] = dpi & 0xff;
+  } else {
+    const jfifHeader = new Uint8Array([
+      0xff,
+      0xe0,
+      0x00,
+      0x10,
+      ...JFIF_IDENTIFIER,
+      0x01,
+      0x01,
+      0x01,
+      dpi >> 8,
+      dpi & 0xff,
+      dpi >> 8,
+      dpi & 0xff,
+      0x00,
+      0x00,
+    ]);
+    outputBytes = new Uint8Array(bytes.length + jfifHeader.length);
+    outputBytes.set(bytes.subarray(0, 2));
+    outputBytes.set(jfifHeader, 2);
+    outputBytes.set(bytes.subarray(2), 2 + jfifHeader.length);
+  }
+
+  return new File([outputBytes], file.name, {
+    type: 'image/jpeg',
+    lastModified: file.lastModified,
+  });
+};
+
 export const compressPhotoFile = (file: File): Promise<File> =>
   imageCompression(file, IMAGE_COMPRESSION_OPTIONS);
 
@@ -90,23 +156,23 @@ export const processCenterCrop = async (
   const workerCode = `
     self.onmessage = async (e) => {
       const { bitmap, targetWidth, targetHeight } = e.data;
-      
+
       try {
         const canvas = new OffscreenCanvas(targetWidth, targetHeight);
         const ctx = canvas.getContext('2d');
-        
+
         if (!ctx) {
           throw new Error('Impossibile inizializzare il contesto OffscreenCanvas 2D');
         }
-        
+
         const sourceAspectRatio = bitmap.width / bitmap.height;
         const targetAspectRatio = targetWidth / targetHeight;
-        
+
         let sourceX = 0;
         let sourceY = 0;
         let sourceWidth = bitmap.width;
         let sourceHeight = bitmap.height;
-        
+
         if (sourceAspectRatio > targetAspectRatio) {
           sourceWidth = bitmap.height * targetAspectRatio;
           sourceX = (bitmap.width - sourceWidth) / 2;
@@ -114,16 +180,16 @@ export const processCenterCrop = async (
           sourceHeight = bitmap.width / targetAspectRatio;
           sourceY = (bitmap.height - sourceHeight) / 2;
         }
-        
+
         ctx.drawImage(
           bitmap,
           sourceX, sourceY, sourceWidth, sourceHeight,
           0, 0, targetWidth, targetHeight
         );
-        
+
         const blob = await canvas.convertToBlob({ type: 'image/jpeg', quality: 0.90 });
         bitmap.close();
-        
+
         self.postMessage({ success: true, blob });
       } catch (error) {
         bitmap.close();
@@ -254,5 +320,8 @@ export const processInpsPhoto = async (file: File): Promise<File> => {
   }
 
   logProcessor(`--- [PhotoProcessor] FINE ELABORAZIONE ---\n`);
-  return processedFile;
+  return processedFile.type === 'image/jpeg' ||
+    processedFile.type === 'image/jpg'
+    ? setJpegDensityDpi(processedFile)
+    : processedFile;
 };

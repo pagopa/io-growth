@@ -39,7 +39,7 @@ export const BenefitSchema = z.discriminatedUnion("type", [
 
 export type Benefit = z.infer<typeof BenefitSchema>;
 
-const localizedMetadataSchema = z.object({
+const LocalizedMetadataSchema = z.object({
   id: z.ulid(),
   key: z.enum(["name", "description", "condition"]),
   language: z.enum(["en", "fr", "de", "sl", "it"]),
@@ -68,7 +68,7 @@ export const OpportunitySchema = z.object({
   dateFrom: z.iso.date(),
   dateTo: z.iso.date().optional(),
   id: z.ulid(),
-  localizedMetadata: z.array(localizedMetadataSchema).min(1),
+  localizedMetadata: z.array(LocalizedMetadataSchema).min(1),
   nationalTerritory: z.boolean(),
   placeIds: z.array(z.ulid()),
   status: z.enum([
@@ -146,7 +146,7 @@ export const deriveOpportunityDisplayStatus = (
   return status;
 };
 
-const localizedMetadataSummarySchema = z.object({
+const LocalizedMetadataSummarySchema = z.object({
   key: z.enum(["name", "description", "condition"]),
   language: z.enum(["en", "fr", "de", "sl", "it"]),
   value: z.string().min(1),
@@ -162,7 +162,7 @@ export const OpportunityDetailSchema = z.object({
   dateTo: z.string().nullable(),
   deletionMessage: z.string().max(4096).nullish(),
   id: z.ulid(),
-  localizedMetadata: z.array(localizedMetadataSummarySchema),
+  localizedMetadata: z.array(LocalizedMetadataSummarySchema),
   nationalTerritory: z.boolean(),
   operatorName: z.string().optional(),
   placeIds: z.array(z.ulid()),

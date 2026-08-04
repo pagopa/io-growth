@@ -7,7 +7,7 @@ import {
 } from "@pagopa/io-core-adapter-fastify";
 import { z as zod } from "zod";
 
-import type { PublishOpportunityUseCase } from "../../../../application/use-cases/opportunities/publish-opportunity.use-case.js";
+import type { OperatorPublishOpportunityUseCase } from "../../../../application/use-cases/opportunities/operator-publish-opportunity.use-case.js";
 
 import { OPERATOR_USER_TYPES } from "../../../../domain/entities/user-type.js";
 import { OperatorSessionSchema } from "../auth/session.js";
@@ -32,7 +32,7 @@ const operatorPublishOpportunityValidator = withUserTypeAuthorization(
 
 export const mountOperatorPublishOpportunityHandler = (
   fastify: FastifyInstance,
-  useCase: PublishOpportunityUseCase,
+  useCase: OperatorPublishOpportunityUseCase,
 ) => {
   fastify.patch(
     "/api/operator/opportunities/:opportunityId/publish",

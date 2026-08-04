@@ -1,0 +1,21 @@
+meta {
+  name: Approve an opportunity
+  type: http
+  seq: 12
+}
+
+patch {
+  url: {{baseUrl}}/opportunities/:opportunityId/approve
+  body: json
+  auth: inherit
+}
+
+params:path {
+  opportunityId: an-opportunity-id
+}
+
+body:json {
+  {
+    "dateFrom": "2026-12-01"
+  }
+}

@@ -6,6 +6,7 @@ import type { MouseEvent, ReactNode } from 'react';
 import type {
   OpportunitySummaryItem,
   OpportunitySummaryItemStatus,
+  OpportunitySummaryItemSuspendedBy,
 } from '../../../core/api/generated/model';
 import { publicationStatusLabels } from '../../../features/benefitsFilters/types';
 import { getChipConfig } from './utils';
@@ -27,6 +28,7 @@ export interface BenefitsTableColumn {
       itemId: string,
       itemStatus: OpportunitySummaryItemStatus,
       itemSuspendFrom?: string,
+      itemSuspendedBy?: OpportunitySummaryItemSuspendedBy,
     ) => void,
   ) => ReactNode;
 }
@@ -84,7 +86,13 @@ export const benefitsTableColumns: BenefitsTableColumn[] = [
       <IconButton
         size="small"
         onClick={(event) =>
-          action(event, item.id, item.status, item.suspendFrom ?? undefined)
+          action(
+            event,
+            item.id,
+            item.status,
+            item.suspendFrom ?? undefined,
+            item.suspendedBy,
+          )
         }
       >
         <MoreVertIcon sx={{ fontSize: 22 }} />

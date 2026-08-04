@@ -6,12 +6,14 @@ import { useOperatorCancelScheduledSuspensionMutation } from '../../../../featur
 import { useToast } from '../../../../contexts';
 import type { OpportunityStatus } from '../../../../features/opportunities/types';
 import { opportunityAlertMap } from './constants';
+import { OpportunitySummaryItemSuspendedBy } from '../../../../core/api/generated/model';
 
 type OpportunityAlertProps = {
   id: string;
   status: OpportunityStatus;
   suspendFrom?: string | null;
   suspensionMessage?: string | null;
+  suspendedBy?: OpportunitySummaryItemSuspendedBy;
   onCancelSuccess?: () => void;
 };
 
@@ -20,6 +22,7 @@ export const OpportunityAlert = ({
   status,
   suspendFrom,
   suspensionMessage,
+  suspendedBy,
   onCancelSuccess,
 }: OpportunityAlertProps) => {
   const { showToast } = useToast();
@@ -28,6 +31,7 @@ export const OpportunityAlert = ({
 
   const normalizedSuspendFrom = suspendFrom?.trim();
   const hasScheduledSuspension = Boolean(normalizedSuspendFrom);
+  const isDepartmentScheduledSuspension = suspendedBy === 'department';
 
   const formattedSuspendDate = normalizedSuspendFrom
     ? format(parseISO(normalizedSuspendFrom), 'dd/MM/yyyy')
@@ -76,7 +80,9 @@ export const OpportunityAlert = ({
                   color: (theme) => theme.palette.common.alertWarningText,
                 }}
               >
-                {`Hai richiesto la sospensione a partire dal ${formattedSuspendDate}`}
+                {isDepartmentScheduledSuspension
+                  ? `L'opportunità sarà sospesa dal ${formattedSuspendDate}`
+                  : `Hai richiesto la sospensione a partire dal ${formattedSuspendDate}`}
               </Typography>
               <Typography
                 sx={{
@@ -86,25 +92,27 @@ export const OpportunityAlert = ({
               >
                 {suspensionMessage?.trim() || '-'}
               </Typography>
-              <Button
-                variant="text"
-                disableRipple
-                onClick={handleCancelScheduledSuspension}
-                sx={{
-                  alignSelf: 'flex-start',
-                  px: 0,
-                  minWidth: 0,
-                  fontSize: 16,
-                  fontWeight: 700,
-                  color: (theme) => theme.palette.common.alertWarningText,
-                  textTransform: 'none',
-                  '&:hover': {
-                    backgroundColor: 'transparent',
-                  },
-                }}
-              >
-                Annulla sospensione
-              </Button>
+              {!isDepartmentScheduledSuspension && (
+                <Button
+                  variant="text"
+                  disableRipple
+                  onClick={handleCancelScheduledSuspension}
+                  sx={{
+                    alignSelf: 'flex-start',
+                    px: 0,
+                    minWidth: 0,
+                    fontSize: 16,
+                    fontWeight: 700,
+                    color: (theme) => theme.palette.common.alertWarningText,
+                    textTransform: 'none',
+                    '&:hover': {
+                      backgroundColor: 'transparent',
+                    },
+                  }}
+                >
+                  Annulla sospensione programmata
+                </Button>
+              )}
             </Stack>
           </Stack>
         </Stack>

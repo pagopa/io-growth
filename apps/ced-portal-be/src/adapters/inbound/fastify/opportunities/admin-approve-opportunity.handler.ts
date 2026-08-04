@@ -8,8 +8,9 @@ import {
 } from "@pagopa/io-core-adapter-fastify";
 import { z } from "zod";
 
-import type { ApproveOpportunityUseCase } from "../../../../application/use-cases/opportunities/approve-opportunity.use-case.js";
+import type { AdminApproveOpportunityUseCase } from "../../../../application/use-cases/opportunities/admin-approve-opportunity.use-case.js";
 
+import { ADMIN_USER_TYPES } from "../../../../domain/entities/user-type.js";
 import { UserTypeSessionSchema } from "../auth/session.js";
 import { withUserTypeAuthorization } from "../auth/utils/authorization.js";
 import {
@@ -23,20 +24,20 @@ const approveOpportunityHttpSchema = z.object({
 });
 
 const approveOpportunityValidator = withUserTypeAuthorization(
+  ADMIN_USER_TYPES,
   withSession(
     UserTypeSessionSchema,
     createHttpRequestValidator(approveOpportunityHttpSchema),
-    (session, { body, path }) => ({
+    (_session, { body, path }) => ({
       dateFrom: body?.dateFrom,
       opportunityId: path.opportunityId,
-      userType: session.userType,
     }),
   ),
 );
 
-export const mountApproveOpportunityHandler = (
+export const mountAdminApproveOpportunityHandler = (
   fastify: FastifyInstance,
-  useCase: ApproveOpportunityUseCase,
+  useCase: AdminApproveOpportunityUseCase,
 ) => {
   fastify.patch(
     "/api/opportunities/:opportunityId/approve",

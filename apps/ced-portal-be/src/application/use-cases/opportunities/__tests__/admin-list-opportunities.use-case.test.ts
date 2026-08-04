@@ -27,7 +27,6 @@ const validInput = {
   offset: 0,
   sortBy: "createdAt" as const,
   sortOrder: "desc" as const,
-  userType: "admin" as const,
 };
 
 describe("makeAdminListOpportunitiesUseCase", () => {

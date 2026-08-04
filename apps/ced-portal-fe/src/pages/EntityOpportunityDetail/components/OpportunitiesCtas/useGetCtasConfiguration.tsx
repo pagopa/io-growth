@@ -161,7 +161,7 @@ export const useGetCtasConfiguration = (
                 cta.actionId === 'SUSPEND'
                   ? {
                       ...cta,
-                      label: 'Annulla sospensione',
+                      label: 'Annulla sospensione programmata',
                       actionId: 'CANCEL_SUSPENSION',
                       action: actionsMap.CANCEL_SUSPENSION,
                     }

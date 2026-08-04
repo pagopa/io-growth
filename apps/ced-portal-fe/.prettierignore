@@ -1,0 +1,2 @@
+# Ignore files generated from the OpenAPI specification.
+src/core/api/generated

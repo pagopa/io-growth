@@ -20,7 +20,7 @@ import {
   LocalizedMetadataListInputSchema,
   PlaceIdsInputSchema,
   validateExistence,
-} from "./opportunity-input.js";
+} from "./utils/opportunity-input.js";
 
 const OperatorCreateOpportunityInputSchema = z.object({
   beneficiaryBenefit: BenefitInputSchema,

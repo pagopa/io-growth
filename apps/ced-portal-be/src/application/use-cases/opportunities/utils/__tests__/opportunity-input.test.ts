@@ -2,9 +2,9 @@ import { GenericError } from "@pagopa/io-core-domain/errors";
 import { err, ok } from "neverthrow";
 import { describe, expect, it, vi } from "vitest";
 
-import type { OperatorRepository } from "../../../../domain/ports/outbound/persistence/operator.repository.js";
-import type { OpportunityCategoryRepository } from "../../../../domain/ports/outbound/persistence/opportunity-category.repository.js";
-import type { PlaceRepository } from "../../../../domain/ports/outbound/persistence/place.repository.js";
+import type { OperatorRepository } from "../../../../../domain/ports/outbound/persistence/operator.repository.js";
+import type { OpportunityCategoryRepository } from "../../../../../domain/ports/outbound/persistence/opportunity-category.repository.js";
+import type { PlaceRepository } from "../../../../../domain/ports/outbound/persistence/place.repository.js";
 
 import {
   LocalizedMetadataListInputSchema,

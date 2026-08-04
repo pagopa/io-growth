@@ -78,6 +78,7 @@ const JFIF_IDENTIFIER = [0x4a, 0x46, 0x49, 0x46, 0x00];
 const JFIF_DPI = 72;
 const PNG_SIGNATURE = [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a];
 const PNG_PHYS_CHUNK_TYPE = [0x70, 0x48, 0x59, 0x73];
+const MIN_DPI_ERROR = 'La densità della foto deve essere di almeno 72 DPI.';
 
 const findJfifIdentifier = (bytes: Uint8Array): number => {
   for (let index = 0; index <= bytes.length - JFIF_IDENTIFIER.length; index++) {
@@ -91,6 +92,30 @@ const findJfifIdentifier = (bytes: Uint8Array): number => {
   }
 
   return -1;
+};
+
+const getJpegDensityDpi = (bytes: Uint8Array): number | null => {
+  const jfifIdentifierIndex = findJfifIdentifier(bytes);
+
+  if (jfifIdentifierIndex < 0) {
+    return null;
+  }
+
+  const densityUnit = bytes[jfifIdentifierIndex + 7];
+  const xDensity =
+    (bytes[jfifIdentifierIndex + 8] << 8) | bytes[jfifIdentifierIndex + 9];
+  const yDensity =
+    (bytes[jfifIdentifierIndex + 10] << 8) | bytes[jfifIdentifierIndex + 11];
+
+  if (densityUnit === 1) {
+    return Math.min(xDensity, yDensity);
+  }
+
+  if (densityUnit === 2) {
+    return Math.min(xDensity, yDensity) * 2.54;
+  }
+
+  return null;
 };
 
 export const setJpegDensityDpi = async (
@@ -186,6 +211,66 @@ const createPngDensityChunk = (dpi: number): Uint8Array => {
 const isPng = (bytes: Uint8Array): boolean =>
   PNG_SIGNATURE.every((signatureByte, index) => bytes[index] === signatureByte);
 
+const findPngDensityChunk = (
+  bytes: Uint8Array,
+): { length: number; offset: number } | null => {
+  let chunkOffset = PNG_SIGNATURE.length;
+
+  while (chunkOffset + 12 <= bytes.length) {
+    const dataLength = readUint32(bytes, chunkOffset);
+    const totalChunkLength = dataLength + 12;
+    const chunkTypeOffset = chunkOffset + 4;
+
+    if (
+      PNG_PHYS_CHUNK_TYPE.every(
+        (chunkTypeByte, index) =>
+          bytes[chunkTypeOffset + index] === chunkTypeByte,
+      )
+    ) {
+      return { length: totalChunkLength, offset: chunkOffset };
+    }
+
+    chunkOffset += totalChunkLength;
+  }
+
+  return null;
+};
+
+const getPngDensityDpi = (bytes: Uint8Array): number | null => {
+  const densityChunk = findPngDensityChunk(bytes);
+
+  if (!densityChunk || bytes[densityChunk.offset + 16] !== 1) {
+    return null;
+  }
+
+  const pixelsPerMeterX = readUint32(bytes, densityChunk.offset + 8);
+  const pixelsPerMeterY = readUint32(bytes, densityChunk.offset + 12);
+
+  return Math.min(pixelsPerMeterX, pixelsPerMeterY) * 0.0254;
+};
+
+export const getPhotoDensityDpi = async (
+  file: File,
+): Promise<number | null> => {
+  const bytes = new Uint8Array(await file.arrayBuffer());
+
+  if (bytes[0] === 0xff && bytes[1] === 0xd8) {
+    return getJpegDensityDpi(bytes);
+  }
+
+  if (isPng(bytes)) {
+    return getPngDensityDpi(bytes);
+  }
+
+  throw new Error('Formato file non supportato. Usa JPEG, JPG o PNG.');
+};
+
+export const validatePhotoDensityDpi = (densityDpi: number | null): void => {
+  if (densityDpi !== null && densityDpi < JFIF_DPI) {
+    throw new Error(MIN_DPI_ERROR);
+  }
+};
+
 export const setPngDensityDpi = async (
   file: File,
   dpi = JFIF_DPI,
@@ -200,22 +285,17 @@ export const setPngDensityDpi = async (
   let chunkOffset = PNG_SIGNATURE.length;
   let insertionOffset = -1;
   let existingDensityChunkLength = 0;
+  const existingDensityChunk = findPngDensityChunk(bytes);
 
-  while (chunkOffset + 12 <= bytes.length) {
+  if (existingDensityChunk) {
+    insertionOffset = existingDensityChunk.offset;
+    existingDensityChunkLength = existingDensityChunk.length;
+  }
+
+  while (insertionOffset < 0 && chunkOffset + 12 <= bytes.length) {
     const dataLength = readUint32(bytes, chunkOffset);
     const totalChunkLength = dataLength + 12;
     const chunkTypeOffset = chunkOffset + 4;
-
-    if (
-      PNG_PHYS_CHUNK_TYPE.every(
-        (chunkTypeByte, index) =>
-          bytes[chunkTypeOffset + index] === chunkTypeByte,
-      )
-    ) {
-      insertionOffset = chunkOffset;
-      existingDensityChunkLength = totalChunkLength;
-      break;
-    }
 
     if (
       bytes[chunkTypeOffset] === 0x49 &&
@@ -359,6 +439,13 @@ export const processInpsPhoto = async (file: File): Promise<File> => {
     throw new Error('Formato file non supportato. Usa JPEG, JPG o PNG.');
   }
 
+  // Density policy:
+  // - reject explicit input density below 72 DPI;
+  // - preserve valid input density after image processing;
+  // - use 72 DPI when the input has no physical density metadata.
+  const originalDensityDpi = await getPhotoDensityDpi(file);
+  validatePhotoDensityDpi(originalDensityDpi);
+
   logProcessor(`[PhotoProcessor] Lettura dimensioni in corso...`);
   const { width: L, height: H } = await getImageDimensions(file);
   logProcessor(
@@ -429,8 +516,15 @@ export const processInpsPhoto = async (file: File): Promise<File> => {
   }
 
   logProcessor(`--- [PhotoProcessor] FINE ELABORAZIONE ---\n`);
+  if (processedFile === file) {
+    return processedFile;
+  }
+
+  // Crop and compression may strip metadata, but they do not define a new
+  // physical print size. Restore the valid input density on the encoded file.
+  const outputDensityDpi = originalDensityDpi ?? JFIF_DPI;
   return processedFile.type === 'image/jpeg' ||
     processedFile.type === 'image/jpg'
-    ? setJpegDensityDpi(processedFile)
-    : setPngDensityDpi(processedFile);
+    ? setJpegDensityDpi(processedFile, outputDensityDpi)
+    : setPngDensityDpi(processedFile, outputDensityDpi);
 };

@@ -1,4 +1,7 @@
-import type { GestioneDomandaCedRepository } from "@pagopa/io-core-adapter-inps-ced";
+import type {
+  GestioneDomandaCedRepository,
+  TipoEsitoCheck,
+} from "@pagopa/io-core-adapter-inps-ced";
 import type { UseCase } from "@pagopa/io-core-domain";
 import type { BaseError } from "@pagopa/io-core-domain/errors";
 
@@ -8,17 +11,27 @@ import { z } from "zod";
 
 import type { ApplicationState } from "../../../domain/entities/application-state.js";
 import type { SupportRecordRepository } from "../../../domain/ports/outbound/persistence/support-record.repository.js";
+import type {
+  ApplicantData,
+  ApplicantDataResolver,
+} from "../../ports/applicant-data-resolver.js";
 
 import { mapEsitoCheckToState } from "../../../domain/entities/application-state.js";
 import { validateUseCaseInput } from "../utils/validate-use-case-input.js";
 
 export const CheckRequestInputSchema = z.object({
+  familyName: z.string().min(1),
   fiscalCode: z.string().length(16),
+  givenName: z.string().min(1),
 });
 
 export type CheckRequestInput = z.infer<typeof CheckRequestInputSchema>;
 
 export interface CheckRequestOutput {
+  /** Applicant data prefilled from FIMS identity and fiscal code. */
+  readonly applicantData: ApplicantData;
+  /** Raw INPS CheckDomanda outcome used to derive the application state. */
+  readonly esitoCheck: TipoEsitoCheck;
   /** INPS idLavorazione bound to the application, when one exists. */
   readonly idLavorazione?: null | string;
   /** INPS-assigned document number, present when state is ACQUIRED. */
@@ -49,6 +62,7 @@ export const makeCheckRequestUseCase =
   (
     gestioneDomandaCedRepository: GestioneDomandaCedRepository,
     supportRecordRepository: SupportRecordRepository,
+    applicantDataResolver: ApplicantDataResolver,
   ): CheckRequestUseCase =>
   async (input) => {
     const validated = await validateUseCaseInput(
@@ -88,6 +102,8 @@ export const makeCheckRequestUseCase =
     }
 
     const output: CheckRequestOutput = {
+      applicantData: applicantDataResolver.resolve(validated.value),
+      esitoCheck: response.esitoCheck,
       idLavorazione: response.idLavorazione,
       state,
       ...(numDomus !== undefined ? { numDomus } : {}),

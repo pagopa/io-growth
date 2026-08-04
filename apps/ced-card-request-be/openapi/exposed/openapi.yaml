@@ -174,18 +174,7 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  state:
-                    $ref: "#/components/schemas/ApplicationState"
-                    description: Current or final application state.
-                  idLavorazione:
-                    type: string
-                    nullable: true
-                    description: INPS idLavorazione bound to the application, when one exists.
-                  numDomus:
-                    type: string
-                    description: INPS-assigned document number, present when state is ACQUIRED.
+                $ref: "#/components/schemas/StateResponse"
         "400":
           description:
             INPS business/logic error (e.g., Active Card, foreign residence,
@@ -578,10 +567,48 @@ components:
 
     StateResponse:
       type: object
+      required:
+        - applicantData
+        - esitoCheck
+        - state
       properties:
+        applicantData:
+          $ref: "#/components/schemas/ApplicantData"
+        esitoCheck:
+          type: integer
+          enum: [10, 20, 30, 40, 50]
+          description: Raw INPS CheckDomanda outcome used to derive the application state.
+        idLavorazione:
+          type: string
+          nullable: true
+          description: INPS idLavorazione bound to the application, when one exists.
+        numDomus:
+          type: string
+          description: INPS-assigned document number, present when state is ACQUIRED.
         state:
           $ref: "#/components/schemas/ApplicationState"
           description: Current or final application state.
+
+    ApplicantData:
+      type: object
+      required:
+        - nome
+        - cognome
+      properties:
+        nome:
+          type: string
+          description: Applicant given name retrieved from the FIMS session.
+        cognome:
+          type: string
+          description: Applicant family name retrieved from the FIMS session.
+        sesso:
+          type: string
+          enum: [M, F]
+          description: Gender decoded from the fiscal code, when available.
+        dataNascita:
+          type: string
+          format: date
+          description: Birth date decoded from the fiscal code, when available.
 
     ErrorDetail:
       type: object

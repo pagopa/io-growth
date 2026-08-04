@@ -11,12 +11,24 @@ import type { SupportRecord } from "../../../../domain/entities/support-record.j
 
 import { makeCheckRequestUseCase } from "../check-request.use-case.js";
 import {
+  createMockApplicantDataResolver,
   createMockGestioneDomandaCedRepository,
   createMockSupportRecordRepository,
 } from "./mocks.js";
 
 const FISCAL_CODE = "RSSMRA80A01H501U";
 const MOCK_ID_LAVORAZIONE = "12345678901234567890";
+const INPUT = {
+  familyName: "Rossi",
+  fiscalCode: FISCAL_CODE,
+  givenName: "Mario",
+};
+const APPLICANT_DATA = {
+  cognome: "Rossi",
+  dataNascita: "1980-01-01",
+  nome: "Mario",
+  sesso: "M" as const,
+};
 
 const baseRecord = (overrides?: Partial<SupportRecord>): SupportRecord => ({
   codiceFiscale: FISCAL_CODE,
@@ -36,7 +48,12 @@ const baseRecord = (overrides?: Partial<SupportRecord>): SupportRecord => ({
 describe("makeCheckRequestUseCase", () => {
   const checkDomandaRepo = createMockGestioneDomandaCedRepository();
   const supportRecordRepo = createMockSupportRecordRepository();
-  const useCase = makeCheckRequestUseCase(checkDomandaRepo, supportRecordRepo);
+  const applicantDataResolver = createMockApplicantDataResolver();
+  const useCase = makeCheckRequestUseCase(
+    checkDomandaRepo,
+    supportRecordRepo,
+    applicantDataResolver,
+  );
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -57,14 +74,20 @@ describe("makeCheckRequestUseCase", () => {
         ok({ esitoCheck, idLavorazione: MOCK_ID_LAVORAZIONE }),
       );
 
-      const result = await useCase({ fiscalCode: FISCAL_CODE });
+      const result = await useCase(INPUT);
 
       expect(checkDomandaRepo.checkDomanda).toHaveBeenCalledWith({
         codiceFiscale: FISCAL_CODE,
       });
       expect(result).toEqual(
-        ok({ idLavorazione: MOCK_ID_LAVORAZIONE, state: expectedState }),
+        ok({
+          applicantData: APPLICANT_DATA,
+          esitoCheck,
+          idLavorazione: MOCK_ID_LAVORAZIONE,
+          state: expectedState,
+        }),
       );
+      expect(applicantDataResolver.resolve).toHaveBeenCalledWith(INPUT);
       expect(supportRecordRepo.getByCodiceFiscale).not.toHaveBeenCalled();
     },
   );
@@ -81,10 +104,12 @@ describe("makeCheckRequestUseCase", () => {
         ok(baseRecord({ numDomus: "DOMUS-001" })),
       );
 
-      const result = await useCase({ fiscalCode: FISCAL_CODE });
+      const result = await useCase(INPUT);
 
       expect(result).toEqual(
         ok({
+          applicantData: APPLICANT_DATA,
+          esitoCheck: TipoEsitoCheck.NUMBER_40,
           idLavorazione: MOCK_ID_LAVORAZIONE,
           numDomus: "DOMUS-001",
           state: "ACQUIRED",
@@ -103,10 +128,15 @@ describe("makeCheckRequestUseCase", () => {
         }),
       );
 
-      const result = await useCase({ fiscalCode: FISCAL_CODE });
+      const result = await useCase(INPUT);
 
       expect(result).toEqual(
-        ok({ idLavorazione: MOCK_ID_LAVORAZIONE, state: "ACQUIRED" }),
+        ok({
+          applicantData: APPLICANT_DATA,
+          esitoCheck: TipoEsitoCheck.NUMBER_40,
+          idLavorazione: MOCK_ID_LAVORAZIONE,
+          state: "ACQUIRED",
+        }),
       );
     });
 
@@ -121,14 +151,14 @@ describe("makeCheckRequestUseCase", () => {
         err(new ServiceUnavailableError("Cosmos read failed")),
       );
 
-      const result = await useCase({ fiscalCode: FISCAL_CODE });
+      const result = await useCase(INPUT);
 
       expect(result).toEqual(err(expect.any(ServiceUnavailableError)));
     });
   });
 
   it("returns a ValidationError for an invalid fiscal code", async () => {
-    const result = await useCase({ fiscalCode: "short" });
+    const result = await useCase({ ...INPUT, fiscalCode: "short" });
 
     expect(checkDomandaRepo.checkDomanda).not.toHaveBeenCalled();
     expect(result).toEqual(err(expect.any(ValidationError)));
@@ -139,7 +169,7 @@ describe("makeCheckRequestUseCase", () => {
       err(new GenericError("INPS unavailable")),
     );
 
-    const result = await useCase({ fiscalCode: FISCAL_CODE });
+    const result = await useCase(INPUT);
 
     expect(result).toEqual(err(expect.any(GenericError)));
   });
@@ -149,7 +179,7 @@ describe("makeCheckRequestUseCase", () => {
       ok({ idLavorazione: null }),
     );
 
-    const result = await useCase({ fiscalCode: FISCAL_CODE });
+    const result = await useCase(INPUT);
 
     expect(result).toEqual(err(expect.any(GenericError)));
   });

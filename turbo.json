@@ -2,9 +2,14 @@
   "$schema": "https://turbo.build/schema.json",
   "tasks": {
     "generate": {
-      "inputs": ["openapi/**/*.yaml", "orval.config.ts"],
+      "inputs": [
+        "openapi/**/*.yaml",
+        "orval.config.ts",
+        "$TURBO_ROOT$/apps/ced-card-request-be/openapi/exposed/openapi.yaml"
+      ],
       "outputs": [
         "src/adapters/inbound/fastify/contracts/**",
+        "src/core/api/generated/**",
         "src/generated/**"
       ]
     },

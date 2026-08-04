@@ -45,6 +45,7 @@ import {
 } from "./adapters/inbound/fastify/index.js";
 import { createCosmosHealthCheckRepository } from "./adapters/outbound/cosmos/cosmos-health-check.repository.js";
 import { createCosmosSupportRecordRepository } from "./adapters/outbound/cosmos/cosmos-support-record.repository.js";
+import { createFiscalCodeApplicantDataResolver } from "./adapters/outbound/fiscal-code/fiscal-code-applicant-data.resolver.js";
 import { createRedisHealthCheckRepository } from "./adapters/outbound/redis/redis-health-check.repository.js";
 import { createRedisSessionRepository } from "./adapters/outbound/redis/redis-session.repository.js";
 import { makeConfirmApplicationUseCase } from "./application/use-cases/confirm/confirm-application.use-case.js";
@@ -150,6 +151,7 @@ initInpsCedClient(
   getTelemetryClient(),
 );
 const gestioneDomandaCedRepository = createGestioneDomandaCedClient();
+const applicantDataResolver = createFiscalCodeApplicantDataResolver();
 
 const app = Fastify({ logger: true });
 
@@ -187,6 +189,7 @@ app.register(async (authenticatedApp) => {
     makeCheckRequestUseCase(
       gestioneDomandaCedRepository,
       supportRecordRepository,
+      applicantDataResolver,
     ),
   );
 

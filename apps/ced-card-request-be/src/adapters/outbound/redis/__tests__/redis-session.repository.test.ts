@@ -79,4 +79,13 @@ describe("createRedisSessionRepository (card — key prefix 'card:')", () => {
     const result = await store.getSession("token-abc");
     expect(result.isErr()).toBe(true);
   });
+
+  it("getSession returns NotFoundError when the session key is absent (expired/inexistent token)", async () => {
+    mockGet.mockResolvedValue(ok(null));
+    const store = createRedisSessionRepository(fakeClient);
+    const result = await store.getSession("token-abc");
+    expect(result).toEqual(
+      err(expect.objectContaining({ kind: "NotFoundError" })),
+    );
+  });
 });

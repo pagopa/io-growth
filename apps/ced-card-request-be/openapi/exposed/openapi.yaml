@@ -609,6 +609,15 @@ components:
           type: string
           format: date
           description: Birth date decoded from the fiscal code, when available.
+        comuneNascita:
+          type: string
+          description: Italian municipality decoded from the Belfiore code, when applicable.
+        siglaProvinciaNascita:
+          type: string
+          description: Italian province abbreviation decoded from the Belfiore code.
+        statoNascita:
+          type: string
+          description: Birth state decoded from the Belfiore code.
 
     ErrorDetail:
       type: object

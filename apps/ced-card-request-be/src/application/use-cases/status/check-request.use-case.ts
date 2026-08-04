@@ -102,7 +102,7 @@ export const makeCheckRequestUseCase =
     }
 
     const output: CheckRequestOutput = {
-      applicantData: applicantDataResolver.resolve(validated.value),
+      applicantData: await applicantDataResolver.resolve(validated.value),
       esitoCheck: response.esitoCheck,
       idLavorazione: response.idLavorazione,
       state,

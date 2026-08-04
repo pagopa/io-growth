@@ -3,7 +3,16 @@ import { NuovaDomandaInBozzaRequest } from '../../core/api/generated/model';
 
 export type RequestFormState = NuovaDomandaInBozzaRequest;
 export type ApplicantDataPrefill = Partial<
-  Pick<RequestFormState, 'cognome' | 'dataNascita' | 'nome' | 'sesso'>
+  Pick<
+    RequestFormState,
+    | 'cognome'
+    | 'comuneNascita'
+    | 'dataNascita'
+    | 'nome'
+    | 'sesso'
+    | 'siglaProvinciaNascita'
+    | 'statoNascita'
+  >
 >;
 
 const initialState: RequestFormState = {} as RequestFormState;
@@ -28,6 +37,15 @@ const requestFormSlice = createSlice({
         : {}),
       ...(!state.dataNascita && action.payload.dataNascita
         ? { dataNascita: action.payload.dataNascita }
+        : {}),
+      ...(!state.comuneNascita && action.payload.comuneNascita
+        ? { comuneNascita: action.payload.comuneNascita }
+        : {}),
+      ...(!state.siglaProvinciaNascita && action.payload.siglaProvinciaNascita
+        ? { siglaProvinciaNascita: action.payload.siglaProvinciaNascita }
+        : {}),
+      ...(!state.statoNascita && action.payload.statoNascita
+        ? { statoNascita: action.payload.statoNascita }
         : {}),
     }),
     setField: (

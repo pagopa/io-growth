@@ -1,8 +1,12 @@
+import { belfioreConnector } from "@marketto/belfiore-connector-embedded";
+
 import type {
   ApplicantData,
   ApplicantDataResolver,
 } from "../../../application/ports/applicant-data-resolver.js";
 
+// POC dependency: before production, replace this embedded catalog with an
+// approved, versioned official dataset or complete the third-party risk review.
 const OMOCODIA_DIGITS: Readonly<Record<string, string>> = {
   L: "0",
   M: "1",
@@ -94,12 +98,47 @@ const decodeBirthData = (
   };
 };
 
+const decodeBirthPlace = async (
+  fiscalCode: string,
+): Promise<
+  Pick<
+    ApplicantData,
+    "comuneNascita" | "siglaProvinciaNascita" | "statoNascita"
+  >
+> => {
+  const belfioreCode = fiscalCode.toUpperCase().slice(11, 15);
+  const place = await belfioreConnector.findByCode(belfioreCode);
+
+  if (!place) return {};
+
+  if (place.province) {
+    return {
+      comuneNascita: place.name,
+      siglaProvinciaNascita: place.province,
+      statoNascita: "ITALIA",
+    };
+  }
+
+  if (place.iso3166) {
+    return {
+      statoNascita: place.name,
+    };
+  }
+
+  return {};
+};
+
 export const createFiscalCodeApplicantDataResolver = (
   now: () => Date = () => new Date(),
 ): ApplicantDataResolver => ({
-  resolve: ({ familyName, fiscalCode, givenName }) => ({
-    cognome: familyName,
-    nome: givenName,
-    ...decodeBirthData(fiscalCode, now()),
-  }),
+  resolve: async ({ familyName, fiscalCode, givenName }) => {
+    const birthPlace = await decodeBirthPlace(fiscalCode);
+
+    return {
+      cognome: familyName,
+      nome: givenName,
+      ...decodeBirthData(fiscalCode, now()),
+      ...birthPlace,
+    };
+  },
 });

@@ -27,10 +27,13 @@ export const createMockSupportRecordRepository = (
 });
 
 export const createMockApplicantDataResolver = (): ApplicantDataResolver => ({
-  resolve: vi.fn().mockReturnValue({
+  resolve: vi.fn().mockResolvedValue({
     cognome: "Rossi",
+    comuneNascita: "ROMA",
     dataNascita: "1980-01-01",
     nome: "Mario",
     sesso: "M",
+    siglaProvinciaNascita: "RM",
+    statoNascita: "ITALIA",
   }),
 });

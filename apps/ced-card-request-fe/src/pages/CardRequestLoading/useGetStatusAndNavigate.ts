@@ -32,9 +32,7 @@ export const useGetStatusAndNavigate = () => {
         );
       }
 
-      if (data.state === 'READY_FOR_NEW_DRAFT') {
-        dispatch(prefillApplicantData(data.applicantData));
-      }
+      dispatch(prefillApplicantData(data.applicantData));
     },
     [dispatch],
   );

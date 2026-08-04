@@ -25,9 +25,12 @@ const INPUT = {
 };
 const APPLICANT_DATA = {
   cognome: "Rossi",
+  comuneNascita: "ROMA",
   dataNascita: "1980-01-01",
   nome: "Mario",
   sesso: "M" as const,
+  siglaProvinciaNascita: "RM",
+  statoNascita: "ITALIA",
 };
 
 const baseRecord = (overrides?: Partial<SupportRecord>): SupportRecord => ({

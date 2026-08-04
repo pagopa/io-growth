@@ -1,9 +1,9 @@
 import { Box, Collapse, Stack } from '@mui/material';
 import { LabelCaption, Title, VSpacer } from '@pagopa/io-core-ui';
+import { Banner, IllusMIEarth } from '@pagopa/mui-italia';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { APP_ROUTES } from '../../app/routeConfig';
-import { InfoBox } from '../../components/Infobox';
 import { theme } from '../../core/theme';
 import { Carousel } from './components/Carousel';
 import DiscoverySection from './components/DiscoverySection';
@@ -50,11 +50,17 @@ export default function HomePage() {
           </Stack>
           <DiscoverySection />
           <Box px={3} sx={{ flexShrink: 0 }}>
-            <InfoBox
+            <Banner
+              data-home-europe-banner="true"
+              color="white"
+              cta={{
+                label: 'Scopri dove usarla',
+                onClick: () => navigate(APP_ROUTES.EUROPEAN_OPPORTUNITIES),
+              }}
+              message="Diversi Paesi dell'Unione Europea offrono opportunità a chi ha la Carta Europea della Disabilità"
               title="Sai che la Carta vale anche in Europa?"
-              description="Diversi Paesi dell'Unione Europea offrono opportunità a chi ha la Carta Europea della Disabilità"
-              linkText="Scopri dove usarla"
-              onLinkClick={() => navigate(APP_ROUTES.EUROPEAN_OPPORTUNITIES)}
+              variant="primary"
+              illustration={<IllusMIEarth size={56} />}
             />
           </Box>
           <Box sx={{ height: '40px', flexShrink: 0 }} />

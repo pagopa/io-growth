@@ -30,7 +30,6 @@ function OpportunityContent({ eyebrow, title, badgeLabel }: OpportunityProps) {
       </Stack>
 
       <Box
-        className="DiscoveryListItem-badge"
         component="span"
         sx={{
           display: 'inline-flex',
@@ -76,14 +75,12 @@ export function DiscoveryListItem(props: DiscoveryListItemProps) {
       event.stopPropagation();
       onDelete();
     }
-    return null;
   };
 
   const Icon = onDelete ? CloseRoundedIcon : ChevronRightRoundedIcon;
   return (
-    <Box sx={{ width: '100%' }}>
+    <>
       <ButtonBase
-        className="DiscoveryListItem-root"
         onClick={onClick}
         disabled={disabled}
         sx={[
@@ -118,7 +115,6 @@ export function DiscoveryListItem(props: DiscoveryListItemProps) {
           )}
 
           <Box
-            className="DiscoveryListItem-chevronBox"
             sx={{
               display: 'flex',
               alignItems: 'center',
@@ -128,14 +124,13 @@ export function DiscoveryListItem(props: DiscoveryListItemProps) {
             }}
           >
             <Icon
-              className="DiscoveryListItem-chevron"
               sx={{ fontSize: 26, zIndex: 1 }}
               onClick={onDelete ? handleIconClick : undefined}
             />
           </Box>
         </Stack>
       </ButtonBase>
-      {props.divider && <Divider className="DiscoveryListItem-divider" />}
-    </Box>
+      {props.divider && <Divider />}
+    </>
   );
 }

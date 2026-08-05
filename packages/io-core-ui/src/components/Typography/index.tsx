@@ -110,6 +110,10 @@ export const Body = ({
   onClick,
 }: BodyProps) => {
   const { palette } = useTheme();
+  const linkProps = asLink
+    ? ({ component: "button", type: "button" } as const)
+    : {};
+
   return (
     <Typography
       onClick={onClick}
@@ -123,7 +127,21 @@ export const Body = ({
             ? palette.common.neutralDarkGray
             : palette.common.neutralBlack,
         textDecoration: asLink && !avoidTextDecoration ? "underline" : "none",
+        ...(asLink && {
+          padding: 0,
+          border: "none",
+          background: "none",
+          fontFamily: "inherit",
+          textAlign: "left",
+          cursor: "pointer",
+          borderRadius: "8px",
+          "&:focus-visible": {
+            outline: `2px solid ${palette.common.linkColor}`,
+            outlineOffset: "4px",
+          },
+        }),
       }}
+      {...linkProps}
     >
       {children}
     </Typography>

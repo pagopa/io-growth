@@ -54,11 +54,13 @@ export const PartnerCard = ({
           <Avatar
             src={logoUrl}
             variant="rounded"
-            imgProps={{
-              loading: 'eager',
-              decoding: 'async',
-              alt: '',
-              'aria-hidden': true,
+            slotProps={{
+              img: {
+                loading: 'eager',
+                decoding: 'async',
+                alt: '',
+                'aria-hidden': true,
+              },
             }}
             sx={{
               width: 44,
@@ -96,25 +98,26 @@ export const PartnerCard = ({
       role="group"
       aria-label={title}
       tabIndex={!onClick && !isInert ? 0 : undefined}
-      sx={{
+      sx={(theme) => ({
         width: 210,
         height: 196,
         borderRadius: 4,
         overflow: 'visible',
         position: 'relative',
-        border: '1px solid #E8EBF1',
+        border: '1px solid',
+        borderColor: theme.palette.common.cardBorder,
         '&:focus-visible': {
           outline: 'none',
-          boxShadow: 'inset 0 0 0 1px #0073e6',
+          boxShadow: `inset 0 0 0 1px ${theme.palette.common.focusRing}`,
         },
-      }}
+      })}
     >
       {onClick ? (
         <CardActionArea
           onClick={onClick}
           aria-label={title}
           tabIndex={isInert ? -1 : undefined}
-          sx={{
+          sx={(theme) => ({
             width: '100%',
             height: '100%',
             display: 'flex',
@@ -123,9 +126,9 @@ export const PartnerCard = ({
             borderRadius: 4,
             '&.Mui-focusVisible': {
               outline: 'none',
-              boxShadow: 'inset 0 0 0 1px #0073e6',
+              boxShadow: `inset 0 0 0 1px ${theme.palette.common.focusRing}`,
             },
-          }}
+          })}
         >
           {cardContent}
         </CardActionArea>

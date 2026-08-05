@@ -18,6 +18,16 @@ export const Carousel = ({ list }: CarouselProps) => {
 
   const extendedList = [list[list.length - 1], ...list, list[0]];
 
+  const getMappedIndex = useCallback(
+    (extendedIndex: number) =>
+      extendedIndex === 0
+        ? list.length - 1
+        : extendedIndex === extendedList.length - 1
+          ? 0
+          : extendedIndex - 1,
+    [extendedList.length, list.length],
+  );
+
   const scrollToExtendedIndex = useCallback(
     (extendedIndex: number, behavior: ScrollBehavior) => {
       const container = containerRef.current;
@@ -89,12 +99,7 @@ export const Carousel = ({ list }: CarouselProps) => {
         Math.min(rawIndex, extendedList.length - 1),
       );
       currentExtendedIndexRef.current = extendedIndex;
-      const mappedIndex =
-        extendedIndex === 0
-          ? list.length - 1
-          : extendedIndex === extendedList.length - 1
-            ? 0
-            : extendedIndex - 1;
+      const mappedIndex = getMappedIndex(extendedIndex);
 
       setActiveIdx((prev) => (prev === mappedIndex ? prev : mappedIndex));
 
@@ -125,7 +130,7 @@ export const Carousel = ({ list }: CarouselProps) => {
         window.clearTimeout(scrollEndTimeoutRef.current);
       }
     };
-  }, [extendedList.length, list.length, scrollToExtendedIndex]);
+  }, [extendedList.length, getMappedIndex, list.length, scrollToExtendedIndex]);
 
   const onClickDots = useCallback(
     (index: number) => {
@@ -155,16 +160,6 @@ export const Carousel = ({ list }: CarouselProps) => {
       scrollToExtendedIndex(currentExtendedIndexRef.current - 1, 'smooth');
     },
     [activeIdx, list.length, scrollToExtendedIndex],
-  );
-
-  const getMappedIndex = useCallback(
-    (extendedIndex: number) =>
-      extendedIndex === 0
-        ? list.length - 1
-        : extendedIndex === extendedList.length - 1
-          ? 0
-          : extendedIndex - 1,
-    [extendedList.length, list.length],
   );
 
   if (list.length === 1)

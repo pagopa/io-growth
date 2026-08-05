@@ -182,22 +182,22 @@ export const Carousel = ({ list }: CarouselProps) => {
       component="section"
       aria-label="Carosello partner in primo piano"
     >
-      <ScrollArea
-        ref={containerRef}
-        role="region"
-        aria-label="Elenco scorrevole partner"
-      >
-        {extendedList.map((item, idx) => (
-          <SlideBox
-            key={idx}
-            role="group"
-            aria-roledescription="slide"
-            aria-label={`Elemento ${getMappedIndex(idx) + 1} di ${list.length}: ${item.title}`}
-            aria-hidden={idx === 0 || idx === extendedList.length - 1}
-          >
-            <PartnerCard {...item} />
-          </SlideBox>
-        ))}
+      <ScrollArea ref={containerRef} role="list" aria-label="Elenco partner">
+        {extendedList.map((item, idx) => {
+          const isLoopDuplicate = idx === 0 || idx === extendedList.length - 1;
+
+          return (
+            <SlideBox
+              key={idx}
+              role="listitem"
+              aria-roledescription="slide"
+              aria-label={`Elemento ${getMappedIndex(idx) + 1} di ${list.length}: ${item.title}`}
+              aria-hidden={isLoopDuplicate}
+            >
+              <PartnerCard {...item} isInert={isLoopDuplicate} />
+            </SlideBox>
+          );
+        })}
       </ScrollArea>
 
       <Stack

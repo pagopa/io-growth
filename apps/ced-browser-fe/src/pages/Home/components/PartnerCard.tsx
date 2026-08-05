@@ -14,6 +14,7 @@ export const PartnerCard = ({
   imageUrl,
   logoUrl,
   onClick,
+  isInert = false,
 }: PartnerCardProps) => {
   const cardContent = (
     <>
@@ -94,7 +95,7 @@ export const PartnerCard = ({
     <Card
       role="group"
       aria-label={title}
-      tabIndex={0}
+      tabIndex={!onClick && !isInert ? 0 : undefined}
       sx={{
         width: 210,
         height: 196,
@@ -102,18 +103,28 @@ export const PartnerCard = ({
         overflow: 'visible',
         position: 'relative',
         border: '1px solid #E8EBF1',
+        '&:focus-visible': {
+          outline: 'none',
+          boxShadow: 'inset 0 0 0 1px #0073e6',
+        },
       }}
     >
       {onClick ? (
         <CardActionArea
           onClick={onClick}
           aria-label={title}
+          tabIndex={isInert ? -1 : undefined}
           sx={{
             width: '100%',
             height: '100%',
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'stretch',
+            borderRadius: 4,
+            '&.Mui-focusVisible': {
+              outline: 'none',
+              boxShadow: 'inset 0 0 0 1px #0073e6',
+            },
           }}
         >
           {cardContent}

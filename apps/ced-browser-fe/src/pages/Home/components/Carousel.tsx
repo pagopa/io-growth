@@ -236,11 +236,7 @@ export const Carousel = ({ list }: CarouselProps) => {
         </Button>
       </Stack>
 
-      <Box
-        className="sr-only"
-        aria-live="polite"
-        aria-atomic="true"
-      >
+      <Box className="sr-only" aria-live="polite" aria-atomic="true">
         {`Elemento ${activeIdx + 1} di ${list.length}: ${list[activeIdx]?.title ?? ''}`}
       </Box>
     </CarouselContainer>

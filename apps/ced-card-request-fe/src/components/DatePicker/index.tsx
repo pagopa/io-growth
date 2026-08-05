@@ -16,6 +16,7 @@ export interface AppDatePickerProps extends Omit<
   onBlur?: () => void;
   error?: boolean;
   helperText?: string;
+  required?: boolean;
 }
 
 export function AppDatePicker({
@@ -24,6 +25,7 @@ export function AppDatePicker({
   onBlur,
   error,
   helperText,
+  required,
   sx,
   ...props
 }: AppDatePickerProps) {
@@ -53,6 +55,7 @@ export function AppDatePicker({
           onBlur,
           error,
           helperText,
+          required,
           fullWidth: true,
         },
         inputAdornment: {

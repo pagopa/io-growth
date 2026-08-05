@@ -70,7 +70,7 @@ describe("makeInfoReadinessUseCase", () => {
     ).toHaveBeenCalledOnce();
     expect(
       sessionStoreHealthCheckRepository.checkConnection,
-    ).not.toHaveBeenCalledOnce();
+    ).not.toHaveBeenCalled();
   });
 
   it("should return err when session store connection fails", async () => {

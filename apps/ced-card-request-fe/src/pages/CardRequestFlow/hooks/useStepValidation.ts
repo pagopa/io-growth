@@ -10,20 +10,16 @@ export type ValidationRules = {
   patternMessage?: string;
 };
 
-export type ValidatableField = ValidationRules & {
+export type ValidatableField = {
   field: RequestField;
   value: string;
+  rules?: ValidationRules;
 };
 
 export type FieldErrors = Partial<Record<RequestField, string>>;
 
-const getFieldError = ({
-  value,
-  required,
-  maxLength,
-  pattern,
-  patternMessage,
-}: ValidatableField) => {
+const getFieldError = ({ value, rules }: ValidatableField) => {
+  const { required, maxLength, pattern, patternMessage } = rules ?? {};
   const trimmed = value.trim();
 
   if (!trimmed) return required ? 'Campo obbligatorio' : undefined;

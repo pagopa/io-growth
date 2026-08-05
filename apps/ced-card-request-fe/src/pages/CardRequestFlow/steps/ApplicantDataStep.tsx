@@ -22,7 +22,7 @@ export const ApplicantDataStep = forwardRef<StepRef>(
         <VSpacer />
         <Body>Conferma i tuoi dati anagrafici.</Body>
         <Box sx={{ mt: 3, display: 'grid', gap: 2.25 }}>
-          {personalData.map(({ field, type, onChange, ...rest }) => {
+          {personalData.map(({ field, type, onChange, rules, ...rest }) => {
             const error = errors[field];
             const handleChange = (e: { target: { value: unknown } }) => {
               onChange(e);
@@ -35,6 +35,7 @@ export const ApplicantDataStep = forwardRef<StepRef>(
                   key={field}
                   error={!!error}
                   helperText={error}
+                  required={rules?.required}
                   onChange={(value) => handleChange({ target: { value } })}
                   {...rest}
                 />
@@ -47,6 +48,7 @@ export const ApplicantDataStep = forwardRef<StepRef>(
                   onChange={handleChange}
                   error={!!error}
                   helperText={error}
+                  required={rules?.required}
                   {...rest}
                 />
               );
@@ -57,6 +59,7 @@ export const ApplicantDataStep = forwardRef<StepRef>(
                 onChange={handleChange}
                 error={!!error}
                 helperText={error}
+                required={rules?.required}
                 {...rest}
               />
             );

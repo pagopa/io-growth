@@ -4,11 +4,12 @@ import { NuovaDomandaInBozzaRequest } from '../../../core/api/generated/model';
 import { makeSelectRequestFormField } from '../../../features/request-form/selectors';
 import type { ValidationRules } from './useStepValidation';
 
-type PersonalDataFormType = ValidationRules & {
+type PersonalDataFormType = {
   label: string;
   type: 'text' | 'select' | 'date';
   field: keyof NuovaDomandaInBozzaRequest;
   options?: Array<{ value: string; label: string }>;
+  rules?: ValidationRules;
 };
 
 const sessoOptions = [
@@ -22,56 +23,60 @@ const cittadinanzaOptions = [
 ];
 
 export const PERSONAL_DATA_FORM_CONFIG: PersonalDataFormType[] = [
-  { label: 'Nome', field: 'nome', type: 'text', required: true, maxLength: 50 },
+  {
+    label: 'Nome',
+    field: 'nome',
+    type: 'text',
+    rules: { required: true, maxLength: 50 },
+  },
   {
     label: 'Cognome',
     field: 'cognome',
     type: 'text',
-    required: true,
-    maxLength: 50,
+    rules: { required: true, maxLength: 50 },
   },
   {
     label: 'Sesso',
     field: 'sesso',
     type: 'select',
-    required: true,
     options: sessoOptions,
+    rules: { required: true },
   },
   {
     label: 'Data di nascita',
     field: 'dataNascita',
     type: 'date',
-    required: true,
+    rules: { required: true },
   },
   {
     label: 'Comune di nascita',
     field: 'comuneNascita',
     type: 'text',
-    required: true,
-    maxLength: 60,
+    rules: { required: true, maxLength: 60 },
   },
   {
     label: 'Provincia di nascita',
     field: 'siglaProvinciaNascita',
     type: 'text',
-    required: true,
-    maxLength: 2,
-    pattern: /^[A-Za-z]{2}$/,
-    patternMessage: 'Inserisci la sigla di 2 lettere (es. RM)',
+    rules: {
+      required: true,
+      maxLength: 2,
+      pattern: /^[A-Za-z]{2}$/,
+      patternMessage: 'Inserisci la sigla di 2 lettere (es. RM)',
+    },
   },
   {
     label: 'Stato di nascita',
     field: 'statoNascita',
     type: 'text',
-    required: true,
-    maxLength: 60,
+    rules: { required: true, maxLength: 60 },
   },
   {
     label: 'Cittadinanza',
     field: 'idCittadinanza',
     type: 'select',
-    required: true,
     options: cittadinanzaOptions,
+    rules: { required: true },
   },
 ];
 

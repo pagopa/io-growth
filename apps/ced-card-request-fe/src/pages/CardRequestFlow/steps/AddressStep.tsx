@@ -25,18 +25,32 @@ export const AddressStep = forwardRef<StepRef>(function AddressStep(_, ref) {
       </Body>
 
       <Box sx={{ mt: 3, display: 'grid', gap: 2.25 }}>
-        {addressFields.map(({ field, type, onChange, ...rest }) => {
-          const Component = type === 'text' ? AppTextField : AppSelect;
+        {addressFields.map(({ field, type, onChange, rules, ...rest }) => {
           const error = errors[field];
+          const handleChange = (e: { target: { value: unknown } }) => {
+            onChange(e);
+            resetFieldError(field);
+          };
+
+          if (type === 'select') {
+            return (
+              <AppSelect
+                key={field}
+                error={!!error}
+                helperText={error}
+                required={rules?.required}
+                onChange={handleChange}
+                {...rest}
+              />
+            );
+          }
           return (
-            <Component
+            <AppTextField
               key={field}
               error={!!error}
               helperText={error}
-              onChange={(e) => {
-                onChange(e);
-                resetFieldError(field);
-              }}
+              required={rules?.required}
+              onChange={handleChange}
               {...rest}
             />
           );

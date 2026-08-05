@@ -1,10 +1,11 @@
-import { TypedDbClient } from "@pagopa/io-core-adapter-drizzle";
+import type { TypedDbClient } from "@pagopa/io-core-adapter-drizzle";
+
 import { GenericError } from "@pagopa/io-core-domain";
 import { sql } from "drizzle-orm";
 import { err, ok } from "neverthrow";
 
-import { IHealthCheckRepository } from "../../../domain/ports/outbound/health-check.repository.js";
-import * as schema from "./schema/index.js";
+import type { IHealthCheckRepository } from "../../../domain/ports/outbound/health-check.repository.js";
+import type * as schema from "./schema/index.js";
 
 export const createDrizzleHealthCheckRepository = (
   db: TypedDbClient<typeof schema>,

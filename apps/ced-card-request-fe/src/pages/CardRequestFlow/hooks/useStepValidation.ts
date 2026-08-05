@@ -30,7 +30,9 @@ const getFieldError = ({
   if (maxLength && trimmed.length > maxLength) {
     return `Massimo ${maxLength} caratteri`;
   }
-  if (pattern && !pattern.test(trimmed)) return patternMessage;
+  if (pattern && !pattern.test(trimmed)) {
+    return patternMessage ?? 'Formato non valido';
+  }
 
   return undefined;
 };

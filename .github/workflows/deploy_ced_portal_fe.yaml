@@ -20,7 +20,7 @@ on:
 
 jobs:
     deploy_ced_portal_fe:
-        uses: pagopa/dx/.github/workflows/release-azure-staticapp-v1.yaml@f3f25e347c804518c0127fd7b42dd364d50a9f92 # main
+        uses: pagopa/dx/.github/workflows/release-azure-staticapp-v1.yaml@main
         name: Deploy CED Portal FE
         secrets: inherit
         with:

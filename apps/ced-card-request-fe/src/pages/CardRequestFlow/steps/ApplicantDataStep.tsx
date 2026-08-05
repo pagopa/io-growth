@@ -44,7 +44,7 @@ export const ApplicantDataStep = forwardRef<StepRef>(
               return (
                 <AppSelect
                   key={field}
-                  onChange={onChange}
+                  onChange={handleChange}
                   error={!!error}
                   helperText={error}
                   {...rest}
@@ -54,7 +54,7 @@ export const ApplicantDataStep = forwardRef<StepRef>(
             return (
               <AppTextField
                 key={field}
-                onChange={onChange}
+                onChange={handleChange}
                 error={!!error}
                 helperText={error}
                 {...rest}

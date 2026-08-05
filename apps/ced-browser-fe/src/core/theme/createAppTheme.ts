@@ -134,6 +134,17 @@ export const createAppTheme = () =>
             fontFamily: '"Titillio", Arial, sans-serif',
             backgroundColor: muiItaliaTheme.palette.background.paper,
           },
+          '.sr-only': {
+            position: 'absolute',
+            width: 1,
+            height: 1,
+            p: 0,
+            m: -1,
+            overflow: 'hidden',
+            clip: 'rect(0 0 0 0)',
+            whiteSpace: 'nowrap',
+            border: 0,
+          },
           'input, button, textarea, select': {
             fontFamily: '"Titillio", Arial, sans-serif',
           },

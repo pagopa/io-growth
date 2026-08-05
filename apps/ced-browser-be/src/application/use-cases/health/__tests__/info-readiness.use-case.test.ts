@@ -4,7 +4,7 @@ import { readFileSync } from "node:fs";
 import { describe, expect } from "vitest";
 import { it, vi } from "vitest";
 
-import type { IHealthCheckRepository } from "../../../../domain/ports/outbound/health-check.repository";
+import type { IHealthCheckRepository } from "../../../../domain/ports/outbound/health-check.repository.js";
 
 import { makeGetInfoReadinessUseCase } from "../info-readiness.use-case.js";
 const packageInfo = JSON.parse(

@@ -4,7 +4,7 @@ import type { GenericError } from "@pagopa/io-core-domain/errors";
 import { err, ok } from "neverthrow";
 import { readFile } from "node:fs/promises";
 
-import type { IHealthCheckRepository } from "../../../domain/ports/outbound/health-check.repository.js";
+import type { HealthCheckRepository } from "../../../domain/ports/outbound/health-check.repository.js";
 
 export interface InfoReadinessOutput {
   readonly name: string;
@@ -16,19 +16,19 @@ const packageInfo = JSON.parse(
   await readFile(new URL("../../../../package.json", import.meta.url), "utf8"),
 ) as Pick<InfoReadinessOutput, "name" | "version">;
 
-export type GetInfoReadinessUseCase = UseCase<
+export type InfoReadinessUseCase = UseCase<
   Record<string, never>,
   InfoReadinessOutput,
   GenericError
 >;
 
 interface Dependencies {
-  readonly persistenceHealthCheckRepository: IHealthCheckRepository;
-  readonly sessionStoreHealthCheckRepository: IHealthCheckRepository;
+  readonly persistenceHealthCheckRepository: HealthCheckRepository;
+  readonly sessionStoreHealthCheckRepository: HealthCheckRepository;
 }
 
-export const makeGetInfoReadinessUseCase =
-  (deps: Dependencies): GetInfoReadinessUseCase =>
+export const makeInfoReadinessUseCase =
+  (deps: Dependencies): InfoReadinessUseCase =>
   async () => {
     const persistenceResult =
       await deps.persistenceHealthCheckRepository.checkConnection();

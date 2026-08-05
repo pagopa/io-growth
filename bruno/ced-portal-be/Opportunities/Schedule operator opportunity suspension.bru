@@ -1,0 +1,22 @@
+meta {
+  name: Schedule operator opportunity suspension
+  type: http
+  seq: 9
+}
+
+patch {
+  url: {{baseUrl}}/operator/opportunities/:opportunityId/suspension/schedule
+  body: json
+  auth: inherit
+}
+
+params:path {
+  opportunityId: an-opportunity-id
+}
+
+body:json {
+  {
+    "suspensionMessage": "The opportunity is temporarily unavailable",
+    "suspendFrom": "2026-12-01"
+  }
+}

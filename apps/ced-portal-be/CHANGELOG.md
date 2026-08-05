@@ -1,5 +1,11 @@
 # ced-portal-be
 
+## 0.2.15
+
+### Patch Changes
+
+- dfeaa7c: align naming convention
+
 ## 0.2.14
 
 ### Patch Changes

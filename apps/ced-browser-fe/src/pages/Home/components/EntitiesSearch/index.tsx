@@ -151,7 +151,12 @@ export function EntitiesSearch({
           inputRef={inputRef}
           value={query}
           onChange={(event) => setQuery(event.target.value)}
-          onFocus={() => setIsSearchActive(true)}
+          onClick={() => setIsSearchActive(true)}
+          onKeyDown={(event) => {
+            if (event.key === 'Enter') {
+              setIsSearchActive(true);
+            }
+          }}
           onBlur={onBlur}
           label="Cerca per città, struttura o ente"
           variant="outlined"

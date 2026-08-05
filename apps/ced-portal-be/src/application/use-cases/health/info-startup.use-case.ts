@@ -14,7 +14,7 @@ const packageInfo = JSON.parse(
   await readFile(new URL("../../../../package.json", import.meta.url), "utf8"),
 ) as Pick<InfoStartupOutput, "name" | "version">;
 
-export const makeGetInfoStartupUseCase: UseCase<
+export const makeInfoStartupUseCase: UseCase<
   Record<string, never>,
   InfoStartupOutput,
   BaseError

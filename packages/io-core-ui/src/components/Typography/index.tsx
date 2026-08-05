@@ -36,10 +36,21 @@ type TitleProps = {
   fontWeight?: TypographyProps["fontWeight"];
 };
 
+const titleA11yLevel: Record<Variant, number> = {
+  XXL: 1,
+  XL: 1,
+  LG: 1,
+  MD: 2,
+  SM: 3,
+  XS: 4,
+};
+
 export const Title = ({ text, variant, fontWeight = 600 }: TitleProps) => {
   const theme = useTheme();
   return (
     <Typography
+      role="heading"
+      aria-level={titleA11yLevel[variant]}
       sx={{
         fontWeight,
         fontSize: titleStyles[variant].size,

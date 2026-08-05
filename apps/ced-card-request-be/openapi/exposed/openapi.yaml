@@ -186,6 +186,12 @@ paths:
                   numDomus:
                     type: string
                     description: INPS-assigned document number, present when state is ACQUIRED.
+        "401":
+          description: Unauthorized — invalid or expired session.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
         "400":
           description:
             INPS business/logic error (e.g., Active Card, foreign residence,
@@ -242,6 +248,12 @@ paths:
                     type: string
                     description: INPS idLavorazione associated with the application
                     maxLength: 20
+        "401":
+          description: Unauthorized — invalid or expired session.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
         "400":
           description: INPS data validation error (Codes 200-315)
           content:
@@ -290,6 +302,12 @@ paths:
                   state:
                     $ref: "#/components/schemas/ApplicationState"
                     example: READY_FOR_DOCUMENTS_UPLOAD
+        "401":
+          description: Unauthorized — invalid or expired session.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
         "400":
           description: Photo validation or state inconsistency error (Codes 900-911, 115)
           content:
@@ -343,6 +361,12 @@ paths:
                     type: string
                     nullable: true
                     description: INPS-assigned document number for the acquired application.
+        "401":
+          description: Unauthorized — invalid or expired session.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
         "400":
           description:
             Documentation validation or state inconsistency error (Codes

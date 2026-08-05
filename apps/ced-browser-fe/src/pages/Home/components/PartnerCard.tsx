@@ -1,5 +1,6 @@
 import {
   Card,
+  CardActionArea,
   CardContent,
   CardMedia,
   Typography,
@@ -14,23 +15,14 @@ export const PartnerCard = ({
   logoUrl,
   onClick,
 }: PartnerCardProps) => {
-  return (
-    <Card
-      onClick={onClick}
-      sx={{
-        width: 210,
-        height: 196,
-        borderRadius: 4,
-        overflow: 'visible',
-        position: 'relative',
-        border: '1px solid #E8EBF1',
-      }}
-    >
+  const cardContent = (
+    <>
       <CardMedia
         component="img"
         height="115"
         image={imageUrl}
-        alt={title}
+        alt=""
+        aria-hidden="true"
         loading="eager"
         sx={{ borderRadius: '16px 16px 0 0' }}
       />
@@ -61,7 +53,12 @@ export const PartnerCard = ({
           <Avatar
             src={logoUrl}
             variant="rounded"
-            imgProps={{ loading: 'eager', decoding: 'async' }}
+            imgProps={{
+              loading: 'eager',
+              decoding: 'async',
+              alt: '',
+              'aria-hidden': true,
+            }}
             sx={{
               width: 44,
               height: 44,
@@ -70,10 +67,11 @@ export const PartnerCard = ({
             }}
           />
         </Box>
-        {/* Leave as Typography for now since we don't know how many lines the title might span */}
+
         <Typography
           variant="body2"
           component="div"
+          aria-hidden="true"
           sx={{
             fontWeight: '700',
             lineHeight: 1.3,
@@ -89,6 +87,40 @@ export const PartnerCard = ({
           {title}
         </Typography>
       </CardContent>
+    </>
+  );
+
+  return (
+    <Card
+      role="group"
+      aria-label={title}
+      tabIndex={0}
+      sx={{
+        width: 210,
+        height: 196,
+        borderRadius: 4,
+        overflow: 'visible',
+        position: 'relative',
+        border: '1px solid #E8EBF1',
+      }}
+    >
+      {onClick ? (
+        <CardActionArea
+          onClick={onClick}
+          aria-label={title}
+          sx={{
+            width: '100%',
+            height: '100%',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'stretch',
+          }}
+        >
+          {cardContent}
+        </CardActionArea>
+      ) : (
+        cardContent
+      )}
     </Card>
   );
 };

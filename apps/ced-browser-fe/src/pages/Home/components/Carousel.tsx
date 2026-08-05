@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Button, Stack } from '@mui/material';
+import { Box, Button, Stack } from '@mui/material';
 import { ChevronLeftRounded, ChevronRightRounded } from '@mui/icons-material';
 import { PartnerCard } from './PartnerCard';
 import { CarouselContainer, ScrollArea, SlideBox, StyledDots } from './styled';
@@ -157,18 +157,44 @@ export const Carousel = ({ list }: CarouselProps) => {
     [activeIdx, list.length, scrollToExtendedIndex],
   );
 
+  const getMappedIndex = useCallback(
+    (extendedIndex: number) =>
+      extendedIndex === 0
+        ? list.length - 1
+        : extendedIndex === extendedList.length - 1
+          ? 0
+          : extendedIndex - 1,
+    [extendedList.length, list.length],
+  );
+
   if (list.length === 1)
     return (
-      <CarouselContainer>
+      <CarouselContainer
+        component="section"
+        aria-label="Carosello partner in primo piano"
+      >
         <PartnerCard {...list[0]} />
       </CarouselContainer>
     );
 
   return (
-    <CarouselContainer>
-      <ScrollArea ref={containerRef}>
+    <CarouselContainer
+      component="section"
+      aria-label="Carosello partner in primo piano"
+    >
+      <ScrollArea
+        ref={containerRef}
+        role="region"
+        aria-label="Elenco scorrevole partner"
+      >
         {extendedList.map((item, idx) => (
-          <SlideBox key={idx}>
+          <SlideBox
+            key={idx}
+            role="group"
+            aria-roledescription="slide"
+            aria-label={`Elemento ${getMappedIndex(idx) + 1} di ${list.length}: ${item.title}`}
+            aria-hidden={idx === 0 || idx === extendedList.length - 1}
+          >
             <PartnerCard {...item} />
           </SlideBox>
         ))}
@@ -180,7 +206,11 @@ export const Carousel = ({ list }: CarouselProps) => {
         mt={0.5}
         alignItems="center"
       >
-        <Button onClick={() => onStep('prev')} sx={{ minWidth: 0, p: 0.5 }}>
+        <Button
+          onClick={() => onStep('prev')}
+          sx={{ minWidth: 0, p: 0.5 }}
+          aria-label="Elemento precedente del carosello"
+        >
           <ChevronLeftRounded />
         </Button>
 
@@ -188,16 +218,42 @@ export const Carousel = ({ list }: CarouselProps) => {
           {list.map((_, idx) => (
             <StyledDots
               key={idx}
+              component="button"
+              type="button"
               onClick={() => onClickDots(idx)}
               className={activeIdx === idx ? 'active' : 'inactive'}
+              aria-label={`Vai all'elemento ${idx + 1} di ${list.length}`}
+              aria-current={activeIdx === idx ? 'true' : undefined}
             />
           ))}
         </Stack>
 
-        <Button onClick={() => onStep('next')} sx={{ minWidth: 0, p: 0.5 }}>
+        <Button
+          onClick={() => onStep('next')}
+          sx={{ minWidth: 0, p: 0.5 }}
+          aria-label="Elemento successivo del carosello"
+        >
           <ChevronRightRounded />
         </Button>
       </Stack>
+
+      <Box
+        sx={{
+          position: 'absolute',
+          width: 1,
+          height: 1,
+          p: 0,
+          m: -1,
+          overflow: 'hidden',
+          clip: 'rect(0 0 0 0)',
+          whiteSpace: 'nowrap',
+          border: 0,
+        }}
+        aria-live="polite"
+        aria-atomic="true"
+      >
+        {`Elemento ${activeIdx + 1} di ${list.length}: ${list[activeIdx]?.title ?? ''}`}
+      </Box>
     </CarouselContainer>
   );
 };

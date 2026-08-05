@@ -2,6 +2,17 @@ import { Box, Stack } from '@mui/material';
 import { styled } from '@mui/system';
 
 export const StyledDots = styled(Box)`
+  appearance: none;
+  background: transparent;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+
+  &:focus-visible {
+    outline: 2px solid #0073e6;
+    outline-offset: 2px;
+  }
+
   &.inactive {
     width: 8px;
     height: 8px;

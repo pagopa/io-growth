@@ -169,19 +169,13 @@ export const Carousel = ({ list }: CarouselProps) => {
 
   if (list.length === 1)
     return (
-      <CarouselContainer
-        component="section"
-        aria-label="Carosello partner in primo piano"
-      >
+      <CarouselContainer role="region" aria-label="Carosello partner in primo piano">
         <PartnerCard {...list[0]} />
       </CarouselContainer>
     );
 
   return (
-    <CarouselContainer
-      component="section"
-      aria-label="Carosello partner in primo piano"
-    >
+    <CarouselContainer role="region" aria-label="Carosello partner in primo piano">
       <ScrollArea ref={containerRef} role="list" aria-label="Elenco partner">
         {extendedList.map((item, idx) => {
           const isLoopDuplicate = idx === 0 || idx === extendedList.length - 1;
@@ -218,7 +212,6 @@ export const Carousel = ({ list }: CarouselProps) => {
           {list.map((_, idx) => (
             <StyledDots
               key={idx}
-              component="button"
               type="button"
               onClick={() => onClickDots(idx)}
               className={activeIdx === idx ? 'active' : 'inactive'}

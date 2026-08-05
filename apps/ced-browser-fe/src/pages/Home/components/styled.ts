@@ -1,7 +1,7 @@
 import { Box, Stack } from '@mui/material';
 import { styled } from '@mui/system';
 
-export const StyledDots = styled(Box)`
+export const StyledDots = styled('button')`
   appearance: none;
   background: transparent;
   padding: 0;

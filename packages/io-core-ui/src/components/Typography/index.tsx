@@ -92,7 +92,7 @@ type BaseBodyProps = {
 type BodyProps =
   | (BaseBodyProps & {
       asLink: true;
-      onClick: () => void;
+      onClick?: () => void;
       avoidTextDecoration?: boolean;
     })
   | (BaseBodyProps & {
@@ -110,7 +110,8 @@ export const Body = ({
   onClick,
 }: BodyProps) => {
   const { palette } = useTheme();
-  const linkProps = asLink
+  const asButton = asLink && Boolean(onClick);
+  const linkProps = asButton
     ? ({ component: "button", type: "button" } as const)
     : {};
 
@@ -127,7 +128,7 @@ export const Body = ({
             ? palette.common.neutralDarkGray
             : palette.common.neutralBlack,
         textDecoration: asLink && !avoidTextDecoration ? "underline" : "none",
-        ...(asLink && {
+        ...(asButton && {
           padding: 0,
           border: "none",
           background: "none",

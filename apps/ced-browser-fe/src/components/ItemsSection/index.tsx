@@ -1,4 +1,4 @@
-import { Box, ButtonBase, Divider, Stack } from '@mui/material';
+import { Box, Divider, Stack } from '@mui/material';
 import { Body } from '@pagopa/io-core-ui';
 import { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -67,17 +67,15 @@ export function ItemsSection(props: ItemsSectionProps) {
         label={label}
         action={
           hasMore ? (
-            <ButtonBase onClick={handleOnClick}>
-              <Body
-                onClick={handleOnClick}
-                asLink
-                fontSize="14px"
-                fontWeight="Semibold"
-                avoidTextDecoration
-              >
-                MOSTRA TUTTE
-              </Body>
-            </ButtonBase>
+            <Body
+              asLink
+              onClick={handleOnClick}
+              fontSize="14px"
+              fontWeight="Semibold"
+              avoidTextDecoration
+            >
+              MOSTRA TUTTE
+            </Body>
           ) : undefined
         }
       />

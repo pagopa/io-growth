@@ -93,11 +93,7 @@ export default function EuropeanOpportunitiesPage() {
                   </ListItemIcon>
                   <ListItemText
                     primary={
-                      <Body
-                        fontWeight="Semibold"
-                        asLink
-                        onClick={() => undefined}
-                      >
+                      <Body fontWeight="Semibold" asLink>
                         {opportunity.country}
                       </Body>
                     }

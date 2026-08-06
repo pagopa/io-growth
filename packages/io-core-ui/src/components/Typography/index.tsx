@@ -111,7 +111,7 @@ export const Body = ({
 }: BodyProps) => {
   const { palette } = useTheme();
   const asButton = asLink && Boolean(onClick);
-  const linkProps = asButton
+  const buttonProps = asButton
     ? ({ component: "button", type: "button" } as const)
     : {};
 
@@ -142,7 +142,7 @@ export const Body = ({
           },
         }),
       }}
-      {...linkProps}
+      {...buttonProps}
     >
       {children}
     </Typography>

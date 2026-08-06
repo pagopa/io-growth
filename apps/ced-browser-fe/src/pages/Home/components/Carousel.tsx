@@ -217,7 +217,7 @@ export const Carousel = ({ list }: CarouselProps) => {
               onClick={() => onClickDots(idx)}
               className={activeIdx === idx ? 'active' : 'inactive'}
               aria-label={`Vai all'elemento ${idx + 1} di ${list.length}`}
-              aria-current={activeIdx === idx ? 'true' : undefined}
+              aria-current={activeIdx === idx}
             />
           ))}
         </Stack>

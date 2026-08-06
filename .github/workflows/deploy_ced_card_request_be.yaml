@@ -11,7 +11,7 @@ on:
 
 jobs:
   deploy_ced_card_request_be:
-    uses: pagopa/dx/.github/workflows/release-azure-containerapp-v1.yaml@main
+    uses: pagopa/dx/.github/workflows/release-azure-containerapp-v1.yaml@3448c24fd46deea4a4a8cc6a0902641c448d2fb3 # main
     name: Deploy CED Card Request BE
     secrets: inherit
     with:

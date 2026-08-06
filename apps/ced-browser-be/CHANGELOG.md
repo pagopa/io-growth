@@ -1,5 +1,11 @@
 # ced-browser-be
 
+## 0.1.12
+
+### Patch Changes
+
+- f3576f0: add pg health check
+
 ## 0.1.11
 
 ### Patch Changes

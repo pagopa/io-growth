@@ -48,10 +48,6 @@ const opportunities: EuropeanOpportunity[] = [
 ];
 
 export default function EuropeanOpportunitiesPage() {
-  const handleExternalLink = (url: string) => {
-    window.open(url, '_blank', 'noopener,noreferrer');
-  };
-
   if (opportunities.length === 0) {
     return (
       <Box>
@@ -84,16 +80,23 @@ export default function EuropeanOpportunitiesPage() {
           {opportunities.map((opportunity, index) => (
             <Box key={opportunity.country}>
               <ListItem disablePadding>
-                <ListItemButton sx={{ py: 2 }}>
+                <ListItemButton
+                  component="a"
+                  href={opportunity.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={`${opportunity.country}, si apre in una risorsa esterna`}
+                  sx={{ py: 2 }}
+                >
                   <ListItemIcon sx={{ minWidth: 40 }}>
-                    <OpenInNewIcon color="action" />
+                    <OpenInNewIcon color="action" aria-hidden />
                   </ListItemIcon>
                   <ListItemText
                     primary={
                       <Body
-                        onClick={() => handleExternalLink(opportunity.url)}
                         fontWeight="Semibold"
                         asLink
+                        onClick={() => undefined}
                       >
                         {opportunity.country}
                       </Body>
@@ -101,7 +104,7 @@ export default function EuropeanOpportunitiesPage() {
                   />
                 </ListItemButton>
               </ListItem>
-              {index < opportunities.length - 1 && <Divider />}
+              {index < opportunities.length - 1 && <Divider aria-hidden />}
             </Box>
           ))}
         </List>

@@ -5,14 +5,16 @@ import { AppDatePicker, AppSelect, AppTextField } from '../../../components';
 import { StepCard } from '../StepCard';
 import type { StepRef } from '../types';
 import { usePersonalDataForm } from '../hooks/usePersonalDataForm';
+import { useStepValidation } from '../hooks/useStepValidation';
 
 export const ApplicantDataStep = forwardRef<StepRef>(
   function ApplicantDataStep(_, ref) {
-    useImperativeHandle(ref, () => ({
-      validate: () => true,
-    }));
-
     const personalData = usePersonalDataForm();
+
+    const { errors, validate, resetFieldError } =
+      useStepValidation(personalData);
+
+    useImperativeHandle(ref, () => ({ validate }));
 
     return (
       <StepCard>
@@ -20,20 +22,47 @@ export const ApplicantDataStep = forwardRef<StepRef>(
         <VSpacer />
         <Body>Conferma i tuoi dati anagrafici.</Body>
         <Box sx={{ mt: 3, display: 'grid', gap: 2.25 }}>
-          {personalData.map(({ field, type, onChange, ...rest }) => {
+          {personalData.map(({ field, type, onChange, rules, ...rest }) => {
+            const error = errors[field];
+            const handleChange = (e: { target: { value: unknown } }) => {
+              onChange(e);
+              resetFieldError(field);
+            };
+
             if (type === 'date') {
               return (
                 <AppDatePicker
                   key={field}
-                  onChange={(value) => onChange({ target: { value } })}
+                  error={!!error}
+                  helperText={error}
+                  required={rules?.required}
+                  onChange={(value) => handleChange({ target: { value } })}
                   {...rest}
                 />
               );
             }
             if (type === 'select') {
-              return <AppSelect key={field} onChange={onChange} {...rest} />;
+              return (
+                <AppSelect
+                  key={field}
+                  onChange={handleChange}
+                  error={!!error}
+                  helperText={error}
+                  required={rules?.required}
+                  {...rest}
+                />
+              );
             }
-            return <AppTextField key={field} onChange={onChange} {...rest} />;
+            return (
+              <AppTextField
+                key={field}
+                onChange={handleChange}
+                error={!!error}
+                helperText={error}
+                required={rules?.required}
+                {...rest}
+              />
+            );
           })}
         </Box>
       </StepCard>

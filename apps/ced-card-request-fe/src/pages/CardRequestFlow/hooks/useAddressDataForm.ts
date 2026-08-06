@@ -2,42 +2,64 @@ import { setField } from '../../../features/request-form/reducer';
 import { useAppDispatch, useAppSelector } from '../../../hooks';
 import { NuovaDomandaInBozzaRequest } from '../../../core/api/generated/model';
 import { makeSelectRequestFormField } from '../../../features/request-form/selectors';
+import type { ValidationRules } from './useStepValidation';
 
 type AddressDataFormType = {
   label: string;
   type: 'text' | 'select';
   field: keyof NuovaDomandaInBozzaRequest;
-  required?: boolean;
   options?: Array<{ value: string; label: string }>;
+  rules?: ValidationRules;
 };
 
 export const ADDRESS_DATA_FORM_CONFIG: AddressDataFormType[] = [
-  { label: 'Indirizzo', field: 'indirizzoRec', type: 'text', required: true },
-  { label: 'Civico', field: 'civicoRec', type: 'text', required: true },
+  {
+    label: 'Indirizzo',
+    field: 'indirizzoRec',
+    type: 'text',
+    rules: { required: true, maxLength: 30 },
+  },
+  {
+    label: 'Civico',
+    field: 'civicoRec',
+    type: 'text',
+    rules: { required: true, maxLength: 10 },
+  },
   {
     label: 'Comune',
     field: 'descrizioneComuneRec',
     type: 'text',
-    required: true,
+    rules: { required: true, maxLength: 60 },
   },
   {
     label: 'Provincia',
     field: 'siglaProvinciaRec',
     type: 'text',
-    required: true,
+    rules: {
+      required: true,
+      maxLength: 2,
+      pattern: /^[A-Za-z]{2}$/,
+      patternMessage: 'Inserisci la sigla di 2 lettere (es. RM)',
+    },
   },
   {
     label: 'CAP',
     field: 'capRec',
     type: 'text',
-    required: true,
+    rules: { required: true, maxLength: 5 },
   },
   {
     label: 'Nome sul citofono',
     field: 'pressoDenominazione',
     type: 'text',
+    rules: { maxLength: 40 },
   },
-  { label: 'Altri dettagli', field: 'datiAggiuntiviRec', type: 'text' },
+  {
+    label: 'Altri dettagli',
+    field: 'datiAggiuntiviRec',
+    type: 'text',
+    rules: { maxLength: 45 },
+  },
 ];
 
 export const useAddressDataForm = () => {

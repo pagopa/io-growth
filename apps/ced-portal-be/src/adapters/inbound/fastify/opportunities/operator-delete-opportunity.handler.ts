@@ -7,7 +7,7 @@ import {
 } from "@pagopa/io-core-adapter-fastify";
 import { z as zod } from "zod";
 
-import type { DeleteOpportunityUseCase } from "../../../../application/use-cases/opportunities/delete-opportunity.use-case.js";
+import type { OperatorDeleteOpportunityUseCase } from "../../../../application/use-cases/opportunities/operator-delete-opportunity.use-case.js";
 
 import { OPERATOR_USER_TYPES } from "../../../../domain/entities/user-type.js";
 import { OperatorSessionSchema } from "../auth/session.js";
@@ -37,7 +37,7 @@ const operatorDeleteOpportunityValidator = withUserTypeAuthorization(
 
 export const mountOperatorDeleteOpportunityHandler = (
   fastify: FastifyInstance,
-  useCase: DeleteOpportunityUseCase,
+  useCase: OperatorDeleteOpportunityUseCase,
 ) => {
   fastify.patch(
     "/api/operator/opportunities/:opportunityId/delete",

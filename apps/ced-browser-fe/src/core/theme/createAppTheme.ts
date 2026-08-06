@@ -137,6 +137,22 @@ export const createAppTheme = () =>
           'input, button, textarea, select': {
             fontFamily: '"Titillio", Arial, sans-serif',
           },
+          '[data-home-europe-banner="true"] .MuiTypography-h6': {
+            fontSize: '18px',
+            lineHeight: '28px',
+            fontWeight: 600,
+          },
+          '[data-home-europe-banner="true"] .MuiTypography-body2': {
+            fontSize: '16px',
+            lineHeight: '24px',
+            fontWeight: 400,
+          },
+          '[data-home-europe-banner="true"] .MuiButton-root, [data-home-europe-banner="true"] .MuiButtonBase-root':
+            {
+              fontSize: '16px',
+              lineHeight: '24px',
+              fontWeight: 600,
+            },
         },
       },
       MuiTypography: {

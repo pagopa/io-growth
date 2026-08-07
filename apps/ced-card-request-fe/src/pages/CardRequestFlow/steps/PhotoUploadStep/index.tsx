@@ -15,7 +15,9 @@ import { PhotoGuidelinesModal } from './PhotoGuidelinesModal';
 import { isAllowedPhotoType, processInpsPhoto } from './utils';
 import { useAppDispatch, useAppSelector } from '../../../../hooks';
 import {
+  selectB64Photo,
   selectPhotoPreview,
+  resetPhoto,
   setFile,
   setPreview,
 } from '../../../../features/photo-upload/reducer';
@@ -51,14 +53,17 @@ export const PhotoUploadStep = forwardRef<StepRef, PhotoUploadProps>(
     const theme = useTheme();
     const [photo, setPhoto] = useState<File | null>(null);
     const [error, setError] = useState<string>('');
-    const [uploadState, setUploadState] = useState<UploadState>('idle');
     const [guidelinesOpen, setGuidelinesOpen] = useState(false);
 
+    const photoBase64 = useAppSelector(selectB64Photo);
     const preview = useAppSelector(selectPhotoPreview);
+    const [uploadState, setUploadState] = useState<UploadState>(
+      preview ? 'preview' : 'idle',
+    );
 
     useImperativeHandle(ref, () => ({
       validate() {
-        if (!photo) {
+        if (!photo && !photoBase64) {
           setError('È necessario caricare una foto per procedere');
           return false;
         }
@@ -118,7 +123,7 @@ export const PhotoUploadStep = forwardRef<StepRef, PhotoUploadProps>(
         URL.revokeObjectURL(preview);
       }
       setPhoto(null);
-      setPreview(undefined);
+      dispatch(resetPhoto());
       onPhotoPreviewChange?.('');
       setUploadState('idle');
     };

@@ -1,12 +1,12 @@
 import { baseApi } from '../../core/api/baseApi';
 import {
   DraftDataResponse,
-  StateResponse,
+  GetApplicationStatus200,
 } from '../../core/api/generated/model';
 
 export const readOnlyApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
-    getStatus: builder.query<StateResponse, void>({
+    getStatus: builder.query<GetApplicationStatus200, void>({
       query: () => '/status',
     }),
     getDraft: builder.query<DraftDataResponse, void>({
@@ -33,5 +33,6 @@ export const {
   useGetDetailsQuery,
   useGetSummaryQuery,
   useGetReceiptQuery,
+  useLazyGetDraftQuery,
   useLazyGetStatusQuery,
 } = readOnlyApi;

@@ -1,9 +1,19 @@
 import { useNavigate } from 'react-router-dom';
-import { useLazyGetStatusQuery } from '../../features/read-only-apis/api';
+import {
+  useLazyGetDraftQuery,
+  useLazyGetStatusQuery,
+} from '../../features/read-only-apis/api';
 import { APP_ROUTES } from '../../app/routeConfig';
 import { useCallback, useEffect } from 'react';
 import { useAppDispatch } from '../../hooks';
 import { setStatusField } from '../../features/status/reducer';
+import { setForm } from '../../features/request-form/reducer';
+import {
+  resetPhoto,
+  setFile,
+  setPreview,
+} from '../../features/photo-upload/reducer';
+import { buildRecoveredDraftState } from '../../features/read-only-apis/draftRecovery';
 
 export const useGetStatusAndNavigate = () => {
   const navigate = useNavigate();
@@ -13,20 +23,27 @@ export const useGetStatusAndNavigate = () => {
     (data: Awaited<ReturnType<typeof getStatus>>['data']) => {
       if (!data) return;
 
-      if ('idLavorazione' in data) {
+      dispatch(
+        setStatusField({
+          field: 'state',
+          value: data.state,
+        }),
+      );
+
+      if (data.idLavorazione) {
         dispatch(
           setStatusField({
             field: 'idLavorazione',
-            value: String(data.idLavorazione),
+            value: data.idLavorazione,
           }),
         );
       }
 
-      if ('numDomus' in data) {
+      if (data.numDomus) {
         dispatch(
           setStatusField({
             field: 'numDomus',
-            value: String(data.numDomus),
+            value: data.numDomus,
           }),
         );
       }
@@ -35,6 +52,19 @@ export const useGetStatusAndNavigate = () => {
   );
 
   const [getStatus] = useLazyGetStatusQuery();
+  const [getDraft] = useLazyGetDraftQuery();
+
+  const recoverDraft = useCallback(async () => {
+    const draft = await getDraft().unwrap();
+    const recovered = buildRecoveredDraftState(draft);
+
+    dispatch(setForm(recovered.requestForm));
+    dispatch(resetPhoto());
+    if (recovered.photoBase64 && recovered.photoPreview) {
+      dispatch(setFile(recovered.photoBase64));
+      dispatch(setPreview(recovered.photoPreview));
+    }
+  }, [dispatch, getDraft]);
 
   useEffect(() => {
     const retrieveStatus = async () => {
@@ -45,11 +75,13 @@ export const useGetStatusAndNavigate = () => {
           case 'READY_FOR_NEW_DRAFT':
             return navigate(APP_ROUTES.APPLICATION, { replace: true });
           case 'READY_FOR_PHOTO_UPLOAD':
+            await recoverDraft();
             return navigate(APP_ROUTES.APPLICATION, {
               replace: true,
               state: { step: 2 },
             });
           case 'READY_FOR_DOCUMENTS_UPLOAD':
+            await recoverDraft();
             return navigate(APP_ROUTES.APPLICATION, {
               replace: true,
               state: { step: 3 },
@@ -68,5 +100,5 @@ export const useGetStatusAndNavigate = () => {
     };
 
     retrieveStatus();
-  }, [getStatus, navigate, saveFieldFromStatus]);
+  }, [getStatus, navigate, recoverDraft, saveFieldFromStatus]);
 };

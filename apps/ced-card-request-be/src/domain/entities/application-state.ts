@@ -1,3 +1,5 @@
+import { z } from "zod";
+
 /**
  * Internal workflow state (managed by the BFF) that guides the FE display logic.
  * Mirrors the `ApplicationState` enum in the exposed OpenAPI contract.
@@ -12,7 +14,9 @@ export const APPLICATION_STATES = [
   "ACQUIRED",
 ] as const;
 
-export type ApplicationState = (typeof APPLICATION_STATES)[number];
+export const ApplicationStateSchema = z.enum(APPLICATION_STATES);
+
+export type ApplicationState = z.infer<typeof ApplicationStateSchema>;
 
 /**
  * The milestone states the upstream application registry can confirm through
@@ -27,4 +31,6 @@ export const MILESTONE_STATES = [
   "ACQUIRED",
 ] as const satisfies readonly ApplicationState[];
 
-export type MilestoneState = (typeof MILESTONE_STATES)[number];
+export const MilestoneStateSchema = z.enum(MILESTONE_STATES);
+
+export type MilestoneState = z.infer<typeof MilestoneStateSchema>;

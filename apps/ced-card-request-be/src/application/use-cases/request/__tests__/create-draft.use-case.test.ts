@@ -137,6 +137,7 @@ describe("makeCreateDraftUseCase", () => {
     it("starts a new intent with a fresh INPS key and cascades a reset of photo/confirm", async () => {
       const existing = baseRecord({
         idLavorazione: "OLD-99999",
+        numDomus: "OLD-DOMUS",
         state: "READY_FOR_DOCUMENTS_UPLOAD",
         steps: {
           confirm: null,
@@ -177,6 +178,7 @@ describe("makeCreateDraftUseCase", () => {
         1,
         expect.objectContaining({
           idLavorazione: null,
+          numDomus: null,
           pendingStep: "DRAFT",
           steps: expect.objectContaining({ confirm: null, photo: null }),
         }),

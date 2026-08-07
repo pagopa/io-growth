@@ -16,6 +16,12 @@ export const APPLICATION_STATES = [
 
 export type ApplicationState = (typeof APPLICATION_STATES)[number];
 
+export type ReconciledApplicationState =
+  | "ACQUIRED"
+  | "READY_FOR_DOCUMENTS_UPLOAD"
+  | "READY_FOR_NEW_DRAFT"
+  | "READY_FOR_PHOTO_UPLOAD";
+
 /**
  * Maps the INPS `esitoCheck` milestone returned by CheckDomanda to the BFF
  * `ApplicationState` that directs the FE flow.
@@ -32,7 +38,7 @@ export type ApplicationState = (typeof APPLICATION_STATES)[number];
  */
 export const mapEsitoCheckToState = (
   esitoCheck: TipoEsitoCheck,
-): ApplicationState | undefined => {
+): ReconciledApplicationState | undefined => {
   switch (esitoCheck) {
     case TipoEsitoCheck.NUMBER_10:
     case TipoEsitoCheck.NUMBER_50:

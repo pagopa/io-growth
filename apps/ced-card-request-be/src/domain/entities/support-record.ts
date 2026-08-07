@@ -1,5 +1,7 @@
 import type { ApplicationState } from "./application-state.js";
 
+export const SUPPORT_RECORD_TTL_SECONDS = 60 * 60 * 24 * 30;
+
 /**
  * The milestone states INPS can confirm via `CheckDomanda.esitoCheck`. A
  * strict subset of {@link ApplicationState}: reconciliation only ever
@@ -69,3 +71,20 @@ export interface SupportRecordSteps {
   readonly draft: null | StepInfo;
   readonly photo: null | StepInfo;
 }
+
+export const createEmptySupportRecord = (
+  codiceFiscale: string,
+  now: string,
+): SupportRecord => ({
+  codiceFiscale,
+  createdAt: now,
+  idLavorazione: null,
+  lastReconciliation: null,
+  pendingStep: null,
+  previousIdLavorazione: null,
+  schemaVersion: 2,
+  state: "READY_FOR_NEW_DRAFT",
+  steps: { confirm: null, draft: null, photo: null },
+  ttl: SUPPORT_RECORD_TTL_SECONDS,
+  updatedAt: now,
+});

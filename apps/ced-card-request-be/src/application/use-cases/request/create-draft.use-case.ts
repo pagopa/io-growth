@@ -16,9 +16,8 @@ import type {
 } from "../../../domain/entities/support-record.js";
 import type { SupportRecordRepository } from "../../../domain/ports/outbound/persistence/support-record.repository.js";
 
+import { createEmptySupportRecord } from "../../../domain/entities/support-record.js";
 import { validateUseCaseInput } from "../utils/validate-use-case-input.js";
-
-const SUPPORT_RECORD_TTL_SECONDS = 60 * 60 * 24 * 30; // 30 days
 
 export const CreateDraftInputSchema = z.object({
   capRec: z.string().min(1),
@@ -56,23 +55,6 @@ export type CreateDraftUseCase = UseCase<
   CreateDraftOutput,
   GenericError | ServiceUnavailableError | ValidationError
 >;
-
-const emptySupportRecord = (
-  codiceFiscale: string,
-  now: string,
-): SupportRecord => ({
-  codiceFiscale,
-  createdAt: now,
-  idLavorazione: null,
-  lastReconciliation: null,
-  pendingStep: null,
-  previousIdLavorazione: null,
-  schemaVersion: 2,
-  state: "READY_FOR_NEW_DRAFT",
-  steps: { confirm: null, draft: null, photo: null },
-  ttl: SUPPORT_RECORD_TTL_SECONDS,
-  updatedAt: now,
-});
 
 const toInpsRequest = (
   codiceFiscale: string,
@@ -135,6 +117,7 @@ const buildIntentRecord = (
 ): SupportRecord => ({
   ...existing,
   idLavorazione: isRetry ? existing.idLavorazione : null,
+  numDomus: isRetry ? existing.numDomus : null,
   pendingStep: "DRAFT",
   steps: {
     confirm: isRetry ? existing.steps.confirm : null,
@@ -198,7 +181,7 @@ export const makeCreateDraftUseCase =
 
     const now = new Date().toISOString();
     const existing =
-      existingResult.value ?? emptySupportRecord(codiceFiscale, now);
+      existingResult.value ?? createEmptySupportRecord(codiceFiscale, now);
     const existingDraftStep = existing.steps.draft;
 
     // Replay of a completed draft: return the cached outcome, no INPS call.

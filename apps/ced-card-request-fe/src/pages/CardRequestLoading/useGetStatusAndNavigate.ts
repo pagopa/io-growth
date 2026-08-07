@@ -6,13 +6,20 @@ import {
 import { APP_ROUTES } from '../../app/routeConfig';
 import { useCallback, useEffect } from 'react';
 import { useAppDispatch } from '../../hooks';
-import { setStatusField } from '../../features/status/reducer';
-import { setForm } from '../../features/request-form/reducer';
+import {
+  resetForm as resetStatus,
+  setStatus,
+} from '../../features/status/reducer';
+import {
+  resetForm as resetRequestForm,
+  setForm,
+} from '../../features/request-form/reducer';
 import {
   resetPhoto,
   setFile,
   setPreview,
 } from '../../features/photo-upload/reducer';
+import { resetForm as resetConfirmationForm } from '../../features/confirmation/reducer';
 import { buildRecoveredDraftState } from '../../features/read-only-apis/draftRecovery';
 import { runStatusNavigation } from './statusNavigation';
 
@@ -24,36 +31,26 @@ export const useGetStatusAndNavigate = () => {
     (data: Awaited<ReturnType<typeof getStatus>>['data']) => {
       if (!data) return;
 
+      dispatch(resetStatus());
       dispatch(
-        setStatusField({
-          field: 'state',
-          value: data.state,
+        setStatus({
+          idLavorazione: data.idLavorazione ?? '',
+          numDomus: data.numDomus,
+          state: data.state,
         }),
       );
-
-      if (data.idLavorazione) {
-        dispatch(
-          setStatusField({
-            field: 'idLavorazione',
-            value: data.idLavorazione,
-          }),
-        );
-      }
-
-      if (data.numDomus) {
-        dispatch(
-          setStatusField({
-            field: 'numDomus',
-            value: data.numDomus,
-          }),
-        );
-      }
     },
     [dispatch],
   );
 
   const [getStatus] = useLazyGetStatusQuery();
   const [getDraft] = useLazyGetDraftQuery();
+
+  const resetDraft = useCallback(() => {
+    dispatch(resetRequestForm());
+    dispatch(resetPhoto());
+    dispatch(resetConfirmationForm());
+  }, [dispatch]);
 
   const recoverDraft = useCallback(async () => {
     const draft = await getDraft().unwrap();
@@ -74,6 +71,7 @@ export const useGetStatusAndNavigate = () => {
           getStatus: () => getStatus().unwrap(),
           navigate,
           recoverDraft,
+          resetDraft,
           saveStatus: saveFieldFromStatus,
         });
       } catch (error) {
@@ -84,5 +82,5 @@ export const useGetStatusAndNavigate = () => {
     };
 
     retrieveStatus();
-  }, [getStatus, navigate, recoverDraft, saveFieldFromStatus]);
+  }, [getStatus, navigate, recoverDraft, resetDraft, saveFieldFromStatus]);
 };

@@ -9,22 +9,31 @@ const setup = (status: GetApplicationStatus200) => {
   const getStatus = vi.fn().mockResolvedValue(status);
   const navigate = vi.fn();
   const recoverDraft = vi.fn().mockResolvedValue(undefined);
+  const resetDraft = vi.fn();
   const saveStatus = vi.fn();
 
   return {
-    dependencies: { getStatus, navigate, recoverDraft, saveStatus },
+    dependencies: {
+      getStatus,
+      navigate,
+      recoverDraft,
+      resetDraft,
+      saveStatus,
+    },
     getStatus,
     navigate,
     recoverDraft,
+    resetDraft,
     saveStatus,
   };
 };
 
 describe('runStatusNavigation', () => {
   it('starts a new flow without recovering a draft for status 10', async () => {
-    const { dependencies, navigate, recoverDraft, saveStatus } = setup({
-      state: 'READY_FOR_NEW_DRAFT',
-    });
+    const { dependencies, navigate, recoverDraft, resetDraft, saveStatus } =
+      setup({
+        state: 'READY_FOR_NEW_DRAFT',
+      });
 
     await runStatusNavigation(dependencies);
 
@@ -32,6 +41,10 @@ describe('runStatusNavigation', () => {
       state: 'READY_FOR_NEW_DRAFT',
     });
     expect(recoverDraft).not.toHaveBeenCalled();
+    expect(resetDraft).toHaveBeenCalledOnce();
+    expect(resetDraft.mock.invocationCallOrder[0]).toBeLessThan(
+      navigate.mock.invocationCallOrder[0],
+    );
     expect(navigate).toHaveBeenCalledWith(APP_ROUTES.APPLICATION, {
       replace: true,
     });
@@ -43,14 +56,16 @@ describe('runStatusNavigation', () => {
   ] as const)(
     'recovers the draft before navigating for %s',
     async (state, step) => {
-      const { dependencies, getStatus, navigate, recoverDraft } = setup({
-        idLavorazione: '12345678901234567890',
-        state,
-      });
+      const { dependencies, getStatus, navigate, recoverDraft, resetDraft } =
+        setup({
+          idLavorazione: '12345678901234567890',
+          state,
+        });
 
       await runStatusNavigation(dependencies);
 
       expect(recoverDraft).toHaveBeenCalledOnce();
+      expect(resetDraft).not.toHaveBeenCalled();
       expect(getStatus.mock.invocationCallOrder[0]).toBeLessThan(
         recoverDraft.mock.invocationCallOrder[0],
       );

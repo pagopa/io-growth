@@ -7,6 +7,7 @@ interface StatusNavigationDependencies {
   readonly getStatus: () => Promise<GetApplicationStatus200>;
   readonly navigate: NavigateFunction;
   readonly recoverDraft: () => Promise<void>;
+  readonly resetDraft: () => void;
   readonly saveStatus: (status: GetApplicationStatus200) => void;
 }
 
@@ -14,6 +15,7 @@ export const runStatusNavigation = async ({
   getStatus,
   navigate,
   recoverDraft,
+  resetDraft,
   saveStatus,
 }: StatusNavigationDependencies): Promise<void> => {
   const status = await getStatus();
@@ -21,6 +23,7 @@ export const runStatusNavigation = async ({
 
   switch (status.state) {
     case 'READY_FOR_NEW_DRAFT':
+      resetDraft();
       navigate(APP_ROUTES.APPLICATION, { replace: true });
       return;
     case 'READY_FOR_PHOTO_UPLOAD':

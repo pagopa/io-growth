@@ -4,7 +4,10 @@ import { RequestFormState } from './reducer';
 
 const toIsoString = (dateStr: string | undefined) => {
   if (!dateStr) return '';
-  const [day, month, year] = dateStr.split('/');
+  const dateParts = dateStr.includes('/')
+    ? dateStr.split('/').reverse()
+    : dateStr.split('-');
+  const [year, month, day] = dateParts;
 
   if (!day || !month || !year) return '';
 

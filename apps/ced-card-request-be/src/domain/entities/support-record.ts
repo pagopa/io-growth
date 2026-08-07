@@ -1,18 +1,4 @@
-import type { ApplicationState } from "./application-state.js";
-
-/**
- * The milestone states INPS can confirm via `CheckDomanda.esitoCheck`. A
- * strict subset of {@link ApplicationState}: reconciliation only ever
- * produces one of these four values, never the derived "uploading" states.
- */
-export const MILESTONE_STATES = [
-  "READY_FOR_NEW_DRAFT",
-  "READY_FOR_PHOTO_UPLOAD",
-  "READY_FOR_DOCUMENTS_UPLOAD",
-  "ACQUIRED",
-] as const satisfies readonly ApplicationState[];
-
-export type MilestoneState = (typeof MILESTONE_STATES)[number];
+import type { MilestoneState } from "./application-state.js";
 
 /** The step whose write is currently in flight, if any. */
 export const PENDING_STEPS = ["DRAFT", "PHOTO", "CONFIRM"] as const;

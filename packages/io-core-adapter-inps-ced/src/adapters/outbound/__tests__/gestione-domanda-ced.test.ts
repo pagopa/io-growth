@@ -16,6 +16,7 @@ vi.mock("../../../generated/endpoints/domanda/domanda.js", () => ({
 import {
   checkDomanda as checkDomandaGen,
   nuovaDomandaInBozza as nuovaDomandaInBozzaGen,
+  recuperoDatiDomanda as recuperoDatiDomandaGen,
 } from "../../../generated/endpoints/domanda/domanda.js";
 import { createGestioneDomandaCedClient } from "../gestione-domanda-ced.js";
 
@@ -142,5 +143,35 @@ describe("nuovaDomandaInBozza", () => {
     expect(callOptions?.headers?.["Idempotency-Key"]).toBe(
       "test-idempotency-abc",
     );
+  });
+});
+
+describe("recuperoDatiDomanda", () => {
+  const request = {
+    codiceFiscale: "RSSMRA80A01H501U",
+    idLavorazione: "12345678901234567890",
+  };
+
+  it("returns ok(data) on 200", async () => {
+    const data = { anagrafica: {}, recapito: {} };
+    vi.mocked(recuperoDatiDomandaGen).mockResolvedValue(
+      makeGenResponse(200, data),
+    );
+
+    const result = await adapter.recuperoDatiDomanda(request);
+
+    expect(result.isOk()).toBe(true);
+    expect(result._unsafeUnwrap()).toEqual(data);
+  });
+
+  it("returns err(ValidationError) on 400", async () => {
+    vi.mocked(recuperoDatiDomandaGen).mockResolvedValue(
+      makeGenResponse(400, { detail: "state not coherent" }),
+    );
+
+    const result = await adapter.recuperoDatiDomanda(request);
+
+    expect(result.isErr()).toBe(true);
+    expect(result._unsafeUnwrapErr().kind).toBe("ValidationError");
   });
 });

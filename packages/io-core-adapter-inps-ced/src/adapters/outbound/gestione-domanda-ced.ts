@@ -151,6 +151,12 @@ export const createGestioneDomandaCedClient =
       try {
         const response = await recuperoDatiDomandaGen(request);
         if (response.status === 200) return ok(response.data);
+        if (response.status === 400)
+          return err(
+            new ValidationError(
+              `recuperoDatiDomanda rejected: ${JSON.stringify(response.data)}`,
+            ),
+          );
         if (response.status === 404)
           return err(
             new NotFoundError("domanda", JSON.stringify(response.data)),

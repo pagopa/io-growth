@@ -77,7 +77,7 @@ export const makeGetDraftDataUseCase =
     ) {
       return err(
         new ValidationError(
-          "Draft data can only be recovered after GET /status reconciles an active draft",
+          "Draft data can only be recovered from a reconciled active draft",
         ),
       );
     }

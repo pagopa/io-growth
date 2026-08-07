@@ -14,6 +14,7 @@ import {
   setPreview,
 } from '../../features/photo-upload/reducer';
 import { buildRecoveredDraftState } from '../../features/read-only-apis/draftRecovery';
+import { runStatusNavigation } from './statusNavigation';
 
 export const useGetStatusAndNavigate = () => {
   const navigate = useNavigate();
@@ -69,33 +70,16 @@ export const useGetStatusAndNavigate = () => {
   useEffect(() => {
     const retrieveStatus = async () => {
       try {
-        const status = await getStatus().unwrap();
-        saveFieldFromStatus(status);
-        switch (status.state) {
-          case 'READY_FOR_NEW_DRAFT':
-            return navigate(APP_ROUTES.APPLICATION, { replace: true });
-          case 'READY_FOR_PHOTO_UPLOAD':
-            await recoverDraft();
-            return navigate(APP_ROUTES.APPLICATION, {
-              replace: true,
-              state: { step: 2 },
-            });
-          case 'READY_FOR_DOCUMENTS_UPLOAD':
-            await recoverDraft();
-            return navigate(APP_ROUTES.APPLICATION, {
-              replace: true,
-              state: { step: 3 },
-            });
-          case 'ACQUIRED':
-            // TODO Temporary navigation
-            return navigate(APP_ROUTES.REQUEST_SUCCESS, { replace: true });
-          default:
-            return navigate(APP_ROUTES.GENERIC_ERROR, { replace: true });
-        }
+        await runStatusNavigation({
+          getStatus: () => getStatus().unwrap(),
+          navigate,
+          recoverDraft,
+          saveStatus: saveFieldFromStatus,
+        });
       } catch (error) {
         localStorage.setItem('log-error', JSON.stringify(error));
         console.error(error);
-        return navigate(APP_ROUTES.GENERIC_ERROR, { replace: true });
+        navigate(APP_ROUTES.GENERIC_ERROR, { replace: true });
       }
     };
 

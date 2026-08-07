@@ -134,6 +134,7 @@ const buildCompletedOutcome = (
   numDomus: null | string,
 ): SupportRecord => ({
   ...persistedIntent,
+  lastReconciliation: null,
   numDomus,
   pendingStep: null,
   state: "ACQUIRED",

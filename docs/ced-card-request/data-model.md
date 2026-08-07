@@ -128,7 +128,9 @@ inpsIdempotencyKey, status: PENDING, attempts: 1, submittedAt: now }`,
 5. Call INPS with `Idempotency-Key: inpsIdempotencyKey`.
 6. **Write 2** (outcome):
    - INPS `200` → set `idLavorazione` (if returned), `steps[S].status = COMPLETED`,
-     advance milestone `state`, `pendingStep = null`.
+     advance milestone `state`, `pendingStep = null`, and clear
+     `lastReconciliation` because the previous snapshot predates this successful
+     authoritative write.
    - INPS `400` → `steps[S].status = FAILED`, store `lastErrorCode`,
      `pendingStep = null`, `state` unchanged → surface the INPS error to the FE.
    - INPS `5xx`/timeout → **leave** `status = PENDING` (so the next call reuses the
@@ -169,5 +171,7 @@ our record can never reference a stale `idLavorazione`.
 - `pendingStep != null` ⇒ exactly one `steps[*].status == PENDING`.
 - The milestone `state` never advances without an INPS `200` (or a reconciliation
   that observed the corresponding `esitoCheck`).
+- `lastReconciliation` describes only the latest `CheckDomanda` observation and is
+  cleared whenever a successful write advances the authoritative INPS milestone.
 - All updates are `If-Match` guarded to avoid lost updates between the FE retry and
   background reconciliation.

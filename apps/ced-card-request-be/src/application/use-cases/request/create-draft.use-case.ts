@@ -152,6 +152,7 @@ const buildCompletedOutcome = (
 ): SupportRecord => ({
   ...persistedIntent,
   idLavorazione,
+  lastReconciliation: null,
   pendingStep: null,
   state: "READY_FOR_PHOTO_UPLOAD",
   steps: {

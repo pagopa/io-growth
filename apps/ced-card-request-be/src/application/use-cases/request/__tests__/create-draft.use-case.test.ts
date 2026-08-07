@@ -206,6 +206,32 @@ describe("makeCreateDraftUseCase", () => {
   });
 
   describe("INPS outcomes", () => {
+    it("invalidates a previous reconciliation snapshot after INPS creates the draft", async () => {
+      vi.mocked(supportRecordRepository.getByCodiceFiscale).mockResolvedValue(
+        ok(
+          baseRecord({
+            lastReconciliation: {
+              at: "2026-01-01T00:00:00.000Z",
+              esitoCheck: 10,
+            },
+          }),
+        ),
+      );
+      vi.mocked(
+        gestioneDomandaCedRepository.nuovaDomandaInBozza,
+      ).mockResolvedValue(ok({ idLavorazione: "NEW-11111" }));
+
+      await useCase()(mockCreateDraftInput);
+
+      expect(supportRecordRepository.save).toHaveBeenNthCalledWith(
+        2,
+        expect.objectContaining({
+          lastReconciliation: null,
+          state: "READY_FOR_PHOTO_UPLOAD",
+        }),
+      );
+    });
+
     it("handles ValidationError by marking the step FAILED and system errors by leaving it PENDING", async () => {
       // 400 from INPS → step is marked FAILED.
       vi.mocked(

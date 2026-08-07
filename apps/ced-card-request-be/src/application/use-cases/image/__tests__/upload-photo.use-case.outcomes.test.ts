@@ -36,6 +36,32 @@ describe("makeUploadPhotoUseCase — INPS and persistence outcomes", () => {
     );
 
   describe("INPS outcomes", () => {
+    it("invalidates a previous reconciliation snapshot after INPS accepts the photo", async () => {
+      vi.mocked(supportRecordRepository.getByCodiceFiscale).mockResolvedValue(
+        ok(
+          baseSupportRecord({
+            lastReconciliation: {
+              at: "2026-01-01T00:00:00.000Z",
+              esitoCheck: 20,
+            },
+          }),
+        ),
+      );
+      vi.mocked(gestioneDomandaCedRepository.fornisciFoto).mockResolvedValue(
+        ok({ idLavorazione: "ABC-12345" }),
+      );
+
+      await useCase()(mockUploadPhotoInput);
+
+      expect(supportRecordRepository.save).toHaveBeenNthCalledWith(
+        2,
+        expect.objectContaining({
+          lastReconciliation: null,
+          state: "READY_FOR_DOCUMENTS_UPLOAD",
+        }),
+      );
+    });
+
     it("marks the step FAILED and surfaces the 400 when INPS rejects the photo", async () => {
       vi.mocked(gestioneDomandaCedRepository.fornisciFoto).mockResolvedValue(
         err(new ValidationError("fornisciFoto rejected")),

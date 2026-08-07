@@ -164,6 +164,27 @@ describe("recuperoDatiDomanda", () => {
     expect(result._unsafeUnwrap()).toEqual(data);
   });
 
+  it("normalizes offset-less INPS date-times to RFC 3339", async () => {
+    vi.mocked(recuperoDatiDomandaGen).mockResolvedValue(
+      makeGenResponse(200, {
+        anagrafica: {
+          dataNascita: "1980-04-26T00:00:00",
+          dataScadenzaPermessoSoggiorno: "2030-01-01T00:00:00",
+        },
+        recapito: {},
+      }),
+    );
+
+    const result = await adapter.recuperoDatiDomanda(request);
+
+    expect(result._unsafeUnwrap().anagrafica).toEqual(
+      expect.objectContaining({
+        dataNascita: "1980-04-26T00:00:00Z",
+        dataScadenzaPermessoSoggiorno: "2030-01-01T00:00:00Z",
+      }),
+    );
+  });
+
   it("returns err(ValidationError) on 400", async () => {
     vi.mocked(recuperoDatiDomandaGen).mockResolvedValue(
       makeGenResponse(400, { detail: "state not coherent" }),

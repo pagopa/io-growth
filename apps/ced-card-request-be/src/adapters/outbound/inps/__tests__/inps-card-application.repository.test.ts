@@ -13,7 +13,7 @@ import type {
 import { createInpsCardApplicationRepository } from "../inps-card-application.repository.js";
 import { createMockGestioneDomandaCedRepository } from "./mocks.js";
 
-const MOCK_FISCAL_CODE = "RSSMRA80A01H501U";
+const MOCK_FISCAL_CODE = "AAAAAA80A01H501U";
 const MOCK_ID_LAVORAZIONE = "ABC-12345";
 const IDEMPOTENCY = { idempotencyKey: "inps-key-1" };
 

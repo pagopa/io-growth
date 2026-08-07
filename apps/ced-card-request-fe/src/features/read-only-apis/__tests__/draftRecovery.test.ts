@@ -10,7 +10,7 @@ const draft = (overrides?: Partial<DraftDataResponse>): DraftDataResponse => ({
   codiceFiscale: 'RSSMRA80A01H501U',
   cognome: 'Rossi',
   comuneNascita: 'Roma',
-  dataNascita: '1980-01-01T00:00:00Z',
+  dataNascita: '01/01/1980',
   datiAggiuntiviRec: null,
   descrizioneComuneRec: 'Roma',
   idCittadinanza: 0,

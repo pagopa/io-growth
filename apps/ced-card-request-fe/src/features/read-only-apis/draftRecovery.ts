@@ -2,6 +2,7 @@ import type {
   DraftDataResponse,
   NuovaDomandaInBozzaRequest,
 } from '../../core/api/generated/model';
+import { toFormDate } from '../request-form/date';
 
 export interface RecoveredDraftState {
   readonly photoBase64?: string;
@@ -25,7 +26,7 @@ export const buildRecoveredDraftState = (
     civicoRec: draft.civicoRec,
     cognome: draft.cognome,
     comuneNascita: draft.comuneNascita,
-    dataNascita: draft.dataNascita,
+    dataNascita: toFormDate(draft.dataNascita),
     dataScadenzaPermessoSoggiorno: draft.dataScadenzaPermessoSoggiorno,
     datiAggiuntiviRec: draft.datiAggiuntiviRec,
     descrizioneComuneRec: draft.descrizioneComuneRec,

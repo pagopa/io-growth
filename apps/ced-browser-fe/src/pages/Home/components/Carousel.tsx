@@ -36,7 +36,9 @@ export const Carousel = ({ list }: CarouselProps) => {
         0,
         Math.min(index, extendedList.length - 1),
       );
-      const target = container.children[boundedIndex] as HTMLElement | undefined;
+      const target = container.children[boundedIndex] as
+        | HTMLElement
+        | undefined;
       if (!target) return;
 
       if (behavior === 'auto') {
@@ -137,7 +139,12 @@ export const Carousel = ({ list }: CarouselProps) => {
         window.clearTimeout(scrollEndTimeoutRef.current);
       }
     };
-  }, [extendedList.length, list.length, mapExtendedToRealIndex, scrollToExtendedIndex]);
+  }, [
+    extendedList.length,
+    list.length,
+    mapExtendedToRealIndex,
+    scrollToExtendedIndex,
+  ]);
 
   const onClickDots = useCallback(
     (index: number) => {
@@ -190,7 +197,7 @@ export const Carousel = ({ list }: CarouselProps) => {
               aria-label={
                 isLoopDuplicate
                   ? undefined
-                    : `Elemento ${mapExtendedToRealIndex(idx) + 1} di ${list.length}: ${item.title}`
+                  : `Elemento ${mapExtendedToRealIndex(idx) + 1} di ${list.length}: ${item.title}`
               }
               aria-hidden={isLoopDuplicate ? true : undefined}
             >

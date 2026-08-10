@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Box, Button, Stack } from '@mui/material';
+import { Button, Stack } from '@mui/material';
 import { ChevronLeftRounded, ChevronRightRounded } from '@mui/icons-material';
 import { PartnerCard } from './PartnerCard';
 import { CarouselContainer, ScrollArea, SlideBox, StyledDots } from './styled';
@@ -12,30 +12,31 @@ type CarouselProps = {
 export const Carousel = ({ list }: CarouselProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [activeIdx, setActiveIdx] = useState<number>(0);
-  const isScrollingRef = useRef(false);
+  const isAdjustingRef = useRef(false);
   const scrollEndTimeoutRef = useRef<number | null>(null);
   const currentExtendedIndexRef = useRef(1);
 
   const extendedList = [list[list.length - 1], ...list, list[0]];
 
-  const getMappedIndex = useCallback(
-    (extendedIndex: number) =>
-      extendedIndex === 0
-        ? list.length - 1
-        : extendedIndex === extendedList.length - 1
-          ? 0
-          : extendedIndex - 1,
+  const mapExtendedToRealIndex = useCallback(
+    (extendedIndex: number) => {
+      if (extendedIndex === 0) return list.length - 1;
+      if (extendedIndex === extendedList.length - 1) return 0;
+      return extendedIndex - 1;
+    },
     [extendedList.length, list.length],
   );
 
   const scrollToExtendedIndex = useCallback(
-    (extendedIndex: number, behavior: ScrollBehavior) => {
+    (index: number, behavior: ScrollBehavior) => {
       const container = containerRef.current;
       if (!container) return;
 
-      const target = container.children[extendedIndex] as
-        | HTMLElement
-        | undefined;
+      const boundedIndex = Math.max(
+        0,
+        Math.min(index, extendedList.length - 1),
+      );
+      const target = container.children[boundedIndex] as HTMLElement | undefined;
       if (!target) return;
 
       if (behavior === 'auto') {
@@ -58,11 +59,12 @@ export const Carousel = ({ list }: CarouselProps) => {
         block: 'nearest',
       });
     },
-    [],
+    [extendedList.length],
   );
 
   useEffect(() => {
     scrollToExtendedIndex(1, 'auto');
+    currentExtendedIndexRef.current = 1;
   }, [scrollToExtendedIndex]);
 
   useEffect(() => {
@@ -82,45 +84,50 @@ export const Carousel = ({ list }: CarouselProps) => {
     if (!container) return;
 
     const handleScroll = () => {
-      if (isScrollingRef.current) return;
+      if (isAdjustingRef.current) return;
 
-      const first = container.children[0] as HTMLElement | undefined;
-      const second = container.children[1] as HTMLElement | undefined;
-      if (!first || !second) return;
+      const slides = Array.from(container.children) as HTMLElement[];
+      if (!slides.length) return;
 
-      const step = second.offsetLeft - first.offsetLeft;
-      if (step <= 0) return;
+      const viewportCenter = container.scrollLeft + container.clientWidth / 2;
 
-      const rawIndex = Math.round(
-        (container.scrollLeft - first.offsetLeft) / step,
-      );
-      const extendedIndex = Math.max(
-        0,
-        Math.min(rawIndex, extendedList.length - 1),
-      );
-      currentExtendedIndexRef.current = extendedIndex;
-      const mappedIndex = getMappedIndex(extendedIndex);
+      let nearestIdx = 0;
+      let minDistance = Number.POSITIVE_INFINITY;
 
-      setActiveIdx((prev) => (prev === mappedIndex ? prev : mappedIndex));
+      slides.forEach((slide, idx) => {
+        const slideCenter = slide.offsetLeft + slide.offsetWidth / 2;
+        const distance = Math.abs(slideCenter - viewportCenter);
+
+        if (distance < minDistance) {
+          minDistance = distance;
+          nearestIdx = idx;
+        }
+      });
+
+      currentExtendedIndexRef.current = nearestIdx;
+      const mappedIdx = mapExtendedToRealIndex(nearestIdx);
+      setActiveIdx((prev) => (prev === mappedIdx ? prev : mappedIdx));
 
       if (scrollEndTimeoutRef.current) {
         window.clearTimeout(scrollEndTimeoutRef.current);
       }
 
       scrollEndTimeoutRef.current = window.setTimeout(() => {
-        if (extendedIndex === 0) {
-          isScrollingRef.current = true;
+        if (nearestIdx === 0) {
+          isAdjustingRef.current = true;
           scrollToExtendedIndex(list.length, 'auto');
-          isScrollingRef.current = false;
+          currentExtendedIndexRef.current = list.length;
+          isAdjustingRef.current = false;
           return;
         }
 
-        if (extendedIndex === extendedList.length - 1) {
-          isScrollingRef.current = true;
+        if (nearestIdx === extendedList.length - 1) {
+          isAdjustingRef.current = true;
           scrollToExtendedIndex(1, 'auto');
-          isScrollingRef.current = false;
+          currentExtendedIndexRef.current = 1;
+          isAdjustingRef.current = false;
         }
-      }, 90);
+      }, 100);
     };
 
     container.addEventListener('scroll', handleScroll);
@@ -130,36 +137,30 @@ export const Carousel = ({ list }: CarouselProps) => {
         window.clearTimeout(scrollEndTimeoutRef.current);
       }
     };
-  }, [extendedList.length, getMappedIndex, list.length, scrollToExtendedIndex]);
+  }, [extendedList.length, list.length, mapExtendedToRealIndex, scrollToExtendedIndex]);
 
   const onClickDots = useCallback(
     (index: number) => {
-      const chosenIndex =
-        index < 0 ? list.length - 1 : index >= list.length ? 0 : index;
-
-      scrollToExtendedIndex(chosenIndex + 1, 'smooth');
+      scrollToExtendedIndex(index + 1, 'smooth');
     },
-    [list.length, scrollToExtendedIndex],
+    [scrollToExtendedIndex],
   );
 
   const onStep = useCallback(
     (direction: 'prev' | 'next') => {
+      const current = currentExtendedIndexRef.current;
+
       if (direction === 'next') {
-        if (activeIdx === list.length - 1) {
-          scrollToExtendedIndex(list.length + 1, 'smooth');
-          return;
-        }
-        scrollToExtendedIndex(currentExtendedIndexRef.current + 1, 'smooth');
+        const nextExtended =
+          current >= list.length ? list.length + 1 : current + 1;
+        scrollToExtendedIndex(nextExtended, 'smooth');
         return;
       }
 
-      if (activeIdx === 0) {
-        scrollToExtendedIndex(0, 'smooth');
-        return;
-      }
-      scrollToExtendedIndex(currentExtendedIndexRef.current - 1, 'smooth');
+      const prevExtended = current <= 1 ? 0 : current - 1;
+      scrollToExtendedIndex(prevExtended, 'smooth');
     },
-    [activeIdx, list.length, scrollToExtendedIndex],
+    [list.length, scrollToExtendedIndex],
   );
 
   if (list.length === 1)
@@ -183,11 +184,15 @@ export const Carousel = ({ list }: CarouselProps) => {
 
           return (
             <SlideBox
-              key={idx}
+              key={`${item.title}-${idx}`}
               role="listitem"
               aria-roledescription="slide"
-              aria-label={`Elemento ${getMappedIndex(idx) + 1} di ${list.length}: ${item.title}`}
-              aria-hidden={isLoopDuplicate}
+              aria-label={
+                isLoopDuplicate
+                  ? undefined
+                    : `Elemento ${mapExtendedToRealIndex(idx) + 1} di ${list.length}: ${item.title}`
+              }
+              aria-hidden={isLoopDuplicate ? true : undefined}
             >
               <PartnerCard {...item} isInert={isLoopDuplicate} />
             </SlideBox>
@@ -230,10 +235,6 @@ export const Carousel = ({ list }: CarouselProps) => {
           <ChevronRightRounded />
         </Button>
       </Stack>
-
-      <Box className="sr-only" aria-live="polite" aria-atomic="true">
-        {`Elemento ${activeIdx + 1} di ${list.length}: ${list[activeIdx]?.title ?? ''}`}
-      </Box>
     </CarouselContainer>
   );
 };

@@ -21,6 +21,9 @@ const DECORATIVE_BLUE = '#CED8F9';
 const DECORATIVE_CYAN = '#AAEEEF';
 const BADGE_BG = '#DBF9FA';
 const BADGE_TEXT = '#003B3D';
+const FOCUS_RING = '#0073E6';
+const CARD_BORDER = '#E8EBF1';
+const CAROUSEL_DOT_INACTIVE = '#5C6F82';
 
 declare module '@mui/material/styles' {
   interface CommonColors {
@@ -41,6 +44,9 @@ declare module '@mui/material/styles' {
     badgeBg: string;
     badgeText: string;
     linkColor: string;
+    focusRing: string;
+    cardBorder: string;
+    carouselDotInactive: string;
   }
 }
 
@@ -125,6 +131,9 @@ export const createAppTheme = () =>
         badgeBg: BADGE_BG,
         badgeText: BADGE_TEXT,
         linkColor: PRIMARY_BUTTON_BACKGROUND,
+        focusRing: FOCUS_RING,
+        cardBorder: CARD_BORDER,
+        carouselDotInactive: CAROUSEL_DOT_INACTIVE,
       },
     },
     components: {
@@ -133,6 +142,17 @@ export const createAppTheme = () =>
           body: {
             fontFamily: '"Titillio", Arial, sans-serif',
             backgroundColor: muiItaliaTheme.palette.background.paper,
+          },
+          '.sr-only': {
+            position: 'absolute',
+            width: 1,
+            height: 1,
+            padding: 0,
+            margin: -1,
+            overflow: 'hidden',
+            clip: 'rect(0 0 0 0)',
+            whiteSpace: 'nowrap',
+            border: 0,
           },
           'input, button, textarea, select': {
             fontFamily: '"Titillio", Arial, sans-serif',

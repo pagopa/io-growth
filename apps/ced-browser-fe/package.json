@@ -36,6 +36,7 @@
     "redux-persist": "catalog:"
   },
   "devDependencies": {
+    "@eslint/compat": "catalog:",
     "@eslint/js": "catalog:",
     "@pagopa/eslint-config": "catalog:",
     "@rollup/plugin-typescript": "catalog:",

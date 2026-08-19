@@ -1233,7 +1233,7 @@ importers:
         specifier: ^4.0.1
         version: 4.0.6(@typescript-eslint/eslint-plugin@8.58.2(@typescript-eslint/parser@8.58.2(eslint@9.39.4(jiti@2.6.1))(typescript@5.9.3))(eslint@9.39.4(jiti@2.6.1))(typescript@5.9.3))(eslint@9.39.4(jiti@2.6.1))(prettier@3.8.3)(vitest@3.2.6(@types/node@22.19.17)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.3))
       '@pagopa/mui-italia':
-        specifier: 2.4.1
+        specifier: 'catalog:'
         version: 2.4.1(67793ec43d3261e1d4419089b29a2fc2)
       '@rollup/plugin-typescript':
         specifier: ^12.1.2

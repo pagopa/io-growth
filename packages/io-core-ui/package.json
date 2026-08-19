@@ -31,7 +31,7 @@
   "devDependencies": {
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.1",
-    "@pagopa/mui-italia": "2.4.1",
+    "@pagopa/mui-italia": "catalog:",
     "@eslint/js": "^9.24.0",
     "@mui/material": "^5.18.0",
     "@pagopa/eslint-config": "^4.0.1",

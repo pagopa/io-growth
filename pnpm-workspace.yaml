@@ -14,7 +14,7 @@ catalog:
   "@mui/system": "^5.18.0"
   "@mui/x-date-pickers": "^6.20.2"
   "@pagopa/eslint-config": "^6.0.4"
-  "@pagopa/mui-italia": "2.4.1"
+  "@pagopa/mui-italia": "2.6.0"
   "@reduxjs/toolkit": "^2.7.0"
   "@rollup/plugin-typescript": "^12.1.2"
   "@testing-library/dom": "^10.4.0"

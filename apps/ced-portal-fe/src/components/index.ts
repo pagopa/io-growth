@@ -1,4 +1,3 @@
-export * from './Autocomplete';
 export * from './Checkbox';
 export * from './ContactRow';
 export * from './DataTable';
@@ -20,4 +19,3 @@ export * from './RadioGroup';
 export * from './SectionCard';
 export * from './SuspendOpportunityModal';
 export * from './UploadDropzone';
-export * from './DownloadItem';

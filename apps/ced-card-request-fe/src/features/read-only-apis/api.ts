@@ -4,7 +4,7 @@ import {
   StateResponse,
 } from '../../core/api/generated/model';
 
-export const readOnlyApi = baseApi.injectEndpoints({
+const readOnlyApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     getStatus: builder.query<StateResponse, void>({
       query: () => '/status',
@@ -29,9 +29,9 @@ export const readOnlyApi = baseApi.injectEndpoints({
 });
 
 export const {
-  useGetDraftQuery,
-  useGetDetailsQuery,
-  useGetSummaryQuery,
-  useGetReceiptQuery,
+  
+  
+  
+  
   useLazyGetStatusQuery,
 } = readOnlyApi;

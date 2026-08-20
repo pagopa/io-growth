@@ -1,6 +1,6 @@
 import imageCompression from 'browser-image-compression';
 
-export const ALLOWED_PHOTO_TYPES = [
+const ALLOWED_PHOTO_TYPES = [
   'image/jpeg',
   'image/jpg',
   'image/png',
@@ -18,7 +18,7 @@ const MIN_HEIGHT = 507;
 const TARGET_RATIO = MIN_HEIGHT / MIN_WIDTH; // ~1.33
 const RATIO_TOLERANCE = 0.1;
 
-export const IMAGE_COMPRESSION_OPTIONS = {
+const IMAGE_COMPRESSION_OPTIONS = {
   maxSizeMB: MAX_FILE_SIZE_MB,
   maxWidthOrHeight: 1920,
   useWebWorker: true,
@@ -329,10 +329,10 @@ export const setPngDensityDpi = async (
   });
 };
 
-export const compressPhotoFile = (file: File): Promise<File> =>
+const compressPhotoFile = (file: File): Promise<File> =>
   imageCompression(file, IMAGE_COMPRESSION_OPTIONS);
 
-export const processCenterCrop = async (
+const processCenterCrop = async (
   file: File,
   targetWidth: number,
   targetHeight: number,

@@ -6,8 +6,8 @@ import type { MaterializedViewRepository } from "../../../../domain/ports/outbou
 import type { OpportunityRepository } from "../../../../domain/ports/outbound/persistence/opportunity.repository.js";
 import type { ProfileRepository } from "../../../../domain/ports/outbound/persistence/profile.repository.js";
 
-export const MOCK_OPERATOR_ID = "01JVMK3N8XQZP5T6G2WYHAB4CD";
-export const MOCK_PLACE_ID = "01JVMK3N8XQZP5T6G2WYHAB4CE";
+const MOCK_OPERATOR_ID = "01JVMK3N8XQZP5T6G2WYHAB4CD";
+const MOCK_PLACE_ID = "01JVMK3N8XQZP5T6G2WYHAB4CE";
 
 export const mockCreateOpportunityInput = {
   beneficiaryBenefit: {

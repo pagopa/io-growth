@@ -1,7 +1,7 @@
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
 import { ApplicationState } from '../../core/api/generated/model';
 
-export type StatusState = {
+type StatusState = {
   idLavorazione: string;
   state?: ApplicationState;
   numDomus?: string;
@@ -34,6 +34,6 @@ const statusSlice = createSlice({
   },
 });
 
-export const { setStatusField, setStatus, resetForm } = statusSlice.actions;
+export const { setStatusField, setStatus,  } = statusSlice.actions;
 
 export const statusReducer = statusSlice.reducer;

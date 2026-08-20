@@ -9,7 +9,7 @@ import type {
   SimpleProps,
 } from './types';
 
-export type { DiscoveryListItemProps, DiscoveryListItemVariant } from './types';
+export type { DiscoveryListItemProps,  } from './types';
 
 function OpportunityContent({ eyebrow, title, badgeLabel }: OpportunityProps) {
   const theme = useTheme();

@@ -25,7 +25,7 @@ interface SelectItemOptionProps<T extends NamedItem> {
   selected: string[];
 }
 
-export function SelectItemOption<T extends NamedItem>({
+function SelectItemOption<T extends NamedItem>({
   value,
   label,
   items,

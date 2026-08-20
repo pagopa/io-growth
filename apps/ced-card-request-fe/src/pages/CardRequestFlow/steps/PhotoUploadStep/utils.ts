@@ -1,10 +1,6 @@
 import imageCompression from 'browser-image-compression';
 
-const ALLOWED_PHOTO_TYPES = [
-  'image/jpeg',
-  'image/jpg',
-  'image/png',
-] as const;
+const ALLOWED_PHOTO_TYPES = ['image/jpeg', 'image/jpg', 'image/png'] as const;
 
 export type AllowedPhotoType = (typeof ALLOWED_PHOTO_TYPES)[number];
 

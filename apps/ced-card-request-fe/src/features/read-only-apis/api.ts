@@ -28,10 +28,4 @@ const readOnlyApi = baseApi.injectEndpoints({
   }),
 });
 
-export const {
-  
-  
-  
-  
-  useLazyGetStatusQuery,
-} = readOnlyApi;
+export const { useLazyGetStatusQuery } = readOnlyApi;

@@ -38,12 +38,6 @@ const benefitFiltersSlice = createSlice({
   },
 });
 
-export const {
-  
-  
-  
-  
-  
-} = benefitFiltersSlice.actions;
+export const {} = benefitFiltersSlice.actions;
 
 export const benefitFiltersReducer = benefitFiltersSlice.reducer;

@@ -158,16 +158,13 @@ export const {
   setActiveLanguage,
   setCaregiverEnabled,
   setCaregiverHasSameConditions,
-  
+
   cloneOwnerBenefitToCompanion,
   setField,
-  
-  
-  
+
   setBenefit,
   setLocalizedValue,
-  
-  
+
   resetForm,
 } = opportunityCreationSlice.actions;
 

@@ -33,10 +33,10 @@ export const opportunityAlertMap: Partial<
     description:
       "Il processo di revisione potrebbe richiedere un po' di tempo. Riceverai un'email con gli aggiornamenti.",
     severity: 'info',
-    color: theme.palette.info[850],
+    color: theme.colors.info[850],
     icon: 'info',
     sx: {
-      color: theme.palette.info[850],
+      color: theme.colors.info[850],
       border: '1px solid #89D9FC',
       ...baseSx,
     },
@@ -46,10 +46,10 @@ export const opportunityAlertMap: Partial<
     title: 'In fase di test',
     description: "L'opportunità è in fase di test.",
     severity: 'info',
-    color: theme.palette.info[850],
+    color: theme.colors.info[850],
     icon: 'info',
     sx: {
-      color: theme.palette.info[850],
+      color: theme.colors.info[850],
       border: '1px solid #89D9FC',
       ...baseSx,
     },

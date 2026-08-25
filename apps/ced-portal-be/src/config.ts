@@ -4,7 +4,9 @@ const configSchema = z.object({
   ADMIN_FISCAL_CODES: z
     .string()
     .optional()
-    .transform((v) => v?.split(",").map((s) => s.trim()) ?? []),
+    .transform((v) =>
+      v ? v.split(",").map((s) => s.trim()).filter(Boolean) : [],
+    ),
   ADMIN_FISCAL_CODES_TEST: z
     .string()
     .optional()

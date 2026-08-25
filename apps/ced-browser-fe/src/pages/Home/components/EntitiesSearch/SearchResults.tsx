@@ -91,8 +91,7 @@ export function SearchResults({
   return (
     <Box sx={{ mt: 3 }}>
       <Box
-        aria-label={`${resultsCount} risultati`}
-        role="group"
+        role="text"
         sx={{
           display: 'flex',
           alignItems: 'center',
@@ -100,9 +99,7 @@ export function SearchResults({
           mb: 1,
         }}
       >
-        <LabelCaption aria-hidden="true">RISULTATI</LabelCaption>
         <Box
-          aria-hidden="true"
           component="span"
           sx={{
             display: 'inline-flex',
@@ -117,9 +114,13 @@ export function SearchResults({
             fontWeight: 600,
             color: theme.palette.common.neutralBlack,
             lineHeight: 1,
+            order: 2,
           }}
         >
           {resultsCount}
+        </Box>
+        <Box component="span" sx={{ order: 1 }}>
+          <LabelCaption>RISULTATI</LabelCaption>
         </Box>
       </Box>
       {renderContent()}

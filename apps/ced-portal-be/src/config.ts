@@ -27,7 +27,9 @@ const configSchema = z.object({
   OPERATORS_FISCAL_CODES_TEST: z
     .string()
     .optional()
-    .transform((v) => v?.split(",").map((s) => s.trim()) ?? []),
+    .transform((v) =>
+      v ? v.split(",").map((s) => s.trim()).filter(Boolean) : [],
+    ),
   PORT: z.coerce.number().int().min(1).max(65535).default(8080),
   POSTGRES_DB: z.string().min(1),
   POSTGRES_DB_TEST: z.string().min(1).optional(),

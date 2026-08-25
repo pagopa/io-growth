@@ -10,12 +10,14 @@ import { TermsAndPrivacySection } from './components/TermsAndPrivacySection';
 import { useCompleteDataForm } from './hooks/useCompleteDataForm';
 import { useCreateOperatorProfileMutation } from '../../../features/profile/api';
 import { useToast } from '../../../contexts';
+import { CompleteProfileModal } from '../../../components';
 
 export default function OverviewCompleteDataPage() {
   const navigate = useNavigate();
   const [infoModalType, setInfoModalType] = useState<'logo' | 'cover' | null>(
     null,
   );
+  const [isExitModalOpen, setIsExitModalOpen] = useState(false);
 
   const [createProfile, { isLoading }] = useCreateOperatorProfileMutation();
 
@@ -65,7 +67,7 @@ export default function OverviewCompleteDataPage() {
         <Box sx={{ maxWidth: 760, mx: 'auto', px: { xs: 2, md: 0 } }}>
           <Button
             startIcon={<ArrowBackIcon />}
-            onClick={() => navigate(-1)}
+            onClick={() => setIsExitModalOpen(true)}
             sx={{ mb: 3, textTransform: 'none', p: 0 }}
           >
             Esci
@@ -159,6 +161,12 @@ export default function OverviewCompleteDataPage() {
         open={infoModalType !== null}
         type={infoModalType}
         onClose={() => setInfoModalType(null)}
+      />
+
+      <CompleteProfileModal
+        open={isExitModalOpen}
+        onClose={() => navigate(-1)}
+        onCompleteData={() => setIsExitModalOpen(false)}
       />
     </Box>
   );

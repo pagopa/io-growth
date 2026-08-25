@@ -1,0 +1,32 @@
+@startuml Authenticated Test Request Sequence
+participant "Fastify" as fastify
+participant "authPreHandler" as auth
+participant "sessionContextPreHandler" as session
+participant "Route handler" as route
+participant "Use case" as uc
+participant "Repository" as repo
+participant "EnvRouter Proxy" as proxy
+participant "Test DB" as testdb
+
+fastify -> auth: request
+activate auth
+auth -> auth: validate session token,\nconfirm user exists
+auth -> session: continue
+deactivate auth
+activate session
+session -> session: storage.run(session, done)\nALS = { userType: "test_operator" }
+session -> route: continue
+deactivate session
+route -> uc: handle()
+activate uc
+uc -> repo: db.transaction(...)
+activate repo
+repo -> proxy: proxy.get("transaction")
+activate proxy
+proxy -> proxy: isTestRequest() reads ALS -> true
+proxy -> testdb: testDb.transaction()
+proxy -> proxy: onRoute("test") emits\n"env-router.db.routed"
+deactivate proxy
+deactivate repo
+deactivate uc
+@enduml

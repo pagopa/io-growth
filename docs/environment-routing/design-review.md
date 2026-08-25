@@ -39,34 +39,32 @@ The routing decision must be:
 
 ## 3. System Scope and Context
 
+```mermaid
+flowchart TD
+    REQ(["Fastify request"]) --> AUTH["authPreHandler"]
+    AUTH --> SESSION["sessionContextPreHandler\n(populates AsyncLocalStorage)"]
+    SESSION --> ROUTE["Route handler"]
+    ROUTE --> UC["Use case"]
+    UC --> REPO["Repository\n(plain db / arClient)"]
+    REPO --> PROXY{{"EnvRouter Proxy\nreads ALS on each property access"}}
+
+    PROXY -->|prod| PRODDB[("Prod DB")]
+    PROXY -->|prod| PRODAR[["Prod AR API"]]
+    PROXY -->|test| TESTDB[("Test DB")]
+    PROXY -->|test| TESTAR[["Test AR API"]]
+
+    subgraph BE["ced-portal-be"]
+        REQ
+        AUTH
+        SESSION
+        ROUTE
+        UC
+        REPO
+        PROXY
+    end
 ```
-┌─────────────────────────────────────────────────────┐
-│                  ced-portal-be                       │
-│                                                      │
-│  Fastify request ──► authPreHandler                  │
-│                          │                           │
-│                          ▼                           │
-│               sessionContextPreHandler               │
-│               (populates AsyncLocalStorage)          │
-│                          │                           │
-│                          ▼                           │
-│             Route handler ──► Use case               │
-│                                    │                 │
-│                                    ▼                 │
-│                             Repository               │
-│                          (plain db / arClient)       │
-│                                    │                 │
-│                          ┌─────────┴──────────┐      │
-│                          │   EnvRouter Proxy  │      │
-│                          │  reads ALS on each │      │
-│                          │  property access   │      │
-│                          └──────┬──────┬──────┘      │
-│                              prod  │  test           │
-└──────────────────────────────────┼────┼─────────────┘
-                                   │    │
-                            Prod DB│    │Test DB
-                            Prod AR│    │Test AR
-```
+
+_Source: [`diagrams/system-context.mmd`](./diagrams/system-context.mmd)_
 
 ---
 
@@ -89,6 +87,41 @@ const arOnboardingRepository = createArOnboardingRepository(arClient);
 ---
 
 ## 5. Building Block View
+
+```mermaid
+flowchart TD
+    subgraph ALS_MOD["async-local-storage-session-context.ts"]
+        PREHANDLER["createSessionContextPreHandler()"]
+        ALS[("AsyncLocalStorage&lt;Session&gt;")]
+        GETSESSION["getRequestSession()"]
+        PREHANDLER --> ALS
+        ALS --> GETSESSION
+    end
+
+    subgraph ROOT["Composition root (main.ts / routed-clients.ts)"]
+        ISTEST["isTestRequest()\nreads getRequestSession().userType"]
+        DBROUTER["createDbRouter(config)"]
+        ARROUTER["createArRouter(config)"]
+        REPOS["Repository factories\noperatorRepository, arOnboardingRepository, ..."]
+    end
+
+    subgraph PKG["@pagopa/io-core-environment-router (zero-dependency)"]
+        CER["createEnvRouter(params)"]
+        PROXY{{"Proxy\nget/set traps re-evaluate\nisTestRequest() on every access"}}
+        SENTINEL["Inner sentinel object\nother traps throw\n(has, ownKeys, getPrototypeOf, ...)"]
+        CER --> PROXY
+        PROXY --> SENTINEL
+    end
+
+    GETSESSION --> ISTEST
+    ISTEST --> DBROUTER
+    ISTEST --> ARROUTER
+    DBROUTER -->|createEnvRouter| CER
+    ARROUTER -->|createEnvRouter| CER
+    PROXY -->|"getInstance() — stable reference"| REPOS
+```
+
+_Source: [`diagrams/building-blocks.mmd`](./diagrams/building-blocks.mmd)_
 
 ### 5.1 `@pagopa/io-core-environment-router`
 
@@ -164,32 +197,15 @@ Each router emits its own custom event name on `onRoute` (`env-router.db.routed`
 
 ### 6.1 Authenticated request (test operator)
 
-```
-1. Request arrives
-2. authPreHandler        — validates session token, confirms user exists
-3. sessionContextPreHandler — calls storage.run(session, done)
-                              ALS now holds { userType: "test_operator", ... }
-4. Route handler → Use case → Repository
-5. db.transaction(...)   — proxy.get("transaction") fires
-   isTestRequest()       — reads ALS → "test_operator" → returns true
-   active = testInstance — testDb.transaction() is called
-   onRoute("test")       — emits "env-router.db.routed" custom event
-```
+![Authenticated test request sequence](./sequence/authenticated_test_request_sequence.svg)
+
+_Source: [`sequence/authenticated_test_request_sequence.puml`](./sequence/authenticated_test_request_sequence.puml)_
 
 ### 6.2 Concurrent prod and test requests
 
-```
-Time │  Request A (prod operator)          Request B (test operator)
-─────┼──────────────────────────────────────────────────────────────
- t1  │  ALS: { userType: "operator" }
- t2  │                                     ALS: { userType: "test_operator" }
- t3  │  db.execute → proxy.get("execute")
-     │  isTestRequest() → ALS A → false → prodInstance
- t4  │                                     db.execute → proxy.get("execute")
-     │                                     isTestRequest() → ALS B → true → testInstance
- t5  │  db.execute → proxy.get("execute")
-     │  isTestRequest() → ALS A → false → prodInstance  ✓ (not polluted)
-```
+![Concurrent prod and test requests sequence](./sequence/concurrent_requests_sequence.svg)
+
+_Source: [`sequence/concurrent_requests_sequence.puml`](./sequence/concurrent_requests_sequence.puml)_
 
 There is **no shared mutable state** in the router. `isTestRequest()` reads only from ALS, which Node.js propagates per async context tree. Each request runs in its own `AsyncLocalStorage` context established by `storage.run()` in the preHandler.
 
@@ -199,12 +215,9 @@ Public routes (`/api/info/startup`, `/api/info/readiness`, `/api/authorize`, `/a
 
 When a public route causes a proxy property access:
 
-```
-proxy.get("execute")
-  isTestRequest()
-    getRequestSession()  →  undefined  (no ALS context)
-  returns false          →  routes to prodInstance
-```
+![Public route sequence](./sequence/public_route_sequence.svg)
+
+_Source: [`sequence/public_route_sequence.puml`](./sequence/public_route_sequence.puml)_
 
 The prod instance is the correct default for unauthenticated infrastructure calls (e.g., the readiness health check queries the prod database). This is safe because public routes never touch user data.
 

@@ -10,7 +10,9 @@ const configSchema = z.object({
   ADMIN_FISCAL_CODES_TEST: z
     .string()
     .optional()
-    .transform((v) => v?.split(",").map((s) => s.trim()) ?? []),
+    .transform((v) =>
+      v ? v.split(",").map((s) => s.trim()).filter(Boolean) : [],
+    ),
   // AR (Area Riservata) — production instance
   AR_API_KEY: z.string().min(1),
   // AR (Area Riservata) — test instance

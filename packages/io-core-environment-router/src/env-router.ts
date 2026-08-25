@@ -45,9 +45,9 @@ export interface EnvRouterParams<TConfig, TInstance extends object> {
    */
   readonly isTestRequest: () => boolean;
   /**
-   * Optional callback invoked whenever the active environment **changes**
-   * (including the very first access). Use this to emit a custom telemetry
-   * event without coupling the router to any specific tracing library.
+   * Optional callback invoked on every proxy property access with the current
+   * environment (including the very first access). Use this to emit a custom
+   * telemetry event without coupling the router to any specific tracing library.
    *
    * @example
    * ```ts

@@ -57,9 +57,13 @@ export function PageHeader({
       {subtitle && (
         <>
           <VSpacer size={8} />
-          <Body fontWeight="Regular" fontSize="16px">
-            {subtitle}
-          </Body>
+          {typeof subtitle === 'string' ? (
+            <Body fontWeight="Regular" fontSize="16px">
+              {subtitle}
+            </Body>
+          ) : (
+            subtitle
+          )}
         </>
       )}
     </Box>

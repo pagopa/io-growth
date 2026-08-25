@@ -16,7 +16,7 @@ export function CompleteProfileModal({
     <AppModal
       open={open}
       onClose={onClose}
-      title="Vuoi Davvero uscire?"
+      title="Vuoi davvero uscire?"
       description="È necessario completare i dati dell'ente per iniziare a pubblicare opportunità."
     >
       <Box

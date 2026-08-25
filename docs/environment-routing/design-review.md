@@ -123,6 +123,13 @@ interface EnvRouter<TInstance extends object> {
 
 The package is completely generic. It has no knowledge of Fastify, Drizzle, AsyncLocalStorage, or any specific client type. All of those concerns are injected by the consuming app.
 
+The proxy returned by `getInstance()` forwards both **reads and writes**:
+
+- `get` resolves the active instance via `isTestRequest()`, fires `onRoute`, then reads the property with `Reflect.get(active, property, active)`. If the resolved value is a function, it is rebound with `.bind(active)` so that methods relying on `this` (e.g. `db.transaction(...)`) operate on the correct backing instance even when detached from the proxy.
+- `set` resolves the active instance the same way and forwards the write with `Reflect.set(active, property, value, active)`.
+
+Every other trap (`defineProperty`, `deleteProperty`, `getPrototypeOf`, `has`, `isExtensible`, `ownKeys`, `preventExtensions`, `setPrototypeOf`) is intentionally **not** forwarded: the proxy wraps an inner sentinel object that throws on those operations. This prevents callers from using the `in` operator, `Object.keys`/spread/`for...in`, or prototype introspection to accidentally bypass routing and observe the sentinel instead of the active instance.
+
 ### 5.2 `async-local-storage-session-context.ts` (ced-portal-be)
 
 Owns the single `AsyncLocalStorage<Session>` instance for the whole app.
@@ -130,9 +137,9 @@ Owns the single `AsyncLocalStorage<Session>` instance for the whole app.
 - `getRequestSession()` — reads the current request's session (or `undefined` outside a request context).
 - `createSessionContextPreHandler(getSession)` — Fastify preHandler factory that calls `storage.run(session, done)`, binding the session to the current async context tree.
 
-### 5.3 Composition root (`main.ts`)
+### 5.3 Composition root (`main.ts` / `routed-clients.ts`)
 
-Builds both routers, calls `getInstance()` once for each, and threads the proxies into the repository factories:
+`routed-clients.ts` builds one `createEnvRouter` call per routed client (`createDbRouter`, `createArRouter`), sharing the same `isTestRequest` predicate. `main.ts` calls `getInstance()` once for each router and threads the proxies into the repository factories:
 
 ```ts
 const isTestRequest = (): boolean => {
@@ -140,12 +147,16 @@ const isTestRequest = (): boolean => {
   return userType === "test_admin" || userType === "test_operator";
 };
 
-const dbRouter = createEnvRouter({ ..., isTestRequest });
-const arClientRouter = createEnvRouter({ ..., isTestRequest });
+const dbRouter = createDbRouter(config); // createEnvRouter(...) under the hood
+const arClientRouter = createArRouter(config);
 
-const db = dbRouter.getInstance();       // stable Proxy
+const dbClient = dbRouter.getInstance(); // stable Proxy
 const arClient = arClientRouter.getInstance(); // stable Proxy
 ```
+
+Each router emits its own custom event name on `onRoute` (`env-router.db.routed`, `env-router.ar.routed`) so telemetry can distinguish which client was routed.
+
+**Test database fallback:** `POSTGRES_DB_TEST` is optional. When unset, `createDbRouter` falls back to `POSTGRES_DB`, i.e. the test instance points at the **prod database** with its own connection pool. `AR_ENDPOINT_TEST`/`AR_API_KEY_TEST` have no such fallback — they are required config. See the Risks table (§9) for the data-isolation implication of the DB fallback.
 
 ---
 
@@ -205,7 +216,7 @@ The prod instance is the correct default for unauthenticated infrastructure call
 
 **Context:** Once `getInstance()` is called at startup and its result captured in a closure, a simple function returning the current instance would always return the startup-time value (ALS is empty at startup → always prod).
 
-**Decision:** Use `Proxy` + `Reflect.get` so the routing predicate is re-evaluated on every **property access**, not at capture time.
+**Decision:** Use `Proxy` + `Reflect.get`/`Reflect.set` so the routing predicate is re-evaluated on every **property read and write**, not at capture time. Functions read off the active instance are rebound with `.bind(active)` before being returned, so a method captured by the caller (e.g. `const tx = db.transaction; tx(...)`) still runs against the instance that was active when it was read.
 
 **Consequence:** Repositories capture the proxy once and use it as a plain client. Routing is transparent. The caller does not need to call `getInstance()` inside every method.
 
@@ -213,13 +224,23 @@ The prod instance is the correct default for unauthenticated infrastructure call
 
 **Rejected alternative:** Inject a getter function `() => TypedDbClient` into every repository. This would work but leaks the routing abstraction into every repository signature and requires disciplined per-method invocation.
 
+### ADR-2: Guard-rail sentinel for non-forwarded proxy traps
+
+**Context:** A `Proxy` only intercepts the traps it defines. Without an explicit `has`, `ownKeys`, or `getPrototypeOf` trap, those operations fall through to the proxy's target object, not to the currently-active instance — silently returning stale or empty results (e.g. `Object.keys(db)` would list the target's keys, not the active instance's).
+
+**Decision:** The proxy wraps an inner sentinel object (instead of a plain `{}`) whose own traps (`defineProperty`, `deleteProperty`, `getPrototypeOf`, `has`, `isExtensible`, `ownKeys`, `preventExtensions`, `setPrototypeOf`) throw a descriptive error. Only `get` and `set` are forwarded to the active instance; every other operation fails fast instead of silently operating on the wrong object.
+
+**Consequence:** Consumers must only use the routed instance via plain property reads/writes and method calls — reflection, spreading, or the `in` operator on a routed client throws immediately with a clear message instead of producing an unnoticed data-isolation bug.
+
+**Error propagation:** these are plain synchronous throws with no special interception by the router itself, so what happens next depends on the call site. Every current repository method wraps client calls in `try/catch` and converts the failure into a `Result` error, so a sentinel trap firing there is reported like any other domain error, not a crash. A throw inside a Fastify route handler without a local `try/catch` is still caught by Fastify's default handler and logged via the `onError` tracing hook, failing only that request. A throw during synchronous composition-root setup (`main.ts`), outside any request lifecycle, would be an uncaught exception and crash the process — `ced-portal-be` has no global `uncaughtException`/`unhandledRejection` handler.
+
 ---
 
 ## 8. Cross-cutting Concerns
 
 ### Observability
 
-Every routing decision can emit a custom event by injecting an `emitCustomEvent`  through `onRoute`. Events do not carry any user PII — only the environment name (`"prod"` or `"test"`).
+Every routing decision can emit a custom event by injecting an `emitCustomEvent` through `onRoute`. Events do not carry any user PII — only the environment name (`"prod"` or `"test"`).
 
 ```ts
 onRoute: (env) =>
@@ -245,8 +266,10 @@ app.addHook("onClose", async () => {
 
 ## 9. Risks and Technical Debt
 
-| Risk                                                                                                           | Likelihood | Impact | Mitigation                                                                                                                                        |
-| -------------------------------------------------------------------------------------------------------------- | ---------- | ------ | ------------------------------------------------------------------------------------------------------------------------------------------------- |
-| ALS not propagated through a third-party library's internal callbacks                                          | Low        | High   | ALS propagation is part of the Node.js async context spec; any well-behaved library using `async/await` or `Promise` will propagate it correctly. |
-| Readiness check only validates the prod database                                                               | Accepted   | Low    | Health probes check service availability, not all managed environments. A separate monitoring alert on the test DB is recommended.                |
-| `Proxy` `get` trap fires for every property access including non-user-facing ones (e.g., `Symbol.toPrimitive`) | Accepted   | Low    | `isTestRequest()` is a pure synchronous ALS read — negligible overhead.                                                                           |
+| Risk                                                                                                                                                                                                            | Likelihood | Impact | Mitigation                                                                                                                                                                                                       |
+| --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------- | ------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| ALS not propagated through a third-party library's internal callbacks                                                                                                                                           | Low        | High   | ALS propagation is part of the Node.js async context spec; any well-behaved library using `async/await` or `Promise` will propagate it correctly.                                                                |
+| Readiness check only validates the prod database                                                                                                                                                                | Accepted   | Low    | Health probes check service availability, not all managed environments. A separate monitoring alert on the test DB is recommended.                                                                               |
+| `Proxy` `get` trap fires for every property access including non-user-facing ones (e.g., `Symbol.toPrimitive`)                                                                                                  | Accepted   | Low    | `isTestRequest()` is a pure synchronous ALS read — negligible overhead.                                                                                                                                          |
+| `POSTGRES_DB_TEST` is optional and falls back to `POSTGRES_DB` when unset                                                                                                                                       | Medium     | High   | Test requests then share the prod database (own connection pool, same data). Set `POSTGRES_DB_TEST` in every environment where isolation matters.                                                                |
+| Sentinel traps (ADR-2) throw synchronously; if triggered outside a request lifecycle (e.g. composition-root setup) rather than inside a repository's `try/catch`, the throw is uncaught and crashes the process | Low        | Medium | No consumer currently uses `in`, `Object.keys`, spread, `delete`, or `instanceof` on a routed client — verified across `ced-portal-be`. Keep new consumers to plain property reads/writes and method calls only. |

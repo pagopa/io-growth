@@ -87,6 +87,14 @@ export const createEnvRouter = <TConfig, TInstance extends object>(
         ? (value as (...args: unknown[]) => unknown).bind(active)
         : value;
     },
+    set(_target, property, value) {
+      const isTest = params.isTestRequest();
+      const active = isTest ? testInstance : prodInstance;
+
+      params.onRoute?.(isTest ? "test" : "prod");
+
+      return Reflect.set(active, property, value, active);
+    },
   });
 
   return {

@@ -70,12 +70,37 @@ export const createEnvRouter = <TConfig, TInstance extends object>(
   const prodInstance = params.createProdInstance(params.prodConfig);
   const testInstance = params.createTestInstance(params.testConfig);
 
+  const throwUntrapped = (operation: string): never => {
+    throw new Error(
+      `EnvRouter: "${operation}" is not supported on the routed instance; ` +
+        "only property reads and writes are forwarded to the active environment.",
+    );
+  };
+
+  // sentinelTarget is a proxy that throws on any operation that would allow
+  // the caller to escape the router and access the underlying instances. The
+  // proxy returned by `getInstance()` wraps this sentinel and forwards only
+  // property reads and writes to the active instance.
+  const sentinelTarget = new Proxy(
+    {},
+    {
+      defineProperty: () => throwUntrapped("defineProperty"),
+      deleteProperty: () => throwUntrapped("deleteProperty"),
+      getPrototypeOf: () => throwUntrapped("getPrototypeOf"),
+      has: () => throwUntrapped("the `in` operator"),
+      isExtensible: () => throwUntrapped("isExtensible"),
+      ownKeys: () => throwUntrapped("Object.keys/for...in/spread"),
+      preventExtensions: () => throwUntrapped("preventExtensions"),
+      setPrototypeOf: () => throwUntrapped("setPrototypeOf"),
+    },
+  ) as unknown as TInstance;
+
   // A single proxy resolves the active instance on every property access and
   // binds methods to it, so callers can capture `getInstance()` once and still
   // be routed per request.
   //
   // `onRoute` is called on EVERY property access
-  const proxy = new Proxy(prodInstance, {
+  const proxy = new Proxy(sentinelTarget, {
     get(_target, property) {
       const isTest = params.isTestRequest();
       const active = isTest ? testInstance : prodInstance;

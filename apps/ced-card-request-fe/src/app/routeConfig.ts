@@ -10,6 +10,7 @@ export const APP_ROUTES = {
   REQUEST_ERROR: '/application/error',
   NOT_FOUND: '/not-found',
   UNAUTHORIZED: '/unauthorized',
+  GENERIC_ERROR: '/generic-error',
 } as const;
 
 export const HomePage = lazy(() => import('../pages/CardRequestInfo'));
@@ -26,3 +27,4 @@ export const RequestErrorPage = lazy(
 );
 export const UnauthorizedPage = lazy(() => import('../pages/Unauthorized'));
 export const NotFoundPage = lazy(() => import('../pages/NotFound'));
+export const GenericErrorPage = lazy(() => import('../pages/GenericError'));

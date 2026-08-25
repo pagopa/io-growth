@@ -22,6 +22,7 @@ import { useCreateOpportunity } from './hooks/useCreateOpportunity';
 import type { CreateBenefitNavigationState } from './types';
 import { useHydrateFromSourceOpportunity } from './hooks/useHydrateFromSourceOpportunity';
 import { selectNationalTerritory } from '../../features/opportunityCreation/selectors';
+import { resetForm } from '../../features/opportunityCreation/opportunityCreationSlice';
 
 export interface StepProps {
   attempted: boolean;
@@ -80,6 +81,7 @@ export default function CreateBenefitPage() {
 
   const handleSaveDraft = async () => {
     await createOpportunity({ isDraft: true });
+    dispatch(resetForm());
     dispatch(resetPlaces());
     navigate(APP_ROUTES.HOME);
   };
@@ -136,6 +138,8 @@ export default function CreateBenefitPage() {
           return;
         }
         handleRequestApproval(result.id);
+        dispatch(resetForm());
+        dispatch(resetPlaces());
       } catch {
         return;
       }
@@ -180,7 +184,12 @@ export default function CreateBenefitPage() {
           </Typography>
           <Typography
             variant="body2"
-            sx={{ mt: 3, mb: 3, fontWeight: 600, color: 'error.dark' }}
+            sx={{
+              mt: 3,
+              mb: 3,
+              fontWeight: 600,
+            }}
+            color="common.requiredField"
           >
             * Campo obbligatorio
           </Typography>

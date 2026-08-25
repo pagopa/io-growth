@@ -8,6 +8,7 @@ import {
   useGetOperatorOpportunitiesQuery,
 } from './api';
 import type {
+  AdminOpportunityStatusFilter,
   AdminOpportunity,
   Opportunity,
   OpportunityFilters,
@@ -22,12 +23,30 @@ const NEW_STATES: Set<OpportunityStatus> = new Set([
 ]);
 const APPROVED_STATES: Set<OpportunityStatus> = new Set([
   OpportunityStatusEnum.test_passed,
+  OpportunityStatusEnum.scheduled,
   OpportunityStatusEnum.published,
+  OpportunityStatusEnum.scheduled_suspension,
 ]);
 const INACTIVE_STATES: Set<OpportunityStatus> = new Set([
   OpportunityStatusEnum.suspended,
   OpportunityStatusEnum.deleted,
 ]);
+
+const isScheduledSuspension = (item: Opportunity): boolean => {
+  return (
+    item.status === OpportunityStatusEnum.scheduled_suspension ||
+    (item.status === OpportunityStatusEnum.published &&
+      Boolean(item.suspendFrom?.trim()))
+  );
+};
+
+const isManagedOperatorState = (item: Opportunity): boolean => {
+  return (
+    APPROVED_STATES.has(item.status) ||
+    INACTIVE_STATES.has(item.status) ||
+    isScheduledSuspension(item)
+  );
+};
 
 const matchesState = (item: Opportunity, state: string): boolean => {
   if (!state) return true;
@@ -36,7 +55,7 @@ const matchesState = (item: Opportunity, state: string): boolean => {
 
 const isListOperatorOpportunitiesStatus = (
   value: string,
-): value is ListOperatorOpportunitiesStatus =>
+): value is AdminOpportunityStatusFilter =>
   Object.values(ListOperatorOpportunitiesStatus).includes(
     value as ListOperatorOpportunitiesStatus,
   );
@@ -63,7 +82,7 @@ export const useOpportunitiesData = (filters: OpportunityFilters) => {
 
   const filteredItems = useMemo(
     () => items.filter((item) => matchesState(item, filters.state)),
-    [items, filters],
+    [filters.state, items],
   );
 
   const newItems = useMemo(
@@ -72,13 +91,21 @@ export const useOpportunitiesData = (filters: OpportunityFilters) => {
   );
 
   const approvedItems = useMemo(
-    () => filteredItems.filter((item) => APPROVED_STATES.has(item.status)),
+    () =>
+      filteredItems.filter(
+        (item) =>
+          APPROVED_STATES.has(item.status) || isScheduledSuspension(item),
+      ),
     [filteredItems],
   );
 
   const inactiveItems = useMemo(
-    () => filteredItems.filter((item) => INACTIVE_STATES.has(item.status)),
-    [filteredItems],
+    () =>
+      items.filter(
+        (item) =>
+          matchesState(item, filters.state) && INACTIVE_STATES.has(item.status),
+      ),
+    [filters.state, items],
   );
 
   return {
@@ -95,23 +122,28 @@ export const useBenefitsData = (params: ListOperatorOpportunitiesParams) => {
     refetchOnMountOrArgChange: true,
   });
 
-  const items = useMemo(() => query.data?.items ?? [], [query.data]);
+  const items = useMemo<Opportunity[]>(
+    () => (query.data?.items ?? []) as Opportunity[],
+    [query.data],
+  );
 
-  const total = useMemo(() => query.data?.total ?? 0, [query.data]);
+  const visibleItems = useMemo(() => items, [items]);
+
+  const total = useMemo(() => visibleItems.length, [visibleItems]);
 
   const inManagementItems = useMemo(
-    () => items.filter((item) => NEW_STATES.has(item.status)),
-    [items],
+    () => visibleItems.filter((item) => NEW_STATES.has(item.status)),
+    [visibleItems],
   );
 
   const approvedItems = useMemo(
-    () => items.filter((item) => APPROVED_STATES.has(item.status)),
-    [items],
+    () => visibleItems.filter(isManagedOperatorState),
+    [visibleItems],
   );
 
   return {
     ...query,
-    items,
+    items: visibleItems,
     inManagementItems,
     approvedItems,
     total,

@@ -5,7 +5,7 @@ meta {
 }
 
 post {
-  url: {{baseUrl}}/test-session
+  url: {{baseUrl}}/api/test-session
   body: json
   auth: none
 }
@@ -18,3 +18,8 @@ body:json {
   }
 }
 
+script:post-response {
+  if (res.status === 200) {
+    bru.setVar("sessionToken", res.body.token, { persist: false });
+  }
+}

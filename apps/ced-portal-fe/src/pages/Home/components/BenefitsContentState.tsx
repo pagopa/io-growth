@@ -8,7 +8,11 @@ import {
   useTheme,
 } from '@mui/material';
 import { BenefitsTable } from './BenefitsTable';
-import type { OpportunitySummaryItem } from '../../../core/api/generated/model';
+import type {
+  OperatorDeleteOpportunityBody,
+  OpportunitySummaryItem,
+} from '../../../core/api/generated/model';
+import type { SuspendOpportunityPayload } from '../../../features/opportunities/types';
 
 interface BenefitsContentStateProps {
   isLoading: boolean;
@@ -16,6 +20,15 @@ interface BenefitsContentStateProps {
   items: OpportunitySummaryItem[];
   activeTab: number;
   onRetry: () => void;
+  onDeleteOpportunity: (
+    id: string,
+    payload?: OperatorDeleteOpportunityBody,
+  ) => void;
+  onSuspendOpportunity: (
+    id: string,
+    payload: SuspendOpportunityPayload,
+  ) => void;
+  onCancelScheduledSuspension: (id: string) => void;
 }
 
 export function BenefitsContentState({
@@ -24,6 +37,9 @@ export function BenefitsContentState({
   items,
   activeTab,
   onRetry,
+  onDeleteOpportunity,
+  onSuspendOpportunity,
+  onCancelScheduledSuspension,
 }: BenefitsContentStateProps) {
   const theme = useTheme();
   const hasData = !isLoading && !isError && items.length > 0;
@@ -80,7 +96,14 @@ export function BenefitsContentState({
           </Typography>
         </Stack>
       );
-    return <BenefitsTable items={items} />;
+    return (
+      <BenefitsTable
+        items={items}
+        onDeleteOpportunity={onDeleteOpportunity}
+        onSuspendOpportunity={onSuspendOpportunity}
+        onCancelScheduledSuspension={onCancelScheduledSuspension}
+      />
+    );
   };
 
   return (

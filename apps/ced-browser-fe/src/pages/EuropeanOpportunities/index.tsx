@@ -1,3 +1,4 @@
+import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import {
   Box,
   Divider,
@@ -6,11 +7,9 @@ import {
   ListItemButton,
   ListItemIcon,
   ListItemText,
-  Typography,
 } from '@mui/material';
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import OpenInNewIcon from '@mui/icons-material/OpenInNew';
-import { useNavigate } from 'react-router-dom';
+import { Body } from '@pagopa/io-core-ui';
+import { PageHeader } from '../../components';
 
 interface EuropeanOpportunity {
   country: string;
@@ -49,84 +48,67 @@ const opportunities: EuropeanOpportunity[] = [
 ];
 
 export default function EuropeanOpportunitiesPage() {
-  const navigate = useNavigate();
-
-  const handleExternalLink = (url: string) => {
-    window.open(url, '_blank', 'noopener,noreferrer');
-  };
-
   if (opportunities.length === 0) {
     return (
-      <Box sx={{ p: 3 }}>
-        <Box
-          sx={{
-            display: 'flex',
-            alignItems: 'center',
-            mb: 3,
-            cursor: 'pointer',
-          }}
-          onClick={() => navigate(-1)}
-        >
-          <ArrowBackIcon sx={{ mr: 1 }} />
-          <Typography variant="body1">Indietro</Typography>
-        </Box>
-        <Typography variant="h4" sx={{ mb: 2 }}>
-          Opportunità in Europa
-        </Typography>
-        <Typography variant="body1" color="text.secondary">
-          Nessuna opportunità disponibile al momento.
-        </Typography>
+      <Box>
+        <PageHeader
+          title="Opportunità in Europa"
+          subtitle="Nessuna opportunità disponibile al momento."
+        />
       </Box>
     );
   }
+  // TODO: after backed implementation, handle loading and error states, and fetch the opportunities from the backend instead of using a static list.
+  // if (isError) {
+  //   <WarningBanner
+  //     title="C’è stato un problema nel caricamento delle opportunità."
+  //     action={{
+  //       label: 'Ricarica',
+  //       onClick: () => void refetch(),
+  //     }}
+  //   />;
+  // }
 
   return (
-    <Box sx={{ p: 3 }}>
-      <Box
-        sx={{ display: 'flex', alignItems: 'center', mb: 3, cursor: 'pointer' }}
-        onClick={() => navigate(-1)}
-      >
-        <ArrowBackIcon sx={{ mr: 1 }} />
-        <Typography variant="body1">Indietro</Typography>
+    <Box>
+      <PageHeader
+        title="Opportunità in Europa"
+        subtitle="Puoi accedere alle opportunità anche in questi Paesi, presentando la versione fisica della tua Carta Europea della Disabilità."
+      />
+      <Box sx={{ px: 2 }}>
+        <List disablePadding>
+          {opportunities.map((opportunity, index) => (
+            <Box key={opportunity.country}>
+              <ListItem disablePadding>
+                <ListItemButton
+                  component="a"
+                  href={opportunity.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={`${opportunity.country}, si apre in una risorsa esterna`}
+                  sx={{ py: 2 }}
+                >
+                  <ListItemIcon sx={{ minWidth: 40 }}>
+                    <OpenInNewIcon color="action" aria-hidden />
+                  </ListItemIcon>
+                  <ListItemText
+                    primary={
+                      <Body
+                        fontWeight="Semibold"
+                        asLink
+                        onClick={() => undefined}
+                      >
+                        {opportunity.country}
+                      </Body>
+                    }
+                  />
+                </ListItemButton>
+              </ListItem>
+              {index < opportunities.length - 1 && <Divider aria-hidden />}
+            </Box>
+          ))}
+        </List>
       </Box>
-
-      <Typography variant="h4" sx={{ mb: 2 }}>
-        Opportunità in Europa
-      </Typography>
-
-      <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
-        Puoi accedere alle opportunità anche in questi Paesi, presentando la
-        versione fisica della tua Carta Europea della Disabilità.
-      </Typography>
-
-      <List disablePadding>
-        {opportunities.map((opportunity, index) => (
-          <Box key={opportunity.country}>
-            <ListItem disablePadding>
-              <ListItemButton
-                onClick={() => handleExternalLink(opportunity.url)}
-                sx={{ py: 2 }}
-              >
-                <ListItemIcon sx={{ minWidth: 40 }}>
-                  <OpenInNewIcon color="action" />
-                </ListItemIcon>
-                <ListItemText
-                  primary={
-                    <Typography
-                      variant="body1"
-                      color="primary"
-                      fontWeight="medium"
-                    >
-                      {opportunity.country}
-                    </Typography>
-                  }
-                />
-              </ListItemButton>
-            </ListItem>
-            {index < opportunities.length - 1 && <Divider />}
-          </Box>
-        ))}
-      </List>
     </Box>
   );
 }

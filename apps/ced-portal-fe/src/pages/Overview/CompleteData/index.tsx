@@ -20,14 +20,22 @@ export default function OverviewCompleteDataPage() {
   const [createProfile, { isLoading }] = useCreateOperatorProfileMutation();
 
   const {
+    isSubmitted,
     formData,
+    sedeError,
     nameError,
-    addressError,
-    visibleFirstContactTypeError,
-    visibleFirstContactValueError,
+    websiteUrlError,
+    streetError,
+    cityError,
+    postalCodeError,
+    provinceError,
     handleNameChange,
     handleSedeChange,
-    handleAddressChange,
+    handleWebsiteUrlChange,
+    handleStreetChange,
+    handleCityChange,
+    handlePostalCodeChange,
+    handleProvinceChange,
     handleLogoSelect,
     handleCoverSelect,
     handlePrivacyUrlChange,
@@ -64,9 +72,24 @@ export default function OverviewCompleteDataPage() {
           </Button>
 
           <Stack spacing={3}>
-            <Box>
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
               <Typography variant="h4" fontWeight={700}>
                 Completa i dati dell’ente
+              </Typography>
+              <Typography
+                variant="body1"
+                color="text.secondary"
+                fontWeight={400}
+              >
+                Queste informazioni saranno usate per identificarti sull’app IO.
+              </Typography>
+              <Typography
+                variant="body2"
+                color="common.requiredField"
+                fontWeight={600}
+                sx={{ mt: 2 }}
+              >
+                * Campo obbligatorio
               </Typography>
             </Box>
 
@@ -75,23 +98,35 @@ export default function OverviewCompleteDataPage() {
                 <EntityDataSection
                   name={formData.name}
                   sede={formData.sede}
-                  address={formData.address}
+                  sedeError={sedeError}
+                  websiteUrl={formData.websiteUrl}
+                  street={formData.street}
+                  city={formData.city}
+                  postalCode={formData.postalCode}
+                  province={formData.province}
                   logoFile={formData.logoFile}
                   coverFile={formData.coverFile}
                   nameError={nameError}
-                  addressError={addressError}
+                  websiteUrlError={websiteUrlError}
+                  streetError={streetError}
+                  cityError={cityError}
+                  postalCodeError={postalCodeError}
+                  provinceError={provinceError}
                   onNameChange={handleNameChange}
                   onSedeChange={handleSedeChange}
-                  onAddressChange={handleAddressChange}
+                  onWebsiteUrlChange={handleWebsiteUrlChange}
+                  onStreetChange={handleStreetChange}
+                  onCityChange={handleCityChange}
+                  onPostalCodeChange={handlePostalCodeChange}
+                  onProvinceChange={handleProvinceChange}
                   onLogoSelect={handleLogoSelect}
                   onCoverSelect={handleCoverSelect}
                   onInfoClick={setInfoModalType}
                 />
 
                 <ContactsSection
+                  submitted={isSubmitted}
                   contacts={formData.contacts}
-                  firstContactTypeError={visibleFirstContactTypeError}
-                  firstContactValueError={visibleFirstContactValueError}
                   onAddContact={handleAddContact}
                   onRemoveContact={handleRemoveContact}
                   onContactChange={handleContactChange}

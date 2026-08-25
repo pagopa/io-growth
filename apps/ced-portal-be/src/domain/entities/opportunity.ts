@@ -39,12 +39,27 @@ export const BenefitSchema = z.discriminatedUnion("type", [
 
 export type Benefit = z.infer<typeof BenefitSchema>;
 
-const localizedMetadataSchema = z.object({
+const LocalizedMetadataSchema = z.object({
   id: z.ulid(),
   key: z.enum(["name", "description", "condition"]),
   language: z.enum(["en", "fr", "de", "sl", "it"]),
   value: z.string().min(1),
 });
+
+export const ACTOR_TYPE = {
+  DEPARTMENT: "department",
+  OPERATOR: "operator",
+} as const;
+
+export const OPPORTUNITY_STATUS = {
+  DELETED: "deleted",
+  DRAFT: "draft",
+  PUBLISHED: "published",
+  SUSPENDED: "suspended",
+  TEST_PASSED: "test_passed",
+  TEST_PENDING: "test_pending",
+  TEST_REJECTED: "test_rejected",
+} as const;
 
 export const OpportunitySchema = z.object({
   beneficiaryBenefit: BenefitSchema,
@@ -53,7 +68,7 @@ export const OpportunitySchema = z.object({
   dateFrom: z.iso.date(),
   dateTo: z.iso.date().optional(),
   id: z.ulid(),
-  localizedMetadata: z.array(localizedMetadataSchema).min(1),
+  localizedMetadata: z.array(LocalizedMetadataSchema).min(1),
   nationalTerritory: z.boolean(),
   placeIds: z.array(z.ulid()),
   status: z.enum([
@@ -94,6 +109,7 @@ export const OpportunitySummarySchema = z.object({
   categoryTitle: z.string(),
   dateFrom: z.string(),
   dateTo: z.string().nullable(),
+  deletionMessage: z.string().max(4096).nullish(),
   id: z.ulid(),
   name: z.string(),
   operatorName: z.string(),
@@ -103,14 +119,34 @@ export const OpportunitySummarySchema = z.object({
     "test_rejected",
     "test_passed",
     "published",
+    "scheduled",
+    "scheduled_suspension",
     "suspended",
     "deleted",
   ]),
+  suspendedBy: z.enum(["operator", "department"]).nullish(),
+  suspendFrom: z.string().nullish(),
 });
 
 export type OpportunitySummary = z.infer<typeof OpportunitySummarySchema>;
 
-const localizedMetadataSummarySchema = z.object({
+// Derived, response-only statuses:
+// - "scheduled": published opportunity whose dateFrom is still in the future.
+// - "scheduled_suspension": published, live opportunity with a future suspendFrom.
+// Both are computed from stored columns; the DB status column stays "published".
+export const deriveOpportunityDisplayStatus = (
+  status: OpportunitySummary["status"],
+  dateFrom: string,
+  referenceDate?: string,
+  suspendFrom?: null | string,
+): OpportunitySummary["status"] => {
+  if (status !== "published" || !referenceDate) return status;
+  if (dateFrom > referenceDate) return "scheduled";
+  if (suspendFrom && suspendFrom > referenceDate) return "scheduled_suspension";
+  return status;
+};
+
+const LocalizedMetadataSummarySchema = z.object({
   key: z.enum(["name", "description", "condition"]),
   language: z.enum(["en", "fr", "de", "sl", "it"]),
   value: z.string().min(1),
@@ -124,8 +160,9 @@ export const OpportunityDetailSchema = z.object({
   createdAt: z.string(),
   dateFrom: z.string(),
   dateTo: z.string().nullable(),
+  deletionMessage: z.string().max(4096).nullish(),
   id: z.ulid(),
-  localizedMetadata: z.array(localizedMetadataSummarySchema),
+  localizedMetadata: z.array(LocalizedMetadataSummarySchema),
   nationalTerritory: z.boolean(),
   operatorName: z.string().optional(),
   placeIds: z.array(z.ulid()),
@@ -135,9 +172,14 @@ export const OpportunityDetailSchema = z.object({
     "test_rejected",
     "test_passed",
     "published",
+    "scheduled",
+    "scheduled_suspension",
     "suspended",
     "deleted",
   ]),
+  suspendedBy: z.enum(["operator", "department"]).nullish(),
+  suspendFrom: z.string().nullish(),
+  suspensionMessage: z.string().max(4096).nullish(),
   updatedAt: z.string(),
   url: z.url().max(2048).nullable(),
 });

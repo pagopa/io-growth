@@ -1,5 +1,19 @@
 # @pagopa/io-core-adapter-fims
 
+## 0.0.9
+
+### Patch Changes
+
+- 8c9e086: Changed default session ttl
+
+## 0.0.8
+
+### Patch Changes
+
+- Updated dependencies [6e01232]
+  - @pagopa/io-core-adapter-fastify@0.0.7
+  - @pagopa/io-core-domain@0.0.5
+
 ## 0.0.7
 
 ### Patch Changes

@@ -1,22 +1,52 @@
 import CancelRoundedIcon from '@mui/icons-material/CancelRounded';
 import { Menu, MenuItem, useTheme } from '@mui/material';
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
 import { generatePath, useNavigate } from 'react-router-dom';
 import { APP_ROUTES } from '../../../app/routeConfig';
+import type {
+  OperatorDeleteOpportunityBody,
+  OpportunitySummaryItemStatus,
+  OpportunitySummaryItemSuspendedBy,
+} from '../../../core/api/generated/model';
+import {
+  DeleteOpportunityModal,
+  SuspendOpportunityModal,
+} from './OpportunityActionModal';
+import type { SuspendOpportunityPayload } from '../../../features/opportunities/types';
 
 type ActionsMenuProps = {
   anchor: null | HTMLElement;
   selectedItemId: string | null;
+  selectedItemStatus?: OpportunitySummaryItemStatus | null;
+  selectedItemSuspendFrom?: string | null;
+  selectedItemSuspendedBy?: OpportunitySummaryItemSuspendedBy | null;
   handleMenuClose: () => void;
+  onDeleteOpportunity: (
+    id: string,
+    payload?: OperatorDeleteOpportunityBody,
+  ) => void;
+  onSuspendOpportunity: (
+    id: string,
+    payload: SuspendOpportunityPayload,
+  ) => void;
+  onCancelScheduledSuspension: (id: string) => void;
 };
 
 export const ActionsMenu = ({
   anchor,
   selectedItemId,
+  selectedItemStatus,
+  selectedItemSuspendFrom,
+  selectedItemSuspendedBy,
   handleMenuClose,
+  onDeleteOpportunity,
+  onSuspendOpportunity,
+  onCancelScheduledSuspension,
 }: ActionsMenuProps) => {
   const theme = useTheme();
   const navigate = useNavigate();
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isSuspendModalOpen, setIsSuspendModalOpen] = useState(false);
 
   const menuItemsSx = {
     color: theme.palette.common.primaryButton,
@@ -37,13 +67,94 @@ export const ActionsMenu = ({
     });
   };
 
-  // const onSuspend = async (id: string) => {
-  // TODO[IEG-2721][SCOPE - RELEASE IN OCTOBER]: call suspend opportunity API with { id }.
-  // };
+  const canDelete =
+    selectedItemStatus === 'draft' ||
+    selectedItemStatus === 'test_rejected' ||
+    selectedItemStatus === 'suspended' ||
+    selectedItemStatus === 'scheduled';
+  const canSuspend =
+    selectedItemStatus === 'published' ||
+    selectedItemStatus === 'scheduled_suspension';
+  const hasScheduledSuspension = Boolean(selectedItemSuspendFrom?.trim());
+  const canCancelScheduledSuspension =
+    hasScheduledSuspension && selectedItemSuspendedBy === 'operator';
+  const canOpenSuspendModal = canSuspend && !hasScheduledSuspension;
 
-  // const onDelete = async (id: string) => {
-  // TODO[IEG-2722][SCOPE - RELEASE IN OCTOBER]: call delete opportunity API with { id }.
-  // };
+  const handleSuspend = useCallback(() => {
+    if (!selectedItemId) {
+      handleMenuClose();
+      return;
+    }
+
+    if (canCancelScheduledSuspension) {
+      onCancelScheduledSuspension(selectedItemId);
+      handleMenuClose();
+      return;
+    }
+
+    setIsSuspendModalOpen(true);
+    handleMenuClose();
+  }, [
+    canCancelScheduledSuspension,
+    handleMenuClose,
+    onCancelScheduledSuspension,
+    selectedItemId,
+  ]);
+
+  const handleDelete = useCallback(() => {
+    if (!selectedItemId) {
+      handleMenuClose();
+      return;
+    }
+
+    if (selectedItemStatus === 'draft') {
+      onDeleteOpportunity(selectedItemId);
+      handleMenuClose();
+    } else {
+      setIsDeleteModalOpen(true);
+      handleMenuClose();
+    }
+  }, [
+    handleMenuClose,
+    selectedItemId,
+    selectedItemStatus,
+    onDeleteOpportunity,
+  ]);
+
+  const handleCloseDeleteModal = useCallback(() => {
+    setIsDeleteModalOpen(false);
+  }, []);
+
+  const handleCloseSuspendModal = useCallback(() => {
+    setIsSuspendModalOpen(false);
+  }, []);
+
+  const handleConfirmDelete = useCallback(
+    (payload: OperatorDeleteOpportunityBody) => {
+      if (!selectedItemId) {
+        handleCloseDeleteModal();
+        return;
+      }
+
+      onDeleteOpportunity(selectedItemId, payload);
+      handleCloseDeleteModal();
+      navigate(APP_ROUTES.HOME);
+    },
+    [handleCloseDeleteModal, navigate, onDeleteOpportunity, selectedItemId],
+  );
+
+  const handleConfirmSuspend = useCallback(
+    (payload: SuspendOpportunityPayload) => {
+      if (!selectedItemId) {
+        handleCloseSuspendModal();
+        return;
+      }
+
+      onSuspendOpportunity(selectedItemId, payload);
+      handleCloseSuspendModal();
+    },
+    [handleCloseSuspendModal, onSuspendOpportunity, selectedItemId],
+  );
 
   const handleAction = useCallback(
     (cb?: (id: string) => void) => {
@@ -56,42 +167,71 @@ export const ActionsMenu = ({
   );
 
   return (
-    <Menu
-      anchorEl={anchor}
-      open={Boolean(anchor)}
-      onClose={handleMenuClose}
-      PaperProps={{
-        sx: {
-          minWidth: 220,
-          borderRadius: 2,
-          boxShadow: '0 6px 20px rgba(24, 39, 75, 0.18)',
-        },
-      }}
-    >
-      <MenuItem
-        onClick={() => {
-          handleAction(onView);
+    <>
+      <Menu
+        anchorEl={anchor}
+        open={Boolean(anchor)}
+        onClose={handleMenuClose}
+        PaperProps={{
+          sx: {
+            minWidth: 220,
+            borderRadius: 2,
+            boxShadow: '0 6px 20px rgba(24, 39, 75, 0.18)',
+          },
         }}
-        sx={menuItemsSx}
       >
-        Visualizza
-      </MenuItem>
-      <MenuItem onClick={() => handleAction(onDuplicate)} sx={menuItemsSx}>
-        Duplica
-      </MenuItem>
-      <MenuItem onClick={() => handleAction(onEdit)} sx={menuItemsSx}>
-        Modifica
-      </MenuItem>
-      <MenuItem onClick={() => handleAction(() => null)} sx={menuItemsSx}>
-        Sospendi
-      </MenuItem>
-      <MenuItem
-        onClick={() => handleAction(() => null)}
-        sx={{ color: theme.palette.error.main, gap: 1 }}
-      >
-        <CancelRoundedIcon sx={{ fontSize: 18 }} />
-        Elimina
-      </MenuItem>
-    </Menu>
+        <MenuItem
+          onClick={() => {
+            handleAction(onView);
+          }}
+          sx={menuItemsSx}
+        >
+          Visualizza
+        </MenuItem>
+        {canDelete && (
+          <>
+            <MenuItem
+              onClick={() => handleAction(onDuplicate)}
+              sx={menuItemsSx}
+            >
+              Duplica
+            </MenuItem>
+            <MenuItem onClick={() => handleAction(onEdit)} sx={menuItemsSx}>
+              Modifica
+            </MenuItem>
+          </>
+        )}
+        {canOpenSuspendModal ? (
+          <MenuItem onClick={handleSuspend} sx={menuItemsSx}>
+            Sospendi
+          </MenuItem>
+        ) : null}
+        {canCancelScheduledSuspension ? (
+          <MenuItem onClick={handleSuspend} sx={menuItemsSx}>
+            Annulla sospensione programmata
+          </MenuItem>
+        ) : null}
+
+        {canDelete && (
+          <MenuItem
+            onClick={handleDelete}
+            sx={{ color: theme.palette.error.main, gap: 1 }}
+          >
+            <CancelRoundedIcon sx={{ fontSize: 18 }} />
+            Elimina
+          </MenuItem>
+        )}
+      </Menu>
+      <DeleteOpportunityModal
+        open={isDeleteModalOpen}
+        onClose={handleCloseDeleteModal}
+        onConfirm={handleConfirmDelete}
+      />
+      <SuspendOpportunityModal
+        open={isSuspendModalOpen}
+        onClose={handleCloseSuspendModal}
+        onConfirm={handleConfirmSuspend}
+      />
+    </>
   );
 };

@@ -1,8 +1,7 @@
 import { PriorityHigh } from '@mui/icons-material';
 import { Box, Button, useTheme } from '@mui/material';
+import { Body, Title, VSpacer } from '@pagopa/io-core-ui';
 import { useCallback } from 'react';
-import { Body, Title } from '../../components/Typography';
-import { VSpacer } from '../../layouts/Spacer';
 
 interface Props {
   onRetry?: () => void;

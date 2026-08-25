@@ -19,8 +19,21 @@ tags:
     description:
       Authentication flow via FIMS (OIDC). Obtain a session token before
       calling protected endpoints.
-  - name: Application
-    description: CED card application management endpoints (require session token)
+  - name: Status Check and Reconciliation
+    description:
+      Status retrieval and reconciliation of the local state against the INPS
+      source of truth (CheckDomanda).
+  - name: Application Creation
+    description: New application draft submission (NuovaDomandaInBozza).
+  - name: Photo Upload
+    description: Passport photo submission (FornisciFoto).
+  - name: Confirmation and Documentation
+    description: Final confirmation with optional documentation (ConfermaDomanda).
+  - name: Read-Only Operations
+    description:
+      Read-only proxies to INPS (RecuperoDatiDomanda, RichiediRiepilogo,
+      RichiediRicevuta, RichiediStato). Ownership of the idLavorazione is
+      verified against the session before proxying.
 
 paths:
   /fauth:
@@ -161,7 +174,24 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/StateResponse"
+                type: object
+                properties:
+                  state:
+                    $ref: "#/components/schemas/ApplicationState"
+                    description: Current or final application state.
+                  idLavorazione:
+                    type: string
+                    nullable: true
+                    description: INPS idLavorazione bound to the application, when one exists.
+                  numDomus:
+                    type: string
+                    description: INPS-assigned document number, present when state is ACQUIRED.
+        "401":
+          description: Unauthorized — invalid or expired session.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
         "400":
           description:
             INPS business/logic error (e.g., Active Card, foreign residence,
@@ -189,9 +219,14 @@ paths:
         - Application Creation
       summary: Submits data for a new application draft (NuovaDomandaInBozza)
       description: |
-        Invoked when the status is READY_FOR_NEW_DRAFT. The BFF generates a new Idempotency Key,
-        creates the DRAFT record in the local DB, calls NuovaDomandaInBozza, and transitions to READY_FOR_PHOTO_UPLOAD upon success.
+        Invoked when the status is READY_FOR_NEW_DRAFT (or to replace an existing
+        draft). The client supplies an `Idempotency-Key` identifying the user
+        action: re-sending the same key is a safe retry, while a new key replaces
+        the current draft (INPS cancels it and issues a new idLavorazione,
+        invalidating any previously uploaded photo/documents).
       operationId: createNewApplication
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
       requestBody:
         required: true
         content:
@@ -213,6 +248,12 @@ paths:
                     type: string
                     description: INPS idLavorazione associated with the application
                     maxLength: 20
+        "401":
+          description: Unauthorized — invalid or expired session.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
         "400":
           description: INPS data validation error (Codes 200-315)
           content:
@@ -238,9 +279,12 @@ paths:
         - Photo Upload
       summary: Uploads the passport photo (FornisciFoto)
       description: |
-        Invoked when the state is READY_FOR_PHOTO_UPLOAD. The BFF retrieves the existing Idempotency Key from the local DB,
-        calls FornisciFoto, and transitions to READY_FOR_DOCUMENTS_UPLOAD on success.
+        Invoked when the state is READY_FOR_PHOTO_UPLOAD. The client supplies an
+        `Idempotency-Key` identifying the user action: re-sending the same key is a
+        safe retry, while a new key overwrites the previously associated photo.
       operationId: uploadPhoto
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
       requestBody:
         required: true
         content:
@@ -258,6 +302,12 @@ paths:
                   state:
                     $ref: "#/components/schemas/ApplicationState"
                     example: READY_FOR_DOCUMENTS_UPLOAD
+        "401":
+          description: Unauthorized — invalid or expired session.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
         "400":
           description: Photo validation or state inconsistency error (Codes 900-911, 115)
           content:
@@ -283,9 +333,13 @@ paths:
         - Confirmation and Documentation
       summary: Final confirmation of the application (ConfermaDomanda)
       description: |
-        Invoked when the state is READY_FOR_DOCUMENTS_UPLOAD. The BFF retrieves the existing Idempotency Key,
-        calls ConfermaDomanda (with optional documentation), and transitions to ACQUIRED on success.
+        Invoked when the state is READY_FOR_DOCUMENTS_UPLOAD. The client supplies an
+        `Idempotency-Key` identifying the user action: re-sending the same key is a
+        safe retry. Once the application is ACQUIRED, a different key yields
+        `400 / 115` (state not coherent).
       operationId: confirmApplication
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
       requestBody:
         required: true
         content:
@@ -298,11 +352,21 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/StateResponse"
+                type: object
                 properties:
                   state:
                     $ref: "#/components/schemas/ApplicationState"
                     example: ACQUIRED
+                  numDomus:
+                    type: string
+                    nullable: true
+                    description: INPS-assigned document number for the acquired application.
+        "401":
+          description: Unauthorized — invalid or expired session.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
         "400":
           description:
             Documentation validation or state inconsistency error (Codes
@@ -324,6 +388,177 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
 
+  /draft:
+    get:
+      tags:
+        - Read-Only Operations
+      summary: Retrieves the saved draft data (RecuperoDatiDomanda)
+      description: |
+        Proxies INPS `RecuperoDatiDomanda`. Returns the data of the AppIO draft
+        (BOZZA/10) currently on the INPS archives, including the photo in Base64 if
+        already attached. The BFF verifies that the active idLavorazione belongs to
+        the session before proxying. Typically used to pre-fill the form when the
+        user wants to edit an existing draft.
+      operationId: getDraftData
+      responses:
+        "200":
+          description: Draft data retrieved.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DraftDataResponse"
+        "400":
+          description: INPS validation / state error (Codes 100-115)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: No draft associated with the session.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: BFF or INPS internal error (Code 100)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "503":
+          description: Critical DB service unavailable (failure to read local state)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /details:
+    get:
+      tags:
+        - Read-Only Operations
+      summary: Retrieves the application/card status detail (RichiediStato)
+      description: |
+        Proxies INPS `RichiediStato`. Returns the detailed state of the application
+        and, if present, of the card. Available whenever an application exists
+        (esitoCheck 40 or 50). The BFF verifies idLavorazione ownership before
+        proxying.
+      operationId: getApplicationDetails
+      responses:
+        "200":
+          description: Status detail retrieved.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StatusDetailResponse"
+        "400":
+          description: INPS validation error (Codes 100-112)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: No application associated with the session.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: BFF or INPS internal error (Code 100)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "503":
+          description: Critical DB service unavailable (failure to read local state)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /summary:
+    get:
+      tags:
+        - Read-Only Operations
+      summary: Retrieves the application summary PDF (RichiediRiepilogo)
+      description: |
+        Proxies INPS `RichiediRiepilogo`. Returns the summary PDF of the submitted
+        application, available only from state ACQUISITA (30). The BFF verifies
+        idLavorazione ownership before proxying.
+      operationId: getApplicationSummary
+      responses:
+        "200":
+          description: Summary PDF available.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PdfDocumentResponse"
+        "400":
+          description: INPS validation / state error (Codes 100-115, 800)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: No application associated with the session.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: BFF or INPS internal error (Code 100)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "503":
+          description: Critical DB service unavailable (failure to read local state)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /receipt:
+    get:
+      tags:
+        - Read-Only Operations
+      summary: Retrieves the application receipt PDF (RichiediRicevuta)
+      description: |
+        Proxies INPS `RichiediRicevuta`. Returns the receipt PDF of the application,
+        available only from state PROTOCOLLATA (40). The BFF verifies idLavorazione
+        ownership before proxying.
+      operationId: getApplicationReceipt
+      responses:
+        "200":
+          description: Receipt PDF available.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PdfDocumentResponse"
+        "400":
+          description: INPS validation / state error (Codes 100-115, 801)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: No application associated with the session.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: BFF or INPS internal error (Code 100)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "503":
+          description: Critical DB service unavailable (failure to read local state)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
 components:
   securitySchemes:
     BearerAuth:
@@ -333,6 +568,22 @@ components:
       description:
         Opaque token retrieved from the Authorization header for securing
         the BFF endpoints.
+
+  parameters:
+    IdempotencyKey:
+      in: header
+      name: Idempotency-Key
+      required: true
+      description: |
+        Client-generated UUID identifying a single user action (intent). The same
+        key MUST be reused when retrying the same action (e.g. after a network
+        timeout) so the operation is replayed safely. A new key signals a new
+        intent: replace the draft, overwrite the photo, etc. The BFF maps this
+        client key to the per-step INPS Idempotency-Key it persists, guaranteeing
+        the local record stays reconcilable with the INPS source of truth.
+      schema:
+        type: string
+        format: uuid
 
   schemas:
     ApplicationState:
@@ -577,3 +828,149 @@ components:
           type: boolean
           nullable: true
           description: 0=NO, 1=SI. Independent of documentation type.
+
+    # ----------------------------------------------------------------
+    # Read-only response schemas (proxied from INPS)
+    # ----------------------------------------------------------------
+
+    PdfDocumentResponse:
+      type: object
+      description:
+        Wrapper for a Base64-encoded PDF document (summary or receipt) proxied
+        from INPS.
+      required:
+        - document
+      properties:
+        document:
+          type: string
+          format: byte
+          description: PDF document encoded in Base64 (max 1Mb).
+        fileName:
+          type: string
+          description: Suggested file name for the document.
+
+    StatusDetailResponse:
+      type: object
+      description:
+        Detailed application/card status proxied from INPS RichiediStato. The
+        card-related fields are only present when a card exists.
+      properties:
+        statoDomanda:
+          type: integer
+          nullable: true
+          description:
+            INPS application state (10, 30, 40, 50, 60, 70, 90, 99). Present only
+            if the application exists.
+          enum: [10, 30, 40, 50, 60, 70, 90, 99]
+        note:
+          type: string
+          maxLength: 255
+          nullable: true
+          description: Optional note on the application state (e.g. rejection reason).
+        statoCarta:
+          type: integer
+          nullable: true
+          description: INPS card state. Present only if the card exists.
+        cartaAttiva:
+          type: boolean
+          nullable: true
+          description: Whether the card is active. Present only if the card exists.
+        annotazione:
+          type: string
+          maxLength: 255
+          nullable: true
+          description: Note on the card state change. Present only if the card exists.
+
+    DraftDataResponse:
+      type: object
+      description:
+        Draft application data proxied from INPS RecuperoDatiDomanda, used to
+        pre-fill the edit form. Includes the photo if already attached.
+      required:
+        - codiceFiscale
+        - nome
+        - cognome
+        - sesso
+        - statoNascita
+        - dataNascita
+        - idCittadinanza
+        - siglaProvinciaRec
+        - descrizioneComuneRec
+        - capRec
+        - indirizzoRec
+      properties:
+        codiceFiscale:
+          type: string
+          minLength: 16
+          maxLength: 16
+        nome:
+          type: string
+          maxLength: 50
+        cognome:
+          type: string
+          maxLength: 50
+        sesso:
+          type: string
+          enum: [M, F]
+        statoNascita:
+          type: string
+          maxLength: 60
+        comuneNascita:
+          type: string
+          maxLength: 60
+          nullable: true
+          description: Only for Italian citizenship.
+        siglaProvinciaNascita:
+          type: string
+          maxLength: 2
+          nullable: true
+          description: Only for Italian citizenship.
+        dataNascita:
+          type: string
+          format: date-time
+        idCittadinanza:
+          type: integer
+          enum: [0, 2, 3]
+          description: 0=Italiana, 2=Paesi comunitari, 3=Paesi extracomunitari.
+        dataScadenzaPermessoSoggiorno:
+          type: string
+          format: date-time
+          nullable: true
+          description: Only for extracomunitario citizens.
+        pressoNome:
+          type: string
+          maxLength: 40
+          nullable: true
+        pressoCognome:
+          type: string
+          maxLength: 40
+          nullable: true
+        pressoDenominazione:
+          type: string
+          maxLength: 40
+          nullable: true
+        siglaProvinciaRec:
+          type: string
+          maxLength: 2
+        descrizioneComuneRec:
+          type: string
+          maxLength: 60
+        capRec:
+          type: string
+          maxLength: 5
+        indirizzoRec:
+          type: string
+          maxLength: 30
+        civicoRec:
+          type: string
+          maxLength: 10
+          nullable: true
+        datiAggiuntiviRec:
+          type: string
+          maxLength: 45
+          nullable: true
+        fotoCED:
+          type: string
+          format: byte
+          nullable: true
+          description: Photo in Base64. Present only if already attached.

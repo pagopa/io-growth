@@ -1,0 +1,27 @@
+meta {
+  name: FornisciFoto
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{inpsProxyBaseUrl}}/Domanda/FornisciFoto
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  INPS-Identity-UserId: {{fiscalCode}}
+  INPS-Identity-CodiceUfficio: {{inpsOfficeCode}}
+  Idempotency-Key: {{$guid}}
+}
+
+body:json {
+  {
+    "idLavorazione": "{{processingId}}",
+    "codiceFiscale": "{{fiscalCode}}",
+    "fotoCED": "{{photo}}",
+    "informativaFoto": true
+  }
+}

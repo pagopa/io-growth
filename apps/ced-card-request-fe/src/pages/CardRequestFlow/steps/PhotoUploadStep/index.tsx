@@ -1,13 +1,24 @@
 import FileUploadOutlinedIcon from '@mui/icons-material/FileUploadOutlined';
 import { Box, Button, useTheme } from '@mui/material';
+import {
+  Body,
+  ErrorBody,
+  MobileSpinnerLoader,
+  Title,
+  VSpacer,
+} from '@pagopa/io-core-ui';
 import { forwardRef, useImperativeHandle, useState } from 'react';
-import { SpinnerLoader } from '../../../../components/Loader';
-import { Body, ErrorBody, Title } from '../../../../components/Typography';
 import { MarkdownRenderer } from '../../../../components/Typography/MarkdownRender';
-import { VSpacer } from '../../../../layouts/Spacer';
 import { StepCard } from '../../StepCard';
 import type { StepRef } from '../../types';
 import { PhotoGuidelinesModal } from './PhotoGuidelinesModal';
+import { isAllowedPhotoType, processInpsPhoto } from './utils';
+import { useAppDispatch, useAppSelector } from '../../../../hooks';
+import {
+  selectPhotoPreview,
+  setFile,
+  setPreview,
+} from '../../../../features/photo-upload/reducer';
 
 type UploadState = 'idle' | 'loading' | 'preview';
 
@@ -21,58 +32,100 @@ const markdownContent = `L'immagine deve:
 - avere sfondo neutro.
 `;
 
+const fileToBase64 = (file: File | Blob): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => {
+      const result = reader.result as string;
+      const base64Clean = result.split(',')[1];
+      resolve(base64Clean);
+    };
+    reader.onerror = (error) => reject(error);
+  });
+};
+
 export const PhotoUploadStep = forwardRef<StepRef, PhotoUploadProps>(
   function PhotoUploadStep({ onPhotoPreviewChange }, ref) {
+    const dispatch = useAppDispatch();
     const theme = useTheme();
     const [photo, setPhoto] = useState<File | null>(null);
-    const [preview, setPreview] = useState<string | null>(null);
-    const [error, setError] = useState(false);
+    const [error, setError] = useState<string>('');
     const [uploadState, setUploadState] = useState<UploadState>('idle');
     const [guidelinesOpen, setGuidelinesOpen] = useState(false);
+
+    const preview = useAppSelector(selectPhotoPreview);
 
     useImperativeHandle(ref, () => ({
       validate() {
         if (!photo) {
-          setError(true);
+          setError('È necessario caricare una foto per procedere');
           return false;
-        }
-        if (uploadState === 'preview') {
-          setUploadState('loading');
-          return new Promise<boolean>((resolve) => {
-            setTimeout(() => {
-              resolve(true);
-            }, 2000);
-          });
         }
         return true;
       },
     }));
 
-    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
       const file = e.target.files?.[0];
-      if (file) {
-        const url = URL.createObjectURL(file);
-        setPhoto(file);
-        setPreview(url);
+      if (!file) return;
+
+      setError('');
+
+      if (!isAllowedPhotoType(file.type)) {
+        setError('Formato file non valido. Carica un file JPG, JPEG o PNG.');
+        return;
+      }
+
+      setUploadState('loading');
+
+      try {
+        const finalProcessedFile = await processInpsPhoto(file);
+
+        const imgVerify = new Image();
+        imgVerify.src = URL.createObjectURL(finalProcessedFile);
+
+        imgVerify.onload = () => {
+          URL.revokeObjectURL(imgVerify.src);
+        };
+
+        imgVerify.onerror = () => {
+          URL.revokeObjectURL(imgVerify.src);
+        };
+
+        const url = URL.createObjectURL(finalProcessedFile);
+
+        setPhoto(finalProcessedFile);
+        dispatch(setPreview(url));
         onPhotoPreviewChange?.(url);
-        setError(false);
-        setUploadState('loading');
-        setTimeout(() => {
-          setUploadState('preview');
-        }, 2000);
+        const photoB64 = await fileToBase64(finalProcessedFile);
+        dispatch(setFile(photoB64));
+        setUploadState('preview');
+      } catch (err) {
+        console.error("Errore durante l'elaborazione dell'immagine:", err);
+        const errorMessage =
+          err instanceof Error
+            ? err.message
+            : "Si è verificato un errore durante l'elaborazione della foto.";
+
+        setError(errorMessage);
+        setUploadState('idle');
       }
     };
 
     const handleChangePhoto = () => {
+      if (preview) {
+        URL.revokeObjectURL(preview);
+      }
       setPhoto(null);
-      setPreview(null);
+      setPreview(undefined);
       onPhotoPreviewChange?.('');
       setUploadState('idle');
     };
 
     if (uploadState === 'loading') {
       return (
-        <SpinnerLoader
+        <MobileSpinnerLoader
           fullscreen
           title="Stiamo caricando la foto"
           description="Attendi qualche secondo"
@@ -170,21 +223,17 @@ export const PhotoUploadStep = forwardRef<StepRef, PhotoUploadProps>(
               px: 3,
             }}
           >
-            Aggiungi{' '}
+            Aggiungi
             <input
               type="file"
-              accept="image/*"
+              accept="image/jpeg, image/jpg, image/png"
               hidden
               onChange={handleFileChange}
             />
           </Button>
         </Box>
 
-        {error && (
-          <ErrorBody fontSize="14px">
-            *Devi caricare una foto per continuare
-          </ErrorBody>
-        )}
+        {error && <ErrorBody fontSize="14px">{error}</ErrorBody>}
       </StepCard>
     );
   },

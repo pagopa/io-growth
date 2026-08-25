@@ -45,12 +45,12 @@
     "format": {},
     "format:check": {},
     "test": {
-      "dependsOn": ["^build"],
+      "dependsOn": ["^build", "generate"],
       "inputs": [],
       "outputLogs": "full"
     },
     "test:coverage": {
-      "dependsOn": ["^build", "build"],
+      "dependsOn": ["^build", "generate"],
       "inputs": [],
       "outputs": ["coverage"],
       "outputLogs": "full"

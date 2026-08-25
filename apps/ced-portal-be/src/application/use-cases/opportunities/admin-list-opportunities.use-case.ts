@@ -12,7 +12,6 @@ import type {
   PaginatedOpportunities,
 } from "../../../domain/ports/outbound/persistence/opportunity.repository.js";
 
-import { USER_TYPES } from "../../../domain/entities/user-type.js";
 import { validateUseCaseInput } from "../utils/validate-use-case-input.js";
 
 const AdminListOpportunitiesInputSchema = z.object({
@@ -32,12 +31,12 @@ const AdminListOpportunitiesInputSchema = z.object({
       "test_rejected",
       "test_passed",
       "published",
+      "scheduled",
+      "scheduled_suspension",
       "suspended",
       "deleted",
     ])
     .optional(),
-  // kept for future per-userType branching
-  userType: z.enum(USER_TYPES),
 });
 
 export type AdminListOpportunitiesInput = z.infer<

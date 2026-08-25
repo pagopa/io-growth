@@ -14,3 +14,10 @@ module "container_app_environment" {
   subnet_cidr     = var.subnet_cidr
   subnet_pep_id   = var.subnet_pep_id
 }
+
+data "azurerm_container_app_environment" "this" {
+  name                = module.container_app_environment.name
+  resource_group_name = var.resource_group_name
+
+  depends_on = [module.container_app_environment]
+}

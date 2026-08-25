@@ -7,6 +7,7 @@ import {
   GenericError,
   NotFoundError,
   PreconditionFailedError,
+  ServiceUnavailableError,
   ValidationError,
 } from "@pagopa/io-core-domain/errors";
 import { describe, expect, it } from "vitest";
@@ -99,6 +100,16 @@ describe("mapErrorToProblemDetails", () => {
     expect(result.type).toBe("https://ioapp.it/problems/generic-error");
   });
 
+  it("should map ServiceUnavailableError to 503 with ioapp.it/problems domain", () => {
+    const error = new ServiceUnavailableError("Database write failed");
+    const result = mapErrorToProblemDetails(error);
+
+    expect(result.status).toBe(503);
+    expect(result.title).toBe("Service Unavailable");
+    expect(result.type).toBe("https://ioapp.it/problems/service-unavailable");
+    expect(result.detail).toContain("Database write failed");
+  });
+
   it("should use custom type when a Subclass provides it", () => {
     class CustomValidationError extends ValidationError {
       override readonly tag = "custom-validation" as const;
@@ -174,5 +185,15 @@ describe("sendErrorResponse", () => {
 
     expect(state.statusCode).toBe(412);
     expect((state.payload as { status: number }).status).toBe(412);
+  });
+
+  it("should map ServiceUnavailable to a 503 reply", () => {
+    const error = new ServiceUnavailableError("Database write failed");
+    const { reply, state } = createReplyMock();
+
+    sendErrorResponse(reply, error);
+
+    expect(state.statusCode).toBe(503);
+    expect((state.payload as { status: number }).status).toBe(503);
   });
 });

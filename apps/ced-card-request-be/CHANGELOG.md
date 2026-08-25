@@ -1,5 +1,69 @@
 # ced-card-request-be
 
+## 0.2.3
+
+### Patch Changes
+
+- b9975a6: Reject missing/expired sessions with 401 instead of a 500 leaking from a second validation gate.
+
+## 0.2.2
+
+### Patch Changes
+
+- Updated dependencies [8c9e086]
+  - @pagopa/io-core-adapter-fims@0.0.9
+
+## 0.2.1
+
+### Patch Changes
+
+- b3d13eb: fixed repository
+
+## 0.2.0
+
+### Minor Changes
+
+- 623e4ab: Added numDomus to /status for acquired requests
+
+## 0.1.0
+
+### Minor Changes
+
+- f6ec619: Returned numdomus
+
+## 0.0.18
+
+### Patch Changes
+
+- Updated dependencies [d5f5968]
+  - @pagopa/io-core-adapter-inps-ced@0.0.4
+
+## 0.0.17
+
+### Patch Changes
+
+- Updated dependencies [c931177]
+  - @pagopa/io-core-adapter-inps-ced@0.0.3
+
+## 0.0.16
+
+### Patch Changes
+
+- 100cbb2: remove /api from openapi
+
+## 0.0.15
+
+### Patch Changes
+
+- 6e01232: added card request bff api
+- Updated dependencies [6e01232]
+  - @pagopa/io-core-adapter-fastify@0.0.7
+  - @pagopa/io-core-adapter-modi@0.0.2
+  - @pagopa/io-core-domain@0.0.5
+  - @pagopa/io-core-adapter-inps-ced@0.0.2
+  - @pagopa/io-core-adapter-fims@0.0.8
+  - @pagopa/io-core-adapter-redis@0.0.9
+
 ## 0.0.14
 
 ### Patch Changes

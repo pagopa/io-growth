@@ -2,10 +2,9 @@ import {
   DatePicker,
   type DatePickerProps,
 } from '@mui/x-date-pickers/DatePicker';
-import { format, isValid, parse } from 'date-fns';
+import { format, isValid, parseISO } from 'date-fns';
 
 const DATE_FORMAT = 'dd/MM/yyyy';
-const REFERENCE_DATE = new Date();
 
 export interface AppDatePickerProps extends Omit<
   DatePickerProps<Date>,
@@ -17,6 +16,7 @@ export interface AppDatePickerProps extends Omit<
   onBlur?: () => void;
   error?: boolean;
   helperText?: string;
+  required?: boolean;
 }
 
 export function AppDatePicker({
@@ -25,10 +25,11 @@ export function AppDatePicker({
   onBlur,
   error,
   helperText,
+  required,
   sx,
   ...props
 }: AppDatePickerProps) {
-  const parsedValue = value ? parse(value, DATE_FORMAT, REFERENCE_DATE) : null;
+  const parsedValue = value ? parseISO(value) : null;
   const dateValue = parsedValue && isValid(parsedValue) ? parsedValue : null;
 
   const handleChange = (date: Date | null) => {
@@ -50,6 +51,7 @@ export function AppDatePicker({
           onBlur,
           error,
           helperText,
+          required,
           fullWidth: true,
         },
         inputAdornment: {

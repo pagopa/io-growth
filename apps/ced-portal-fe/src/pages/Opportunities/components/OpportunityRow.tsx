@@ -5,7 +5,9 @@ import {
   STATE_OPTIONS,
   STATE_COLORS,
 } from '../../../constants/opportunityState';
-import { getDisplayStatus } from '../../../utils';
+import { generatePath, Link } from 'react-router-dom';
+import { APP_ROUTES } from '../../../app/routeConfig';
+import { theme } from '@pagopa/mui-italia';
 
 interface OpportunityRowProps {
   item: Opportunity;
@@ -20,15 +22,27 @@ export const OpportunityRow = ({
   onSelect,
   onMenuOpen,
 }: OpportunityRowProps) => {
-  const displayStatus = getDisplayStatus(item.status, item.dateFrom);
-
   return (
     <TableRow hover>
       <TableCell padding="checkbox">
         <Checkbox checked={selected} onChange={() => onSelect(item.id)} />
       </TableCell>
 
-      <TableCell>{item.name}</TableCell>
+      <TableCell>
+        <Link
+          to={generatePath(APP_ROUTES.OPPORTUNITY_DETAIL, {
+            id: item.id,
+          })}
+          style={{
+            color: theme.palette.common.primaryButton,
+            textDecoration: 'none',
+            fontWeight: 500,
+            cursor: 'pointer',
+          }}
+        >
+          {item.name}
+        </Link>
+      </TableCell>
 
       <TableCell>{item.operatorName}</TableCell>
 
@@ -39,10 +53,10 @@ export const OpportunityRow = ({
       <TableCell>
         <Chip
           label={
-            STATE_OPTIONS.find((o) => o.value === displayStatus)?.label ??
-            displayStatus
+            STATE_OPTIONS.find((o) => o.value === item.status)?.label ??
+            item.status
           }
-          color={STATE_COLORS[displayStatus] ?? 'default'}
+          color={STATE_COLORS[item.status] ?? 'default'}
           size="small"
         />
       </TableCell>

@@ -1,18 +1,18 @@
 import { Box, Button, useTheme } from '@mui/material';
+import { Body, MobileSpinnerLoader, VSpacer } from '@pagopa/io-core-ui';
 import { useEffect, useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { APP_ROUTES } from '../../app/routeConfig';
 import { PageHeader, Stepper } from '../../components';
-import { SpinnerLoader } from '../../components/Loader';
-import { Body } from '../../components/Typography';
-import { VSpacer } from '../../layouts/Spacer';
 import { SavedDraftDialog } from './SavedDraftDialog';
 import { AddressStep } from './steps/AddressStep';
 import { ApplicantDataStep } from './steps/ApplicantDataStep';
-import { DocumentTypeStep, YesNo } from './steps/DocumentTypeStep';
+import { DocumentTypeStep } from './steps/DocumentTypeStep';
 import { PhotoUploadStep } from './steps/PhotoUploadStep';
 import SummaryStep from './steps/SummaryStep';
 import type { StepRef } from './types';
+import { useSaveDataByStep } from './hooks/useSaveDataByStep';
+import GenericError from '../GenericError';
 
 const steps = [
   {
@@ -45,16 +45,17 @@ const steps = [
 const TOTAL_STEPS = steps.length;
 
 export default function CardRequestFlowPage() {
+  const location = useLocation();
+  const state = location.state as { step: number };
   const navigate = useNavigate();
   const theme = useTheme();
-  const [currentStep, setCurrentStep] = useState(0);
+  const [currentStep, setCurrentStep] = useState(state?.step ?? 0);
   const [draftSaved, setDraftSaved] = useState(false);
   const stepRef = useRef<StepRef | null>(null);
   const [photoPreview, setPhotoPreview] = useState<string>('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [docHasDoc, setDocHasDoc] = useState<YesNo>(null);
 
-  const isContinueDisabled = currentStep === 3 && docHasDoc === 'no';
+  const goNextStep = () => setCurrentStep((s) => s + 1);
 
   const {
     title,
@@ -67,6 +68,25 @@ export default function CardRequestFlowPage() {
     ? 'Invia richiesta'
     : (confirmLabel ?? 'Conferma');
 
+  const {
+    saveFirstDraftData,
+    savePhoto,
+    confirmRequest,
+    isDraftError,
+    isPhotoError,
+    isLoading,
+    resetDraft,
+    resetPhoto,
+  } = useSaveDataByStep(goNextStep);
+
+  const handleBack = () => {
+    if (currentStep > 0) {
+      setCurrentStep((s) => s - 1);
+    } else {
+      navigate(-1);
+    }
+  };
+
   useEffect(() => {
     requestAnimationFrame(() => {
       window.scrollTo({
@@ -75,6 +95,19 @@ export default function CardRequestFlowPage() {
       });
     });
   }, [currentStep]);
+
+  if (isLoading) {
+    return <MobileSpinnerLoader title="Attendi qualche secondo" fullscreen />;
+  }
+
+  // TODO debug only
+  if (isDraftError) {
+    return <GenericError onRetry={saveFirstDraftData} onBack={resetDraft} />;
+  }
+  // TODO debug only
+  if (isPhotoError) {
+    return <GenericError onRetry={savePhoto} onBack={resetPhoto} />;
+  }
 
   if (draftSaved) {
     return (
@@ -89,27 +122,27 @@ export default function CardRequestFlowPage() {
     if (stepRef.current) {
       const isValid = await stepRef.current.validate();
       if (!isValid) return;
+      if (currentStep === 1) {
+        saveFirstDraftData();
+        return;
+      }
+      if (currentStep === 2) {
+        savePhoto();
+        return;
+      }
     }
     if (!isLastStep) {
-      setCurrentStep((s) => s + 1);
+      goNextStep();
     }
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     // show loading overlay and simulate submit
     setIsSubmitting(true);
-    setTimeout(() => {
-      // after simulated submit, navigate to success route
+    try {
+      await confirmRequest();
+    } catch (error) {
       setIsSubmitting(false);
-      navigate(APP_ROUTES.REQUEST_SUCCESS);
-    }, 2000);
-  };
-
-  const handleBack = () => {
-    if (currentStep > 0) {
-      setCurrentStep((s) => s - 1);
-    } else {
-      navigate(-1);
     }
   };
 
@@ -138,10 +171,9 @@ export default function CardRequestFlowPage() {
           onEditJudgment={() => setCurrentStep(3)}
           onPhotoPreviewChange={(url: string) => setPhotoPreview(url)}
           photoPreview={photoPreview}
-          onDocChange={(value: YesNo) => setDocHasDoc(value)}
         />
         {isSubmitting && (
-          <SpinnerLoader
+          <MobileSpinnerLoader
             fullscreen
             title="Stiamo elaborando la tua richiesta"
             description="Attendi qualche secondo"
@@ -159,8 +191,8 @@ export default function CardRequestFlowPage() {
         <Button
           fullWidth
           variant="contained"
+          disabled={isSubmitting}
           onClick={isLastStep ? handleSubmit : handleNext}
-          disabled={isContinueDisabled}
           sx={{
             height: 52,
             borderRadius: '10px',
@@ -174,6 +206,7 @@ export default function CardRequestFlowPage() {
           <Button
             fullWidth
             variant="text"
+            disabled={isSubmitting}
             onClick={
               cancelLabel === 'Riprendi più tardi'
                 ? () => setDraftSaved(true)

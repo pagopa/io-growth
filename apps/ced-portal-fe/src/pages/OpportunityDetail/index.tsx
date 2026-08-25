@@ -1,5 +1,7 @@
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
+import WarningAmberRoundedIcon from '@mui/icons-material/WarningAmberRounded';
+import WarningIcon from '@mui/icons-material/WarningRounded';
 import {
   Box,
   Button,
@@ -9,11 +11,13 @@ import {
   Typography,
   useTheme,
 } from '@mui/material';
-import WarningAmberRoundedIcon from '@mui/icons-material/WarningAmberRounded';
+import { format, parseISO } from 'date-fns';
 import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import {
   useApproveOpportunityMutation,
+  useAdminCancelScheduledSuspensionMutation,
+  useAdminSuspendOpportunityMutation,
   useGetAdminOpportunityDetailQuery,
 } from '../../features/opportunities/api';
 import { APP_ROUTES } from '../../app/routeConfig';
@@ -22,7 +26,8 @@ import { PublishModal } from '../../components/PublishModal';
 import { RequestChangesModal } from '../../components/RequestChangesModal';
 import { OpportunityDetailCard } from './components/OpportunityDetailCard';
 import { STATE_COLORS, STATE_OPTIONS } from '../../constants/opportunityState';
-import { getDisplayStatus } from '../../utils';
+import { SuspendOpportunityModal } from '../../components/SuspendOpportunityModal';
+import type { SuspendOpportunityPayload } from '../../features/opportunities/types';
 
 export default function OpportunityDetailPage() {
   const theme = useTheme();
@@ -33,11 +38,56 @@ export default function OpportunityDetailPage() {
     data: detail,
     isLoading,
     isError,
+    refetch,
   } = useGetAdminOpportunityDetailQuery(id ?? '');
   const [approveOpportunity, { isLoading: isApproving }] =
     useApproveOpportunityMutation();
+  const [suspendOpportunity, { isLoading: isSuspending }] =
+    useAdminSuspendOpportunityMutation();
+  const [cancelScheduledSuspension, { isLoading: isCancelingSuspension }] =
+    useAdminCancelScheduledSuspensionMutation();
   const [publishModalOpen, setPublishModalOpen] = useState(false);
+  const [suspendModalOpen, setSuspendModalOpen] = useState(false);
   const [requestChangesOpen, setRequestChangesOpen] = useState(false);
+
+  const detailStatus = detail?.status;
+  const detailSuspendFrom = detail?.suspendFrom;
+  const formattedSuspendFrom = detailSuspendFrom?.trim()
+    ? format(parseISO(detailSuspendFrom), 'dd/MM/yyyy')
+    : null;
+  const hasScheduledSuspension =
+    detailStatus === 'scheduled_suspension' ||
+    (detailStatus === 'published' && Boolean(detailSuspendFrom));
+  const canSuspendOpportunity =
+    detailStatus === 'published' && !hasScheduledSuspension;
+
+  const handleSuspend = async (payload: SuspendOpportunityPayload) => {
+    if (!id || isSuspending) {
+      return;
+    }
+
+    try {
+      await suspendOpportunity({ id, payload }).unwrap();
+      setSuspendModalOpen(false);
+      showToast('Sospensione impostata con successo', 'success');
+    } catch {
+      showToast("Errore durante la sospensione dell'opportunità", 'error');
+    }
+  };
+
+  const handleCancelSuspension = async () => {
+    if (!id || isCancelingSuspension) {
+      return;
+    }
+
+    try {
+      await cancelScheduledSuspension({ id }).unwrap();
+      await refetch();
+      showToast('Sospensione programmata annullata con successo', 'success');
+    } catch {
+      showToast("Errore durante l'annullamento della sospensione", 'error');
+    }
+  };
 
   if (isLoading) {
     return (
@@ -93,7 +143,6 @@ export default function OpportunityDetailPage() {
     );
   }
 
-  const displayStatus = getDisplayStatus(detail.status, detail.dateFrom);
   return (
     <Box
       sx={{
@@ -106,7 +155,7 @@ export default function OpportunityDetailPage() {
       <Stack spacing={3} sx={{ maxWidth: 800, mx: 'auto' }}>
         <Button
           startIcon={<ArrowBackIcon />}
-          onClick={() => navigate(APP_ROUTES.OPPORTUNITIES)}
+          onClick={() => navigate(-1)}
           sx={{ alignSelf: 'flex-start', fontWeight: 600, pl: 0 }}
         >
           Indietro
@@ -130,13 +179,77 @@ export default function OpportunityDetailPage() {
           </Box>
           <Chip
             label={
-              STATE_OPTIONS.find((o) => o.value === displayStatus)?.label ??
-              displayStatus
+              STATE_OPTIONS.find((o) => o.value === detail.status)?.label ??
+              detail.status
             }
-            color={STATE_COLORS[displayStatus] ?? 'default'}
+            color={STATE_COLORS[detail.status] ?? 'default'}
             size="small"
           />
         </Stack>
+
+        {hasScheduledSuspension && formattedSuspendFrom && (
+          <Box
+            sx={{
+              borderRadius: '8px',
+              pt: 2.5,
+              pb: 1,
+              px: 2,
+              border: (theme) =>
+                `1px solid ${theme.palette.common.alertWarningBorder}`,
+              backgroundColor: (theme) => theme.palette.common.alertWarningBg,
+            }}
+          >
+            <Stack spacing={2}>
+              <Stack direction="row" spacing={1.5} alignItems="flex-start">
+                <WarningIcon
+                  sx={{
+                    color: (theme) => theme.palette.common.alertWarningText,
+                    fontSize: 24,
+                    mt: 0.25,
+                  }}
+                />
+                <Stack spacing={0.5} alignItems="flex-start">
+                  <Typography
+                    sx={{
+                      fontWeight: 700,
+                      fontSize: 18,
+                      color: (theme) => theme.palette.common.alertWarningText,
+                    }}
+                  >
+                    {`L'opportunità sarà sospesa dal ${formattedSuspendFrom}`}
+                  </Typography>
+                  <Typography
+                    sx={{
+                      fontSize: 16,
+                      color: (theme) => theme.palette.common.alertWarningText,
+                    }}
+                  >
+                    {detail.suspensionMessage?.trim() || '-'}
+                  </Typography>
+                  <Button
+                    variant="text"
+                    disableRipple
+                    onClick={handleCancelSuspension}
+                    sx={{
+                      alignSelf: 'flex-start',
+                      px: 0,
+                      minWidth: 0,
+                      fontSize: 16,
+                      fontWeight: 700,
+                      color: (theme) => theme.palette.common.alertWarningText,
+                      textTransform: 'none',
+                      '&:hover': {
+                        backgroundColor: 'transparent',
+                      },
+                    }}
+                  >
+                    Annulla sospensione programmata
+                  </Button>
+                </Stack>
+              </Stack>
+            </Stack>
+          </Box>
+        )}
 
         <OpportunityDetailCard detail={detail} />
 
@@ -162,6 +275,25 @@ export default function OpportunityDetailPage() {
               sx={{ fontWeight: 700, borderRadius: 2, px: 4 }}
             >
               Pubblica
+            </Button>
+          </Stack>
+        )}
+
+        {canSuspendOpportunity && (
+          <Stack
+            direction={{ xs: 'column', sm: 'row' }}
+            spacing={2}
+            justifyContent="flex-end"
+            sx={{ pt: 2, pb: 4 }}
+          >
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={() => setSuspendModalOpen(true)}
+              disabled={isSuspending}
+              sx={{ fontWeight: 700, borderRadius: 2, px: 4 }}
+            >
+              Sospendi
             </Button>
           </Stack>
         )}
@@ -204,6 +336,13 @@ export default function OpportunityDetailPage() {
           navigate(APP_ROUTES.OPPORTUNITIES);
           showToast('Fatto!', 'success');
         }}
+      />
+
+      <SuspendOpportunityModal
+        open={suspendModalOpen}
+        isLoading={isSuspending}
+        onClose={() => setSuspendModalOpen(false)}
+        onConfirm={handleSuspend}
       />
     </Box>
   );

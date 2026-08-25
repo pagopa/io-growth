@@ -14,40 +14,63 @@ const SEDE_OPTIONS = [
 
 interface EntityDataSectionProps {
   name: string;
-  sede: 'fisica' | 'sito_web';
-  address: string;
+  sede: '' | 'fisica' | 'sito_web';
+  sedeError?: string;
+  websiteUrl: string;
+  street: string;
+  city: string;
+  postalCode: string;
+  province: string;
   logoFile: File | null;
   coverFile: File | null;
   onNameChange: (value: string) => void;
-  onSedeChange: (value: 'fisica' | 'sito_web') => void;
-  onAddressChange: (value: string) => void;
+  onSedeChange: (value: '' | 'fisica' | 'sito_web') => void;
+  onWebsiteUrlChange: (value: string) => void;
+  onStreetChange: (value: string) => void;
+  onCityChange: (value: string) => void;
+  onPostalCodeChange: (value: string) => void;
+  onProvinceChange: (value: string) => void;
   onLogoSelect: (file: File | null) => void;
   onCoverSelect: (file: File | null) => void;
   onInfoClick: (type: 'logo' | 'cover') => void;
   nameError?: string;
-  addressError?: string;
+  websiteUrlError?: string;
+  streetError?: string;
+  cityError?: string;
+  postalCodeError?: string;
+  provinceError?: string;
 }
 
 export const EntityDataSection = ({
   name,
   sede,
-  address,
+  sedeError,
+  websiteUrl,
+  street,
+  city,
+  postalCode,
+  province,
   logoFile,
   coverFile,
   onNameChange,
   onSedeChange,
-  onAddressChange,
+  onWebsiteUrlChange,
+  onStreetChange,
+  onCityChange,
+  onPostalCodeChange,
+  onProvinceChange,
   onLogoSelect,
   onCoverSelect,
   onInfoClick,
   nameError,
-  addressError,
+  websiteUrlError,
+  streetError,
+  cityError,
+  postalCodeError,
+  provinceError,
 }: EntityDataSectionProps) => {
   const isWebsite = sede === 'sito_web';
-  const locationFieldLabel = isWebsite ? 'URL' : 'Indirizzo';
-  const locationFieldPlaceholder = isWebsite
-    ? 'Inserisci URL'
-    : "Inserisci l'indirizzo";
+  const isPhysical = sede === 'fisica';
 
   return (
     <Paper
@@ -80,7 +103,7 @@ export const EntityDataSection = ({
         <AppRadioGroup
           value={sede}
           onChange={(e) =>
-            onSedeChange(e.target.value as 'fisica' | 'sito_web')
+            onSedeChange(e.target.value as '' | 'fisica' | 'sito_web')
           }
           options={SEDE_OPTIONS}
           sx={{
@@ -93,18 +116,84 @@ export const EntityDataSection = ({
           }}
         />
 
-        <AppTextField
-          required
-          label={locationFieldLabel}
-          placeholder={locationFieldPlaceholder}
-          value={address}
-          error={Boolean(addressError)}
-          helperText={addressError}
-          onChange={(e) => onAddressChange(e.target.value)}
-          sx={{
-            '& .MuiOutlinedInput-root': { borderRadius: '8px' },
-          }}
-        />
+        {sedeError ? (
+          <Typography variant="body2" color="common.requiredField">
+            {sedeError}
+          </Typography>
+        ) : null}
+
+        {isWebsite ? (
+          <AppTextField
+            required
+            label="URL"
+            placeholder="Inserisci URL"
+            value={websiteUrl}
+            error={Boolean(websiteUrlError)}
+            helperText={websiteUrlError}
+            onChange={(e) => onWebsiteUrlChange(e.target.value)}
+            sx={{
+              '& .MuiOutlinedInput-root': { borderRadius: '8px' },
+            }}
+          />
+        ) : isPhysical ? (
+          <Stack spacing={1.5}>
+            <AppTextField
+              required
+              label="Indirizzo"
+              placeholder="Via/Piazza e numero civico"
+              value={street}
+              error={Boolean(streetError)}
+              helperText={streetError}
+              onChange={(e) => onStreetChange(e.target.value)}
+              sx={{
+                '& .MuiOutlinedInput-root': { borderRadius: '8px' },
+              }}
+            />
+
+            <Stack
+              direction={{ xs: 'column', md: 'row' }}
+              spacing={1.5}
+              sx={{ width: '100%' }}
+            >
+              <AppTextField
+                required
+                label="Città"
+                value={city}
+                error={Boolean(cityError)}
+                helperText={cityError}
+                onChange={(e) => onCityChange(e.target.value)}
+                sx={{
+                  flex: 1,
+                  '& .MuiOutlinedInput-root': { borderRadius: '8px' },
+                }}
+              />
+              <AppTextField
+                required
+                label="CAP"
+                value={postalCode}
+                error={Boolean(postalCodeError)}
+                helperText={postalCodeError}
+                onChange={(e) => onPostalCodeChange(e.target.value)}
+                sx={{
+                  flex: 1,
+                  '& .MuiOutlinedInput-root': { borderRadius: '8px' },
+                }}
+              />
+              <AppTextField
+                required
+                label="Provincia"
+                value={province}
+                error={Boolean(provinceError)}
+                helperText={provinceError}
+                onChange={(e) => onProvinceChange(e.target.value)}
+                sx={{
+                  flex: 1,
+                  '& .MuiOutlinedInput-root': { borderRadius: '8px' },
+                }}
+              />
+            </Stack>
+          </Stack>
+        ) : null}
 
         <Stack spacing={2}>
           <Stack
@@ -137,7 +226,11 @@ export const EntityDataSection = ({
             title="Trascina qui il logo del tuo ente"
             subtitle={'Dimensione massima 300 x 300px - Formato .jpg o .png'}
           />
-          <Typography variant="body2" sx={{ ml: 4, color: 'error.dark' }}>
+          <Typography
+            variant="body2"
+            sx={{ ml: 4 }}
+            color="common.requiredField"
+          >
             * Campo obbligatorio
           </Typography>
         </Stack>

@@ -1,5 +1,34 @@
 # ced-browser-be
 
+## 0.1.12
+
+### Patch Changes
+
+- f3576f0: add pg health check
+
+## 0.1.11
+
+### Patch Changes
+
+- Updated dependencies [8c9e086]
+  - @pagopa/io-core-adapter-fims@0.0.9
+
+## 0.1.10
+
+### Patch Changes
+
+- 100cbb2: remove /api from openapi
+
+## 0.1.9
+
+### Patch Changes
+
+- Updated dependencies [6e01232]
+  - @pagopa/io-core-adapter-fastify@0.0.7
+  - @pagopa/io-core-domain@0.0.5
+  - @pagopa/io-core-adapter-fims@0.0.8
+  - @pagopa/io-core-adapter-redis@0.0.9
+
 ## 0.1.8
 
 ### Patch Changes

@@ -2,7 +2,7 @@ import FilterAltOutlined from '@mui/icons-material/FilterAltOutlined';
 import { Button, SelectChangeEvent, Stack } from '@mui/material';
 import { useCallback } from 'react';
 import { AppSelect, AppTextField } from '../../../components';
-import type { OpportunitySummaryItemStatus } from '../../../core/api/generated/model';
+import type { ListOperatorOpportunitiesStatus } from '../../../core/api/generated/model';
 import type { OpportunityCategoryItem } from '../../../core/api/generated/model/opportunityCategoryItem';
 
 interface BenefitsFiltersBarProps {
@@ -11,9 +11,9 @@ interface BenefitsFiltersBarProps {
   categoryId: OpportunityCategoryItem['id'];
   categoryOptions: OpportunityCategoryItem[];
   onCategoryChange: (value: OpportunityCategoryItem['id']) => void;
-  status: OpportunitySummaryItemStatus | '';
+  status: ListOperatorOpportunitiesStatus | '';
   stateOptions?: Array<{ value: string; label: string }>;
-  onStatusChange: (value: OpportunitySummaryItemStatus | '') => void;
+  onStatusChange: (value: ListOperatorOpportunitiesStatus | '') => void;
   onFilter: () => void;
   onReset: () => void;
 }
@@ -46,7 +46,7 @@ export const BenefitsFiltersBar = ({
 
   const handleStatusChange = useCallback(
     (e: SelectChangeEvent<string | string[]>) => {
-      onStatusChange(e.target.value as OpportunitySummaryItemStatus | '');
+      onStatusChange(e.target.value as ListOperatorOpportunitiesStatus | '');
     },
     [onStatusChange],
   );

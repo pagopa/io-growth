@@ -142,7 +142,7 @@ export const AppSelect = ({
         {renderOptions()}
       </Select>
       {helperText && (
-        <FormHelperText sx={{ fontSize: '0.875rem', fontWeight: 400 }}>
+        <FormHelperText sx={{ fontSize: '0.75rem', fontWeight: 600 }}>
           {helperText}
         </FormHelperText>
       )}

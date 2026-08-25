@@ -1,28 +1,24 @@
 import { Check, ContentCopy } from '@mui/icons-material';
 import { Box, Button, useTheme } from '@mui/material';
+import { Title, VSpacer } from '@pagopa/io-core-ui';
 import { useState } from 'react';
-import { Title } from '../../components/Typography';
 import { MarkdownRenderer } from '../../components/Typography/MarkdownRender';
-import { VSpacer } from '../../layouts/Spacer';
 import { copyTextToClipboard } from '../../utils';
+import { useAppSelector } from '../../hooks';
+import { selectNumDomus } from '../../features/status/selectors';
 
-interface Props {
-  requestNumber?: string;
-  onClose?: () => void;
-}
-
-export default function SubmissionSuccess({
-  requestNumber,
-  onClose,
-}: Readonly<Props>) {
+export default function SubmissionSuccess() {
   const theme = useTheme();
   const [copied, setCopied] = useState(false);
 
-  const number = requestNumber ?? '91238000001184';
+  const onClose = () => window.location.replace('iossoapi://cancel');
+
+  const numDomus = useAppSelector(selectNumDomus);
 
   const handleCopy = async () => {
+    if (!numDomus) return;
     try {
-      const success = await copyTextToClipboard(number);
+      const success = await copyTextToClipboard(numDomus);
       if (!success) throw new Error('Copy failed');
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
@@ -39,7 +35,7 @@ export default function SubmissionSuccess({
 
   const markdownContent = `Riceverai un messaggio su IO con gli aggiornamenti sulla tua richiesta.
 Per identificare la tua richiesta in caso di problemi, salva questo codice:
-Numero Domus: **${number}**.`;
+Numero Domus: **${numDomus}**.`;
 
   return (
     <Box

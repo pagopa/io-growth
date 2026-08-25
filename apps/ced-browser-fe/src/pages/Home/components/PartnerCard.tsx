@@ -1,5 +1,6 @@
 import {
   Card,
+  CardActionArea,
   CardContent,
   CardMedia,
   Typography,
@@ -13,24 +14,16 @@ export const PartnerCard = ({
   imageUrl,
   logoUrl,
   onClick,
+  isInert = false,
 }: PartnerCardProps) => {
-  return (
-    <Card
-      onClick={onClick}
-      sx={{
-        width: 210,
-        height: 196,
-        borderRadius: 4,
-        overflow: 'visible',
-        position: 'relative',
-        border: '1px solid #E8EBF1',
-      }}
-    >
+  const cardContent = (
+    <>
       <CardMedia
         component="img"
         height="115"
         image={imageUrl}
-        alt={title}
+        alt=""
+        aria-hidden="true"
         loading="eager"
         sx={{ borderRadius: '16px 16px 0 0' }}
       />
@@ -61,12 +54,19 @@ export const PartnerCard = ({
           <Avatar
             src={logoUrl}
             variant="rounded"
-            imgProps={{ loading: 'eager', decoding: 'async' }}
+            slotProps={{
+              img: {
+                loading: 'eager',
+                decoding: 'async',
+                alt: '',
+                'aria-hidden': true,
+              },
+            }}
             sx={{
               width: 44,
               height: 44,
               bgcolor: 'white',
-              '& img': { objectFit: 'contain', p: 1 },
+              '& img': { objectFit: 'contain' },
             }}
           />
         </Box>
@@ -74,6 +74,7 @@ export const PartnerCard = ({
         <Typography
           variant="body2"
           component="div"
+          aria-hidden="true"
           sx={{
             fontWeight: '700',
             lineHeight: 1.3,
@@ -89,6 +90,51 @@ export const PartnerCard = ({
           {title}
         </Typography>
       </CardContent>
+    </>
+  );
+
+  return (
+    <Card
+      role="group"
+      aria-label={title}
+      tabIndex={!onClick && !isInert ? 0 : undefined}
+      sx={(theme) => ({
+        width: 210,
+        height: 196,
+        borderRadius: 4,
+        overflow: 'visible',
+        position: 'relative',
+        border: '1px solid',
+        borderColor: theme.palette.common.cardBorder,
+        '&:focus-visible': {
+          outline: 'none',
+          boxShadow: `inset 0 0 0 1px ${theme.palette.common.focusRing}`,
+        },
+      })}
+    >
+      {onClick ? (
+        <CardActionArea
+          onClick={onClick}
+          aria-label={title}
+          tabIndex={isInert ? -1 : undefined}
+          sx={(theme) => ({
+            width: '100%',
+            height: '100%',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'stretch',
+            borderRadius: 4,
+            '&.Mui-focusVisible': {
+              outline: 'none',
+              boxShadow: `inset 0 0 0 1px ${theme.palette.common.focusRing}`,
+            },
+          })}
+        >
+          {cardContent}
+        </CardActionArea>
+      ) : (
+        cardContent
+      )}
     </Card>
   );
 };

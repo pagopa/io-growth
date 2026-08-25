@@ -1,6 +1,7 @@
+import { Box, Divider, useTheme } from '@mui/material';
+import { LabelCaption, VSpacer, WarningBanner } from '@pagopa/io-core-ui';
 import type { ReactNode } from 'react';
 import { useMemo } from 'react';
-import { Box, Divider, Typography, useTheme } from '@mui/material';
 import { DiscoveryListItem } from '../../../../components/DiscoveryListItem';
 import { PlaceSearchItem } from '../../../../core/api/generated/model';
 import { formatAddress } from '../../../../utils/formatAddress';
@@ -12,7 +13,7 @@ function highlightText(text: string, regex: RegExp | null): ReactNode {
     if (i % 2 === 0) return part;
     return (
       <Box
-        key={i}
+        key={`${part}-${i}`}
         component="mark"
         sx={{ bgcolor: 'common.decorativeCyan', color: 'inherit' }}
       >
@@ -23,10 +24,12 @@ function highlightText(text: string, regex: RegExp | null): ReactNode {
 }
 
 type SearchResultsProps = {
-  total: number;
-  items: PlaceSearchItem[];
   query: string;
   onItemPress: (accessPointId: string) => void;
+  isError: boolean;
+  onRetry: () => void;
+  total?: number;
+  items?: PlaceSearchItem[];
 };
 
 export function SearchResults({
@@ -34,16 +37,56 @@ export function SearchResults({
   items,
   query,
   onItemPress,
-}: SearchResultsProps) {
+  isError,
+  onRetry,
+}: Readonly<SearchResultsProps>) {
   const theme = useTheme();
   const highlightRegex = useMemo(() => {
     const queryTrim = query.trim();
     if (!queryTrim) return null;
-    return new RegExp(
-      `(${queryTrim.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`,
-      'gi',
+    const escapedQuery = queryTrim.replace(
+      /[.*+?^${}()|[\]\\]/g,
+      String.raw`\\$&`,
     );
+    return new RegExp(String.raw`(${escapedQuery})`, 'gi');
   }, [query]);
+
+  const renderContent = () => {
+    if (isError) {
+      return (
+        <>
+          <VSpacer size={16} />
+          <WarningBanner
+            title="C’è stato un problema nel caricamento dei risultati."
+            action={
+              onRetry
+                ? {
+                    label: 'Ricarica',
+                    onClick: onRetry,
+                  }
+                : undefined
+            }
+          />
+        </>
+      );
+    }
+    return items?.map((item, i) => (
+      <Box key={item.id}>
+        {i > 0 ? <Divider /> : null}
+        <DiscoveryListItem
+          variant="simple"
+          title={highlightText(item.name, highlightRegex)}
+          subtitle={highlightText(
+            formatAddress(item.address) || item.url || '',
+            highlightRegex,
+          )}
+          onClick={() => onItemPress(item.id)}
+          sx={{ bgcolor: 'white', px: 0 }}
+        />
+      </Box>
+    ));
+  };
+
   return (
     <Box sx={{ mt: 3 }}>
       <Box
@@ -54,16 +97,7 @@ export function SearchResults({
           mb: 1,
         }}
       >
-        <Typography
-          sx={{
-            fontSize: 14,
-            fontWeight: 700,
-            color: theme.palette.common.neutralDarkGray,
-            letterSpacing: '0.08em',
-          }}
-        >
-          RISULTATI
-        </Typography>
+        <LabelCaption>RISULTATI</LabelCaption>
         <Box
           component="span"
           sx={{
@@ -81,24 +115,10 @@ export function SearchResults({
             lineHeight: 1,
           }}
         >
-          {total}
+          {total ?? 0}
         </Box>
       </Box>
-      {items.map((item, i) => (
-        <Box key={item.id}>
-          {i > 0 ? <Divider /> : null}
-          <DiscoveryListItem
-            variant="simple"
-            title={highlightText(item.name, highlightRegex)}
-            subtitle={highlightText(
-              formatAddress(item.address) || item.url || '',
-              highlightRegex,
-            )}
-            onClick={() => onItemPress(item.id)}
-            sx={{ bgcolor: 'white', px: 0 }}
-          />
-        </Box>
-      ))}
+      {renderContent()}
     </Box>
   );
 }

@@ -27,7 +27,6 @@ const validInput = {
   offset: 0,
   sortBy: "createdAt" as const,
   sortOrder: "desc" as const,
-  userType: "admin" as const,
 };
 
 describe("makeAdminListOpportunitiesUseCase", () => {
@@ -65,6 +64,32 @@ describe("makeAdminListOpportunitiesUseCase", () => {
         search: inputWithFilters.search,
         status: inputWithFilters.status,
       }),
+    );
+  });
+
+  it("should forward the scheduled status filter to the repository", async () => {
+    const repository = createMockOpportunityRepository({
+      findAll: vi.fn().mockResolvedValue(ok({ items: [], total: 0 })),
+    });
+    const useCase = makeAdminListOpportunitiesUseCase(repository);
+
+    await useCase({ ...validInput, status: "scheduled" });
+
+    expect(repository.findAll).toHaveBeenCalledWith(
+      expect.objectContaining({ status: "scheduled" }),
+    );
+  });
+
+  it("should forward the scheduled_suspension status filter to the repository", async () => {
+    const repository = createMockOpportunityRepository({
+      findAll: vi.fn().mockResolvedValue(ok({ items: [], total: 0 })),
+    });
+    const useCase = makeAdminListOpportunitiesUseCase(repository);
+
+    await useCase({ ...validInput, status: "scheduled_suspension" });
+
+    expect(repository.findAll).toHaveBeenCalledWith(
+      expect.objectContaining({ status: "scheduled_suspension" }),
     );
   });
 

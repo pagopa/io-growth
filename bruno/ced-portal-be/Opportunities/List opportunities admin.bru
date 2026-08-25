@@ -1,0 +1,21 @@
+meta {
+  name: List opportunities admin
+  type: http
+  seq: 6
+}
+
+get {
+  url: {{baseUrl}}/opportunities?offset=0&limit=20&status=published&search=&sortBy=createdAt&sortOrder=desc
+  body: none
+  auth: inherit
+}
+
+params:query {
+  offset: 0
+  limit: 20
+  status: published
+  search: 
+  sortBy: createdAt
+  sortOrder: desc
+  ~scheduled: false
+}

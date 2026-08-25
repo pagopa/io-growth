@@ -1,5 +1,51 @@
 # ced-portal-be
 
+## 0.2.15
+
+### Patch Changes
+
+- dfeaa7c: align naming convention
+
+## 0.2.14
+
+### Patch Changes
+
+- 545ab4b: Reject non-operator sessions on the 14 operator API routes with 403 instead of a misleading 400.
+
+## 0.2.13
+
+### Patch Changes
+
+- 3b78198: feat: add department suspension API for opportunities
+
+## 0.2.12
+
+### Patch Changes
+
+- 914a2c2: feat: add operator suspension API with scheduled_suspension derived status
+
+## 0.2.11
+
+### Patch Changes
+
+- Updated dependencies [6e01232]
+  - @pagopa/io-core-adapter-fastify@0.0.7
+  - @pagopa/io-core-domain@0.0.5
+  - @pagopa/io-core-adapter-ar@0.0.8
+  - @pagopa/io-core-adapter-redis@0.0.9
+
+## 0.2.10
+
+### Patch Changes
+
+- 7f28292: add operator soft-delete API for opportunities (PATCH /operator/opportunities/{id}/delete)
+
+## 0.2.9
+
+### Patch Changes
+
+- 3d07f8b: added a soft status on opportunities named scehduled
+
 ## 0.2.8
 
 ### Patch Changes

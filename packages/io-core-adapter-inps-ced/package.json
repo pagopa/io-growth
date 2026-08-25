@@ -1,0 +1,44 @@
+{
+  "name": "@pagopa/io-core-adapter-inps-ced",
+  "version": "0.0.4",
+  "type": "module",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "clean": "rm -rf dist",
+    "generate": "orval && pnpm esm:generated",
+    "build": "pnpm clean && pnpm generate && tsc",
+    "typecheck": "tsc --noEmit",
+    "lint": "pnpm lint:check --fix",
+    "lint:check": "eslint .",
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "esm:generated": "ts2esm tsconfig.json"
+  },
+  "dependencies": {
+    "@pagopa/io-core-adapter-modi": "workspace:^",
+    "@pagopa/io-core-domain": "workspace:^",
+    "neverthrow": "catalog:",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@pagopa/eslint-config": "catalog:",
+    "@tsconfig/node22": "catalog:",
+    "@types/node": "catalog:",
+    "@vitest/coverage-v8": "catalog:",
+    "eslint": "catalog:",
+    "orval": "catalog:",
+    "prettier": "catalog:",
+    "ts2esm": "^2.2.7",
+    "typescript": "catalog:",
+    "undici-types": "catalog:",
+    "vitest": "catalog:"
+  }
+}

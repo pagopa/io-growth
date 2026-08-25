@@ -5,9 +5,12 @@ import { err, ok } from "neverthrow";
 
 import type {
   BenefitSummary,
+  Opportunity,
   OpportunityDetail,
   OpportunitySummary,
 } from "../../../domain/entities/opportunity.js";
+
+import { deriveOpportunityDisplayStatus } from "../../../domain/entities/opportunity.js";
 
 export interface BenefitRow {
   readonly description: null | string;
@@ -29,6 +32,7 @@ export interface OpportunityDetailRow {
   readonly createdAt: Date;
   readonly dateFrom: string;
   readonly dateTo: null | string;
+  readonly deletionMessage?: null | string;
   readonly id: string;
   readonly localizedMetadata: readonly {
     readonly key: "condition" | "description" | "name";
@@ -38,7 +42,10 @@ export interface OpportunityDetailRow {
   readonly nationalTerritory: boolean;
   readonly operator?: null | { readonly name: string };
   readonly opportunityPlaces: readonly { readonly placeId: string }[];
-  readonly status: OpportunitySummary["status"];
+  readonly status: Opportunity["status"];
+  readonly suspendedBy?: "department" | "operator" | null;
+  readonly suspendFrom?: null | string;
+  readonly suspensionMessage?: null | string;
   readonly updatedAt: Date;
   readonly url: null | string;
 }
@@ -47,10 +54,13 @@ export interface OpportunitySummaryRow {
   readonly categoryTitle: string;
   readonly dateFrom: string;
   readonly dateTo: null | string;
+  readonly deletionMessage?: null | string;
   readonly id: string;
   readonly name: null | string;
   readonly operatorName: string;
-  readonly status: OpportunitySummary["status"];
+  readonly status: Opportunity["status"];
+  readonly suspendedBy?: "department" | "operator" | null;
+  readonly suspendFrom?: null | string;
 }
 
 const mapBenefitRow = (row: BenefitRow): BenefitSummary | null => {
@@ -85,6 +95,7 @@ const mapBenefitRow = (row: BenefitRow): BenefitSummary | null => {
 
 export const mapOpportunityDetailRow = (
   row: OpportunityDetailRow,
+  referenceDate?: string,
 ): Result<OpportunityDetail, GenericError> => {
   const beneficiaryBenefit = row.beneficiaryBenefit
     ? mapBenefitRow(row.beneficiaryBenefit)
@@ -126,6 +137,7 @@ export const mapOpportunityDetailRow = (
     createdAt: row.createdAt.toISOString(),
     dateFrom: row.dateFrom,
     dateTo: row.dateTo,
+    deletionMessage: row.deletionMessage ?? null,
     id: row.id,
     localizedMetadata: row.localizedMetadata.map((lm) => ({
       key: lm.key,
@@ -135,7 +147,15 @@ export const mapOpportunityDetailRow = (
     nationalTerritory: row.nationalTerritory,
     operatorName: row.operator?.name,
     placeIds: row.opportunityPlaces.map((op) => op.placeId),
-    status: row.status,
+    status: deriveOpportunityDisplayStatus(
+      row.status,
+      row.dateFrom,
+      referenceDate,
+      row.suspendFrom,
+    ),
+    suspendedBy: row.suspendedBy ?? null,
+    suspendFrom: row.suspendFrom ?? null,
+    suspensionMessage: row.suspensionMessage ?? null,
     updatedAt: row.updatedAt.toISOString(),
     url: row.url,
   });
@@ -143,12 +163,21 @@ export const mapOpportunityDetailRow = (
 
 export const mapOpportunitySummaryRow = (
   row: OpportunitySummaryRow,
+  referenceDate?: string,
 ): OpportunitySummary => ({
   categoryTitle: row.categoryTitle,
   dateFrom: row.dateFrom,
   dateTo: row.dateTo,
+  deletionMessage: row.deletionMessage ?? null,
   id: row.id,
   name: row.name ?? "",
   operatorName: row.operatorName,
-  status: row.status,
+  status: deriveOpportunityDisplayStatus(
+    row.status,
+    row.dateFrom,
+    referenceDate,
+    row.suspendFrom,
+  ),
+  suspendedBy: row.suspendedBy ?? null,
+  suspendFrom: row.suspendFrom ?? null,
 });

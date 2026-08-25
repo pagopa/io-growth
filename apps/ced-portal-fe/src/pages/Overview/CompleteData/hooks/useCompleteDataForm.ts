@@ -12,7 +12,7 @@ import type {
 } from '../../../../core/api/generated/model';
 
 const createEmptyContact = (): ContactFormData => ({
-  type: '',
+  type: 'email',
   value: '',
 });
 
@@ -21,8 +21,12 @@ const isFirstContactValueField = (field: keyof ContactFormData): boolean =>
 
 const INITIAL_FORM_DATA: CompleteDataFormData = {
   name: '',
-  sede: 'fisica',
-  address: '',
+  sede: '',
+  websiteUrl: '',
+  street: '',
+  city: '',
+  postalCode: '',
+  province: '',
   contacts: [createEmptyContact()],
   logoFile: null,
   coverFile: null,
@@ -35,14 +39,24 @@ type UseCompleteDataFormParams = {
 };
 
 export type UseCompleteDataFormResult = {
+  isSubmitted: boolean;
   formData: CompleteDataFormData;
+  sedeError: string;
   nameError: string;
-  addressError: string;
+  websiteUrlError: string;
+  streetError: string;
+  cityError: string;
+  postalCodeError: string;
+  provinceError: string;
   visibleFirstContactTypeError: string;
   visibleFirstContactValueError: string;
   handleNameChange: (value: string) => void;
-  handleSedeChange: (value: 'fisica' | 'sito_web') => void;
-  handleAddressChange: (value: string) => void;
+  handleSedeChange: (value: '' | 'fisica' | 'sito_web') => void;
+  handleWebsiteUrlChange: (value: string) => void;
+  handleStreetChange: (value: string) => void;
+  handleCityChange: (value: string) => void;
+  handlePostalCodeChange: (value: string) => void;
+  handleProvinceChange: (value: string) => void;
   handleLogoSelect: (file: File | null) => void;
   handleCoverSelect: (file: File | null) => void;
   handleAddContact: () => void;
@@ -59,23 +73,11 @@ export type UseCompleteDataFormResult = {
 
 const buildSupportContacts = (contacts: ContactFormData[]) =>
   contacts
-    .filter((c): c is Contact => c.type !== '' && c.value.trim() !== '')
+    .filter((c): c is Contact => !!c.type && !!c.value.trim())
     .map((c) => ({
       type: c.type,
       value: c.value.trim(),
     }));
-
-export const parseAddress = (input: string): Address => {
-  const parts = input.split(',').map((p) => p.trim());
-
-  return {
-    street: parts[0] || '',
-    city: parts[1] || '',
-    state: parts[2] || '',
-    postalCode: parts[3] || '',
-    country: 'IT',
-  };
-};
 
 export const useCompleteDataForm = ({
   onValidSubmit,
@@ -116,12 +118,10 @@ export const useCompleteDataForm = ({
 
   const handleContactChange = useCallback(
     (index: number, field: keyof ContactFormData, value: string) => {
-      // reset error type primo contatto
       if (index === 0 && field === 'type') {
         setErrors(INITIAL_FIRST_CONTACT_ERRORS);
       }
 
-      // reset errore valore primo contatto
       if (index === 0 && isFirstContactValueField(field)) {
         setErrors((prev) => ({
           ...prev,
@@ -145,9 +145,33 @@ export const useCompleteDataForm = ({
     attempted: isSubmitted,
   });
 
-  const addressField = useCheckRequiredField({
-    value: formData.address,
-    required: true,
+  const websiteUrlField = useCheckRequiredField({
+    value: formData.websiteUrl,
+    required: formData.sede === 'sito_web',
+    attempted: isSubmitted,
+  });
+
+  const streetField = useCheckRequiredField({
+    value: formData.street,
+    required: formData.sede === 'fisica',
+    attempted: isSubmitted,
+  });
+
+  const cityField = useCheckRequiredField({
+    value: formData.city,
+    required: formData.sede === 'fisica',
+    attempted: isSubmitted,
+  });
+
+  const postalCodeField = useCheckRequiredField({
+    value: formData.postalCode,
+    required: formData.sede === 'fisica',
+    attempted: isSubmitted,
+  });
+
+  const provinceField = useCheckRequiredField({
+    value: formData.province,
+    required: formData.sede === 'fisica',
     attempted: isSubmitted,
   });
 
@@ -160,16 +184,15 @@ export const useCompleteDataForm = ({
   const handleContinueClick = useCallback(() => {
     setIsSubmitted(true);
     if (!validateForm()) return;
+    if (!formData.sede) return;
 
     const isOnline = formData.sede === 'sito_web';
 
     const supportContacts = buildSupportContacts(formData.contacts);
 
-    const websiteUrl = formData.contacts.find(
-      (c) => c.type === 'website',
-    )?.value;
+    const placeWebsiteUrl = formData.websiteUrl.trim();
 
-    if (isOnline && !websiteUrl) {
+    if (isOnline && !placeWebsiteUrl) {
       return;
     }
 
@@ -178,14 +201,20 @@ export const useCompleteDataForm = ({
           type: 'online',
           name: 'Sito web',
           website: {
-            url: websiteUrl!.trim(),
+            url: placeWebsiteUrl,
           },
           supportContacts,
         }
       : {
           type: 'offline',
           name: 'Sede fisica',
-          address: parseAddress(formData.address),
+          address: {
+            street: formData.street.trim(),
+            city: formData.city.trim(),
+            state: formData.province.trim(),
+            postalCode: formData.postalCode.trim(),
+            country: 'IT',
+          } as Address,
           supportContacts,
         };
 
@@ -203,12 +232,32 @@ export const useCompleteDataForm = ({
   );
 
   const handleSedeChange = useCallback(
-    (value: 'fisica' | 'sito_web') => updateField('sede', value),
+    (value: '' | 'fisica' | 'sito_web') => updateField('sede', value),
     [updateField],
   );
 
-  const handleAddressChange = useCallback(
-    (value: string) => updateField('address', value),
+  const handleWebsiteUrlChange = useCallback(
+    (value: string) => updateField('websiteUrl', value),
+    [updateField],
+  );
+
+  const handleStreetChange = useCallback(
+    (value: string) => updateField('street', value),
+    [updateField],
+  );
+
+  const handleCityChange = useCallback(
+    (value: string) => updateField('city', value),
+    [updateField],
+  );
+
+  const handlePostalCodeChange = useCallback(
+    (value: string) => updateField('postalCode', value),
+    [updateField],
+  );
+
+  const handleProvinceChange = useCallback(
+    (value: string) => updateField('province', value),
     [updateField],
   );
 
@@ -240,15 +289,34 @@ export const useCompleteDataForm = ({
     ? errors.firstContactValue
     : '';
 
+  const sedeError =
+    isSubmitted && !formData.sede
+      ? '* Seleziona un campo tra Sede fisica o Sito web'
+      : '';
+
   return {
+    isSubmitted,
     formData,
+    sedeError,
     nameError: nameField.error ? (nameField.helperText ?? '') : '',
-    addressError: addressField.error ? (addressField.helperText ?? '') : '',
+    websiteUrlError: websiteUrlField.error
+      ? (websiteUrlField.helperText ?? '')
+      : '',
+    streetError: streetField.error ? (streetField.helperText ?? '') : '',
+    cityError: cityField.error ? (cityField.helperText ?? '') : '',
+    postalCodeError: postalCodeField.error
+      ? (postalCodeField.helperText ?? '')
+      : '',
+    provinceError: provinceField.error ? (provinceField.helperText ?? '') : '',
     visibleFirstContactTypeError,
     visibleFirstContactValueError,
     handleNameChange,
     handleSedeChange,
-    handleAddressChange,
+    handleWebsiteUrlChange,
+    handleStreetChange,
+    handleCityChange,
+    handlePostalCodeChange,
+    handleProvinceChange,
     handleLogoSelect,
     handleCoverSelect,
     handlePrivacyUrlChange,

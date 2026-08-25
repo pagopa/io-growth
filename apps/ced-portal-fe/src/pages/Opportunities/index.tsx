@@ -1,9 +1,23 @@
 import { Box, Button, Stack, Typography, useTheme } from '@mui/material';
-import { SyntheticEvent, useCallback, useMemo, useState } from 'react';
+import {
+  SyntheticEvent,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 import { FiltersBar, PageTabs, ResultsPagination } from '../../components';
-import { useApproveOpportunityMutation } from '../../features/opportunities/api';
+import {
+  useApproveOpportunityMutation,
+  useAdminCancelScheduledSuspensionMutation,
+  useAdminSuspendOpportunityMutation,
+} from '../../features/opportunities/api';
 import { useOpportunitiesData } from '../../features/opportunities/hooks';
-import type { OpportunityFilters } from '../../features/opportunities/types';
+import type {
+  Opportunity,
+  OpportunityFilters,
+  SuspendOpportunityPayload,
+} from '../../features/opportunities/types';
 import { PublishModal } from '../../components/PublishModal';
 import { OpportunitiesTable } from './components/OpportunitiesTable';
 import { useToast } from '../../contexts';
@@ -12,6 +26,9 @@ import {
   ADMIN_NOT_ACTIVE_STATE_OPTIONS,
   ADMIN_REQUEST_STATE_OPTIONS,
 } from '../../constants';
+import { SuspendOpportunityModal } from '../../components/SuspendOpportunityModal';
+
+import { useMemorizedTabsAndFilters } from '../../hooks/useMemorizedTabsAndFilters';
 
 const INITIAL_FILTERS: OpportunityFilters = {
   search: '',
@@ -22,18 +39,28 @@ export default function OpportunitiesPage() {
   const theme = useTheme();
   const { showToast } = useToast();
 
-  const [filters, setFilters] = useState<OpportunityFilters>(INITIAL_FILTERS);
-  const [draftFilters, setDraftFilters] =
-    useState<OpportunityFilters>(INITIAL_FILTERS);
-  const [activeTab, setActiveTab] = useState(0);
+  const { tab, page, limit, filters, updateParams } =
+    useMemorizedTabsAndFilters<OpportunityFilters>(INITIAL_FILTERS, 10);
+
+  const [draftFilters, setDraftFilters] = useState<OpportunityFilters>(filters);
   const [selected, setSelected] = useState<Set<string>>(new Set());
-  const [page, setPage] = useState(1);
-  const [rowsPerPage, setRowsPerPage] = useState(10);
   const [publishModalOpen, setPublishModalOpen] = useState(false);
   const [publishCount, setPublishCount] = useState(0);
   const [idsToPublish, setIdsToPublish] = useState<string[]>([]);
+  const [suspendModalOpen, setSuspendModalOpen] = useState(false);
+  const [opportunityToSuspend, setOpportunityToSuspend] =
+    useState<Opportunity | null>(null);
+
   const [approveOpportunity, { isLoading: isApproving }] =
     useApproveOpportunityMutation();
+  const [suspendOpportunity, { isLoading: isSuspending }] =
+    useAdminSuspendOpportunityMutation();
+  const [cancelScheduledSuspension, { isLoading: isCancelingSuspension }] =
+    useAdminCancelScheduledSuspensionMutation();
+
+  useEffect(() => {
+    setSelected(new Set());
+  }, [tab, filters]);
 
   const {
     newItems,
@@ -45,41 +72,68 @@ export default function OpportunitiesPage() {
   } = useOpportunitiesData(filters);
 
   const displayedItems = useMemo(() => {
-    if (activeTab === 0) return newItems;
-    if (activeTab === 1) return approvedItems;
+    if (tab === 0) return newItems;
+    if (tab === 1) return approvedItems;
     return inactiveItems;
-  }, [activeTab, newItems, approvedItems, inactiveItems]);
+  }, [tab, newItems, approvedItems, inactiveItems]);
 
   const filteredDisplayedItems = useMemo(() => {
-    if (activeTab === 0) return ADMIN_REQUEST_STATE_OPTIONS;
-    if (activeTab === 1) return ADMIN_APPROVED_STATE_OPTIONS;
+    if (tab === 0) return ADMIN_REQUEST_STATE_OPTIONS;
+    if (tab === 1) return ADMIN_APPROVED_STATE_OPTIONS;
     return ADMIN_NOT_ACTIVE_STATE_OPTIONS;
-  }, [activeTab]);
+  }, [tab]);
 
   const paginatedItems = useMemo(() => {
-    const start = (page - 1) * rowsPerPage;
-    return displayedItems.slice(start, start + rowsPerPage);
-  }, [displayedItems, page, rowsPerPage]);
+    const start = (page - 1) * limit;
+    return displayedItems.slice(start, start + limit);
+  }, [displayedItems, page, limit]);
 
-  const handleTabChange = (_event: SyntheticEvent, newValue: number) => {
-    setActiveTab(newValue);
-    setPage(1);
-    setSelected(new Set());
-  };
+  useEffect(() => {
+    setDraftFilters(filters);
+  }, [filters]);
 
-  const handleFilterChange = (partial: Partial<OpportunityFilters>) =>
-    setDraftFilters((prev) => ({ ...prev, ...partial }));
+  const handleTabChange = useCallback(
+    (_event: SyntheticEvent, newValue: number) => {
+      updateParams({
+        tab: newValue,
+        page: 1,
+        search: '',
+        state: '',
+      });
+    },
+    [updateParams],
+  );
 
-  const handleFilter = () => {
-    setFilters(draftFilters);
-    setPage(1);
-  };
+  const handleFilterChange = useCallback(
+    (partial: Partial<OpportunityFilters>) => {
+      setDraftFilters((prev) => ({ ...prev, ...partial }));
+    },
+    [],
+  );
 
-  const handleReset = () => {
-    setDraftFilters(INITIAL_FILTERS);
-    setFilters(INITIAL_FILTERS);
-    setPage(1);
-  };
+  const handleFilter = useCallback(() => {
+    updateParams({
+      search: draftFilters.search,
+      state: draftFilters.state,
+      page: 1,
+    });
+  }, [draftFilters.search, draftFilters.state, updateParams]);
+
+  const handleReset = useCallback(() => {
+    updateParams({ search: '', state: '', page: 1 });
+  }, [updateParams]);
+
+  const handleChangeLimit = useCallback(
+    (newLimit: number) => {
+      updateParams({ limit: newLimit, page: 1 });
+    },
+    [updateParams],
+  );
+
+  const handleChangePage = useCallback(
+    (newPage: number) => updateParams({ page: newPage }),
+    [updateParams],
+  );
 
   const handlePublish = useCallback(async () => {
     if (idsToPublish.length === 0 || isApproving) {
@@ -114,6 +168,53 @@ export default function OpportunitiesPage() {
     displayedItems,
     approveOpportunity,
   ]);
+
+  const handleOpenSuspendModal = useCallback((item: Opportunity) => {
+    setOpportunityToSuspend(item);
+    setSuspendModalOpen(true);
+  }, []);
+
+  const handleSuspend = useCallback(
+    async (payload: SuspendOpportunityPayload) => {
+      if (!opportunityToSuspend || isSuspending) {
+        return;
+      }
+
+      try {
+        await suspendOpportunity({
+          id: opportunityToSuspend.id,
+          payload,
+        }).unwrap();
+        setSuspendModalOpen(false);
+        setOpportunityToSuspend(null);
+        setSelected((prev) => {
+          const next = new Set(prev);
+          next.delete(opportunityToSuspend.id);
+          return next;
+        });
+        showToast('Sospensione impostata con successo', 'success');
+      } catch {
+        showToast("Errore durante la sospensione dell'opportunità", 'error');
+      }
+    },
+    [isSuspending, opportunityToSuspend, showToast, suspendOpportunity],
+  );
+
+  const handleCancelSuspension = useCallback(
+    async (id: string) => {
+      if (isCancelingSuspension) {
+        return;
+      }
+
+      try {
+        await cancelScheduledSuspension({ id }).unwrap();
+        showToast('Sospensione programmata annullata con successo', 'success');
+      } catch {
+        showToast("Errore durante l'annullamento della sospensione", 'error');
+      }
+    },
+    [cancelScheduledSuspension, isCancelingSuspension, showToast],
+  );
 
   return (
     <Box
@@ -176,16 +277,18 @@ export default function OpportunitiesPage() {
         />
 
         <Box>
-          <PageTabs activeTab={activeTab} onChange={handleTabChange} />
+          <PageTabs activeTab={tab} onChange={handleTabChange} />
           <Box sx={{ mt: 2 }}>
             <OpportunitiesTable
-              activeTab={activeTab}
+              activeTab={tab}
               items={paginatedItems}
               isLoading={isLoading}
               isError={isError}
               onRetry={refetch}
               selected={selected}
               onSelectChange={setSelected}
+              onSuspend={handleOpenSuspendModal}
+              onCancelSuspension={handleCancelSuspension}
               onPublish={(id) => {
                 setIdsToPublish([id]);
                 setPublishCount(1);
@@ -197,9 +300,9 @@ export default function OpportunitiesPage() {
             <ResultsPagination
               totalItems={displayedItems.length}
               page={page}
-              rowsPerPage={rowsPerPage}
-              onPageChange={setPage}
-              onRowsPerPageChange={setRowsPerPage}
+              rowsPerPage={limit}
+              onPageChange={handleChangePage}
+              onRowsPerPageChange={handleChangeLimit}
             />
           )}
         </Box>
@@ -214,6 +317,16 @@ export default function OpportunitiesPage() {
           displayedItems.find((item) => idsToPublish.includes(item.id))
             ?.dateFrom
         }
+      />
+
+      <SuspendOpportunityModal
+        open={suspendModalOpen}
+        isLoading={isSuspending}
+        onClose={() => {
+          setSuspendModalOpen(false);
+          setOpportunityToSuspend(null);
+        }}
+        onConfirm={handleSuspend}
       />
     </Box>
   );

@@ -50,10 +50,10 @@ resource "azurerm_web_application_firewall_policy" "this" {
 
   policy_settings {
     enabled                     = true
-    mode                        = "Prevention"
+    mode                        = "Detection"
     request_body_check          = true
     file_upload_limit_in_mb     = 100
-    max_request_body_size_in_kb = 128
+    max_request_body_size_in_kb = 2000
   }
 
   managed_rules {
@@ -73,6 +73,38 @@ resource "azurerm_web_application_firewall_policy" "this" {
         rule_group_name = "REQUEST-931-APPLICATION-ATTACK-RFI"
         rule {
           id      = "931130"
+          enabled = false
+        }
+      }
+
+      rule_group_override {
+        rule_group_name = "REQUEST-932-APPLICATION-ATTACK-RCE"
+        rule {
+          id      = "932140"
+          enabled = false
+        }
+      }
+
+      rule_group_override {
+        rule_group_name = "REQUEST-941-APPLICATION-ATTACK-XSS"
+        rule {
+          id      = "941130"
+          enabled = false
+        }
+        rule {
+          id      = "941170"
+          enabled = false
+        }
+      }
+
+      rule_group_override {
+        rule_group_name = "REQUEST-942-APPLICATION-ATTACK-SQLI"
+        rule {
+          id      = "942340"
+          enabled = false
+        }
+        rule {
+          id      = "942450"
           enabled = false
         }
       }
@@ -124,7 +156,7 @@ resource "azurerm_application_gateway" "this" {
     cookie_based_affinity = "Disabled"
     protocol              = "Https"
     port                  = 443
-    request_timeout       = 2
+    request_timeout       = 30
     host_name             = var.apim_hostname
     probe_name            = "probe-apim"
   }

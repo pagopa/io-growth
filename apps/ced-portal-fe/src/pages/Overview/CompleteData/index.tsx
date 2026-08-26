@@ -8,16 +8,24 @@ import { EntityDataSection } from './components/EntityDataSection';
 import { InfoModal } from './components/InfoModal';
 import { TermsAndPrivacySection } from './components/TermsAndPrivacySection';
 import { useCompleteDataForm } from './hooks/useCompleteDataForm';
-import { useCreateOperatorProfileMutation } from '../../../features/profile/api';
+import {
+  useCreateOperatorProfileMutation,
+  useGetOperatorProfileQuery,
+} from '../../../features/profile/api';
+import { hasStatus } from '../../../core/api/baseApi';
 import { useToast } from '../../../contexts';
+import { CompleteProfileModal } from '../../../components';
 
 export default function OverviewCompleteDataPage() {
   const navigate = useNavigate();
   const [infoModalType, setInfoModalType] = useState<'logo' | 'cover' | null>(
     null,
   );
+  const [isExitModalOpen, setIsExitModalOpen] = useState(false);
 
   const [createProfile, { isLoading }] = useCreateOperatorProfileMutation();
+  const { error: profileError } = useGetOperatorProfileQuery();
+  const isProfileIncomplete = hasStatus(profileError, 404);
 
   const {
     isSubmitted,
@@ -59,13 +67,21 @@ export default function OverviewCompleteDataPage() {
 
   const { showToast } = useToast();
 
+  const handleExitClick = () => {
+    if (isProfileIncomplete) {
+      setIsExitModalOpen(true);
+    } else {
+      navigate(-1);
+    }
+  };
+
   return (
     <Box sx={{ bgcolor: 'common.neutralGray', color: 'text.primary' }}>
       <Box component="main" sx={{ py: 3, pb: { xs: 14, md: 16 } }}>
         <Box sx={{ maxWidth: 760, mx: 'auto', px: { xs: 2, md: 0 } }}>
           <Button
             startIcon={<ArrowBackIcon />}
-            onClick={() => navigate(-1)}
+            onClick={handleExitClick}
             sx={{ mb: 3, textTransform: 'none', p: 0 }}
           >
             Esci
@@ -159,6 +175,12 @@ export default function OverviewCompleteDataPage() {
         open={infoModalType !== null}
         type={infoModalType}
         onClose={() => setInfoModalType(null)}
+      />
+
+      <CompleteProfileModal
+        open={isExitModalOpen}
+        onClose={() => navigate(-1)}
+        onCompleteData={() => setIsExitModalOpen(false)}
       />
     </Box>
   );

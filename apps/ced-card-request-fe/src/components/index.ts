@@ -1,3 +1,4 @@
+export * from './CopyToClipboardButton';
 export * from './DatePicker';
 export * from './PageHeader';
 export * from './RadioList';

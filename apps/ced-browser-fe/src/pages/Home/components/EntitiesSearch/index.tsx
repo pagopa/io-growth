@@ -45,7 +45,7 @@ export function EntitiesSearch({
     useSearchPlacesQuery(debouncedQuery, {
       skip: !shouldRunSearch,
     });
-  const showClearButton = isSearchActive || query.length > 0;
+  const showClearButton = query.length > 0;
 
   const handleCancel = () => {
     setQuery('');

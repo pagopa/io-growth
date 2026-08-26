@@ -33,3 +33,8 @@ export const createSessionContextPreHandler =
         done(e instanceof Error ? e : new Error(String(e))),
       );
   };
+
+export const createSessionContext = <T>(
+  session: Session,
+  callback: () => T,
+): T => storage.run(session, callback);

@@ -1,5 +1,4 @@
 import {
-  Alert,
   Box,
   Button,
   Divider,
@@ -7,12 +6,12 @@ import {
   Typography,
   useTheme,
 } from '@mui/material';
+import { MIAlert } from '@pagopa/mui-italia';
 import { useNavigate } from 'react-router-dom';
 import { APP_ROUTES } from '../../app/routeConfig';
 import { SectionCard } from '../../components/SectionCard';
-import { WarningOutlined } from '@mui/icons-material';
-import { useGetOperatorProfileQuery } from '../../features/profile/api';
 import { hasStatus } from '../../core/api/baseApi';
+import { useGetOperatorProfileQuery } from '../../features/profile/api';
 
 export default function OverviewPage() {
   const theme = useTheme();
@@ -62,25 +61,10 @@ export default function OverviewPage() {
         </Box>
 
         {isNotFound && (
-          <Alert
-            severity="warning"
-            icon={
-              <WarningOutlined
-                sx={{ color: 'theme.palette.common.alertWarningText' }}
-              />
-            }
-          >
-            <Typography
-              sx={{
-                fontSize: 14,
-                lineHeight: 1.6,
-                color: (theme) => theme.palette.common.alertWarningText,
-              }}
-            >
-              È necessario completare i dati del tuo ente e caricare il logo per
-              iniziare a pubblicare opportunità.
-            </Typography>
-          </Alert>
+          <MIAlert severity="warning">
+            È necessario completare i dati del tuo ente e caricare il logo per
+            iniziare a pubblicare opportunità.
+          </MIAlert>
         )}
 
         {isLoading && <Typography>Caricamento...</Typography>}

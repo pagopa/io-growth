@@ -8,6 +8,8 @@ import {
   useOperatorSuspendOpportunityMutation,
 } from '../../features/opportunities/api';
 import { useBenefitsData } from '../../features/opportunities/hooks';
+import { useGetOperatorProfileQuery } from '../../features/profile/api';
+import { hasStatus } from '../../core/api/baseApi';
 import { useToast } from '../../contexts';
 import { BenefitsContentState } from './components/BenefitsContentState';
 import { BenefitsFiltersBar } from './components/BenefitsFiltersBar';
@@ -50,6 +52,8 @@ export const MainContent = () => {
   }, [filters]);
 
   const { data: categories = [] } = useGetOpportunityCategoriesQuery();
+  const { error: profileError } = useGetOperatorProfileQuery();
+  const isProfileIncomplete = hasStatus(profileError, 404);
 
   const {
     inManagementItems,
@@ -141,7 +145,7 @@ export const MainContent = () => {
       bgcolor={theme.palette.common.neutralGray}
     >
       <Stack spacing={3} sx={{ minHeight: '100%' }}>
-        <MainContentHeader />
+        <MainContentHeader isProfileIncomplete={isProfileIncomplete} />
         <BenefitsFiltersBar
           search={searchInput}
           onSearchChange={setSearchInput}

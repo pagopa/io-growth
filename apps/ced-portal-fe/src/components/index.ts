@@ -1,4 +1,5 @@
 export * from './Checkbox';
+export * from './CompleteProfileModal';
 export * from './ContactRow';
 export * from './DataTable';
 export * from './DatePicker';

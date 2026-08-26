@@ -5,8 +5,9 @@ import {
   IconButton,
   ListItemText,
   Typography,
+  Chip,
 } from '@mui/material';
-import { ButtonNaked, Chip } from '@pagopa/mui-italia';
+import { ButtonNaked } from '@pagopa/mui-italia';
 import { useCallback, useMemo, useState, type ReactNode } from 'react';
 import { AppCheckbox, AppModal, AppSelect } from '../../../../components';
 

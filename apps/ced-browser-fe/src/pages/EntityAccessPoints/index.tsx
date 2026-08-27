@@ -46,7 +46,7 @@ export default function EntityAccessPointsPage() {
             }
           />
 
-          <Stack divider={<Divider sx={{ mx: 2 }} />} sx={{ px: 2 }}>
+          <Stack divider={<Divider aria-hidden sx={{ mx: 2 }} />} sx={{ px: 2 }}>
             {resolvedData.recentPlaces.map((item) => (
               <DiscoveryListItem
                 key={item.id}

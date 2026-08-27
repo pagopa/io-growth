@@ -1,4 +1,4 @@
-import { AlertProps } from '@mui/material';
+import { MIAlertProps } from '@pagopa/mui-italia';
 import { theme } from '../../../../core/theme';
 import type { OpportunityStatus } from '../../../../features/opportunities/types';
 
@@ -21,9 +21,8 @@ export const opportunityAlertMap: Partial<
     {
       title: string;
       description: string;
-      severity: AlertProps['severity'];
+      severity: MIAlertProps['severity'];
       color: string;
-      icon: 'info' | 'warning';
       sx: any;
     }
   >
@@ -34,7 +33,6 @@ export const opportunityAlertMap: Partial<
       "Il processo di revisione potrebbe richiedere un po' di tempo. Riceverai un'email con gli aggiornamenti.",
     severity: 'info',
     color: theme.colors.info[850],
-    icon: 'info',
     sx: {
       color: theme.colors.info[850],
       border: '1px solid #89D9FC',
@@ -45,9 +43,8 @@ export const opportunityAlertMap: Partial<
   test_rejected: {
     title: 'In fase di test',
     description: "L'opportunità è in fase di test.",
-    severity: 'info',
     color: theme.colors.info[850],
-    icon: 'info',
+    severity: 'info',
     sx: {
       color: theme.colors.info[850],
       border: '1px solid #89D9FC',

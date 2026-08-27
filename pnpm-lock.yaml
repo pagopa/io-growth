@@ -618,6 +618,9 @@ importers:
       '@pagopa/io-core-domain':
         specifier: workspace:^
         version: link:../../packages/io-core-domain
+      '@pagopa/io-core-environment-router':
+        specifier: workspace:^
+        version: link:../../packages/io-core-environment-router
       '@standard-schema/spec':
         specifier: ^1.1.0
         version: 1.1.0
@@ -1189,6 +1192,33 @@ importers:
       neverthrow:
         specifier: 'catalog:'
         version: 8.2.0
+    devDependencies:
+      '@pagopa/eslint-config':
+        specifier: 'catalog:'
+        version: 6.0.4(@typescript-eslint/eslint-plugin@8.61.1(@typescript-eslint/parser@8.61.1(eslint@10.8.1(jiti@2.6.1))(typescript@5.9.3))(eslint@10.8.1(jiti@2.6.1))(typescript@5.9.3))(eslint@10.8.1(jiti@2.6.1))(prettier@3.8.3)(vitest@3.2.6(@types/node@22.19.17)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.3))
+      '@tsconfig/node22':
+        specifier: 'catalog:'
+        version: 22.0.5
+      '@types/node':
+        specifier: 'catalog:'
+        version: 22.19.17
+      '@vitest/coverage-v8':
+        specifier: 'catalog:'
+        version: 3.2.6(vitest@3.2.6(@types/node@22.19.17)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.3))
+      eslint:
+        specifier: 'catalog:'
+        version: 10.8.1(jiti@2.6.1)
+      prettier:
+        specifier: 'catalog:'
+        version: 3.8.3
+      typescript:
+        specifier: 'catalog:'
+        version: 5.9.3
+      vitest:
+        specifier: 'catalog:'
+        version: 3.2.6(@types/node@22.19.17)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.3)
+
+  packages/io-core-environment-router:
     devDependencies:
       '@pagopa/eslint-config':
         specifier: 'catalog:'

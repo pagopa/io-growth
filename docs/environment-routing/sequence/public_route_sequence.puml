@@ -1,0 +1,18 @@
+@startuml Public Route Sequence
+participant "Fastify (root app)" as fastify
+participant "Public route handler" as route
+participant "EnvRouter Proxy" as proxy
+participant "getRequestSession()" as session
+participant "Prod DB" as proddb
+
+fastify -> route: GET /api/info/readiness
+note over route: registered outside the auth/ALS plugin scope\n(storage.run() never executes)
+route -> proxy: proxy.get("execute")
+activate proxy
+proxy -> session: getRequestSession()
+session --> proxy: undefined (no ALS context)
+proxy -> proxy: isTestRequest() -> false
+proxy -> proddb: execute() [default: prod]
+deactivate proxy
+note over proddb: safe default: public routes\nnever touch user data
+@enduml

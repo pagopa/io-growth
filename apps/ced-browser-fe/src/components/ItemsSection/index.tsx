@@ -1,5 +1,5 @@
 import { Box, Divider, Stack } from '@mui/material';
-import { Body } from '@pagopa/io-core-ui';
+import { MIButton } from '@pagopa/mui-italia';
 import { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { DiscoveryListItem } from '../';
@@ -67,15 +67,9 @@ export function ItemsSection(props: ItemsSectionProps) {
         label={label}
         action={
           hasMore ? (
-            <Body
-              asLink
-              onClick={handleOnClick}
-              fontSize="14px"
-              fontWeight="Semibold"
-              avoidTextDecoration
-            >
+            <MIButton variant="text" onClick={handleOnClick}>
               MOSTRA TUTTE
-            </Body>
+            </MIButton>
           ) : undefined
         }
       />

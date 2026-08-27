@@ -1,4 +1,5 @@
 import { Box } from "@mui/material";
+import { MIButton } from "@pagopa/mui-italia";
 import { VSpacer } from "../Spacer";
 import { Body } from "../Typography";
 
@@ -43,14 +44,9 @@ export const WarningBanner = ({ title, action }: Props) => (
     {action && (
       <>
         <VSpacer size={8} />
-        <Body
-          onClick={action.onClick}
-          asLink
-          avoidTextDecoration
-          fontWeight="Semibold"
-        >
+        <MIButton variant="text" onClick={action.onClick}>
           {action.label}
-        </Body>
+        </MIButton>
       </>
     )}
     <VSpacer size={16} />

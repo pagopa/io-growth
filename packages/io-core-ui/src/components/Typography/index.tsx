@@ -89,67 +89,32 @@ type BaseBodyProps = {
   children?: React.ReactNode;
 };
 
-type BodyProps =
-  | (BaseBodyProps & {
-      asLink: true;
-      onClick?: () => void;
-      avoidTextDecoration?: boolean;
-    })
-  | (BaseBodyProps & {
-      asLink?: false;
-      onClick?: never;
-      avoidTextDecoration?: false;
-    });
+type BodyProps = BaseBodyProps;
 
 export const Body = ({
   children,
   fontWeight = "Regular",
   fontSize = "16px",
-  asLink = false,
-  avoidTextDecoration = false,
-  onClick,
 }: BodyProps) => {
   const { palette } = useTheme();
-  const asButton = asLink && Boolean(onClick);
-  const buttonProps = asButton
-    ? ({ component: "button", type: "button" } as const)
-    : {};
-
   return (
     <Typography
-      onClick={onClick}
       sx={{
         fontSize,
         lineHeight: "24px",
         fontWeight: fontWeights[fontWeight],
-        color: asLink
-          ? palette.common.linkColor
-          : fontWeight === "Regular"
+        color:
+          fontWeight === "Regular"
             ? palette.common.neutralDarkGray
             : palette.common.neutralBlack,
-        textDecoration: asLink && !avoidTextDecoration ? "underline" : "none",
-        ...(asButton && {
-          padding: 0,
-          border: "none",
-          background: "none",
-          fontFamily: "inherit",
-          textAlign: "left",
-          cursor: "pointer",
-          borderRadius: "8px",
-          "&:focus-visible": {
-            outline: `2px solid ${palette.common.linkColor}`,
-            outlineOffset: "4px",
-          },
-        }),
       }}
-      {...buttonProps}
     >
       {children}
     </Typography>
   );
 };
 
-export const ErrorBody = (props: Omit<BodyProps, "asLink">) => {
+export const ErrorBody = (props: BodyProps) => {
   const theme = useTheme();
 
   return (

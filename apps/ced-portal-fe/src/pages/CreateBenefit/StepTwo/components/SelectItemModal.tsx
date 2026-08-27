@@ -2,10 +2,10 @@ import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
 import {
   Box,
   Button,
+  Chip,
   IconButton,
   ListItemText,
   Typography,
-  Chip,
 } from '@mui/material';
 import { ButtonNaked } from '@pagopa/mui-italia';
 import { useCallback, useMemo, useState, type ReactNode } from 'react';

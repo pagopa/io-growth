@@ -2,7 +2,6 @@ import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
 import {
   Box,
   Button,
-  Chip,
   IconButton,
   ListItemText,
   Typography,

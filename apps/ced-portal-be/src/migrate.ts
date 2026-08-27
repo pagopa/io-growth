@@ -23,6 +23,8 @@ if (env !== "test" && env !== "prod") {
 
 const isTest = env === "test";
 
+console.log(`[migrate] Starting migrations for env: ${env}`);
+
 const migrateConfigSchema = z.object({
   POSTGRES_DB: z.string().min(1),
   POSTGRES_DB_TEST: z.string().min(1),

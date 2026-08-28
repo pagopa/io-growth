@@ -1,3 +1,4 @@
+import { fixupPluginRules } from '@eslint/compat';
 import globals from 'globals';
 import react from 'eslint-plugin-react';
 import reactHooks from 'eslint-plugin-react-hooks';
@@ -23,7 +24,7 @@ export default tseslint.config(
     },
     plugins: {
       '@typescript-eslint': tsPlugin,
-      react,
+      react: fixupPluginRules(react),
       'react-hooks': reactHooks,
       'react-refresh': reactRefresh,
       prettier,

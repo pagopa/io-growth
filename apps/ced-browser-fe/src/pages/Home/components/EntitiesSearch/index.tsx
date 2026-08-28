@@ -45,7 +45,7 @@ export function EntitiesSearch({
     useSearchPlacesQuery(debouncedQuery, {
       skip: !shouldRunSearch,
     });
-  const showClearButton = isSearchActive || query.length > 0;
+  const showClearButton = query.length > 0;
 
   const handleCancel = () => {
     setQuery('');
@@ -167,7 +167,7 @@ export function EntitiesSearch({
           }}
           InputProps={{
             startAdornment: (
-              <InputAdornment position="start">
+              <InputAdornment position="start" aria-hidden="true">
                 <SearchRoundedIcon
                   className="SearchInputIcon"
                   aria-hidden="true"

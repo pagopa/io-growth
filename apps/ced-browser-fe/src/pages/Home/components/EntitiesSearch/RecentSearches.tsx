@@ -39,7 +39,7 @@ export const RecentSearches = ({
       </Stack>
       {items.map((item, i) => (
         <Box key={item.id}>
-          {i > 0 ? <Divider /> : null}
+          {i > 0 ? <Divider aria-hidden /> : null}
           <Box display="flex" alignItems="center">
             <HistoryIcon sx={{ color: theme.palette.common.decorativeIcon }} />
             <DiscoveryListItem

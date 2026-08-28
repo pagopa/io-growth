@@ -48,6 +48,8 @@ describe("makeAcsUseCase — admin path", () => {
       ADMIN_FISCAL_CODES: [
         hashUppercasedString(validPayload.organization.fiscal_code),
       ],
+      ADMIN_FISCAL_CODES_TEST: [] as string[],
+      OPERATORS_FISCAL_CODES_TEST: [] as string[],
     };
     const useCase = makeAcsUseCase(
       sessionRepository,
@@ -69,5 +71,78 @@ describe("makeAcsUseCase — admin path", () => {
     ).mock.calls[0] as [string, { operatorId?: string; userType: string }];
     expect(session.userType).toBe("admin");
     expect(session.operatorId).toBeUndefined();
+  });
+
+  it("should create test_admin session when fiscal_code hash is in ADMIN_FISCAL_CODES_TEST", async () => {
+    const sessionRepository = createMockSessionRepository();
+    const operatorRepository = createMockOperatorRepository();
+    const testAdminConfig = {
+      ADMIN_FISCAL_CODES: [] as string[],
+      ADMIN_FISCAL_CODES_TEST: [
+        hashUppercasedString(validPayload.organization.fiscal_code),
+      ],
+      OPERATORS_FISCAL_CODES_TEST: [] as string[],
+    };
+    const useCase = makeAcsUseCase(
+      sessionRepository,
+      operatorRepository,
+      testAdminConfig,
+    );
+    const token = await makeToken(validPayload);
+
+    const result = await useCase({ token });
+
+    expect(result).toEqual(
+      ok({ sessionId: expect.stringMatching(/^[a-f0-9]{64}$/) }),
+    );
+    expect(operatorRepository.create).not.toHaveBeenCalled();
+    expect(operatorRepository.getByExternalId).not.toHaveBeenCalled();
+    const [, testAdminSession] = (
+      sessionRepository.createSession as ReturnType<typeof vi.fn>
+    ).mock.calls[0] as [string, { operatorId?: string; userType: string }];
+    expect(testAdminSession.userType).toBe("test_admin");
+    expect(testAdminSession.operatorId).toBeUndefined();
+  });
+
+  it("should create test_operator session when fiscal_code hash is in OPERATORS_FISCAL_CODES_TEST", async () => {
+    const sessionRepository = createMockSessionRepository();
+    const operatorRepository: OperatorRepository = {
+      create: vi.fn(),
+      getByExternalId: vi.fn().mockResolvedValue(
+        ok({
+          externalId: "internalID",
+          id: "01JVMK3N8XQZP5T6G2WYHAB4CH",
+          name: "Organization legal name",
+          status: "active" as const,
+        }),
+      ),
+      getById: vi.fn(),
+    };
+    const testOperatorConfig = {
+      ADMIN_FISCAL_CODES: [] as string[],
+      ADMIN_FISCAL_CODES_TEST: [] as string[],
+      OPERATORS_FISCAL_CODES_TEST: [
+        hashUppercasedString(validPayload.organization.fiscal_code),
+      ],
+    };
+    const useCase = makeAcsUseCase(
+      sessionRepository,
+      operatorRepository,
+      testOperatorConfig,
+    );
+    const token = await makeToken(validPayload);
+
+    const result = await useCase({ token });
+
+    expect(result).toEqual(
+      ok({ sessionId: expect.stringMatching(/^[a-f0-9]{64}$/) }),
+    );
+    expect(operatorRepository.getByExternalId).toHaveBeenCalledWith(
+      "internalID",
+    );
+    const [, testOperatorSession] = (
+      sessionRepository.createSession as ReturnType<typeof vi.fn>
+    ).mock.calls[0] as [string, { operatorId?: string; userType: string }];
+    expect(testOperatorSession.userType).toBe("test_operator");
   });
 });

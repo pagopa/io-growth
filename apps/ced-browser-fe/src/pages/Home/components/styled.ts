@@ -1,23 +1,32 @@
 import { Box, Stack } from '@mui/material';
 import { styled } from '@mui/system';
 
-export const StyledDots = styled(Box)`
-  &.inactive {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background-color: transparent;
-    border: 1px solid #5c6f82;
-  }
-
-  &.active {
-    width: 16px;
-    height: 4px;
-    border-radius: 15px;
-    background-color: #0073e6;
-    border: none;
-  }
-`;
+export const StyledDots = styled('button')(({ theme }) => ({
+  appearance: 'none',
+  background: 'transparent',
+  padding: 0,
+  margin: 0,
+  cursor: 'pointer',
+  '&:focus-visible': {
+    outline: `2px solid ${theme.palette.common.focusRing}`,
+    outlineOffset: 2,
+  },
+  '&.inactive': {
+    width: 8,
+    height: 8,
+    borderRadius: '50%',
+    backgroundColor: 'transparent',
+    border: '1px solid',
+    borderColor: theme.palette.common.carouselDotInactive,
+  },
+  '&.active': {
+    width: 16,
+    height: 4,
+    borderRadius: 15,
+    backgroundColor: theme.palette.common.focusRing,
+    border: 'none',
+  },
+}));
 
 export const CarouselContainer = styled(Stack)({
   width: '100%',

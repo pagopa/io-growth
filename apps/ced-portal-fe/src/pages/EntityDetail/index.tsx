@@ -4,13 +4,13 @@ import WarningAmberRoundedIcon from '@mui/icons-material/WarningAmberRounded';
 import {
   Box,
   Button,
-  Chip,
   CircularProgress,
   Divider,
   Stack,
   Typography,
   useTheme,
 } from '@mui/material';
+import { MIChip } from '@pagopa/mui-italia';
 import { useNavigate } from 'react-router-dom';
 import { APP_ROUTES } from '../../app/routeConfig';
 import { UploadDropzone } from '../../components';
@@ -19,11 +19,11 @@ import {
   ENTITY_STATE_OPTIONS,
 } from '../../constants/opportunityState';
 import { useToast } from '../../contexts';
-import useEntityDetail from './hooks/useEntityDetail.js';
 import { DetailSection } from '../OpportunityDetail/components/DetailSection';
 import { PublishEntityModal } from './components/PublishEntityModal';
 import { RejectEntityModal } from './components/RejectEntityModal';
 import { SectionCard } from './components/SectionCard.js';
+import useEntityDetail from './hooks/useEntityDetail.js';
 
 export default function EntityDetailPage() {
   const theme = useTheme();
@@ -156,14 +156,13 @@ export default function EntityDetailPage() {
               {entityName}.
             </Typography>
           </Box>
-          <Chip
+          <MIChip
             label={
               ENTITY_STATE_OPTIONS.find(
                 (option) => option.value === onboarding.status,
               )?.label ?? onboarding.status
             }
             color={ENTITY_STATE_COLORS[onboarding.status ?? ''] ?? 'default'}
-            size="small"
           />
         </Stack>
         <SectionCard title="Dati dell'ente">

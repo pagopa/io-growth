@@ -89,24 +89,40 @@ type BaseBodyProps = {
   children?: React.ReactNode;
 };
 
-type BodyProps = BaseBodyProps;
+type BodyProps =
+  | (BaseBodyProps & {
+      asLink: true;
+      onClick: () => void;
+      avoidTextDecoration?: boolean;
+    })
+  | (BaseBodyProps & {
+      asLink?: false;
+      onClick?: never;
+      avoidTextDecoration?: false;
+    });
 
 export const Body = ({
   children,
   fontWeight = "Regular",
   fontSize = "16px",
+  asLink = false,
+  avoidTextDecoration = false,
+  onClick,
 }: BodyProps) => {
   const { palette } = useTheme();
   return (
     <Typography
+      onClick={onClick}
       sx={{
         fontSize,
         lineHeight: "24px",
         fontWeight: fontWeights[fontWeight],
-        color:
-          fontWeight === "Regular"
+        color: asLink
+          ? palette.common.linkColor
+          : fontWeight === "Regular"
             ? palette.common.neutralDarkGray
             : palette.common.neutralBlack,
+        textDecoration: asLink && !avoidTextDecoration ? "underline" : "none",
       }}
     >
       {children}
@@ -114,7 +130,7 @@ export const Body = ({
   );
 };
 
-export const ErrorBody = (props: BodyProps) => {
+export const ErrorBody = (props: Omit<BodyProps, "asLink">) => {
   const theme = useTheme();
 
   return (

@@ -56,7 +56,7 @@ describe("Console Telemetry Client", () => {
         name: "resource.deleted",
         payload: {
           caller: "handler",
-          data: JSON.stringify(eventData),
+          data: eventData,
         },
       };
 

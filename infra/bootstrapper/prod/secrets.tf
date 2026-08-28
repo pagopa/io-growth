@@ -52,3 +52,14 @@ resource "github_actions_environment_secret" "ced_postgres_db" {
     ignore_changes = [remote_updated_at]
   }
 }
+
+resource "github_actions_environment_secret" "ced_postgres_db_test" {
+  repository      = module.azure-PROD-CED_bootstrap.repository.name
+  environment     = "app-prod-cd"
+  secret_name     = "CED_POSTGRES_DB_TEST"
+  plaintext_value = "placeholder"
+
+  lifecycle {
+    ignore_changes = [remote_updated_at]
+  }
+}

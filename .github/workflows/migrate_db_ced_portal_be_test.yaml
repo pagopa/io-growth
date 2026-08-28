@@ -1,4 +1,4 @@
-name: Run Portal BE DB Migrations
+name: Test migrate DB
 
 permissions:
   contents: read
@@ -10,7 +10,7 @@ on:
 jobs:
   run_migrations:
     name: Run DB Migrations
-    runs-on: [ self-hosted, prod ]
+    runs-on: [self-hosted, prod]
     environment: app-prod-cd
     steps:
       - name: Checkout
@@ -38,5 +38,6 @@ jobs:
           POSTGRES_USER: ${{ secrets.CED_POSTGRES_USER }}
           POSTGRES_PASSWORD: ${{ secrets.CED_POSTGRES_PASSWORD }}
           POSTGRES_DB: ${{ secrets.CED_POSTGRES_DB }}
+          POSTGRES_DB_TEST: ${{ secrets.CED_POSTGRES_DB_TEST }}
           POSTGRES_SSL: "true"
-        run: pnpm --filter ced-portal-be migrate:prod
+        run: pnpm --filter ced-portal-be migrate:cloud:test

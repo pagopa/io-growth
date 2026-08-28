@@ -73,7 +73,7 @@ export function SearchResults({
     }
     return items?.map((item, i) => (
       <Box key={item.id}>
-        {i > 0 ? <Divider /> : null}
+        {i > 0 ? <Divider aria-hidden /> : null}
         <DiscoveryListItem
           variant="simple"
           title={highlightText(item.name, highlightRegex)}

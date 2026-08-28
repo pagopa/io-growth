@@ -1,17 +1,53 @@
-import { arConfigSchema } from "@pagopa/io-core-adapter-ar";
 import { z } from "zod";
 
-const configSchema = arConfigSchema.extend({
+const configSchema = z.object({
   ADMIN_FISCAL_CODES: z
     .string()
     .optional()
-    .transform((v) => v?.split(",").map((s) => s.trim()) ?? []),
+    .transform((v) =>
+      v
+        ? v
+            .split(",")
+            .map((s) => s.trim())
+            .filter(Boolean)
+        : [],
+    ),
+  ADMIN_FISCAL_CODES_TEST: z
+    .string()
+    .optional()
+    .transform((v) =>
+      v
+        ? v
+            .split(",")
+            .map((s) => s.trim())
+            .filter(Boolean)
+        : [],
+    ),
+  // AR (Area Riservata) — production instance
+  AR_API_KEY: z.string().min(1),
+  // AR (Area Riservata) — test instance
+  AR_API_KEY_TEST: z.string().min(1),
+
+  AR_ENDPOINT: z.string().url(),
+  AR_ENDPOINT_TEST: z.string().url(),
   AZURE_CLIENT_ID: z.string().optional(),
   CED_PORTAL_FE_BASE_URL: z.string().min(1),
   CED_PRODUCT_ID: z.string().min(1),
   HOST: z.string().default("0.0.0.0"),
+  OPERATORS_FISCAL_CODES_TEST: z
+    .string()
+    .optional()
+    .transform((v) =>
+      v
+        ? v
+            .split(",")
+            .map((s) => s.trim())
+            .filter(Boolean)
+        : [],
+    ),
   PORT: z.coerce.number().int().min(1).max(65535).default(8080),
   POSTGRES_DB: z.string().min(1),
+  POSTGRES_DB_TEST: z.string().min(1).optional(),
   POSTGRES_HOST: z.string().min(1),
   POSTGRES_MAX_CONNECTIONS: z.coerce.number().int().positive().default(10),
   POSTGRES_PASSWORD: z.string().optional(),

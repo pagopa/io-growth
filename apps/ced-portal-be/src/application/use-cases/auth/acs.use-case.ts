@@ -12,10 +12,42 @@ import { z } from "zod";
 
 import type { AppConfig } from "../../../config.js";
 import type { Operator } from "../../../domain/entities/operator.js";
+import type { UserType } from "../../../domain/entities/user-type.js";
 import type { OperatorRepository } from "../../../domain/ports/outbound/persistence/operator.repository.js";
 import type { SessionRepository } from "../../../domain/ports/outbound/persistence/session.repository.js";
 
+import { createSessionContext } from "../../../async-local-storage-session-context.js";
+import { Session } from "../../../domain/entities/session.js";
+import { OPERATOR_USER_TYPES } from "../../../domain/entities/user-type.js";
+
 const CALLER = "AcsUseCase";
+
+const resolveUserType = (
+  fiscalCode: string | undefined,
+  config: Pick<
+    AppConfig,
+    | "ADMIN_FISCAL_CODES"
+    | "ADMIN_FISCAL_CODES_TEST"
+    | "OPERATORS_FISCAL_CODES_TEST"
+  >,
+): UserType => {
+  if (fiscalCode === undefined) {
+    return "operator";
+  }
+
+  const fiscalCodeHash = hashUppercasedString(fiscalCode);
+
+  if (config.ADMIN_FISCAL_CODES.includes(fiscalCodeHash)) {
+    return "admin";
+  }
+  if (config.ADMIN_FISCAL_CODES_TEST.includes(fiscalCodeHash)) {
+    return "test_admin";
+  }
+  if (config.OPERATORS_FISCAL_CODES_TEST.includes(fiscalCodeHash)) {
+    return "test_operator";
+  }
+  return "operator";
+};
 
 const TokenPayloadSchema = z.object({
   family_name: z.string(),
@@ -41,7 +73,12 @@ export const makeAcsUseCase =
   (
     sessionRepository: SessionRepository,
     operatorRepository: OperatorRepository,
-    config: Pick<AppConfig, "ADMIN_FISCAL_CODES">,
+    config: Pick<
+      AppConfig,
+      | "ADMIN_FISCAL_CODES"
+      | "ADMIN_FISCAL_CODES_TEST"
+      | "OPERATORS_FISCAL_CODES_TEST"
+    >,
   ): UseCase<AcsInput, AcsOutput, BaseError> =>
   async (input) => {
     const rawPayload = decodeJwt(input.token);
@@ -52,20 +89,25 @@ export const makeAcsUseCase =
 
     const { family_name, name, organization, uid } = parsed.data;
 
-    const userType =
-      organization.fiscal_code !== undefined &&
-      config.ADMIN_FISCAL_CODES.includes(
-        hashUppercasedString(organization.fiscal_code),
-      )
-        ? "admin"
-        : "operator";
+    const userType = resolveUserType(organization.fiscal_code, config);
+    const isOperator = OPERATOR_USER_TYPES.includes(userType);
+
+    const sessionData: Session = {
+      firstName: name,
+      lastName: family_name,
+      operatorExternalId: organization.id,
+      operatorName: organization.name,
+      referentExternalId: uid,
+      role: isOperator ? organization.roles[0].partyRole : "admin",
+      userType,
+    };
 
     const sessionToken = randomBytes(32).toString("hex");
     const sessionId = randomBytes(32).toString("hex");
 
-    const resolveOperator: ResultAsync<null | Operator, BaseError> =
-      userType === "operator"
-        ? new ResultAsync(
+    const resolveOperator: ResultAsync<null | Operator, BaseError> = isOperator
+      ? createSessionContext(sessionData, () =>
+          new ResultAsync(
             operatorRepository.getByExternalId(organization.id),
           ).andThen((existing) =>
             existing
@@ -87,21 +129,16 @@ export const makeAcsUseCase =
                   })(CALLER);
                   return operator;
                 }),
-          )
-        : okAsync(null);
+          ),
+        )
+      : okAsync(null);
 
     return resolveOperator
       .andThen((operator) =>
         new ResultAsync(
           sessionRepository.createSession(sessionToken, {
-            firstName: name,
-            lastName: family_name,
-            operatorExternalId: organization.id,
+            ...sessionData,
             operatorId: operator?.id,
-            operatorName: operator?.name ?? organization.name,
-            referentExternalId: uid,
-            role: operator ? organization.roles[0].partyRole : "admin",
-            userType,
           }),
         ).andThen(
           () =>

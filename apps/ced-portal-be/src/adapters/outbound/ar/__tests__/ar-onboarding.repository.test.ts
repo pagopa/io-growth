@@ -3,6 +3,7 @@ import { describe, expect, it, vi } from "vitest";
 
 import { createArOnboardingRepository } from "../ar-onboarding.repository.js";
 import {
+  createMockArClient,
   createMockDocumentContentRepository,
   createMockInstitutionRepository,
   createMockOnboardingRepository,
@@ -22,10 +23,14 @@ const createRepository = ({
   searchOnboardings = vi.fn(),
 } = {}) =>
   createArOnboardingRepository(
-    createMockInstitutionRepository({ searchOnboardings }),
-    createMockOnboardingRepository({ getOnboardingWithFilter }),
-    createMockDocumentContentRepository(),
-    createMockUserRepository({ getUserById }),
+    createMockArClient({
+      documentContentClient: createMockDocumentContentRepository(),
+      institutionClient: createMockInstitutionRepository({ searchOnboardings }),
+      onboardingClient: createMockOnboardingRepository({
+        getOnboardingWithFilter,
+      }),
+      userClient: createMockUserRepository({ getUserById }),
+    }),
   );
 
 describe("createArOnboardingRepository", () => {

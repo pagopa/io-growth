@@ -167,7 +167,7 @@ export function EntitiesSearch({
           }}
           InputProps={{
             startAdornment: (
-              <InputAdornment position="start">
+              <InputAdornment position="start" aria-hidden="true">
                 <SearchRoundedIcon
                   className="SearchInputIcon"
                   aria-hidden="true"

@@ -118,7 +118,7 @@ export default function OpportunityDetailPage() {
               </Body>
               <Body fontWeight="Semibold">{resolvedData.description}</Body>
             </Box>
-            <Divider />
+            <Divider aria-hidden />
             {resolvedData.condition && (
               <>
                 <Box sx={{ py: 2 }}>
@@ -127,7 +127,7 @@ export default function OpportunityDetailPage() {
                   </Body>
                   <Body fontWeight="Semibold">{resolvedData.condition}</Body>
                 </Box>
-                <Divider />
+                <Divider aria-hidden />
               </>
             )}
 
@@ -141,7 +141,7 @@ export default function OpportunityDetailPage() {
                     Stesse condizioni del titolare
                   </Body>
                 </Box>
-                <Divider />
+                <Divider aria-hidden />
               </>
             )}
 
@@ -153,7 +153,7 @@ export default function OpportunityDetailPage() {
                 {formatDate(resolvedData.dateFrom)}
               </Body>
             </Box>
-            <Divider />
+            <Divider aria-hidden />
 
             {resolvedData.dateTo && (
               <>
@@ -165,7 +165,7 @@ export default function OpportunityDetailPage() {
                     {formatDate(resolvedData.dateTo)}
                   </Body>
                 </Box>
-                <Divider />
+                <Divider aria-hidden />
               </>
             )}
 

@@ -1,33 +1,34 @@
 import { GenericError } from "@pagopa/io-core-domain/errors";
 import { err, ok } from "neverthrow";
 
-import type { ArClientConfig } from "../../config.js";
 import type { InstitutionRepository } from "../../domain/ports/outbound/institution.repository.js";
+import type { CustomFetch } from "../../fetch.js";
+import type { retrieveOnboardingOnSearchEngineResponse } from "../../generated/endpoints/institution/institution.js";
 
-import { initArClient } from "../../client.js";
-import { retrieveOnboardingOnSearchEngine } from "../../generated/endpoints/institution/institution.js";
+import { getRetrieveOnboardingOnSearchEngineUrl } from "../../generated/endpoints/institution/institution.js";
 
 export const createInstitutionClient = (
-  config: ArClientConfig,
-): InstitutionRepository => {
-  initArClient(config);
-  return {
-    searchOnboardings: async (params) => {
-      try {
-        const response = await retrieveOnboardingOnSearchEngine(params);
-        if (response.status === 200) {
-          return ok(response.data);
-        }
-        return err(
-          new GenericError(
-            `searchOnboardings failed with status ${String(response.status)}`,
-          ),
+  customFetch: CustomFetch,
+): InstitutionRepository => ({
+  searchOnboardings: async (params) => {
+    try {
+      const response =
+        await customFetch<retrieveOnboardingOnSearchEngineResponse>(
+          getRetrieveOnboardingOnSearchEngineUrl(params),
+          { method: "GET" },
         );
-      } catch (error) {
-        return err(
-          new GenericError(`searchOnboardings failed: ${String(error)}`),
-        );
+      if (response.status === 200) {
+        return ok(response.data);
       }
-    },
-  };
-};
+      return err(
+        new GenericError(
+          `searchOnboardings failed with status ${String(response.status)}`,
+        ),
+      );
+    } catch (error) {
+      return err(
+        new GenericError(`searchOnboardings failed: ${String(error)}`),
+      );
+    }
+  },
+});

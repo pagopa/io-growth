@@ -81,7 +81,9 @@ export function ItemsSection(props: ItemsSectionProps) {
           ) : undefined
         }
       />
-      <Stack divider={<Divider sx={{ mx: 4 }} />}>{renderedItems}</Stack>
+      <Stack divider={<Divider aria-hidden sx={{ mx: 4 }} />}>
+        {renderedItems}
+      </Stack>
     </Box>
   );
 }

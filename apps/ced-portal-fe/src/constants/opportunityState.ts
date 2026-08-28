@@ -49,7 +49,7 @@ export const ADMIN_NOT_ACTIVE_STATE_OPTIONS = STATE_OPTIONS.filter(
     value === OpportunitySummaryItemStatus.deleted,
 );
 
-export const OPERATOR_STATE_OPTIONS: {
+const OPERATOR_STATE_OPTIONS: {
   value: OpportunityStatus;
   label: string;
 }[] = [

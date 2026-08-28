@@ -12,7 +12,7 @@ type AddressDataFormType = {
   rules?: ValidationRules;
 };
 
-export const ADDRESS_DATA_FORM_CONFIG: AddressDataFormType[] = [
+const ADDRESS_DATA_FORM_CONFIG: AddressDataFormType[] = [
   {
     label: 'Indirizzo',
     field: 'indirizzoRec',

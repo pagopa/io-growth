@@ -1,8 +1,6 @@
 import type { ReactNode } from 'react';
 import type { SxProps, Theme } from '@mui/material';
 
-export type DiscoveryListItemVariant = 'opportunity' | 'simple';
-
 type DiscoveryListItemBaseProps = {
   title: ReactNode;
   onClick?: () => void;

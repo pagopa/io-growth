@@ -16,7 +16,10 @@ export function AppProviders({ children }: PropsWithChildren) {
       <PersistGate persistor={persistor}>
         <ThemeProvider theme={appTheme}>
           <CssBaseline />
-          <LocalizationProvider dateAdapter={AdapterDateFnsV3} adapterLocale={it}>
+          <LocalizationProvider
+            dateAdapter={AdapterDateFnsV3}
+            adapterLocale={it}
+          >
             <ToastProvider>
               <BrowserRouter>{children}</BrowserRouter>
             </ToastProvider>

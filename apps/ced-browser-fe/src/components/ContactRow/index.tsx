@@ -24,8 +24,8 @@ export function ContactRow({ icon, label, href }: ContactRowProps) {
       <Box sx={{ display: 'flex', flexShrink: 0, color: 'text.secondary' }}>
         {icon}
       </Box>
-      <Body asLink fontWeight="Semibold">
-        {label}ssss
+      <Body onClick={() => {}} asLink fontWeight="Semibold">
+        {label}
       </Body>
     </ButtonBase>
   );

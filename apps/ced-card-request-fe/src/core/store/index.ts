@@ -1,5 +1,5 @@
 import { configureStore } from '@reduxjs/toolkit';
-import { persistReducer } from 'redux-persist';
+import { persistReducer, persistStore } from 'redux-persist';
 import storage from 'redux-persist/lib/storage';
 import { confirmRequestFormReducer } from '../../features/confirmation/reducer';
 import { photoReducer } from '../../features/photo-upload/reducer';
@@ -39,6 +39,8 @@ export const store = configureStore({
       },
     }).concat(baseApi.middleware),
 });
+
+export const persistor = persistStore(store);
 
 export type RootState = ReturnType<typeof store.getState>;
 export type AppDispatch = typeof store.dispatch;

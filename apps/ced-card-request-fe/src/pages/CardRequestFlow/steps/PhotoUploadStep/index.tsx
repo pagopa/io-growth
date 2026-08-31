@@ -7,6 +7,7 @@ import {
   Title,
   VSpacer,
 } from '@pagopa/io-core-ui';
+import { MIButton } from '@pagopa/mui-italia';
 import { forwardRef, useImperativeHandle, useState } from 'react';
 import { MarkdownRenderer } from '../../../../components/Typography/MarkdownRender';
 import { StepCard } from '../../StepCard';
@@ -188,9 +189,9 @@ export const PhotoUploadStep = forwardRef<StepRef, PhotoUploadProps>(
         <VSpacer />
         <MarkdownRenderer content={markdownContent} />
         <VSpacer size={4} />
-        <Body asLink onClick={() => setGuidelinesOpen(true)}>
+        <MIButton variant="text" onClick={() => setGuidelinesOpen(true)}>
           Leggi le indicazioni complete
-        </Body>
+        </MIButton>
 
         <PhotoGuidelinesModal
           open={guidelinesOpen}

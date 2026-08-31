@@ -1,71 +1,73 @@
-import type { ApplicationState } from "./application-state.js";
+import { z } from "zod";
 
-/**
- * The milestone states INPS can confirm via `CheckDomanda.esitoCheck`. A
- * strict subset of {@link ApplicationState}: reconciliation only ever
- * produces one of these four values, never the derived "uploading" states.
- */
-export const MILESTONE_STATES = [
-  "READY_FOR_NEW_DRAFT",
-  "READY_FOR_PHOTO_UPLOAD",
-  "READY_FOR_DOCUMENTS_UPLOAD",
-  "ACQUIRED",
-] as const satisfies readonly ApplicationState[];
-
-export type MilestoneState = (typeof MILESTONE_STATES)[number];
+import { MilestoneStateSchema } from "./application-state.js";
 
 /** The step whose write is currently in flight, if any. */
 export const PENDING_STEPS = ["DRAFT", "PHOTO", "CONFIRM"] as const;
 
-export type PendingStep = (typeof PENDING_STEPS)[number];
+export const PendingStepSchema = z.enum(PENDING_STEPS);
+
+export type PendingStep = z.infer<typeof PendingStepSchema>;
 
 export const STEP_STATUSES = ["PENDING", "COMPLETED", "FAILED"] as const;
 
-export interface ReconciliationSnapshot {
-  readonly at: string;
-  readonly esitoCheck: number;
-}
+export const StepStatusSchema = z.enum(STEP_STATUSES);
+
+export type StepStatus = z.infer<typeof StepStatusSchema>;
+
+export const ReconciliationSnapshotSchema = z.object({
+  at: z.string(),
+  esitoCheck: z.number(),
+});
+
+export type ReconciliationSnapshot = z.infer<
+  typeof ReconciliationSnapshotSchema
+>;
 
 /** Per-step idempotency bookkeeping (draft, photo, or confirm). */
-export interface StepInfo {
-  readonly attempts: number;
+export const StepInfoSchema = z.object({
+  attempts: z.number(),
   /** The Idempotency-Key the client sent for this step (the user's intent). */
-  readonly clientRequestId: string;
-  readonly completedAt: null | string;
+  clientRequestId: z.string(),
+  completedAt: z.string().nullable(),
   /** The Idempotency-Key sent to INPS for this step. */
-  readonly inpsIdempotencyKey: string;
-  readonly lastErrorCode: null | string;
-  readonly status: StepStatus;
-  readonly submittedAt: string;
-}
+  inpsIdempotencyKey: z.string(),
+  lastErrorCode: z.string().nullable(),
+  status: StepStatusSchema,
+  submittedAt: z.string(),
+});
 
-export type StepStatus = (typeof STEP_STATUSES)[number];
+export type StepInfo = z.infer<typeof StepInfoSchema>;
+
+export const SupportRecordStepsSchema = z.object({
+  confirm: StepInfoSchema.nullable(),
+  draft: StepInfoSchema.nullable(),
+  photo: StepInfoSchema.nullable(),
+});
+
+export type SupportRecordSteps = z.infer<typeof SupportRecordStepsSchema>;
 
 /**
  * The single CosmosDB document per Citizen (keyed by Codice Fiscale). It is a
  * support record only: INPS remains the source of truth for the application
  * state; this record exists to drive idempotency and reconciliation.
  */
-export interface SupportRecord {
+export const SupportRecordSchema = z.object({
   /** Optimistic concurrency token; absent for a record not yet persisted. */
-  readonly _etag?: string;
-  readonly codiceFiscale: string;
-  readonly createdAt: string;
-  readonly idLavorazione: null | string;
-  readonly lastReconciliation: null | ReconciliationSnapshot;
+  _etag: z.string().optional(),
+  codiceFiscale: z.string(),
+  createdAt: z.string(),
+  idLavorazione: z.string().nullable(),
+  lastReconciliation: ReconciliationSnapshotSchema.nullable(),
   /** INPS-assigned document number, populated once the application is ACQUIRED. */
-  readonly numDomus?: null | string;
-  readonly pendingStep: null | PendingStep;
-  readonly previousIdLavorazione: null | string;
-  readonly schemaVersion: 2;
-  readonly state: MilestoneState;
-  readonly steps: SupportRecordSteps;
-  readonly ttl: number;
-  readonly updatedAt: string;
-}
+  numDomus: z.string().nullable().optional(),
+  pendingStep: PendingStepSchema.nullable(),
+  previousIdLavorazione: z.string().nullable(),
+  schemaVersion: z.literal(2),
+  state: MilestoneStateSchema,
+  steps: SupportRecordStepsSchema,
+  ttl: z.number(),
+  updatedAt: z.string(),
+});
 
-export interface SupportRecordSteps {
-  readonly confirm: null | StepInfo;
-  readonly draft: null | StepInfo;
-  readonly photo: null | StepInfo;
-}
+export type SupportRecord = z.infer<typeof SupportRecordSchema>;

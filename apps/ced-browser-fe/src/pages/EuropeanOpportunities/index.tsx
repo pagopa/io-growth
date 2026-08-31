@@ -7,8 +7,8 @@ import {
   ListItemButton,
   ListItemIcon,
   ListItemText,
+  Typography,
 } from '@mui/material';
-import { Body } from '@pagopa/io-core-ui';
 import { PageHeader } from '../../components';
 
 interface EuropeanOpportunity {
@@ -93,13 +93,18 @@ export default function EuropeanOpportunitiesPage() {
                   </ListItemIcon>
                   <ListItemText
                     primary={
-                      <Body
-                        fontWeight="Semibold"
-                        asLink
-                        onClick={() => undefined}
+                      // Plain Typography instead of Body: `asLink` prop removed from io-core-ui
+                      <Typography
+                        sx={{
+                          fontSize: '16px',
+                          lineHeight: '24px',
+                          fontWeight: 600,
+                          color: 'common.linkColor',
+                          textDecoration: 'underline',
+                        }}
                       >
                         {opportunity.country}
-                      </Body>
+                      </Typography>
                     }
                   />
                 </ListItemButton>

@@ -31,6 +31,4 @@ const confirmRequestFormSlice = createSlice({
   },
 });
 
-export const { setField, setForm, resetForm } = confirmRequestFormSlice.actions;
-
 export const confirmRequestFormReducer = confirmRequestFormSlice.reducer;

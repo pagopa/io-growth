@@ -32,7 +32,7 @@ export interface ContactInputConfig {
   type: ContactInputType;
 }
 
-export const CONTACT_INPUT_BY_TYPE = {
+const CONTACT_INPUT_BY_TYPE = {
   email: {
     placeholder: 'Inserisci email',
     type: 'email',
@@ -56,7 +56,7 @@ export const CONTACT_TYPE_OPTIONS: Array<{
   { label: 'Sito web', value: 'website' },
 ];
 
-export const DEFAULT_CONTACT_INPUT: ContactInputConfig = {
+const DEFAULT_CONTACT_INPUT: ContactInputConfig = {
   placeholder: 'Inserisci contatto',
   type: 'text',
 };

@@ -1,6 +1,6 @@
 import { useCallback, useMemo, useState } from 'react';
 
-export interface SortableColumn<T> {
+interface SortableColumn<T> {
   id: string;
   sortable?: boolean;
   sortAccessor?: (item: T) => string | number | null | undefined;

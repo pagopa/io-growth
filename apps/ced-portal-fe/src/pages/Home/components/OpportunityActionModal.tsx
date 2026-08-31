@@ -5,7 +5,7 @@ import type { SuspendOpportunityPayload } from '../../../features/opportunities/
 import { AppDatePicker } from '../../../components';
 import { AppModal } from '../../../components/Modal';
 
-export type OpportunityActionModalPayload = {
+type OpportunityActionModalPayload = {
   message: string;
   suspendDate?: string;
 };
@@ -21,7 +21,7 @@ interface OpportunityActionModalProps {
 
 const MAX_REASON_LENGTH = 4096;
 
-export function OpportunityActionModal({
+function OpportunityActionModal({
   actionType,
   open,
   onClose,

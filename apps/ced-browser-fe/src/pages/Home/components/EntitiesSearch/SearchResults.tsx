@@ -41,6 +41,7 @@ export function SearchResults({
   onRetry,
 }: Readonly<SearchResultsProps>) {
   const theme = useTheme();
+  const resultsCount = total ?? 0;
   const highlightRegex = useMemo(() => {
     const queryTrim = query.trim();
     if (!queryTrim) return null;
@@ -72,7 +73,7 @@ export function SearchResults({
     }
     return items?.map((item, i) => (
       <Box key={item.id}>
-        {i > 0 ? <Divider /> : null}
+        {i > 0 ? <Divider aria-hidden /> : null}
         <DiscoveryListItem
           variant="simple"
           title={highlightText(item.name, highlightRegex)}
@@ -90,6 +91,7 @@ export function SearchResults({
   return (
     <Box sx={{ mt: 3 }}>
       <Box
+        role="text"
         sx={{
           display: 'flex',
           alignItems: 'center',
@@ -97,7 +99,6 @@ export function SearchResults({
           mb: 1,
         }}
       >
-        <LabelCaption>RISULTATI</LabelCaption>
         <Box
           component="span"
           sx={{
@@ -113,9 +114,13 @@ export function SearchResults({
             fontWeight: 600,
             color: theme.palette.common.neutralBlack,
             lineHeight: 1,
+            order: 2,
           }}
         >
-          {total ?? 0}
+          {resultsCount}
+        </Box>
+        <Box component="span" sx={{ order: 1 }}>
+          <LabelCaption>RISULTATI</LabelCaption>
         </Box>
       </Box>
       {renderContent()}

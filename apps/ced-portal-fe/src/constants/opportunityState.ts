@@ -1,4 +1,4 @@
-import { ChipOwnProps } from '@mui/material';
+import { MIChipProps } from '@pagopa/mui-italia';
 import {
   ListOnboardingsStatusesItem,
   OpportunitySummaryItemStatus,
@@ -49,7 +49,7 @@ export const ADMIN_NOT_ACTIVE_STATE_OPTIONS = STATE_OPTIONS.filter(
     value === OpportunitySummaryItemStatus.deleted,
 );
 
-export const OPERATOR_STATE_OPTIONS: {
+const OPERATOR_STATE_OPTIONS: {
   value: OpportunityStatus;
   label: string;
 }[] = [
@@ -93,7 +93,7 @@ export const OPERATOR_MANAGED_STATE_OPTIONS = OPERATOR_STATE_OPTIONS.filter(
     value === OpportunitySummaryItemStatus.deleted,
 );
 
-export const STATE_COLORS: Record<OpportunityStatus, ChipOwnProps['color']> = {
+export const STATE_COLORS: Record<OpportunityStatus, MIChipProps['color']> = {
   draft: 'default',
   test_pending: 'warning',
   scheduled: 'info',

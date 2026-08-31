@@ -27,6 +27,7 @@ import {
   mountSearchOpportunitiesHandler,
   mountSearchPlacesHandler,
 } from "./adapters/inbound/fastify/index.js";
+import { createDrizzleHealthCheckRepository } from "./adapters/outbound/drizzle/drizzle-health-check.repository.js";
 import { createDrizzleOpportunityRepository } from "./adapters/outbound/drizzle/drizzle-opportunity.repository.js";
 import { createDrizzlePlaceRepository } from "./adapters/outbound/drizzle/drizzle-place.repository.js";
 import { createDrizzleProfileRepository } from "./adapters/outbound/drizzle/drizzle-profile.repository.js";
@@ -67,6 +68,7 @@ const redisClient = await createResilientRedisClient({
 const redisHealthCheckRepository =
   createRedisHealthCheckRepository(redisClient);
 const sessionStore = createRedisSessionRepository(redisClient);
+const dbHealthCheckRepository = createDrizzleHealthCheckRepository(dbClient);
 const placeRepository = createDrizzlePlaceRepository(dbClient);
 const opportunityRepository = createDrizzleOpportunityRepository(dbClient);
 const profileRepository = createDrizzleProfileRepository(dbClient);
@@ -104,6 +106,7 @@ mountInfoStartupHandler(app, makeGetInfoStartupUseCase);
 mountInfoReadinessHandler(
   app,
   makeGetInfoReadinessUseCase({
+    persistenceHealthCheckRepository: dbHealthCheckRepository,
     sessionStoreHealthCheckRepository: redisHealthCheckRepository,
   }),
 );

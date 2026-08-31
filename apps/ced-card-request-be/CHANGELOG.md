@@ -1,5 +1,11 @@
 # ced-card-request-be
 
+## 0.2.5
+
+### Patch Changes
+
+- 8936451: add anti corruption layer to inps outbound adapter
+
 ## 0.2.4
 
 ### Patch Changes

@@ -55,6 +55,12 @@ locals {
 
       AZURE_CLIENT_ID = module.common_container_app_environment.user_assigned_identity.client_id
 
+      # Assets blob storage — accessed via RBAC (managed identity)
+      ASSETS_STORAGE_ACCOUNT_NAME     = module.portal_be_storage.storage_account.name
+      ASSETS_STORAGE_BLOB_ENDPOINT    = module.portal_be_storage.storage_account.primary_blob_endpoint
+      ASSETS_STORAGE_CONTAINER_LOGOS  = module.portal_be_storage.containers.logos
+      ASSETS_STORAGE_CONTAINER_IMAGES = module.portal_be_storage.containers.images
+
       CED_PORTAL_FE_BASE_URL = "https://${module.portal_fe_static_web_app.custom_domain}"
       CED_PRODUCT_ID         = "prod-ced"
 

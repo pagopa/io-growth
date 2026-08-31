@@ -210,16 +210,6 @@ const createAppTheme = () =>
           },
         },
       },
-      MuiAutocomplete: {
-        styleOverrides: {
-          root: {
-            '& .MuiAutocomplete-clearIndicator': {
-              display: 'none',
-            },
-          },
-        },
-      },
-
       MuiCheckbox: {
         styleOverrides: {
           root: {

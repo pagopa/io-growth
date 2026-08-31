@@ -1,4 +1,4 @@
-import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
+import CloseIcon from '@mui/icons-material/Close';
 import SearchRoundedIcon from '@mui/icons-material/SearchRounded';
 import {
   Box,
@@ -187,7 +187,7 @@ export function EntitiesSearch({
                     inputRef.current?.focus();
                   }}
                 >
-                  <CloseRoundedIcon sx={{ fontSize: 18 }} />
+                  <CloseIcon sx={{ color: 'common.black', fontSize: 24 }} />
                 </IconButton>
               </InputAdornment>
             ) : null,

@@ -12,5 +12,3 @@ export const AGREEMENT_LANGUAGE_TABS: AgreementLanguageTab[] = [
   { id: 'de', label: 'Tedesco' },
   { id: 'sl', label: 'Sloveno' },
 ];
-
-export const DEFAULT_AGREEMENT_LANGUAGE = AGREEMENT_LANGUAGE_TABS[0].id;

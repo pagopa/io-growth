@@ -14,7 +14,7 @@ export const INITIAL_FIRST_CONTACT_ERRORS: FirstContactErrors = {
 const getFirstContact = (contacts: ContactFormData[]): ContactFormData =>
   contacts[0] ?? { type: '', value: '' };
 
-export const validateFirstContact = (
+const validateFirstContact = (
   contacts: ContactFormData[],
 ): FirstContactErrors => {
   const firstContact = getFirstContact(contacts);

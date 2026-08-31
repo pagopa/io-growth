@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
-export interface AuthState {
+interface AuthState {
   redirectToken?: string;
   token?: string;
   deviceId?: string;
@@ -9,7 +9,7 @@ export interface AuthState {
 
 const initialState: AuthState = {};
 
-export const authSlice = createSlice({
+const authSlice = createSlice({
   name: 'auth',
   initialState,
   reducers: {

@@ -15,7 +15,7 @@ export const publicationStatusLabels: Record<
   scheduled_suspension: 'Sospensione programmata',
 };
 
-export enum BenefitCategory {
+enum BenefitCategory {
   CULTURE_LEISURE = 'Cultura e tempo libero',
   EDUCATION = 'Istruzione e formazione',
   HEALTH_WELLNESS = 'Salute e benessere',

@@ -8,7 +8,7 @@ import type { OpportunitySummaryItem } from '../../core/api/generated/model/oppo
 export { type LocalizedMetadataItem } from '../../core/api/generated/model/localizedMetadataItem';
 export { OpportunitySummaryItemStatus as OpportunityStatusEnum } from '../../core/api/generated/model/opportunitySummaryItemStatus';
 
-export interface OpportunitySuspensionMetadata {
+interface OpportunitySuspensionMetadata {
   suspendFrom?: string | null;
   suspensionMessage?: string | null;
   suspendedBy?: 'operator' | 'department' | null;
@@ -24,8 +24,7 @@ export type AdminOpportunity = AdminOpportunitySummaryItem &
   OpportunitySuspensionMetadata;
 export type AdminOpportunityDetail = OpportunityDetailAdminResponse &
   OpportunitySuspensionMetadata;
-export type OperatorOpportunitySummary = OpportunitySummaryItem &
-  OpportunitySuspensionMetadata;
+
 export type OpportunityStatus = OpportunitySummaryItem['status'];
 export type AdminOpportunityStatusFilter = ListOperatorOpportunitiesStatus;
 

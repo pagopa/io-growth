@@ -6,7 +6,7 @@ import type {
 } from '../../core/api/generated/model/index.js';
 import { searchQueryGenerator } from '../../utils/searchQueryGenerator.js';
 
-export const opportunitiesApi = baseApi.injectEndpoints({
+const opportunitiesApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     getOpportunitiesSearch: builder.query<
       OpportunitySearchResponse,

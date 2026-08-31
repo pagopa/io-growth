@@ -11,7 +11,7 @@ import { selectB64Photo } from '../../../features/photo-upload/reducer';
 import { selectIdLavorazione } from '../../../features/status/selectors';
 import { useConfirmMutation } from '../../../features/confirmation/api';
 
-export const sanitazeObject = <T extends Record<string, unknown>>(data: T): T =>
+const sanitazeObject = <T extends Record<string, unknown>>(data: T): T =>
   Object.fromEntries(
     Object.entries(data).map(([key, value]) => [
       key,

@@ -5,7 +5,7 @@ module "portal_be_storage" {
   env_short       = local.env_short
   location        = local.location
   domain          = local.domain
-  app_name        = "operatorsassets"
+  app_name        = "assets"
   instance_number = "01"
 
   resource_group_name = azurerm_resource_group.data_rg.name

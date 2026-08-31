@@ -1,5 +1,18 @@
 # ced-browser-be
 
+## 0.1.13
+
+### Patch Changes
+
+- Updated dependencies [1dfaa7e]
+  - @pagopa/io-core-adapter-tracing@0.0.7
+
+## 0.1.12
+
+### Patch Changes
+
+- f3576f0: add pg health check
+
 ## 0.1.11
 
 ### Patch Changes

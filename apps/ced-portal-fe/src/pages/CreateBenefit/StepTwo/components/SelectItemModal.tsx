@@ -6,7 +6,7 @@ import {
   ListItemText,
   Typography,
 } from '@mui/material';
-import { ButtonNaked, Chip } from '@pagopa/mui-italia';
+import { ButtonNaked, MIChip } from '@pagopa/mui-italia';
 import { useCallback, useMemo, useState, type ReactNode } from 'react';
 import { AppCheckbox, AppModal, AppSelect } from '../../../../components';
 
@@ -24,7 +24,7 @@ interface SelectItemOptionProps<T extends NamedItem> {
   selected: string[];
 }
 
-export function SelectItemOption<T extends NamedItem>({
+function SelectItemOption<T extends NamedItem>({
   value,
   label,
   items,
@@ -78,11 +78,10 @@ function SelectedChipList<T extends NamedItem>({
       {selected.map((id) => {
         const item = itemMap.get(id);
         return item ? (
-          <Chip
+          <MIChip
             key={id}
             label={item.name}
-            color="default"
-            size="small"
+            color="neutral"
             onDelete={() => onDeselect(selected.filter((v) => v !== id))}
             onMouseDown={(e) => e.stopPropagation()}
             sx={{ '& .MuiChip-deleteIcon': { color: 'common.primaryButton' } }}

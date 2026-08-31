@@ -1,9 +1,8 @@
 import CheckCircleRoundedIcon from '@mui/icons-material/CheckCircleRounded';
-import WarningAmberRoundedIcon from '@mui/icons-material/WarningAmberRounded';
 import ChevronRightRoundedIcon from '@mui/icons-material/ChevronRightRounded';
+import WarningAmberRoundedIcon from '@mui/icons-material/WarningAmberRounded';
 import {
   Button,
-  Chip,
   CircularProgress,
   IconButton,
   Paper,
@@ -18,6 +17,7 @@ import {
   Typography,
   useTheme,
 } from '@mui/material';
+import { MIChip } from '@pagopa/mui-italia';
 import { useCallback, useMemo, useState } from 'react';
 import {
   ENTITY_STATE_COLORS,
@@ -265,14 +265,13 @@ export const EntitiesTable = ({
                 </>
               )}
               <TableCell>
-                <Chip
+                <MIChip
                   label={
                     ENTITY_STATE_OPTIONS.find(
                       (option) => option.value === item.state,
                     )?.label || item.state
                   }
                   color={ENTITY_STATE_COLORS[item.state] ?? 'default'}
-                  size="small"
                 />
               </TableCell>
               <TableCell align="right">

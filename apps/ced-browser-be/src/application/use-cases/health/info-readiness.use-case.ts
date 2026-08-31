@@ -23,12 +23,19 @@ export type GetInfoReadinessUseCase = UseCase<
 >;
 
 interface Dependencies {
+  readonly persistenceHealthCheckRepository: IHealthCheckRepository;
   readonly sessionStoreHealthCheckRepository: IHealthCheckRepository;
 }
 
 export const makeGetInfoReadinessUseCase =
   (deps: Dependencies): GetInfoReadinessUseCase =>
   async () => {
+    const persistenceResult =
+      await deps.persistenceHealthCheckRepository.checkConnection();
+    if (persistenceResult.isErr()) {
+      return err(persistenceResult.error);
+    }
+
     const sessionStoreResult =
       await deps.sessionStoreHealthCheckRepository.checkConnection();
     if (sessionStoreResult.isErr()) {

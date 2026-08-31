@@ -2,11 +2,12 @@ import { ValidationError } from "@pagopa/io-core-domain/errors";
 import { err, ok } from "neverthrow";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { createMockGestioneDomandaCedRepository } from "../../status/__tests__/mocks.js";
+import { createMockCardApplicationRepository } from "../../__tests__/mocks.js";
 import { makeConfirmApplicationUseCase } from "../confirm-application.use-case.js";
 import {
   baseSupportRecord,
   createMockSupportRecordRepository,
+  MOCK_FISCAL_CODE,
   MOCK_ID_LAVORAZIONE,
   mockConfirmApplicationInput,
 } from "./mocks.js";
@@ -15,19 +16,19 @@ describe("makeConfirmApplicationUseCase — validation, ownership, replay, retry
   let supportRecordRepository: ReturnType<
     typeof createMockSupportRecordRepository
   >;
-  let gestioneDomandaCedRepository: ReturnType<
-    typeof createMockGestioneDomandaCedRepository
+  let cardApplicationRepository: ReturnType<
+    typeof createMockCardApplicationRepository
   >;
 
   beforeEach(() => {
     supportRecordRepository = createMockSupportRecordRepository();
-    gestioneDomandaCedRepository = createMockGestioneDomandaCedRepository();
+    cardApplicationRepository = createMockCardApplicationRepository();
   });
 
   const useCase = () =>
     makeConfirmApplicationUseCase(
       supportRecordRepository,
-      gestioneDomandaCedRepository,
+      cardApplicationRepository,
     );
 
   it("returns a ValidationError for invalid input without touching any repository", async () => {
@@ -38,7 +39,7 @@ describe("makeConfirmApplicationUseCase — validation, ownership, replay, retry
 
     expect(result).toEqual(err(expect.any(ValidationError)));
     expect(supportRecordRepository.getByCodiceFiscale).not.toHaveBeenCalled();
-    expect(gestioneDomandaCedRepository.confermaDomanda).not.toHaveBeenCalled();
+    expect(cardApplicationRepository.confirmApplication).not.toHaveBeenCalled();
   });
 
   it("returns a ValidationError when there is no support record", async () => {
@@ -49,7 +50,7 @@ describe("makeConfirmApplicationUseCase — validation, ownership, replay, retry
     const result = await useCase()(mockConfirmApplicationInput);
 
     expect(result).toEqual(err(expect.any(ValidationError)));
-    expect(gestioneDomandaCedRepository.confermaDomanda).not.toHaveBeenCalled();
+    expect(cardApplicationRepository.confirmApplication).not.toHaveBeenCalled();
   });
 
   it("returns a ValidationError when idLavorazione does not match the active draft", async () => {
@@ -96,7 +97,7 @@ describe("makeConfirmApplicationUseCase — validation, ownership, replay, retry
     const result = await useCase()(mockConfirmApplicationInput);
 
     expect(result).toEqual(ok({ numDomus: null, state: "ACQUIRED" }));
-    expect(gestioneDomandaCedRepository.confermaDomanda).not.toHaveBeenCalled();
+    expect(cardApplicationRepository.confirmApplication).not.toHaveBeenCalled();
     expect(supportRecordRepository.save).not.toHaveBeenCalled();
   });
 
@@ -120,15 +121,18 @@ describe("makeConfirmApplicationUseCase — validation, ownership, replay, retry
     vi.mocked(supportRecordRepository.getByCodiceFiscale).mockResolvedValue(
       ok(existing),
     );
-    vi.mocked(gestioneDomandaCedRepository.confermaDomanda).mockResolvedValue(
-      ok({ idLavorazione: MOCK_ID_LAVORAZIONE, numDomus: "DOMUS-001" }),
+    vi.mocked(cardApplicationRepository.confirmApplication).mockResolvedValue(
+      ok({ numDomus: "DOMUS-001" }),
     );
 
     const result = await useCase()(mockConfirmApplicationInput);
 
     expect(result).toEqual(ok({ numDomus: "DOMUS-001", state: "ACQUIRED" }));
-    expect(gestioneDomandaCedRepository.confermaDomanda).toHaveBeenCalledWith(
-      expect.anything(),
+    expect(cardApplicationRepository.confirmApplication).toHaveBeenCalledWith(
+      expect.objectContaining({
+        codiceFiscale: MOCK_FISCAL_CODE,
+        idLavorazione: MOCK_ID_LAVORAZIONE,
+      }),
       { idempotencyKey: "inps-key-1" },
     );
   });
@@ -160,8 +164,8 @@ describe("makeConfirmApplicationUseCase — validation, ownership, replay, retry
     vi.mocked(supportRecordRepository.getByCodiceFiscale).mockResolvedValue(
       ok(existing),
     );
-    vi.mocked(gestioneDomandaCedRepository.confermaDomanda).mockResolvedValue(
-      ok({ idLavorazione: MOCK_ID_LAVORAZIONE, numDomus: null }),
+    vi.mocked(cardApplicationRepository.confirmApplication).mockResolvedValue(
+      ok({ numDomus: null }),
     );
 
     const result = await useCase()(mockConfirmApplicationInput);

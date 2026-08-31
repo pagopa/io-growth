@@ -3,13 +3,6 @@
 import "./telemetry.js";
 
 import {
-  createDocumentContentClient,
-  createInstitutionClient,
-  createOnboardingClient,
-  createUserClient,
-} from "@pagopa/io-core-adapter-ar";
-import { createTypedDbClient } from "@pagopa/io-core-adapter-drizzle";
-import {
   createAuthenticationPreHandler,
   getSessionFromRequest,
   multipart,
@@ -53,7 +46,6 @@ import {
   mountOperatorUpdateOpportunityHandler,
 } from "./adapters/inbound/fastify/index.js";
 import { createArOnboardingRepository } from "./adapters/outbound/ar/ar-onboarding.repository.js";
-import { injectDbAuditContext } from "./adapters/outbound/drizzle/drizzle-audit-context.js";
 import { createDrizzleHealthCheckRepository } from "./adapters/outbound/drizzle/drizzle-health-check.repository.js";
 import { createDrizzleMaterializedViewRepository } from "./adapters/outbound/drizzle/drizzle-materialized-view.repository.js";
 import { createDrizzleOperatorRepository } from "./adapters/outbound/drizzle/drizzle-operator.repository.js";
@@ -61,7 +53,6 @@ import { createDrizzleOpportunityCategoryRepository } from "./adapters/outbound/
 import { createDrizzleOpportunityRepository } from "./adapters/outbound/drizzle/drizzle-opportunity.repository.js";
 import { createDrizzlePlaceRepository } from "./adapters/outbound/drizzle/drizzle-place.repository.js";
 import { createDrizzleProfileRepository } from "./adapters/outbound/drizzle/drizzle-profile.repository.js";
-import * as schema from "./adapters/outbound/drizzle/schema/index.js";
 import { createRedisHealthCheckRepository } from "./adapters/outbound/redis/redis-health-check.repository.js";
 import { createRedisSessionRepository } from "./adapters/outbound/redis/redis-session.repository.js";
 import { makeAcsUseCase } from "./application/use-cases/auth/acs.use-case.js";
@@ -94,33 +85,14 @@ import { makeOperatorCreateProfileUseCase } from "./application/use-cases/profil
 import { makeOperatorGetProfileUseCase } from "./application/use-cases/profile/operator-get-profile.use-case.js";
 import { createSessionContextPreHandler } from "./async-local-storage-session-context.js";
 import { parseConfig } from "./config.js";
+import { createArRouter, createDbRouter } from "./routed-clients.js";
 
 const config = parseConfig();
 
-const arClientConfig = {
-  baseUrl: config.AR_ENDPOINT,
-  subscriptionKey: config.AR_API_KEY,
-};
-
-const dbClient = createTypedDbClient(
-  {
-    database: config.POSTGRES_DB,
-    host: config.POSTGRES_HOST,
-    max: config.POSTGRES_MAX_CONNECTIONS,
-    onNotice: (notice) => {
-      emitCustomEvent("database.notice", {
-        caller: "DrizzleClient",
-        data: { message: notice.message },
-      })("DrizzleClient");
-    },
-    onTransaction: injectDbAuditContext,
-    password: config.POSTGRES_PASSWORD,
-    port: config.POSTGRES_PORT,
-    ssl: config.POSTGRES_SSL,
-    user: config.POSTGRES_USER,
-  },
-  schema,
-);
+const dbRouter = createDbRouter(config);
+const arClientRouter = createArRouter(config);
+const dbClient = dbRouter.getInstance();
+const arClient = arClientRouter.getInstance();
 
 const redisClient = await createResilientRedisClient({
   endpoint: config.REDIS_ENDPOINT,
@@ -148,12 +120,7 @@ const materializedViewRepository =
   createDrizzleMaterializedViewRepository(dbClient);
 const placeRepository = createDrizzlePlaceRepository(dbClient);
 const profileRepository = createDrizzleProfileRepository(dbClient);
-const arOnboardingRepository = createArOnboardingRepository(
-  createInstitutionClient(arClientConfig),
-  createOnboardingClient(arClientConfig),
-  createDocumentContentClient(arClientConfig),
-  createUserClient(arClientConfig),
-);
+const arOnboardingRepository = createArOnboardingRepository(arClient);
 
 const app = Fastify();
 
@@ -325,7 +292,9 @@ app.register(async (app) => {
 
 app.addHook("onClose", async () => {
   await redisClient.closeConnection();
-  await dbClient.closeConnection();
+  await Promise.all(
+    dbRouter.instances.map((instance) => instance.closeConnection()),
+  );
 });
 
 await app.listen({ host: config.HOST, port: config.PORT });

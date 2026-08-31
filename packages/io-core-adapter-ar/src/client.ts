@@ -1,48 +1,33 @@
 import type { ArClientConfig } from "./config.js";
+import type { DocumentContentRepository } from "./domain/ports/outbound/document-content.repository.js";
+import type { InstitutionRepository } from "./domain/ports/outbound/institution.repository.js";
+import type { OnboardingRepository } from "./domain/ports/outbound/onboarding.repository.js";
+import type { UserRepository } from "./domain/ports/outbound/user.repository.js";
 
-let globalConfig: ArClientConfig | undefined;
+import { createDocumentContentClient } from "./adapters/outbound/document-content.js";
+import { createInstitutionClient } from "./adapters/outbound/institution.js";
+import { createOnboardingClient } from "./adapters/outbound/onboarding.js";
+import { createUserClient } from "./adapters/outbound/user.js";
+import { createCustomFetch } from "./fetch.js";
 
-export const initArClient = (config: ArClientConfig): void => {
-  globalConfig = config;
-};
+/**
+ * Bundle of the AR (Area Riservata) outbound clients, all bound to a single
+ * {@link ArClientConfig}. A whole bundle can be routed as one unit (e.g. via an
+ * environment router) without leaking the per-endpoint configuration.
+ */
+export interface ArClient {
+  readonly documentContentClient: DocumentContentRepository;
+  readonly institutionClient: InstitutionRepository;
+  readonly onboardingClient: OnboardingRepository;
+  readonly userClient: UserRepository;
+}
 
-const getArClientConfig = (): ArClientConfig => {
-  if (!globalConfig) {
-    throw new Error(
-      "AR client config not initialized. Call a create*Client(config) factory before making API calls.",
-    );
-  }
-  return globalConfig;
-};
-
-export const customFetch = async <T>(
-  url: string,
-  options: RequestInit,
-): Promise<T> => {
-  const config = getArClientConfig();
-
-  const fullUrl = `${config.baseUrl}${url}`;
-  const headers = new Headers(options.headers);
-  headers.set("Ocp-Apim-Subscription-Key", config.subscriptionKey);
-
-  const response = await fetch(fullUrl, {
-    ...options,
-    headers,
-  });
-
-  const contentType = response.headers.get("content-type");
-  const hasBody =
-    response.status !== 204 &&
-    response.status !== 205 &&
-    response.status !== 304 &&
-    response.body !== null &&
-    response.headers.get("content-length") !== "0";
-
-  const data = !hasBody
-    ? undefined
-    : contentType?.includes("application/json")
-      ? await response.json()
-      : await response.blob();
-
-  return { data, headers: response.headers, status: response.status } as T;
+export const createArClient = (config: ArClientConfig): ArClient => {
+  const customFetch = createCustomFetch(config);
+  return {
+    documentContentClient: createDocumentContentClient(customFetch),
+    institutionClient: createInstitutionClient(customFetch),
+    onboardingClient: createOnboardingClient(customFetch),
+    userClient: createUserClient(customFetch),
+  };
 };

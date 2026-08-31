@@ -35,7 +35,7 @@ export const consoleTelemetryClient: TelemetryClient = {
       cyan("event"),
       event.name,
       dim(`caller=${caller}`),
-      dim(`data=${event.payload.data}`),
+      dim(`data=${JSON.stringify(event.payload.data)}`),
     );
   },
 

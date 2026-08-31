@@ -22,7 +22,7 @@ const cittadinanzaOptions = [
   { label: 'Paesi extracomunitari', value: '3' },
 ];
 
-export const PERSONAL_DATA_FORM_CONFIG: PersonalDataFormType[] = [
+const PERSONAL_DATA_FORM_CONFIG: PersonalDataFormType[] = [
   {
     label: 'Nome',
     field: 'nome',

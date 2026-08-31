@@ -175,7 +175,7 @@ export function EntitiesSearch({
               </InputAdornment>
             ),
             endAdornment: showClearButton ? (
-              <InputAdornment position="end">
+              <InputAdornment position="end" sx={{ mr: -1.5 }}>
                 <IconButton
                   aria-label="Cancella ricerca"
                   edge="end"

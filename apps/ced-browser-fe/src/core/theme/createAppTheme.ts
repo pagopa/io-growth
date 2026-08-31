@@ -273,21 +273,6 @@ const createAppTheme = () =>
           },
         },
       },
-      MuiIconButton: {
-        styleOverrides: {
-          root: {
-            '&.SearchClearButton': {
-              width: 22,
-              height: 22,
-              backgroundColor: NEUTRAL_600,
-              color: muiItaliaTheme.palette.common.white,
-              '&:hover': {
-                backgroundColor: NEUTRAL_700,
-              },
-            },
-          },
-        },
-      },
       MuiSvgIcon: {
         styleOverrides: {
           root: {

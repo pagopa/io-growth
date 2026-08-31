@@ -177,7 +177,6 @@ export function EntitiesSearch({
             endAdornment: showClearButton ? (
               <InputAdornment position="end">
                 <IconButton
-                  className="SearchClearButton"
                   aria-label="Cancella ricerca"
                   edge="end"
                   size="small"
@@ -187,7 +186,9 @@ export function EntitiesSearch({
                     inputRef.current?.focus();
                   }}
                 >
-                  <CloseIcon sx={{ color: 'common.black', fontSize: 24 }} />
+                  <CloseIcon
+                    sx={{ color: 'common.neutralBlack', fontSize: 24 }}
+                  />
                 </IconButton>
               </InputAdornment>
             ) : null,

@@ -14,13 +14,15 @@ const ERROR_ICON_BG = '#5D1313';
 const TOAST_ERROR_BG = ERROR_ICON_BG;
 const NEUTRAL_600 = '#636B82';
 const NEUTRAL_700 = '#4E5A70';
-const NEUTRAL_450 = '#9EA8BC';
 const NEUTRAL_900 = '#111827';
 const NEUTRAL_500 = '#5F687A';
 const DECORATIVE_BLUE = '#CED8F9';
 const DECORATIVE_CYAN = '#AAEEEF';
 const BADGE_BG = '#DBF9FA';
 const BADGE_TEXT = '#003B3D';
+const FOCUS_RING = '#0073E6';
+const CARD_BORDER = '#E8EBF1';
+const CAROUSEL_DOT_INACTIVE = '#5C6F82';
 
 declare module '@mui/material/styles' {
   interface CommonColors {
@@ -41,10 +43,13 @@ declare module '@mui/material/styles' {
     badgeBg: string;
     badgeText: string;
     linkColor: string;
+    focusRing: string;
+    cardBorder: string;
+    carouselDotInactive: string;
   }
 }
 
-export const createAppTheme = () =>
+const createAppTheme = () =>
   createTheme(muiItaliaTheme, {
     typography: {
       fontFamily: '"Titillio", Arial, sans-serif',
@@ -125,6 +130,9 @@ export const createAppTheme = () =>
         badgeBg: BADGE_BG,
         badgeText: BADGE_TEXT,
         linkColor: PRIMARY_BUTTON_BACKGROUND,
+        focusRing: FOCUS_RING,
+        cardBorder: CARD_BORDER,
+        carouselDotInactive: CAROUSEL_DOT_INACTIVE,
       },
     },
     components: {
@@ -133,6 +141,17 @@ export const createAppTheme = () =>
           body: {
             fontFamily: '"Titillio", Arial, sans-serif',
             backgroundColor: muiItaliaTheme.palette.background.paper,
+          },
+          '.sr-only': {
+            position: 'absolute',
+            width: 1,
+            height: 1,
+            padding: 0,
+            margin: -1,
+            overflow: 'hidden',
+            clip: 'rect(0 0 0 0)',
+            whiteSpace: 'nowrap',
+            border: 0,
           },
           'input, button, textarea, select': {
             fontFamily: '"Titillio", Arial, sans-serif',
@@ -191,16 +210,6 @@ export const createAppTheme = () =>
           },
         },
       },
-      MuiAutocomplete: {
-        styleOverrides: {
-          root: {
-            '& .MuiAutocomplete-clearIndicator': {
-              display: 'none',
-            },
-          },
-        },
-      },
-
       MuiCheckbox: {
         styleOverrides: {
           root: {
@@ -261,21 +270,6 @@ export const createAppTheme = () =>
               {
                 transform: 'translate(48px, 13px) scale(1)',
               },
-          },
-        },
-      },
-      MuiIconButton: {
-        styleOverrides: {
-          root: {
-            '&.SearchClearButton': {
-              width: 22,
-              height: 22,
-              backgroundColor: DECORATIVE_ICON,
-              color: muiItaliaTheme.palette.common.white,
-              '&:hover': {
-                backgroundColor: NEUTRAL_450,
-              },
-            },
           },
         },
       },

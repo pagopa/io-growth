@@ -1,4 +1,3 @@
-import type { GestioneDomandaCedRepository } from "@pagopa/io-core-adapter-inps-ced";
 import type { UseCase } from "@pagopa/io-core-domain";
 import type { BaseError } from "@pagopa/io-core-domain/errors";
 
@@ -10,38 +9,22 @@ import {
 import { err, ok } from "neverthrow";
 import { z } from "zod";
 
+import type { CardApplicationRepository } from "../../../domain/ports/outbound/card-application.repository.js";
 import type { SupportRecordRepository } from "../../../domain/ports/outbound/persistence/support-record.repository.js";
 
+import {
+  FiscalCodeSchema,
+  RecoveredApplicationDraftSchema,
+} from "../../../domain/entities/card-application.js";
 import { validateUseCaseInput } from "../utils/validate-use-case-input.js";
 
 export const GetDraftDataInputSchema = z.object({
-  fiscalCode: z.string().length(16),
+  fiscalCode: FiscalCodeSchema,
 });
 
 export type GetDraftDataInput = z.infer<typeof GetDraftDataInputSchema>;
 
-const GetDraftDataOutputSchema = z.object({
-  capRec: z.string().max(5),
-  civicoRec: z.string().max(10).nullish(),
-  codiceFiscale: z.string().length(16),
-  cognome: z.string().max(50),
-  comuneNascita: z.string().max(60).nullish(),
-  dataNascita: z.string().min(1),
-  dataScadenzaPermessoSoggiorno: z.string().min(1).nullish(),
-  datiAggiuntiviRec: z.string().max(45).nullish(),
-  descrizioneComuneRec: z.string().max(60),
-  fotoCED: z.string().nullish(),
-  idCittadinanza: z.union([z.literal(0), z.literal(2), z.literal(3)]),
-  indirizzoRec: z.string().max(30),
-  nome: z.string().max(50),
-  pressoCognome: z.string().max(40).nullish(),
-  pressoDenominazione: z.string().max(40).nullish(),
-  pressoNome: z.string().max(40).nullish(),
-  sesso: z.enum(["M", "F"]),
-  siglaProvinciaNascita: z.string().max(2).nullish(),
-  siglaProvinciaRec: z.string().max(2),
-  statoNascita: z.string().max(60),
-});
+const GetDraftDataOutputSchema = RecoveredApplicationDraftSchema;
 
 export type GetDraftDataOutput = z.infer<typeof GetDraftDataOutputSchema>;
 
@@ -54,7 +37,7 @@ export type GetDraftDataUseCase = UseCase<
 export const makeGetDraftDataUseCase =
   (
     supportRecordRepository: SupportRecordRepository,
-    gestioneDomandaCedRepository: GestioneDomandaCedRepository,
+    cardApplicationRepository: CardApplicationRepository,
   ): GetDraftDataUseCase =>
   async (input) => {
     const validated = await validateUseCaseInput(
@@ -90,40 +73,18 @@ export const makeGetDraftDataUseCase =
     }
 
     const recoveryResult =
-      await gestioneDomandaCedRepository.recuperoDatiDomanda({
-        codiceFiscale: validated.value.fiscalCode,
-        idLavorazione: record.idLavorazione,
-      });
+      await cardApplicationRepository.recoverApplicationDraft(
+        validated.value.fiscalCode,
+        record.idLavorazione,
+      );
     if (recoveryResult.isErr()) return err(recoveryResult.error);
 
-    const { anagrafica, fotoCED, recapito } = recoveryResult.value;
-    const output = GetDraftDataOutputSchema.safeParse({
-      capRec: recapito.cap,
-      civicoRec: recapito.civico,
-      codiceFiscale: anagrafica.codiceFiscale,
-      cognome: anagrafica.cognome,
-      comuneNascita: anagrafica.comuneNascita,
-      dataNascita: anagrafica.dataNascita,
-      dataScadenzaPermessoSoggiorno: anagrafica.dataScadenzaPermessoSoggiorno,
-      datiAggiuntiviRec: recapito.datiAggiuntivi,
-      descrizioneComuneRec: recapito.descrizioneComune,
-      fotoCED,
-      idCittadinanza: anagrafica.idCittadinanza,
-      indirizzoRec: recapito.indirizzo,
-      nome: anagrafica.nome,
-      pressoCognome: recapito.pressoCognome,
-      pressoDenominazione: recapito.pressoDenominazione,
-      pressoNome: recapito.pressoNome,
-      sesso: anagrafica.sesso,
-      siglaProvinciaNascita: anagrafica.siglaProvinciaNascita,
-      siglaProvinciaRec: recapito.siglaProvincia,
-      statoNascita: anagrafica.statoNascita,
-    });
+    const output = GetDraftDataOutputSchema.safeParse(recoveryResult.value);
 
     if (!output.success) {
       return err(
         new GenericError(
-          `INPS RecuperoDatiDomanda returned invalid data: ${z.prettifyError(output.error)}`,
+          `Invalid recovered draft: ${z.prettifyError(output.error)}`,
         ),
       );
     }

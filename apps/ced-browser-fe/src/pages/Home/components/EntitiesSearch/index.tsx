@@ -1,4 +1,4 @@
-import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
+import CloseIcon from '@mui/icons-material/Close';
 import SearchRoundedIcon from '@mui/icons-material/SearchRounded';
 import {
   Box,
@@ -45,7 +45,7 @@ export function EntitiesSearch({
     useSearchPlacesQuery(debouncedQuery, {
       skip: !shouldRunSearch,
     });
-  const showClearButton = isSearchActive || query.length > 0;
+  const showClearButton = query.length > 0;
 
   const handleCancel = () => {
     setQuery('');
@@ -167,7 +167,7 @@ export function EntitiesSearch({
           }}
           InputProps={{
             startAdornment: (
-              <InputAdornment position="start">
+              <InputAdornment position="start" aria-hidden="true">
                 <SearchRoundedIcon
                   className="SearchInputIcon"
                   aria-hidden="true"
@@ -175,9 +175,8 @@ export function EntitiesSearch({
               </InputAdornment>
             ),
             endAdornment: showClearButton ? (
-              <InputAdornment position="end">
+              <InputAdornment position="end" sx={{ mr: -1.5 }}>
                 <IconButton
-                  className="SearchClearButton"
                   aria-label="Cancella ricerca"
                   edge="end"
                   size="small"
@@ -187,7 +186,9 @@ export function EntitiesSearch({
                     inputRef.current?.focus();
                   }}
                 >
-                  <CloseRoundedIcon sx={{ fontSize: 18 }} />
+                  <CloseIcon
+                    sx={{ color: 'common.neutralBlack', fontSize: 24 }}
+                  />
                 </IconButton>
               </InputAdornment>
             ) : null,

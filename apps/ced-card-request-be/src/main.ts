@@ -29,6 +29,7 @@ import {
 } from "@pagopa/io-core-adapter-modi";
 import { createResilientRedisClient } from "@pagopa/io-core-adapter-redis";
 import {
+  emitCustomEvent,
   getTelemetryClient,
   tracingPlugin,
 } from "@pagopa/io-core-adapter-tracing";
@@ -46,6 +47,7 @@ import {
 } from "./adapters/inbound/fastify/index.js";
 import { createCosmosHealthCheckRepository } from "./adapters/outbound/cosmos/cosmos-health-check.repository.js";
 import { createCosmosSupportRecordRepository } from "./adapters/outbound/cosmos/cosmos-support-record.repository.js";
+import { createInpsCardApplicationRepository } from "./adapters/outbound/inps/inps-card-application.repository.js";
 import { createRedisHealthCheckRepository } from "./adapters/outbound/redis/redis-health-check.repository.js";
 import { createRedisSessionRepository } from "./adapters/outbound/redis/redis-session.repository.js";
 import { makeConfirmApplicationUseCase } from "./application/use-cases/confirm/confirm-application.use-case.js";
@@ -85,6 +87,12 @@ const redisClient = await createResilientRedisClient({
   entraId: config.AZURE_CLIENT_ID
     ? { clientId: config.AZURE_CLIENT_ID }
     : undefined,
+  onError: (error) => {
+    emitCustomEvent("redis.connection.error", {
+      caller: "RedisClient",
+      data: { message: error instanceof Error ? error.message : String(error) },
+    })("RedisClient");
+  },
   tls: config.REDIS_TLS,
 });
 
@@ -151,7 +159,12 @@ initInpsCedClient(
   },
   getTelemetryClient(),
 );
-const gestioneDomandaCedRepository = createGestioneDomandaCedClient();
+// The INPS client is wrapped by the app-local outbound adapter, which is the
+// only place aware of the INPS payload shapes; the use cases depend on the
+// CardApplicationRepository domain port instead.
+const cardApplicationRepository = createInpsCardApplicationRepository(
+  createGestioneDomandaCedClient(),
+);
 
 const app = Fastify({ logger: true });
 
@@ -186,41 +199,29 @@ app.register(async (authenticatedApp) => {
 
   mountGetApplicationStatusHandler(
     authenticatedApp,
-    makeCheckRequestUseCase(
-      gestioneDomandaCedRepository,
-      supportRecordRepository,
-    ),
+    makeCheckRequestUseCase(cardApplicationRepository, supportRecordRepository),
   );
 
   mountGetDraftDataHandler(
     authenticatedApp,
-    makeGetDraftDataUseCase(
-      supportRecordRepository,
-      gestioneDomandaCedRepository,
-    ),
+    makeGetDraftDataUseCase(supportRecordRepository, cardApplicationRepository),
   );
 
   mountCreateDraftHandler(
     authenticatedApp,
-    makeCreateDraftUseCase(
-      supportRecordRepository,
-      gestioneDomandaCedRepository,
-    ),
+    makeCreateDraftUseCase(supportRecordRepository, cardApplicationRepository),
   );
 
   mountUploadPhotoHandler(
     authenticatedApp,
-    makeUploadPhotoUseCase(
-      supportRecordRepository,
-      gestioneDomandaCedRepository,
-    ),
+    makeUploadPhotoUseCase(supportRecordRepository, cardApplicationRepository),
   );
 
   mountConfirmApplicationHandler(
     authenticatedApp,
     makeConfirmApplicationUseCase(
       supportRecordRepository,
-      gestioneDomandaCedRepository,
+      cardApplicationRepository,
     ),
   );
 });

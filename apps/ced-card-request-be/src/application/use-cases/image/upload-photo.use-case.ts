@@ -1,7 +1,3 @@
-import type {
-  FornisciFotoRequest,
-  GestioneDomandaCedRepository,
-} from "@pagopa/io-core-adapter-inps-ced";
 import type { UseCase } from "@pagopa/io-core-domain";
 import type { ServiceUnavailableError } from "@pagopa/io-core-domain/errors";
 
@@ -10,19 +6,25 @@ import { err, ok } from "neverthrow";
 import { z } from "zod";
 
 import type { ApplicationState } from "../../../domain/entities/application-state.js";
+import type { ApplicationPhoto } from "../../../domain/entities/card-application.js";
 import type {
   StepInfo,
   SupportRecord,
 } from "../../../domain/entities/support-record.js";
+import type { CardApplicationRepository } from "../../../domain/ports/outbound/card-application.repository.js";
 import type { SupportRecordRepository } from "../../../domain/ports/outbound/persistence/support-record.repository.js";
 
+import {
+  FiscalCodeSchema,
+  IdLavorazioneSchema,
+} from "../../../domain/entities/card-application.js";
 import { validateUseCaseInput } from "../utils/validate-use-case-input.js";
 
 export const UploadPhotoInputSchema = z.object({
   clientRequestId: z.uuid(),
-  codiceFiscale: z.string().length(16),
+  codiceFiscale: FiscalCodeSchema,
   fotoCED: z.string().min(1),
-  idLavorazione: z.string().min(1).max(20),
+  idLavorazione: IdLavorazioneSchema,
   informativaFoto: z.boolean(),
 });
 
@@ -38,7 +40,8 @@ export type UploadPhotoUseCase = UseCase<
   GenericError | ServiceUnavailableError | ValidationError
 >;
 
-const toInpsRequest = (input: UploadPhotoInput): FornisciFotoRequest => ({
+/** Validated input carries the client's intent key; the domain object does not. */
+const toApplicationPhoto = (input: UploadPhotoInput): ApplicationPhoto => ({
   codiceFiscale: input.codiceFiscale,
   fotoCED: input.fotoCED,
   idLavorazione: input.idLavorazione,
@@ -124,7 +127,7 @@ const buildCompletedOutcome = (
 export const makeUploadPhotoUseCase =
   (
     supportRecordRepository: SupportRecordRepository,
-    gestioneDomandaCedRepository: GestioneDomandaCedRepository,
+    cardApplicationRepository: CardApplicationRepository,
   ): UploadPhotoUseCase =>
   async (input) => {
     const validated = await validateUseCaseInput(UploadPhotoInputSchema, input);
@@ -180,13 +183,13 @@ export const makeUploadPhotoUseCase =
     if (write1Result.isErr()) return err(write1Result.error);
     const persistedIntent = write1Result.value;
 
-    const inpsResult = await gestioneDomandaCedRepository.fornisciFoto(
-      toInpsRequest(validated.value),
+    const uploadResult = await cardApplicationRepository.uploadPhoto(
+      toApplicationPhoto(validated.value),
       { idempotencyKey: inpsIdempotencyKey },
     );
 
-    if (inpsResult.isErr()) {
-      const error = inpsResult.error;
+    if (uploadResult.isErr()) {
+      const error = uploadResult.error;
 
       if (error instanceof ValidationError) {
         // INPS rejected the photo: mark the step FAILED (best-effort — the
@@ -199,7 +202,7 @@ export const makeUploadPhotoUseCase =
 
       // INPS system error / timeout: leave the step PENDING so a retry
       // (same client key) safely reuses the same INPS Idempotency-Key.
-      return err(new GenericError(`fornisciFoto failed: ${error.message}`));
+      return err(new GenericError(`uploadPhoto failed: ${error.message}`));
     }
 
     // INPS succeeded: Write 2 persists the outcome.

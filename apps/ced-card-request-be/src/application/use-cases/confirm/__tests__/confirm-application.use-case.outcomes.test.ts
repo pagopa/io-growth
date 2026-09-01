@@ -6,7 +6,7 @@ import {
 import { err, ok } from "neverthrow";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { createMockGestioneDomandaCedRepository } from "../../status/__tests__/mocks.js";
+import { createMockCardApplicationRepository } from "../../__tests__/mocks.js";
 import { makeConfirmApplicationUseCase } from "../confirm-application.use-case.js";
 import {
   baseSupportRecord,
@@ -18,21 +18,21 @@ describe("makeConfirmApplicationUseCase — INPS and persistence outcomes", () =
   let supportRecordRepository: ReturnType<
     typeof createMockSupportRecordRepository
   >;
-  let gestioneDomandaCedRepository: ReturnType<
-    typeof createMockGestioneDomandaCedRepository
+  let cardApplicationRepository: ReturnType<
+    typeof createMockCardApplicationRepository
   >;
 
   beforeEach(() => {
     supportRecordRepository = createMockSupportRecordRepository({
       getByCodiceFiscale: vi.fn().mockResolvedValue(ok(baseSupportRecord())),
     });
-    gestioneDomandaCedRepository = createMockGestioneDomandaCedRepository();
+    cardApplicationRepository = createMockCardApplicationRepository();
   });
 
   const useCase = () =>
     makeConfirmApplicationUseCase(
       supportRecordRepository,
-      gestioneDomandaCedRepository,
+      cardApplicationRepository,
     );
 
   describe("INPS outcomes", () => {
@@ -47,8 +47,8 @@ describe("makeConfirmApplicationUseCase — INPS and persistence outcomes", () =
           }),
         ),
       );
-      vi.mocked(gestioneDomandaCedRepository.confermaDomanda).mockResolvedValue(
-        ok({ idLavorazione: "ABC-12345", numDomus: "DOMUS-999" }),
+      vi.mocked(cardApplicationRepository.confirmApplication).mockResolvedValue(
+        ok({ numDomus: "DOMUS-999" }),
       );
 
       await useCase()(mockConfirmApplicationInput);
@@ -63,8 +63,8 @@ describe("makeConfirmApplicationUseCase — INPS and persistence outcomes", () =
     });
 
     it("marks the step FAILED and surfaces the 400 when INPS rejects the confirmation", async () => {
-      vi.mocked(gestioneDomandaCedRepository.confermaDomanda).mockResolvedValue(
-        err(new ValidationError("confermaDomanda rejected")),
+      vi.mocked(cardApplicationRepository.confirmApplication).mockResolvedValue(
+        err(new ValidationError("confirmation rejected")),
       );
 
       const result = await useCase()(mockConfirmApplicationInput);
@@ -84,7 +84,7 @@ describe("makeConfirmApplicationUseCase — INPS and persistence outcomes", () =
     });
 
     it("leaves the step PENDING and returns a GenericError on an INPS system error", async () => {
-      vi.mocked(gestioneDomandaCedRepository.confermaDomanda).mockResolvedValue(
+      vi.mocked(cardApplicationRepository.confirmApplication).mockResolvedValue(
         err(new GenericError("INPS unavailable")),
       );
 
@@ -106,7 +106,7 @@ describe("makeConfirmApplicationUseCase — INPS and persistence outcomes", () =
 
       expect(result).toEqual(err(expect.any(ServiceUnavailableError)));
       expect(
-        gestioneDomandaCedRepository.confermaDomanda,
+        cardApplicationRepository.confirmApplication,
       ).not.toHaveBeenCalled();
     });
 
@@ -119,13 +119,13 @@ describe("makeConfirmApplicationUseCase — INPS and persistence outcomes", () =
 
       expect(result).toEqual(err(expect.any(ServiceUnavailableError)));
       expect(
-        gestioneDomandaCedRepository.confermaDomanda,
+        cardApplicationRepository.confirmApplication,
       ).not.toHaveBeenCalled();
     });
 
     it("returns a GenericError when Write 2 fails after INPS already succeeded", async () => {
-      vi.mocked(gestioneDomandaCedRepository.confermaDomanda).mockResolvedValue(
-        ok({ idLavorazione: "ABC-12345", numDomus: "DOMUS-999" }),
+      vi.mocked(cardApplicationRepository.confirmApplication).mockResolvedValue(
+        ok({ numDomus: "DOMUS-999" }),
       );
       vi.mocked(supportRecordRepository.save)
         .mockImplementationOnce((record) => Promise.resolve(ok(record)))

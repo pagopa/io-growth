@@ -9,10 +9,8 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { SupportRecord } from "../../../../domain/entities/support-record.js";
 
-import {
-  createMockGestioneDomandaCedRepository,
-  createMockSupportRecordRepository,
-} from "../../status/__tests__/mocks.js";
+import { createMockCardApplicationRepository } from "../../__tests__/mocks.js";
+import { createMockSupportRecordRepository } from "../../status/__tests__/mocks.js";
 import { makeGetDraftDataUseCase } from "../get-draft-data.use-case.js";
 
 const FISCAL_CODE = "RSSMRA80A01H501U";
@@ -37,39 +35,34 @@ const supportRecord = (overrides?: Partial<SupportRecord>): SupportRecord => ({
 });
 
 const recoveredData = {
-  anagrafica: {
-    codiceFiscale: FISCAL_CODE,
-    cognome: "Rossi",
-    comuneNascita: "Roma",
-    dataNascita: "1980-01-01T00:00:00Z",
-    dataScadenzaPermessoSoggiorno: null,
-    idCittadinanza: 0 as const,
-    nome: "Mario",
-    sesso: "M",
-    siglaProvinciaNascita: "RM",
-    statoNascita: "ITALIA",
-  },
+  capRec: "00100",
+  civicoRec: "1",
+  codiceFiscale: FISCAL_CODE,
+  cognome: "Rossi",
+  comuneNascita: "Roma",
+  dataNascita: "1980-01-01T00:00:00Z",
+  dataScadenzaPermessoSoggiorno: null,
+  datiAggiuntiviRec: null,
+  descrizioneComuneRec: "Roma",
   fotoCED: null,
-  idLavorazione: ID_LAVORAZIONE,
-  recapito: {
-    cap: "00100",
-    civico: "1",
-    datiAggiuntivi: null,
-    descrizioneComune: "Roma",
-    indirizzo: "Via Roma",
-    pressoCognome: null,
-    pressoDenominazione: null,
-    pressoNome: null,
-    siglaProvincia: "RM",
-  },
+  idCittadinanza: 0 as const,
+  indirizzoRec: "Via Roma",
+  nome: "Mario",
+  pressoCognome: null,
+  pressoDenominazione: null,
+  pressoNome: null,
+  sesso: "M" as const,
+  siglaProvinciaNascita: "RM",
+  siglaProvinciaRec: "RM",
+  statoNascita: "ITALIA",
 };
 
 describe("makeGetDraftDataUseCase", () => {
-  const inpsRepository = createMockGestioneDomandaCedRepository();
+  const cardApplicationRepository = createMockCardApplicationRepository();
   const supportRecordRepository = createMockSupportRecordRepository();
   const useCase = makeGetDraftDataUseCase(
     supportRecordRepository,
-    inpsRepository,
+    cardApplicationRepository,
   );
 
   beforeEach(() => {
@@ -88,17 +81,18 @@ describe("makeGetDraftDataUseCase", () => {
       vi.mocked(supportRecordRepository.getByCodiceFiscale).mockResolvedValue(
         ok(supportRecord({ state })),
       );
-      vi.mocked(inpsRepository.recuperoDatiDomanda).mockResolvedValue(
-        ok({ ...recoveredData, fotoCED }),
-      );
+      vi.mocked(
+        cardApplicationRepository.recoverApplicationDraft,
+      ).mockResolvedValue(ok({ ...recoveredData, fotoCED }));
 
       const result = await useCase({ fiscalCode: FISCAL_CODE });
 
-      expect(inpsRepository.checkDomanda).not.toHaveBeenCalled();
-      expect(inpsRepository.recuperoDatiDomanda).toHaveBeenCalledWith({
-        codiceFiscale: FISCAL_CODE,
-        idLavorazione: ID_LAVORAZIONE,
-      });
+      expect(
+        cardApplicationRepository.checkApplicationState,
+      ).not.toHaveBeenCalled();
+      expect(
+        cardApplicationRepository.recoverApplicationDraft,
+      ).toHaveBeenCalledWith(FISCAL_CODE, ID_LAVORAZIONE);
       expect(result).toEqual(
         ok(
           expect.objectContaining({
@@ -119,7 +113,9 @@ describe("makeGetDraftDataUseCase", () => {
     const result = await useCase({ fiscalCode: FISCAL_CODE });
 
     expect(result).toEqual(err(expect.any(NotFoundError)));
-    expect(inpsRepository.recuperoDatiDomanda).not.toHaveBeenCalled();
+    expect(
+      cardApplicationRepository.recoverApplicationDraft,
+    ).not.toHaveBeenCalled();
   });
 
   it("rejects a reconciled state without an active draft", async () => {
@@ -130,7 +126,9 @@ describe("makeGetDraftDataUseCase", () => {
     const result = await useCase({ fiscalCode: FISCAL_CODE });
 
     expect(result).toEqual(err(expect.any(ValidationError)));
-    expect(inpsRepository.recuperoDatiDomanda).not.toHaveBeenCalled();
+    expect(
+      cardApplicationRepository.recoverApplicationDraft,
+    ).not.toHaveBeenCalled();
   });
 
   it("rejects an active draft record without idLavorazione", async () => {
@@ -141,7 +139,9 @@ describe("makeGetDraftDataUseCase", () => {
     const result = await useCase({ fiscalCode: FISCAL_CODE });
 
     expect(result).toEqual(err(expect.any(GenericError)));
-    expect(inpsRepository.recuperoDatiDomanda).not.toHaveBeenCalled();
+    expect(
+      cardApplicationRepository.recoverApplicationDraft,
+    ).not.toHaveBeenCalled();
   });
 
   it("propagates a CosmosDB read error", async () => {
@@ -155,22 +155,9 @@ describe("makeGetDraftDataUseCase", () => {
   });
 
   it("propagates a recovery error", async () => {
-    vi.mocked(inpsRepository.recuperoDatiDomanda).mockResolvedValue(
-      err(new GenericError("INPS unavailable")),
-    );
-
-    const result = await useCase({ fiscalCode: FISCAL_CODE });
-
-    expect(result).toEqual(err(expect.any(GenericError)));
-  });
-
-  it("rejects an invalid response from INPS", async () => {
-    vi.mocked(inpsRepository.recuperoDatiDomanda).mockResolvedValue(
-      ok({
-        ...recoveredData,
-        anagrafica: { ...recoveredData.anagrafica, nome: null },
-      }),
-    );
+    vi.mocked(
+      cardApplicationRepository.recoverApplicationDraft,
+    ).mockResolvedValue(err(new GenericError("INPS unavailable")));
 
     const result = await useCase({ fiscalCode: FISCAL_CODE });
 

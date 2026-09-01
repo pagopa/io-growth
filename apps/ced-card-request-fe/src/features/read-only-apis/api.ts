@@ -4,7 +4,7 @@ import {
   GetApplicationStatus200,
 } from '../../core/api/generated/model';
 
-export const readOnlyApi = baseApi.injectEndpoints({
+const readOnlyApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     getStatus: builder.query<GetApplicationStatus200, void>({
       query: () => '/status',

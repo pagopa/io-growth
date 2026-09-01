@@ -33,7 +33,7 @@ describe('buildRecoveredDraftState', () => {
         civicoRec: '1',
         cognome: 'Rossi',
         comuneNascita: 'Roma',
-        dataNascita: '1980-01-01T00:00:00Z',
+        dataNascita: '01/01/1980',
         dataScadenzaPermessoSoggiorno: undefined,
         datiAggiuntiviRec: null,
         descrizioneComuneRec: 'Roma',

@@ -3,17 +3,18 @@ import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
 
 import { Box, ButtonBase, Divider, Stack, useTheme } from '@mui/material';
 import { Body } from '@pagopa/io-core-ui';
+import { MIChip } from '@pagopa/mui-italia';
 import type {
   DiscoveryListItemProps,
   OpportunityProps,
   SimpleProps,
 } from './types';
 
-export type { DiscoveryListItemProps, DiscoveryListItemVariant } from './types';
+export type { DiscoveryListItemProps } from './types';
 
 function OpportunityContent({ eyebrow, title, badgeLabel }: OpportunityProps) {
   const theme = useTheme();
-  const { badgeBg, badgeText, neutral500, neutral900 } = theme.palette.common;
+  const { neutral500, neutral900 } = theme.palette.common;
   return (
     <Stack spacing={1} sx={{ minWidth: 0, flex: 1 }}>
       <Stack spacing={0.5} sx={{ minWidth: 0 }}>
@@ -28,25 +29,14 @@ function OpportunityContent({ eyebrow, title, badgeLabel }: OpportunityProps) {
           <Body fontWeight="Semibold">{title}</Body>
         </Box>
       </Stack>
-
-      <Box
-        component="span"
+      <MIChip
+        color="highlight"
+        label={badgeLabel}
+        variant="filled"
         sx={{
-          display: 'inline-flex',
-          alignSelf: 'flex-start',
-          alignItems: 'center',
-          borderRadius: '999px',
-          px: 1,
-          py: 0.6,
-          bgcolor: badgeBg,
-          color: badgeText,
-          fontSize: 12,
-          fontWeight: 700,
-          lineHeight: 1,
+          width: 'fit-content',
         }}
-      >
-        {badgeLabel}
-      </Box>
+      />
     </Stack>
   );
 }

@@ -1,7 +1,3 @@
-import type {
-  GestioneDomandaCedRepository,
-  TipoEsitoCheck,
-} from "@pagopa/io-core-adapter-inps-ced";
 import type { UseCase } from "@pagopa/io-core-domain";
 import type { BaseError } from "@pagopa/io-core-domain/errors";
 
@@ -10,29 +6,31 @@ import { err, ok, type Result } from "neverthrow";
 import { z } from "zod";
 
 import type { ApplicationState } from "../../../domain/entities/application-state.js";
+import type { ApplicationCheckStatus } from "../../../domain/entities/card-application.js";
 import type {
   PendingStep,
   SupportRecord,
   SupportRecordSteps,
 } from "../../../domain/entities/support-record.js";
+import type { CardApplicationRepository } from "../../../domain/ports/outbound/card-application.repository.js";
 import type { SupportRecordRepository } from "../../../domain/ports/outbound/persistence/support-record.repository.js";
 
-import { mapEsitoCheckToState } from "../../../domain/entities/application-state.js";
+import { FiscalCodeSchema } from "../../../domain/entities/card-application.js";
 import { createEmptySupportRecord } from "../../../domain/entities/support-record.js";
 import { validateUseCaseInput } from "../utils/validate-use-case-input.js";
 
 export const CheckRequestInputSchema = z.object({
-  fiscalCode: z.string().length(16),
+  fiscalCode: FiscalCodeSchema,
 });
 
 export type CheckRequestInput = z.infer<typeof CheckRequestInputSchema>;
 
 export interface CheckRequestOutput {
-  /** INPS idLavorazione bound to the application, when one exists. */
+  /** Upstream idLavorazione bound to the application, when one exists. */
   readonly idLavorazione?: null | string;
-  /** INPS-assigned document number, present when state is ACQUIRED. */
+  /** Upstream-assigned document number, present when state is ACQUIRED. */
   readonly numDomus?: string;
-  /** Current stable application state, mapped from the INPS milestone. */
+  /** Current stable application state, mapped from the upstream milestone. */
   readonly state: ApplicationState;
 }
 
@@ -43,13 +41,14 @@ export type CheckRequestUseCase = UseCase<
 >;
 
 /**
- * Check request flow (INPS CheckDomanda).
+ * Check request flow.
  *
- * Calls INPS `CheckDomanda` for the citizen's fiscal code, then maps the
- * returned `esitoCheck` milestone to the BFF `ApplicationState` used by the
- * frontend to direct the user flow. The fiscal code identity is threaded to
- * INPS via the ModI signed-fetch identity headers (populated from the session
- * in the composition root).
+ * Asks the {@link CardApplicationRepository} port for the citizen's current
+ * application milestone; the outbound adapter owns the translation of the
+ * upstream response into the `ApplicationState` used by the frontend to direct
+ * the user flow. The fiscal code identity is threaded to INPS via the ModI
+ * signed-fetch identity headers (populated from the session in the composition
+ * root).
  *
  * The INPS milestone is reconciled into the local CosmosDB support record.
  * This repairs stale or missing records after timeouts and process restarts,
@@ -66,10 +65,10 @@ const pendingStepKey = (pendingStep: PendingStep): keyof SupportRecordSteps => {
   }
 };
 
-const ACTIVE_MILESTONE_RANK: Partial<Record<TipoEsitoCheck, number>> = {
-  20: 1,
-  30: 2,
-  40: 3,
+const ACTIVE_MILESTONE_RANK: Partial<Record<ApplicationCheckStatus, number>> = {
+  ACQUIRED: 3,
+  DRAFT: 1,
+  PHOTO_ATTACHED: 2,
 };
 
 const REQUIRED_MILESTONE_RANK_BY_STEP: Record<PendingStep, number> = {
@@ -80,14 +79,14 @@ const REQUIRED_MILESTONE_RANK_BY_STEP: Record<PendingStep, number> = {
 
 const hasInpsReachedOrPassedStep = (
   pendingStep: PendingStep,
-  esitoCheck: TipoEsitoCheck,
+  applicationStatus: ApplicationCheckStatus,
 ): boolean =>
-  (ACTIVE_MILESTONE_RANK[esitoCheck] ?? 0) >=
+  (ACTIVE_MILESTONE_RANK[applicationStatus] ?? 0) >=
   REQUIRED_MILESTONE_RANK_BY_STEP[pendingStep];
 
 const reconcileActiveRecord = (
   existing: SupportRecord,
-  esitoCheck: TipoEsitoCheck,
+  applicationStatus: ApplicationCheckStatus,
   idLavorazione: string,
   state: SupportRecord["state"],
   now: string,
@@ -97,7 +96,10 @@ const reconcileActiveRecord = (
 
   // A reached milestone completes the pending step. Otherwise the step stays
   // PENDING but pendingStep is released, allowing a safe retry with the same key.
-  if (pendingStep && hasInpsReachedOrPassedStep(pendingStep, esitoCheck)) {
+  if (
+    pendingStep &&
+    hasInpsReachedOrPassedStep(pendingStep, applicationStatus)
+  ) {
     const stepKey = pendingStepKey(pendingStep);
     const step = steps[stepKey];
     if (step) {
@@ -113,7 +115,7 @@ const reconcileActiveRecord = (
   return {
     ...existing,
     idLavorazione,
-    lastReconciliation: { at: now, esitoCheck },
+    lastReconciliation: { applicationStatus, at: now },
     numDomus:
       state === "ACQUIRED" && existing.idLavorazione === idLavorazione
         ? existing.numDomus
@@ -127,13 +129,13 @@ const reconcileActiveRecord = (
 
 const reconcileNoActiveDraft = (
   existing: SupportRecord,
-  esitoCheck: TipoEsitoCheck,
+  applicationStatus: ApplicationCheckStatus,
   previousIdLavorazione: null | string,
   now: string,
 ): SupportRecord => ({
   ...existing,
   idLavorazione: null,
-  lastReconciliation: { at: now, esitoCheck },
+  lastReconciliation: { applicationStatus, at: now },
   numDomus: null,
   pendingStep: null,
   previousIdLavorazione,
@@ -142,28 +144,26 @@ const reconcileNoActiveDraft = (
   updatedAt: now,
 });
 
-interface CheckDomandaResult {
-  readonly esitoCheck: TipoEsitoCheck;
+interface ApplicationStateResult {
   readonly idLavorazione?: null | string;
+  readonly status: ApplicationCheckStatus;
 }
 
 const buildReconciledRecord = (
   codiceFiscale: string,
   existing: SupportRecord | undefined,
-  response: CheckDomandaResult,
+  response: ApplicationStateResult,
   state: SupportRecord["state"],
   now: string,
 ): Result<SupportRecord | undefined, GenericError> => {
-  if (response.esitoCheck === 10 && !existing) {
+  if (response.status === "NO_APPLICATION" && !existing) {
     return ok(undefined);
   }
 
-  // 10 and 50 are outside the active 20 -> 30 -> 40 flow: 10 means no application,
-  // while 50 retains only the closed application's identifier for history.
-  if (response.esitoCheck === 10 || response.esitoCheck === 50) {
+  if (response.status === "NO_APPLICATION" || response.status === "CLOSED") {
     const base = existing ?? createEmptySupportRecord(codiceFiscale, now);
     const previousIdLavorazione =
-      response.esitoCheck === 50
+      response.status === "CLOSED"
         ? (existing?.idLavorazione ??
           response.idLavorazione ??
           existing?.previousIdLavorazione ??
@@ -171,12 +171,7 @@ const buildReconciledRecord = (
         : (existing?.previousIdLavorazione ?? null);
 
     return ok(
-      reconcileNoActiveDraft(
-        base,
-        response.esitoCheck,
-        previousIdLavorazione,
-        now,
-      ),
+      reconcileNoActiveDraft(base, response.status, previousIdLavorazione, now),
     );
   }
 
@@ -192,7 +187,7 @@ const buildReconciledRecord = (
   return ok(
     reconcileActiveRecord(
       base,
-      response.esitoCheck,
+      response.status,
       response.idLavorazione,
       state,
       now,
@@ -202,7 +197,7 @@ const buildReconciledRecord = (
 
 export const makeCheckRequestUseCase =
   (
-    gestioneDomandaCedRepository: GestioneDomandaCedRepository,
+    cardApplicationRepository: CardApplicationRepository,
     supportRecordRepository: SupportRecordRepository,
   ): CheckRequestUseCase =>
   async (input) => {
@@ -212,24 +207,11 @@ export const makeCheckRequestUseCase =
     );
     if (validated.isErr()) return err(validated.error);
 
-    const checkResult = await gestioneDomandaCedRepository.checkDomanda({
-      codiceFiscale: validated.value.fiscalCode,
-    });
+    const checkResult = await cardApplicationRepository.checkApplicationState(
+      validated.value.fiscalCode,
+    );
     if (checkResult.isErr()) return err(checkResult.error);
-    const response = checkResult.value;
-
-    if (response.esitoCheck === undefined) {
-      return err(new GenericError("INPS CheckDomanda returned no esitoCheck"));
-    }
-
-    const state = mapEsitoCheckToState(response.esitoCheck);
-    if (!state) {
-      return err(
-        new GenericError(
-          `INPS CheckDomanda returned an unmapped esitoCheck: ${String(response.esitoCheck)}`,
-        ),
-      );
-    }
+    const { idLavorazione, state, status } = checkResult.value;
 
     const recordResult = await supportRecordRepository.getByCodiceFiscale(
       validated.value.fiscalCode,
@@ -240,10 +222,7 @@ export const makeCheckRequestUseCase =
     const reconciliationResult = buildReconciledRecord(
       validated.value.fiscalCode,
       recordResult.value,
-      {
-        esitoCheck: response.esitoCheck,
-        idLavorazione: response.idLavorazione,
-      },
+      { idLavorazione, status },
       state,
       now,
     );
@@ -257,7 +236,7 @@ export const makeCheckRequestUseCase =
     }
 
     const output: CheckRequestOutput = {
-      idLavorazione: response.idLavorazione,
+      idLavorazione,
       state,
       ...(state === "ACQUIRED" && reconciled?.numDomus
         ? { numDomus: reconciled.numDomus }

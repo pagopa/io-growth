@@ -1,6 +1,6 @@
 {
   "name": "ced-card-request-be",
-  "version": "0.2.3",
+  "version": "0.2.7",
   "private": true,
   "type": "module",
   "main": "dist/main.js",
@@ -14,6 +14,8 @@
     "typecheck": "tsc --noEmit",
     "lint": "pnpm lint:check --fix",
     "lint:check": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
     "start": "node dist/main.js",
     "run:dev": "tsx --env-file=.env --watch src/main.ts",
     "test": "vitest run",
@@ -43,6 +45,7 @@
     "@vitest/coverage-v8": "catalog:",
     "eslint": "catalog:",
     "orval": "catalog:",
+    "prettier": "catalog:",
     "tsx": "^4.19.4",
     "typescript": "catalog:",
     "vitest": "catalog:"

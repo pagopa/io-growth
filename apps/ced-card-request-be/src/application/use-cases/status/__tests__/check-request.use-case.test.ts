@@ -1,4 +1,3 @@
-import { TipoEsitoCheck } from "@pagopa/io-core-adapter-inps-ced";
 import {
   GenericError,
   ServiceUnavailableError,
@@ -12,11 +11,9 @@ import type {
   SupportRecord,
 } from "../../../../domain/entities/support-record.js";
 
+import { createMockCardApplicationRepository } from "../../__tests__/mocks.js";
 import { makeCheckRequestUseCase } from "../check-request.use-case.js";
-import {
-  createMockGestioneDomandaCedRepository,
-  createMockSupportRecordRepository,
-} from "./mocks.js";
+import { createMockSupportRecordRepository } from "./mocks.js";
 
 const FISCAL_CODE = "RSSMRA80A01H501U";
 const MOCK_ID_LAVORAZIONE = "12345678901234567890";
@@ -46,24 +43,34 @@ const baseRecord = (overrides?: Partial<SupportRecord>): SupportRecord => ({
   ...overrides,
 });
 
+// eslint-disable-next-line max-lines-per-function
 describe("makeCheckRequestUseCase", () => {
-  const checkDomandaRepo = createMockGestioneDomandaCedRepository();
-  const supportRecordRepo = createMockSupportRecordRepository();
-  const useCase = makeCheckRequestUseCase(checkDomandaRepo, supportRecordRepo);
+  const cardApplicationRepository = createMockCardApplicationRepository();
+  const supportRecordRepository = createMockSupportRecordRepository();
+  const useCase = makeCheckRequestUseCase(
+    cardApplicationRepository,
+    supportRecordRepository,
+  );
 
   beforeEach(() => {
     vi.clearAllMocks();
-    vi.mocked(supportRecordRepo.getByCodiceFiscale).mockResolvedValue(
+    vi.mocked(supportRecordRepository.getByCodiceFiscale).mockResolvedValue(
       ok(undefined),
     );
-    vi.mocked(supportRecordRepo.save).mockImplementation((record) =>
+    vi.mocked(supportRecordRepository.save).mockImplementation((record) =>
       Promise.resolve(ok(record)),
     );
   });
 
-  it("returns READY_FOR_NEW_DRAFT without creating a record when INPS has no application", async () => {
-    vi.mocked(checkDomandaRepo.checkDomanda).mockResolvedValue(
-      ok({ esitoCheck: TipoEsitoCheck.NUMBER_10, idLavorazione: null }),
+  it("returns READY_FOR_NEW_DRAFT without creating a record when no application exists", async () => {
+    vi.mocked(
+      cardApplicationRepository.checkApplicationState,
+    ).mockResolvedValue(
+      ok({
+        idLavorazione: null,
+        state: "READY_FOR_NEW_DRAFT",
+        status: "NO_APPLICATION",
+      }),
     );
 
     const result = await useCase({ fiscalCode: FISCAL_CODE });
@@ -71,17 +78,17 @@ describe("makeCheckRequestUseCase", () => {
     expect(result).toEqual(
       ok({ idLavorazione: null, state: "READY_FOR_NEW_DRAFT" }),
     );
-    expect(supportRecordRepo.getByCodiceFiscale).toHaveBeenCalledWith(
-      FISCAL_CODE,
-    );
-    expect(supportRecordRepo.save).not.toHaveBeenCalled();
+    expect(supportRecordRepository.save).not.toHaveBeenCalled();
   });
 
-  it("recreates a missing support record from esitoCheck 20", async () => {
-    vi.mocked(checkDomandaRepo.checkDomanda).mockResolvedValue(
+  it("recreates a missing support record for an active draft", async () => {
+    vi.mocked(
+      cardApplicationRepository.checkApplicationState,
+    ).mockResolvedValue(
       ok({
-        esitoCheck: TipoEsitoCheck.NUMBER_20,
         idLavorazione: MOCK_ID_LAVORAZIONE,
+        state: "READY_FOR_PHOTO_UPLOAD",
+        status: "DRAFT",
       }),
     );
 
@@ -93,28 +100,31 @@ describe("makeCheckRequestUseCase", () => {
         state: "READY_FOR_PHOTO_UPLOAD",
       }),
     );
-    expect(supportRecordRepo.save).toHaveBeenCalledWith(
+    expect(supportRecordRepository.save).toHaveBeenCalledWith(
       expect.objectContaining({
         codiceFiscale: FISCAL_CODE,
         idLavorazione: MOCK_ID_LAVORAZIONE,
         lastReconciliation: {
+          applicationStatus: "DRAFT",
           at: expect.any(String),
-          esitoCheck: TipoEsitoCheck.NUMBER_20,
         },
         state: "READY_FOR_PHOTO_UPLOAD",
       }),
     );
   });
 
-  it("marks a pending photo as completed when INPS reports esitoCheck 30", async () => {
+  it("completes a pending photo when the upstream milestone has advanced", async () => {
     const photo = pendingStep("photo-request");
-    vi.mocked(checkDomandaRepo.checkDomanda).mockResolvedValue(
+    vi.mocked(
+      cardApplicationRepository.checkApplicationState,
+    ).mockResolvedValue(
       ok({
-        esitoCheck: TipoEsitoCheck.NUMBER_30,
         idLavorazione: MOCK_ID_LAVORAZIONE,
+        state: "READY_FOR_DOCUMENTS_UPLOAD",
+        status: "PHOTO_ATTACHED",
       }),
     );
-    vi.mocked(supportRecordRepo.getByCodiceFiscale).mockResolvedValue(
+    vi.mocked(supportRecordRepository.getByCodiceFiscale).mockResolvedValue(
       ok(
         baseRecord({
           pendingStep: "PHOTO",
@@ -131,7 +141,7 @@ describe("makeCheckRequestUseCase", () => {
         state: "READY_FOR_DOCUMENTS_UPLOAD",
       }),
     );
-    expect(supportRecordRepo.save).toHaveBeenCalledWith(
+    expect(supportRecordRepository.save).toHaveBeenCalledWith(
       expect.objectContaining({
         pendingStep: null,
         state: "READY_FOR_DOCUMENTS_UPLOAD",
@@ -148,15 +158,18 @@ describe("makeCheckRequestUseCase", () => {
     );
   });
 
-  it("keeps an unreflected photo step retryable when INPS still reports esitoCheck 20", async () => {
+  it("keeps an unreflected photo step retryable", async () => {
     const photo = pendingStep("photo-request");
-    vi.mocked(checkDomandaRepo.checkDomanda).mockResolvedValue(
+    vi.mocked(
+      cardApplicationRepository.checkApplicationState,
+    ).mockResolvedValue(
       ok({
-        esitoCheck: TipoEsitoCheck.NUMBER_20,
         idLavorazione: MOCK_ID_LAVORAZIONE,
+        state: "READY_FOR_PHOTO_UPLOAD",
+        status: "DRAFT",
       }),
     );
-    vi.mocked(supportRecordRepo.getByCodiceFiscale).mockResolvedValue(
+    vi.mocked(supportRecordRepository.getByCodiceFiscale).mockResolvedValue(
       ok(
         baseRecord({
           pendingStep: "PHOTO",
@@ -167,7 +180,7 @@ describe("makeCheckRequestUseCase", () => {
 
     await useCase({ fiscalCode: FISCAL_CODE });
 
-    expect(supportRecordRepo.save).toHaveBeenCalledWith(
+    expect(supportRecordRepository.save).toHaveBeenCalledWith(
       expect.objectContaining({
         pendingStep: null,
         steps: { confirm: null, draft: null, photo },
@@ -175,24 +188,28 @@ describe("makeCheckRequestUseCase", () => {
     );
   });
 
-  it("clears the active flow and preserves history for esitoCheck 50", async () => {
-    const existing = baseRecord({
-      numDomus: "OLD-DOMUS",
-      pendingStep: "PHOTO",
-      steps: {
-        confirm: null,
-        draft: pendingStep("draft-request"),
-        photo: pendingStep("photo-request"),
-      },
-    });
-    vi.mocked(checkDomandaRepo.checkDomanda).mockResolvedValue(
+  it("clears the active flow and preserves history for a closed application", async () => {
+    vi.mocked(
+      cardApplicationRepository.checkApplicationState,
+    ).mockResolvedValue(
       ok({
-        esitoCheck: TipoEsitoCheck.NUMBER_50,
         idLavorazione: MOCK_ID_LAVORAZIONE,
+        state: "READY_FOR_NEW_DRAFT",
+        status: "CLOSED",
       }),
     );
-    vi.mocked(supportRecordRepo.getByCodiceFiscale).mockResolvedValue(
-      ok(existing),
+    vi.mocked(supportRecordRepository.getByCodiceFiscale).mockResolvedValue(
+      ok(
+        baseRecord({
+          numDomus: "OLD-DOMUS",
+          pendingStep: "PHOTO",
+          steps: {
+            confirm: null,
+            draft: pendingStep("draft-request"),
+            photo: pendingStep("photo-request"),
+          },
+        }),
+      ),
     );
 
     const result = await useCase({ fiscalCode: FISCAL_CODE });
@@ -203,7 +220,7 @@ describe("makeCheckRequestUseCase", () => {
         state: "READY_FOR_NEW_DRAFT",
       }),
     );
-    expect(supportRecordRepo.save).toHaveBeenCalledWith(
+    expect(supportRecordRepository.save).toHaveBeenCalledWith(
       expect.objectContaining({
         idLavorazione: null,
         numDomus: null,
@@ -215,14 +232,17 @@ describe("makeCheckRequestUseCase", () => {
     );
   });
 
-  it("returns numDomus from the reconciled ACQUIRED record", async () => {
-    vi.mocked(checkDomandaRepo.checkDomanda).mockResolvedValue(
+  it("returns numDomus from the reconciled acquired record", async () => {
+    vi.mocked(
+      cardApplicationRepository.checkApplicationState,
+    ).mockResolvedValue(
       ok({
-        esitoCheck: TipoEsitoCheck.NUMBER_40,
         idLavorazione: MOCK_ID_LAVORAZIONE,
+        state: "ACQUIRED",
+        status: "ACQUIRED",
       }),
     );
-    vi.mocked(supportRecordRepo.getByCodiceFiscale).mockResolvedValue(
+    vi.mocked(supportRecordRepository.getByCodiceFiscale).mockResolvedValue(
       ok(baseRecord({ numDomus: "DOMUS-001" })),
     );
 
@@ -236,72 +256,54 @@ describe("makeCheckRequestUseCase", () => {
       }),
     );
   });
-});
-
-describe("makeCheckRequestUseCase error handling", () => {
-  const checkDomandaRepo = createMockGestioneDomandaCedRepository();
-  const supportRecordRepo = createMockSupportRecordRepository();
-  const useCase = makeCheckRequestUseCase(checkDomandaRepo, supportRecordRepo);
-
-  beforeEach(() => {
-    vi.clearAllMocks();
-    vi.mocked(supportRecordRepo.getByCodiceFiscale).mockResolvedValue(
-      ok(undefined),
-    );
-    vi.mocked(supportRecordRepo.save).mockImplementation((record) =>
-      Promise.resolve(ok(record)),
-    );
-  });
 
   it("returns a ValidationError for an invalid fiscal code", async () => {
     const result = await useCase({ fiscalCode: "short" });
 
-    expect(checkDomandaRepo.checkDomanda).not.toHaveBeenCalled();
+    expect(
+      cardApplicationRepository.checkApplicationState,
+    ).not.toHaveBeenCalled();
     expect(result).toEqual(err(expect.any(ValidationError)));
   });
 
-  it("propagates an INPS error", async () => {
-    vi.mocked(checkDomandaRepo.checkDomanda).mockResolvedValue(
-      err(new GenericError("INPS unavailable")),
-    );
+  it("propagates the card application repository error", async () => {
+    vi.mocked(
+      cardApplicationRepository.checkApplicationState,
+    ).mockResolvedValue(err(new GenericError("INPS unavailable")));
 
     const result = await useCase({ fiscalCode: FISCAL_CODE });
 
     expect(result).toEqual(err(expect.any(GenericError)));
   });
 
-  it("returns a GenericError when esitoCheck is missing", async () => {
-    vi.mocked(checkDomandaRepo.checkDomanda).mockResolvedValue(
-      ok({ idLavorazione: null }),
-    );
-
-    const result = await useCase({ fiscalCode: FISCAL_CODE });
-
-    expect(result).toEqual(err(expect.any(GenericError)));
-  });
-
-  it("returns a GenericError when an active state has no idLavorazione", async () => {
-    vi.mocked(checkDomandaRepo.checkDomanda).mockResolvedValue(
+  it("rejects an active state without idLavorazione", async () => {
+    vi.mocked(
+      cardApplicationRepository.checkApplicationState,
+    ).mockResolvedValue(
       ok({
-        esitoCheck: TipoEsitoCheck.NUMBER_20,
         idLavorazione: null,
+        state: "READY_FOR_PHOTO_UPLOAD",
+        status: "DRAFT",
       }),
     );
 
     const result = await useCase({ fiscalCode: FISCAL_CODE });
 
     expect(result).toEqual(err(expect.any(GenericError)));
-    expect(supportRecordRepo.save).not.toHaveBeenCalled();
+    expect(supportRecordRepository.save).not.toHaveBeenCalled();
   });
 
   it("propagates a Cosmos read error", async () => {
-    vi.mocked(checkDomandaRepo.checkDomanda).mockResolvedValue(
+    vi.mocked(
+      cardApplicationRepository.checkApplicationState,
+    ).mockResolvedValue(
       ok({
-        esitoCheck: TipoEsitoCheck.NUMBER_20,
         idLavorazione: MOCK_ID_LAVORAZIONE,
+        state: "READY_FOR_PHOTO_UPLOAD",
+        status: "DRAFT",
       }),
     );
-    vi.mocked(supportRecordRepo.getByCodiceFiscale).mockResolvedValue(
+    vi.mocked(supportRecordRepository.getByCodiceFiscale).mockResolvedValue(
       err(new ServiceUnavailableError("Cosmos read failed")),
     );
 
@@ -311,13 +313,16 @@ describe("makeCheckRequestUseCase error handling", () => {
   });
 
   it("propagates a Cosmos reconciliation write error", async () => {
-    vi.mocked(checkDomandaRepo.checkDomanda).mockResolvedValue(
+    vi.mocked(
+      cardApplicationRepository.checkApplicationState,
+    ).mockResolvedValue(
       ok({
-        esitoCheck: TipoEsitoCheck.NUMBER_20,
         idLavorazione: MOCK_ID_LAVORAZIONE,
+        state: "READY_FOR_PHOTO_UPLOAD",
+        status: "DRAFT",
       }),
     );
-    vi.mocked(supportRecordRepo.save).mockResolvedValue(
+    vi.mocked(supportRecordRepository.save).mockResolvedValue(
       err(new ServiceUnavailableError("Cosmos write failed")),
     );
 

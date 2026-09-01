@@ -416,8 +416,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
         "404":
-          description:
-            No reconciled support record or draft associated with the session.
+          description: No reconciled support record or draft associated with the session.
           content:
             application/json:
               schema:

@@ -29,6 +29,7 @@ import {
 } from "@pagopa/io-core-adapter-modi";
 import { createResilientRedisClient } from "@pagopa/io-core-adapter-redis";
 import {
+  emitCustomEvent,
   getTelemetryClient,
   tracingPlugin,
 } from "@pagopa/io-core-adapter-tracing";
@@ -84,6 +85,12 @@ const redisClient = await createResilientRedisClient({
   entraId: config.AZURE_CLIENT_ID
     ? { clientId: config.AZURE_CLIENT_ID }
     : undefined,
+  onError: (error) => {
+    emitCustomEvent("redis.connection.error", {
+      caller: "RedisClient",
+      data: { message: error instanceof Error ? error.message : String(error) },
+    })("RedisClient");
+  },
   tls: config.REDIS_TLS,
 });
 

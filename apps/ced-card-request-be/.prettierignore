@@ -1,0 +1,7 @@
+# Ignore built files
+dist
+
+# Ignore coverage reports
+**/coverage/**
+
+src/adapters/inbound/fastify/contracts

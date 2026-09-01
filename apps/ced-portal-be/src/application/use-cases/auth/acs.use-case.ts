@@ -136,10 +136,14 @@ export const makeAcsUseCase =
     return resolveOperator
       .andThen((operator) =>
         new ResultAsync(
-          sessionRepository.createSession(sessionToken, {
-            ...sessionData,
-            operatorId: operator?.id,
-          }),
+          sessionRepository.createSession(
+            sessionToken,
+            {
+              ...sessionData,
+              operatorId: operator?.id,
+            },
+            28800,
+          ),
         ).andThen(
           () =>
             new ResultAsync(

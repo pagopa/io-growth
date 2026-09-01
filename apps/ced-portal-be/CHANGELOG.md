@@ -1,5 +1,11 @@
 # ced-portal-be
 
+## 0.3.1
+
+### Patch Changes
+
+- 5ca837b: added ttl to session
+
 ## 0.3.0
 
 ### Minor Changes

@@ -473,21 +473,16 @@ const createAppTheme = () =>
             right: 'calc(50% + 16px)',
             alignSelf: 'flex-start',
             mt: '8px',
+            '&.Mui-active, &.Mui-completed': {
+              '& .MuiStepConnector-line': {
+                borderColor: muiItaliaTheme.palette.common.primaryButton,
+              },
+            },
           },
           line: {
             borderTopWidth: 4,
             borderRadius: 2,
             borderColor: '#D2D6E3',
-          },
-          active: {
-            '& .MuiStepConnector-line': {
-              borderColor: muiItaliaTheme.palette.common.primaryButton,
-            },
-          },
-          completed: {
-            '& .MuiStepConnector-line': {
-              borderColor: muiItaliaTheme.palette.common.primaryButton,
-            },
           },
         },
       },

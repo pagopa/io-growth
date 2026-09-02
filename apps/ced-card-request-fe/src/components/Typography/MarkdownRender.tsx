@@ -64,9 +64,9 @@ const renderInline = (text: string): React.ReactNode[] => {
       nodes.push(<em key={match.index}>{match[6]}</em>);
     } else if (match[7]) {
       nodes.push(
-        <Body key={match.index} fontSize="14px">
+        <Box component="span" key={match.index} sx={{ fontSize: '14px' }}>
           {renderInline(match[7])}
-        </Body>,
+        </Box>,
       );
     }
 

@@ -12,6 +12,7 @@ export const createMockCardApplicationRepository = (
   checkApplicationState: vi.fn(),
   confirmApplication: vi.fn(),
   createApplicationDraft: vi.fn(),
+  recoverApplicationDraft: vi.fn(),
   uploadPhoto: vi.fn(),
   ...overrides,
 });

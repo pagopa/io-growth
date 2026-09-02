@@ -30,6 +30,6 @@ const requestFormSlice = createSlice({
   },
 });
 
-export const { setField } = requestFormSlice.actions;
+export const { resetForm, setField, setForm } = requestFormSlice.actions;
 
 export const requestFormReducer = requestFormSlice.reducer;

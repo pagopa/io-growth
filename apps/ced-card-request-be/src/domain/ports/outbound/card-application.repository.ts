@@ -8,6 +8,7 @@ import type {
   ApplicationDraftCreated,
   ApplicationPhoto,
   ApplicationStateCheck,
+  RecoveredApplicationDraft,
 } from "../../entities/card-application.js";
 
 /**
@@ -33,6 +34,11 @@ export interface CardApplicationRepository {
     draft: ApplicationDraft,
     opts: IdempotencyOptions,
   ) => Promise<Result<ApplicationDraftCreated, BaseError>>;
+
+  readonly recoverApplicationDraft: (
+    codiceFiscale: string,
+    idLavorazione: string,
+  ) => Promise<Result<RecoveredApplicationDraft, BaseError>>;
 
   readonly uploadPhoto: (
     photo: ApplicationPhoto,

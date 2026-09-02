@@ -40,6 +40,7 @@ import {
   mountConfirmApplicationHandler,
   mountCreateDraftHandler,
   mountGetApplicationStatusHandler,
+  mountGetDraftDataHandler,
   mountInfoReadinessHandler,
   mountInfoStartupHandler,
   mountUploadPhotoHandler,
@@ -50,6 +51,7 @@ import { createInpsCardApplicationRepository } from "./adapters/outbound/inps/in
 import { createRedisHealthCheckRepository } from "./adapters/outbound/redis/redis-health-check.repository.js";
 import { createRedisSessionRepository } from "./adapters/outbound/redis/redis-session.repository.js";
 import { makeConfirmApplicationUseCase } from "./application/use-cases/confirm/confirm-application.use-case.js";
+import { makeGetDraftDataUseCase } from "./application/use-cases/draft/get-draft-data.use-case.js";
 import { makeGetInfoReadinessUseCase } from "./application/use-cases/health/info-readiness.use-case.js";
 import { makeGetInfoStartupUseCase } from "./application/use-cases/health/info-startup.use-case.js";
 import { makeUploadPhotoUseCase } from "./application/use-cases/image/upload-photo.use-case.js";
@@ -198,6 +200,11 @@ app.register(async (authenticatedApp) => {
   mountGetApplicationStatusHandler(
     authenticatedApp,
     makeCheckRequestUseCase(cardApplicationRepository, supportRecordRepository),
+  );
+
+  mountGetDraftDataHandler(
+    authenticatedApp,
+    makeGetDraftDataUseCase(supportRecordRepository, cardApplicationRepository),
   );
 
   mountCreateDraftHandler(

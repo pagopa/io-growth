@@ -5,12 +5,14 @@ import type {
   FornisciFotoRequest,
   NuovaDomandaInBozzaRequest,
   NuovaDomandaInBozzaResponse,
+  RecuperoDatiDomandaResponse,
 } from "@pagopa/io-core-adapter-inps-ced";
 import type { Result } from "neverthrow";
 
 import { TipoEsitoCheck } from "@pagopa/io-core-adapter-inps-ced";
 import { GenericError } from "@pagopa/io-core-domain/errors";
 import { err, ok } from "neverthrow";
+import { z } from "zod";
 
 import type { MilestoneState } from "../../../domain/entities/application-state.js";
 import type {
@@ -20,7 +22,10 @@ import type {
   ApplicationDraftCreated,
   ApplicationPhoto,
   ApplicationStateCheck,
+  RecoveredApplicationDraft,
 } from "../../../domain/entities/card-application.js";
+
+import { RecoveredApplicationDraftSchema } from "../../../domain/entities/card-application.js";
 
 /**
  * Maps the INPS `esitoCheck` milestone returned by CheckDomanda to the BFF
@@ -70,7 +75,70 @@ export const toApplicationStateCheck = (
     );
   }
 
-  return ok({ idLavorazione: response.idLavorazione ?? null, state });
+  const status = (() => {
+    switch (response.esitoCheck) {
+      case TipoEsitoCheck.NUMBER_10:
+        return "NO_APPLICATION" as const;
+      case TipoEsitoCheck.NUMBER_20:
+        return "DRAFT" as const;
+      case TipoEsitoCheck.NUMBER_30:
+        return "PHOTO_ATTACHED" as const;
+      case TipoEsitoCheck.NUMBER_40:
+        return "ACQUIRED" as const;
+      case TipoEsitoCheck.NUMBER_50:
+        return "CLOSED" as const;
+    }
+  })();
+
+  if (!status) {
+    return err(
+      new GenericError(
+        `INPS CheckDomanda returned an unmapped esitoCheck: ${String(response.esitoCheck)}`,
+      ),
+    );
+  }
+
+  return ok({
+    idLavorazione: response.idLavorazione ?? null,
+    state,
+    status,
+  });
+};
+
+export const toRecoveredApplicationDraft = (
+  response: RecuperoDatiDomandaResponse,
+): Result<RecoveredApplicationDraft, GenericError> => {
+  const parsed = RecoveredApplicationDraftSchema.safeParse({
+    capRec: response.recapito.cap,
+    civicoRec: response.recapito.civico ?? null,
+    codiceFiscale: response.anagrafica.codiceFiscale,
+    cognome: response.anagrafica.cognome,
+    comuneNascita: response.anagrafica.comuneNascita ?? null,
+    dataNascita: response.anagrafica.dataNascita,
+    dataScadenzaPermessoSoggiorno:
+      response.anagrafica.dataScadenzaPermessoSoggiorno ?? null,
+    datiAggiuntiviRec: response.recapito.datiAggiuntivi ?? null,
+    descrizioneComuneRec: response.recapito.descrizioneComune,
+    fotoCED: response.fotoCED ?? null,
+    idCittadinanza: response.anagrafica.idCittadinanza,
+    indirizzoRec: response.recapito.indirizzo,
+    nome: response.anagrafica.nome,
+    pressoCognome: response.recapito.pressoCognome ?? null,
+    pressoDenominazione: response.recapito.pressoDenominazione ?? null,
+    pressoNome: response.recapito.pressoNome ?? null,
+    sesso: response.anagrafica.sesso,
+    siglaProvinciaNascita: response.anagrafica.siglaProvinciaNascita ?? null,
+    siglaProvinciaRec: response.recapito.siglaProvincia,
+    statoNascita: response.anagrafica.statoNascita,
+  });
+
+  return parsed.success
+    ? ok(parsed.data)
+    : err(
+        new GenericError(
+          `INPS RecuperoDatiDomanda returned invalid data: ${z.prettifyError(parsed.error)}`,
+        ),
+      );
 };
 
 export const toApplicationConfirmed = (

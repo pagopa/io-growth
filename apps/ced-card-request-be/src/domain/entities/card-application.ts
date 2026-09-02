@@ -83,11 +83,30 @@ export const ApplicationConfirmedSchema = z.object({
   numDomus: z.string().nullable(),
 });
 
+export const ApplicationCheckStatusSchema = z.enum([
+  "NO_APPLICATION",
+  "DRAFT",
+  "PHOTO_ATTACHED",
+  "ACQUIRED",
+  "CLOSED",
+]);
+
 /** Current upstream milestone for a citizen's application. */
 export const ApplicationStateCheckSchema = z.object({
   idLavorazione: z.string().nullable(),
   state: z.enum(MILESTONE_STATES),
+  status: ApplicationCheckStatusSchema,
 });
+
+export const RecoveredApplicationDraftSchema = ApplicationDraftSchema.omit({
+  informativaPrivacy: true,
+}).extend({
+  fotoCED: z.string().nullable(),
+});
+
+export type ApplicationCheckStatus = z.infer<
+  typeof ApplicationCheckStatusSchema
+>;
 
 export type ApplicationConfirmation = z.infer<
   typeof ApplicationConfirmationSchema
@@ -108,3 +127,7 @@ export type ApplicationStateCheck = z.infer<typeof ApplicationStateCheckSchema>;
 export type Citizenship = z.infer<typeof CitizenshipSchema>;
 
 export type DocumentationType = z.infer<typeof DocumentationTypeSchema>;
+
+export type RecoveredApplicationDraft = z.infer<
+  typeof RecoveredApplicationDraftSchema
+>;

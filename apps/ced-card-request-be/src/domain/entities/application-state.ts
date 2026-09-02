@@ -18,6 +18,12 @@ export const ApplicationStateSchema = z.enum(APPLICATION_STATES);
 
 export type ApplicationState = z.infer<typeof ApplicationStateSchema>;
 
+export type ReconciledApplicationState =
+  | "ACQUIRED"
+  | "READY_FOR_DOCUMENTS_UPLOAD"
+  | "READY_FOR_NEW_DRAFT"
+  | "READY_FOR_PHOTO_UPLOAD";
+
 /**
  * The milestone states the upstream application registry can confirm through
  * {@link CardApplicationRepository.checkApplicationState}. A strict subset of

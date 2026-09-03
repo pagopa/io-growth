@@ -6,6 +6,7 @@ import {
 import { err, ok } from "neverthrow";
 
 import type { GestioneDomandaCedRepository } from "../../domain/ports/outbound/gestione-domanda-ced.repository.js";
+import type { RecuperoDatiDomandaResponse } from "../../generated/model/index.js";
 
 // These imports are satisfied after `pnpm generate` runs.
 import {
@@ -18,6 +19,32 @@ import {
   richiediRiepilogo as richiediRiepilogoGen,
   richiediStato as richiediStatoGen,
 } from "../../generated/endpoints/domanda/domanda.js";
+
+const OFFSET_LESS_DATE_TIME = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?$/;
+
+// FIX: TODO: INPS currently omits the RFC 3339 offset declared by its OpenAPI
+// contract. Remove this adapter compatibility workaround once the upstream
+// response becomes compliant.
+const normalizeInpsDateTime = (value: string): string =>
+  OFFSET_LESS_DATE_TIME.test(value) ? `${value}Z` : value;
+
+const normalizeRecoveredDraftDateTimes = (
+  response: RecuperoDatiDomandaResponse,
+): RecuperoDatiDomandaResponse => {
+  const permitExpiration = response.anagrafica.dataScadenzaPermessoSoggiorno;
+
+  return {
+    ...response,
+    anagrafica: {
+      ...response.anagrafica,
+      dataNascita: normalizeInpsDateTime(response.anagrafica.dataNascita),
+      dataScadenzaPermessoSoggiorno:
+        permitExpiration == null
+          ? permitExpiration
+          : normalizeInpsDateTime(permitExpiration),
+    },
+  };
+};
 
 /**
  * Creates the GestioneDomandaCED outbound adapter.
@@ -150,7 +177,14 @@ export const createGestioneDomandaCedClient =
     recuperoDatiDomanda: async (request) => {
       try {
         const response = await recuperoDatiDomandaGen(request);
-        if (response.status === 200) return ok(response.data);
+        if (response.status === 200)
+          return ok(normalizeRecoveredDraftDateTimes(response.data));
+        if (response.status === 400)
+          return err(
+            new ValidationError(
+              `recuperoDatiDomanda rejected: ${JSON.stringify(response.data)}`,
+            ),
+          );
         if (response.status === 404)
           return err(
             new NotFoundError("domanda", JSON.stringify(response.data)),

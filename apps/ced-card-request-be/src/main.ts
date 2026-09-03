@@ -29,6 +29,7 @@ import {
 } from "@pagopa/io-core-adapter-modi";
 import { createResilientRedisClient } from "@pagopa/io-core-adapter-redis";
 import {
+  emitCustomEvent,
   getTelemetryClient,
   tracingPlugin,
 } from "@pagopa/io-core-adapter-tracing";
@@ -39,6 +40,7 @@ import {
   mountConfirmApplicationHandler,
   mountCreateDraftHandler,
   mountGetApplicationStatusHandler,
+  mountGetDraftDataHandler,
   mountInfoReadinessHandler,
   mountInfoStartupHandler,
   mountUploadPhotoHandler,
@@ -49,6 +51,7 @@ import { createInpsCardApplicationRepository } from "./adapters/outbound/inps/in
 import { createRedisHealthCheckRepository } from "./adapters/outbound/redis/redis-health-check.repository.js";
 import { createRedisSessionRepository } from "./adapters/outbound/redis/redis-session.repository.js";
 import { makeConfirmApplicationUseCase } from "./application/use-cases/confirm/confirm-application.use-case.js";
+import { makeGetDraftDataUseCase } from "./application/use-cases/draft/get-draft-data.use-case.js";
 import { makeGetInfoReadinessUseCase } from "./application/use-cases/health/info-readiness.use-case.js";
 import { makeGetInfoStartupUseCase } from "./application/use-cases/health/info-startup.use-case.js";
 import { makeUploadPhotoUseCase } from "./application/use-cases/image/upload-photo.use-case.js";
@@ -84,6 +87,12 @@ const redisClient = await createResilientRedisClient({
   entraId: config.AZURE_CLIENT_ID
     ? { clientId: config.AZURE_CLIENT_ID }
     : undefined,
+  onError: (error) => {
+    emitCustomEvent("redis.connection.error", {
+      caller: "RedisClient",
+      data: { message: error instanceof Error ? error.message : String(error) },
+    })("RedisClient");
+  },
   tls: config.REDIS_TLS,
 });
 
@@ -191,6 +200,11 @@ app.register(async (authenticatedApp) => {
   mountGetApplicationStatusHandler(
     authenticatedApp,
     makeCheckRequestUseCase(cardApplicationRepository, supportRecordRepository),
+  );
+
+  mountGetDraftDataHandler(
+    authenticatedApp,
+    makeGetDraftDataUseCase(supportRecordRepository, cardApplicationRepository),
   );
 
   mountCreateDraftHandler(

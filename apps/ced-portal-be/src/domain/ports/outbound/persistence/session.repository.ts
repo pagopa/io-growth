@@ -12,6 +12,7 @@ export interface SessionRepository {
   readonly createSession: (
     sessionToken: string,
     session: Session,
+    ttlSeconds: number,
   ) => Promise<Result<void, BaseError>>;
   readonly getSession: (
     sessionToken: string,

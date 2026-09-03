@@ -2,7 +2,7 @@ import type { RedisCommands } from "@pagopa/io-core-adapter-redis";
 import type { BaseError } from "@pagopa/io-core-domain/errors";
 import type { Result } from "neverthrow";
 
-import { del, get, set, setEx } from "@pagopa/io-core-adapter-redis";
+import { del, get, setEx } from "@pagopa/io-core-adapter-redis";
 import { NotFoundError } from "@pagopa/io-core-domain/errors";
 import { err, ok } from "neverthrow";
 
@@ -25,8 +25,9 @@ export const createRedisSessionRepository = (
   createSession: (
     sessionToken: string,
     session: Session,
+    ttlSeconds: number,
   ): Promise<Result<void, BaseError>> =>
-    set(client, SESSION_PREFIX + sessionToken, session),
+    setEx(client, SESSION_PREFIX + sessionToken, session, ttlSeconds),
 
   getSession: async (
     sessionToken: string,

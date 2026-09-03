@@ -258,23 +258,29 @@ describe("createInpsCardApplicationRepository", () => {
 
   describe("checkApplicationState", () => {
     it.each([
-      [10, "READY_FOR_NEW_DRAFT"],
-      [20, "READY_FOR_PHOTO_UPLOAD"],
-      [30, "READY_FOR_DOCUMENTS_UPLOAD"],
-      [40, "ACQUIRED"],
-      [50, "READY_FOR_NEW_DRAFT"],
-    ] as const)("maps esitoCheck %s to %s", async (esitoCheck, state) => {
-      vi.mocked(gestioneDomandaCedRepository.checkDomanda).mockResolvedValue(
-        ok({ esitoCheck, idLavorazione: MOCK_ID_LAVORAZIONE }),
-      );
+      [10, "READY_FOR_NEW_DRAFT", "NO_APPLICATION"],
+      [20, "READY_FOR_PHOTO_UPLOAD", "DRAFT"],
+      [30, "READY_FOR_DOCUMENTS_UPLOAD", "PHOTO_ATTACHED"],
+      [40, "ACQUIRED", "ACQUIRED"],
+      [50, "READY_FOR_NEW_DRAFT", "CLOSED"],
+    ] as const)(
+      "maps esitoCheck %s to %s / %s",
+      async (esitoCheck, state, status) => {
+        vi.mocked(gestioneDomandaCedRepository.checkDomanda).mockResolvedValue(
+          ok({ esitoCheck, idLavorazione: MOCK_ID_LAVORAZIONE }),
+        );
 
-      const result = await repository().checkApplicationState(MOCK_FISCAL_CODE);
+        const result =
+          await repository().checkApplicationState(MOCK_FISCAL_CODE);
 
-      expect(gestioneDomandaCedRepository.checkDomanda).toHaveBeenCalledWith({
-        codiceFiscale: MOCK_FISCAL_CODE,
-      });
-      expect(result).toEqual(ok({ idLavorazione: MOCK_ID_LAVORAZIONE, state }));
-    });
+        expect(gestioneDomandaCedRepository.checkDomanda).toHaveBeenCalledWith({
+          codiceFiscale: MOCK_FISCAL_CODE,
+        });
+        expect(result).toEqual(
+          ok({ idLavorazione: MOCK_ID_LAVORAZIONE, state, status }),
+        );
+      },
+    );
 
     it("normalises an absent idLavorazione to null", async () => {
       vi.mocked(gestioneDomandaCedRepository.checkDomanda).mockResolvedValue(
@@ -284,7 +290,11 @@ describe("createInpsCardApplicationRepository", () => {
       const result = await repository().checkApplicationState(MOCK_FISCAL_CODE);
 
       expect(result).toEqual(
-        ok({ idLavorazione: null, state: "READY_FOR_NEW_DRAFT" }),
+        ok({
+          idLavorazione: null,
+          state: "READY_FOR_NEW_DRAFT",
+          status: "NO_APPLICATION",
+        }),
       );
     });
 
@@ -319,6 +329,105 @@ describe("createInpsCardApplicationRepository", () => {
       const result = await repository().checkApplicationState(MOCK_FISCAL_CODE);
 
       expect(result).toEqual(err(genericError));
+    });
+  });
+
+  describe("recoverApplicationDraft", () => {
+    it("maps the nested INPS response to the application domain", async () => {
+      vi.mocked(
+        gestioneDomandaCedRepository.recuperoDatiDomanda,
+      ).mockResolvedValue(
+        ok({
+          anagrafica: {
+            codiceFiscale: MOCK_FISCAL_CODE,
+            cognome: "Rossi",
+            comuneNascita: "Roma",
+            dataNascita: "1980-01-01T00:00:00.000Z",
+            dataScadenzaPermessoSoggiorno: null,
+            idCittadinanza: 0,
+            nome: "Mario",
+            sesso: "M",
+            siglaProvinciaNascita: "RM",
+            statoNascita: "ITALIA",
+          },
+          fotoCED: "base64-photo",
+          idLavorazione: MOCK_ID_LAVORAZIONE,
+          recapito: {
+            cap: "00100",
+            civico: "12",
+            datiAggiuntivi: null,
+            descrizioneComune: "Roma",
+            indirizzo: "Via Roma",
+            pressoCognome: null,
+            pressoDenominazione: null,
+            pressoNome: null,
+            siglaProvincia: "RM",
+          },
+        }),
+      );
+
+      const result = await repository().recoverApplicationDraft(
+        MOCK_FISCAL_CODE,
+        MOCK_ID_LAVORAZIONE,
+      );
+
+      expect(
+        gestioneDomandaCedRepository.recuperoDatiDomanda,
+      ).toHaveBeenCalledWith({
+        codiceFiscale: MOCK_FISCAL_CODE,
+        idLavorazione: MOCK_ID_LAVORAZIONE,
+      });
+      expect(result).toEqual(
+        ok(
+          expect.objectContaining({
+            capRec: "00100",
+            codiceFiscale: MOCK_FISCAL_CODE,
+            fotoCED: "base64-photo",
+            indirizzoRec: "Via Roma",
+          }),
+        ),
+      );
+    });
+
+    it("rejects an invalid INPS recovery response", async () => {
+      vi.mocked(
+        gestioneDomandaCedRepository.recuperoDatiDomanda,
+      ).mockResolvedValue(
+        ok({
+          anagrafica: {
+            codiceFiscale: null,
+            cognome: null,
+            comuneNascita: null,
+            dataNascita: "1980-01-01T00:00:00.000Z",
+            dataScadenzaPermessoSoggiorno: null,
+            idCittadinanza: 0,
+            nome: null,
+            sesso: null,
+            siglaProvinciaNascita: null,
+            statoNascita: null,
+          },
+          fotoCED: null,
+          idLavorazione: MOCK_ID_LAVORAZIONE,
+          recapito: {
+            cap: null,
+            civico: null,
+            datiAggiuntivi: null,
+            descrizioneComune: null,
+            indirizzo: null,
+            pressoCognome: null,
+            pressoDenominazione: null,
+            pressoNome: null,
+            siglaProvincia: null,
+          },
+        }),
+      );
+
+      const result = await repository().recoverApplicationDraft(
+        MOCK_FISCAL_CODE,
+        MOCK_ID_LAVORAZIONE,
+      );
+
+      expect(result).toEqual(err(expect.any(GenericError)));
     });
   });
 });

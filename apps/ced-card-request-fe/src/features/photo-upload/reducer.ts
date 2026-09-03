@@ -18,10 +18,11 @@ const photoSlice = createSlice({
     setPreview: (state, action: PayloadAction<string | undefined>) => {
       state.preview = action.payload;
     },
+    resetPhoto: () => initialState,
   },
 });
 
-export const { setFile, setPreview } = photoSlice.actions;
+export const { resetPhoto, setFile, setPreview } = photoSlice.actions;
 
 export const photoReducer = photoSlice.reducer;
 

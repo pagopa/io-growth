@@ -1,6 +1,9 @@
 import { z } from "zod";
 
+export const SUPPORT_RECORD_TTL_SECONDS = 60 * 60 * 24 * 30;
+
 import { MilestoneStateSchema } from "./application-state.js";
+import { ApplicationCheckStatusSchema } from "./card-application.js";
 
 /** The step whose write is currently in flight, if any. */
 export const PENDING_STEPS = ["DRAFT", "PHOTO", "CONFIRM"] as const;
@@ -15,10 +18,16 @@ export const StepStatusSchema = z.enum(STEP_STATUSES);
 
 export type StepStatus = z.infer<typeof StepStatusSchema>;
 
-export const ReconciliationSnapshotSchema = z.object({
-  at: z.string(),
-  esitoCheck: z.number(),
-});
+export const ReconciliationSnapshotSchema = z.union([
+  z.object({
+    applicationStatus: ApplicationCheckStatusSchema,
+    at: z.string(),
+  }),
+  z.object({
+    at: z.string(),
+    esitoCheck: z.number(),
+  }),
+]);
 
 export type ReconciliationSnapshot = z.infer<
   typeof ReconciliationSnapshotSchema
@@ -71,3 +80,20 @@ export const SupportRecordSchema = z.object({
 });
 
 export type SupportRecord = z.infer<typeof SupportRecordSchema>;
+
+export const createEmptySupportRecord = (
+  codiceFiscale: string,
+  now: string,
+): SupportRecord => ({
+  codiceFiscale,
+  createdAt: now,
+  idLavorazione: null,
+  lastReconciliation: null,
+  pendingStep: null,
+  previousIdLavorazione: null,
+  schemaVersion: 2,
+  state: "READY_FOR_NEW_DRAFT",
+  steps: { confirm: null, draft: null, photo: null },
+  ttl: SUPPORT_RECORD_TTL_SECONDS,
+  updatedAt: now,
+});

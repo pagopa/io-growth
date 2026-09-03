@@ -36,6 +36,32 @@ describe("makeConfirmApplicationUseCase — INPS and persistence outcomes", () =
     );
 
   describe("INPS outcomes", () => {
+    it("invalidates a previous reconciliation snapshot after INPS acquires the application", async () => {
+      vi.mocked(supportRecordRepository.getByCodiceFiscale).mockResolvedValue(
+        ok(
+          baseSupportRecord({
+            lastReconciliation: {
+              at: "2026-01-01T00:00:00.000Z",
+              esitoCheck: 30,
+            },
+          }),
+        ),
+      );
+      vi.mocked(cardApplicationRepository.confirmApplication).mockResolvedValue(
+        ok({ numDomus: "DOMUS-999" }),
+      );
+
+      await useCase()(mockConfirmApplicationInput);
+
+      expect(supportRecordRepository.save).toHaveBeenNthCalledWith(
+        2,
+        expect.objectContaining({
+          lastReconciliation: null,
+          state: "ACQUIRED",
+        }),
+      );
+    });
+
     it("marks the step FAILED and surfaces the 400 when INPS rejects the confirmation", async () => {
       vi.mocked(cardApplicationRepository.confirmApplication).mockResolvedValue(
         err(new ValidationError("confirmation rejected")),

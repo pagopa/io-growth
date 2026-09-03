@@ -9,6 +9,7 @@ import {
   toConfermaDomandaRequest,
   toFornisciFotoRequest,
   toNuovaDomandaInBozzaRequest,
+  toRecoveredApplicationDraft,
 } from "./inps-card-application.mapper.js";
 
 export const createInpsCardApplicationRepository = (
@@ -38,6 +39,15 @@ export const createInpsCardApplicationRepository = (
     );
 
     return result.map(toApplicationDraftCreated);
+  },
+
+  recoverApplicationDraft: async (codiceFiscale, idLavorazione) => {
+    const result = await gestioneDomandaCedRepository.recuperoDatiDomanda({
+      codiceFiscale,
+      idLavorazione,
+    });
+
+    return result.andThen(toRecoveredApplicationDraft);
   },
 
   uploadPhoto: async (photo, opts) => {

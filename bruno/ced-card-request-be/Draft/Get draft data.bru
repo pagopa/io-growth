@@ -1,0 +1,17 @@
+meta {
+  name: Get draft data
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/api/draft
+  body: none
+  auth: inherit
+}
+
+docs {
+  Call GET /api/status first. This request uses the reconciled CosmosDB record
+  to recover personal and delivery data for states 20 or 30, without calling
+  CheckDomanda again. State 30 also includes fotoCED in Base64.
+}

@@ -6,7 +6,7 @@ import {
 import { err, ok } from "neverthrow";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { createMockGestioneDomandaCedRepository } from "../../status/__tests__/mocks.js";
+import { createMockCardApplicationRepository } from "../../__tests__/mocks.js";
 import { makeUploadPhotoUseCase } from "../upload-photo.use-case.js";
 import {
   baseSupportRecord,
@@ -18,27 +18,50 @@ describe("makeUploadPhotoUseCase — INPS and persistence outcomes", () => {
   let supportRecordRepository: ReturnType<
     typeof createMockSupportRecordRepository
   >;
-  let gestioneDomandaCedRepository: ReturnType<
-    typeof createMockGestioneDomandaCedRepository
+  let cardApplicationRepository: ReturnType<
+    typeof createMockCardApplicationRepository
   >;
 
   beforeEach(() => {
     supportRecordRepository = createMockSupportRecordRepository({
       getByCodiceFiscale: vi.fn().mockResolvedValue(ok(baseSupportRecord())),
     });
-    gestioneDomandaCedRepository = createMockGestioneDomandaCedRepository();
+    cardApplicationRepository = createMockCardApplicationRepository();
   });
 
   const useCase = () =>
-    makeUploadPhotoUseCase(
-      supportRecordRepository,
-      gestioneDomandaCedRepository,
-    );
+    makeUploadPhotoUseCase(supportRecordRepository, cardApplicationRepository);
 
   describe("INPS outcomes", () => {
+    it("invalidates a previous reconciliation snapshot after INPS accepts the photo", async () => {
+      vi.mocked(supportRecordRepository.getByCodiceFiscale).mockResolvedValue(
+        ok(
+          baseSupportRecord({
+            lastReconciliation: {
+              at: "2026-01-01T00:00:00.000Z",
+              esitoCheck: 20,
+            },
+          }),
+        ),
+      );
+      vi.mocked(cardApplicationRepository.uploadPhoto).mockResolvedValue(
+        ok(undefined),
+      );
+
+      await useCase()(mockUploadPhotoInput);
+
+      expect(supportRecordRepository.save).toHaveBeenNthCalledWith(
+        2,
+        expect.objectContaining({
+          lastReconciliation: null,
+          state: "READY_FOR_DOCUMENTS_UPLOAD",
+        }),
+      );
+    });
+
     it("marks the step FAILED and surfaces the 400 when INPS rejects the photo", async () => {
-      vi.mocked(gestioneDomandaCedRepository.fornisciFoto).mockResolvedValue(
-        err(new ValidationError("fornisciFoto rejected")),
+      vi.mocked(cardApplicationRepository.uploadPhoto).mockResolvedValue(
+        err(new ValidationError("photo rejected")),
       );
 
       const result = await useCase()(mockUploadPhotoInput);
@@ -58,7 +81,7 @@ describe("makeUploadPhotoUseCase — INPS and persistence outcomes", () => {
     });
 
     it("leaves the step PENDING and returns a GenericError on an INPS system error", async () => {
-      vi.mocked(gestioneDomandaCedRepository.fornisciFoto).mockResolvedValue(
+      vi.mocked(cardApplicationRepository.uploadPhoto).mockResolvedValue(
         err(new GenericError("INPS unavailable")),
       );
 
@@ -79,7 +102,7 @@ describe("makeUploadPhotoUseCase — INPS and persistence outcomes", () => {
       const result = await useCase()(mockUploadPhotoInput);
 
       expect(result).toEqual(err(expect.any(ServiceUnavailableError)));
-      expect(gestioneDomandaCedRepository.fornisciFoto).not.toHaveBeenCalled();
+      expect(cardApplicationRepository.uploadPhoto).not.toHaveBeenCalled();
     });
 
     it("propagates a ServiceUnavailableError when Write 1 fails", async () => {
@@ -90,12 +113,12 @@ describe("makeUploadPhotoUseCase — INPS and persistence outcomes", () => {
       const result = await useCase()(mockUploadPhotoInput);
 
       expect(result).toEqual(err(expect.any(ServiceUnavailableError)));
-      expect(gestioneDomandaCedRepository.fornisciFoto).not.toHaveBeenCalled();
+      expect(cardApplicationRepository.uploadPhoto).not.toHaveBeenCalled();
     });
 
     it("returns a GenericError when Write 2 fails after INPS already succeeded", async () => {
-      vi.mocked(gestioneDomandaCedRepository.fornisciFoto).mockResolvedValue(
-        ok({ idLavorazione: "ABC-12345" }),
+      vi.mocked(cardApplicationRepository.uploadPhoto).mockResolvedValue(
+        ok(undefined),
       );
       vi.mocked(supportRecordRepository.save)
         .mockImplementationOnce((record) => Promise.resolve(ok(record)))

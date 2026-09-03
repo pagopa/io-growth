@@ -1,4 +1,4 @@
-import { TipoEsitoCheck } from "@pagopa/io-core-adapter-inps-ced";
+import { z } from "zod";
 
 /**
  * Internal workflow state (managed by the BFF) that guides the FE display logic.
@@ -14,36 +14,29 @@ export const APPLICATION_STATES = [
   "ACQUIRED",
 ] as const;
 
-export type ApplicationState = (typeof APPLICATION_STATES)[number];
+export const ApplicationStateSchema = z.enum(APPLICATION_STATES);
+
+export type ApplicationState = z.infer<typeof ApplicationStateSchema>;
+
+export type ReconciledApplicationState =
+  | "ACQUIRED"
+  | "READY_FOR_DOCUMENTS_UPLOAD"
+  | "READY_FOR_NEW_DRAFT"
+  | "READY_FOR_PHOTO_UPLOAD";
 
 /**
- * Maps the INPS `esitoCheck` milestone returned by CheckDomanda to the BFF
- * `ApplicationState` that directs the FE flow.
- *
- * | esitoCheck | Meaning                              | State                       |
- * |------------|--------------------------------------|-----------------------------|
- * | 10         | No draft on INPS                     | READY_FOR_NEW_DRAFT         |
- * | 20         | Draft, no photo                      | READY_FOR_PHOTO_UPLOAD      |
- * | 30         | Draft + photo                        | READY_FOR_DOCUMENTS_UPLOAD  |
- * | 40         | Acquired / processing                | ACQUIRED                    |
- * | 50         | Previous application closed (90/99)  | READY_FOR_NEW_DRAFT         |
- *
- * Returns `undefined` for any unmapped/unknown value.
+ * The milestone states the upstream application registry can confirm through
+ * {@link CardApplicationRepository.checkApplicationState}. A strict subset of
+ * {@link ApplicationState}: a state check only ever produces one of these four
+ * values, never the derived "uploading" states.
  */
-export const mapEsitoCheckToState = (
-  esitoCheck: TipoEsitoCheck,
-): ApplicationState | undefined => {
-  switch (esitoCheck) {
-    case TipoEsitoCheck.NUMBER_10:
-    case TipoEsitoCheck.NUMBER_50:
-      return "READY_FOR_NEW_DRAFT";
-    case TipoEsitoCheck.NUMBER_20:
-      return "READY_FOR_PHOTO_UPLOAD";
-    case TipoEsitoCheck.NUMBER_30:
-      return "READY_FOR_DOCUMENTS_UPLOAD";
-    case TipoEsitoCheck.NUMBER_40:
-      return "ACQUIRED";
-    default:
-      return undefined;
-  }
-};
+export const MILESTONE_STATES = [
+  "READY_FOR_NEW_DRAFT",
+  "READY_FOR_PHOTO_UPLOAD",
+  "READY_FOR_DOCUMENTS_UPLOAD",
+  "ACQUIRED",
+] as const satisfies readonly ApplicationState[];
+
+export const MilestoneStateSchema = z.enum(MILESTONE_STATES);
+
+export type MilestoneState = z.infer<typeof MilestoneStateSchema>;

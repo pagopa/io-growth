@@ -2,11 +2,12 @@ import { ValidationError } from "@pagopa/io-core-domain/errors";
 import { err, ok } from "neverthrow";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { createMockGestioneDomandaCedRepository } from "../../status/__tests__/mocks.js";
+import { createMockCardApplicationRepository } from "../../__tests__/mocks.js";
 import { makeUploadPhotoUseCase } from "../upload-photo.use-case.js";
 import {
   baseSupportRecord,
   createMockSupportRecordRepository,
+  MOCK_FISCAL_CODE,
   MOCK_ID_LAVORAZIONE,
   mockUploadPhotoInput,
 } from "./mocks.js";
@@ -15,20 +16,17 @@ describe("makeUploadPhotoUseCase — validation, ownership, replay, retry", () =
   let supportRecordRepository: ReturnType<
     typeof createMockSupportRecordRepository
   >;
-  let gestioneDomandaCedRepository: ReturnType<
-    typeof createMockGestioneDomandaCedRepository
+  let cardApplicationRepository: ReturnType<
+    typeof createMockCardApplicationRepository
   >;
 
   beforeEach(() => {
     supportRecordRepository = createMockSupportRecordRepository();
-    gestioneDomandaCedRepository = createMockGestioneDomandaCedRepository();
+    cardApplicationRepository = createMockCardApplicationRepository();
   });
 
   const useCase = () =>
-    makeUploadPhotoUseCase(
-      supportRecordRepository,
-      gestioneDomandaCedRepository,
-    );
+    makeUploadPhotoUseCase(supportRecordRepository, cardApplicationRepository);
 
   it("returns a ValidationError for invalid input without touching any repository", async () => {
     const result = await useCase()({
@@ -38,7 +36,7 @@ describe("makeUploadPhotoUseCase — validation, ownership, replay, retry", () =
 
     expect(result).toEqual(err(expect.any(ValidationError)));
     expect(supportRecordRepository.getByCodiceFiscale).not.toHaveBeenCalled();
-    expect(gestioneDomandaCedRepository.fornisciFoto).not.toHaveBeenCalled();
+    expect(cardApplicationRepository.uploadPhoto).not.toHaveBeenCalled();
   });
 
   it("returns a ValidationError when there is no support record", async () => {
@@ -49,7 +47,7 @@ describe("makeUploadPhotoUseCase — validation, ownership, replay, retry", () =
     const result = await useCase()(mockUploadPhotoInput);
 
     expect(result).toEqual(err(expect.any(ValidationError)));
-    expect(gestioneDomandaCedRepository.fornisciFoto).not.toHaveBeenCalled();
+    expect(cardApplicationRepository.uploadPhoto).not.toHaveBeenCalled();
   });
 
   it("returns a ValidationError when idLavorazione does not match the active draft", async () => {
@@ -60,7 +58,7 @@ describe("makeUploadPhotoUseCase — validation, ownership, replay, retry", () =
     const result = await useCase()(mockUploadPhotoInput);
 
     expect(result).toEqual(err(expect.any(ValidationError)));
-    expect(gestioneDomandaCedRepository.fornisciFoto).not.toHaveBeenCalled();
+    expect(cardApplicationRepository.uploadPhoto).not.toHaveBeenCalled();
   });
 
   it("returns a ValidationError when the record has no idLavorazione yet", async () => {
@@ -97,7 +95,7 @@ describe("makeUploadPhotoUseCase — validation, ownership, replay, retry", () =
     const result = await useCase()(mockUploadPhotoInput);
 
     expect(result).toEqual(ok({ state: "READY_FOR_DOCUMENTS_UPLOAD" }));
-    expect(gestioneDomandaCedRepository.fornisciFoto).not.toHaveBeenCalled();
+    expect(cardApplicationRepository.uploadPhoto).not.toHaveBeenCalled();
     expect(supportRecordRepository.save).not.toHaveBeenCalled();
   });
 
@@ -121,15 +119,20 @@ describe("makeUploadPhotoUseCase — validation, ownership, replay, retry", () =
     vi.mocked(supportRecordRepository.getByCodiceFiscale).mockResolvedValue(
       ok(existing),
     );
-    vi.mocked(gestioneDomandaCedRepository.fornisciFoto).mockResolvedValue(
-      ok({ idLavorazione: MOCK_ID_LAVORAZIONE }),
+    vi.mocked(cardApplicationRepository.uploadPhoto).mockResolvedValue(
+      ok(undefined),
     );
 
     const result = await useCase()(mockUploadPhotoInput);
 
     expect(result).toEqual(ok({ state: "READY_FOR_DOCUMENTS_UPLOAD" }));
-    expect(gestioneDomandaCedRepository.fornisciFoto).toHaveBeenCalledWith(
-      expect.anything(),
+    expect(cardApplicationRepository.uploadPhoto).toHaveBeenCalledWith(
+      {
+        codiceFiscale: MOCK_FISCAL_CODE,
+        fotoCED: mockUploadPhotoInput.fotoCED,
+        idLavorazione: MOCK_ID_LAVORAZIONE,
+        informativaFoto: true,
+      },
       { idempotencyKey: "inps-key-1" },
     );
   });
@@ -162,8 +165,8 @@ describe("makeUploadPhotoUseCase — validation, ownership, replay, retry", () =
     vi.mocked(supportRecordRepository.getByCodiceFiscale).mockResolvedValue(
       ok(existing),
     );
-    vi.mocked(gestioneDomandaCedRepository.fornisciFoto).mockResolvedValue(
-      ok({ idLavorazione: MOCK_ID_LAVORAZIONE }),
+    vi.mocked(cardApplicationRepository.uploadPhoto).mockResolvedValue(
+      ok(undefined),
     );
 
     const result = await useCase()(mockUploadPhotoInput);
@@ -177,7 +180,7 @@ describe("makeUploadPhotoUseCase — validation, ownership, replay, retry", () =
       }),
     );
     const [, { idempotencyKey }] = vi.mocked(
-      gestioneDomandaCedRepository.fornisciFoto,
+      cardApplicationRepository.uploadPhoto,
     ).mock.calls[0];
     expect(idempotencyKey).not.toBe("old-photo-key");
   });

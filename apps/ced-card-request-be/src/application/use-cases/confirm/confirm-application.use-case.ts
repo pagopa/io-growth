@@ -1,7 +1,3 @@
-import type {
-  ConfermaDomandaRequest,
-  GestioneDomandaCedRepository,
-} from "@pagopa/io-core-adapter-inps-ced";
 import type { UseCase } from "@pagopa/io-core-domain";
 import type { ServiceUnavailableError } from "@pagopa/io-core-domain/errors";
 
@@ -10,29 +6,34 @@ import { err, ok } from "neverthrow";
 import { z } from "zod";
 
 import type { ApplicationState } from "../../../domain/entities/application-state.js";
+import type { ApplicationConfirmation } from "../../../domain/entities/card-application.js";
 import type {
   StepInfo,
   SupportRecord,
 } from "../../../domain/entities/support-record.js";
+import type { CardApplicationRepository } from "../../../domain/ports/outbound/card-application.repository.js";
 import type { SupportRecordRepository } from "../../../domain/ports/outbound/persistence/support-record.repository.js";
 
+import {
+  DocumentationTypeSchema,
+  FiscalCodeSchema,
+  IdLavorazioneSchema,
+} from "../../../domain/entities/card-application.js";
 import { validateUseCaseInput } from "../utils/validate-use-case-input.js";
 
 export const ConfirmApplicationInputSchema = z.object({
   allegato: z.string().nullish(),
   autodichiarazioneSentenza: z.boolean().nullish(),
   clientRequestId: z.uuid(),
-  codiceFiscale: z.string().length(16),
+  codiceFiscale: FiscalCodeSchema,
   dataSentenza: z.string().nullish(),
   descrizioneComuneTribunale: z.string().nullish(),
   dichiarazioneConformitaVerbale: z.boolean().nullish(),
   dirittoAccompagnatore: z.boolean().nullish(),
-  idLavorazione: z.string().min(1).max(20),
+  idLavorazione: IdLavorazioneSchema,
   nomeFile: z.string().nullish(),
   siglaProvinciaTribunale: z.string().nullish(),
-  tipologiaUlterioreDocumentazione: z
-    .union([z.literal(1), z.literal(2), z.literal(3)])
-    .nullish(),
+  tipologiaUlterioreDocumentazione: DocumentationTypeSchema.nullish(),
 });
 
 export type ConfirmApplicationInput = z.infer<
@@ -50,27 +51,25 @@ export type ConfirmApplicationUseCase = UseCase<
   GenericError | ServiceUnavailableError | ValidationError
 >;
 
-const toInpsRequest = (
+/**
+ * Validated input carries the client's intent key and `nullish` optionals; the
+ * domain object drops the former and normalises the latter to `null`.
+ */
+const toApplicationConfirmation = (
   input: ConfirmApplicationInput,
-): ConfermaDomandaRequest => ({
+): ApplicationConfirmation => ({
+  allegato: input.allegato ?? null,
+  autodichiarazioneSentenza: input.autodichiarazioneSentenza ?? null,
   codiceFiscale: input.codiceFiscale,
+  dataSentenza: input.dataSentenza ?? null,
+  descrizioneComuneTribunale: input.descrizioneComuneTribunale ?? null,
+  dichiarazioneConformitaVerbale: input.dichiarazioneConformitaVerbale ?? null,
+  dirittoAccompagnatore: input.dirittoAccompagnatore ?? null,
   idLavorazione: input.idLavorazione,
-  ulterioreDocumentazione:
-    input.tipologiaUlterioreDocumentazione == null
-      ? undefined
-      : {
-          allegato: input.allegato ?? null,
-          autodichiarazioneSentenza: input.autodichiarazioneSentenza ?? null,
-          dataSentenza: input.dataSentenza ?? null,
-          descrizioneComuneTribunale: input.descrizioneComuneTribunale ?? null,
-          dichiarazioneConformitaVerbale:
-            input.dichiarazioneConformitaVerbale ?? null,
-          dirittoAccompagnatore: input.dirittoAccompagnatore ?? null,
-          nomeFile: input.nomeFile ?? null,
-          siglaProvinciaTribunale: input.siglaProvinciaTribunale ?? null,
-          tipologiaUlterioreDocumentazione:
-            input.tipologiaUlterioreDocumentazione,
-        },
+  nomeFile: input.nomeFile ?? null,
+  siglaProvinciaTribunale: input.siglaProvinciaTribunale ?? null,
+  tipologiaUlterioreDocumentazione:
+    input.tipologiaUlterioreDocumentazione ?? null,
 });
 
 /**
@@ -134,6 +133,7 @@ const buildCompletedOutcome = (
   numDomus: null | string,
 ): SupportRecord => ({
   ...persistedIntent,
+  lastReconciliation: null,
   numDomus,
   pendingStep: null,
   state: "ACQUIRED",
@@ -151,7 +151,7 @@ const buildCompletedOutcome = (
 export const makeConfirmApplicationUseCase =
   (
     supportRecordRepository: SupportRecordRepository,
-    gestioneDomandaCedRepository: GestioneDomandaCedRepository,
+    cardApplicationRepository: CardApplicationRepository,
   ): ConfirmApplicationUseCase =>
   async (input) => {
     const validated = await validateUseCaseInput(
@@ -212,13 +212,13 @@ export const makeConfirmApplicationUseCase =
     if (write1Result.isErr()) return err(write1Result.error);
     const persistedIntent = write1Result.value;
 
-    const inpsResult = await gestioneDomandaCedRepository.confermaDomanda(
-      toInpsRequest(validated.value),
+    const confirmResult = await cardApplicationRepository.confirmApplication(
+      toApplicationConfirmation(validated.value),
       { idempotencyKey: inpsIdempotencyKey },
     );
 
-    if (inpsResult.isErr()) {
-      const error = inpsResult.error;
+    if (confirmResult.isErr()) {
+      const error = confirmResult.error;
 
       if (error instanceof ValidationError) {
         // INPS rejected the confirmation: mark the step FAILED (best-effort
@@ -236,10 +236,12 @@ export const makeConfirmApplicationUseCase =
 
       // INPS system error / timeout: leave the step PENDING so a retry
       // (same client key) safely reuses the same INPS Idempotency-Key.
-      return err(new GenericError(`confermaDomanda failed: ${error.message}`));
+      return err(
+        new GenericError(`confirmApplication failed: ${error.message}`),
+      );
     }
 
-    const numDomus = inpsResult.value.numDomus ?? null;
+    const numDomus = confirmResult.value.numDomus;
 
     // INPS succeeded: Write 2 persists the outcome.
     const write2Result = await supportRecordRepository.save(

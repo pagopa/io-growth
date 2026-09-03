@@ -1,5 +1,11 @@
 # @pagopa/io-core-adapter-fims
 
+## 0.0.10
+
+### Patch Changes
+
+- 5d9215c: restore 1800 ttl
+
 ## 0.0.9
 
 ### Patch Changes

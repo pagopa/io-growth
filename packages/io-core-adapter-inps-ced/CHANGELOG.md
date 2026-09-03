@@ -1,5 +1,11 @@
 # @pagopa/io-core-adapter-inps-ced
 
+## 0.0.5
+
+### Patch Changes
+
+- b578e75: Add the authenticated draft recovery API backed by INPS RecuperoDatiDomanda.
+
 ## 0.0.4
 
 ### Patch Changes

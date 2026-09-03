@@ -1,5 +1,35 @@
 # ced-card-request-be
 
+## 0.3.0
+
+### Minor Changes
+
+- b578e75: Add the authenticated draft recovery API backed by INPS RecuperoDatiDomanda.
+
+### Patch Changes
+
+- Updated dependencies [b578e75]
+  - @pagopa/io-core-adapter-inps-ced@0.0.5
+
+## 0.2.7
+
+### Patch Changes
+
+- 7bcd535: Align ced-card-request-be project configuration with the other CED backends.
+
+## 0.2.6
+
+### Patch Changes
+
+- Updated dependencies [5d9215c]
+  - @pagopa/io-core-adapter-fims@0.0.10
+
+## 0.2.5
+
+### Patch Changes
+
+- 8936451: add anti corruption layer to inps outbound adapter
+
 ## 0.2.4
 
 ### Patch Changes

@@ -41,24 +41,19 @@ export const Carousel = ({ list }: CarouselProps) => {
         | undefined;
       if (!target) return;
 
-      if (behavior === 'auto') {
-        const prevBehavior = container.style.scrollBehavior;
-        container.style.scrollBehavior = 'auto';
-        target.scrollIntoView({
-          behavior: 'auto',
-          inline: 'center',
-          block: 'nearest',
-        });
-        requestAnimationFrame(() => {
-          container.style.scrollBehavior = prevBehavior;
-        });
-        return;
-      }
+      // Scroll the container directly instead of scrollIntoView: the latter
+      // walks up to the ancestors and moves the document's sequential focus
+      // navigation starting point onto the slide, which breaks tab order.
+      const delta =
+        target.getBoundingClientRect().left -
+        container.getBoundingClientRect().left;
 
-      target.scrollIntoView({
+      container.scrollTo({
+        left:
+          container.scrollLeft +
+          delta -
+          (container.clientWidth - target.clientWidth) / 2,
         behavior,
-        inline: 'center',
-        block: 'nearest',
       });
     },
     [extendedList.length],

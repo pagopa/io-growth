@@ -14,7 +14,6 @@ const ERROR_ICON_BG = '#5D1313';
 const TOAST_ERROR_BG = ERROR_ICON_BG;
 const NEUTRAL_600 = '#636B82';
 const NEUTRAL_700 = '#4E5A70';
-const NEUTRAL_450 = '#9EA8BC';
 const NEUTRAL_900 = '#111827';
 const NEUTRAL_500 = '#5F687A';
 const DECORATIVE_BLUE = '#CED8F9';
@@ -211,16 +210,6 @@ const createAppTheme = () =>
           },
         },
       },
-      MuiAutocomplete: {
-        styleOverrides: {
-          root: {
-            '& .MuiAutocomplete-clearIndicator': {
-              display: 'none',
-            },
-          },
-        },
-      },
-
       MuiCheckbox: {
         styleOverrides: {
           root: {
@@ -281,21 +270,6 @@ const createAppTheme = () =>
               {
                 transform: 'translate(48px, 13px) scale(1)',
               },
-          },
-        },
-      },
-      MuiIconButton: {
-        styleOverrides: {
-          root: {
-            '&.SearchClearButton': {
-              width: 22,
-              height: 22,
-              backgroundColor: DECORATIVE_ICON,
-              color: muiItaliaTheme.palette.common.white,
-              '&:hover': {
-                backgroundColor: NEUTRAL_450,
-              },
-            },
           },
         },
       },

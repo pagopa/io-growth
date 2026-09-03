@@ -76,6 +76,14 @@ const entitiesApi = baseApi.injectEndpoints({
       },
       invalidatesTags: ['Entities'],
     }),
+    // TODO: align with generated client once the BE endpoint is available
+    terminateOnboarding: builder.mutation<void, { onboardingId: string }>({
+      query: ({ onboardingId }) => ({
+        url: getGetOnboardingUrl(onboardingId),
+        method: 'DELETE',
+      }),
+      invalidatesTags: ['Entities'],
+    }),
   }),
 });
 
@@ -84,4 +92,5 @@ export const {
   useGetDepartmentOnboardingQuery,
   useGetContractSignedMutation,
   useCompleteOnboardingMutation,
+  useTerminateOnboardingMutation,
 } = entitiesApi;

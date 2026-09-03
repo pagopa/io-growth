@@ -266,20 +266,49 @@ describe("makeOperatorUpdateOpportunityUseCase - MV refresh", () => {
     expect(deps.materializedViewRepository.refreshAll).toHaveBeenCalledOnce();
   });
 
-  it.each(["scheduled", "suspended"] as const)(
-    "does not refresh the MV for a %s opportunity",
-    async (status) => {
-      const deps = makeDeps({
-        opportunityRepository: findReturning(mockOpportunity({ status })),
-      });
-      await makeOperatorUpdateOpportunityUseCase(deps)({
-        ...baseInput,
-        dateFrom: "2026-02-01",
-      });
+  it("refreshes the MV when a scheduled opportunity's dateFrom is moved to a currently active date", async () => {
+    const today = new Date().toISOString().slice(0, 10);
+    const deps = makeDeps({
+      opportunityRepository: findReturning(
+        mockOpportunity({ dateFrom: "2099-12-31", status: "scheduled" }),
+      ),
+    });
+    const result = await makeOperatorUpdateOpportunityUseCase(deps)({
+      ...baseInput,
+      dateFrom: today,
+    });
 
-      expect(deps.materializedViewRepository.refreshAll).not.toHaveBeenCalled();
-    },
-  );
+    expect(result).toEqual(ok(undefined));
+    expect(deps.materializedViewRepository.refreshAll).toHaveBeenCalledOnce();
+  });
+
+  it("does not refresh the MV for a scheduled opportunity whose dateFrom stays in the future", async () => {
+    const deps = makeDeps({
+      opportunityRepository: findReturning(
+        mockOpportunity({ dateFrom: "2099-12-31", status: "scheduled" }),
+      ),
+    });
+    await makeOperatorUpdateOpportunityUseCase(deps)({
+      ...baseInput,
+      dateFrom: "2099-12-31",
+    });
+
+    expect(deps.materializedViewRepository.refreshAll).not.toHaveBeenCalled();
+  });
+
+  it("does not refresh the MV for a suspended opportunity", async () => {
+    const deps = makeDeps({
+      opportunityRepository: findReturning(
+        mockOpportunity({ status: "suspended" }),
+      ),
+    });
+    await makeOperatorUpdateOpportunityUseCase(deps)({
+      ...baseInput,
+      dateFrom: "2026-02-01",
+    });
+
+    expect(deps.materializedViewRepository.refreshAll).not.toHaveBeenCalled();
+  });
 
   it("still succeeds when refreshAll fails (best-effort)", async () => {
     const deps = makeDeps({
@@ -298,6 +327,66 @@ describe("makeOperatorUpdateOpportunityUseCase - MV refresh", () => {
     });
 
     expect(result).toEqual(ok(undefined));
+  });
+});
+
+describe("makeOperatorUpdateOpportunityUseCase - published dateTo", () => {
+  it("returns 400 when a published opportunity is given a dateTo of today or earlier", async () => {
+    const today = new Date().toISOString().slice(0, 10);
+    const deps = makeDeps({
+      opportunityRepository: findReturning(
+        mockOpportunity({ status: "published" }),
+      ),
+    });
+    const result = await makeOperatorUpdateOpportunityUseCase(deps)({
+      ...baseInput,
+      dateTo: today,
+    });
+
+    expect(result).toEqual(
+      err(expect.objectContaining({ kind: "ValidationError" })),
+    );
+    expect(
+      deps.opportunityRepository.updateFieldsByIdAndOperatorId,
+    ).not.toHaveBeenCalled();
+    expect(deps.materializedViewRepository.refreshAll).not.toHaveBeenCalled();
+  });
+
+  it("accepts a published opportunity dateTo of tomorrow", async () => {
+    const tomorrowDate = new Date();
+    tomorrowDate.setUTCDate(tomorrowDate.getUTCDate() + 1);
+    const tomorrow = tomorrowDate.toISOString().slice(0, 10);
+    const deps = makeDeps({
+      opportunityRepository: findReturning(
+        mockOpportunity({ status: "published" }),
+      ),
+    });
+    const result = await makeOperatorUpdateOpportunityUseCase(deps)({
+      ...baseInput,
+      dateTo: tomorrow,
+    });
+
+    expect(result).toEqual(ok(undefined));
+    expect(
+      deps.opportunityRepository.updateFieldsByIdAndOperatorId,
+    ).toHaveBeenCalledWith(expect.objectContaining({ dateTo: tomorrow }));
+  });
+
+  it("allows clearing dateTo on a published opportunity", async () => {
+    const deps = makeDeps({
+      opportunityRepository: findReturning(
+        mockOpportunity({ status: "published" }),
+      ),
+    });
+    const result = await makeOperatorUpdateOpportunityUseCase(deps)({
+      ...baseInput,
+      dateTo: null,
+    });
+
+    expect(result).toEqual(ok(undefined));
+    expect(
+      deps.opportunityRepository.updateFieldsByIdAndOperatorId,
+    ).toHaveBeenCalledWith(expect.objectContaining({ dateTo: null }));
   });
 });
 

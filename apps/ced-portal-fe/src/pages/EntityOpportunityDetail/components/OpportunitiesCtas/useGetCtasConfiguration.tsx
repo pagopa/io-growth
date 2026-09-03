@@ -35,6 +35,7 @@ export const useGetCtasConfiguration = (
     useOperatorCancelScheduledSuspensionMutation();
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isSuspendModalOpen, setIsSuspendModalOpen] = useState(false);
+  const [isModifyModalOpen, setIsModifyModalOpen] = useState(false);
 
   const canShowSuspendAction = Boolean(
     status && SUSPENSION_ACTION_STATES.has(status),
@@ -85,7 +86,16 @@ export const useGetCtasConfiguration = (
     setIsSuspendModalOpen(false);
   }, []);
 
-  const handleModify = useCallback(() => {
+  const handleOpenModifyModal = useCallback(() => {
+    setIsModifyModalOpen(true);
+  }, []);
+
+  const handleCloseModifyModal = useCallback(() => {
+    setIsModifyModalOpen(false);
+  }, []);
+
+  const handleConfirmModify = useCallback(async () => {
+    setIsModifyModalOpen(false);
     navigate(APP_ROUTES.CREATE_BENEFIT, {
       state: { sourceOpportunityId: id },
     });
@@ -117,7 +127,7 @@ export const useGetCtasConfiguration = (
   > = useMemo(
     () => ({
       DELETE: handleDelete,
-      MODIFY: handleModify,
+      MODIFY: handleOpenModifyModal,
       PUBLISH: handlePublication,
       SUSPEND: handleSuspension,
       CANCEL_SUSPENSION: handleCancelScheduledSuspension,
@@ -125,7 +135,7 @@ export const useGetCtasConfiguration = (
     [
       handleCancelScheduledSuspension,
       handleDelete,
-      handleModify,
+      handleOpenModifyModal,
       handlePublication,
       handleSuspension,
     ],
@@ -189,6 +199,12 @@ export const useGetCtasConfiguration = (
       open: isSuspendModalOpen,
       onClose: handleCloseSuspendModal,
       onConfirm: handleConfirmSuspension,
+    },
+    modifyModal: {
+      open: isModifyModalOpen,
+      onClose: handleCloseModifyModal,
+      onConfirm: handleConfirmModify,
+      isLoading: false,
     },
   };
 };

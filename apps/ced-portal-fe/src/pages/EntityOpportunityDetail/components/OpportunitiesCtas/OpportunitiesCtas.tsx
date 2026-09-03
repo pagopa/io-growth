@@ -5,6 +5,7 @@ import {
   DeleteOpportunityModal,
   SuspendOpportunityModal,
 } from '../../../Home/components/OpportunityActionModal';
+import { ModifyOpportunityModal } from './ModifyOpportunityModal';
 
 const CTA_BUTTON_SX = { fontWeight: 700, borderRadius: 2, px: 3 };
 
@@ -26,11 +27,8 @@ export const OpportunitiesCtas = ({
   id,
   suspendFrom,
 }: OpportunitiesCtasProps) => {
-  const { ctasConfig, deleteModal, suspendModal } = useGetCtasConfiguration(
-    id,
-    status,
-    suspendFrom,
-  );
+  const { ctasConfig, deleteModal, suspendModal, modifyModal } =
+    useGetCtasConfiguration(id, status, suspendFrom);
 
   const layout = ctasConfig[status];
   const ctas = layout?.ctas;
@@ -84,6 +82,12 @@ export const OpportunitiesCtas = ({
         open={suspendModal.open}
         onClose={suspendModal.onClose}
         onConfirm={suspendModal.onConfirm}
+      />
+      <ModifyOpportunityModal
+        open={modifyModal.open}
+        onClose={modifyModal.onClose}
+        onConfirm={modifyModal.onConfirm}
+        isLoading={modifyModal.isLoading}
       />
     </>
   );

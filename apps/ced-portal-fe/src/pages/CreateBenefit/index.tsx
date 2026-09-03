@@ -3,7 +3,11 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { Box, Button, Container, Typography } from '@mui/material';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { APP_ROUTES } from '../../app/routeConfig';
-import { useRequestApprovalMutation } from '../../features/opportunities/api';
+import { hasStatus } from '../../core/api/baseApi';
+import {
+  useGetOpportunityDetailQuery,
+  useRequestApprovalMutation,
+} from '../../features/opportunities/api';
 import { resetPlaces } from '../../features/places/placesSlice';
 import {
   selectAccessPoint,
@@ -26,6 +30,7 @@ import { resetForm } from '../../features/opportunityCreation/opportunityCreatio
 
 export interface StepProps {
   attempted: boolean;
+  isStartDateDisabled?: boolean;
 }
 
 interface StepConfig {
@@ -47,6 +52,10 @@ export default function CreateBenefitPage() {
 
   const sourceOpportunityId = location.state?.sourceOpportunityId ?? null;
   useHydrateFromSourceOpportunity(sourceOpportunityId);
+  const { data: sourceOpportunity } = useGetOpportunityDetailQuery(
+    sourceOpportunityId ?? '',
+    { skip: !sourceOpportunityId },
+  );
 
   const [currentStep, setCurrentStep] = useState(0);
   const [attempted, setAttempted] = useState(false);
@@ -80,7 +89,16 @@ export default function CreateBenefitPage() {
   };
 
   const handleSaveDraft = async () => {
-    await createOpportunity({ isDraft: true });
+    const result = await createOpportunity({
+      isDraft: true,
+      sourceOpportunityId,
+      sourceOpportunityUpdatedAt: sourceOpportunity?.updatedAt,
+    });
+
+    if (!result) {
+      return;
+    }
+
     dispatch(resetForm());
     dispatch(resetPlaces());
     navigate(APP_ROUTES.HOME);
@@ -116,7 +134,16 @@ export default function CreateBenefitPage() {
       dispatch(resetPlaces());
       showToast('Richiesta di approvazione inviata con successo', 'success');
       navigate(APP_ROUTES.HOME);
-    } catch {
+    } catch (error) {
+      if (hasStatus(error, 409)) {
+        showToast(
+          'È già in corso una modifica dell’opportunità. Riprova più tardi.',
+          'error',
+        );
+        navigate(APP_ROUTES.HOME);
+        return;
+      }
+
       showToast(
         "Errore durante l'invio della richiesta di approvazione",
         'error',
@@ -128,25 +155,41 @@ export default function CreateBenefitPage() {
     setSubmitReviewOpen(false);
 
     if (!sourceOpportunityId) {
-      try {
-        const result = await createOpportunity();
-        if (!result?.id) {
-          showToast(
-            "Impossibile inviare in revisione senza un'opportunità esistente",
-            'error',
-          );
-          return;
-        }
-        handleRequestApproval(result.id);
-        dispatch(resetForm());
-        dispatch(resetPlaces());
-      } catch {
+      const result = await createOpportunity();
+      if (!result?.id) {
+        showToast(
+          "Impossibile inviare in revisione senza un'opportunità esistente",
+          'error',
+        );
         return;
       }
+
+      await handleRequestApproval(result.id);
+      dispatch(resetForm());
+      dispatch(resetPlaces());
       return;
     }
 
-    handleRequestApproval(sourceOpportunityId);
+    const result = await createOpportunity({
+      sourceOpportunityId,
+      sourceOpportunityUpdatedAt: sourceOpportunity?.updatedAt,
+      showSuccessToast: sourceOpportunity?.status !== 'draft',
+    });
+
+    if (!result) {
+      return;
+    }
+
+    if (
+      sourceOpportunity?.status === 'draft' ||
+      sourceOpportunity?.status === 'test_rejected'
+    ) {
+      await handleRequestApproval(sourceOpportunityId);
+    } else {
+      dispatch(resetForm());
+      dispatch(resetPlaces());
+      navigate(APP_ROUTES.HOME);
+    }
   };
 
   const CurrentStep = STEPS[currentStep]?.component ?? null;
@@ -197,7 +240,12 @@ export default function CreateBenefitPage() {
             steps={STEPS.map((s) => s.label)}
             currentStep={currentStep}
           />
-          {CurrentStep && <CurrentStep attempted={attempted} />}
+          {CurrentStep && (
+            <CurrentStep
+              attempted={attempted}
+              isStartDateDisabled={sourceOpportunity?.status === 'published'}
+            />
+          )}
           <WizardFooter
             currentStep={currentStep}
             totalSteps={STEPS.length}

@@ -26,13 +26,16 @@ export const CTAS_BY_STATUS: Partial<
   },
   test_rejected: {
     leftCtas: [DELETE_CTA],
+    rightCtas: [MODIFY_CTA],
   },
   test_pending: {},
   test_passed: {},
   scheduled: {
     leftCtas: [DELETE_CTA],
+    rightCtas: [MODIFY_CTA],
   },
   published: {
+    leftCtas: [MODIFY_CTA],
     rightCtas: [
       {
         label: 'Sospendi',

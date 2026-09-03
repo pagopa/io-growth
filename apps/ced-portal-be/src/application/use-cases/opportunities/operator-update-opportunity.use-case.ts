@@ -4,6 +4,7 @@ import type { BaseError } from "@pagopa/io-core-domain/errors";
 import {
   NotFoundError,
   PreconditionFailedError,
+  ValidationError,
 } from "@pagopa/io-core-domain/errors";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { z } from "zod";
@@ -138,7 +139,30 @@ export const makeOperatorUpdateOpportunityUseCase =
           const transitionToTestPending =
             DICHOTOMY_STATUSES.has(data.status) && benefitIsBinding;
 
+          const today = new Date().toISOString().slice(0, 10);
+
+          // Live published rows are already in the search MV, so any edit must
+          // refresh. Scheduled is stored as published with a future dateFrom
+          // and is absent from the MV; if this patch moves dateFrom to today
+          // or earlier the opportunity becomes live and must refresh now
+          // rather than waiting for the 15-minute cron.
           const wasPublishedLive = data.status === OPPORTUNITY_STATUS.PUBLISHED;
+          const becomesPublishedLive =
+            data.status === OPPORTUNITY_DISPLAY_STATUS.SCHEDULED &&
+            v.dateFrom !== undefined &&
+            v.dateFrom <= today;
+
+          // A live published opportunity cannot expire today or in the past:
+          // dateTo must be at least tomorrow (omitted / null is allowed).
+          if (
+            wasPublishedLive &&
+            v.dateTo !== undefined &&
+            v.dateTo !== null &&
+            v.dateTo <= today
+          )
+            return errAsync(
+              new ValidationError("dateTo must be at least tomorrow"),
+            );
 
           // validateExistence requires BOTH categoryId and placeIds: fill the
           // one not being edited from the current opportunity. Skip entirely
@@ -178,9 +202,8 @@ export const makeOperatorUpdateOpportunityUseCase =
                 ),
             )
             .andThen(() =>
-              // Best-effort (see wasPublishedLive above for the gate). Note:
-              // intentionally no refresh on a scheduled->live go-live edit.
-              wasPublishedLive
+              // Best-effort (see wasPublishedLive / becomesPublishedLive).
+              wasPublishedLive || becomesPublishedLive
                 ? new ResultAsync(
                     deps.materializedViewRepository.refreshAll(),
                   ).orElse(() => okAsync(undefined))

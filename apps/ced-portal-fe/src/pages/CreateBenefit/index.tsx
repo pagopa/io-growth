@@ -22,13 +22,7 @@ import { StepOne } from './StepOne';
 import { StepTwo } from './StepTwo';
 import { useToast } from '../../contexts';
 import { useGetFirstStepValidation } from './hooks/useGetFirstStepValidation';
-import {
-  OPPORTUNITY_CONFLICT_ERROR,
-  OPPORTUNITY_NOT_EDITABLE_ERROR,
-  OPPORTUNITY_NOT_FOUND_ERROR,
-  OPPORTUNITY_SOURCE_NOT_READY_ERROR,
-  useCreateOpportunity,
-} from './hooks/useCreateOpportunity';
+import { useCreateOpportunity } from './hooks/useCreateOpportunity';
 import type { CreateBenefitNavigationState } from './types';
 import { useHydrateFromSourceOpportunity } from './hooks/useHydrateFromSourceOpportunity';
 import { selectNationalTerritory } from '../../features/opportunityCreation/selectors';
@@ -94,34 +88,19 @@ export default function CreateBenefitPage() {
   };
 
   const handleSaveDraft = async () => {
-    try {
-      await createOpportunity({
-        isDraft: true,
-        sourceOpportunityId,
-        sourceOpportunityUpdatedAt: sourceOpportunity?.updatedAt,
-      });
-      dispatch(resetForm());
-      dispatch(resetPlaces());
-      navigate(APP_ROUTES.HOME);
-    } catch (error) {
-      if (
-        error instanceof Error &&
-        [
-          OPPORTUNITY_CONFLICT_ERROR,
-          OPPORTUNITY_NOT_EDITABLE_ERROR,
-          OPPORTUNITY_NOT_FOUND_ERROR,
-        ].includes(error.message)
-      ) {
-        navigate(APP_ROUTES.HOME);
-      }
+    const result = await createOpportunity({
+      isDraft: true,
+      sourceOpportunityId,
+      sourceOpportunityUpdatedAt: sourceOpportunity?.updatedAt,
+    });
 
-      if (
-        error instanceof Error &&
-        error.message === OPPORTUNITY_SOURCE_NOT_READY_ERROR
-      ) {
-        return;
-      }
+    if (!result) {
+      return;
     }
+
+    dispatch(resetForm());
+    dispatch(resetPlaces());
+    navigate(APP_ROUTES.HOME);
   };
 
   const handleBack = () => {
@@ -175,59 +154,40 @@ export default function CreateBenefitPage() {
     setSubmitReviewOpen(false);
 
     if (!sourceOpportunityId) {
-      try {
-        const result = await createOpportunity();
-        if (!result?.id) {
-          showToast(
-            "Impossibile inviare in revisione senza un'opportunità esistente",
-            'error',
-          );
-          return;
-        }
-        await handleRequestApproval(result.id);
-        dispatch(resetForm());
-        dispatch(resetPlaces());
-      } catch {
+      const result = await createOpportunity();
+      if (!result?.id) {
+        showToast(
+          "Impossibile inviare in revisione senza un'opportunità esistente",
+          'error',
+        );
         return;
       }
+
+      await handleRequestApproval(result.id);
+      dispatch(resetForm());
+      dispatch(resetPlaces());
       return;
     }
 
-    try {
-      await createOpportunity({
-        sourceOpportunityId,
-        sourceOpportunityUpdatedAt: sourceOpportunity?.updatedAt,
-        showSuccessToast: sourceOpportunity?.status !== 'draft',
-      });
+    const result = await createOpportunity({
+      sourceOpportunityId,
+      sourceOpportunityUpdatedAt: sourceOpportunity?.updatedAt,
+      showSuccessToast: sourceOpportunity?.status !== 'draft',
+    });
 
-      if (
-        sourceOpportunity?.status === 'draft' ||
-        sourceOpportunity?.status === 'test_rejected'
-      ) {
-        await handleRequestApproval(sourceOpportunityId);
-      } else {
-        dispatch(resetForm());
-        dispatch(resetPlaces());
-        navigate(APP_ROUTES.HOME);
-      }
-    } catch (error) {
-      if (
-        error instanceof Error &&
-        [
-          OPPORTUNITY_CONFLICT_ERROR,
-          OPPORTUNITY_NOT_EDITABLE_ERROR,
-          OPPORTUNITY_NOT_FOUND_ERROR,
-        ].includes(error.message)
-      ) {
-        navigate(APP_ROUTES.HOME);
-      }
+    if (!result) {
+      return;
+    }
 
-      if (
-        error instanceof Error &&
-        error.message === OPPORTUNITY_SOURCE_NOT_READY_ERROR
-      ) {
-        return;
-      }
+    if (
+      sourceOpportunity?.status === 'draft' ||
+      sourceOpportunity?.status === 'test_rejected'
+    ) {
+      await handleRequestApproval(sourceOpportunityId);
+    } else {
+      dispatch(resetForm());
+      dispatch(resetPlaces());
+      navigate(APP_ROUTES.HOME);
     }
   };
 

@@ -44,12 +44,12 @@ export function ModifyOpportunityModal({
           sx={{ mb: 2 }}
         >
           <Typography variant="h5" sx={{ fontWeight: 600 }}>
-            Vuoi modificare l&apos;opportunità?
+            Vuoi modificare l’opportunità?
           </Typography>
 
           <Typography sx={{ color: 'text.secondary', fontSize: 16 }}>
-            Potrebbe essere richiesta un&apos;approvazione del Dipartimento
-            prima di tornare visibile su IO.
+            Potrebbe essere richiesta un’approvazione del Dipartimento prima di
+            tornare visibile su IO.
           </Typography>
         </Stack>
 

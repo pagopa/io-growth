@@ -14,11 +14,6 @@ import {
 } from '../../../features/places/selectors';
 import { hasStatus } from '../../../core/api/baseApi';
 
-const OPPORTUNITY_VERSION_CONFLICT = 'OPPORTUNITY_VERSION_CONFLICT';
-const OPPORTUNITY_NOT_EDITABLE = 'OPPORTUNITY_NOT_EDITABLE';
-const OPPORTUNITY_NOT_FOUND = 'OPPORTUNITY_NOT_FOUND';
-const OPPORTUNITY_SOURCE_NOT_READY = 'OPPORTUNITY_SOURCE_NOT_READY';
-
 type UpsertOptions = {
   isDraft?: boolean;
   sourceOpportunityId?: string | null;
@@ -76,31 +71,20 @@ export const useCreateOpportunity = () => {
         localizedMetadata,
       };
 
-      const getConflictMessage = (error: unknown) => {
-        const responseMessage =
-          typeof error === 'object' &&
-          error !== null &&
-          'data' in error &&
-          typeof error.data === 'object' &&
-          error.data !== null &&
-          'message' in error.data &&
-          typeof error.data.message === 'string'
-            ? error.data.message
-            : '';
+      const getApiErrorMessage = (error: unknown) => {
+        if (hasStatus(error, 409)) {
+          return 'È già in corso una modifica dell’opportunità. Riprova più tardi.';
+        }
 
-        return hasStatus(error, 409) || /concurr|version/i.test(responseMessage)
-          ? 'È già in corso una modifica dell’opportunità. Riprova più tardi.'
-          : null;
-      };
+        if (hasStatus(error, 412)) {
+          return "L'opportunità non è modificabile in questo stato.";
+        }
 
-      const getNotEditableMessage = (error: unknown) => {
-        return hasStatus(error, 412)
-          ? "L'opportunità non è modificabile in questo stato."
-          : null;
-      };
+        if (hasStatus(error, 404)) {
+          return 'Opportunità non trovata.';
+        }
 
-      const getNotFoundMessage = (error: unknown) => {
-        return hasStatus(error, 404) ? 'Opportunità non trovata.' : null;
+        return null;
       };
 
       try {
@@ -110,7 +94,7 @@ export const useCreateOpportunity = () => {
               "Errore durante il salvataggio delle modifiche dell'opportunità",
               'error',
             );
-            throw new Error(OPPORTUNITY_SOURCE_NOT_READY);
+            return undefined;
           }
 
           await updateOpportunity({
@@ -146,23 +130,11 @@ export const useCreateOpportunity = () => {
 
         return data;
       } catch (error) {
-        const conflictMessage = getConflictMessage(error);
-        const notEditableMessage = getNotEditableMessage(error);
-        const notFoundMessage = getNotFoundMessage(error);
+        const apiErrorMessage = getApiErrorMessage(error);
 
-        if (conflictMessage) {
-          showToast(conflictMessage, 'error');
-          throw new Error(OPPORTUNITY_VERSION_CONFLICT);
-        }
-
-        if (notEditableMessage) {
-          showToast(notEditableMessage, 'error');
-          throw new Error(OPPORTUNITY_NOT_EDITABLE);
-        }
-
-        if (notFoundMessage) {
-          showToast(notFoundMessage, 'error');
-          throw new Error(OPPORTUNITY_NOT_FOUND);
+        if (apiErrorMessage) {
+          showToast(apiErrorMessage, 'error');
+          return undefined;
         }
 
         showToast(
@@ -175,7 +147,7 @@ export const useCreateOpportunity = () => {
               : "Errore durante la creazione dell'opportunità",
           'error',
         );
-        throw error;
+        return undefined;
       }
     },
     [
@@ -190,8 +162,3 @@ export const useCreateOpportunity = () => {
 
   return [handleCreation, { isLoading: isLoading || isUpdating }] as const;
 };
-
-export const OPPORTUNITY_CONFLICT_ERROR = OPPORTUNITY_VERSION_CONFLICT;
-export const OPPORTUNITY_NOT_EDITABLE_ERROR = OPPORTUNITY_NOT_EDITABLE;
-export const OPPORTUNITY_NOT_FOUND_ERROR = OPPORTUNITY_NOT_FOUND;
-export const OPPORTUNITY_SOURCE_NOT_READY_ERROR = OPPORTUNITY_SOURCE_NOT_READY;

@@ -30,6 +30,7 @@ import { resetForm } from '../../features/opportunityCreation/opportunityCreatio
 
 export interface StepProps {
   attempted: boolean;
+  isStartDateDisabled?: boolean;
 }
 
 interface StepConfig {
@@ -239,7 +240,12 @@ export default function CreateBenefitPage() {
             steps={STEPS.map((s) => s.label)}
             currentStep={currentStep}
           />
-          {CurrentStep && <CurrentStep attempted={attempted} />}
+          {CurrentStep && (
+            <CurrentStep
+              attempted={attempted}
+              isStartDateDisabled={sourceOpportunity?.status === 'published'}
+            />
+          )}
           <WizardFooter
             currentStep={currentStep}
             totalSteps={STEPS.length}

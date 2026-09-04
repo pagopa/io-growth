@@ -388,6 +388,26 @@ describe("makeOperatorUpdateOpportunityUseCase - published dateTo", () => {
       deps.opportunityRepository.updateFieldsByIdAndOperatorId,
     ).toHaveBeenCalledWith(expect.objectContaining({ dateTo: null }));
   });
+
+  it("returns 400 when attempting to modify dateFrom on a published opportunity", async () => {
+    const deps = makeDeps({
+      opportunityRepository: findReturning(
+        mockOpportunity({ status: "published" }),
+      ),
+    });
+    const result = await makeOperatorUpdateOpportunityUseCase(deps)({
+      ...baseInput,
+      dateFrom: "2026-10-01",
+    });
+
+    expect(result).toEqual(
+      err(expect.objectContaining({ kind: "ValidationError" })),
+    );
+    expect(
+      deps.opportunityRepository.updateFieldsByIdAndOperatorId,
+    ).not.toHaveBeenCalled();
+    expect(deps.materializedViewRepository.refreshAll).not.toHaveBeenCalled();
+  });
 });
 
 describe("makeOperatorUpdateOpportunityUseCase - blocked states", () => {

@@ -1,12 +1,13 @@
 import type { UseCase } from "@pagopa/io-core-domain";
 import type { BaseError } from "@pagopa/io-core-domain/errors";
+import type { Result } from "neverthrow";
 
 import {
   NotFoundError,
   PreconditionFailedError,
   ValidationError,
 } from "@pagopa/io-core-domain/errors";
-import { errAsync, okAsync, ResultAsync } from "neverthrow";
+import { err, errAsync, ok, okAsync, ResultAsync } from "neverthrow";
 import { z } from "zod";
 
 import type { MaterializedViewRepository } from "../../../domain/ports/outbound/materialized-view.repository.js";
@@ -91,6 +92,41 @@ const benefitChanged = (
   ("description" in incoming ? incoming.description : null) !==
     ("description" in current ? current.description : null);
 
+interface ValidatePublishedOpportunityDatesParams {
+  readonly dateFrom?: string;
+  readonly dateTo?: null | string;
+  readonly status: OpportunityDetail["status"];
+  readonly today: string;
+}
+
+const validatePublishedOpportunityDates = ({
+  dateFrom,
+  dateTo,
+  status,
+  today,
+}: ValidatePublishedOpportunityDatesParams): Result<void, ValidationError> => {
+  if (status !== OPPORTUNITY_STATUS.PUBLISHED) {
+    return ok(undefined);
+  }
+
+  // A live published opportunity cannot expire today or in the past:
+  // dateTo must be at least tomorrow (omitted / null is allowed).
+  if (dateTo !== undefined && dateTo !== null && dateTo <= today) {
+    return err(new ValidationError("dateTo must be at least tomorrow"));
+  }
+
+  // The dateFrom field cannot be modified for a live published opportunity
+  if (dateFrom !== undefined && dateFrom !== null) {
+    return err(
+      new ValidationError(
+        "dateFrom cannot be modified for a published opportunity",
+      ),
+    );
+  }
+
+  return ok(undefined);
+};
+
 export const makeOperatorUpdateOpportunityUseCase =
   (deps: {
     materializedViewRepository: MaterializedViewRepository;
@@ -141,6 +177,15 @@ export const makeOperatorUpdateOpportunityUseCase =
 
           const today = new Date().toISOString().slice(0, 10);
 
+          const publishedDatesResult = validatePublishedOpportunityDates({
+            dateFrom: v.dateFrom,
+            dateTo: v.dateTo,
+            status: data.status,
+            today,
+          });
+          if (publishedDatesResult.isErr())
+            return errAsync(publishedDatesResult.error);
+
           // Live published rows are already in the search MV, so any edit must
           // refresh. Scheduled is stored as published with a future dateFrom
           // and is absent from the MV; if this patch moves dateFrom to today
@@ -151,18 +196,6 @@ export const makeOperatorUpdateOpportunityUseCase =
             data.status === OPPORTUNITY_DISPLAY_STATUS.SCHEDULED &&
             v.dateFrom !== undefined &&
             v.dateFrom <= today;
-
-          // A live published opportunity cannot expire today or in the past:
-          // dateTo must be at least tomorrow (omitted / null is allowed).
-          if (
-            wasPublishedLive &&
-            v.dateTo !== undefined &&
-            v.dateTo !== null &&
-            v.dateTo <= today
-          )
-            return errAsync(
-              new ValidationError("dateTo must be at least tomorrow"),
-            );
 
           // validateExistence requires BOTH categoryId and placeIds: fill the
           // one not being edited from the current opportunity. Skip entirely

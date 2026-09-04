@@ -9,7 +9,9 @@ import { z as zod } from "zod";
 
 import type { OperatorUpdateOpportunityUseCase } from "../../../../application/use-cases/opportunities/operator-update-opportunity.use-case.js";
 
+import { OPERATOR_USER_TYPES } from "../../../../domain/entities/user-type.js";
 import { OperatorSessionSchema } from "../auth/session.js";
+import { withUserTypeAuthorization } from "../auth/utils/authorization.js";
 import {
   OperatorUpdateOpportunityBody,
   OperatorUpdateOpportunityParams,
@@ -20,23 +22,26 @@ const operatorUpdateOpportunityHttpSchema = zod.object({
   path: OperatorUpdateOpportunityParams,
 });
 
-const operatorUpdateOpportunityValidator = withSession(
-  OperatorSessionSchema,
-  createHttpRequestValidator(operatorUpdateOpportunityHttpSchema),
-  (session, { body, path }) => ({
-    beneficiaryBenefit: body.beneficiaryBenefit,
-    caregiverBenefit: body.caregiverBenefit,
-    categoryId: body.categoryId,
-    dateFrom: body.dateFrom,
-    dateTo: body.dateTo,
-    expectedUpdatedAt: body.updatedAt,
-    localizedMetadata: body.localizedMetadata,
-    nationalTerritory: body.nationalTerritory,
-    operatorId: session.operatorId,
-    opportunityId: path.opportunityId,
-    placeIds: body.placeIds,
-    url: body.url,
-  }),
+const operatorUpdateOpportunityValidator = withUserTypeAuthorization(
+  OPERATOR_USER_TYPES,
+  withSession(
+    OperatorSessionSchema,
+    createHttpRequestValidator(operatorUpdateOpportunityHttpSchema),
+    (session, { body, path }) => ({
+      beneficiaryBenefit: body.beneficiaryBenefit,
+      caregiverBenefit: body.caregiverBenefit,
+      categoryId: body.categoryId,
+      dateFrom: body.dateFrom,
+      dateTo: body.dateTo,
+      expectedUpdatedAt: body.updatedAt,
+      localizedMetadata: body.localizedMetadata,
+      nationalTerritory: body.nationalTerritory,
+      operatorId: session.operatorId,
+      opportunityId: path.opportunityId,
+      placeIds: body.placeIds,
+      url: body.url,
+    }),
+  ),
 );
 
 export const mountOperatorUpdateOpportunityHandler = (

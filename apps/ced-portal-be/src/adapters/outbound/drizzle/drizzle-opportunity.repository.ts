@@ -32,12 +32,15 @@ import type {
   PaginatedOpportunities,
   SuspendByIdAndOperatorIdInput,
   SuspendByIdInput,
+  UpdateFieldsByIdAndOperatorIdInput,
   UpdateOpportunityStatusByIdAndOperatorIdInput,
   UpdateOpportunityStatusByIdInput,
 } from "../../../domain/ports/outbound/persistence/opportunity.repository.js";
 
 import {
   ACTOR_TYPE,
+  BENEFIT_TYPE,
+  type BenefitSummary,
   OPPORTUNITY_STATUS,
   type OpportunityDetail,
 } from "../../../domain/entities/opportunity.js";
@@ -48,10 +51,13 @@ import {
 import { createOpportunityInTransaction } from "./opportunity.transaction.js";
 import * as schema from "./schema/index.js";
 import {
+  beneficiaryBenefit,
+  caregiverBenefit,
   localizedMetadata,
   operator,
   opportunity,
   opportunityCategory,
+  opportunityPlace,
 } from "./schema/tables.js";
 
 type DbOrTxClient = TransactionClient | TypedDbClient<typeof schema>;
@@ -496,6 +502,127 @@ const countByExternalOperatorIds =
     }
   };
 
+// Maps a BenefitSummary to the FULL set of type-specific columns, nulling the
+// ones not relevant to the type. Used for UPDATE/upsert so a type change (e.g.
+// discount -> free) clears stale value/discountType/description; a partial
+// .set() would leave them behind.
+const benefitColumns = (benefit: BenefitSummary) => ({
+  description: benefit.type === BENEFIT_TYPE.OTHER ? benefit.description : null,
+  discountType:
+    benefit.type === BENEFIT_TYPE.DISCOUNT ? benefit.discountType : null,
+  type: benefit.type,
+  value:
+    benefit.type === BENEFIT_TYPE.DISCOUNT ||
+    benefit.type === BENEFIT_TYPE.REDUCED_FIXED_PRICE
+      ? benefit.value
+      : null,
+});
+
+const updateFieldsByIdAndOperatorId =
+  (db: TypedDbClient<typeof schema>) =>
+  async (
+    input: UpdateFieldsByIdAndOperatorIdInput,
+  ): Promise<Result<void, ConflictError | GenericError>> => {
+    try {
+      await db.transaction(async (tx) => {
+        const result = await tx
+          .update(opportunity)
+          .set({
+            ...(input.categoryId !== undefined
+              ? { categoryId: input.categoryId }
+              : {}),
+            ...(input.dateFrom !== undefined
+              ? { dateFrom: input.dateFrom }
+              : {}),
+            ...(input.dateTo !== undefined ? { dateTo: input.dateTo } : {}),
+            ...(input.nationalTerritory !== undefined
+              ? { nationalTerritory: input.nationalTerritory }
+              : {}),
+            ...(input.transitionToTestPending
+              ? { status: OPPORTUNITY_STATUS.TEST_PENDING }
+              : {}),
+            ...(input.url !== undefined ? { url: input.url } : {}),
+            updatedAt: new Date(),
+          })
+          .where(
+            and(
+              eq(opportunity.id, input.opportunityId),
+              eq(opportunity.operatorId, input.operatorId),
+              sql`date_trunc('milliseconds', ${opportunity.updatedAt}) = ${input.expectedUpdatedAt}::timestamptz`,
+            ),
+          );
+
+        if (result.count === 0) {
+          throw new ConflictError("Opportunity was modified concurrently");
+        }
+
+        if (input.beneficiaryBenefit !== undefined) {
+          await tx
+            .update(beneficiaryBenefit)
+            .set(benefitColumns(input.beneficiaryBenefit))
+            .where(eq(beneficiaryBenefit.opportunityId, input.opportunityId));
+        }
+
+        // caregiver: undefined = untouched; null = remove; value = add/update
+        if (input.caregiverBenefit === null) {
+          await tx
+            .delete(caregiverBenefit)
+            .where(eq(caregiverBenefit.opportunityId, input.opportunityId));
+        } else if (input.caregiverBenefit !== undefined) {
+          await tx
+            .insert(caregiverBenefit)
+            .values({
+              opportunityId: input.opportunityId,
+              ...benefitColumns(input.caregiverBenefit),
+            })
+            .onConflictDoUpdate({
+              set: benefitColumns(input.caregiverBenefit),
+              target: caregiverBenefit.opportunityId,
+            });
+        }
+
+        if (input.placeIds !== undefined) {
+          await tx
+            .delete(opportunityPlace)
+            .where(eq(opportunityPlace.opportunityId, input.opportunityId));
+          if (input.placeIds.length > 0) {
+            await tx.insert(opportunityPlace).values(
+              input.placeIds.map((placeId) => ({
+                opportunityId: input.opportunityId,
+                placeId,
+              })),
+            );
+          }
+        }
+
+        if (input.localizedMetadata !== undefined) {
+          await tx
+            .delete(localizedMetadata)
+            .where(eq(localizedMetadata.opportunityId, input.opportunityId));
+          if (input.localizedMetadata.length > 0) {
+            await tx.insert(localizedMetadata).values(
+              input.localizedMetadata.map((lm) => ({
+                key: lm.key,
+                language: lm.language,
+                opportunityId: input.opportunityId,
+                value: lm.value,
+              })),
+            );
+          }
+        }
+      });
+
+      return ok(undefined);
+    } catch (error) {
+      if (error instanceof ConflictError) {
+        return err(error);
+      }
+      return err(
+        new GenericError(`Failed to update opportunity: ${String(error)}`),
+      );
+    }
+  };
+
 export const createDrizzleOpportunityRepository = (
   db: TypedDbClient<typeof schema>,
 ): OpportunityRepository => ({
@@ -638,6 +765,8 @@ export const createDrizzleOpportunityRepository = (
   suspendById: suspendById(db),
 
   suspendByIdAndOperatorId: suspendByIdAndOperatorId(db),
+
+  updateFieldsByIdAndOperatorId: updateFieldsByIdAndOperatorId(db),
 
   updateStatusById: updateStatusById(db),
 

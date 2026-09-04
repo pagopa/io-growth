@@ -5,6 +5,7 @@ import type {
 import type { Result } from "neverthrow";
 
 import type {
+  BenefitSummary,
   Opportunity,
   OpportunityDetail,
   OpportunitySummary,
@@ -88,6 +89,9 @@ export interface OpportunityRepository {
   readonly suspendByIdAndOperatorId: (
     input: SuspendByIdAndOperatorIdInput,
   ) => Promise<Result<void, ConflictError | GenericError>>;
+  readonly updateFieldsByIdAndOperatorId: (
+    input: UpdateFieldsByIdAndOperatorIdInput,
+  ) => Promise<Result<void, ConflictError | GenericError>>;
   readonly updateStatusById: (
     input: UpdateOpportunityStatusByIdInput,
   ) => Promise<Result<void, ConflictError | GenericError>>;
@@ -124,6 +128,25 @@ export interface SuspendByIdInput {
   opportunityId: string;
   suspendFrom?: string;
   suspensionMessage: string;
+}
+
+export interface UpdateFieldsByIdAndOperatorIdInput {
+  beneficiaryBenefit?: BenefitSummary;
+  caregiverBenefit?: BenefitSummary | null;
+  categoryId?: string;
+  dateFrom?: string;
+  dateTo?: null | string;
+  // Client-provided value for the optimistic-concurrency CAS (ISO, ms precision).
+  expectedUpdatedAt: string;
+  localizedMetadata?: OpportunityDetail["localizedMetadata"];
+  nationalTerritory?: boolean;
+  operatorId: string;
+  opportunityId: string;
+  placeIds?: string[];
+  // Set by the use case when a binding benefit change requires re-review;
+  // applied as status -> "test_pending" in the same CAS-guarded UPDATE.
+  transitionToTestPending: boolean;
+  url?: null | string;
 }
 
 export interface UpdateOpportunityStatusByIdAndOperatorIdInput {

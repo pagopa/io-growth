@@ -1,0 +1,24 @@
+meta {
+  name: Update an opportunity for the authenticated operator
+  type: http
+  seq: 7
+}
+
+patch {
+  url: {{baseUrl}}/operator/opportunities/:opportunityId
+  body: json
+  auth: inherit
+}
+
+params:path {
+  opportunityId: an-opportunity-id
+}
+
+body:json {
+  {
+    "updatedAt": "2026-01-01T00:00:00.000Z",
+    "dateFrom": "2026-09-03",
+    "dateTo": "2027-12-31",
+    "url": "https://example.org/updated-promo"
+  }
+}

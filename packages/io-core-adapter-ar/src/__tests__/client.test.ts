@@ -1,68 +1,53 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { customFetch, initArClient } from "../client.js";
+import { createArClient } from "../client.js";
 
-describe("customFetch", () => {
+const prodConfig = {
+  baseUrl: "https://prod.example.com",
+  subscriptionKey: "prod-key",
+};
+const testConfig = {
+  baseUrl: "https://test.example.com",
+  subscriptionKey: "test-key",
+};
+
+describe("createArClient", () => {
   afterEach(() => {
     vi.restoreAllMocks();
   });
 
-  it("parses json responses", async () => {
-    vi.spyOn(globalThis, "fetch").mockResolvedValue(
-      new Response(JSON.stringify({ ok: true }), {
-        headers: {
-          "content-type": "application/json",
-        },
-        status: 200,
-      }),
-    );
+  it("exposes the four AR outbound clients", () => {
+    const client = createArClient(prodConfig);
 
-    initArClient({
-      baseUrl: "https://ar.example.com",
-      subscriptionKey: "subscription-key",
-    });
-
-    const response = await customFetch<{
-      data: { ok: boolean };
-      headers: Headers;
-      status: number;
-    }>("/json", {
-      method: "GET",
-    });
-
-    expect(response).toEqual(
-      expect.objectContaining({
-        data: { ok: true },
-        status: 200,
-      }),
-    );
+    expect(client.documentContentClient).toBeDefined();
+    expect(client.institutionClient).toBeDefined();
+    expect(client.onboardingClient).toBeDefined();
+    expect(client.userClient).toBeDefined();
   });
 
-  it("parses binary responses as blobs", async () => {
-    vi.spyOn(globalThis, "fetch").mockResolvedValue(
-      new Response("pdf-bytes", {
-        headers: {
-          "content-type": "application/pdf",
-        },
+  it("binds each instance to its own config so prod and test stay isolated", async () => {
+    const fetchSpy = vi.spyOn(globalThis, "fetch").mockResolvedValue(
+      new Response(JSON.stringify({}), {
+        headers: { "content-type": "application/json" },
         status: 200,
       }),
     );
 
-    initArClient({
-      baseUrl: "https://ar.example.com",
-      subscriptionKey: "subscription-key",
-    });
+    const prodClient = createArClient(prodConfig);
+    const testClient = createArClient(testConfig);
 
-    const response = await customFetch<{
-      data: Blob;
-      headers: Headers;
-      status: number;
-    }>("/document-content/onboarding-id/contract-signed", {
-      method: "GET",
-    });
+    await prodClient.userClient.getUserById("user-1");
+    await testClient.userClient.getUserById("user-1");
 
-    expect(response.status).toBe(200);
-    expect(response.data).toBeInstanceOf(Blob);
-    await expect(response.data.text()).resolves.toBe("pdf-bytes");
+    const [prodCall, testCall] = fetchSpy.mock.calls;
+
+    expect(String(prodCall?.[0])).toContain("https://prod.example.com");
+    expect(
+      (prodCall?.[1]?.headers as Headers).get("Ocp-Apim-Subscription-Key"),
+    ).toBe("prod-key");
+    expect(String(testCall?.[0])).toContain("https://test.example.com");
+    expect(
+      (testCall?.[1]?.headers as Headers).get("Ocp-Apim-Subscription-Key"),
+    ).toBe("test-key");
   });
 });

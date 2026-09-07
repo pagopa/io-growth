@@ -83,8 +83,3 @@ export const {
 export const locationReducer = locationSlice.reducer;
 
 export const selectLocationForm = (state: RootState) => state.location;
-
-export const selectIsLocationFormValid = (state: RootState) => {
-  const { name, address, city } = state.location;
-  return !!name && !!address && !!city;
-};

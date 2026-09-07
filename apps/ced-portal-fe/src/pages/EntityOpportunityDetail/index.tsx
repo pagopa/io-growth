@@ -1,27 +1,27 @@
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import WebOutlined from '@mui/icons-material/WebOutlined';
 import Place from '@mui/icons-material/Place';
+import WarningAmberRoundedIcon from '@mui/icons-material/WarningAmberRounded';
+import WebOutlined from '@mui/icons-material/WebOutlined';
 import {
   Box,
   Button,
-  Chip,
   Paper,
   Skeleton,
   Stack,
   Typography,
   useTheme,
 } from '@mui/material';
-import WarningAmberRoundedIcon from '@mui/icons-material/WarningAmberRounded';
+import { MIChip } from '@pagopa/mui-italia';
 import { useMemo } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { useGetOpportunityDetailQuery } from '../../features/opportunities/api';
 import { APP_ROUTES } from '../../app/routeConfig';
-import { OpportunityDetailCard } from './components/OpportunityDetailCard';
+import { useGetOpportunityDetailQuery } from '../../features/opportunities/api';
+import { useGetPlacesByIdsQuery } from '../../features/places/api';
 import { getDetailChipConfig } from '../Home/components/utils';
 import { OpportunitiesCtas } from './components/OpportunitiesCtas/OpportunitiesCtas';
 import { OpportunityAlert } from './components/OpportunityAlert/OpportunityAlert';
+import { OpportunityDetailCard } from './components/OpportunityDetailCard';
 import { OpportunityDetailListSection } from './components/OpportunityDetailListSection';
-import { useGetPlacesByIdsQuery } from '../../features/places/api';
 
 export default function OpportunityDetailPage() {
   const theme = useTheme();
@@ -143,7 +143,7 @@ export default function OpportunityDetailPage() {
               >
                 {detail.categoryTitle}
               </Typography>
-              <Chip
+              <MIChip
                 {...getDetailChipConfig(detail)}
                 sx={{
                   flexShrink: 0,

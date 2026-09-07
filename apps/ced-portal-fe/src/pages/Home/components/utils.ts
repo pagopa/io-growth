@@ -1,4 +1,4 @@
-import { ChipProps } from '@mui/material';
+import { MIChipProps } from '@pagopa/mui-italia';
 import type {
   OpportunitySummaryItem,
   OpportunitySummaryItemStatus,
@@ -16,7 +16,7 @@ type OpportunityWithSuspension = {
   suspendFrom?: string | null;
 };
 
-const CHIP_SX: ChipProps['sx'] = {
+const CHIP_SX: MIChipProps['sx'] = {
   fontSize: 12,
   fontWeight: 700,
   height: 24,
@@ -34,15 +34,14 @@ const isScheduledSuspension = ({
 
 const buildChipConfig = (
   label: string,
-  color: ChipProps['color'],
-): ChipProps => ({
-  size: 'small',
+  color: MIChipProps['color'],
+): MIChipProps => ({
   label,
   color,
   sx: CHIP_SX,
 });
 
-export const getChipConfig = ({ item, role }: ChipConfig): ChipProps => {
+export const getChipConfig = ({ item, role }: ChipConfig): MIChipProps => {
   if (role === 'operator' && isScheduledSuspension(item)) {
     return buildChipConfig('Sospensione programmata', 'info');
   }
@@ -57,7 +56,7 @@ export const getChipConfig = ({ item, role }: ChipConfig): ChipProps => {
   return buildChipConfig(label, color);
 };
 
-export const getDetailChipConfig = (item: OpportunityDetail): ChipProps => {
+export const getDetailChipConfig = (item: OpportunityDetail): MIChipProps => {
   if (isScheduledSuspension(item)) {
     return buildChipConfig('Sospensione programmata', 'info');
   }

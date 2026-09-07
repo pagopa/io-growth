@@ -2,17 +2,12 @@ import type {
   ListOnboardingsStatusesItem,
   OnboardingDetail,
   OnboardingInstitutionDetail,
-  OnboardingItem,
-  OnboardingItemInstitution,
   OnboardingUser,
-  PendingOnboardingsResponse,
 } from '../../core/api/generated/model';
 
 export type DepartmentOnboardingStatus = ListOnboardingsStatusesItem;
 
-export type OnboardingInstitution = OnboardingItemInstitution;
-
-export type EntityDetailInstitution = OnboardingInstitutionDetail & {
+type EntityDetailInstitution = OnboardingInstitutionDetail & {
   institutionType?: string;
   origin?: string;
   originId?: string;
@@ -24,15 +19,9 @@ export type EntityDetailInstitution = OnboardingInstitutionDetail & {
   }>;
 };
 
-export type EntityDetailUser = OnboardingUser;
+type EntityDetailUser = OnboardingUser;
 
-export type DepartmentOnboardingItem = OnboardingItem & {
-  status?: DepartmentOnboardingStatus;
-};
-
-export type DepartmentOnboardingsResponse = PendingOnboardingsResponse;
-
-export interface BaseEntityItem {
+interface BaseEntityItem {
   id: string;
   name: string;
   city: string;

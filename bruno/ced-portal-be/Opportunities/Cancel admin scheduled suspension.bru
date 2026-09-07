@@ -1,0 +1,15 @@
+meta {
+  name: Cancel admin scheduled suspension
+  type: http
+  seq: 14
+}
+
+patch {
+  url: {{baseUrl}}/opportunities/:opportunityId/suspension/cancel
+  body: none
+  auth: inherit
+}
+
+params:path {
+  opportunityId: an-opportunity-id
+}

@@ -51,16 +51,15 @@ export const localizedMetadataLanguageEnum = pgEnum(
 );
 
 export const changeAuditEntityTypeEnum = pgEnum("change_audit_entity_type", [
-  "opportunity",
   "place",
-  "support_contact",
   "profile",
-  "address",
   "website",
+  "address",
+  "support_contact",
+  "opportunity",
   "beneficiary_benefit",
   "caregiver_benefit",
   "localized_metadata",
-  "opportunity_category",
 ]);
 
 export const changeAuditChangeTypeEnum = pgEnum("change_audit_change_type", [

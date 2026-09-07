@@ -1,0 +1,59 @@
+@startuml Sequence diagram for approving adhesion request
+participant "Department Admin" as admin
+participant "CED Backend" as be
+participant "Redis" as rd
+participant "AR" as ar
+
+admin -> be: GET /api/department/onboardings?statuses=PENDING_IN_REVIEW
+activate be
+be -> rd: Validate session token
+alt Session valid
+    be -> ar: Query pending onboardings
+    be -> admin: 200 OK with list of onboardings
+else Session invalid
+    be -> admin: 401 Unauthorized
+    deactivate be
+end
+deactivate be
+
+admin -> be: GET /api/department/onboardings/{onboardingId}
+activate be
+be -> rd: Validate session token
+alt Session valid
+    be -> ar: Fetch onboarding by ID
+    be -> admin: 200 OK with onboarding details
+else Session invalid
+    be -> admin: 401 Unauthorized
+    deactivate be
+end
+deactivate be
+
+admin -> be: PUT /api/department/onboardings/{onboardingId}/complete (with signed contract file)
+activate be
+be -> rd: Validate session token
+alt Session valid
+    be -> rd: Check user type is admin
+    be -> ar: Validate onboarding exists and is pending
+    be -> ar: Store uploaded contract
+    be -> ar: Update onboarding status to COMPLETED and store contract reference
+    be -> admin: 200 OK
+else Session invalid
+    be -> admin: 401 Unauthorized
+    deactivate be
+end
+deactivate be
+
+' Optional step: download the signed contract for verification
+admin -> be: GET /api/department/onboardings/{onboardingId}/contract
+activate be
+be -> rd: Validate session token
+alt Session valid
+    be -> ar: Fetch onboarding by ID and get contract reference
+    be -> ar: Retrieve contract file
+    be -> admin: 200 OK with contract file (Blob)
+else Session invalid
+    be -> admin: 401 Unauthorized
+    deactivate be
+end
+deactivate be
+@enduml

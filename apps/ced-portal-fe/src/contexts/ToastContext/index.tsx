@@ -37,7 +37,7 @@ export function ToastProvider({ children }: PropsWithChildren) {
     switch (toast?.variant) {
       case 'error':
         return {
-          bg: theme.palette.error[100],
+          bg: theme.colors.error[100],
           border: theme.palette.error.light,
           text: theme.palette.common.toastError,
           iconColor: theme.palette.common.toastError,
@@ -45,18 +45,18 @@ export function ToastProvider({ children }: PropsWithChildren) {
         };
       case 'success':
         return {
-          bg: theme.palette.success[100],
+          bg: theme.colors.success[100],
           border: theme.palette.common.alertSuccessBorder,
-          text: theme.palette.success[850],
+          text: theme.colors.success[850],
           iconColor: theme.palette.common.white,
-          iconBg: theme.palette.success[850],
+          iconBg: theme.colors.success[850],
           Icon: CheckRoundedIcon,
         };
       default:
         return {
-          bg: theme.palette.info[100],
+          bg: theme.colors.info[100],
           border: theme.palette.info.light,
-          text: theme.palette.info[850],
+          text: theme.colors.info[850],
           iconColor: theme.palette.common.white,
           iconBg: theme.palette.info.main,
           Icon: InfoIcon,

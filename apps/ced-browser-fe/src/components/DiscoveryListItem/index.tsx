@@ -3,46 +3,40 @@ import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
 
 import { Box, ButtonBase, Divider, Stack, useTheme } from '@mui/material';
 import { Body } from '@pagopa/io-core-ui';
+import { MIChip } from '@pagopa/mui-italia';
 import type {
   DiscoveryListItemProps,
   OpportunityProps,
   SimpleProps,
 } from './types';
 
-export type { DiscoveryListItemProps, DiscoveryListItemVariant } from './types';
+export type { DiscoveryListItemProps } from './types';
 
 function OpportunityContent({ eyebrow, title, badgeLabel }: OpportunityProps) {
   const theme = useTheme();
-  const { badgeBg, badgeText } = theme.palette.common;
+  const { neutral500, neutral900 } = theme.palette.common;
   return (
     <Stack spacing={1} sx={{ minWidth: 0, flex: 1 }}>
       <Stack spacing={0.5} sx={{ minWidth: 0 }}>
         {eyebrow && (
-          <Body fontWeight="Regular" fontSize="14px">
-            {eyebrow}
-          </Body>
+          <Box sx={{ color: neutral500, lineHeight: '20px' }}>
+            <Body fontWeight="Regular" fontSize="14px">
+              {eyebrow}
+            </Body>
+          </Box>
         )}
-        <Body fontWeight="Semibold">{title}</Body>
+        <Box sx={{ color: neutral900, lineHeight: '28px' }}>
+          <Body fontWeight="Semibold">{title}</Body>
+        </Box>
       </Stack>
-
-      <Box
-        component="span"
+      <MIChip
+        color="highlight"
+        label={badgeLabel}
+        variant="filled"
         sx={{
-          display: 'inline-flex',
-          alignSelf: 'flex-start',
-          alignItems: 'center',
-          borderRadius: '999px',
-          px: 1,
-          py: 0.75,
-          bgcolor: badgeBg,
-          color: badgeText,
-          fontSize: 12,
-          fontWeight: 600,
-          lineHeight: 1,
+          width: 'fit-content',
         }}
-      >
-        {badgeLabel}
-      </Box>
+      />
     </Stack>
   );
 }
@@ -71,47 +65,62 @@ export function DiscoveryListItem(props: DiscoveryListItemProps) {
       event.stopPropagation();
       onDelete();
     }
-    return null;
   };
 
   const Icon = onDelete ? CloseRoundedIcon : ChevronRightRoundedIcon;
   return (
-    <ButtonBase
-      onClick={onClick}
-      disabled={disabled}
-      sx={[
-        {
-          width: '100%',
-          textAlign: 'left',
-          display: 'block',
-          py: 2,
-          bgcolor: 'common.neutralGray',
-          '&:disabled': {
-            opacity: 0.7,
+    <>
+      <ButtonBase
+        onClick={onClick}
+        disabled={disabled}
+        sx={[
+          {
+            width: '100%',
+            textAlign: 'left',
+            display: 'block',
+            py: 2.25,
+            bgcolor: 'background.paper',
+            transition: 'background-color 120ms ease',
+            '&:hover': {
+              bgcolor: 'common.neutralGray',
+            },
+            '&:focus-visible': {
+              outline: 'none',
+              boxShadow: (theme) =>
+                `inset 0 0 0 2px ${theme.palette.common.primaryButton}`,
+              bgcolor: 'background.paper',
+            },
+            '&:disabled': {
+              opacity: 0.7,
+            },
           },
-        },
-        ...(Array.isArray(sx) ? sx : sx ? [sx] : []),
-      ]}
-    >
-      <Stack direction="row" justifyContent="space-between" gap={1} px={3}>
-        {props.variant === 'simple' ? (
-          <SimpleContent {...props} />
-        ) : (
-          <OpportunityContent {...props} />
-        )}
+          ...(Array.isArray(sx) ? sx : sx ? [sx] : []),
+        ]}
+      >
+        <Stack direction="row" justifyContent="space-between" gap={1} px={3}>
+          {props.variant === 'simple' ? (
+            <SimpleContent {...props} />
+          ) : (
+            <OpportunityContent {...props} />
+          )}
 
-        <Box
-          sx={{
-            display: 'flex',
-            alignItems: 'center',
-            color: 'primary.main',
-            flexShrink: 0,
-          }}
-        >
-          <Icon sx={{ fontSize: 24, zIndex: 1 }} onClick={handleIconClick} />
-        </Box>
-      </Stack>
-      {props.divider && <Divider sx={{ mt: 3 }} />}
-    </ButtonBase>
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              color: 'primary.main',
+              flexShrink: 0,
+              pl: 1,
+            }}
+          >
+            <Icon
+              sx={{ fontSize: 26, zIndex: 1 }}
+              onClick={onDelete ? handleIconClick : undefined}
+            />
+          </Box>
+        </Stack>
+      </ButtonBase>
+      {props.divider && <Divider aria-hidden />}
+    </>
   );
 }

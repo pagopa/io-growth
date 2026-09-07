@@ -73,5 +73,3 @@ export function PublishEntityModal({
     </Dialog>
   );
 }
-
-export default PublishEntityModal;

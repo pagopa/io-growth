@@ -1,4 +1,4 @@
-import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
+import CloseIcon from '@mui/icons-material/Close';
 import SearchRoundedIcon from '@mui/icons-material/SearchRounded';
 import {
   Box,
@@ -79,7 +79,7 @@ export function EntitiesSearch({
     }
   }, [debouncedQuery, data]);
 
-  const showClearButton = isSearchActive || query.length > 0;
+  const showClearButton = query.length > 0;
 
   const handleCancel = () => {
     setQuery('');
@@ -197,6 +197,12 @@ export function EntitiesSearch({
           value={query}
           onChange={(event) => setQuery(event.target.value)}
           onFocus={onFocus}
+          onClick={() => setIsSearchActive(true)}
+          onKeyDown={(event) => {
+            if (event.key === 'Enter') {
+              setIsSearchActive(true);
+            }
+          }}
           onBlur={onBlur}
           label="Cerca per città, struttura o ente"
           variant="outlined"
@@ -207,7 +213,7 @@ export function EntitiesSearch({
           }}
           InputProps={{
             startAdornment: (
-              <InputAdornment position="start">
+              <InputAdornment position="start" aria-hidden="true">
                 <SearchRoundedIcon
                   className="SearchInputIcon"
                   aria-hidden="true"
@@ -215,9 +221,8 @@ export function EntitiesSearch({
               </InputAdornment>
             ),
             endAdornment: showClearButton ? (
-              <InputAdornment position="end">
+              <InputAdornment position="end" sx={{ mr: -1.5 }}>
                 <IconButton
-                  className="SearchClearButton"
                   aria-label="Cancella ricerca"
                   edge="end"
                   size="small"
@@ -227,7 +232,9 @@ export function EntitiesSearch({
                     inputRef.current?.focus();
                   }}
                 >
-                  <CloseRoundedIcon sx={{ fontSize: 18 }} />
+                  <CloseIcon
+                    sx={{ color: 'common.neutralBlack', fontSize: 24 }}
+                  />
                 </IconButton>
               </InputAdornment>
             ) : null,

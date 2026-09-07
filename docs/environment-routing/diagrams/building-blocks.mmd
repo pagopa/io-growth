@@ -1,0 +1,32 @@
+%% Building Block View — @pagopa/io-core-environment-router and its usage in ced-portal-be
+flowchart TD
+    subgraph ALS_MOD["async-local-storage-session-context.ts"]
+        PREHANDLER["createSessionContextPreHandler()"]
+        ALS[("AsyncLocalStorage&lt;Session&gt;")]
+        GETSESSION["getRequestSession()"]
+        PREHANDLER --> ALS
+        ALS --> GETSESSION
+    end
+
+    subgraph ROOT["Composition root (main.ts / routed-clients.ts)"]
+        ISTEST["isTestRequest()\nreads getRequestSession().userType"]
+        DBROUTER["createDbRouter(config)"]
+        ARROUTER["createArRouter(config)"]
+        REPOS["Repository factories\noperatorRepository, arOnboardingRepository, ..."]
+    end
+
+    subgraph PKG["@pagopa/io-core-environment-router (zero-dependency)"]
+        CER["createEnvRouter(params)"]
+        PROXY{{"Proxy\nget/set traps re-evaluate\nisTestRequest() on every access"}}
+        SENTINEL["Inner sentinel object\nother traps throw\n(has, ownKeys, getPrototypeOf, ...)"]
+        CER --> PROXY
+        PROXY --> SENTINEL
+    end
+
+    GETSESSION --> ISTEST
+    ISTEST --> DBROUTER
+    ISTEST --> ARROUTER
+    DBROUTER -->|createEnvRouter| CER
+    ARROUTER -->|createEnvRouter| CER
+    PROXY -->|"getInstance() — stable reference"| REPOS
+

@@ -32,6 +32,18 @@ export function PageHeader({
           fontSize: 16,
           fontWeight: 600,
           mb: 3,
+          WebkitTapHighlightColor: 'transparent',
+          '&:focus': {
+            outline: 'none',
+          },
+          '&:focus-visible': {
+            outline: 'auto',
+          },
+          '@media (hover: none) and (pointer: coarse)': {
+            '&:focus-visible': {
+              outline: 'none',
+            },
+          },
         }}
       >
         <ArrowBack sx={{ fontSize: 20 }} />

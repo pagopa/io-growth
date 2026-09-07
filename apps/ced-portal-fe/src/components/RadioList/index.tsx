@@ -7,7 +7,7 @@ import {
 } from '@mui/material';
 import Radio from '@mui/material/Radio';
 
-export interface RadioListOption {
+interface RadioListOption {
   value: string;
   label: string;
 }

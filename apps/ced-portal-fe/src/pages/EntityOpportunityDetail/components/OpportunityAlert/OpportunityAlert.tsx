@@ -1,12 +1,12 @@
-import InfoIcon from '@mui/icons-material/InfoRounded';
 import WarningIcon from '@mui/icons-material/WarningRounded';
-import { Alert, Box, Button, Stack, Typography } from '@mui/material';
+import { Box, Button, Stack, Typography } from '@mui/material';
+import { MIAlert } from '@pagopa/mui-italia';
 import { format, parseISO } from 'date-fns';
-import { useOperatorCancelScheduledSuspensionMutation } from '../../../../features/opportunities/api';
 import { useToast } from '../../../../contexts';
+import { OpportunitySummaryItemSuspendedBy } from '../../../../core/api/generated/model';
+import { useOperatorCancelScheduledSuspensionMutation } from '../../../../features/opportunities/api';
 import type { OpportunityStatus } from '../../../../features/opportunities/types';
 import { opportunityAlertMap } from './constants';
-import { OpportunitySummaryItemSuspendedBy } from '../../../../core/api/generated/model';
 
 type OpportunityAlertProps = {
   id: string;
@@ -123,17 +123,11 @@ export const OpportunityAlert = ({
   if (!opportunityAlertMap[status]) {
     return null;
   }
-  const { title, description, severity, sx, icon, color } =
+  const { title, description, severity, sx, color } =
     opportunityAlertMap[status];
 
-  const Icon = icon === 'info' ? InfoIcon : WarningIcon;
-
   return (
-    <Alert
-      severity={severity}
-      icon={<Icon sx={{ color, fontSize: 24 }} />}
-      sx={sx}
-    >
+    <MIAlert severity={severity} sx={sx}>
       <Typography
         sx={{
           fontWeight: 600,
@@ -153,6 +147,6 @@ export const OpportunityAlert = ({
       >
         {description}
       </Typography>
-    </Alert>
+    </MIAlert>
   );
 };

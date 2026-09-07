@@ -5,8 +5,8 @@ Extracted from `apps/ced-portal-be`. All backend apps (`apps/*-be`) follow
 layer. The canonical naming pattern is **`actor-verb-object`**.
 
 > This document is the source of truth for the naming skill. It records the
-> intended rules **and** the known deviations in `ced-portal-be` so the skill
-> can both generate correct names and flag existing "errors".
+> intended rules in §1–§8 and the **accepted** deviations in §9, so the skill can
+> both generate correct names and flag violations.
 
 ---
 
@@ -62,10 +62,10 @@ Folders group artifacts by **domain** (the bounded context), not by actor.
 inbound-handler folder for the same context (e.g. `opportunities/` appears under
 both `application/use-cases/` and `adapters/inbound/fastify/`).
 
-> ⚠️ **Known deviation:** domain folders mix singular and plural
-> (`opportunities/`, `places/` are plural; `profile/`, `department/` are
-> singular). Pick one convention per domain and keep it consistent across
-> layers. (Entities are always singular — see §6.)
+> ℹ️ Domain folders mix singular and plural (`opportunities/`, `places/` are
+> plural; `profile/`, `department/` are singular). This is an **accepted
+> deviation** (see §9): each domain keeps its own form, and that form must be
+> identical across every layer. (Entities are always singular — see §6.)
 
 ---
 
@@ -94,22 +94,6 @@ Each file uses a **layer suffix** after the `actor-verb-object` (or
   (`drizzle-`, `redis-`, `ar-`) matching the folder they live in.
 - Import paths must use the `.js` extension (ESM), even for `.ts` sources.
 
-> ⚠️ **Known deviations to avoid:**
->
-> - `create-operator-opportunity.use-case.ts`, `get-operator-opportunity.use-case.ts`,
->   `list-operator-opportunities.use-case.ts`, `create-operator-place.use-case.ts`,
->   `get-operator-place.use-case.ts`, `list-operator-places.use-case.ts`,
->   `create-operator-profile.use-case.ts`, `get-operator-profile.use-case.ts`
->   use **`verb-actor-object`**. They should be
->   `operator-create-opportunity`, `operator-get-opportunity`,
->   `operator-list-opportunities`, etc.
-> - `admin-approve-opportunity.handler.ts` / `admin-get-opportunity.handler.ts`
->   have the `admin-` prefix in the **file** but their use case
->   (`approve-opportunity.use-case.ts`, `get-opportunity.use-case.ts`) and their
->   exported symbols drop it. File and symbol must agree.
-> - `health-check.repository.ts` (drizzle adapter) is **missing** its
->   `drizzle-` technology prefix, unlike `redis-health-check.repository.ts`.
-
 ---
 
 ## 4. Function / exported-symbol naming per layer
@@ -137,15 +121,10 @@ the same `actor-verb-object` triple.
 - Handlers export a single `mount…Handler(fastify, useCase)` and are re-exported
   from `adapters/inbound/fastify/index.ts`. The re-exported symbol name must
   match the file's `actor-verb-object`.
-
-> ⚠️ **Known deviations to avoid:**
->
-> - `admin-approve-opportunity.handler.ts` exports `mountApproveOpportunityHandler`
->   (missing `Admin`); `admin-get-opportunity.handler.ts` exports
->   `mountGetOpportunityHandler` (missing `Admin`).
-> - `info-readiness.use-case.ts` exports `makeGetInfoReadinessUseCase` /
->   `GetInfoReadinessUseCase` — the symbol adds a `Get` verb the file name does
->   not have. File and symbol must encode the same base name.
+- Handler-local constants (HTTP schema, validator, formatter) use the
+  camelCase form of the same base name:
+  `<actorVerbObject>HttpSchema`, `<actorVerbObject>Validator`,
+  `<actorVerbObject>Formatter`.
 
 ---
 
@@ -171,10 +150,6 @@ actor (the actor is the calling use case, not the port).
   `SuspendByIdAndOperatorIdInput`, `DeleteOpportunityByIdAndOperatorIdInput`.
 - All methods return `Promise<Result<T, BaseError>>` (`neverthrow`).
 
-> ⚠️ **Known deviation:** `health-check.repository.ts` declares
-> `IHealthCheckRepository` with an `I` prefix, inconsistent with every other
-> port. Drop the `I` prefix.
-
 ---
 
 ## 6. Domain entity & value-object naming
@@ -190,10 +165,6 @@ actor (the actor is the calling use case, not the port).
   `SCREAMING_SNAKE` keys and `snake_case` string values, declared `as const` —
   `OPPORTUNITY_STATUS`, `ACTOR_TYPE`.
 - Entities have **no dependencies** beyond value-object/schema types (`zod`).
-
-> ⚠️ **Known deviation:** in `opportunity.ts`, `localizedMetadataSchema` is
-> camelCase while sibling schemas (`BenefitFreeSchema`, `OpportunitySchema`) are
-> PascalCase. Exported and module-level schemas should be `PascalCaseSchema`.
 
 ---
 
@@ -228,5 +199,18 @@ For a new business operation `operator publishes an opportunity`:
    `createDrizzleOpportunityRepository`.
 7. **Test:** `__tests__/operator-publish-opportunity.use-case.test.ts` mocking
    the port via `createMock…Repository()` in `mocks.ts`.
+
+---
+
+## 9. Accepted deviations
+
+Deviations listed here are **deliberate** and must not be reported as errors.
+Anything not listed is a violation of §1–§8.
+
+| Deviation                                                                                                            | Rationale                                                                                                    |
+| -------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
+| Domain folders mix singular and plural: `opportunities/`, `places/` (plural) vs `profile/`, `department/` (singular) | Renaming them churns every layer for no functional gain. Each domain keeps its form **consistently** (§2).   |
+| OpenAPI `operationId`s do not always match the use-case `actor-verb-object` base name (e.g. `approveOpportunity`)    | `operationId`s drive the orval-generated frontend clients; renaming them is a breaking change for consumers. |
+| Generated code under `adapters/inbound/fastify/contracts/**`                                                         | Produced by orval from the OpenAPI spec. Never hand-edited, so it is out of scope for these conventions.     |
 
 ---

@@ -1,31 +1,17 @@
-import { Check, ContentCopy } from '@mui/icons-material';
+import { Check } from '@mui/icons-material';
 import { Box, Button, useTheme } from '@mui/material';
 import { Title, VSpacer } from '@pagopa/io-core-ui';
-import { useState } from 'react';
 import { MarkdownRenderer } from '../../components/Typography/MarkdownRender';
-import { copyTextToClipboard } from '../../utils';
+import { CopyToClipboardButton } from '../../components';
 import { useAppSelector } from '../../hooks';
 import { selectNumDomus } from '../../features/status/selectors';
 
 export default function SubmissionSuccess() {
   const theme = useTheme();
-  const [copied, setCopied] = useState(false);
 
   const onClose = () => window.location.replace('iossoapi://cancel');
 
   const numDomus = useAppSelector(selectNumDomus);
-
-  const handleCopy = async () => {
-    if (!numDomus) return;
-    try {
-      const success = await copyTextToClipboard(numDomus);
-      if (!success) throw new Error('Copy failed');
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    } catch {
-      // ignore
-    }
-  };
 
   const handleClose = () => {
     if (onClose) {
@@ -86,11 +72,10 @@ Numero Domus: **${numDomus}**.`;
             gap: 2,
           }}
         >
-          <Button
+          <CopyToClipboardButton
+            textToCopy={numDomus}
             size="medium"
             variant="contained"
-            onClick={handleCopy}
-            startIcon={<ContentCopy />}
             sx={{
               bgcolor: theme.palette.common.primaryButton,
               textTransform: 'none',
@@ -98,9 +83,7 @@ Numero Domus: **${numDomus}**.`;
               '& .MuiButton-startIcon': { color: 'inherit' },
             }}
             aria-label="Copia numero domus"
-          >
-            {copied ? 'Copiato' : 'Copia numero'}
-          </Button>
+          />
           <Button
             variant="text"
             onClick={handleClose}

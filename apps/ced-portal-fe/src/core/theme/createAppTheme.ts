@@ -36,7 +36,7 @@ declare module '@mui/material/styles' {
   }
 }
 
-export const createAppTheme = () =>
+const createAppTheme = () =>
   createTheme(muiItaliaTheme, {
     typography: {
       fontFamily: '"Titillio", Arial, sans-serif',

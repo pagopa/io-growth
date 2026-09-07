@@ -1,0 +1,34 @@
+@startuml Concurrent Prod and Test Requests
+actor "Request A\n(prod operator)" as A
+actor "Request B\n(test operator)" as B
+participant "AsyncLocalStorage" as ALS
+participant "EnvRouter Proxy" as Proxy
+participant "Prod DB" as ProdDB
+participant "Test DB" as TestDB
+
+A -> ALS: t1: storage.run({ userType: "operator" })
+B -> ALS: t2: storage.run({ userType: "test_operator" })
+
+A -> Proxy: t3: db.execute()
+activate Proxy
+Proxy -> ALS: isTestRequest() [context A]
+ALS --> Proxy: false
+Proxy -> ProdDB: execute()
+deactivate Proxy
+
+B -> Proxy: t4: db.execute()
+activate Proxy
+Proxy -> ALS: isTestRequest() [context B]
+ALS --> Proxy: true
+Proxy -> TestDB: execute()
+deactivate Proxy
+
+A -> Proxy: t5: db.execute()
+activate Proxy
+Proxy -> ALS: isTestRequest() [context A]
+ALS --> Proxy: false
+Proxy -> ProdDB: execute()
+deactivate Proxy
+
+note over Proxy: no shared mutable state -\nNode.js propagates ALS per async context tree,\nso request A is never polluted by request B
+@enduml

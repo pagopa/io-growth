@@ -8,7 +8,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { SupportRecord } from "../../../../domain/entities/support-record.js";
 
-import { createMockGestioneDomandaCedRepository } from "../../status/__tests__/mocks.js";
+import { createMockCardApplicationRepository } from "../../__tests__/mocks.js";
 import { makeCreateDraftUseCase } from "../create-draft.use-case.js";
 import {
   createMockSupportRecordRepository,
@@ -36,20 +36,17 @@ describe("makeCreateDraftUseCase", () => {
   let supportRecordRepository: ReturnType<
     typeof createMockSupportRecordRepository
   >;
-  let gestioneDomandaCedRepository: ReturnType<
-    typeof createMockGestioneDomandaCedRepository
+  let cardApplicationRepository: ReturnType<
+    typeof createMockCardApplicationRepository
   >;
 
   beforeEach(() => {
     supportRecordRepository = createMockSupportRecordRepository();
-    gestioneDomandaCedRepository = createMockGestioneDomandaCedRepository();
+    cardApplicationRepository = createMockCardApplicationRepository();
   });
 
   const useCase = () =>
-    makeCreateDraftUseCase(
-      supportRecordRepository,
-      gestioneDomandaCedRepository,
-    );
+    makeCreateDraftUseCase(supportRecordRepository, cardApplicationRepository);
 
   it("returns a ValidationError for invalid input without touching any repository", async () => {
     const result = await useCase()({
@@ -60,7 +57,7 @@ describe("makeCreateDraftUseCase", () => {
     expect(result).toEqual(err(expect.any(ValidationError)));
     expect(supportRecordRepository.getByCodiceFiscale).not.toHaveBeenCalled();
     expect(
-      gestioneDomandaCedRepository.nuovaDomandaInBozza,
+      cardApplicationRepository.createApplicationDraft,
     ).not.toHaveBeenCalled();
   });
 
@@ -93,7 +90,7 @@ describe("makeCreateDraftUseCase", () => {
         ok({ idLavorazione: "ABC-12345", state: "READY_FOR_PHOTO_UPLOAD" }),
       );
       expect(
-        gestioneDomandaCedRepository.nuovaDomandaInBozza,
+        cardApplicationRepository.createApplicationDraft,
       ).not.toHaveBeenCalled();
       expect(supportRecordRepository.save).not.toHaveBeenCalled();
     });
@@ -119,7 +116,7 @@ describe("makeCreateDraftUseCase", () => {
         ok(existing),
       );
       vi.mocked(
-        gestioneDomandaCedRepository.nuovaDomandaInBozza,
+        cardApplicationRepository.createApplicationDraft,
       ).mockResolvedValue(ok({ idLavorazione: "ABC-12345" }));
 
       const result = await useCase()(mockCreateDraftInput);
@@ -128,15 +125,40 @@ describe("makeCreateDraftUseCase", () => {
         ok({ idLavorazione: "ABC-12345", state: "READY_FOR_PHOTO_UPLOAD" }),
       );
       expect(
-        gestioneDomandaCedRepository.nuovaDomandaInBozza,
-      ).toHaveBeenCalledWith(expect.anything(), {
-        idempotencyKey: "inps-key-1",
-      });
+        cardApplicationRepository.createApplicationDraft,
+      ).toHaveBeenCalledWith(
+        {
+          capRec: "00100",
+          civicoRec: "12",
+          codiceFiscale: MOCK_FISCAL_CODE,
+          cognome: "Rossi",
+          comuneNascita: "Roma",
+          dataNascita: "1980-01-01T00:00:00.000Z",
+          dataScadenzaPermessoSoggiorno: null,
+          datiAggiuntiviRec: null,
+          descrizioneComuneRec: "Roma",
+          idCittadinanza: 0,
+          indirizzoRec: "Via Roma",
+          informativaPrivacy: true,
+          nome: "Mario",
+          pressoCognome: null,
+          pressoDenominazione: null,
+          pressoNome: null,
+          sesso: "M",
+          siglaProvinciaNascita: "RM",
+          siglaProvinciaRec: "RM",
+          statoNascita: "ITALIA",
+        },
+        {
+          idempotencyKey: "inps-key-1",
+        },
+      );
     });
 
     it("starts a new intent with a fresh INPS key and cascades a reset of photo/confirm", async () => {
       const existing = baseRecord({
         idLavorazione: "OLD-99999",
+        numDomus: "OLD-DOMUS",
         state: "READY_FOR_DOCUMENTS_UPLOAD",
         steps: {
           confirm: null,
@@ -164,7 +186,7 @@ describe("makeCreateDraftUseCase", () => {
         ok(existing),
       );
       vi.mocked(
-        gestioneDomandaCedRepository.nuovaDomandaInBozza,
+        cardApplicationRepository.createApplicationDraft,
       ).mockResolvedValue(ok({ idLavorazione: "NEW-11111" }));
 
       const result = await useCase()(mockCreateDraftInput);
@@ -177,12 +199,13 @@ describe("makeCreateDraftUseCase", () => {
         1,
         expect.objectContaining({
           idLavorazione: null,
+          numDomus: null,
           pendingStep: "DRAFT",
           steps: expect.objectContaining({ confirm: null, photo: null }),
         }),
       );
       const [, { idempotencyKey }] = vi.mocked(
-        gestioneDomandaCedRepository.nuovaDomandaInBozza,
+        cardApplicationRepository.createApplicationDraft,
       ).mock.calls[0];
       expect(idempotencyKey).not.toBe("old-inps-key");
     });
@@ -192,7 +215,7 @@ describe("makeCreateDraftUseCase", () => {
         ok(undefined),
       );
       vi.mocked(
-        gestioneDomandaCedRepository.nuovaDomandaInBozza,
+        cardApplicationRepository.createApplicationDraft,
       ).mockResolvedValue(ok({ idLavorazione: "NEW-11111" }));
 
       const result = await useCase()(mockCreateDraftInput);
@@ -204,13 +227,37 @@ describe("makeCreateDraftUseCase", () => {
   });
 
   describe("INPS outcomes", () => {
+    it("invalidates a previous reconciliation snapshot after INPS creates the draft", async () => {
+      vi.mocked(supportRecordRepository.getByCodiceFiscale).mockResolvedValue(
+        ok(
+          baseRecord({
+            lastReconciliation: {
+              at: "2026-01-01T00:00:00.000Z",
+              esitoCheck: 10,
+            },
+          }),
+        ),
+      );
+      vi.mocked(
+        cardApplicationRepository.createApplicationDraft,
+      ).mockResolvedValue(ok({ idLavorazione: "NEW-11111" }));
+
+      await useCase()(mockCreateDraftInput);
+
+      expect(supportRecordRepository.save).toHaveBeenNthCalledWith(
+        2,
+        expect.objectContaining({
+          lastReconciliation: null,
+          state: "READY_FOR_PHOTO_UPLOAD",
+        }),
+      );
+    });
+
     it("handles ValidationError by marking the step FAILED and system errors by leaving it PENDING", async () => {
       // 400 from INPS → step is marked FAILED.
       vi.mocked(
-        gestioneDomandaCedRepository.nuovaDomandaInBozza,
-      ).mockResolvedValueOnce(
-        err(new ValidationError("nuovaDomandaInBozza rejected")),
-      );
+        cardApplicationRepository.createApplicationDraft,
+      ).mockResolvedValueOnce(err(new ValidationError("draft rejected")));
 
       const validationResult = await useCase()(mockCreateDraftInput);
 
@@ -229,7 +276,7 @@ describe("makeCreateDraftUseCase", () => {
       // INPS system error → step stays PENDING so a retry can reuse the key.
       vi.clearAllMocks();
       vi.mocked(
-        gestioneDomandaCedRepository.nuovaDomandaInBozza,
+        cardApplicationRepository.createApplicationDraft,
       ).mockResolvedValueOnce(err(new GenericError("INPS unavailable")));
 
       const systemErrorResult = await useCase()(mockCreateDraftInput);
@@ -249,7 +296,7 @@ describe("makeCreateDraftUseCase", () => {
 
       expect(result).toEqual(err(expect.any(ServiceUnavailableError)));
       expect(
-        gestioneDomandaCedRepository.nuovaDomandaInBozza,
+        cardApplicationRepository.createApplicationDraft,
       ).not.toHaveBeenCalled();
     });
 
@@ -262,13 +309,13 @@ describe("makeCreateDraftUseCase", () => {
 
       expect(result).toEqual(err(expect.any(ServiceUnavailableError)));
       expect(
-        gestioneDomandaCedRepository.nuovaDomandaInBozza,
+        cardApplicationRepository.createApplicationDraft,
       ).not.toHaveBeenCalled();
     });
 
     it("returns a GenericError when saving the outcome fails after INPS already succeeded", async () => {
       vi.mocked(
-        gestioneDomandaCedRepository.nuovaDomandaInBozza,
+        cardApplicationRepository.createApplicationDraft,
       ).mockResolvedValue(ok({ idLavorazione: "NEW-11111" }));
       vi.mocked(supportRecordRepository.save)
         .mockImplementationOnce((record) => Promise.resolve(ok(record)))

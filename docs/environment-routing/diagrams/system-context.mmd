@@ -1,0 +1,23 @@
+%% System Scope and Context — ced-portal-be request routing
+flowchart TD
+    REQ(["Fastify request"]) --> AUTH["authPreHandler"]
+    AUTH --> SESSION["sessionContextPreHandler\n(populates AsyncLocalStorage)"]
+    SESSION --> ROUTE["Route handler"]
+    ROUTE --> UC["Use case"]
+    UC --> REPO["Repository\n(plain db / arClient)"]
+    REPO --> PROXY{{"EnvRouter Proxy\nreads ALS on each property access"}}
+
+    PROXY -->|prod| PRODDB[("Prod DB")]
+    PROXY -->|prod| PRODAR[["Prod AR API"]]
+    PROXY -->|test| TESTDB[("Test DB")]
+    PROXY -->|test| TESTAR[["Test AR API"]]
+
+    subgraph BE["ced-portal-be"]
+        REQ
+        AUTH
+        SESSION
+        ROUTE
+        UC
+        REPO
+        PROXY
+    end

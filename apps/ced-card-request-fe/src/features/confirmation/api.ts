@@ -9,7 +9,7 @@ type ConfirmApplicationRequest = {
   idempotency_key: string;
 };
 
-export const confirmationApi = baseApi.injectEndpoints({
+const confirmationApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     confirm: builder.mutation<ConfirmApplication200, ConfirmApplicationRequest>(
       {

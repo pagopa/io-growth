@@ -14,7 +14,7 @@ export default defineConfig({
         mutator: {
           extension: ".js",
           name: "customFetch",
-          path: "./src/client.ts",
+          path: "./src/fetch.ts",
         },
       },
       schemas: "./src/generated/model",

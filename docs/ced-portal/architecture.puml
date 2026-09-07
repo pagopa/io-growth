@@ -1,0 +1,88 @@
+@startuml architecture_diagram
+
+!define AzureBlue #0078D4
+!define AzureLightBlue #DEECF9
+!define AzureGreen #107C10
+!define AzureLightGreen #DFF6DD
+!define AzureGray #F3F2F1
+!define AzureDarkGray #605E5C
+
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam rankDirection TB
+skinparam margin 10
+skinparam padding 8
+skinparam defaultFontSize 12
+skinparam nodesep 30
+skinparam ranksep 35
+skinparam roundCorner 8
+skinparam ArrowColor #555555
+skinparam ArrowFontSize 11
+skinparam noteBackgroundColor #FFFDE7
+skinparam noteBorderColor #E0C36B
+skinparam noteFontSize 10
+
+skinparam rectangle {
+  backgroundColor<<Frontend>> AzureLightBlue
+  borderColor<<Frontend>> AzureBlue
+  backgroundColor<<Backend>> AzureLightBlue
+  borderColor<<Backend>> AzureBlue
+  backgroundColor<<Data>> AzureLightGreen
+  borderColor<<Data>> AzureGreen
+  backgroundColor<<Network>> AzureGray
+  borderColor<<Network>> AzureDarkGray
+  backgroundColor<<Security>> AzureGray
+  borderColor<<Security>> AzureDarkGray
+  backgroundColor<<Monitoring>> AzureGray
+  borderColor<<Monitoring>> AzureDarkGray
+}
+
+title Deployment of CED Portal
+
+actor Users as users
+
+together {
+  rectangle "Static Web App\nced-p-weu-portal-fe-stapp-01" as portal_fe <<Frontend>>
+  rectangle "Azure Front Door (TBD)" as front_door <<Network>>
+  rectangle "App Gateway\nced-p-itn-agw-01" as app_gw <<Network>>
+}
+
+rectangle "Virtual Network\nced-p-itn-common-vnet-01" as vnet <<Network>> {
+  rectangle "API Management\nced-p-itn-apim-01" as apim <<Backend>>
+
+  rectangle "Container Apps Environment\nced-p-itn-common-cae-01" as cae <<Backend>> {
+    rectangle "Container App\nced-p-itn-portal-be-ca-01" as portal_backend <<Backend>>
+  }
+
+  together {
+    rectangle "PostgreSQL\nced-p-itn-db-psql-01" as postgresql_server <<Data>>
+    rectangle "Redis Cache\nced-p-itn-common-amr-01" as redis_instance <<Data>>
+    rectangle "Storage Account\ncedpitnassetsst01\n(logos, images)" as storage_account <<Data>>
+    rectangle "Key Vault\nced-p-itn-common-kv-01" as azure_key_vault <<Security>>
+    rectangle "Log Analytics\nced-p-itn-common-log-01" as log_analytics_workspace <<Monitoring>>
+    rectangle "Application Insights\nced-p-itn-common-appi-01" as application_insights <<Monitoring>>
+    rectangle "Action Groups\nced-p-itn-error-ag-01" as azure_action_group <<Monitoring>>
+  }
+}
+
+' ===== RELATIONSHIPS =====
+
+users --> portal_fe : browser
+portal_fe --> app_gw : API calls
+app_gw --> apim : HTTPS
+apim --> portal_backend : private endpoint
+
+portal_backend --> postgresql_server : JDBC/TCP
+portal_backend --> redis_instance : Redis
+portal_backend --> storage_account : HTTPS
+portal_backend --> azure_key_vault : secrets (managed identity)
+portal_backend --> log_analytics_workspace : diagnostics
+portal_backend --> application_insights : telemetry
+
+portal_fe --> front_door : HTTPS
+front_door --> storage_account : private endpoint
+
+log_analytics_workspace --> azure_action_group : alerts
+application_insights --> azure_action_group : alerts
+
+@enduml

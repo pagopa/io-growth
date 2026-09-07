@@ -64,7 +64,7 @@ export interface AgreementCopy {
   additionalSections: AgreementAdditionalSectionsCopy;
 }
 
-export const AGREEMENT_COPY_CONFIG: Record<string, AgreementCopy> = {
+const AGREEMENT_COPY_CONFIG: Record<string, AgreementCopy> = {
   it: {
     detailsForm: {
       sectionTitle: "Dettagli dell'opportunità",

@@ -42,7 +42,7 @@ const getListAdminOpportunitiesUrl = (
     : '/opportunities';
 };
 
-export const opportunitiesApi = baseApi.injectEndpoints({
+const opportunitiesApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     getOperatorOpportunities: builder.query<
       OpportunitiesResponse,

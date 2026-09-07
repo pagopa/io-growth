@@ -1,4 +1,5 @@
 import type {
+  ArClient,
   DocumentContentRepository,
   InstitutionRepository,
   OnboardingRepository,
@@ -219,3 +220,5 @@ export const createMockUserRepository = (
   ({
     getUserById: overrides.getUserById ?? vi.fn(),
   }) as UserRepository;
+
+export const createMockArClient = (arClient: ArClient): ArClient => arClient;

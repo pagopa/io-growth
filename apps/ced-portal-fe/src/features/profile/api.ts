@@ -4,7 +4,7 @@ import type {
   OperatorProfileCreateRequest,
 } from '../../core/api/generated/model';
 
-export const profileApi = baseApi.injectEndpoints({
+const profileApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     getOperatorProfile: builder.query<OperatorProfileResponse, void>({
       query: () => '/operator/profile',

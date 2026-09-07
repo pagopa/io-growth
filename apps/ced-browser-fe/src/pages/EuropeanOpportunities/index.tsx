@@ -7,8 +7,8 @@ import {
   ListItemButton,
   ListItemIcon,
   ListItemText,
+  Typography,
 } from '@mui/material';
-import { Body } from '@pagopa/io-core-ui';
 import { PageHeader } from '../../components';
 import { useTrackLandedInPage } from '../../mixpanel/useTrackLandedInPage';
 import { useCallback } from 'react';
@@ -95,24 +95,36 @@ export default function EuropeanOpportunitiesPage() {
           {opportunities.map(({ url, country }, index) => (
             <Box key={country}>
               <ListItem disablePadding>
-                <ListItemButton sx={{ py: 2 }}>
+                <ListItemButton
+                  component="a"
+                  href={url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={`${country}, si apre in una risorsa esterna`}
+                  sx={{ py: 2 }}
+                >
                   <ListItemIcon sx={{ minWidth: 40 }}>
-                    <OpenInNewIcon color="action" />
+                    <OpenInNewIcon color="action" aria-hidden />
                   </ListItemIcon>
                   <ListItemText
                     primary={
-                      <Body
-                        onClick={() => euOpportunityClick({ url, country })}
-                        fontWeight="Semibold"
-                        asLink
+                      // Plain Typography instead of Body: `asLink` prop removed from io-core-ui
+                      <Typography
+                        sx={{
+                          fontSize: '16px',
+                          lineHeight: '24px',
+                          fontWeight: 600,
+                          color: 'common.linkColor',
+                          textDecoration: 'underline',
+                        }}
                       >
                         {country}
-                      </Body>
+                      </Typography>
                     }
                   />
                 </ListItemButton>
               </ListItem>
-              {index < opportunities.length - 1 && <Divider />}
+              {index < opportunities.length - 1 && <Divider aria-hidden />}
             </Box>
           ))}
         </List>

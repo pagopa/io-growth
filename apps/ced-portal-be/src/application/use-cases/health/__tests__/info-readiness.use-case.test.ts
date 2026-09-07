@@ -3,9 +3,9 @@ import { err, ok } from "neverthrow";
 import { readFileSync } from "node:fs";
 import { describe, expect, it, vi } from "vitest";
 
-import type { IHealthCheckRepository } from "../../../../domain/ports/outbound/health-check.repository.js";
+import type { HealthCheckRepository } from "../../../../domain/ports/outbound/health-check.repository.js";
 
-import { makeGetInfoReadinessUseCase } from "../info-readiness.use-case.js";
+import { makeInfoReadinessUseCase } from "../info-readiness.use-case.js";
 
 const packageInfo = JSON.parse(
   readFileSync(new URL("../../../../../package.json", import.meta.url), "utf8"),
@@ -15,17 +15,17 @@ const packageInfo = JSON.parse(
 };
 
 const makeMockHealthCheckRepository = (
-  overrides: Partial<IHealthCheckRepository> = {},
-): IHealthCheckRepository => ({
+  overrides: Partial<HealthCheckRepository> = {},
+): HealthCheckRepository => ({
   checkConnection: vi.fn().mockResolvedValue(ok(true)),
   ...overrides,
 });
 
-describe("makeGetInfoReadinessUseCase", () => {
+describe("makeInfoReadinessUseCase", () => {
   it("should return ok with service info when all connections succeed", async () => {
     const persistenceHealthCheckRepository = makeMockHealthCheckRepository();
     const sessionStoreHealthCheckRepository = makeMockHealthCheckRepository();
-    const useCase = makeGetInfoReadinessUseCase({
+    const useCase = makeInfoReadinessUseCase({
       persistenceHealthCheckRepository,
       sessionStoreHealthCheckRepository,
     });
@@ -54,7 +54,7 @@ describe("makeGetInfoReadinessUseCase", () => {
         .mockResolvedValue(err(new GenericError("Connection refused"))),
     });
     const sessionStoreHealthCheckRepository = makeMockHealthCheckRepository();
-    const useCase = makeGetInfoReadinessUseCase({
+    const useCase = makeInfoReadinessUseCase({
       persistenceHealthCheckRepository,
       sessionStoreHealthCheckRepository,
     });
@@ -79,7 +79,7 @@ describe("makeGetInfoReadinessUseCase", () => {
         .fn()
         .mockResolvedValue(err(new GenericError("Redis PING failed"))),
     });
-    const useCase = makeGetInfoReadinessUseCase({
+    const useCase = makeInfoReadinessUseCase({
       persistenceHealthCheckRepository,
       sessionStoreHealthCheckRepository,
     });

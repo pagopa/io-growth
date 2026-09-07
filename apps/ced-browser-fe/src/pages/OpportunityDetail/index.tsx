@@ -1,8 +1,8 @@
 import { TheaterComedyOutlined } from '@mui/icons-material';
 import OpenInNewOutlinedIcon from '@mui/icons-material/OpenInNewOutlined';
 import { Box, Button, Divider, Link, Stack, useTheme } from '@mui/material';
-import { Body } from '@pagopa/io-core-ui';
-import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import { Body, VSpacer } from '@pagopa/io-core-ui';
+import { useNavigate, useLocation, useParams } from 'react-router-dom';
 import {
   toEntityAccessPointDetailRoute,
   toEntityDetailRoute,
@@ -20,8 +20,9 @@ import { formatBadgeLabel } from '../../utils/formatBadgeLabel.js';
 import { useTrackLandedInPage } from '../../mixpanel/useTrackLandedInPage.js';
 import { useCallback } from 'react';
 import { trackBrowserEvent } from '../../mixpanel/trackEvent.js';
-import { OpportunityDetail } from '../../features/entities/types.js';
 import { Place } from '../../core/api/generated/model/place.js';
+import { MIChip } from '@pagopa/mui-italia';
+import { OpportunityDetail } from '../../core/api/generated/model/opportunityDetail.js';
 
 function formatPlacesAddress(venue: {
   street?: string | null;
@@ -141,24 +142,17 @@ export default function OpportunityDetailPage() {
         >
           <PageHeader
             leadingContent={
-              <Box
-                component="span"
-                sx={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  px: 1.5,
-                  py: 0.75,
-                  borderRadius: '999px',
-                  bgcolor: '#D5F4F4',
-                  color: '#0B515D',
-                  fontSize: 14,
-                  fontWeight: 600,
-                  lineHeight: 1,
-                  mb: 2,
-                }}
-              >
-                {formatBadgeLabel(resolvedData.beneficiaryBenefit)}
-              </Box>
+              <>
+                <MIChip
+                  color="highlight"
+                  label={formatBadgeLabel(resolvedData.beneficiaryBenefit)}
+                  variant="filled"
+                  sx={{
+                    width: 'fit-content',
+                  }}
+                />
+                <VSpacer size={8} />
+              </>
             }
             title={resolvedData.name}
             subtitle={
@@ -190,7 +184,7 @@ export default function OpportunityDetailPage() {
               </Body>
               <Body fontWeight="Semibold">{resolvedData.description}</Body>
             </Box>
-            <Divider />
+            <Divider aria-hidden />
             {resolvedData.condition && (
               <>
                 <Box sx={{ py: 2 }}>
@@ -199,7 +193,7 @@ export default function OpportunityDetailPage() {
                   </Body>
                   <Body fontWeight="Semibold">{resolvedData.condition}</Body>
                 </Box>
-                <Divider />
+                <Divider aria-hidden />
               </>
             )}
 
@@ -213,7 +207,7 @@ export default function OpportunityDetailPage() {
                     Stesse condizioni del titolare
                   </Body>
                 </Box>
-                <Divider />
+                <Divider aria-hidden />
               </>
             )}
 
@@ -225,7 +219,7 @@ export default function OpportunityDetailPage() {
                 {formatDate(resolvedData.dateFrom)}
               </Body>
             </Box>
-            <Divider />
+            <Divider aria-hidden />
 
             {resolvedData.dateTo && (
               <>
@@ -237,7 +231,7 @@ export default function OpportunityDetailPage() {
                     {formatDate(resolvedData.dateTo)}
                   </Body>
                 </Box>
-                <Divider />
+                <Divider aria-hidden />
               </>
             )}
 

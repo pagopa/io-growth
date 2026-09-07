@@ -3,7 +3,7 @@ import { Button, Stack } from '@mui/material';
 import { AppSelect } from '../Select';
 import { AppTextField } from '../TextField';
 
-export interface SearchStateFilters {
+interface SearchStateFilters {
   search: string;
   state: string;
 }

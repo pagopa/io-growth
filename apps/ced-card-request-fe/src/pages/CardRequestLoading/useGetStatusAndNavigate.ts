@@ -1,9 +1,27 @@
 import { useNavigate } from 'react-router-dom';
-import { useLazyGetStatusQuery } from '../../features/read-only-apis/api';
+import {
+  useLazyGetDraftQuery,
+  useLazyGetStatusQuery,
+} from '../../features/read-only-apis/api';
 import { APP_ROUTES } from '../../app/routeConfig';
 import { useCallback, useEffect } from 'react';
 import { useAppDispatch } from '../../hooks';
-import { setStatusField } from '../../features/status/reducer';
+import {
+  resetForm as resetStatus,
+  setStatus,
+} from '../../features/status/reducer';
+import {
+  resetForm as resetRequestForm,
+  setForm,
+} from '../../features/request-form/reducer';
+import {
+  resetPhoto,
+  setFile,
+  setPreview,
+} from '../../features/photo-upload/reducer';
+import { resetForm as resetConfirmationForm } from '../../features/confirmation/reducer';
+import { buildRecoveredDraftState } from '../../features/read-only-apis/draftRecovery';
+import { runStatusNavigation } from './statusNavigation';
 
 export const useGetStatusAndNavigate = () => {
   const navigate = useNavigate();
@@ -13,60 +31,56 @@ export const useGetStatusAndNavigate = () => {
     (data: Awaited<ReturnType<typeof getStatus>>['data']) => {
       if (!data) return;
 
-      if ('idLavorazione' in data) {
-        dispatch(
-          setStatusField({
-            field: 'idLavorazione',
-            value: String(data.idLavorazione),
-          }),
-        );
-      }
-
-      if ('numDomus' in data) {
-        dispatch(
-          setStatusField({
-            field: 'numDomus',
-            value: String(data.numDomus),
-          }),
-        );
-      }
+      dispatch(resetStatus());
+      dispatch(
+        setStatus({
+          idLavorazione: data.idLavorazione ?? '',
+          numDomus: data.numDomus,
+          state: data.state,
+        }),
+      );
     },
     [dispatch],
   );
 
   const [getStatus] = useLazyGetStatusQuery();
+  const [getDraft] = useLazyGetDraftQuery();
+
+  const resetDraft = useCallback(() => {
+    dispatch(resetRequestForm());
+    dispatch(resetPhoto());
+    dispatch(resetConfirmationForm());
+  }, [dispatch]);
+
+  const recoverDraft = useCallback(async () => {
+    const draft = await getDraft().unwrap();
+    const recovered = buildRecoveredDraftState(draft);
+
+    dispatch(setForm(recovered.requestForm));
+    dispatch(resetPhoto());
+    if (recovered.photoBase64 && recovered.photoPreview) {
+      dispatch(setFile(recovered.photoBase64));
+      dispatch(setPreview(recovered.photoPreview));
+    }
+  }, [dispatch, getDraft]);
 
   useEffect(() => {
     const retrieveStatus = async () => {
       try {
-        const status = await getStatus().unwrap();
-        saveFieldFromStatus(status);
-        switch (status.state) {
-          case 'READY_FOR_NEW_DRAFT':
-            return navigate(APP_ROUTES.APPLICATION, { replace: true });
-          case 'READY_FOR_PHOTO_UPLOAD':
-            return navigate(APP_ROUTES.APPLICATION, {
-              replace: true,
-              state: { step: 2 },
-            });
-          case 'READY_FOR_DOCUMENTS_UPLOAD':
-            return navigate(APP_ROUTES.APPLICATION, {
-              replace: true,
-              state: { step: 3 },
-            });
-          case 'ACQUIRED':
-            // TODO Temporary navigation
-            return navigate(APP_ROUTES.REQUEST_SUCCESS, { replace: true });
-          default:
-            return navigate(APP_ROUTES.GENERIC_ERROR, { replace: true });
-        }
+        await runStatusNavigation({
+          getStatus: () => getStatus().unwrap(),
+          navigate,
+          recoverDraft,
+          resetDraft,
+          saveStatus: saveFieldFromStatus,
+        });
       } catch (error) {
         localStorage.setItem('log-error', JSON.stringify(error));
         console.error(error);
-        return navigate(APP_ROUTES.GENERIC_ERROR, { replace: true });
+        navigate(APP_ROUTES.GENERIC_ERROR, { replace: true });
       }
     };
 
     retrieveStatus();
-  }, [getStatus, navigate, saveFieldFromStatus]);
+  }, [getStatus, navigate, recoverDraft, resetDraft, saveFieldFromStatus]);
 };

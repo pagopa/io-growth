@@ -47,7 +47,7 @@ export default function EntityOpportunitiesPage() {
             }
           />
 
-          <Stack divider={<Divider sx={{ mx: 2 }} />}>
+          <Stack divider={<Divider aria-hidden sx={{ mx: 2 }} />}>
             {resolvedData.recentOpportunities.map((item) => (
               <DiscoveryListItem
                 key={item.id}

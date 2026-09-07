@@ -2,7 +2,7 @@ import { ok } from "neverthrow";
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 
-import { makeGetInfoStartupUseCase } from "../info-startup.use-case.js";
+import { makeInfoStartupUseCase } from "../info-startup.use-case.js";
 
 const packageInfo = JSON.parse(
   readFileSync(new URL("../../../../../package.json", import.meta.url), "utf8"),
@@ -11,9 +11,9 @@ const packageInfo = JSON.parse(
   version: string;
 };
 
-describe("makeGetInfoStartupUseCase", () => {
+describe("makeInfoStartupUseCase", () => {
   it("should return the service info from package metadata", async () => {
-    const result = await makeGetInfoStartupUseCase({});
+    const result = await makeInfoStartupUseCase({});
 
     expect(result).toEqual(
       ok({

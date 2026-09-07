@@ -1,7 +1,3 @@
-import type {
-  GestioneDomandaCedRepository,
-  NuovaDomandaInBozzaRequest,
-} from "@pagopa/io-core-adapter-inps-ced";
 import type { UseCase } from "@pagopa/io-core-domain";
 import type { ServiceUnavailableError } from "@pagopa/io-core-domain/errors";
 
@@ -10,35 +6,41 @@ import { err, ok } from "neverthrow";
 import { z } from "zod";
 
 import type { ApplicationState } from "../../../domain/entities/application-state.js";
+import type { ApplicationDraft } from "../../../domain/entities/card-application.js";
 import type {
   StepInfo,
   SupportRecord,
 } from "../../../domain/entities/support-record.js";
+import type { CardApplicationRepository } from "../../../domain/ports/outbound/card-application.repository.js";
 import type { SupportRecordRepository } from "../../../domain/ports/outbound/persistence/support-record.repository.js";
 
+import {
+  CitizenshipSchema,
+  FiscalCodeSchema,
+  GenderSchema,
+} from "../../../domain/entities/card-application.js";
+import { createEmptySupportRecord } from "../../../domain/entities/support-record.js";
 import { validateUseCaseInput } from "../utils/validate-use-case-input.js";
-
-const SUPPORT_RECORD_TTL_SECONDS = 60 * 60 * 24 * 30; // 30 days
 
 export const CreateDraftInputSchema = z.object({
   capRec: z.string().min(1),
   civicoRec: z.string().nullish(),
   clientRequestId: z.uuid(),
-  codiceFiscale: z.string().length(16),
+  codiceFiscale: FiscalCodeSchema,
   cognome: z.string().min(1),
   comuneNascita: z.string().nullish(),
   dataNascita: z.string().min(1),
   dataScadenzaPermessoSoggiorno: z.string().nullish(),
   datiAggiuntiviRec: z.string().nullish(),
   descrizioneComuneRec: z.string().min(1),
-  idCittadinanza: z.union([z.literal(0), z.literal(2), z.literal(3)]),
+  idCittadinanza: CitizenshipSchema,
   indirizzoRec: z.string().min(1),
   informativaPrivacy: z.boolean(),
   nome: z.string().min(1),
   pressoCognome: z.string().nullish(),
   pressoDenominazione: z.string().nullish(),
   pressoNome: z.string().nullish(),
-  sesso: z.enum(["M", "F"]),
+  sesso: GenderSchema,
   siglaProvinciaNascita: z.string().nullish(),
   siglaProvinciaRec: z.string().min(1),
   statoNascita: z.string().min(1),
@@ -57,51 +59,35 @@ export type CreateDraftUseCase = UseCase<
   GenericError | ServiceUnavailableError | ValidationError
 >;
 
-const emptySupportRecord = (
-  codiceFiscale: string,
-  now: string,
-): SupportRecord => ({
-  codiceFiscale,
-  createdAt: now,
-  idLavorazione: null,
-  lastReconciliation: null,
-  pendingStep: null,
-  previousIdLavorazione: null,
-  schemaVersion: 2,
-  state: "READY_FOR_NEW_DRAFT",
-  steps: { confirm: null, draft: null, photo: null },
-  ttl: SUPPORT_RECORD_TTL_SECONDS,
-  updatedAt: now,
-});
-
-const toInpsRequest = (
+/**
+ * Validated input carries the client's intent key and `nullish` optionals; the
+ * domain object drops the former, normalises the latter to `null`, and binds
+ * the fiscal code taken from the session.
+ */
+const toApplicationDraft = (
   codiceFiscale: string,
   input: CreateDraftInput,
-): NuovaDomandaInBozzaRequest => ({
-  anagrafica: {
-    codiceFiscale,
-    cognome: input.cognome,
-    comuneNascita: input.comuneNascita ?? null,
-    dataNascita: input.dataNascita,
-    dataScadenzaPermessoSoggiorno: input.dataScadenzaPermessoSoggiorno ?? null,
-    idCittadinanza: input.idCittadinanza,
-    nome: input.nome,
-    sesso: input.sesso,
-    siglaProvinciaNascita: input.siglaProvinciaNascita ?? null,
-    statoNascita: input.statoNascita,
-  },
+): ApplicationDraft => ({
+  capRec: input.capRec,
+  civicoRec: input.civicoRec ?? null,
+  codiceFiscale,
+  cognome: input.cognome,
+  comuneNascita: input.comuneNascita ?? null,
+  dataNascita: input.dataNascita,
+  dataScadenzaPermessoSoggiorno: input.dataScadenzaPermessoSoggiorno ?? null,
+  datiAggiuntiviRec: input.datiAggiuntiviRec ?? null,
+  descrizioneComuneRec: input.descrizioneComuneRec,
+  idCittadinanza: input.idCittadinanza,
+  indirizzoRec: input.indirizzoRec,
   informativaPrivacy: input.informativaPrivacy,
-  recapito: {
-    cap: input.capRec,
-    civico: input.civicoRec ?? null,
-    datiAggiuntivi: input.datiAggiuntiviRec ?? null,
-    descrizioneComune: input.descrizioneComuneRec,
-    indirizzo: input.indirizzoRec,
-    pressoCognome: input.pressoCognome ?? null,
-    pressoDenominazione: input.pressoDenominazione ?? null,
-    pressoNome: input.pressoNome ?? null,
-    siglaProvincia: input.siglaProvinciaRec,
-  },
+  nome: input.nome,
+  pressoCognome: input.pressoCognome ?? null,
+  pressoDenominazione: input.pressoDenominazione ?? null,
+  pressoNome: input.pressoNome ?? null,
+  sesso: input.sesso,
+  siglaProvinciaNascita: input.siglaProvinciaNascita ?? null,
+  siglaProvinciaRec: input.siglaProvinciaRec,
+  statoNascita: input.statoNascita,
 });
 
 /**
@@ -135,6 +121,7 @@ const buildIntentRecord = (
 ): SupportRecord => ({
   ...existing,
   idLavorazione: isRetry ? existing.idLavorazione : null,
+  numDomus: isRetry ? existing.numDomus : null,
   pendingStep: "DRAFT",
   steps: {
     confirm: isRetry ? existing.steps.confirm : null,
@@ -169,6 +156,7 @@ const buildCompletedOutcome = (
 ): SupportRecord => ({
   ...persistedIntent,
   idLavorazione,
+  lastReconciliation: null,
   pendingStep: null,
   state: "READY_FOR_PHOTO_UPLOAD",
   steps: {
@@ -185,7 +173,7 @@ const buildCompletedOutcome = (
 export const makeCreateDraftUseCase =
   (
     supportRecordRepository: SupportRecordRepository,
-    gestioneDomandaCedRepository: GestioneDomandaCedRepository,
+    cardApplicationRepository: CardApplicationRepository,
   ): CreateDraftUseCase =>
   async (input) => {
     const validated = await validateUseCaseInput(CreateDraftInputSchema, input);
@@ -198,7 +186,7 @@ export const makeCreateDraftUseCase =
 
     const now = new Date().toISOString();
     const existing =
-      existingResult.value ?? emptySupportRecord(codiceFiscale, now);
+      existingResult.value ?? createEmptySupportRecord(codiceFiscale, now);
     const existingDraftStep = existing.steps.draft;
 
     // Replay of a completed draft: return the cached outcome, no INPS call.
@@ -234,13 +222,13 @@ export const makeCreateDraftUseCase =
     if (saveIntentResult.isErr()) return err(saveIntentResult.error);
     const persistedIntent = saveIntentResult.value;
 
-    const inpsResult = await gestioneDomandaCedRepository.nuovaDomandaInBozza(
-      toInpsRequest(codiceFiscale, validated.value),
+    const createResult = await cardApplicationRepository.createApplicationDraft(
+      toApplicationDraft(codiceFiscale, validated.value),
       { idempotencyKey: inpsIdempotencyKey },
     );
 
-    if (inpsResult.isErr()) {
-      const error = inpsResult.error;
+    if (createResult.isErr()) {
+      const error = createResult.error;
       if (error instanceof ValidationError) {
         // INPS rejected the data: mark the step FAILED (best-effort — the
         // 400 must reach the FE regardless of whether this write succeeds).
@@ -253,12 +241,12 @@ export const makeCreateDraftUseCase =
       // INPS system error / timeout: leave the step PENDING so a retry
       // (same client key) safely reuses the same INPS Idempotency-Key.
       return err(
-        new GenericError(`nuovaDomandaInBozza failed: ${error.message}`),
+        new GenericError(`createApplicationDraft failed: ${error.message}`),
       );
     }
 
     // INPS succeeded: persist the completed outcome.
-    const idLavorazione = inpsResult.value.idLavorazione ?? null;
+    const idLavorazione = createResult.value.idLavorazione;
     const saveOutcomeResult = await supportRecordRepository.save(
       buildCompletedOutcome(persistedIntent, pendingDraftStep, idLavorazione),
     );

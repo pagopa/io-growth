@@ -5,7 +5,7 @@ interface DetailFieldProps {
   value: string;
 }
 
-export const DetailField = ({ label, value }: Readonly<DetailFieldProps>) => (
+const DetailField = ({ label, value }: Readonly<DetailFieldProps>) => (
   <Stack spacing={0.5}>
     <Typography variant="body2" color="text.secondary" sx={{ fontSize: 14 }}>
       {label}

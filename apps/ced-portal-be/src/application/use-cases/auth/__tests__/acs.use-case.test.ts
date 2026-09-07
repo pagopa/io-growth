@@ -5,6 +5,7 @@ import { describe, expect, it, vi } from "vitest";
 import type { OperatorRepository } from "../../../../domain/ports/outbound/persistence/operator.repository.js";
 import type { SessionRepository } from "../../../../domain/ports/outbound/persistence/session.repository.js";
 
+import { getRequestSession } from "../../../../async-local-storage-session-context.js";
 import { makeAcsUseCase } from "../acs.use-case.js";
 
 const makeToken = async (payload: Record<string, unknown>) =>
@@ -42,6 +43,8 @@ const createMockSessionRepository = (): SessionRepository => ({
 
 const mockConfig = {
   ADMIN_FISCAL_CODES: [] as string[],
+  ADMIN_FISCAL_CODES_TEST: [] as string[],
+  OPERATORS_FISCAL_CODES_TEST: [] as string[],
 };
 
 const createMockOperatorRepository = (
@@ -256,5 +259,68 @@ describe("makeAcsUseCase — error propagation", () => {
     expect(result).toEqual(
       err(expect.objectContaining({ kind: "GenericError" })),
     );
+  });
+});
+
+describe("makeAcsUseCase — environment routing", () => {
+  it("exposes the session via getRequestSession() while operatorRepository.getByExternalId runs", async () => {
+    const sessionRepository = createMockSessionRepository();
+    const observedUserTypes: (string | undefined)[] = [];
+    const operatorRepository: OperatorRepository = {
+      create: vi.fn().mockResolvedValue(ok(mockOperator)),
+      getByExternalId: vi.fn().mockImplementation(() => {
+        observedUserTypes.push(getRequestSession()?.userType);
+        return Promise.resolve(ok(undefined));
+      }),
+      getById: vi.fn(),
+    };
+    const useCase = makeAcsUseCase(
+      sessionRepository,
+      operatorRepository,
+      mockConfig,
+    );
+    const token = await makeToken(validPayload);
+
+    await useCase({ token });
+
+    expect(observedUserTypes).toEqual(["operator"]);
+  });
+
+  it("exposes the session via getRequestSession() while operatorRepository.create runs", async () => {
+    const sessionRepository = createMockSessionRepository();
+    const observedUserTypes: (string | undefined)[] = [];
+    const operatorRepository: OperatorRepository = {
+      create: vi.fn().mockImplementation(() => {
+        observedUserTypes.push(getRequestSession()?.userType);
+        return Promise.resolve(ok(mockOperator));
+      }),
+      getByExternalId: vi.fn().mockResolvedValue(ok(undefined)),
+      getById: vi.fn(),
+    };
+    const useCase = makeAcsUseCase(
+      sessionRepository,
+      operatorRepository,
+      mockConfig,
+    );
+    const token = await makeToken(validPayload);
+
+    await useCase({ token });
+
+    expect(observedUserTypes).toEqual(["operator"]);
+  });
+
+  it("does not leak the session context once the use case has completed", async () => {
+    const sessionRepository = createMockSessionRepository();
+    const operatorRepository = createMockOperatorRepository(mockOperator);
+    const useCase = makeAcsUseCase(
+      sessionRepository,
+      operatorRepository,
+      mockConfig,
+    );
+    const token = await makeToken(validPayload);
+
+    await useCase({ token });
+
+    expect(getRequestSession()).toBeUndefined();
   });
 });

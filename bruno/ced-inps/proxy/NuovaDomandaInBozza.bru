@@ -1,0 +1,43 @@
+meta {
+  name: NuovaDomandaInBozza
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{inpsProxyBaseUrl}}/Domanda/NuovaDomandaInBozza
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  INPS-Identity-UserId: {{fiscalCode}}
+  INPS-Identity-CodiceUfficio: {{inpsOfficeCode}}
+  Idempotency-Key: {{$guid}}
+}
+
+body:json {
+  {
+    "informativaPrivacy": true,
+    "anagrafica": {
+      "codiceFiscale": "{{fiscalCode}}",
+      "nome": "Mario",
+      "cognome": "Rossi",
+      "dataNascita": "2000-01-01T00:00:00Z",
+      "sesso": "M",
+      "statoNascita": "ITALIA",
+      "comuneNascita": "Roma",
+      "siglaProvinciaNascita": "RM",
+      "idCittadinanza": 0
+    },
+    "recapito": {
+      "pressoDenominazione": "Mario Rossi",
+      "siglaProvincia": "RM",
+      "descrizioneComune": "Roma",
+      "cap": "00100",
+      "indirizzo": "Via di Test",
+      "civico": "1"
+    }
+  }
+}

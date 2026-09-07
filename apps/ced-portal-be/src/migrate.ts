@@ -3,8 +3,31 @@ import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { z } from "zod";
 
+const args = process.argv.filter((a) => a.includes("env="));
+
+if (args.length !== 1) {
+  console.error(
+    "[migrate] Wrong migration argument: you must define just 1 env argument",
+  );
+  process.exit(1);
+}
+
+const env = args[0].split("=")[1];
+
+if (env !== "test" && env !== "prod") {
+  console.error(
+    "[migrate] Wrong migration argument: allowed env value is test | prod",
+  );
+  process.exit(1);
+}
+
+const isTest = env === "test";
+
+console.log(`[migrate] Starting migrations for env: ${env}`);
+
 const migrateConfigSchema = z.object({
   POSTGRES_DB: z.string().min(1),
+  POSTGRES_DB_TEST: z.string().min(1),
   POSTGRES_HOST: z.string().min(1),
   POSTGRES_PASSWORD: z.string().optional(),
   POSTGRES_PORT: z.coerce.number().int().min(1).max(65535).default(6432),
@@ -25,7 +48,7 @@ const config = result.data;
 
 const dbConfig = {
   connection: {
-    database: config.POSTGRES_DB,
+    database: isTest ? config.POSTGRES_DB_TEST : config.POSTGRES_DB,
     host: config.POSTGRES_HOST,
     password: config.POSTGRES_PASSWORD,
     port: config.POSTGRES_PORT,

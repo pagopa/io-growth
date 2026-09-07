@@ -1,9 +1,4 @@
-import type {
-  DocumentContentRepository,
-  InstitutionRepository,
-  OnboardingRepository,
-  UserRepository,
-} from "@pagopa/io-core-adapter-ar";
+import type { ArClient, UserRepository } from "@pagopa/io-core-adapter-ar";
 
 import { GenericError, NotFoundError } from "@pagopa/io-core-domain/errors";
 import { err, ok } from "neverthrow";
@@ -13,9 +8,9 @@ import type {
   OnboardingDetail,
 } from "../../../domain/entities/onboarding.js";
 import type {
-  ArOnboardingRepository,
   ListOnboardingsInput,
-} from "../../../domain/ports/outbound/ar-onboarding.repository.js";
+  OnboardingRepository,
+} from "../../../domain/ports/outbound/onboarding.repository.js";
 
 import { OnboardingStatusSchema } from "../../../domain/entities/onboarding.js";
 
@@ -82,18 +77,15 @@ const enrichManagerUser = async (
 };
 
 export const createArOnboardingRepository = (
-  institutionClient: InstitutionRepository,
-  onboardingClient: OnboardingRepository,
-  documentContentClient: DocumentContentRepository,
-  userClient: UserRepository,
-): ArOnboardingRepository => ({
+  arClient: ArClient,
+): OnboardingRepository => ({
   completeOnboarding: async (input) =>
-    onboardingClient.completeOnboarding(input.onboardingId, {
+    arClient.onboardingClient.completeOnboarding(input.onboardingId, {
       contract: input.contract,
     }),
 
   getById: async (onboardingId) => {
-    const result = await onboardingClient.getOnboardingWithFilter({
+    const result = await arClient.onboardingClient.getOnboardingWithFilter({
       onboardingId,
     });
 
@@ -111,7 +103,10 @@ export const createArOnboardingRepository = (
       );
     }
 
-    const usersResult = await enrichManagerUser(item.users, userClient);
+    const usersResult = await enrichManagerUser(
+      item.users,
+      arClient.userClient,
+    );
 
     const onboardingDetail: OnboardingDetail = {
       activatedAt: item.activatedAt,
@@ -233,10 +228,10 @@ export const createArOnboardingRepository = (
   },
 
   getContractSigned: async (onboardingId) =>
-    documentContentClient.getContractSigned(onboardingId),
+    arClient.documentContentClient.getContractSigned(onboardingId),
 
   listByProduct: async (input: ListOnboardingsInput) => {
-    const result = await institutionClient.searchOnboardings({
+    const result = await arClient.institutionClient.searchOnboardings({
       page: input.page,
       pageSize: input.size,
       products: [input.productId],

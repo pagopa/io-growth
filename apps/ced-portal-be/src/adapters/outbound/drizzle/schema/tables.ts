@@ -246,12 +246,10 @@ export const changeAudit = pgTable("change_audit", {
     .defaultNow(),
   entityId: char("entity_id", { length: 26 }).notNull(),
   entityType: changeAuditEntityTypeEnum("entity_type").notNull(),
-  id: char({ length: 26 })
-    .primaryKey()
-    .$defaultFn(() => ulid()),
-  operatorId: char("operator_id", { length: 26 })
-    .notNull()
-    .references(() => operator.id),
+  id: uuid().primaryKey().defaultRandom(),
+  operatorExternalId: varchar("operator_external_id", {
+    length: 512,
+  }).notNull(),
   referentExternalId: varchar("referent_external_id", {
     length: 512,
   }).notNull(),

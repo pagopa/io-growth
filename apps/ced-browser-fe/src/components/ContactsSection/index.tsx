@@ -42,7 +42,7 @@ export function ContactsSection({
   return (
     <Box sx={{ bgcolor: 'background.paper' }}>
       <SectionTitle label="Contatti e informazioni" />
-      <Stack divider={<Divider sx={{ mx: 4 }} />} sx={{ mt: 1 }}>
+      <Stack divider={<Divider aria-hidden sx={{ mx: 4 }} />} sx={{ mt: 1 }}>
         {contacts.phone && (
           <ContactRow
             icon={<Call sx={{ fontSize: 20, color: '#BBC2D6' }} />}

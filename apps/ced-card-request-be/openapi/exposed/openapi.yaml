@@ -186,6 +186,12 @@ paths:
                   numDomus:
                     type: string
                     description: INPS-assigned document number, present when state is ACQUIRED.
+        "401":
+          description: Unauthorized — invalid or expired session.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
         "400":
           description:
             INPS business/logic error (e.g., Active Card, foreign residence,
@@ -242,6 +248,12 @@ paths:
                     type: string
                     description: INPS idLavorazione associated with the application
                     maxLength: 20
+        "401":
+          description: Unauthorized — invalid or expired session.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
         "400":
           description: INPS data validation error (Codes 200-315)
           content:
@@ -290,6 +302,12 @@ paths:
                   state:
                     $ref: "#/components/schemas/ApplicationState"
                     example: READY_FOR_DOCUMENTS_UPLOAD
+        "401":
+          description: Unauthorized — invalid or expired session.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
         "400":
           description: Photo validation or state inconsistency error (Codes 900-911, 115)
           content:
@@ -343,6 +361,12 @@ paths:
                     type: string
                     nullable: true
                     description: INPS-assigned document number for the acquired application.
+        "401":
+          description: Unauthorized — invalid or expired session.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
         "400":
           description:
             Documentation validation or state inconsistency error (Codes
@@ -371,10 +395,12 @@ paths:
       summary: Retrieves the saved draft data (RecuperoDatiDomanda)
       description: |
         Proxies INPS `RecuperoDatiDomanda`. Returns the data of the AppIO draft
-        (BOZZA/10) currently on the INPS archives, including the photo in Base64 if
-        already attached. The BFF verifies that the active idLavorazione belongs to
-        the session before proxying. Typically used to pre-fill the form when the
-        user wants to edit an existing draft.
+        when `CheckDomanda` returns `esitoCheck` 20 (draft without photo) or 30
+        (draft with photo). The photo is returned in Base64 only for status 30.
+        The frontend must call `GET /status` first. The BFF reads the reconciled
+        state and active `idLavorazione` from the CosmosDB support record, then
+        proxies the recovery request without calling `CheckDomanda` again. This
+        endpoint restores and pre-fills an interrupted card request flow.
       operationId: getDraftData
       responses:
         "200":
@@ -390,7 +416,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
         "404":
-          description: No draft associated with the session.
+          description: No reconciled support record or draft associated with the session.
           content:
             application/json:
               schema:

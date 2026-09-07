@@ -1,8 +1,11 @@
 import MoreVertIcon from '@mui/icons-material/MoreVert';
-import { Chip, IconButton } from '@mui/material';
+import { IconButton } from '@mui/material';
 import type { Theme } from '@mui/material/styles';
+import { MIChip } from '@pagopa/mui-italia';
 import { format, parseISO } from 'date-fns';
 import type { MouseEvent, ReactNode } from 'react';
+import { generatePath, Link } from 'react-router-dom';
+import { APP_ROUTES } from '../../../app/routeConfig';
 import type {
   OpportunitySummaryItem,
   OpportunitySummaryItemStatus,
@@ -10,8 +13,6 @@ import type {
 } from '../../../core/api/generated/model';
 import { publicationStatusLabels } from '../../../features/benefitsFilters/types';
 import { getChipConfig } from './utils';
-import { generatePath, Link } from 'react-router-dom';
-import { APP_ROUTES } from '../../../app/routeConfig';
 
 export interface BenefitsTableColumn {
   id: string;
@@ -74,7 +75,7 @@ export const benefitsTableColumns: BenefitsTableColumn[] = [
     sortable: true,
     sortAccessor: (item) => publicationStatusLabels[item.status],
     renderCell: (item) => (
-      <Chip {...getChipConfig({ item, role: 'operator' })} />
+      <MIChip {...getChipConfig({ item, role: 'operator' })} />
     ),
   },
   {

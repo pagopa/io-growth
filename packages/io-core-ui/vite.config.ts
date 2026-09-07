@@ -19,6 +19,7 @@ export default defineConfig({
         "@mui/material",
         "@emotion/react",
         "@emotion/styled",
+        "@pagopa/mui-italia",
       ],
       output: {
         globals: {
@@ -27,6 +28,7 @@ export default defineConfig({
           "@mui/material": "MuiMaterial",
           "@emotion/react": "EmotionReact",
           "@emotion/styled": "EmotionStyled",
+          "@pagopa/mui-italia": "MuiItalia",
         },
       },
     },

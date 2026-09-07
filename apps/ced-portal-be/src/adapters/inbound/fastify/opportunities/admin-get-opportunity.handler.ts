@@ -8,7 +8,7 @@ import {
 } from "@pagopa/io-core-adapter-fastify";
 import { z } from "zod";
 
-import type { GetOpportunityUseCase } from "../../../../application/use-cases/opportunities/get-opportunity.use-case.js";
+import type { AdminGetOpportunityUseCase } from "../../../../application/use-cases/opportunities/admin-get-opportunity.use-case.js";
 
 import { ADMIN_USER_TYPES } from "../../../../domain/entities/user-type.js";
 import { UserTypeSessionSchema } from "../auth/session.js";
@@ -37,9 +37,9 @@ const getOpportunityFormatter = createHttpResponseFormatter(
   GetOpportunityResponse,
 );
 
-export const mountGetOpportunityHandler = (
+export const mountAdminGetOpportunityHandler = (
   fastify: FastifyInstance,
-  useCase: GetOpportunityUseCase,
+  useCase: AdminGetOpportunityUseCase,
 ) => {
   fastify.get(
     "/api/opportunities/:opportunityId",

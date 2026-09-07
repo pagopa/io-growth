@@ -13,7 +13,9 @@ record** to:
 2. drive per-step **idempotency** (safe retry vs. intentional re-submission);
 3. detect in-flight operations and **reconcile** them against `CheckDomanda`.
 
-`CheckDomanda.esitoCheck` is always authoritative for the milestone state.
+`CheckDomanda.esitoCheck` is always authoritative for the milestone state. The
+INPS adapter maps it to an application-level status before returning it to the
+use case, so raw INPS codes do not cross the outbound port.
 
 ## The idempotency problem
 
@@ -50,7 +52,7 @@ the new `idLavorazione`).
 
   // INPS identifiers / authoritative milestone
   "idLavorazione": "ABC-12345", // null until NuovaDomandaInBozza succeeds
-  "previousIdLavorazione": null, // set on esitoCheck=50 to show history via /details
+  "previousIdLavorazione": null, // set on CLOSED (INPS 50) to show history via /details
   "state": "READY_FOR_PHOTO_UPLOAD", // milestone state (reconcilable with INPS)
   "pendingStep": "PHOTO", // null | DRAFT | PHOTO | CONFIRM (in-flight write)
 
@@ -78,7 +80,10 @@ the new `idLavorazione`).
   },
 
   // Last reconciliation snapshot (diagnostics / debounce)
-  "lastReconciliation": { "esitoCheck": 20, "at": "2026-04-30T10:04:00.000Z" },
+  "lastReconciliation": {
+    "applicationStatus": "DRAFT",
+    "at": "2026-04-30T10:04:00.000Z",
+  },
 
   "createdAt": "2026-04-30T10:00:00.000Z",
   "updatedAt": "2026-04-30T10:05:00.000Z",
@@ -89,16 +94,20 @@ the new `idLavorazione`).
 
 ### `state` (milestone) vs `pendingStep` (in-flight)
 
-`state` only holds **milestones that INPS can confirm** and maps 1:1 to
-`esitoCheck`, so it is always reconcilable:
+`state` only holds **milestones that INPS can confirm** and is derived from the
+application-level status, so it is always reconcilable:
 
-| `esitoCheck` | `state`                                           |
-| ------------ | ------------------------------------------------- |
-| 10           | `READY_FOR_NEW_DRAFT`                             |
-| 20           | `READY_FOR_PHOTO_UPLOAD`                          |
-| 30           | `READY_FOR_DOCUMENTS_UPLOAD`                      |
-| 40           | `ACQUIRED`                                        |
-| 50           | `READY_FOR_NEW_DRAFT` (+ `previousIdLavorazione`) |
+| `esitoCheck` | Application status | `state`                                           |
+| ------------ | ------------------ | ------------------------------------------------- |
+| 10           | `NO_APPLICATION`   | `READY_FOR_NEW_DRAFT`                             |
+| 20           | `DRAFT`            | `READY_FOR_PHOTO_UPLOAD`                          |
+| 30           | `PHOTO_ATTACHED`   | `READY_FOR_DOCUMENTS_UPLOAD`                      |
+| 40           | `ACQUIRED`         | `ACQUIRED`                                        |
+| 50           | `CLOSED`           | `READY_FOR_NEW_DRAFT` (+ `previousIdLavorazione`) |
+
+New reconciliation snapshots store `applicationStatus`. Records created before
+this change can still contain `esitoCheck` and remain readable for backward
+compatibility.
 
 `pendingStep` carries the local-only "uploading" information. The exposed API
 `ApplicationState` is **derived**: `UPLOADING_PHOTO` = `state=READY_FOR_PHOTO_UPLOAD`
@@ -128,7 +137,9 @@ inpsIdempotencyKey, status: PENDING, attempts: 1, submittedAt: now }`,
 5. Call INPS with `Idempotency-Key: inpsIdempotencyKey`.
 6. **Write 2** (outcome):
    - INPS `200` → set `idLavorazione` (if returned), `steps[S].status = COMPLETED`,
-     advance milestone `state`, `pendingStep = null`.
+     advance milestone `state`, `pendingStep = null`, and clear
+     `lastReconciliation` because the previous snapshot predates this successful
+     authoritative write.
    - INPS `400` → `steps[S].status = FAILED`, store `lastErrorCode`,
      `pendingStep = null`, `state` unchanged → surface the INPS error to the FE.
    - INPS `5xx`/timeout → **leave** `status = PENDING` (so the next call reuses the
@@ -142,22 +153,27 @@ our record can never reference a stale `idLavorazione`.
 
 ## Reconciliation algorithm (on `GET /status` → `CheckDomanda`)
 
-1. Read `R`; call `CheckDomanda(codiceFiscale)` → `esitoCheck`, `idLavorazione_INPS`.
-2. Map `esitoCheck` → authoritative milestone (table above).
+1. Read `R`; call the card application repository, which maps
+   `CheckDomanda.esitoCheck` to `applicationStatus` and returns
+   `idLavorazione_INPS`.
+2. Map `applicationStatus` to the authoritative milestone (table above).
 3. Align:
-   - `esitoCheck` 10/50 and `R` has a draft → INPS has no active draft:
+   - `NO_APPLICATION`/`CLOSED` and `R` has a draft → INPS has no active draft:
      clear `steps`, `idLavorazione = null`, `state = READY_FOR_NEW_DRAFT`
-     (for 50 set `previousIdLavorazione = R.idLavorazione`).
-   - `esitoCheck` 20/30/40 → `idLavorazione = idLavorazione_INPS`,
+     (for `CLOSED` set `previousIdLavorazione = R.idLavorazione`).
+   - `DRAFT`/`PHOTO_ATTACHED`/`ACQUIRED` →
+     `idLavorazione = idLavorazione_INPS`,
      `state =` mapped milestone.
      - If `pendingStep` matches and INPS already reflects its success
-       (e.g. `pendingStep=PHOTO` and `esitoCheck=30`) → mark step `COMPLETED`,
+       (e.g. `pendingStep=PHOTO` and `applicationStatus=PHOTO_ATTACHED`) →
+       mark step `COMPLETED`,
        `pendingStep = null`.
-     - If INPS does **not** reflect it yet (`pendingStep=PHOTO`, `esitoCheck=20`) →
-       keep the step retryable (`status=PENDING/FAILED`, `pendingStep=null`) so the
-       FE can re-issue with the same `clientKey`.
-   - `R` missing but INPS has state → recreate `R` from `esitoCheck` (generate a
-     reconcile `inpsIdempotencyKey` for the next writable step).
+     - If INPS does **not** reflect it yet
+       (`pendingStep=PHOTO`, `applicationStatus=DRAFT`) → keep the step retryable
+       (`status=PENDING/FAILED`, `pendingStep=null`) so the FE can re-issue with
+       the same `clientKey`.
+   - `R` missing but INPS has state → recreate `R` from `applicationStatus`
+     (generate a reconcile `inpsIdempotencyKey` for the next writable step).
    - INPS business error (700, 212-214, 701/702) → no local mutation; surface error.
 4. Persist `R` with `If-Match`; return derived `ApplicationState` to the FE.
 
@@ -169,5 +185,7 @@ our record can never reference a stale `idLavorazione`.
 - `pendingStep != null` ⇒ exactly one `steps[*].status == PENDING`.
 - The milestone `state` never advances without an INPS `200` (or a reconciliation
   that observed the corresponding `esitoCheck`).
+- `lastReconciliation` describes only the latest `CheckDomanda` observation and is
+  cleared whenever a successful write advances the authoritative INPS milestone.
 - All updates are `If-Match` guarded to avoid lost updates between the FE retry and
   background reconciliation.

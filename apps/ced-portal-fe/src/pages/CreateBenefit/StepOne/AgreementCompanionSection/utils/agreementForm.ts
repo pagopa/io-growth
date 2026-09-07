@@ -1,10 +1,5 @@
 import { AgreementDetailsFormCopy } from '../../../../../constants';
 
-export const benefitDiscountValueTypeOptions = [
-  { label: 'Percentage', value: 'percentage' },
-  { label: 'Fixed Amount', value: 'fixed' },
-];
-
 type FormFieldConfig = {
   title?: string;
   helperText?: string;

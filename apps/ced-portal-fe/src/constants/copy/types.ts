@@ -1,34 +1,3 @@
-export interface AgreementAdditionalSectionsCopy {
-  companion: {
-    title: string;
-    toggleAriaLabel: string;
-    sameConditionLabel: string;
-    benefitTypePlaceholder: string;
-    benefitTypeOptions: Record<string, string>;
-    discountTypeOptions: {
-      percentage: string;
-      fixed: string;
-    };
-    discountValueLabel: {
-      percentage: string;
-      fixed_amount: string;
-    };
-    otherBenefitTypeLabel: string;
-  };
-  validity: {
-    title: string;
-    setEndDateLabel: string;
-    setEndDateAriaLabel: string;
-    startDateLabel: string;
-    endDateLabel: string;
-    dateHelperText: string;
-  };
-  link: {
-    title: string;
-    benefitUrlLabel: string;
-  };
-}
-
 export interface AgreementDetailsFormCopy {
   sectionTitle: string;
   sectionDescription: string;

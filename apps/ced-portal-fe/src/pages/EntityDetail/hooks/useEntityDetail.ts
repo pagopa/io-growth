@@ -16,7 +16,7 @@ import {
 } from '../utils';
 import type { UploadState } from '../../../components';
 
-export function useEntityDetail() {
+function useEntityDetail() {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
   const { showToast } = useToast();

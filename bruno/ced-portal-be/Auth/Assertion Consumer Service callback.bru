@@ -5,14 +5,16 @@ meta {
 }
 
 get {
-  url: {{baseUrl}}/acs?token={{token}}
+  url: {{baseUrl}}/acs?token={{tokenAdminTest}}
   body: none
   auth: none
 }
 
 params:query {
-  token: {{token}}
+  token: {{tokenAdminTest}}
+  ~token: {{token}}
   ~token: {{tokenAdmin}}
+  ~token: {{tokenTest}}
 }
 
 script:post-response {

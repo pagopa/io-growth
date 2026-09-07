@@ -9,7 +9,7 @@ type createDraftRequest = {
   idempotency_key: string;
 };
 
-export const requestFormApi = baseApi.injectEndpoints({
+const requestFormApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     createDraftRequest: builder.mutation<
       CreateNewApplication200,

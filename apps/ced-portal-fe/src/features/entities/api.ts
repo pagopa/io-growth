@@ -11,7 +11,7 @@ import type {
 } from '../../core/api/generated/model';
 import type { EntityDetail } from './types.js';
 
-export type ListDepartmentOnboardingsParams = ListOnboardingsParams;
+type ListDepartmentOnboardingsParams = ListOnboardingsParams;
 
 const getListDepartmentOnboardingsUrl = (
   params: ListDepartmentOnboardingsParams,
@@ -40,7 +40,7 @@ const getListDepartmentOnboardingsUrl = (
     : '/department/onboardings';
 };
 
-export const entitiesApi = baseApi.injectEndpoints({
+const entitiesApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     listDepartmentOnboardings: builder.query<
       PendingOnboardingsResponse,

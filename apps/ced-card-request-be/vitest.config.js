@@ -6,8 +6,9 @@ const coverageExclude = [
   "src/**/*.d.ts",
   "src/**/index.ts",
   "src/main.ts",
-  "dist/**",
-  "node_modules/**",
+  "src/adapters/inbound/fastify/**/*.ts",
+  "src/application/use-cases/info.use-case.ts",
+  "src/domain/ports/**/*.ts",
 ];
 
 export default defineConfig({
@@ -19,7 +20,7 @@ export default defineConfig({
       provider: "v8",
       reporter: ["text", "html"],
     },
-    globals: false,
+    globals: true,
     include: ["src/**/*.test.ts"],
   },
 });

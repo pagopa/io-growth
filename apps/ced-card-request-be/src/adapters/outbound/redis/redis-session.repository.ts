@@ -7,6 +7,7 @@ import type { BaseError } from "@pagopa/io-core-domain/errors";
 import type { Result } from "neverthrow";
 
 import { del, get, setEx } from "@pagopa/io-core-adapter-redis";
+import { NotFoundError } from "@pagopa/io-core-domain/errors";
 import { err, ok } from "neverthrow";
 
 const KEY_PREFIX = "card:";
@@ -22,12 +23,13 @@ export const createRedisSessionRepository = (
 ): FimsSessionStore => ({
   deleteTemporary: (key) => del(client, `${KEY_PREFIX}${key}`),
 
-  getSession: async (token): Promise<Result<FimsSession | null, BaseError>> => {
+  getSession: async (token): Promise<Result<FimsSession, BaseError>> => {
     const result = await get<FimsSession>(
       client,
       `${KEY_PREFIX}session:${token}`,
     );
     if (result.isErr()) return err(result.error);
+    if (result.value === null) return err(new NotFoundError("Session", token));
     return ok(result.value);
   },
 

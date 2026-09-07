@@ -3,11 +3,11 @@ import type { RedisCommands } from "@pagopa/io-core-adapter-redis";
 import { GenericError } from "@pagopa/io-core-domain";
 import { err, ok } from "neverthrow";
 
-import type { IHealthCheckRepository } from "../../../domain/ports/outbound/health-check.repository.js";
+import type { HealthCheckRepository } from "../../../domain/ports/outbound/health-check.repository.js";
 
 export const createRedisHealthCheckRepository = (
   client: RedisCommands,
-): IHealthCheckRepository => ({
+): HealthCheckRepository => ({
   checkConnection: async () => {
     try {
       await client.ping();

@@ -3,4 +3,5 @@ export interface PartnerCardProps {
   imageUrl: string;
   logoUrl: string;
   onClick?: () => void;
+  isInert?: boolean;
 }

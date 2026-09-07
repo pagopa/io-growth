@@ -5,11 +5,11 @@ const EXPIRE_TIME = 30 * 60 * 1000;
 
 export const selectToken = (state: RootState) => state.auth.token;
 
-export const selectSavedAt = ({ auth }: RootState) => auth?.savedAt;
+const selectSavedAt = ({ auth }: RootState) => auth?.savedAt;
 
-export const selectRedirectToken = ({ auth }: RootState) => auth?.redirectToken;
+const selectRedirectToken = ({ auth }: RootState) => auth?.redirectToken;
 
-export const selectDeviceId = ({ auth }: RootState) => auth?.deviceId;
+// const selectDeviceId = ({ auth }: RootState) => auth?.deviceId;
 
 export const selectIsTokenValid = createSelector(
   selectToken,

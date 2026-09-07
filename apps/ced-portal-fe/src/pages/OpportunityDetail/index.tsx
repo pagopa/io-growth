@@ -5,7 +5,6 @@ import WarningIcon from '@mui/icons-material/WarningRounded';
 import {
   Box,
   Button,
-  Chip,
   CircularProgress,
   Stack,
   Typography,
@@ -28,6 +27,7 @@ import { OpportunityDetailCard } from './components/OpportunityDetailCard';
 import { STATE_COLORS, STATE_OPTIONS } from '../../constants/opportunityState';
 import { SuspendOpportunityModal } from '../../components/SuspendOpportunityModal';
 import type { SuspendOpportunityPayload } from '../../features/opportunities/types';
+import { MIChip } from '@pagopa/mui-italia';
 
 export default function OpportunityDetailPage() {
   const theme = useTheme();
@@ -177,13 +177,12 @@ export default function OpportunityDetailPage() {
               Ecco i dettagli dell&apos;opportunità
             </Typography>
           </Box>
-          <Chip
+          <MIChip
             label={
               STATE_OPTIONS.find((o) => o.value === detail.status)?.label ??
               detail.status
             }
             color={STATE_COLORS[detail.status] ?? 'default'}
-            size="small"
           />
         </Stack>
 

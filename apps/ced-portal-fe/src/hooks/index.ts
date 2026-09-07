@@ -1,4 +1,3 @@
 export * from './store';
 export * from './useGetSession';
-export * from './useDebounce';
 export * from './useMemorizedTabsAndFilters';

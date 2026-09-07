@@ -1,0 +1,23 @@
+meta {
+  name: CheckDomanda
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{inpsProxyBaseUrl}}/Domanda/CheckDomanda
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  INPS-Identity-UserId: {{fiscalCode}}
+  INPS-Identity-CodiceUfficio: {{inpsOfficeCode}}
+}
+
+body:json {
+  {
+    "codiceFiscale": "{{fiscalCode}}"
+  }
+}

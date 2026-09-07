@@ -4,7 +4,7 @@ import type {
   PlaceDetail,
 } from '../../core/api/generated/model';
 
-export const placesApi = baseApi.injectEndpoints({
+const placesApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     searchPlaces: builder.query<PlaceSearchResponse, string>({
       query: (q) => `/search?q=${encodeURIComponent(q)}`,

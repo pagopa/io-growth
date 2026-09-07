@@ -7,7 +7,7 @@ type uploadPhotoRequest = {
   idempotency_key: string;
 };
 
-export const photoUploadApi = baseApi.injectEndpoints({
+const photoUploadApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     uploadPhoto: builder.mutation<uploadPhotoResponse, uploadPhotoRequest>({
       query: ({ body, idempotency_key }) => ({

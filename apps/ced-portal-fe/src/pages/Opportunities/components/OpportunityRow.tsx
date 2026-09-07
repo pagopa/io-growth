@@ -1,13 +1,13 @@
-import { TableRow, TableCell, Checkbox, IconButton, Chip } from '@mui/material';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
-import type { Opportunity } from '../../../features/opportunities/types';
-import {
-  STATE_OPTIONS,
-  STATE_COLORS,
-} from '../../../constants/opportunityState';
+import { Checkbox, IconButton, TableCell, TableRow } from '@mui/material';
+import { MIChip, theme } from '@pagopa/mui-italia';
 import { generatePath, Link } from 'react-router-dom';
 import { APP_ROUTES } from '../../../app/routeConfig';
-import { theme } from '@pagopa/mui-italia';
+import {
+  STATE_COLORS,
+  STATE_OPTIONS,
+} from '../../../constants/opportunityState';
+import type { Opportunity } from '../../../features/opportunities/types';
 
 interface OpportunityRowProps {
   item: Opportunity;
@@ -51,13 +51,12 @@ export const OpportunityRow = ({
       </TableCell>
 
       <TableCell>
-        <Chip
+        <MIChip
           label={
             STATE_OPTIONS.find((o) => o.value === item.status)?.label ??
             item.status
           }
           color={STATE_COLORS[item.status] ?? 'default'}
-          size="small"
         />
       </TableCell>
 

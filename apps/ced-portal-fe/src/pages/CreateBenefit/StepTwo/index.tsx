@@ -1,16 +1,16 @@
 import { Box } from '@mui/material';
-import { useAppSelector } from '../../../hooks/store';
+import { MIAlert } from '@pagopa/mui-italia';
+import { selectNationalTerritory } from '../../../features/opportunityCreation/selectors';
 import {
   selectAccessPoint,
   selectSelectedLocationIds,
   selectSelectedWebsiteIds,
 } from '../../../features/places/selectors';
+import { useAppSelector } from '../../../hooks/store';
 import type { StepProps } from '../index';
-import { WizardAlert } from '../components/WizardAlert';
 import { AccessPointSection } from './AccessPointSection';
 import { LocationManagementSection } from './LocationManagementSection';
 import { WebsiteManagementSection } from './WebsiteManagementSection';
-import { selectNationalTerritory } from '../../../features/opportunityCreation/selectors';
 
 export function StepTwo({ attempted }: StepProps) {
   const accessPoint = useAppSelector(selectAccessPoint);
@@ -32,11 +32,13 @@ export function StepTwo({ attempted }: StepProps) {
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
       {needsLocation && (
-        <WizardAlert>
+        <MIAlert severity="error">
           Seleziona &quot;Ovunque&quot; o indica almeno una sede.
-        </WizardAlert>
+        </MIAlert>
       )}
-      {needsWebsite && <WizardAlert>Indica almeno un sito web.</WizardAlert>}
+      {needsWebsite && (
+        <MIAlert severity="error">Indica almeno un sito web.</MIAlert>
+      )}
       <AccessPointSection />
       <LocationManagementSection />
       <WebsiteManagementSection />

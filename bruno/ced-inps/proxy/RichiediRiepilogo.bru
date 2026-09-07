@@ -1,0 +1,75 @@
+meta {
+  name: RichiediRiepilogo
+  type: http
+  seq: 7
+}
+
+post {
+  url: {{inpsProxyBaseUrl}}/Domanda/RichiediRiepilogo
+  body: json
+  auth: none
+}
+
+headers {
+  Accept-Encoding: identity
+  Content-Type: application/json
+  INPS-Identity-UserId: {{fiscalCode}}
+  INPS-Identity-CodiceUfficio: {{inpsOfficeCode}}
+  Idempotency-Key: {{$guid}}
+}
+
+body:json {
+  {
+    "idLavorazione": "{{processingId}}",
+    "codiceFiscale": "{{fiscalCode}}"
+  }
+}
+
+script:post-response {
+  if (res.status >= 200 && res.status < 300) {
+    const summary = res.body?.riepilogoDatiDomanda;
+
+    if (typeof summary !== "string" || summary.length === 0) {
+      bru.visualize("html", {
+        name: "Riepilogo domanda",
+        content: "<p>Nessun PDF presente nella risposta.</p>"
+      });
+    } else {
+      const pdfBase64 = summary.replace(/^data:application\/pdf;base64,/, "");
+
+      bru.visualize("html", {
+        name: "Riepilogo domanda",
+        content: `
+          <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:32px">
+            <p>L'anteprima PDF non è supportata dal renderer integrato di Bruno.</p>
+            <a id="pdf-download" download="riepilogo-domanda.pdf" style="padding:10px 16px;border-radius:6px;background:#2563eb;color:white;text-decoration:none">
+              Scarica il PDF
+            </a>
+          </div>
+          <script>
+            (() => {
+              const binary = atob("${pdfBase64}");
+              const bytes = new Uint8Array(binary.length);
+
+              for (let index = 0; index < binary.length; index += 1) {
+                bytes[index] = binary.charCodeAt(index);
+              }
+
+              const pdfUrl = URL.createObjectURL(
+                new Blob([bytes], { type: "application/pdf" })
+              );
+
+              document.getElementById("pdf-download").href = pdfUrl;
+              window.addEventListener("beforeunload", () => URL.revokeObjectURL(pdfUrl));
+            })();
+          </script>
+        `
+      });
+    }
+  }
+}
+
+docs {
+  The proxy returns an uncompressed error body while declaring gzip encoding.
+  Requesting identity encoding prevents Bruno from trying to decompress it.
+}

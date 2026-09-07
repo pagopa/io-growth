@@ -13,6 +13,8 @@ import SummaryStep from './steps/SummaryStep';
 import type { StepRef } from './types';
 import { useSaveDataByStep } from './hooks/useSaveDataByStep';
 import GenericError from '../GenericError';
+import { selectPhotoPreview } from '../../features/photo-upload/reducer';
+import { useAppSelector } from '../../hooks';
 
 const steps = [
   {
@@ -52,7 +54,10 @@ export default function CardRequestFlowPage() {
   const [currentStep, setCurrentStep] = useState(state?.step ?? 0);
   const [draftSaved, setDraftSaved] = useState(false);
   const stepRef = useRef<StepRef | null>(null);
-  const [photoPreview, setPhotoPreview] = useState<string>('');
+  const recoveredPhotoPreview = useAppSelector(selectPhotoPreview);
+  const [photoPreview, setPhotoPreview] = useState<string>(
+    recoveredPhotoPreview ?? '',
+  );
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const goNextStep = () => setCurrentStep((s) => s + 1);
@@ -141,7 +146,7 @@ export default function CardRequestFlowPage() {
     setIsSubmitting(true);
     try {
       await confirmRequest();
-    } catch (error) {
+    } catch {
       setIsSubmitting(false);
     }
   };

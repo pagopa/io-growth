@@ -1,8 +1,3 @@
-import type {
-  OpportunityCreateRequest,
-  LocalizedMetadataItemLanguage,
-  LocalizedMetadataItemKey,
-} from '../../core/api/generated/model';
 import { RootState } from '../../core/store';
 import type {
   OpportunityCreationForm,
@@ -26,10 +21,6 @@ export const selectIsSameConditionsCaregiver = (state: {
   opportunityCreation: OpportunityCreationState;
 }) => !!state.opportunityCreation.caregiverHasSameConditions;
 
-export const selectHasEndDate = (state: {
-  opportunityCreation: OpportunityCreationState;
-}) => !!state.opportunityCreation.form.dateTo;
-
 export const selectOpportunityForm = (state: {
   opportunityCreation: OpportunityCreationState;
 }) => baseSelectOpportunityForm(state);
@@ -46,14 +37,6 @@ export const selectUrl = (state: {
   opportunityCreation: OpportunityCreationState;
 }) => baseSelectOpportunityForm(state).url ?? '';
 
-export const selectCategoryId = (state: {
-  opportunityCreation: OpportunityCreationState;
-}) => baseSelectOpportunityForm(state).categoryId ?? '';
-
-export const selectPlaceIds = (state: {
-  opportunityCreation: OpportunityCreationState;
-}) => baseSelectOpportunityForm(state).placeIds;
-
 export const selectBeneficiaryBenefit = (state: {
   opportunityCreation: OpportunityCreationState;
 }) => baseSelectOpportunityForm(state).beneficiaryBenefit;
@@ -65,18 +48,6 @@ export const selectNationalTerritory = (state: {
 export const selectCaregiverBenefit = (state: {
   opportunityCreation: OpportunityCreationState;
 }) => baseSelectOpportunityForm(state).caregiverBenefit;
-
-export const selectLocalizedMetadata = (state: {
-  opportunityCreation: OpportunityCreationState;
-}) => baseSelectOpportunityForm(state).localizedMetadata;
-
-export const selectLocalizedValue =
-  (
-    language: LocalizedMetadataItemLanguage,
-    key: 'name' | 'description' | 'condition',
-  ) =>
-  (state: RootState) =>
-    baseSelectOpportunityForm(state).localizedMetadata[language]?.[key];
 
 const getValueByPath = <TSource extends object, TResult = unknown>(
   source: TSource | undefined,
@@ -100,40 +71,3 @@ export const selectFormValueByPath =
       baseSelectOpportunityForm(state),
       path,
     );
-
-const localizedMetadataRecordToArray = (
-  localizedMetadata: Record<LocalizedMetadataItemLanguage, Record<string, any>>,
-) =>
-  Object.entries(localizedMetadata).flatMap(([language, fields]) =>
-    Object.entries(fields).map(([key, value]) => ({
-      language: language as LocalizedMetadataItemLanguage,
-      key: key as LocalizedMetadataItemKey,
-      value,
-    })),
-  );
-
-// Build a payload ready for BE submission. Returns null if required fields are missing.
-export const selectFormattedForSubmit = (state: {
-  opportunityCreation: OpportunityCreationState;
-}): OpportunityCreateRequest | null => {
-  const form = baseSelectOpportunityForm(state);
-
-  if (!form.dateFrom) return null;
-  if (!form.categoryId) return null;
-  if (!form.placeIds || form.placeIds.length === 0) return null;
-  if (!form.beneficiaryBenefit) return null;
-
-  const payload: OpportunityCreateRequest = {
-    dateFrom: form.dateFrom,
-    categoryId: form.categoryId,
-    placeIds: form.placeIds,
-    beneficiaryBenefit: form.beneficiaryBenefit,
-    localizedMetadata: localizedMetadataRecordToArray(form.localizedMetadata),
-  };
-
-  if (form.dateTo) payload.dateTo = form.dateTo;
-  if (form.url) payload.url = form.url;
-  if (form.caregiverBenefit) payload.caregiverBenefit = form.caregiverBenefit;
-
-  return payload;
-};

@@ -1,5 +1,5 @@
-export * from './Autocomplete';
 export * from './Checkbox';
+export * from './CompleteProfileModal';
 export * from './ContactRow';
 export * from './DataTable';
 export * from './DatePicker';
@@ -20,4 +20,3 @@ export * from './RadioGroup';
 export * from './SectionCard';
 export * from './SuspendOpportunityModal';
 export * from './UploadDropzone';
-export * from './DownloadItem';

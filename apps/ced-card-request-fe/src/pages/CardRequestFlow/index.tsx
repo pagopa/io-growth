@@ -7,14 +7,17 @@ import { PageHeader, Stepper } from '../../components';
 import { SavedDraftDialog } from './SavedDraftDialog';
 import { AddressStep } from './steps/AddressStep';
 import { ApplicantDataStep } from './steps/ApplicantDataStep';
-import { DocumentTypeStep } from './steps/DocumentTypeStep';
+import { DocumentTypeStep } from './steps/DocumentTypeStep/DocumentTypeStep';
 import { PhotoUploadStep } from './steps/PhotoUploadStep';
 import SummaryStep from './steps/SummaryStep';
 import type { StepRef } from './types';
 import { useSaveDataByStep } from './hooks/useSaveDataByStep';
+import { getNextStepAfterDocumentType } from './utils/documentTypeFlow';
 import GenericError from '../GenericError';
-import { selectPhotoPreview } from '../../features/photo-upload/reducer';
 import { useAppSelector } from '../../hooks';
+import { selectConfirmationForm } from '../../features/confirmation/reducer';
+import UploadDocumentsStep from './steps/UploadDocumentsStep';
+import { selectPhotoPreview } from '../../features/photo-upload/reducer';
 
 const steps = [
   {
@@ -41,6 +44,12 @@ const steps = [
     confirmLabel: 'Continua',
     cancelLabel: 'Riprendi più tardi',
   },
+  {
+    title: 'Carica il documento',
+    content: UploadDocumentsStep,
+    confirmLabel: 'Continua',
+    cancelLabel: 'Riprendi più tardi',
+  },
   { title: 'Conferma e invia', content: SummaryStep },
 ];
 
@@ -59,6 +68,7 @@ export default function CardRequestFlowPage() {
     recoveredPhotoPreview ?? '',
   );
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const confirmationForm = useAppSelector(selectConfirmationForm);
 
   const goNextStep = () => setCurrentStep((s) => s + 1);
 
@@ -85,11 +95,16 @@ export default function CardRequestFlowPage() {
   } = useSaveDataByStep(goNextStep);
 
   const handleBack = () => {
+    if (isLastStep && confirmationForm.dichiarazioneConformitaVerbale) {
+      setCurrentStep((s) => s - 2);
+      return;
+    }
     if (currentStep > 0) {
       setCurrentStep((s) => s - 1);
-    } else {
-      navigate(-1);
+      return;
     }
+
+    navigate(-1);
   };
 
   useEffect(() => {
@@ -133,6 +148,11 @@ export default function CardRequestFlowPage() {
       }
       if (currentStep === 2) {
         savePhoto();
+        return;
+      }
+      if (currentStep === 3) {
+        const nextStep = getNextStepAfterDocumentType(confirmationForm);
+        setCurrentStep(nextStep);
         return;
       }
     }

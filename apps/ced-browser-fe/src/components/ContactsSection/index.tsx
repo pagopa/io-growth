@@ -45,7 +45,9 @@ export function ContactsSection({
       <Stack divider={<Divider aria-hidden sx={{ mx: 4 }} />} sx={{ mt: 1 }}>
         {contacts.phone && (
           <ContactRow
-            icon={<Call sx={{ fontSize: 20, color: '#BBC2D6' }} />}
+            icon={
+              <Call sx={{ fontSize: 20, color: 'common.decorativeIcon' }} />
+            }
             label={`Chiama ${contacts.phone}`}
             href={`tel:${contacts.phone}`}
             onClick={() => trackContactEvent('telephone')}
@@ -53,7 +55,9 @@ export function ContactsSection({
         )}
         {contacts.website && (
           <ContactRow
-            icon={<Language sx={{ fontSize: 20, color: '#BBC2D6' }} />}
+            icon={
+              <Language sx={{ fontSize: 20, color: 'common.decorativeIcon' }} />
+            }
             label="Visita il sito"
             href={contacts.website}
             onClick={() => trackContactEvent('website')}
@@ -61,7 +65,11 @@ export function ContactsSection({
         )}
         {googleMapsUrl && (
           <ContactRow
-            icon={<LocationOn sx={{ fontSize: 20, color: '#BBC2D6' }} />}
+            icon={
+              <LocationOn
+                sx={{ fontSize: 20, color: 'common.decorativeIcon' }}
+              />
+            }
             label="Ottieni indicazioni stradali"
             href={googleMapsUrl}
             onClick={() => trackContactEvent('directions')}
@@ -69,14 +77,20 @@ export function ContactsSection({
         )}
         {contacts.privacyUrl && (
           <ContactRow
-            icon={<VerifiedUser sx={{ fontSize: 20, color: '#BBC2D6' }} />}
+            icon={
+              <VerifiedUser
+                sx={{ fontSize: 20, color: 'common.decorativeIcon' }}
+              />
+            }
             label="Informativa sulla privacy"
             href={contacts.privacyUrl}
           />
         )}
         {contacts.termsUrl && (
           <ContactRow
-            icon={<MenuBook sx={{ fontSize: 20, color: '#BBC2D6' }} />}
+            icon={
+              <MenuBook sx={{ fontSize: 20, color: 'common.decorativeIcon' }} />
+            }
             label="Termini e condizioni d'uso"
             href={contacts.termsUrl}
           />

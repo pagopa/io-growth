@@ -3,8 +3,8 @@ import { defineConfig } from 'orval';
 export default defineConfig({
   cedPortalBe: {
     input: {
-      // TODO: this should be replaced with a tag url IEG-2924
-      target: '../ced-portal-be/openapi/exposed/openapi.yaml',
+      target:
+        'https://raw.githubusercontent.com/pagopa/io-growth/ced-portal-be@0.3.1/apps/ced-portal-be/openapi/exposed/openapi.yaml',
     },
     output: {
       client: 'fetch',

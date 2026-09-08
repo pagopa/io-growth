@@ -1,5 +1,6 @@
 ---
-"ced-portal-be": patch
+"ced-portal-be": minor
 ---
 
-Add the operator opportunity-edit endpoint: PATCH /api/operator/opportunities/{opportunityId}.
+Add the operator opportunity-edit endpoint: PUT /api/operator/opportunities/{opportunityId}.
+The endpoint replaces the complete writable opportunity representation; omitted optional fields are cleared.

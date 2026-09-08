@@ -32,7 +32,7 @@ import type {
   PaginatedOpportunities,
   SuspendByIdAndOperatorIdInput,
   SuspendByIdInput,
-  UpdateFieldsByIdAndOperatorIdInput,
+  UpdateByIdAndOperatorIdInput,
   UpdateOpportunityStatusByIdAndOperatorIdInput,
   UpdateOpportunityStatusByIdInput,
 } from "../../../domain/ports/outbound/persistence/opportunity.repository.js";
@@ -518,31 +518,25 @@ const benefitColumns = (benefit: BenefitSummary) => ({
       : null,
 });
 
-const updateFieldsByIdAndOperatorId =
+const updateByIdAndOperatorId =
   (db: TypedDbClient<typeof schema>) =>
   async (
-    input: UpdateFieldsByIdAndOperatorIdInput,
+    input: UpdateByIdAndOperatorIdInput,
   ): Promise<Result<void, ConflictError | GenericError>> => {
     try {
       await db.transaction(async (tx) => {
         const result = await tx
           .update(opportunity)
           .set({
-            ...(input.categoryId !== undefined
-              ? { categoryId: input.categoryId }
-              : {}),
-            ...(input.dateFrom !== undefined
-              ? { dateFrom: input.dateFrom }
-              : {}),
-            ...(input.dateTo !== undefined ? { dateTo: input.dateTo } : {}),
-            ...(input.nationalTerritory !== undefined
-              ? { nationalTerritory: input.nationalTerritory }
-              : {}),
+            categoryId: input.categoryId,
+            dateFrom: input.dateFrom,
+            dateTo: input.dateTo ?? null,
+            nationalTerritory: input.nationalTerritory,
             ...(input.transitionToTestPending
               ? { status: OPPORTUNITY_STATUS.TEST_PENDING }
               : {}),
-            ...(input.url !== undefined ? { url: input.url } : {}),
             updatedAt: new Date(),
+            url: input.url ?? null,
           })
           .where(
             and(
@@ -556,19 +550,17 @@ const updateFieldsByIdAndOperatorId =
           throw new ConflictError("Opportunity was modified concurrently");
         }
 
-        if (input.beneficiaryBenefit !== undefined) {
-          await tx
-            .update(beneficiaryBenefit)
-            .set(benefitColumns(input.beneficiaryBenefit))
-            .where(eq(beneficiaryBenefit.opportunityId, input.opportunityId));
-        }
+        await tx
+          .update(beneficiaryBenefit)
+          .set(benefitColumns(input.beneficiaryBenefit))
+          .where(eq(beneficiaryBenefit.opportunityId, input.opportunityId));
 
-        // caregiver: undefined = untouched; null = remove; value = add/update
-        if (input.caregiverBenefit === null) {
+        // An omitted optional caregiver benefit means the relation is removed.
+        if (input.caregiverBenefit === undefined) {
           await tx
             .delete(caregiverBenefit)
             .where(eq(caregiverBenefit.opportunityId, input.opportunityId));
-        } else if (input.caregiverBenefit !== undefined) {
+        } else {
           await tx
             .insert(caregiverBenefit)
             .values({
@@ -581,34 +573,30 @@ const updateFieldsByIdAndOperatorId =
             });
         }
 
-        if (input.placeIds !== undefined) {
-          await tx
-            .delete(opportunityPlace)
-            .where(eq(opportunityPlace.opportunityId, input.opportunityId));
-          if (input.placeIds.length > 0) {
-            await tx.insert(opportunityPlace).values(
-              input.placeIds.map((placeId) => ({
-                opportunityId: input.opportunityId,
-                placeId,
-              })),
-            );
-          }
+        await tx
+          .delete(opportunityPlace)
+          .where(eq(opportunityPlace.opportunityId, input.opportunityId));
+        if (input.placeIds.length > 0) {
+          await tx.insert(opportunityPlace).values(
+            input.placeIds.map((placeId) => ({
+              opportunityId: input.opportunityId,
+              placeId,
+            })),
+          );
         }
 
-        if (input.localizedMetadata !== undefined) {
-          await tx
-            .delete(localizedMetadata)
-            .where(eq(localizedMetadata.opportunityId, input.opportunityId));
-          if (input.localizedMetadata.length > 0) {
-            await tx.insert(localizedMetadata).values(
-              input.localizedMetadata.map((lm) => ({
-                key: lm.key,
-                language: lm.language,
-                opportunityId: input.opportunityId,
-                value: lm.value,
-              })),
-            );
-          }
+        await tx
+          .delete(localizedMetadata)
+          .where(eq(localizedMetadata.opportunityId, input.opportunityId));
+        if (input.localizedMetadata.length > 0) {
+          await tx.insert(localizedMetadata).values(
+            input.localizedMetadata.map((lm) => ({
+              key: lm.key,
+              language: lm.language,
+              opportunityId: input.opportunityId,
+              value: lm.value,
+            })),
+          );
         }
       });
 
@@ -766,7 +754,7 @@ export const createDrizzleOpportunityRepository = (
 
   suspendByIdAndOperatorId: suspendByIdAndOperatorId(db),
 
-  updateFieldsByIdAndOperatorId: updateFieldsByIdAndOperatorId(db),
+  updateByIdAndOperatorId: updateByIdAndOperatorId(db),
 
   updateStatusById: updateStatusById(db),
 

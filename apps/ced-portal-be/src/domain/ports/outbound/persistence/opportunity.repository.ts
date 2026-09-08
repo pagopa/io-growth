@@ -89,8 +89,8 @@ export interface OpportunityRepository {
   readonly suspendByIdAndOperatorId: (
     input: SuspendByIdAndOperatorIdInput,
   ) => Promise<Result<void, ConflictError | GenericError>>;
-  readonly updateFieldsByIdAndOperatorId: (
-    input: UpdateFieldsByIdAndOperatorIdInput,
+  readonly updateByIdAndOperatorId: (
+    input: UpdateByIdAndOperatorIdInput,
   ) => Promise<Result<void, ConflictError | GenericError>>;
   readonly updateStatusById: (
     input: UpdateOpportunityStatusByIdInput,
@@ -130,23 +130,23 @@ export interface SuspendByIdInput {
   suspensionMessage: string;
 }
 
-export interface UpdateFieldsByIdAndOperatorIdInput {
-  beneficiaryBenefit?: BenefitSummary;
-  caregiverBenefit?: BenefitSummary | null;
-  categoryId?: string;
-  dateFrom?: string;
-  dateTo?: null | string;
+export interface UpdateByIdAndOperatorIdInput {
+  beneficiaryBenefit: BenefitSummary;
+  caregiverBenefit?: BenefitSummary;
+  categoryId: string;
+  dateFrom: string;
+  dateTo?: string;
   // Client-provided value for the optimistic-concurrency CAS (ISO, ms precision).
   expectedUpdatedAt: string;
-  localizedMetadata?: OpportunityDetail["localizedMetadata"];
-  nationalTerritory?: boolean;
+  localizedMetadata: OpportunityDetail["localizedMetadata"];
+  nationalTerritory: boolean;
   operatorId: string;
   opportunityId: string;
-  placeIds?: string[];
+  placeIds: string[];
   // Set by the use case when a binding benefit change requires re-review;
   // applied as status -> "test_pending" in the same CAS-guarded UPDATE.
   transitionToTestPending: boolean;
-  url?: null | string;
+  url?: string;
 }
 
 export interface UpdateOpportunityStatusByIdAndOperatorIdInput {

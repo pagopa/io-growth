@@ -30,36 +30,21 @@ import {
   validateExistence,
 } from "./utils/opportunity-input.js";
 
-const OperatorUpdateOpportunityInputSchema = z
-  .object({
-    // Merge-patch (RFC 7396): omitted = untouched, explicit null = clear.
-    beneficiaryBenefit: BenefitInputSchema.optional(),
-    caregiverBenefit: BenefitInputSchema.nullable().optional(),
-    categoryId: z.ulid().optional(),
-    dateFrom: z.iso.date().optional(),
-    dateTo: z.iso.date().nullable().optional(),
-    // Client-provided value for the optimistic-concurrency CAS.
-    expectedUpdatedAt: z.iso.datetime(),
-    localizedMetadata: LocalizedMetadataListInputSchema.optional(),
-    nationalTerritory: z.boolean().optional(),
-    operatorId: z.ulid(),
-    opportunityId: z.ulid(),
-    placeIds: PlaceIdsInputSchema.optional(),
-    url: z.url().max(2048).nullable().optional(),
-  })
-  .refine(
-    (v) =>
-      v.beneficiaryBenefit !== undefined ||
-      v.caregiverBenefit !== undefined ||
-      v.categoryId !== undefined ||
-      v.dateFrom !== undefined ||
-      v.dateTo !== undefined ||
-      v.localizedMetadata !== undefined ||
-      v.nationalTerritory !== undefined ||
-      v.placeIds !== undefined ||
-      v.url !== undefined,
-    { message: "At least one editable field must be provided" },
-  );
+const OperatorUpdateOpportunityInputSchema = z.object({
+  beneficiaryBenefit: BenefitInputSchema,
+  caregiverBenefit: BenefitInputSchema.optional(),
+  categoryId: z.ulid(),
+  dateFrom: z.iso.date(),
+  dateTo: z.iso.date().optional(),
+  // Client-provided value for the optimistic-concurrency CAS.
+  expectedUpdatedAt: z.iso.datetime(),
+  localizedMetadata: LocalizedMetadataListInputSchema,
+  nationalTerritory: z.boolean(),
+  operatorId: z.ulid(),
+  opportunityId: z.ulid(),
+  placeIds: PlaceIdsInputSchema,
+  url: z.url().max(2048).optional(),
+});
 
 export type OperatorUpdateOpportunityInput = z.input<
   typeof OperatorUpdateOpportunityInputSchema
@@ -80,26 +65,34 @@ const DICHOTOMY_STATUSES = new Set<OpportunityDetail["status"]>([
 ]);
 
 const benefitChanged = (
-  incoming: BenefitSummary,
-  current: BenefitSummary | null,
-): boolean =>
-  current === null ||
-  incoming.type !== current.type ||
-  ("value" in incoming ? incoming.value : null) !==
-    ("value" in current ? current.value : null) ||
-  ("discountType" in incoming ? incoming.discountType : null) !==
-    ("discountType" in current ? current.discountType : null) ||
-  ("description" in incoming ? incoming.description : null) !==
-    ("description" in current ? current.description : null);
+  incoming: BenefitSummary | undefined,
+  current: BenefitSummary | undefined,
+): boolean => {
+  if (incoming === undefined || current === undefined) {
+    return incoming !== current;
+  }
+
+  return (
+    incoming.type !== current.type ||
+    ("value" in incoming ? incoming.value : undefined) !==
+      ("value" in current ? current.value : undefined) ||
+    ("discountType" in incoming ? incoming.discountType : undefined) !==
+      ("discountType" in current ? current.discountType : undefined) ||
+    ("description" in incoming ? incoming.description : undefined) !==
+      ("description" in current ? current.description : undefined)
+  );
+};
 
 interface ValidatePublishedOpportunityDatesParams {
-  readonly dateFrom?: string;
-  readonly dateTo?: null | string;
+  readonly currentDateFrom: string;
+  readonly dateFrom: string;
+  readonly dateTo?: string;
   readonly status: OpportunityDetail["status"];
   readonly today: string;
 }
 
 const validatePublishedOpportunityDates = ({
+  currentDateFrom,
   dateFrom,
   dateTo,
   status,
@@ -109,14 +102,14 @@ const validatePublishedOpportunityDates = ({
     return ok(undefined);
   }
 
-  // A live published opportunity cannot expire today or in the past:
-  // dateTo must be at least tomorrow (omitted / null is allowed).
-  if (dateTo !== undefined && dateTo !== null && dateTo <= today) {
+  // A live published opportunity cannot expire today or in the past. Omitting
+  // dateTo clears the expiry and is allowed.
+  if (dateTo !== undefined && dateTo <= today) {
     return err(new ValidationError("dateTo must be at least tomorrow"));
   }
 
-  // The dateFrom field cannot be modified for a live published opportunity
-  if (dateFrom !== undefined && dateFrom !== null) {
+  // The dateFrom field cannot be modified for a live published opportunity.
+  if (dateFrom !== currentDateFrom) {
     return err(
       new ValidationError(
         "dateFrom cannot be modified for a published opportunity",
@@ -164,13 +157,11 @@ export const makeOperatorUpdateOpportunityUseCase =
           // Binding = a real benefit change (value diff vs current), but only
           // on the dichotomy states; on free states nothing transitions.
           const benefitIsBinding =
-            (v.beneficiaryBenefit !== undefined &&
-              benefitChanged(v.beneficiaryBenefit, data.beneficiaryBenefit)) ||
-            (v.caregiverBenefit !== undefined &&
-              ((v.caregiverBenefit === null) !==
-                (data.caregiverBenefit === null) ||
-                (v.caregiverBenefit !== null &&
-                  benefitChanged(v.caregiverBenefit, data.caregiverBenefit))));
+            benefitChanged(v.beneficiaryBenefit, data.beneficiaryBenefit) ||
+            benefitChanged(
+              v.caregiverBenefit,
+              data.caregiverBenefit ?? undefined,
+            );
 
           const transitionToTestPending =
             DICHOTOMY_STATUSES.has(data.status) && benefitIsBinding;
@@ -178,6 +169,7 @@ export const makeOperatorUpdateOpportunityUseCase =
           const today = new Date().toISOString().slice(0, 10);
 
           const publishedDatesResult = validatePublishedOpportunityDates({
+            currentDateFrom: data.dateFrom,
             dateFrom: v.dateFrom,
             dateTo: v.dateTo,
             status: data.status,
@@ -188,36 +180,28 @@ export const makeOperatorUpdateOpportunityUseCase =
 
           // Live published rows are already in the search MV, so any edit must
           // refresh. Scheduled is stored as published with a future dateFrom
-          // and is absent from the MV; if this patch moves dateFrom to today
-          // or earlier the opportunity becomes live and must refresh now
+          // and is absent from the MV; if this replacement moves dateFrom to
+          // today or earlier the opportunity becomes live and must refresh now
           // rather than waiting for the 15-minute cron.
           const wasPublishedLive = data.status === OPPORTUNITY_STATUS.PUBLISHED;
           const becomesPublishedLive =
             data.status === OPPORTUNITY_DISPLAY_STATUS.SCHEDULED &&
-            v.dateFrom !== undefined &&
             v.dateFrom <= today;
 
-          // validateExistence requires BOTH categoryId and placeIds: fill the
-          // one not being edited from the current opportunity. Skip entirely
-          // when neither is touched.
-          const existence: ResultAsync<void, BaseError> =
-            v.categoryId !== undefined || v.placeIds !== undefined
-              ? validateExistence({
-                  categoryId: v.categoryId ?? data.categoryId,
-                  operatorId: v.operatorId,
-                  operatorRepository: deps.operatorRepository,
-                  opportunityCategoryRepository:
-                    deps.opportunityCategoryRepository,
-                  placeIds: v.placeIds ?? data.placeIds,
-                  placeRepository: deps.placeRepository,
-                })
-              : okAsync(undefined);
+          const existence: ResultAsync<void, BaseError> = validateExistence({
+            categoryId: v.categoryId,
+            operatorId: v.operatorId,
+            operatorRepository: deps.operatorRepository,
+            opportunityCategoryRepository: deps.opportunityCategoryRepository,
+            placeIds: v.placeIds,
+            placeRepository: deps.placeRepository,
+          });
 
           return existence
             .andThen(
               () =>
                 new ResultAsync(
-                  deps.opportunityRepository.updateFieldsByIdAndOperatorId({
+                  deps.opportunityRepository.updateByIdAndOperatorId({
                     beneficiaryBenefit: v.beneficiaryBenefit,
                     caregiverBenefit: v.caregiverBenefit,
                     categoryId: v.categoryId,

@@ -18,7 +18,7 @@ import {
 } from "../contracts/opportunities/opportunities.js";
 
 const operatorUpdateOpportunityHttpSchema = zod.object({
-  body: OperatorUpdateOpportunityBody,
+  body: OperatorUpdateOpportunityBody.strict(),
   path: OperatorUpdateOpportunityParams,
 });
 
@@ -48,7 +48,7 @@ export const mountOperatorUpdateOpportunityHandler = (
   fastify: FastifyInstance,
   useCase: OperatorUpdateOpportunityUseCase,
 ) => {
-  fastify.patch(
+  fastify.put(
     "/api/operator/opportunities/:opportunityId",
     createHttpHandler(useCase, operatorUpdateOpportunityValidator, {
       successCode: 204,

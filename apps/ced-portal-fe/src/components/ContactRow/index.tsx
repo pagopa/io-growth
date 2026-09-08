@@ -6,7 +6,7 @@ import {
   CONTACT_TYPE_OPTIONS,
   getContactInputConfig,
 } from '../../pages/Overview/CompleteData/components/constants';
-import type { SupportContactResponseType } from '../../core/api/generated/model';
+import type { SupportContactResponseType } from '../../generated/model';
 import { getContactError, getTypeError } from './utils';
 
 export interface ContactRowProps {

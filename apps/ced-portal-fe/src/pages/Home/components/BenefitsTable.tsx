@@ -18,7 +18,7 @@ import type {
   OpportunitySummaryItem,
   OpportunitySummaryItemStatus,
   OpportunitySummaryItemSuspendedBy,
-} from '../../../core/api/generated/model';
+} from '../../../generated/model';
 import type { SuspendOpportunityPayload } from '../../../features/opportunities/types';
 
 interface BenefitsTableProps {

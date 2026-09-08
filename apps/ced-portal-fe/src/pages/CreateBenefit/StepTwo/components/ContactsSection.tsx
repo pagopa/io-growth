@@ -5,7 +5,7 @@ import { ButtonNaked } from '@pagopa/mui-italia';
 import type {
   SupportContactCreateRequest,
   SupportContactCreateRequestType,
-} from '../../../../core/api/generated/model';
+} from '../../../../generated/model';
 import { ContactRow } from '../../../../components/ContactRow';
 
 interface ContactsSectionProps {

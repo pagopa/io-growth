@@ -3,12 +3,12 @@ import {
   getCompleteOnboardingUrl,
   getGetContractSignedUrl,
   getGetOnboardingUrl,
-} from '../../core/api/generated/endpoints/department/department';
+} from '../../generated/endpoints/department/department';
 import type {
   CompleteOnboardingBody,
   ListOnboardingsParams,
   PendingOnboardingsResponse,
-} from '../../core/api/generated/model';
+} from '../../generated/model';
 import type { EntityDetail } from './types.js';
 
 type ListDepartmentOnboardingsParams = ListOnboardingsParams;

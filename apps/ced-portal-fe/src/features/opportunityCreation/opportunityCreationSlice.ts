@@ -5,7 +5,7 @@ import {
   LocalizedMetadataItem,
   LocalizedMetadataItemLanguage,
   LocalizedMetadataItemKey,
-} from '../../core/api/generated/model';
+} from '../../generated/model';
 
 // A simplified form state that avoids deep nesting while keeping small objects
 export type OpportunityCreationForm = Omit<

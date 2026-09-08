@@ -1,9 +1,6 @@
 import { baseApi } from '../../core/api/baseApi';
 import type { FetchBaseQueryError } from '@reduxjs/toolkit/query';
-import type {
-  PlaceCreateRequest,
-  PlaceResponse,
-} from '../../core/api/generated/model';
+import type { PlaceCreateRequest, PlaceResponse } from '../../generated/model';
 
 export const placesApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({

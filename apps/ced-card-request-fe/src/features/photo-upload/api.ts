@@ -1,6 +1,6 @@
 import { baseApi } from '../../core/api/baseApi';
-import { uploadPhotoResponse } from '../../core/api/generated/endpoints/photo-upload/photo-upload';
-import { FornisciFotoRequest } from '../../core/api/generated/model';
+import { uploadPhotoResponse } from '../../generated/endpoints/photo-upload/photo-upload';
+import { FornisciFotoRequest } from '../../generated/model';
 
 type uploadPhotoRequest = {
   body: FornisciFotoRequest;

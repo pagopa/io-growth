@@ -1,5 +1,5 @@
 import LanguageIcon from '@mui/icons-material/Language';
-import type { OnlinePlaceResponse } from '../../../../core/api/generated/model';
+import type { OnlinePlaceResponse } from '../../../../generated/model';
 import { SelectItemModal } from '../components/SelectItemModal';
 
 interface SelectWebsiteModalProps {

@@ -11,7 +11,7 @@ import { BenefitsTable } from './BenefitsTable';
 import type {
   OperatorDeleteOpportunityBody,
   OpportunitySummaryItem,
-} from '../../../core/api/generated/model';
+} from '../../../generated/model';
 import type { SuspendOpportunityPayload } from '../../../features/opportunities/types';
 
 interface BenefitsContentStateProps {

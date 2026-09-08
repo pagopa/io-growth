@@ -1,4 +1,4 @@
-import type { OpportunitySummaryItemStatus } from '../../core/api/generated/model';
+import type { OpportunitySummaryItemStatus } from '../../generated/model';
 
 export const publicationStatusLabels: Record<
   OpportunitySummaryItemStatus,

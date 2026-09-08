@@ -2,7 +2,7 @@ import { MIChipProps } from '@pagopa/mui-italia';
 import type {
   OpportunitySummaryItem,
   OpportunitySummaryItemStatus,
-} from '../../../core/api/generated/model';
+} from '../../../generated/model';
 import type { OpportunityDetail } from '../../../features/opportunities/types';
 import { benefitStateLabelMap, opportunityStatusLabelMap } from './constants';
 

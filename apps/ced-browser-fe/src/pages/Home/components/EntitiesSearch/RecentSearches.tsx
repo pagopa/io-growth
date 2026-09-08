@@ -3,7 +3,7 @@ import HistoryIcon from '@mui/icons-material/History';
 import { Box, Button, Divider, Stack } from '@mui/material';
 import { DiscoveryListItem } from '../../../../components';
 import { formatAddress } from '../../../../utils/formatAddress';
-import { PlaceSearchItem } from '../../../../core/api/generated/model';
+import { PlaceSearchItem } from '../../../../generated/model';
 import { LabelCaption } from '@pagopa/io-core-ui';
 import { theme } from '../../../../core/theme';
 

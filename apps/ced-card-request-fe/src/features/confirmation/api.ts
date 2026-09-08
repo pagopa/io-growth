@@ -2,7 +2,7 @@ import { baseApi } from '../../core/api/baseApi';
 import {
   ConfermaDomandaRequest,
   ConfirmApplication200,
-} from '../../core/api/generated/model';
+} from '../../generated/model';
 
 type ConfirmApplicationRequest = {
   body: ConfermaDomandaRequest;

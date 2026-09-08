@@ -12,7 +12,7 @@ import {
   resolveRole,
 } from '../features/session/authDev/utils';
 import { API_BASE_URL } from '../features/session/authDev/constant';
-import type { AuthorizeResponseUserType } from '../core/api/generated/model';
+import type { AuthorizeResponseUserType } from '../generated/model';
 
 export const useGetSession = () => {
   const { search } = useLocation();

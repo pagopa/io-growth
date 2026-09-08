@@ -1,7 +1,7 @@
 import {
   PlaceDetailOpportunity,
   PlaceDetailRelatedItem,
-} from '../../core/api/generated/model';
+} from '../../generated/model';
 import { EntityOpportunity } from '../../features/entities/types';
 
 type BaseItemsSectionProps<TVariant, TItems> = {

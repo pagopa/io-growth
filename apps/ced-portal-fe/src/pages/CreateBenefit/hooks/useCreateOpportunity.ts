@@ -1,7 +1,7 @@
 import { useAppSelector } from '../../../hooks';
 import { selectOpportunityForm } from '../../../features/opportunityCreation/selectors';
 import { OpportunityCreationForm } from '../../../features/opportunityCreation/opportunityCreationSlice';
-import { OpportunityCreateRequest } from '../../../core/api/generated/model';
+import { OpportunityCreateRequest } from '../../../generated/model';
 import { useCreateOpportunityMutation } from '../../../features/opportunities/api';
 import { useToast } from '../../../contexts';
 import { useCallback } from 'react';

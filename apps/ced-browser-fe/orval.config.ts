@@ -9,8 +9,8 @@ export default defineConfig({
     output: {
       client: 'fetch',
       mode: 'tags-split',
-      target: './src/core/api/generated/endpoints',
-      schemas: './src/core/api/generated/model',
+      target: './src/generated/endpoints',
+      schemas: './src/generated/model',
       fileExtension: '.ts',
     },
   },

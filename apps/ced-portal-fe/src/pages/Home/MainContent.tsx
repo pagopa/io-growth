@@ -18,7 +18,7 @@ import { MainContentHeader } from './components/MainContentHeader';
 import type {
   ListOperatorOpportunitiesStatus,
   OperatorDeleteOpportunityBody,
-} from '../../core/api/generated/model';
+} from '../../generated/model';
 import { useMemorizedTabsAndFilters } from '../../hooks/useMemorizedTabsAndFilters';
 import {
   OPERATOR_MANAGED_STATE_OPTIONS,

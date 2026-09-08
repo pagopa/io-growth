@@ -3,7 +3,7 @@ import { LabelCaption, VSpacer, WarningBanner } from '@pagopa/io-core-ui';
 import type { ReactNode } from 'react';
 import { useMemo } from 'react';
 import { DiscoveryListItem } from '../../../../components/DiscoveryListItem';
-import { PlaceSearchItem } from '../../../../core/api/generated/model';
+import { PlaceSearchItem } from '../../../../generated/model';
 import { formatAddress } from '../../../../utils/formatAddress';
 
 function highlightText(text: string, regex: RegExp | null): ReactNode {

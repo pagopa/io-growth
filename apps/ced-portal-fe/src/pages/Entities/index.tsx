@@ -14,7 +14,7 @@ import type {
   EntityItem,
 } from '../../features/entities/types.js';
 import { EntitiesTable } from './components/EntitiesTable.js';
-import type { ListOnboardingsStatusesItem } from '../../core/api/generated/model/listOnboardingsStatusesItem.js';
+import type { ListOnboardingsStatusesItem } from '../../generated/model/listOnboardingsStatusesItem.js';
 import { useMemorizedTabsAndFilters } from '../../hooks/useMemorizedTabsAndFilters.js';
 
 const INITIAL_FILTERS: EntityFilters = {

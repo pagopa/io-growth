@@ -1,5 +1,5 @@
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
-import { ConfermaDomandaRequest } from '../../core/api/generated/model';
+import { ConfermaDomandaRequest } from '../../generated/model';
 
 const initialState: ConfermaDomandaRequest = {} as ConfermaDomandaRequest;
 

@@ -19,7 +19,7 @@ import {
 
 import { useMemo, type ReactNode } from 'react';
 import { theme } from '../../../core/theme';
-import type { Address, PlaceResponse } from '../../../core/api/generated/model';
+import type { Address, PlaceResponse } from '../../../generated/model';
 
 type PlaceRow = {
   id: string;

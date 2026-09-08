@@ -3,7 +3,7 @@ import { useParams } from 'react-router-dom';
 import { PageHeader, QueryGuard } from '../../components';
 import { ContactsSection } from '../../components/ContactsSection';
 import { ItemsSection } from '../../components/ItemsSection/index';
-import type { PlaceDetailRelatedItem } from '../../core/api/generated/model/index.js';
+import type { PlaceDetailRelatedItem } from '../../generated/model/index.js';
 import { useGetEntityDetailQuery } from '../../features/entities/api';
 import type {
   EntityContacts,

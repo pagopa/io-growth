@@ -5,7 +5,7 @@ import {
 import {
   BenefitRequest,
   LocalizedMetadataItemLanguage,
-} from '../core/api/generated/model';
+} from '../generated/model';
 
 export const getBenefitsDetailData = (
   benefit: BenefitRequest | null | undefined,

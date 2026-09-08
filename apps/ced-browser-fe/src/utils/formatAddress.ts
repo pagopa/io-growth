@@ -1,4 +1,4 @@
-import { PlaceAddress } from '../core/api/generated/model';
+import { PlaceAddress } from '../generated/model';
 
 export const formatAddress = (
   address: PlaceAddress | null | undefined,

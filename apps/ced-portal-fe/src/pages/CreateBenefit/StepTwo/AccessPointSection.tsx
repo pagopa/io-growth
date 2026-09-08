@@ -4,7 +4,7 @@ import { setAccessPoint } from '../../../features/places/placesSlice';
 import { useAppDispatch, useAppSelector } from '../../../hooks/store';
 import { ACCESS_POINT_OPTIONS } from './constants';
 import { selectAccessPoint } from '../../../features/places/selectors';
-import { PlaceBaseType } from '../../../core/api/generated/model';
+import { PlaceBaseType } from '../../../generated/model';
 
 export function AccessPointSection() {
   const dispatch = useAppDispatch();

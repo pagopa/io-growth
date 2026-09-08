@@ -5,7 +5,7 @@ import {
   OpportunityCategoryItem,
   OpportunityCreateRequest,
   OperatorDeleteOpportunityBody,
-} from '../../core/api/generated/model';
+} from '../../generated/model';
 import {
   getApproveOpportunityUrl,
   getCancelScheduledSuspensionUrl,
@@ -13,7 +13,7 @@ import {
   getOperatorCancelScheduledSuspensionUrl,
   getOperatorSuspendOpportunityUrl,
   getSuspendOpportunityUrl,
-} from '../../core/api/generated/endpoints/opportunities/opportunities';
+} from '../../generated/endpoints/opportunities/opportunities';
 import type {
   AdminOpportunityDetail,
   ApproveOpportunityPayload,

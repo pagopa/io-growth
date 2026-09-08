@@ -1,6 +1,6 @@
 import { Box, Button, Stack, TextField, Typography } from '@mui/material';
 import { useState } from 'react';
-import type { OperatorDeleteOpportunityBody } from '../../../core/api/generated/model';
+import type { OperatorDeleteOpportunityBody } from '../../../generated/model';
 import type { SuspendOpportunityPayload } from '../../../features/opportunities/types';
 import { AppDatePicker } from '../../../components';
 import { AppModal } from '../../../components/Modal';

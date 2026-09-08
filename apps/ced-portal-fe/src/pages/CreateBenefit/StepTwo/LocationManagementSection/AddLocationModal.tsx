@@ -1,6 +1,6 @@
 import { Button } from '@mui/material';
 import { AppModal } from '../../../../components';
-import type { PlaceResponse } from '../../../../core/api/generated/model';
+import type { PlaceResponse } from '../../../../generated/model';
 import { useLocationSubmit } from '../../../../features/location/hooks';
 import { LocationContactsSection } from './LocationContactsSection';
 import { LocationFields } from './LocationFields';

@@ -2,7 +2,7 @@ import { baseApi } from '../../core/api/baseApi';
 import type {
   OperatorProfileResponse,
   OperatorProfileCreateRequest,
-} from '../../core/api/generated/model';
+} from '../../generated/model';
 
 const profileApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({

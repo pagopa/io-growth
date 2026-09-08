@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import type { NuovaDomandaInBozzaRequest } from '../../../core/api/generated/model';
+import type { NuovaDomandaInBozzaRequest } from '../../../generated/model';
 
 type RequestField = keyof NuovaDomandaInBozzaRequest;
 

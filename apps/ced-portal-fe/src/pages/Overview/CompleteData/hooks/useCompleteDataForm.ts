@@ -9,7 +9,7 @@ import {
 import type {
   Address,
   OperatorProfileCreateRequest,
-} from '../../../../core/api/generated/model';
+} from '../../../../generated/model';
 
 const createEmptyContact = (): ContactFormData => ({
   type: 'email',

@@ -1,4 +1,4 @@
-import { LocalizedMetadataItemLanguage } from '../../core/api/generated/model';
+import { LocalizedMetadataItemLanguage } from '../../generated/model';
 import { benefitTypeMap, discountTypeMap } from './types';
 
 type LocalizedMap<T extends string> = Record<

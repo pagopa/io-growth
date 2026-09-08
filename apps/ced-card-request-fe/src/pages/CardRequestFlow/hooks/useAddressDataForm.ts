@@ -1,6 +1,6 @@
 import { setField } from '../../../features/request-form/reducer';
 import { useAppDispatch, useAppSelector } from '../../../hooks';
-import { NuovaDomandaInBozzaRequest } from '../../../core/api/generated/model';
+import { NuovaDomandaInBozzaRequest } from '../../../generated/model';
 import { makeSelectRequestFormField } from '../../../features/request-form/selectors';
 import type { ValidationRules } from './useStepValidation';
 

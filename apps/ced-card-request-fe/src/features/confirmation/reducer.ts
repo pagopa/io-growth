@@ -3,8 +3,8 @@ import {
   createSlice,
   type PayloadAction,
 } from '@reduxjs/toolkit';
-import type { ConfermaDomandaRequest } from '../../core/api/generated/model';
 import type { RootState } from '../../core/store';
+import { ConfermaDomandaRequest } from '../../generated/model';
 
 type YesNo = 'yes' | 'no' | null;
 type Province = 'trento' | 'bolzano' | 'aosta' | 'other' | null;

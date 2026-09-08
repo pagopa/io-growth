@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import {
   type ListOperatorOpportunitiesParams,
   ListOperatorOpportunitiesStatus,
-} from '../../core/api/generated/model';
+} from '../../generated/model';
 import {
   useGetAdminOpportunitiesQuery,
   useGetOperatorOpportunitiesQuery,

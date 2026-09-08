@@ -15,7 +15,7 @@ import {
   setSelectedWebsiteIds,
 } from '../../../features/places/placesSlice';
 import { useGetPlacesQuery } from '../../../features/places/api';
-import { PlaceBaseType } from '../../../core/api/generated/model';
+import { PlaceBaseType } from '../../../generated/model';
 import { checkBenefitEquality } from '../../../utils/checkBenefitEquality';
 
 type PlacesMap = {

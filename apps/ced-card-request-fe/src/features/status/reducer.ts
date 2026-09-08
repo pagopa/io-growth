@@ -1,5 +1,5 @@
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
-import { ApplicationState } from '../../core/api/generated/model';
+import { ApplicationState } from '../../generated/model';
 
 type StatusState = {
   idLavorazione: string;

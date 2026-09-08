@@ -2,7 +2,7 @@ import { MIChipProps } from '@pagopa/mui-italia';
 import {
   ListOnboardingsStatusesItem,
   OpportunitySummaryItemStatus,
-} from '../core/api/generated/model';
+} from '../generated/model';
 import type { OpportunityStatus } from '../features/opportunities/types';
 
 export const STATE_OPTIONS: {

@@ -1,4 +1,4 @@
-import { PlaceBaseType } from '../../../core/api/generated/model';
+import { PlaceBaseType } from '../../../generated/model';
 
 export type ModalState = 'none' | 'select' | 'add' | 'add-from-select';
 

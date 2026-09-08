@@ -17,5 +17,5 @@ export const useTrackLandedInPage = (
     });
 
     hasTracked.current = true;
-  }, [event_name, enabled]);
+  }, [event_name, enabled, extraProperties]);
 };

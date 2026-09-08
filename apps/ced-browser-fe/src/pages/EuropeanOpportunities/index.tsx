@@ -101,6 +101,10 @@ export default function EuropeanOpportunitiesPage() {
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label={`${country}, si apre in una risorsa esterna`}
+                  onClick={(event) => {
+                    event.preventDefault();
+                    euOpportunityClick({ url, country });
+                  }}
                   sx={{ py: 2 }}
                 >
                   <ListItemIcon sx={{ minWidth: 40 }}>

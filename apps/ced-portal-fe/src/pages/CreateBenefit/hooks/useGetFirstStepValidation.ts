@@ -1,4 +1,4 @@
-import { BenefitRequest } from '../../../core/api/generated/model';
+import { BenefitRequest } from '../../../generated/model';
 import { baseSelectOpportunityForm } from '../../../features/opportunityCreation/selectors';
 import { useAppSelector } from '../../../hooks';
 import { isValidHttpsUrl } from '../../../utils';

@@ -24,7 +24,7 @@ import {
   BenefitReducedFixedPriceType,
   BenefitRequest,
   OpportunityCreateRequest,
-} from '../../../../core/api/generated/model';
+} from '../../../../generated/model';
 import { FieldWithIcon } from './components/FieldWithIcon';
 import { benefitTypeMap } from '../../../../constants/formOptions/types';
 import { useGetOpportunityCategoriesQuery } from '../../../../features/opportunities/api';

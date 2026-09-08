@@ -16,7 +16,7 @@ import { SearchEmptyState } from './SearchEmptyState';
 import { SearchInitialState } from './SearchInitialState';
 import { SearchResults } from './SearchResults';
 import { SearchResultsSkeleton } from './SearchResultsSkeleton';
-import { PlaceSearchItem } from '../../../../core/api/generated/model';
+import { PlaceSearchItem } from '../../../../generated/model';
 import { RecentSearches } from './RecentSearches';
 import { trackBrowserEvent } from '../../../../mixpanel/trackEvent';
 

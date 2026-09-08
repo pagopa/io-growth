@@ -1,6 +1,6 @@
 import type { NavigateFunction } from 'react-router-dom';
 
-import type { GetApplicationStatus200 } from '../../core/api/generated/model';
+import type { GetApplicationStatus200 } from '../../generated/model';
 import { APP_ROUTES } from '../../app/routeConfig';
 
 interface StatusNavigationDependencies {

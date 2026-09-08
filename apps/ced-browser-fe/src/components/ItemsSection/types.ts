@@ -1,4 +1,4 @@
-import { PlaceDetailRelatedItem } from '../../core/api/generated/model';
+import { PlaceDetailRelatedItem } from '../../generated/model';
 import { EntityOpportunity } from '../../features/entities/types';
 
 type TrackingExtraProperties = {

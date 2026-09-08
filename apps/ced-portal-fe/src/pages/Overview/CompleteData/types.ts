@@ -1,4 +1,4 @@
-import { SupportContactResponseType } from '../../../core/api/generated/model';
+import { SupportContactResponseType } from '../../../generated/model';
 
 export type Contact = {
   type: SupportContactResponseType;

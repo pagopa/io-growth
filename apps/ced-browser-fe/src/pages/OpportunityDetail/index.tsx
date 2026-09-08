@@ -20,9 +20,9 @@ import { formatBadgeLabel } from '../../utils/formatBadgeLabel.js';
 import { useTrackLandedInPage } from '../../mixpanel/useTrackLandedInPage.js';
 import { useCallback } from 'react';
 import { trackBrowserEvent } from '../../mixpanel/trackEvent.js';
-import { Place } from '../../core/api/generated/model/place.js';
+import { Place } from '../../generated/model/place.js';
 import { MIChip } from '@pagopa/mui-italia';
-import { OpportunityDetail } from '../../core/api/generated/model/opportunityDetail.js';
+import { OpportunityDetail } from '../../generated/model/opportunityDetail.js';
 
 function formatPlacesAddress(venue: {
   street?: string | null;

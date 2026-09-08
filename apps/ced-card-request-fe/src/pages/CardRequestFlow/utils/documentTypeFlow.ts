@@ -1,4 +1,4 @@
-import type { ConfermaDomandaRequest } from '../../../core/api/generated/model';
+import type { ConfermaDomandaRequest } from '../../../generated/model';
 
 export const DOCUMENT_UPLOAD_STEP_INDEX = 4;
 export const SUMMARY_STEP_INDEX = 5;

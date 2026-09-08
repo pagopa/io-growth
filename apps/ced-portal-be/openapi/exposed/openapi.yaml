@@ -1602,27 +1602,29 @@ paths:
         - Auth
       summary: Assertion Consumer Service callback
       description: >-
-        Receives an authentication token from the identity provider,
-        validates it, creates a session, and redirects to the authorize
-        endpoint with a one-time session ID.
+        Receives an authentication token from the identity provider in the
+        Authorization header, validates it, and creates a session.
       operationId: acs
       security: []
       parameters:
-        - name: token
-          in: query
+        - name: Authorization
+          in: header
           required: true
           schema:
             type: string
-            minLength: 1
+            pattern: ^Bearer\\s+.+$
       responses:
-        "302":
-          description: Redirect to the authorize endpoint
-          headers:
-            Location:
+        "200":
+          description: One-time session ID
+          content:
+            application/json:
               schema:
-                type: string
-                format: uri
-              description: "/api/authorize?id={sessionId}"
+                type: object
+                required:
+                  - sessionId
+                properties:
+                  sessionId:
+                    type: string
         "400":
           description: Invalid or missing token
           content:

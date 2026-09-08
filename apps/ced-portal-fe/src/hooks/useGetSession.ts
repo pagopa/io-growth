@@ -1,5 +1,5 @@
-import { useLocation, useNavigate } from 'react-router-dom';
 import { useEffect, useCallback } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { APP_ROUTES } from '../app/routeConfig';
 import { useAuthorize } from '../features/session/hooks';
 import { useAppSelector } from './store';
@@ -15,7 +15,7 @@ import { API_BASE_URL } from '../features/session/authDev/constant';
 import type { AuthorizeResponseUserType } from '../generated/model';
 
 export const useGetSession = () => {
-  const { search } = useLocation();
+  const { hash, search } = useLocation();
   const navigate = useNavigate();
   const { authorize } = useAuthorize();
   const token = useAppSelector(selectToken);
@@ -52,10 +52,12 @@ export const useGetSession = () => {
     };
 
     const retrieveSession = async () => {
-      const params = new URLSearchParams(search);
+      const searchParams = new URLSearchParams(search);
+      const hashParams = new URLSearchParams(hash.slice(1));
 
-      const rawRedirectToken = params.get('id');
-      const rawAssertionToken = params.get('token') ?? params.get('jwt');
+      const rawRedirectToken = searchParams.get('id');
+      const rawAssertionToken =
+        hashParams.get('token') ?? hashParams.get('jwt');
 
       const redirectToken = isValidToken(rawRedirectToken)
         ? rawRedirectToken
@@ -75,8 +77,30 @@ export const useGetSession = () => {
 
           devAuthStorage.setLastAcsToken(assertionToken);
 
-          const acsUrl = `${API_BASE_URL}/acs?token=${encodeURIComponent(assertionToken)}`;
-          window.location.replace(acsUrl);
+          try {
+            const response = await fetch(`${API_BASE_URL}/acs`, {
+              headers: { Authorization: `Bearer ${assertionToken}` },
+            });
+
+            if (!response.ok) {
+              throw new Error('ACS request failed');
+            }
+
+            const { sessionId } = (await response.json()) as {
+              sessionId: unknown;
+            };
+
+            if (!isValidToken(sessionId)) {
+              throw new Error('Invalid ACS response');
+            }
+
+            window.location.replace(
+              `${APP_ROUTES.AUTHORIZE}?id=${encodeURIComponent(sessionId)}`,
+            );
+          } catch {
+            devAuthStorage.removeLastAcsToken();
+            navigate(APP_ROUTES.UNAUTHORIZED, { replace: true });
+          }
           return;
         }
 
@@ -89,7 +113,7 @@ export const useGetSession = () => {
           const devToken = getDevAssertionToken(getCurrentRole());
           if (devToken && isValidToken(devToken)) {
             navigate(
-              `${APP_ROUTES.AUTHORIZE}?token=${encodeURIComponent(devToken)}`,
+              `${APP_ROUTES.AUTHORIZE}#token=${encodeURIComponent(devToken)}`,
               { replace: true },
             );
             return;
@@ -139,6 +163,7 @@ export const useGetSession = () => {
     navigate,
     navigateToLanding,
     search,
+    hash,
     token,
     user?.user_type,
   ]);

@@ -54,8 +54,30 @@ export const confirmRequestFormReducer = confirmRequestFormSlice.reducer;
 
 export const selectConfirmationForm = (state: RootState) => state.confirmation;
 export const selectConfirmationPayload = (state: RootState) => {
-  const { province, hasDoc, judgment, inps, ...rest } = state.confirmation;
-  return rest;
+  const {
+    idLavorazione,
+    allegato,
+    autodichiarazioneSentenza,
+    dataSentenza,
+    descrizioneComuneTribunale,
+    dichiarazioneConformitaVerbale,
+    dirittoAccompagnatore,
+    nomeFile,
+    siglaProvinciaTribunale,
+    tipologiaUlterioreDocumentazione,
+  } = state.confirmation;
+  return {
+    idLavorazione,
+    allegato,
+    autodichiarazioneSentenza,
+    dataSentenza,
+    descrizioneComuneTribunale,
+    dichiarazioneConformitaVerbale,
+    dirittoAccompagnatore,
+    nomeFile,
+    siglaProvinciaTribunale,
+    tipologiaUlterioreDocumentazione,
+  };
 };
 export const selectDocumentTypeForm = (state: RootState) => {
   const { province, hasDoc, judgment, inps } = state.confirmation;

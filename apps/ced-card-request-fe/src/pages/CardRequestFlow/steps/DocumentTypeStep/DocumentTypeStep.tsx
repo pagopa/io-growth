@@ -19,6 +19,7 @@ import {
   PROVINCES_OPTIONS,
   YES_NO_OPTIONS,
 } from './constants';
+import { toDocumentationType } from './utils';
 
 const cascadeResets: Partial<
   Record<keyof DocumentTypeFormState, Partial<DocumentTypeFormState>>
@@ -83,24 +84,6 @@ function RadioCard({
     </StepCard>
   );
 }
-
-const toDocumentationType = (form: DocumentTypeFormState) => {
-  if (form.hasDoc === 'no') return null;
-
-  if (
-    form.province === 'trento' ||
-    form.province === 'bolzano' ||
-    form.province === 'aosta'
-  )
-    return 1;
-
-  if (form.province === 'other') {
-    if (form.judgment === 'yes') return 2;
-    if (form.judgment === 'no') return 3;
-  }
-
-  return null;
-};
 
 export const DocumentTypeStep = forwardRef<StepRef>(
   function DocumentTypeStep(_, ref) {

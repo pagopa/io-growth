@@ -74,7 +74,7 @@ export const CompanionAvailabilityRadioGroup = () => {
                     sx={{
                       display: 'block',
                       mt: 0.5,
-                      color: '#5E6A7B',
+                      color: 'common.neutral500',
                       fontSize: 16,
                       lineHeight: 1.4,
                     }}
@@ -89,7 +89,7 @@ export const CompanionAvailabilityRadioGroup = () => {
                   width: 22,
                   height: 22,
                   borderRadius: '50%',
-                  border: isChecked ? 'none' : '2px solid #636B82',
+                  border: isChecked ? 'none' : `2px solid common.neutral600`,
                   backgroundColor: isChecked
                     ? 'common.primaryButton'
                     : 'transparent',

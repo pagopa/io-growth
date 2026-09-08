@@ -1,7 +1,7 @@
 import { Body, ErrorBody, Title, VSpacer } from '@pagopa/io-core-ui';
 import { StepCard } from '../../StepCard';
 import { MarkdownRenderer } from '../../../../components/Typography/MarkdownRender';
-import { Box, Button, FormControl, Link } from '@mui/material';
+import { alpha, Box, Button, FormControl, Link } from '@mui/material';
 import { theme } from '../../../../core/theme';
 import FileUploadOutlinedIcon from '@mui/icons-material/FileUploadOutlined';
 import InsertDriveFileOutlinedIcon from '@mui/icons-material/InsertDriveFileOutlined';
@@ -138,7 +138,10 @@ export const UploadDisabilityDocument = forwardRef<StepRef>(
                   alignItems: 'center',
                   justifyContent: 'center',
                   borderRadius: 1,
-                  backgroundColor: 'rgba(26, 92, 255, 0.12)',
+                  backgroundColor: alpha(
+                    theme.palette.common.primaryButton,
+                    0.12,
+                  ),
                   color: theme.palette.common.primaryButton,
                 }}
               >
@@ -178,9 +181,6 @@ export const UploadDisabilityDocument = forwardRef<StepRef>(
                   p: 0.5,
                   color: theme.palette.common.neutralBlack,
                   borderRadius: '50%',
-                  '&:hover': {
-                    backgroundColor: 'rgba(0, 0, 0, 0.04)',
-                  },
                 }}
               >
                 <CloseIcon sx={{ fontSize: 26 }} />
@@ -214,7 +214,7 @@ export const UploadDisabilityDocument = forwardRef<StepRef>(
 
         <Box
           sx={{
-            backgroundColor: 'rgb(109,139,238, 0.08)',
+            backgroundColor: alpha(theme.palette.common.primaryButton, 0.08),
             mt: 3,
             border: `2px dashed ${theme.palette.common.primaryButton}`,
             borderRadius: 2,

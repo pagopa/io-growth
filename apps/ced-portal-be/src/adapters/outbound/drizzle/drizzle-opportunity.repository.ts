@@ -532,9 +532,7 @@ const updateByIdAndOperatorId =
             dateFrom: input.dateFrom,
             dateTo: input.dateTo ?? null,
             nationalTerritory: input.nationalTerritory,
-            ...(input.transitionToTestPending
-              ? { status: OPPORTUNITY_STATUS.TEST_PENDING }
-              : {}),
+            status: input.status,
             updatedAt: new Date(),
             url: input.url ?? null,
           })

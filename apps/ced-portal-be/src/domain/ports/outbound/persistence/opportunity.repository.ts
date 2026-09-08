@@ -143,9 +143,8 @@ export interface UpdateByIdAndOperatorIdInput {
   operatorId: string;
   opportunityId: string;
   placeIds: string[];
-  // Set by the use case when a binding benefit change requires re-review;
-  // applied as status -> "test_pending" in the same CAS-guarded UPDATE.
-  transitionToTestPending: boolean;
+  // Next persisted status, already computed by the application status resolver.
+  status: Opportunity["status"];
   url?: string;
 }
 

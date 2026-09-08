@@ -158,9 +158,7 @@ describe("makeOperatorUpdateOpportunityUseCase - binding / transition", () => {
       expect(result).toEqual(ok(undefined));
       expect(
         deps.opportunityRepository.updateByIdAndOperatorId,
-      ).toHaveBeenCalledWith(
-        expect.objectContaining({ transitionToTestPending: false }),
-      );
+      ).toHaveBeenCalledWith(expect.objectContaining({ status }));
       expect(deps.materializedViewRepository.refreshAll).not.toHaveBeenCalled();
     },
   );
@@ -180,7 +178,7 @@ describe("makeOperatorUpdateOpportunityUseCase - binding / transition", () => {
       expect(
         deps.opportunityRepository.updateByIdAndOperatorId,
       ).toHaveBeenCalledWith(
-        expect.objectContaining({ transitionToTestPending: true }),
+        expect.objectContaining({ status: "test_pending" }),
       );
     },
   );
@@ -199,9 +197,7 @@ describe("makeOperatorUpdateOpportunityUseCase - binding / transition", () => {
     expect(result).toEqual(ok(undefined));
     expect(
       deps.opportunityRepository.updateByIdAndOperatorId,
-    ).toHaveBeenCalledWith(
-      expect.objectContaining({ transitionToTestPending: false }),
-    );
+    ).toHaveBeenCalledWith(expect.objectContaining({ status: "published" }));
   });
 
   it("does not transition on a non-binding (url) change on a published opportunity", async () => {
@@ -218,9 +214,7 @@ describe("makeOperatorUpdateOpportunityUseCase - binding / transition", () => {
     expect(result).toEqual(ok(undefined));
     expect(
       deps.opportunityRepository.updateByIdAndOperatorId,
-    ).toHaveBeenCalledWith(
-      expect.objectContaining({ transitionToTestPending: false }),
-    );
+    ).toHaveBeenCalledWith(expect.objectContaining({ status: "published" }));
   });
 
   it("treats caregiver removal by omission as binding", async () => {
@@ -237,9 +231,7 @@ describe("makeOperatorUpdateOpportunityUseCase - binding / transition", () => {
     expect(result).toEqual(ok(undefined));
     expect(
       deps.opportunityRepository.updateByIdAndOperatorId,
-    ).toHaveBeenCalledWith(
-      expect.objectContaining({ transitionToTestPending: true }),
-    );
+    ).toHaveBeenCalledWith(expect.objectContaining({ status: "test_pending" }));
   });
 
   it("treats caregiver addition when absent as binding", async () => {
@@ -256,9 +248,7 @@ describe("makeOperatorUpdateOpportunityUseCase - binding / transition", () => {
     expect(result).toEqual(ok(undefined));
     expect(
       deps.opportunityRepository.updateByIdAndOperatorId,
-    ).toHaveBeenCalledWith(
-      expect.objectContaining({ transitionToTestPending: true }),
-    );
+    ).toHaveBeenCalledWith(expect.objectContaining({ status: "test_pending" }));
   });
 });
 
@@ -304,6 +294,9 @@ describe("makeOperatorUpdateOpportunityUseCase - MV refresh", () => {
       dateFrom: "2099-12-31",
     });
 
+    expect(
+      deps.opportunityRepository.updateByIdAndOperatorId,
+    ).toHaveBeenCalledWith(expect.objectContaining({ status: "published" }));
     expect(deps.materializedViewRepository.refreshAll).not.toHaveBeenCalled();
   });
 
@@ -519,7 +512,7 @@ describe("makeOperatorUpdateOpportunityUseCase - CAS / error propagation", () =>
         operatorId: MOCK_OPERATOR_ID,
         opportunityId: MOCK_OPPORTUNITY_ID,
         placeIds: [MOCK_PLACE_ID],
-        transitionToTestPending: false,
+        status: "published",
         url: "https://example.org/new",
       }),
     );

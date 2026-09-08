@@ -2,11 +2,7 @@ import type { UseCase } from "@pagopa/io-core-domain";
 import type { BaseError } from "@pagopa/io-core-domain/errors";
 import type { Result } from "neverthrow";
 
-import {
-  NotFoundError,
-  PreconditionFailedError,
-  ValidationError,
-} from "@pagopa/io-core-domain/errors";
+import { NotFoundError, ValidationError } from "@pagopa/io-core-domain/errors";
 import { err, errAsync, ok, okAsync, ResultAsync } from "neverthrow";
 import { z } from "zod";
 
@@ -17,11 +13,14 @@ import type { OpportunityRepository } from "../../../domain/ports/outbound/persi
 import type { PlaceRepository } from "../../../domain/ports/outbound/persistence/place.repository.js";
 
 import {
-  type BenefitSummary,
   OPPORTUNITY_DISPLAY_STATUS,
   OPPORTUNITY_STATUS,
   type OpportunityDetail,
 } from "../../../domain/entities/opportunity.js";
+import {
+  OPPORTUNITY_TRANSITION,
+  resolveOpportunityStatus,
+} from "../../utils/opportunity.status-resolver.js";
 import { validateUseCaseInput } from "../utils/validate-use-case-input.js";
 import {
   BenefitInputSchema,
@@ -55,33 +54,6 @@ export type OperatorUpdateOpportunityUseCase = UseCase<
   void,
   BaseError
 >;
-
-// States where a benefit change is "binding" (requires re-review). On the free
-// states (draft/test_rejected/test_passed) no edit ever changes the state.
-const DICHOTOMY_STATUSES = new Set<OpportunityDetail["status"]>([
-  OPPORTUNITY_DISPLAY_STATUS.SCHEDULED,
-  OPPORTUNITY_STATUS.PUBLISHED,
-  OPPORTUNITY_STATUS.SUSPENDED,
-]);
-
-const benefitChanged = (
-  incoming: BenefitSummary | undefined,
-  current: BenefitSummary | undefined,
-): boolean => {
-  if (incoming === undefined || current === undefined) {
-    return incoming !== current;
-  }
-
-  return (
-    incoming.type !== current.type ||
-    ("value" in incoming ? incoming.value : undefined) !==
-      ("value" in current ? current.value : undefined) ||
-    ("discountType" in incoming ? incoming.discountType : undefined) !==
-      ("discountType" in current ? current.discountType : undefined) ||
-    ("description" in incoming ? incoming.description : undefined) !==
-      ("description" in current ? current.description : undefined)
-  );
-};
 
 interface ValidatePublishedOpportunityDatesParams {
   readonly currentDateFrom: string;
@@ -140,31 +112,14 @@ export const makeOperatorUpdateOpportunityUseCase =
           if (!data)
             return errAsync(new NotFoundError("Opportunity", "not found"));
 
-          if (data.status === OPPORTUNITY_STATUS.TEST_PENDING)
-            return errAsync(
-              new PreconditionFailedError(
-                "Opportunity is under review and cannot be modified",
-              ),
-            );
-
-          if (data.status === OPPORTUNITY_DISPLAY_STATUS.SCHEDULED_SUSPENSION)
-            return errAsync(
-              new PreconditionFailedError(
-                "A scheduled suspension is pending: cancel it or wait for it to apply before modifying",
-              ),
-            );
-
-          // Binding = a real benefit change (value diff vs current), but only
-          // on the dichotomy states; on free states nothing transitions.
-          const benefitIsBinding =
-            benefitChanged(v.beneficiaryBenefit, data.beneficiaryBenefit) ||
-            benefitChanged(
-              v.caregiverBenefit,
-              data.caregiverBenefit ?? undefined,
-            );
-
-          const transitionToTestPending =
-            DICHOTOMY_STATUSES.has(data.status) && benefitIsBinding;
+          const statusResult = resolveOpportunityStatus(data, {
+            next: {
+              beneficiaryBenefit: v.beneficiaryBenefit,
+              caregiverBenefit: v.caregiverBenefit,
+            },
+            type: OPPORTUNITY_TRANSITION.REPLACE,
+          });
+          if (statusResult.isErr()) return errAsync(statusResult.error);
 
           const today = new Date().toISOString().slice(0, 10);
 
@@ -213,7 +168,7 @@ export const makeOperatorUpdateOpportunityUseCase =
                     operatorId: v.operatorId,
                     opportunityId: v.opportunityId,
                     placeIds: v.placeIds,
-                    transitionToTestPending,
+                    status: statusResult.value.to,
                     url: v.url,
                   }),
                 ),

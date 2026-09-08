@@ -103,17 +103,11 @@ const makeDeps = (overrides?: {
   ),
   opportunityRepository: createMockOpportunityRepository({
     findByIdAndOperatorId: vi.fn().mockResolvedValue(ok(mockOpportunity())),
-    updateFieldsByIdAndOperatorId: vi.fn().mockResolvedValue(ok(undefined)),
+    updateByIdAndOperatorId: vi.fn().mockResolvedValue(ok(undefined)),
     ...overrides?.opportunityRepository,
   }),
   placeRepository: createMockPlaceRepository(overrides?.placeRepository),
 });
-
-const baseInput = {
-  expectedUpdatedAt: EXPECTED_UPDATED_AT,
-  operatorId: MOCK_OPERATOR_ID,
-  opportunityId: MOCK_OPPORTUNITY_ID,
-};
 
 // A benefit that differs from the mock's current one (value 20 -> 10).
 const changedBenefit = {
@@ -126,6 +120,23 @@ const sameBenefit = {
   discountType: "percentage" as const,
   type: "discount" as const,
   value: 20,
+};
+
+const baseInput = {
+  beneficiaryBenefit: sameBenefit,
+  caregiverBenefit: { type: "free" as const },
+  categoryId: CATEGORY_ID,
+  dateFrom: "2026-01-01",
+  dateTo: "2026-12-31",
+  expectedUpdatedAt: EXPECTED_UPDATED_AT,
+  localizedMetadata: [
+    { key: "name" as const, language: "it" as const, value: "Sconto 20%" },
+  ],
+  nationalTerritory: false,
+  operatorId: MOCK_OPERATOR_ID,
+  opportunityId: MOCK_OPPORTUNITY_ID,
+  placeIds: [MOCK_PLACE_ID],
+  url: "https://example.org/promo",
 };
 
 const findReturning = (opp: OpportunityDetail | undefined) => ({
@@ -146,7 +157,7 @@ describe("makeOperatorUpdateOpportunityUseCase - binding / transition", () => {
 
       expect(result).toEqual(ok(undefined));
       expect(
-        deps.opportunityRepository.updateFieldsByIdAndOperatorId,
+        deps.opportunityRepository.updateByIdAndOperatorId,
       ).toHaveBeenCalledWith(
         expect.objectContaining({ transitionToTestPending: false }),
       );
@@ -167,7 +178,7 @@ describe("makeOperatorUpdateOpportunityUseCase - binding / transition", () => {
 
       expect(result).toEqual(ok(undefined));
       expect(
-        deps.opportunityRepository.updateFieldsByIdAndOperatorId,
+        deps.opportunityRepository.updateByIdAndOperatorId,
       ).toHaveBeenCalledWith(
         expect.objectContaining({ transitionToTestPending: true }),
       );
@@ -187,7 +198,7 @@ describe("makeOperatorUpdateOpportunityUseCase - binding / transition", () => {
 
     expect(result).toEqual(ok(undefined));
     expect(
-      deps.opportunityRepository.updateFieldsByIdAndOperatorId,
+      deps.opportunityRepository.updateByIdAndOperatorId,
     ).toHaveBeenCalledWith(
       expect.objectContaining({ transitionToTestPending: false }),
     );
@@ -206,13 +217,13 @@ describe("makeOperatorUpdateOpportunityUseCase - binding / transition", () => {
 
     expect(result).toEqual(ok(undefined));
     expect(
-      deps.opportunityRepository.updateFieldsByIdAndOperatorId,
+      deps.opportunityRepository.updateByIdAndOperatorId,
     ).toHaveBeenCalledWith(
       expect.objectContaining({ transitionToTestPending: false }),
     );
   });
 
-  it("treats caregiver removal (null) as binding", async () => {
+  it("treats caregiver removal by omission as binding", async () => {
     const deps = makeDeps({
       opportunityRepository: findReturning(
         mockOpportunity({ status: "published" }),
@@ -220,21 +231,21 @@ describe("makeOperatorUpdateOpportunityUseCase - binding / transition", () => {
     });
     const result = await makeOperatorUpdateOpportunityUseCase(deps)({
       ...baseInput,
-      caregiverBenefit: null,
+      caregiverBenefit: undefined,
     });
 
     expect(result).toEqual(ok(undefined));
     expect(
-      deps.opportunityRepository.updateFieldsByIdAndOperatorId,
+      deps.opportunityRepository.updateByIdAndOperatorId,
     ).toHaveBeenCalledWith(
       expect.objectContaining({ transitionToTestPending: true }),
     );
   });
 
-  it("treats caregiver addition (was null) as binding", async () => {
+  it("treats caregiver addition when absent as binding", async () => {
     const deps = makeDeps({
       opportunityRepository: findReturning(
-        mockOpportunity({ caregiverBenefit: null, status: "published" }),
+        mockOpportunity({ caregiverBenefit: undefined, status: "published" }),
       ),
     });
     const result = await makeOperatorUpdateOpportunityUseCase(deps)({
@@ -244,7 +255,7 @@ describe("makeOperatorUpdateOpportunityUseCase - binding / transition", () => {
 
     expect(result).toEqual(ok(undefined));
     expect(
-      deps.opportunityRepository.updateFieldsByIdAndOperatorId,
+      deps.opportunityRepository.updateByIdAndOperatorId,
     ).toHaveBeenCalledWith(
       expect.objectContaining({ transitionToTestPending: true }),
     );
@@ -347,7 +358,7 @@ describe("makeOperatorUpdateOpportunityUseCase - published dateTo", () => {
       err(expect.objectContaining({ kind: "ValidationError" })),
     );
     expect(
-      deps.opportunityRepository.updateFieldsByIdAndOperatorId,
+      deps.opportunityRepository.updateByIdAndOperatorId,
     ).not.toHaveBeenCalled();
     expect(deps.materializedViewRepository.refreshAll).not.toHaveBeenCalled();
   });
@@ -368,11 +379,11 @@ describe("makeOperatorUpdateOpportunityUseCase - published dateTo", () => {
 
     expect(result).toEqual(ok(undefined));
     expect(
-      deps.opportunityRepository.updateFieldsByIdAndOperatorId,
+      deps.opportunityRepository.updateByIdAndOperatorId,
     ).toHaveBeenCalledWith(expect.objectContaining({ dateTo: tomorrow }));
   });
 
-  it("allows clearing dateTo on a published opportunity", async () => {
+  it("allows clearing dateTo on a published opportunity by omission", async () => {
     const deps = makeDeps({
       opportunityRepository: findReturning(
         mockOpportunity({ status: "published" }),
@@ -380,13 +391,13 @@ describe("makeOperatorUpdateOpportunityUseCase - published dateTo", () => {
     });
     const result = await makeOperatorUpdateOpportunityUseCase(deps)({
       ...baseInput,
-      dateTo: null,
+      dateTo: undefined,
     });
 
     expect(result).toEqual(ok(undefined));
     expect(
-      deps.opportunityRepository.updateFieldsByIdAndOperatorId,
-    ).toHaveBeenCalledWith(expect.objectContaining({ dateTo: null }));
+      deps.opportunityRepository.updateByIdAndOperatorId,
+    ).toHaveBeenCalledWith(expect.objectContaining({ dateTo: undefined }));
   });
 
   it("returns 400 when attempting to modify dateFrom on a published opportunity", async () => {
@@ -404,7 +415,7 @@ describe("makeOperatorUpdateOpportunityUseCase - published dateTo", () => {
       err(expect.objectContaining({ kind: "ValidationError" })),
     );
     expect(
-      deps.opportunityRepository.updateFieldsByIdAndOperatorId,
+      deps.opportunityRepository.updateByIdAndOperatorId,
     ).not.toHaveBeenCalled();
     expect(deps.materializedViewRepository.refreshAll).not.toHaveBeenCalled();
   });
@@ -422,7 +433,7 @@ describe("makeOperatorUpdateOpportunityUseCase - blocked states", () => {
       err(expect.objectContaining({ kind: "NotFoundError" })),
     );
     expect(
-      deps.opportunityRepository.updateFieldsByIdAndOperatorId,
+      deps.opportunityRepository.updateByIdAndOperatorId,
     ).not.toHaveBeenCalled();
   });
 
@@ -441,7 +452,7 @@ describe("makeOperatorUpdateOpportunityUseCase - blocked states", () => {
         err(expect.objectContaining({ kind: "PreconditionFailedError" })),
       );
       expect(
-        deps.opportunityRepository.updateFieldsByIdAndOperatorId,
+        deps.opportunityRepository.updateByIdAndOperatorId,
       ).not.toHaveBeenCalled();
     },
   );
@@ -454,7 +465,7 @@ describe("makeOperatorUpdateOpportunityUseCase - CAS / error propagation", () =>
         findByIdAndOperatorId: vi
           .fn()
           .mockResolvedValue(ok(mockOpportunity({ status: "published" }))),
-        updateFieldsByIdAndOperatorId: vi
+        updateByIdAndOperatorId: vi
           .fn()
           .mockResolvedValue(
             err(new ConflictError("Opportunity was modified concurrently")),
@@ -480,9 +491,37 @@ describe("makeOperatorUpdateOpportunityUseCase - CAS / error propagation", () =>
     });
 
     expect(
-      deps.opportunityRepository.updateFieldsByIdAndOperatorId,
+      deps.opportunityRepository.updateByIdAndOperatorId,
     ).toHaveBeenCalledWith(
       expect.objectContaining({ expectedUpdatedAt: EXPECTED_UPDATED_AT }),
+    );
+  });
+
+  it("forwards the complete writable representation to the repository", async () => {
+    const deps = makeDeps();
+    await makeOperatorUpdateOpportunityUseCase(deps)({
+      ...baseInput,
+      url: "https://example.org/new",
+    });
+
+    expect(
+      deps.opportunityRepository.updateByIdAndOperatorId,
+    ).toHaveBeenCalledWith(
+      expect.objectContaining({
+        beneficiaryBenefit: sameBenefit,
+        caregiverBenefit: baseInput.caregiverBenefit,
+        categoryId: CATEGORY_ID,
+        dateFrom: "2026-01-01",
+        dateTo: "2026-12-31",
+        expectedUpdatedAt: EXPECTED_UPDATED_AT,
+        localizedMetadata: baseInput.localizedMetadata,
+        nationalTerritory: false,
+        operatorId: MOCK_OPERATOR_ID,
+        opportunityId: MOCK_OPPORTUNITY_ID,
+        placeIds: [MOCK_PLACE_ID],
+        transitionToTestPending: false,
+        url: "https://example.org/new",
+      }),
     );
   });
 
@@ -518,29 +557,52 @@ describe("makeOperatorUpdateOpportunityUseCase - existence validation", () => {
       err(expect.objectContaining({ kind: "ValidationError" })),
     );
     expect(
-      deps.opportunityRepository.updateFieldsByIdAndOperatorId,
+      deps.opportunityRepository.updateByIdAndOperatorId,
     ).not.toHaveBeenCalled();
   });
 
-  it("skips existence validation when neither categoryId nor placeIds is touched", async () => {
+  it("always validates the category and places in a full replacement", async () => {
     const deps = makeDeps();
     await makeOperatorUpdateOpportunityUseCase(deps)({
       ...baseInput,
       url: "https://example.org/new",
     });
 
-    expect(deps.opportunityCategoryRepository.getById).not.toHaveBeenCalled();
-    expect(deps.placeRepository.getIdsByOperator).not.toHaveBeenCalled();
+    expect(deps.opportunityCategoryRepository.getById).toHaveBeenCalledWith(
+      CATEGORY_ID,
+    );
+    expect(deps.placeRepository.getIdsByOperator).toHaveBeenCalledWith({
+      operatorId: MOCK_OPERATOR_ID,
+      placeIds: [MOCK_PLACE_ID],
+    });
     expect(
-      deps.opportunityRepository.updateFieldsByIdAndOperatorId,
+      deps.opportunityRepository.updateByIdAndOperatorId,
     ).toHaveBeenCalledOnce();
   });
 });
 
 describe("makeOperatorUpdateOpportunityUseCase - input validation", () => {
-  it("returns ValidationError on an empty payload (no editable field)", async () => {
+  it("returns ValidationError when a required writable field is missing", async () => {
     const deps = makeDeps();
-    const result = await makeOperatorUpdateOpportunityUseCase(deps)(baseInput);
+    const result = await makeOperatorUpdateOpportunityUseCase(deps)({
+      ...baseInput,
+      categoryId: undefined,
+    });
+
+    expect(result).toEqual(
+      err(expect.objectContaining({ kind: "ValidationError" })),
+    );
+    expect(
+      deps.opportunityRepository.findByIdAndOperatorId,
+    ).not.toHaveBeenCalled();
+  });
+
+  it("returns ValidationError when an optional field is explicitly null", async () => {
+    const deps = makeDeps();
+    const result = await makeOperatorUpdateOpportunityUseCase(deps)({
+      ...baseInput,
+      dateTo: null,
+    });
 
     expect(result).toEqual(
       err(expect.objectContaining({ kind: "ValidationError" })),

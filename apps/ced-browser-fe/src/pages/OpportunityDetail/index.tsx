@@ -77,10 +77,10 @@ export default function OpportunityDetailPage() {
   );
 
   const handleGoToITWClick = useCallback(() => {
-    //TODO add window.location.replace('deep-link-wallet')
     trackBrowserEvent('CED_GO_TO_ITW_CREDENTIAL', {
       opportunity_name: data?.name ?? '',
     });
+    window.location.replace('ioit://wallet');
   }, [data?.name]);
 
   const handleEntityClick = useCallback(

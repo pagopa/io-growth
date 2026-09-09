@@ -9,6 +9,7 @@ import { useNavigate } from 'react-router-dom';
 import { useGetOpportunitiesSearchQuery } from '../../../../features/opportunities/api';
 import { generateDiscoveryItemsConfig } from '../../constants';
 import { trackBrowserEvent } from '../../../../mixpanel/trackEvent';
+import { useTrackErrorEvent } from '../../../../mixpanel/useTrackErrorEvent';
 
 const DiscoverySection = () => {
   const navigate = useNavigate();
@@ -20,6 +21,8 @@ const DiscoverySection = () => {
 
   const discoveryItems = generateDiscoveryItemsConfig(data?.items);
 
+  useTrackErrorEvent('CED_OPPORTUNITIES_OVERVIEW_ERROR', isError);
+
   const handleShowAllClick = () => {
     trackBrowserEvent('CED_SHOW_OPPORTUNITY_LIST', { event_type: 'tap' });
     navigate(APP_ROUTES.OPPORTUNITIES_LIST);
@@ -27,9 +30,6 @@ const DiscoverySection = () => {
 
   const renderList = () => {
     if (isError) {
-      trackBrowserEvent('CED_OPPORTUNITIES_OVERVIEW_ERROR', {
-        event_type: 'error',
-      });
       return (
         <WarningBanner
           title="C’è stato un problema nel caricamento delle opportunità."

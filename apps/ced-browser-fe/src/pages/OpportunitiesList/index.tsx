@@ -7,6 +7,7 @@ import { theme } from '../../core/theme';
 import { useGetOpportunitiesSearchQuery } from '../../features/opportunities/api';
 import { generateDiscoveryItemsConfig } from '../Home/constants';
 import { useTrackLandedInPage } from '../../mixpanel/useTrackLandedInPage';
+import { useTrackErrorEvent } from '../../mixpanel/useTrackErrorEvent';
 import { trackBrowserEvent } from '../../mixpanel/trackEvent';
 export default function OpportunitiesList() {
   const navigate = useNavigate();
@@ -18,6 +19,11 @@ export default function OpportunitiesList() {
   const items = generateDiscoveryItemsConfig(data?.items);
 
   useTrackLandedInPage('CED_OPPORTUNITY_LIST');
+  useTrackErrorEvent('CED_OPPORTUNITY_LIST_ERROR', isError);
+  useTrackErrorEvent(
+    'CED_OPPORTUNITY_LIST_EMPTY',
+    !isError && !isLoading && (!items || items.length === 0),
+  );
 
   const handleItemClick = (
     item: ReturnType<typeof generateDiscoveryItemsConfig>[number],
@@ -40,9 +46,6 @@ export default function OpportunitiesList() {
 
   const renderContent = () => {
     if (isError) {
-      trackBrowserEvent('CED_OPPORTUNITY_LIST_ERROR', {
-        event_type: 'error',
-      });
       return (
         <WarningBanner
           title="C’è stato un problema nel caricamento delle opportunità."
@@ -59,9 +62,6 @@ export default function OpportunitiesList() {
     }
 
     if (!items || items.length === 0) {
-      trackBrowserEvent('CED_OPPORTUNITY_LIST_EMPTY', {
-        event_type: 'error',
-      });
       return <WarningBanner title="Non ci sono opportunità da mostrare." />;
     }
 

@@ -20,6 +20,7 @@ import { formatBadgeLabel } from '../../utils/formatBadgeLabel.js';
 import { useTrackLandedInPage } from '../../mixpanel/useTrackLandedInPage.js';
 import { useCallback } from 'react';
 import { trackBrowserEvent } from '../../mixpanel/trackEvent.js';
+import { useTrackErrorEvent } from '../../mixpanel/useTrackErrorEvent.js';
 import { Place } from '../../generated/model/place.js';
 import { MIChip } from '@pagopa/mui-italia';
 import { OpportunityDetail } from '../../generated/model/opportunityDetail.js';
@@ -62,12 +63,17 @@ export default function OpportunityDetailPage() {
     'CED_OPPORTUNITY_DETAIL',
     {
       opportunity_name: data?.name ?? '',
-      organizazion_name: data?.profile.displayName ?? '',
-      organizazion_fiscal_code: '',
+      organization_name: data?.profile.displayName ?? '',
+      organization_fiscal_code: '',
       location_name: data?.places[0]?.name ?? '',
       source: state?.source,
     },
     !!data,
+  );
+
+  useTrackErrorEvent(
+    'CED_PAGE_DETAIL_ERROR',
+    !!(isError || (!data && !isLoading)),
   );
 
   const handleGoToITWClick = useCallback(() => {

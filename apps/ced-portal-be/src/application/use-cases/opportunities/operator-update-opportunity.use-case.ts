@@ -20,7 +20,7 @@ import {
 import {
   OPPORTUNITY_TRANSITION,
   resolveOpportunityStatus,
-} from "../../utils/opportunity.status-resolver.js";
+} from "../utils/opportunity.status-resolver.js";
 import { validateUseCaseInput } from "../utils/validate-use-case-input.js";
 import {
   BenefitInputSchema,

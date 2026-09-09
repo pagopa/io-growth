@@ -2,7 +2,7 @@ import { PreconditionFailedError } from "@pagopa/io-core-domain/errors";
 import { err, ok } from "neverthrow";
 import { describe, expect, it } from "vitest";
 
-import type { OpportunityDetail } from "../../../domain/entities/opportunity.js";
+import type { OpportunityDetail } from "../../../../domain/entities/opportunity.js";
 import type {
   OpportunityToBe,
   OpportunityTransition,

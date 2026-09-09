@@ -95,7 +95,7 @@ export default function CardRequestFlowPage() {
   } = useSaveDataByStep(goNextStep);
 
   const handleBack = () => {
-    if (isLastStep && confirmationForm.dichiarazioneConformitaVerbale) {
+    if (isLastStep && confirmationForm.inps === 'yes') {
       setCurrentStep((s) => s - 2);
       return;
     }

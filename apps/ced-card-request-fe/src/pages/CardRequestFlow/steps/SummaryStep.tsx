@@ -38,8 +38,10 @@ const SummaryStep = forwardRef<StepRef, SummaryProps>(function SummaryStep(
 
   const { addressData, personalData, confirmationData } = useGetSummaryValue();
   const confirmationForm = useAppSelector(selectConfirmationForm);
-  const isJudgmentSummary =
-    confirmationForm.tipologiaUlterioreDocumentazione === 2;
+  const documentType = confirmationForm.tipologiaUlterioreDocumentazione;
+  const isJudgmentSummary = documentType === 2;
+  const isDocumentSummary = documentType === 1 || documentType === 3;
+  const shouldRenderSummaryDetails = isJudgmentSummary || isDocumentSummary;
 
   const accordionSx = {
     bgcolor: theme.palette.background.paper,
@@ -191,83 +193,85 @@ const SummaryStep = forwardRef<StepRef, SummaryProps>(function SummaryStep(
           </AccordionDetails>
         </Accordion>
 
-        <Accordion sx={accordionSx} defaultExpanded>
-          <AccordionSummary expandIcon={<ExpandMoreIcon />} sx={summarySx}>
-            <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-              <Title variant="XS" text="Sentenza giudiziaria" />
-              <Body>Attesta la tua condizione.</Body>
-            </Box>
-          </AccordionSummary>
-
-          <AccordionDetails sx={detailsSx}>
-            {isJudgmentSummary ? (
-              <Box sx={{ display: 'grid', gap: 0.75 }}>
-                {confirmationData.map((f, i) => (
-                  <Row
-                    key={f.label}
-                    label={f.label}
-                    value={String(f.value)}
-                    showDivider={i < confirmationData.length - 1}
-                  />
-                ))}
-                <Box sx={{ ml: -2.5, mt: -2 }}>
-                  <Button
-                    size="small"
-                    sx={{
-                      fontWeight: 600,
-                      fontSize: 17,
-                      color: theme.palette.common.primaryButton,
-                    }}
-                    onClick={() => onEditJudgment?.()}
-                  >
-                    Modifica dati
-                  </Button>
-                </Box>
+        {shouldRenderSummaryDetails && (
+          <Accordion sx={accordionSx} defaultExpanded>
+            <AccordionSummary expandIcon={<ExpandMoreIcon />} sx={summarySx}>
+              <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                <Title variant="XS" text="Sentenza giudiziaria" />
+                <Body>Attesta la tua condizione.</Body>
               </Box>
-            ) : (
-              <Box sx={{ display: 'grid', gap: 2 }}>
-                <Box
-                  sx={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 1.25,
-                  }}
-                >
+            </AccordionSummary>
+
+            <AccordionDetails sx={detailsSx}>
+              {isJudgmentSummary ? (
+                <Box sx={{ display: 'grid', gap: 0.75 }}>
+                  {confirmationData.map((f, i) => (
+                    <Row
+                      key={f.label}
+                      label={f.label}
+                      value={String(f.value)}
+                      showDivider={i < confirmationData.length - 1}
+                    />
+                  ))}
+                  <Box sx={{ ml: -2.5, mt: -2 }}>
+                    <Button
+                      size="small"
+                      sx={{
+                        fontWeight: 600,
+                        fontSize: 17,
+                        color: theme.palette.common.primaryButton,
+                      }}
+                      onClick={() => onEditJudgment?.()}
+                    >
+                      Modifica dati
+                    </Button>
+                  </Box>
+                </Box>
+              ) : isDocumentSummary ? (
+                <Box sx={{ display: 'grid', gap: 2 }}>
                   <Box
                     sx={{
-                      width: 36,
-                      height: 36,
-                      borderRadius: '50%',
                       display: 'flex',
                       alignItems: 'center',
-                      justifyContent: 'center',
-                      color: theme.palette.common.neutralBlack,
+                      gap: 1.25,
                     }}
                   >
-                    <AttachFileOutlined sx={{ fontSize: 24 }} />
+                    <Box
+                      sx={{
+                        width: 36,
+                        height: 36,
+                        borderRadius: '50%',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        color: theme.palette.common.neutralBlack,
+                      }}
+                    >
+                      <AttachFileOutlined sx={{ fontSize: 24 }} />
+                    </Box>
+                    <Body fontWeight="Semibold">
+                      {confirmationData[0]?.value ?? 'Documento allegato'}
+                    </Body>
                   </Box>
-                  <Body fontWeight="Semibold">
-                    {confirmationData[0]?.value ?? 'Documento allegato'}
-                  </Body>
-                </Box>
 
-                <Box sx={{ ml: -2 }}>
-                  <Button
-                    size="small"
-                    sx={{
-                      fontWeight: 600,
-                      fontSize: 17,
-                      color: theme.palette.common.primaryButton,
-                    }}
-                    onClick={() => onEditJudgment?.()}
-                  >
-                    Modifica dati
-                  </Button>
+                  <Box sx={{ ml: -2 }}>
+                    <Button
+                      size="small"
+                      sx={{
+                        fontWeight: 600,
+                        fontSize: 17,
+                        color: theme.palette.common.primaryButton,
+                      }}
+                      onClick={() => onEditJudgment?.()}
+                    >
+                      Modifica dati
+                    </Button>
+                  </Box>
                 </Box>
-              </Box>
-            )}
-          </AccordionDetails>
-        </Accordion>
+              ) : null}
+            </AccordionDetails>
+          </Accordion>
+        )}
       </Box>
     </Fragment>
   );

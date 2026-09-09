@@ -29,6 +29,15 @@ const cascadeResets: Partial<
   judgment: { inps: null },
 };
 
+const branchSpecificFieldReset = {
+  allegato: null,
+  nomeFile: null,
+  dataSentenza: null,
+  siglaProvinciaTribunale: null,
+  descrizioneComuneTribunale: null,
+  dirittoAccompagnatore: null,
+} as const;
+
 const scrollMap: Partial<
   Record<keyof DocumentTypeFormState, keyof DocumentTypeFormState>
 > = {
@@ -139,6 +148,7 @@ export const DocumentTypeStep = forwardRef<StepRef>(
         ...form,
         [field]: value,
         ...cascadeResets[field],
+        ...branchSpecificFieldReset,
       } as DocumentTypeFormState;
 
       dispatch(setForm(nextForm));

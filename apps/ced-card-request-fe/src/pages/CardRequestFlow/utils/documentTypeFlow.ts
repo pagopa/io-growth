@@ -8,10 +8,6 @@ export const getNextStepAfterDocumentType = (
 ) => {
   const documentType = confirmation.tipologiaUlterioreDocumentazione;
 
-  if (confirmation.dichiarazioneConformitaVerbale) {
-    return SUMMARY_STEP_INDEX;
-  }
-
   if (documentType === 1 || documentType === 2 || documentType === 3) {
     return DOCUMENT_UPLOAD_STEP_INDEX;
   }

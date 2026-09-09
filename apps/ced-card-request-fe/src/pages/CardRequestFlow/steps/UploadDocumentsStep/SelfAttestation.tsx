@@ -1,17 +1,23 @@
 import { Body, Title, VSpacer } from '@pagopa/io-core-ui';
 import { StepCard } from '../../StepCard';
 import { Box, FormControl } from '@mui/material';
-import { forwardRef, useImperativeHandle } from 'react';
+import { forwardRef, useImperativeHandle, useState } from 'react';
 import { CompanionAvailabilityRadioGroup } from './CompanionAvailabilityRadioGroup';
 import { AppDatePicker, AppSelect, AppTextField } from '../../../../components';
 import { useAttestationDataForm, validateAttestationField } from './constants';
 import type { StepRef } from '../../types';
 import { useToast } from '../../../../contexts';
+import { makeSelectConfirmationField } from '../../../../features/confirmation/reducer';
+import { useAppSelector } from '../../../../hooks';
 
 export const SelfAttestation = forwardRef<StepRef>(
   function SelfAttestation(_, ref) {
     const attestationForm = useAttestationDataForm();
     const { showToast } = useToast();
+    const selectedCompanionValue = useAppSelector(makeSelectConfirmationField)(
+      'dirittoAccompagnatore',
+    );
+    const [companionError, setCompanionError] = useState<string>();
 
     useImperativeHandle(ref, () => ({
       validate: () => {
@@ -26,6 +32,17 @@ export const SelfAttestation = forwardRef<StepRef>(
             return false;
           }
         }
+
+        if (
+          selectedCompanionValue === null ||
+          selectedCompanionValue === undefined
+        ) {
+          setCompanionError('* Campo obbligatorio');
+          showToast('Completa le informazioni per continuare', 'error');
+          return false;
+        }
+
+        setCompanionError(undefined);
         return true;
       },
     }));
@@ -86,7 +103,10 @@ export const SelfAttestation = forwardRef<StepRef>(
           </Body>
 
           <FormControl sx={{ mt: 3, width: '100%', bgcolor: 'transparent' }}>
-            <CompanionAvailabilityRadioGroup />
+            <CompanionAvailabilityRadioGroup
+              error={!!companionError}
+              helperText={companionError}
+            />
           </FormControl>
         </StepCard>
       </>

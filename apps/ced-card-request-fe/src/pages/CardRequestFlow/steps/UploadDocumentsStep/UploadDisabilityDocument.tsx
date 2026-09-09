@@ -11,9 +11,13 @@ import {
   validateBase64DocumentSize,
   validateDocumentFile,
 } from './utils';
-import { useAppDispatch } from '../../../../hooks';
-import { setField } from '../../../../features/confirmation/reducer';
-import { forwardRef, useImperativeHandle, useState } from 'react';
+import { useAppDispatch, useAppSelector } from '../../../../hooks';
+import {
+  makeSelectConfirmationField,
+  selectConfirmationForm,
+  setField,
+} from '../../../../features/confirmation/reducer';
+import { forwardRef, useEffect, useImperativeHandle, useState } from 'react';
 import { CompanionAvailabilityRadioGroup } from './CompanionAvailabilityRadioGroup';
 import type { StepRef } from '../../types';
 
@@ -44,11 +48,29 @@ const formatFileSize = (bytes: number) => {
 export const UploadDisabilityDocument = forwardRef<StepRef>(
   function UploadDisabilityDocument(_, ref) {
     const dispatch = useAppDispatch();
+    const confirmationForm = useAppSelector(selectConfirmationForm);
+    const selectedCompanionValue = useAppSelector(makeSelectConfirmationField)(
+      'dirittoAccompagnatore',
+    );
 
     const [uploadState, setUploadState] = useState<UploadState>('idle');
     const [uploadedDocument, setUploadedDocument] =
       useState<UploadedDocument | null>(null);
     const [validationError, setValidationError] = useState<string>();
+    const [companionError, setCompanionError] = useState<string>();
+
+    useEffect(() => {
+      if (confirmationForm.nomeFile && confirmationForm.allegato) {
+        setUploadedDocument({ name: confirmationForm.nomeFile, size: 0 });
+        setUploadState('preview');
+        setValidationError(undefined);
+        return;
+      }
+
+      setUploadedDocument(null);
+      setUploadState('idle');
+      setValidationError(undefined);
+    }, [confirmationForm.allegato, confirmationForm.nomeFile]);
 
     useImperativeHandle(ref, () => ({
       validate: () => {
@@ -57,7 +79,16 @@ export const UploadDisabilityDocument = forwardRef<StepRef>(
           return false;
         }
 
+        if (
+          selectedCompanionValue === null ||
+          selectedCompanionValue === undefined
+        ) {
+          setCompanionError('* Campo obbligatorio');
+          return false;
+        }
+
         setValidationError(undefined);
+        setCompanionError(undefined);
         return true;
       },
     }));
@@ -70,7 +101,7 @@ export const UploadDisabilityDocument = forwardRef<StepRef>(
       const validation = validateDocumentFile(file);
 
       if (!validation.isValid) {
-        console.warn(validation.message);
+        setValidationError(validation.message);
         e.target.value = '';
         return;
       }
@@ -80,7 +111,7 @@ export const UploadDisabilityDocument = forwardRef<StepRef>(
         const base64Validation = validateBase64DocumentSize(fileBase64);
 
         if (!base64Validation.isValid) {
-          console.warn(base64Validation.message);
+          setValidationError(base64Validation.message);
           e.target.value = '';
           return;
         }
@@ -89,6 +120,7 @@ export const UploadDisabilityDocument = forwardRef<StepRef>(
         dispatch(setField({ field: 'allegato', value: fileBase64 }));
         setUploadedDocument({ name: file.name, size: file.size });
         setValidationError(undefined);
+        setCompanionError(undefined);
         setUploadState('preview');
       } catch (error) {
         console.error('Errore durante la conversione del file:', error);
@@ -101,6 +133,7 @@ export const UploadDisabilityDocument = forwardRef<StepRef>(
       dispatch(setField({ field: 'allegato', value: null }));
       setUploadedDocument(null);
       setValidationError('Campo obbligatorio');
+      setCompanionError(undefined);
       setUploadState('idle');
     };
 
@@ -167,9 +200,11 @@ export const UploadDisabilityDocument = forwardRef<StepRef>(
                 >
                   {uploadedDocument.name}
                 </Link>
-                <Body fontSize="14px">
-                  {formatFileSize(uploadedDocument.size)}
-                </Body>
+                {uploadedDocument.size > 0 && (
+                  <Body fontSize="14px">
+                    {formatFileSize(uploadedDocument.size)}
+                  </Body>
+                )}
               </Box>
 
               <Button
@@ -195,7 +230,10 @@ export const UploadDisabilityDocument = forwardRef<StepRef>(
             </Body>
 
             <FormControl sx={{ mt: 3, width: '100%', bgcolor: 'transparent' }}>
-              <CompanionAvailabilityRadioGroup />
+              <CompanionAvailabilityRadioGroup
+                error={!!companionError}
+                helperText={companionError}
+              />
             </FormControl>
           </StepCard>
         </>

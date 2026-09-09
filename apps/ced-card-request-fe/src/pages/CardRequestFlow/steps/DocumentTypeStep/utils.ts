@@ -12,8 +12,9 @@ export const toDocumentationType = (form: DocumentTypeFormState) => {
 
   if (form.province === 'other') {
     if (form.judgment === 'yes') return 2;
-    if (form.judgment === 'no') return 3;
   }
+
+  if (form.judgment === 'no' && form.inps === 'no') return 3;
 
   return null;
 };

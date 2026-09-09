@@ -5,7 +5,7 @@ import {
   setField,
 } from '../../../../features/confirmation/reducer';
 import { useAppDispatch, useAppSelector } from '../../../../hooks';
-import { Divider } from '@mui/material';
+import { Divider, FormHelperText } from '@mui/material';
 
 const YES_NO_OPTIONS = [
   {
@@ -17,7 +17,15 @@ const YES_NO_OPTIONS = [
   { label: 'No', value: 'no', subtitle: '' },
 ] as const;
 
-export const CompanionAvailabilityRadioGroup = () => {
+type CompanionAvailabilityRadioGroupProps = {
+  error?: boolean;
+  helperText?: string;
+};
+
+export const CompanionAvailabilityRadioGroup = ({
+  error,
+  helperText,
+}: CompanionAvailabilityRadioGroupProps) => {
   const dispatch = useAppDispatch();
   const selectedValue = useAppSelector(makeSelectConfirmationField)(
     'dirittoAccompagnatore',
@@ -46,14 +54,14 @@ export const CompanionAvailabilityRadioGroup = () => {
                 width: '100%',
                 userSelect: 'none',
               }}
-              onClick={() =>
+              onClick={() => {
                 dispatch(
                   setField({
                     field: 'dirittoAccompagnatore',
                     value: option.value === 'yes',
                   }),
-                )
-              }
+                );
+              }}
             >
               <Box
                 sx={{
@@ -89,10 +97,9 @@ export const CompanionAvailabilityRadioGroup = () => {
                   width: 22,
                   height: 22,
                   borderRadius: '50%',
-                  border: isChecked ? 'none' : `2px solid common.neutral600`,
-                  backgroundColor: isChecked
-                    ? 'common.primaryButton'
-                    : 'transparent',
+                  border: isChecked ? '2px solid transparent' : '2px solid',
+                  borderColor: isChecked ? 'transparent' : 'common.neutral600',
+                  backgroundColor: isChecked ? 'common.primaryButton' : 'white',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
@@ -116,6 +123,11 @@ export const CompanionAvailabilityRadioGroup = () => {
           </Box>
         );
       })}
+      {error && helperText && (
+        <FormHelperText error sx={{ mt: 1.5 }}>
+          {helperText}
+        </FormHelperText>
+      )}
     </Box>
   );
 };

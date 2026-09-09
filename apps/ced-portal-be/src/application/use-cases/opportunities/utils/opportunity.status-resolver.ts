@@ -7,7 +7,7 @@ import {
   OPPORTUNITY_DISPLAY_STATUS,
   OPPORTUNITY_STATUS,
   type OpportunityDetail,
-} from "../../../domain/entities/opportunity.js";
+} from "../../../../domain/entities/opportunity.js";
 
 export const OPPORTUNITY_TRANSITION = {
   APPROVE: "approve",

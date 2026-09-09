@@ -17,10 +17,6 @@ import {
   OPPORTUNITY_STATUS,
   type OpportunityDetail,
 } from "../../../domain/entities/opportunity.js";
-import {
-  OPPORTUNITY_TRANSITION,
-  resolveOpportunityStatus,
-} from "../utils/opportunity.status-resolver.js";
 import { validateUseCaseInput } from "../utils/validate-use-case-input.js";
 import {
   BenefitInputSchema,
@@ -28,6 +24,10 @@ import {
   PlaceIdsInputSchema,
   validateExistence,
 } from "./utils/opportunity-input.js";
+import {
+  OPPORTUNITY_TRANSITION,
+  resolveOpportunityStatus,
+} from "./utils/opportunity.status-resolver.js";
 
 const OperatorUpdateOpportunityInputSchema = z.object({
   beneficiaryBenefit: BenefitInputSchema,

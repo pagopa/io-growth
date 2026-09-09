@@ -8,7 +8,12 @@ export const useTrackErrorEvent = (
   const hasTracked = useRef(false);
 
   useEffect(() => {
-    if (!enabled || hasTracked.current) return;
+    if (!enabled) {
+      hasTracked.current = false;
+      return;
+    }
+
+    if (hasTracked.current) return;
 
     trackBrowserEvent(event_name, {
       event_type: 'error',

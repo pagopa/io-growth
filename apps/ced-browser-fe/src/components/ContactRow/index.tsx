@@ -2,13 +2,14 @@ import { Box, ButtonBase } from '@mui/material';
 import { Body } from '@pagopa/io-core-ui';
 import { ContactRowProps } from './types';
 
-export function ContactRow({ icon, label, href }: ContactRowProps) {
+export function ContactRow({ icon, label, href, onClick }: ContactRowProps) {
   return (
     <ButtonBase
       component="a"
       href={href}
       target={href.startsWith('http') ? '_blank' : undefined}
       rel={href.startsWith('http') ? 'noopener noreferrer' : undefined}
+      onClick={onClick}
       sx={{
         width: '100%',
         textAlign: 'left',

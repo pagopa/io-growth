@@ -4,7 +4,7 @@ import { isEnvConfigEnabled } from './utils';
 
 type CONFIG = {
   deviceId?: string | null;
-  ANALYTICS_ENABLE: string;
+  ANALYTICS_ENABLE: boolean;
   ANALYTICS_TOKEN: string;
   ANALYTICS_API_HOST: string;
   ANALYTICS_PERSISTENCE: string;
@@ -39,7 +39,11 @@ export const initAnalytics = (
     ANALYTICS_TOKEN,
   }: CONFIG,
 ): void => {
-  if (ANALYTICS_ENABLE && !(window as WindowMPValues).initMixPanel && shouldInitialize) {
+  if (!ANALYTICS_ENABLE || !shouldInitialize) {
+    return;
+  }
+
+  if (!(window as WindowMPValues).initMixPanel) {
     mixpanel.init(ANALYTICS_TOKEN, {
       api_host: ANALYTICS_API_HOST,
       cookie_domain: '.ioapp.it', // change this value with your dev domain
@@ -50,11 +54,11 @@ export const initAnalytics = (
       secure_cookie: true, // change this value as false if you run in local .env
     });
 
-    if (deviceId) {
-      mixpanel.identify(deviceId);
-    }
-
     (window as WindowMPValues).initMixPanel = true;
+  }
+
+  if (deviceId) {
+    mixpanel.identify(deviceId);
   }
 };
 
@@ -65,7 +69,7 @@ export const initAnalytics = (
  * @property callback: an action taken when the track has completed (If the action taken immediately after the track is an exit action from the application, it's better to use this callback to perform the exit, in order to give to mixPanel the time to send the event)
  */
 export const trackEventBuilder =
-  (ANALYTICS_ENABLE: string) =>
+  (ANALYTICS_ENABLE: boolean) =>
   (event_name: string, properties?: EventProperties, callback?: () => void): void => {
     //TODO: for test only, remove console.log before release
     console.log(

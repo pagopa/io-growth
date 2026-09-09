@@ -23,7 +23,7 @@ export const useMixPanelSession = () => {
     // TODO forcing init for test purpose only, after that change with !!deviceId
     initAnalytics(true, {
       deviceId,
-      ANALYTICS_ENABLE: import.meta.env.VITE_ANALYTICS_ENABLE,
+      ANALYTICS_ENABLE: import.meta.env.VITE_ANALYTICS_ENABLE === 'true',
       ANALYTICS_TOKEN: import.meta.env.VITE_ANALYTICS_TOKEN || '',
       ANALYTICS_API_HOST: import.meta.env.VITE_ANALYTICS_API_HOST,
       ANALYTICS_PERSISTENCE: import.meta.env.VITE_ANALYTICS_PERSISTENCE,

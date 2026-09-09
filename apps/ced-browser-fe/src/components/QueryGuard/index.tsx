@@ -1,6 +1,6 @@
 import { Box, CircularProgress, Typography } from '@mui/material';
 import { ErrorBody } from '@pagopa/io-core-ui';
-import type { ReactNode } from 'react';
+import { useEffect, useRef, type ReactNode } from 'react';
 import ErrorScreen from './ErrorScreen';
 import { PageErrorType } from './ErrorScreen/types';
 
@@ -39,6 +39,23 @@ export function QueryGuard<T>({
   secondAction,
   trackErrorEvent,
 }: Readonly<Props<T>>) {
+  const hasTrackedErrorRef = useRef(false);
+  const isErrorState = isError || data === undefined;
+
+  useEffect(() => {
+    if (!trackErrorEvent || isLoading || !isErrorState) {
+      hasTrackedErrorRef.current = false;
+      return;
+    }
+
+    if (hasTrackedErrorRef.current) {
+      return;
+    }
+
+    hasTrackedErrorRef.current = true;
+    trackErrorEvent();
+  }, [isErrorState, isLoading, trackErrorEvent]);
+
   if (isLoading) {
     return (
       <Box sx={{ display: 'flex', justifyContent: 'center', pt: 8 }}>
@@ -47,10 +64,7 @@ export function QueryGuard<T>({
     );
   }
 
-  if (isError || data === undefined) {
-    if (trackErrorEvent) {
-      trackErrorEvent();
-    }
+  if (isErrorState) {
     if (errorType) {
       return (
         <ErrorScreen

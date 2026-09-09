@@ -64,7 +64,7 @@ export default function OpportunityDetailPage() {
       opportunity_name: data?.name ?? '',
       organizazion_name: data?.profile.displayName ?? '',
       organizazion_fiscal_code: '',
-      location_name: data?.places[0].name ?? '',
+      location_name: data?.places[0]?.name ?? '',
       source: state?.source,
     },
     !!data,
@@ -78,12 +78,12 @@ export default function OpportunityDetailPage() {
   }, [data?.name]);
 
   const handleEntityClick = useCallback(
-    (data: OpportunityDetail) => {
+    (opportunity: OpportunityDetail) => {
       trackBrowserEvent('CED_ORGANIZATION_SELECTED', {
-        organization_name: data.profile.displayName,
+        organization_name: opportunity.profile.displayName,
         organization_fiscal_code: '',
       });
-      navigate(toEntityDetailRoute(data.id), {
+      navigate(toEntityDetailRoute(opportunity.profile.id), {
         state: { source: 'opportunity_detail' },
       });
     },

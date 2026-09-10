@@ -1,7 +1,7 @@
 import { Box, ButtonBase, Divider, Stack } from '@mui/material';
 import { Body } from '@pagopa/io-core-ui';
-import { useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useCallback, useMemo } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { DiscoveryListItem } from '../';
 import {
   APP_ROUTES,
@@ -10,14 +10,25 @@ import {
 } from '../../app/routeConfig';
 import { SectionTitle } from '../SectionTitle';
 import type { ItemsSectionProps } from './types';
+import { trackBrowserEvent } from '../../mixpanel/trackEvent';
 
 const ITEMS_LIMIT = 10;
+
+const getSourceNavigation = (location: string) => {
+  if (location.includes('enti/')) {
+    if (location.includes('punti-di-accesso/')) return 'location_detail';
+    return 'organization_detail';
+  }
+
+  return '';
+};
 
 export function ItemsSection(props: ItemsSectionProps) {
   const { variant, entityId, items, sectionLabel } = props;
   const hideEyebrow =
     props.variant === 'opportunity' && (props.hideEyebrow ?? false);
   const navigate = useNavigate();
+  const location = useLocation();
 
   const hasMore = items.length > ITEMS_LIMIT;
   const defaultLabel =
@@ -28,17 +39,57 @@ export function ItemsSection(props: ItemsSectionProps) {
       ? APP_ROUTES.ENTITY_OPPORTUNITIES
       : APP_ROUTES.ENTITY_ACCESS_POINTS;
 
+  const source = useMemo(
+    () => getSourceNavigation(location.pathname),
+    [location.pathname],
+  );
+
+  const handleLocationItemClicked = useCallback(
+    (item: (typeof items)[number]) => {
+      trackBrowserEvent('CED_LOCATION_SELECTED', {
+        event_type: 'tap',
+        organization_name: item.organization_name,
+        organization_fiscal_code: item.organization_fiscal_code,
+        location_name: item.title,
+      });
+      navigate(toEntityAccessPointDetailRoute(item.id), { state: { source } });
+    },
+    [navigate, source],
+  );
+
+  const handleOpportunityItemClicked = useCallback(
+    ({
+      title,
+      id,
+      organization_fiscal_code,
+      organization_name,
+      location_name,
+    }: (typeof items)[number]) => {
+      trackBrowserEvent('CED_OPPORTUNITY_SELECTED', {
+        event_type: 'tap',
+        opportunity_name: title,
+        organization_name,
+        organization_fiscal_code,
+        location_name,
+      });
+      navigate(toOpportunityDetailRoute(id), {
+        state: { source },
+      });
+    },
+    [navigate, source],
+  );
+
   const renderedItems = useMemo(() => {
     if (variant === 'opportunity') {
       return items
         .slice(0, ITEMS_LIMIT)
-        .map(({ id, ...item }) => (
+        .map((item) => (
           <DiscoveryListItem
-            key={id}
+            key={item.id}
             variant="opportunity"
             {...item}
             sx={{ px: 0, bgcolor: 'background.paper' }}
-            onClick={() => navigate(toOpportunityDetailRoute(id))}
+            onClick={() => handleOpportunityItemClicked(item)}
             eyebrow={hideEyebrow ? undefined : item.title}
           />
         ));
@@ -46,16 +97,22 @@ export function ItemsSection(props: ItemsSectionProps) {
 
     return items
       .slice(0, ITEMS_LIMIT)
-      .map(({ id, ...item }) => (
+      .map((item) => (
         <DiscoveryListItem
-          key={id}
+          key={item.id}
           variant="simple"
           {...item}
           sx={{ px: 0, bgcolor: 'background.paper' }}
-          onClick={() => navigate(toEntityAccessPointDetailRoute(id))}
+          onClick={() => handleLocationItemClicked(item)}
         />
       ));
-  }, [variant, items, hideEyebrow, navigate]);
+  }, [
+    variant,
+    items,
+    hideEyebrow,
+    handleOpportunityItemClicked,
+    handleLocationItemClicked,
+  ]);
 
   if (items.length === 0) return null;
 

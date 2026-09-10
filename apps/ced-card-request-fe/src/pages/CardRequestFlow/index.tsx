@@ -12,7 +12,10 @@ import { PhotoUploadStep } from './steps/PhotoUploadStep';
 import SummaryStep from './steps/SummaryStep';
 import type { StepRef } from './types';
 import { useSaveDataByStep } from './hooks/useSaveDataByStep';
-import { getNextStepAfterDocumentType } from './utils/documentTypeFlow';
+import {
+  getNextStepAfterDocumentType,
+  getPreviousStepBeforeSummary,
+} from './utils/documentTypeFlow';
 import GenericError from '../GenericError';
 import { useAppSelector } from '../../hooks';
 import { selectConfirmationForm } from '../../features/confirmation/reducer';
@@ -95,8 +98,8 @@ export default function CardRequestFlowPage() {
   } = useSaveDataByStep(goNextStep);
 
   const handleBack = () => {
-    if (isLastStep && confirmationForm.inps === 'yes') {
-      setCurrentStep((s) => s - 2);
+    if (isLastStep) {
+      setCurrentStep(getPreviousStepBeforeSummary(confirmationForm));
       return;
     }
     if (currentStep > 0) {

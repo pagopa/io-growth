@@ -20,6 +20,7 @@ import {
   YES_NO_OPTIONS,
 } from './constants';
 import { toDocumentationType } from './utils';
+import { validateDocumentTypeForm } from '../../utils/documentTypeFlow';
 
 const cascadeResets: Partial<
   Record<keyof DocumentTypeFormState, Partial<DocumentTypeFormState>>
@@ -187,14 +188,7 @@ export const DocumentTypeStep = forwardRef<StepRef>(
 
     useImperativeHandle(ref, () => ({
       validate() {
-        const requiredFields = cards
-          .filter((c) => c.visible)
-          .map((c) => c.field);
-
-        const errs: Partial<Record<keyof DocumentTypeFormState, string>> = {};
-        for (const field of requiredFields) {
-          if (form[field] === null) errs[field] = 'Campo obbligatorio';
-        }
+        const errs = validateDocumentTypeForm(form);
         setErrors(errs);
         return Object.keys(errs).length === 0;
       },

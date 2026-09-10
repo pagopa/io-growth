@@ -7,6 +7,7 @@ import {
   useCompleteOnboardingMutation,
   useGetContractSignedMutation,
   useGetDepartmentOnboardingQuery,
+  useRejectOnboardingMutation,
 } from '../../../features/entities/api';
 import {
   getEntityFields,
@@ -32,6 +33,8 @@ function useEntityDetail() {
     useGetContractSignedMutation();
   const [completeOnboarding, { isLoading: isCompletingOnboarding }] =
     useCompleteOnboardingMutation();
+  const [rejectOnboarding, { isLoading: isRejectingOnboarding }] =
+    useRejectOnboardingMutation();
 
   const [uploadState, setUploadState] = useState<UploadState>('idle');
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
@@ -81,6 +84,19 @@ function useEntityDetail() {
     setOpenPublishModal(true);
   };
 
+  const handleReject = async (message: string) => {
+    if (!id) return;
+
+    try {
+      await rejectOnboarding({ onboardingId: id, reason: message }).unwrap();
+      setOpenRejectModal(false);
+      navigate(APP_ROUTES.ENTITIES);
+      showToast('Richiesta rifiutata con successo', 'success');
+    } catch {
+      showToast('Errore durante il rifiuto della richiesta', 'error');
+    }
+  };
+
   const entityName = getEntityName(onboarding);
   const entityFields = getEntityFields(onboarding);
   const geographicFields = getGeographicFields(onboarding);
@@ -107,6 +123,7 @@ function useEntityDetail() {
       downloadContract: handleDownloadContract,
       approve: handleApprove,
       publish: handlePublish,
+      reject: handleReject,
       refetch,
     },
     modals: {
@@ -124,6 +141,7 @@ function useEntityDetail() {
       isError,
       isDownloadingContract,
       isCompletingOnboarding,
+      isRejectingOnboarding,
     },
   };
 }

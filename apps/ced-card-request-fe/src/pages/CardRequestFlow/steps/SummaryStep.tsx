@@ -1,4 +1,6 @@
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import AttachFileOutlined from '@mui/icons-material/AttachFileOutlined';
+
 import {
   Accordion,
   AccordionDetails,
@@ -13,21 +15,8 @@ import { forwardRef, Fragment, useImperativeHandle } from 'react';
 import { StepCard } from '../StepCard';
 import type { StepRef } from '../types';
 import { useGetSummaryValue } from '../hooks/useGetSummaryValue';
-
-const judgmentData = [
-  {
-    label: 'Provincia',
-    value: 'Milano',
-  },
-  {
-    label: 'Comune',
-    value: 'Milano',
-  },
-  {
-    label: 'Data di rilascio',
-    value: '15/06/2023',
-  },
-];
+import { useAppSelector } from '../../../hooks';
+import { selectConfirmationForm } from '../../../features/confirmation/reducer';
 
 interface SummaryProps {
   onEditApplicant?: () => void;
@@ -47,7 +36,12 @@ const SummaryStep = forwardRef<StepRef, SummaryProps>(function SummaryStep(
     validate: () => true,
   }));
 
-  const { addressData, personalData } = useGetSummaryValue();
+  const { addressData, personalData, confirmationData } = useGetSummaryValue();
+  const confirmationForm = useAppSelector(selectConfirmationForm);
+  const documentType = confirmationForm.tipologiaUlterioreDocumentazione;
+  const isJudgmentSummary = documentType === 2;
+  const isDocumentSummary = documentType === 1 || documentType === 3;
+  const shouldRenderSummaryDetails = isJudgmentSummary || isDocumentSummary;
 
   const accordionSx = {
     bgcolor: theme.palette.background.paper,
@@ -199,41 +193,85 @@ const SummaryStep = forwardRef<StepRef, SummaryProps>(function SummaryStep(
           </AccordionDetails>
         </Accordion>
 
-        <Accordion sx={accordionSx} defaultExpanded>
-          <AccordionSummary expandIcon={<ExpandMoreIcon />} sx={summarySx}>
-            <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-              <Title variant="XS" text="Sentenza giudiziaria" />
-              <Body>Attesta la tua condizione.</Body>
-            </Box>
-          </AccordionSummary>
-          {false && (
-            <AccordionDetails sx={detailsSx}>
-              <Box sx={{ display: 'grid', gap: 0.75 }}>
-                {judgmentData.map((f, i) => (
-                  <Row
-                    key={f.label}
-                    label={f.label}
-                    value={f.value}
-                    showDivider={i < judgmentData.length - 1}
-                  />
-                ))}
-                <Box sx={{ ml: -2.5, mt: -2 }}>
-                  <Button
-                    size="small"
-                    sx={{
-                      fontWeight: 600,
-                      fontSize: 17,
-                      color: theme.palette.common.primaryButton,
-                    }}
-                    onClick={() => onEditJudgment?.()}
-                  >
-                    Modifica dati
-                  </Button>
-                </Box>
+        {shouldRenderSummaryDetails && (
+          <Accordion sx={accordionSx} defaultExpanded>
+            <AccordionSummary expandIcon={<ExpandMoreIcon />} sx={summarySx}>
+              <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                <Title variant="XS" text="Sentenza giudiziaria" />
+                <Body>Attesta la tua condizione.</Body>
               </Box>
+            </AccordionSummary>
+
+            <AccordionDetails sx={detailsSx}>
+              {isJudgmentSummary ? (
+                <Box sx={{ display: 'grid', gap: 0.75 }}>
+                  {confirmationData.map((f, i) => (
+                    <Row
+                      key={f.label}
+                      label={f.label}
+                      value={String(f.value)}
+                      showDivider={i < confirmationData.length - 1}
+                    />
+                  ))}
+                  <Box sx={{ ml: -2.5, mt: -2 }}>
+                    <Button
+                      size="small"
+                      sx={{
+                        fontWeight: 600,
+                        fontSize: 17,
+                        color: theme.palette.common.primaryButton,
+                      }}
+                      onClick={() => onEditJudgment?.()}
+                    >
+                      Modifica dati
+                    </Button>
+                  </Box>
+                </Box>
+              ) : isDocumentSummary ? (
+                <Box sx={{ display: 'grid', gap: 2 }}>
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 1.25,
+                    }}
+                  >
+                    <Box
+                      sx={{
+                        width: 36,
+                        height: 36,
+                        borderRadius: '50%',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        color: theme.palette.common.neutralBlack,
+                      }}
+                    >
+                      <AttachFileOutlined sx={{ fontSize: 24 }} />
+                    </Box>
+                    <Body fontWeight="Semibold">
+                      {confirmationData[0]?.value ?? 'Documento allegato'}
+                    </Body>
+                  </Box>
+
+                  <Box sx={{ ml: -2 }}>
+                    <Button
+                      size="small"
+                      sx={{
+                        fontWeight: 600,
+                        fontSize: 17,
+                        color: theme.palette.common.primaryButton,
+                      }}
+                      onClick={() => onEditJudgment?.()}
+                    >
+                      Modifica dati
+                    </Button>
+                  </Box>
+                </Box>
+              ) : null}
             </AccordionDetails>
-          )}
-        </Accordion>
+          </Accordion>
+        )}
       </Box>
     </Fragment>
   );

@@ -2,7 +2,7 @@ import {
   DatePicker,
   type DatePickerProps,
 } from '@mui/x-date-pickers/DatePicker';
-import { format, isValid, parseISO } from 'date-fns';
+import { format, isValid, parse, parseISO } from 'date-fns';
 
 const DATE_FORMAT = 'dd/MM/yyyy';
 
@@ -29,7 +29,16 @@ export function AppDatePicker({
   sx,
   ...props
 }: AppDatePickerProps) {
-  const parsedValue = value ? parseISO(value) : null;
+  const parsedValue = value
+    ? (() => {
+        const isoParsed = parseISO(value);
+        if (isValid(isoParsed)) {
+          return isoParsed;
+        }
+
+        return parse(value, DATE_FORMAT, new Date());
+      })()
+    : null;
   const dateValue = parsedValue && isValid(parsedValue) ? parsedValue : null;
 
   const handleChange = (date: Date | null) => {

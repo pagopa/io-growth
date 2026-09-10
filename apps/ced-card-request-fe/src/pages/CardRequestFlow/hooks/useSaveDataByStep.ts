@@ -10,6 +10,7 @@ import { useUploadPhotoMutation } from '../../../features/photo-upload/api';
 import { selectB64Photo } from '../../../features/photo-upload/reducer';
 import { selectIdLavorazione } from '../../../features/status/selectors';
 import { useConfirmMutation } from '../../../features/confirmation/api';
+import { selectConfirmationPayload } from '../../../features/confirmation/reducer';
 
 const sanitazeObject = <T extends Record<string, unknown>>(data: T): T =>
   Object.fromEntries(
@@ -37,6 +38,7 @@ export const useSaveDataByStep = (next: () => void) => {
 
   const firstDraftForm = useAppSelector(selectRequestForm);
   const sanitazedFirstDataForm = sanitazeObject(firstDraftForm);
+  const confirmationForm = useAppSelector(selectConfirmationPayload);
 
   const idLavorazione = useAppSelector(selectIdLavorazione);
   const photo = useAppSelector(selectB64Photo);
@@ -114,6 +116,7 @@ export const useSaveDataByStep = (next: () => void) => {
       const idempotencyKey = getIdempotencyKey();
       const responseUnwrapped = await confirm({
         body: {
+          ...confirmationForm,
           idLavorazione,
         },
         idempotency_key: idempotencyKey,

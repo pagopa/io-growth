@@ -1612,7 +1612,7 @@ paths:
           required: true
           schema:
             type: string
-            pattern: ^Bearer\\s+.+$
+            pattern: ^Bearer\s+.+$
       responses:
         "200":
           description: One-time session ID

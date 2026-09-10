@@ -280,7 +280,7 @@ export const UploadDisabilityDocument = forwardRef<StepRef>(
             Carica file
             <input
               type="file"
-              accept=".pdf,.jpg,.jpeg"
+              accept=".pdf,.jpg"
               hidden
               onChange={handleFileChange}
             />

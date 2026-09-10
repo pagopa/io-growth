@@ -193,7 +193,7 @@ export default function CardRequestFlowPage() {
           onEditApplicant={() => setCurrentStep(0)}
           onEditAddress={() => setCurrentStep(1)}
           onEditPhoto={() => setCurrentStep(2)}
-          onEditJudgment={() => setCurrentStep(3)}
+          onEditJudgment={() => setCurrentStep(4)}
           onPhotoPreviewChange={(url: string) => setPhotoPreview(url)}
           photoPreview={photoPreview}
         />

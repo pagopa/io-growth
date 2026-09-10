@@ -1,11 +1,17 @@
-import { Box } from '@mui/system';
 import CheckRoundedIcon from '@mui/icons-material/CheckRounded';
+import {
+  Box,
+  Divider,
+  FormControlLabel,
+  FormHelperText,
+  Radio,
+  RadioGroup,
+} from '@mui/material';
 import {
   makeSelectConfirmationField,
   setField,
 } from '../../../../features/confirmation/reducer';
 import { useAppDispatch, useAppSelector } from '../../../../hooks';
-import { Divider, FormHelperText } from '@mui/material';
 
 const YES_NO_OPTIONS = [
   {
@@ -30,99 +36,108 @@ export const CompanionAvailabilityRadioGroup = ({
   const selectedValue = useAppSelector(makeSelectConfirmationField)(
     'dirittoAccompagnatore',
   );
+  const currentValue =
+    selectedValue === true ? 'yes' : selectedValue === false ? 'no' : '';
+
   return (
     <Box>
-      {YES_NO_OPTIONS.map((option, index) => {
-        const value =
-          selectedValue === true
-            ? 'yes'
-            : selectedValue === false
-              ? 'no'
-              : null;
-        const isChecked = !!value && value === option.value;
-
-        return (
+      <RadioGroup
+        aria-label="Hai diritto all'accompagnatore?"
+        name="dirittoAccompagnatore"
+        value={currentValue}
+        onChange={(_, value) => {
+          dispatch(
+            setField({
+              field: 'dirittoAccompagnatore',
+              value: value === 'yes',
+            }),
+          );
+        }}
+      >
+        {YES_NO_OPTIONS.map((option, index) => (
           <Box key={option.value}>
             {index > 0 && <Divider sx={{ my: 1.5 }} />}
-            <Box
-              sx={{
-                display: 'flex',
-                alignItems: 'flex-start',
-                justifyContent: 'space-between',
-                gap: 1.5,
-                cursor: 'pointer',
-                width: '100%',
-                userSelect: 'none',
-              }}
-              onClick={() => {
-                dispatch(
-                  setField({
-                    field: 'dirittoAccompagnatore',
-                    value: option.value === 'yes',
-                  }),
-                );
-              }}
-            >
-              <Box
-                sx={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'flex-start',
-                  justifyContent: 'center',
-                  lineHeight: 1.2,
-                  flex: 1,
-                }}
-              >
-                <Box component="span" sx={{ fontSize: 20, fontWeight: 600 }}>
-                  {option.label}
-                </Box>
-                {option.subtitle && (
-                  <Box
-                    component="span"
-                    sx={{
-                      display: 'block',
-                      mt: 0.5,
-                      color: 'common.neutral500',
-                      fontSize: 16,
-                      lineHeight: 1.4,
-                    }}
-                  >
-                    {option.subtitle}
+            <FormControlLabel
+              value={option.value}
+              control={
+                <Radio
+                  disableRipple
+                  icon={
+                    <Box
+                      sx={{
+                        width: 22,
+                        height: 22,
+                        borderRadius: '50%',
+                        border: '2px solid',
+                        borderColor: 'common.neutral600',
+                        backgroundColor: 'white',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        transition: 'all 0.2s ease',
+                      }}
+                    />
+                  }
+                  checkedIcon={
+                    <Box
+                      sx={{
+                        width: 22,
+                        height: 22,
+                        borderRadius: '50%',
+                        backgroundColor: 'common.primaryButton',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        transition: 'all 0.2s ease',
+                      }}
+                    >
+                      <CheckRoundedIcon
+                        sx={{
+                          color: 'common.white',
+                          fontSize: 14,
+                          stroke: 'white',
+                          strokeWidth: 1.5,
+                        }}
+                      />
+                    </Box>
+                  }
+                  sx={{
+                    '& .MuiSvgIcon-root': { fontSize: 18 },
+                    mr: 1.5,
+                  }}
+                />
+              }
+              label={
+                <Box sx={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
+                  <Box component="span" sx={{ fontSize: 20, fontWeight: 600 }}>
+                    {option.label}
                   </Box>
-                )}
-              </Box>
-
-              <Box
-                sx={{
-                  width: 22,
-                  height: 22,
-                  borderRadius: '50%',
-                  border: isChecked ? '2px solid transparent' : '2px solid',
-                  borderColor: isChecked ? 'transparent' : 'common.neutral600',
-                  backgroundColor: isChecked ? 'common.primaryButton' : 'white',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  flexShrink: 0,
-                  mt: '2px',
-                  transition: 'all 0.2s ease',
-                }}
-              >
-                {isChecked && (
-                  <CheckRoundedIcon
-                    sx={{
-                      color: 'common.white',
-                      fontSize: 14,
-                      stroke: 'white',
-                      strokeWidth: 1.5,
-                    }}
-                  />
-                )}
-              </Box>
-            </Box>
+                  {option.subtitle && (
+                    <Box
+                      component="span"
+                      sx={{
+                        display: 'block',
+                        mt: 0.5,
+                        color: 'common.neutral500',
+                        fontSize: 16,
+                        lineHeight: 1.4,
+                      }}
+                    >
+                      {option.subtitle}
+                    </Box>
+                  )}
+                </Box>
+              }
+              sx={{
+                width: '100%',
+                m: 0,
+                alignItems: 'flex-start',
+                '& .MuiFormControlLabel-label': { width: '100%' },
+              }}
+            />
           </Box>
-        );
-      })}
+        ))}
+      </RadioGroup>
       {error && helperText && (
         <FormHelperText error sx={{ mt: 1.5 }}>
           {helperText}

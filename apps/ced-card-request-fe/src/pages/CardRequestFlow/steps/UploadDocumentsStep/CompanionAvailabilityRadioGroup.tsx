@@ -12,6 +12,7 @@ import {
   setField,
 } from '../../../../features/confirmation/reducer';
 import { useAppDispatch, useAppSelector } from '../../../../hooks';
+import { useEffect, useRef } from 'react';
 
 const YES_NO_OPTIONS = [
   {
@@ -23,6 +24,8 @@ const YES_NO_OPTIONS = [
   { label: 'No', value: 'no', subtitle: '' },
 ] as const;
 
+const COMPANION_AVAILABILITY_ERROR_ID = 'companion-availability-error';
+
 type CompanionAvailabilityRadioGroupProps = {
   error?: boolean;
   helperText?: string;
@@ -33,16 +36,26 @@ export const CompanionAvailabilityRadioGroup = ({
   helperText,
 }: CompanionAvailabilityRadioGroupProps) => {
   const dispatch = useAppDispatch();
+  const firstRadioRef = useRef<HTMLInputElement>(null);
   const selectedValue = useAppSelector(makeSelectConfirmationField)(
     'dirittoAccompagnatore',
   );
   const currentValue =
     selectedValue === true ? 'yes' : selectedValue === false ? 'no' : '';
 
+  useEffect(() => {
+    if (error) {
+      firstRadioRef.current?.focus();
+    }
+  }, [error]);
+
   return (
     <Box>
       <RadioGroup
         aria-label="Hai diritto all'accompagnatore?"
+        aria-describedby={error ? COMPANION_AVAILABILITY_ERROR_ID : undefined}
+        aria-invalid={error || undefined}
+        aria-required="true"
         name="dirittoAccompagnatore"
         value={currentValue}
         onChange={(_, value) => {
@@ -62,6 +75,7 @@ export const CompanionAvailabilityRadioGroup = ({
               control={
                 <Radio
                   disableRipple
+                  inputRef={index === 0 ? firstRadioRef : undefined}
                   icon={
                     <Box
                       sx={{
@@ -139,7 +153,11 @@ export const CompanionAvailabilityRadioGroup = ({
         ))}
       </RadioGroup>
       {error && helperText && (
-        <FormHelperText error sx={{ mt: 1.5 }}>
+        <FormHelperText
+          id={COMPANION_AVAILABILITY_ERROR_ID}
+          error
+          sx={{ mt: 1.5 }}
+        >
           {helperText}
         </FormHelperText>
       )}

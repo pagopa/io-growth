@@ -38,7 +38,7 @@ export const useDevRoleSwitcher = (partyRoleMap: Record<string, Role>) => {
 
       if (import.meta.env.DEV && devToken) {
         navigate(
-          `${APP_ROUTES.AUTHORIZE}?token=${encodeURIComponent(devToken)}`,
+          `${APP_ROUTES.AUTHORIZE}#token=${encodeURIComponent(devToken)}`,
           {
             replace: true,
           },

@@ -5,6 +5,7 @@ import type {
 import type { Result } from "neverthrow";
 
 import type {
+  BenefitSummary,
   Opportunity,
   OpportunityDetail,
   OpportunitySummary,
@@ -88,6 +89,9 @@ export interface OpportunityRepository {
   readonly suspendByIdAndOperatorId: (
     input: SuspendByIdAndOperatorIdInput,
   ) => Promise<Result<void, ConflictError | GenericError>>;
+  readonly updateByIdAndOperatorId: (
+    input: UpdateByIdAndOperatorIdInput,
+  ) => Promise<Result<void, ConflictError | GenericError>>;
   readonly updateStatusById: (
     input: UpdateOpportunityStatusByIdInput,
   ) => Promise<Result<void, ConflictError | GenericError>>;
@@ -124,6 +128,24 @@ export interface SuspendByIdInput {
   opportunityId: string;
   suspendFrom?: string;
   suspensionMessage: string;
+}
+
+export interface UpdateByIdAndOperatorIdInput {
+  beneficiaryBenefit: BenefitSummary;
+  caregiverBenefit?: BenefitSummary;
+  categoryId: string;
+  dateFrom: string;
+  dateTo?: string;
+  // Client-provided value for the optimistic-concurrency CAS (ISO, ms precision).
+  expectedUpdatedAt: string;
+  localizedMetadata: OpportunityDetail["localizedMetadata"];
+  nationalTerritory: boolean;
+  operatorId: string;
+  opportunityId: string;
+  placeIds: string[];
+  // Next persisted status, already computed by the application status resolver.
+  status: Opportunity["status"];
+  url?: string;
 }
 
 export interface UpdateOpportunityStatusByIdAndOperatorIdInput {

@@ -1,4 +1,3 @@
 # Ignore files generated from the OpenAPI specification.
 src/generated
 dist
-

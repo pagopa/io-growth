@@ -5,21 +5,20 @@ meta {
 }
 
 get {
-  url: {{baseUrl}}/acs?token={{tokenAdminTest}}
+  url: {{baseUrl}}/acs
   body: none
-  auth: none
 }
 
-params:query {
+auth {
+  mode: bearer
+}
+
+auth:bearer {
   token: {{tokenAdminTest}}
-  ~token: {{token}}
-  ~token: {{tokenAdmin}}
-  ~token: {{tokenTest}}
 }
 
 script:post-response {
   if (res.status === 200) {
-    bru.setEnvVar("sessionToken", res.body.session_token, { persist: false });
-  
-    }
+    bru.setEnvVar("sessionId", res.body.sessionId, { persist: false });
+  }
 }

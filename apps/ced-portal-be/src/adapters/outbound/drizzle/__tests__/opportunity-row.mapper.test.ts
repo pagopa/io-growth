@@ -98,6 +98,7 @@ describe("mapOpportunityDetailRow", () => {
       ],
       nationalTerritory: false,
       placeIds: ["01JVMK3N8XQZP5T6G2WYHAB4CE"],
+      rejectionMessage: null,
       status: "draft",
       suspendedBy: null,
       suspendFrom: null,

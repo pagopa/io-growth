@@ -12,6 +12,7 @@ import {
 import { useState } from 'react';
 
 interface RequestChangesModalProps {
+  isLoading?: boolean;
   open: boolean;
   onClose: () => void;
   onConfirm: (message: string) => void;
@@ -20,6 +21,7 @@ interface RequestChangesModalProps {
 const MAX_LENGTH = 300;
 
 export function RequestChangesModal({
+  isLoading = false,
   open,
   onClose,
   onConfirm,
@@ -39,8 +41,6 @@ export function RequestChangesModal({
       return;
     }
     onConfirm(message);
-    setMessage('');
-    setError(false);
   };
 
   return (
@@ -99,9 +99,10 @@ export function RequestChangesModal({
               color="primary"
               size="large"
               onClick={handleConfirm}
+              disabled={isLoading}
               sx={{ fontWeight: 700, borderRadius: 2, px: 4 }}
             >
-              Conferma
+              {isLoading ? 'Invio in corso' : 'Conferma'}
             </Button>
           </Box>
         </Stack>

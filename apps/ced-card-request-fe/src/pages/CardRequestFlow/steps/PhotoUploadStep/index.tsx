@@ -1,5 +1,5 @@
 import FileUploadOutlinedIcon from '@mui/icons-material/FileUploadOutlined';
-import { Box, Button, useTheme } from '@mui/material';
+import { alpha, Box, Button, useTheme } from '@mui/material';
 import {
   Body,
   ErrorBody,
@@ -205,7 +205,7 @@ export const PhotoUploadStep = forwardRef<StepRef, PhotoUploadProps>(
 
         <Box
           sx={{
-            backgroundColor: 'rgb(109,139,238, 0.08)',
+            backgroundColor: alpha(theme.palette.common.primaryButton, 0.08),
             mt: 3,
             border: `2px dashed ${error ? theme.palette.error.main : theme.palette.common.primaryButton}`,
             borderRadius: 2,

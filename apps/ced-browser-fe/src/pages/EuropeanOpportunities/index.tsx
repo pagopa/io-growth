@@ -10,6 +10,9 @@ import {
   Typography,
 } from '@mui/material';
 import { PageHeader } from '../../components';
+import { useTrackLandedInPage } from '../../mixpanel/useTrackLandedInPage';
+import { useCallback } from 'react';
+import { trackBrowserEvent } from '../../mixpanel/trackEvent';
 
 interface EuropeanOpportunity {
   country: string;
@@ -48,6 +51,18 @@ const opportunities: EuropeanOpportunity[] = [
 ];
 
 export default function EuropeanOpportunitiesPage() {
+  useTrackLandedInPage('CED_EUROPE_OPPORTUNITY_LIST');
+
+  const euOpportunityClick = useCallback(
+    ({ url, country }: { url: string; country: string }) => {
+      trackBrowserEvent('CED_EUROPE_COUNTRY_SELECTED', {
+        country_selected: country,
+      });
+      window.open(url, '_blank', 'noopener,noreferrer');
+    },
+    [],
+  );
+
   if (opportunities.length === 0) {
     return (
       <Box>
@@ -77,15 +92,19 @@ export default function EuropeanOpportunitiesPage() {
       />
       <Box sx={{ px: 2 }}>
         <List disablePadding>
-          {opportunities.map((opportunity, index) => (
-            <Box key={opportunity.country}>
+          {opportunities.map(({ url, country }, index) => (
+            <Box key={country}>
               <ListItem disablePadding>
                 <ListItemButton
                   component="a"
-                  href={opportunity.url}
+                  href={url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  aria-label={`${opportunity.country}, si apre in una risorsa esterna`}
+                  aria-label={`${country}, si apre in una risorsa esterna`}
+                  onClick={(event) => {
+                    event.preventDefault();
+                    euOpportunityClick({ url, country });
+                  }}
                   sx={{ py: 2 }}
                 >
                   <ListItemIcon sx={{ minWidth: 40 }}>
@@ -103,7 +122,7 @@ export default function EuropeanOpportunitiesPage() {
                           textDecoration: 'underline',
                         }}
                       >
-                        {opportunity.country}
+                        {country}
                       </Typography>
                     }
                   />

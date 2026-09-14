@@ -106,6 +106,28 @@ export const makeGetOperatorPlaceUseCase =
 - Use `createHttpHandler`, `createHttpRequestValidator`, `createHttpResponseFormatter`, and `withSession` from `@pagopa/io-core-adapter-fastify`
 - Handlers validate HTTP input then delegate to the use case — no business logic here
 
+### HTTP Mutation Conventions
+
+- Use **POST** to create a new resource or start a workflow that creates one.
+- Use **PUT** to replace the complete writable representation of an existing
+  resource. The request must contain every required writable field on every
+  call. Optional writable fields are cleared when omitted, so PUT request
+  schemas must not use JSON Merge Patch semantics or require explicit `null`
+  values for deletion.
+- PUT request schemas must contain only writable fields and use
+  `additionalProperties: false`. Do not accept a full GET response and then
+  silently ignore immutable fields such as `id`, `status`, `createdAt`, or
+  derived display fields.
+- PUT persistence adapters must write the complete writable aggregate on every
+  successful update, including unchanged scalar values and relations. Use
+  cases may still reject changes to a writable field when the resource state
+  forbids them.
+- Use **PATCH** for command-like or state-transition operations that do not
+  replace the resource representation, such as request-test, publish,
+  suspend, cancel-suspension, approve, or soft-delete. Prefer a dedicated
+  PATCH command when the intended operation is “change status” rather than
+  “edit the resource”.
+
 ### Outbound Adapters (`adapters/outbound/`)
 
 - Implement port interfaces using a specific technology

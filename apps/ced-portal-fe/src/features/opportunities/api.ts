@@ -90,7 +90,7 @@ const opportunitiesApi = baseApi.injectEndpoints({
     >({
       query: ({ id, payload }) => ({
         url: `/operator/opportunities/${id}`,
-        method: 'PATCH',
+        method: 'PUT',
         body: payload,
       }),
       invalidatesTags: (_result, _error, { id }) => [

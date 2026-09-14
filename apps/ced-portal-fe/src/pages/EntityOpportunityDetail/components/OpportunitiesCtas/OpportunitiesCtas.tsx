@@ -5,7 +5,7 @@ import {
   DeleteOpportunityModal,
   SuspendOpportunityModal,
 } from '../../../Home/components/OpportunityActionModal';
-import { ModifyOpportunityModal } from './ModifyOpportunityModal';
+import { ModifyOpportunityModal } from '../../../../components/ModifyOpportunityModal';
 
 const CTA_BUTTON_SX = { fontWeight: 700, borderRadius: 2, px: 3 };
 

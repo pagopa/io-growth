@@ -143,6 +143,8 @@ export const useCreateOpportunity = () => {
           id: sourceOpportunityId,
           payload: {
             ...payload,
+            nationalTerritory: opportunity.nationalTerritory ?? false,
+            placeIds: [...locationsIds, ...websiteIds],
             updatedAt: sourceOpportunityUpdatedAt,
           },
         }).unwrap();

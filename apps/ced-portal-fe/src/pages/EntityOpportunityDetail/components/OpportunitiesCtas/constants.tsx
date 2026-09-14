@@ -29,7 +29,9 @@ export const CTAS_BY_STATUS: Partial<
     rightCtas: [MODIFY_CTA],
   },
   test_pending: {},
-  test_passed: {},
+  test_passed: {
+    rightCtas: [MODIFY_CTA],
+  },
   scheduled: {
     leftCtas: [DELETE_CTA],
     rightCtas: [MODIFY_CTA],

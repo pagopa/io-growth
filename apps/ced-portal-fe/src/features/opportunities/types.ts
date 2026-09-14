@@ -5,6 +5,7 @@ import type { OpportunityDetailAdminResponse } from '../../generated/model/oppor
 import type { OpportunityDetailResponse } from '../../generated/model/opportunityDetailResponse';
 import type { OpportunityListResponse } from '../../generated/model/opportunityListResponse';
 import type { OpportunitySummaryItem } from '../../generated/model/opportunitySummaryItem';
+import type { OpportunityCreateRequest } from '../../generated/model/opportunityCreateRequest';
 export { type LocalizedMetadataItem } from '../../generated/model/localizedMetadataItem';
 export { OpportunitySummaryItemStatus as OpportunityStatusEnum } from '../../generated/model/opportunitySummaryItemStatus';
 
@@ -43,18 +44,19 @@ export interface ListAdminOpportunitiesParams {
 
 export type ApproveOpportunityPayload = ApproveOpportunityBody;
 
-export interface OpportunityUpdatePayload {
-  updatedAt: string;
-  dateFrom?: string;
-  dateTo?: string | null;
-  url?: string | null;
-  categoryId?: string;
-  nationalTerritory?: boolean;
-  placeIds?: string[];
-  beneficiaryBenefit?: OpportunityDetail['beneficiaryBenefit'];
-  caregiverBenefit?: OpportunityDetail['caregiverBenefit'] | null;
-  localizedMetadata?: OpportunityDetail['localizedMetadata'];
-}
+export type OpportunityUpdatePayload = Pick<
+  OpportunityDetail,
+  | 'updatedAt'
+  | 'dateFrom'
+  | 'categoryId'
+  | 'nationalTerritory'
+  | 'placeIds'
+  | 'beneficiaryBenefit'
+  | 'localizedMetadata'
+> &
+  Partial<
+    Pick<OpportunityCreateRequest, 'dateTo' | 'url' | 'caregiverBenefit'>
+  >;
 
 export interface SuspendOpportunityPayload {
   suspensionMessage: string;

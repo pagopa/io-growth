@@ -26,7 +26,11 @@ import { useCreateOpportunity } from './hooks/useCreateOpportunity';
 import type { CreateBenefitNavigationState } from './types';
 import { useHydrateFromSourceOpportunity } from './hooks/useHydrateFromSourceOpportunity';
 import { selectNationalTerritory } from '../../features/opportunityCreation/selectors';
-import { resetForm } from '../../features/opportunityCreation/opportunityCreationSlice';
+import {
+  resetForm,
+  type OpportunityCreationForm,
+} from '../../features/opportunityCreation/opportunityCreationSlice';
+import { selectOpportunityForm } from '../../features/opportunityCreation/selectors';
 
 export interface StepProps {
   attempted: boolean;
@@ -42,6 +46,33 @@ const STEPS: StepConfig[] = [
   { label: 'Inserisci i dettagli', component: StepOne },
   { label: 'Indica i punti di accesso', component: StepTwo },
 ];
+
+const REVIEW_ON_UPDATE_STATUSES = new Set(['draft', 'test_rejected']);
+
+const BENEFIT_REVIEW_STATUSES = new Set([
+  'scheduled',
+  'published',
+  'suspended',
+]);
+
+const benefitsAreEqual = (
+  current: OpportunityCreationForm['beneficiaryBenefit'] | null | undefined,
+  source: OpportunityCreationForm['beneficiaryBenefit'] | null | undefined,
+) => {
+  if (!current || !source) {
+    return current === source || (!current && !source);
+  }
+
+  return (
+    current.type === source.type &&
+    ('value' in current ? current.value : undefined) ===
+      ('value' in source ? source.value : undefined) &&
+    ('discountType' in current ? current.discountType : undefined) ===
+      ('discountType' in source ? source.discountType : undefined) &&
+    ('description' in current ? current.description : undefined) ===
+      ('description' in source ? source.description : undefined)
+  );
+};
 
 export default function CreateBenefitPage() {
   const dispatch = useAppDispatch();
@@ -68,11 +99,27 @@ export default function CreateBenefitPage() {
     useRequestApprovalMutation();
 
   const accessPoint = useAppSelector(selectAccessPoint);
+  const opportunityForm = useAppSelector(selectOpportunityForm);
   const nationwide = useAppSelector(selectNationalTerritory);
   const selectedLocationIds = useAppSelector(selectSelectedLocationIds);
   const selectedWebsiteIds = useAppSelector(selectSelectedWebsiteIds);
 
   const isFirstStepValid = useGetFirstStepValidation();
+
+  const benefitsChanged = sourceOpportunity
+    ? !benefitsAreEqual(
+        opportunityForm.beneficiaryBenefit,
+        sourceOpportunity.beneficiaryBenefit,
+      ) ||
+      !benefitsAreEqual(
+        opportunityForm.caregiverBenefit,
+        sourceOpportunity.caregiverBenefit,
+      )
+    : true;
+  const isReviewRequired = sourceOpportunity
+    ? REVIEW_ON_UPDATE_STATUSES.has(sourceOpportunity.status) ||
+      (BENEFIT_REVIEW_STATUSES.has(sourceOpportunity.status) && benefitsChanged)
+    : true;
 
   const isStepValid = (step: number): boolean => {
     if (step === 0) return isFirstStepValid;
@@ -253,14 +300,19 @@ export default function CreateBenefitPage() {
             onNext={handleNext}
             onSaveDraft={handleSaveDraft}
             isSavingDraft={isCreatingOpportunity}
+            isReviewRequired={isReviewRequired}
           />
         </Container>
       </Box>
       <AppModal
         open={submitReviewOpen}
         onClose={() => setSubmitReviewOpen(false)}
-        title="Invia in revisione"
-        description="Il Dipartimento effettuerà la revisione della tua opportunità. Il processo potrebbe richiedere un po' di tempo. Se approvata, sarà pubblicata su IO a partire dalla data di inizio validità che hai scelto."
+        title={isReviewRequired ? 'Invia in revisione' : 'Modifica opportunità'}
+        description={
+          isReviewRequired
+            ? "Il Dipartimento effettuerà la revisione della tua opportunità. Il processo potrebbe richiedere un po' di tempo. Se approvata, sarà pubblicata su IO a partire dalla data di inizio validità che hai scelto."
+            : 'Le modifiche verranno salvate immediatamente.'
+        }
       >
         <Button
           variant="contained"
@@ -268,7 +320,7 @@ export default function CreateBenefitPage() {
           onClick={handleConfirmSubmitReview}
           disabled={isCreatingOpportunity || isRequestingApproval}
         >
-          Invia in revisione
+          {isReviewRequired ? 'Invia in revisione' : 'Salva modifiche'}
         </Button>
       </AppModal>
     </Box>

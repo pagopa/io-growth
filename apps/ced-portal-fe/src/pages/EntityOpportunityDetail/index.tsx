@@ -168,6 +168,24 @@ export default function OpportunityDetailPage() {
           onCancelSuccess={refetch}
         />
 
+        {detail.status === 'test_rejected' && detail.rejectionMessage && (
+          <Box
+            sx={{
+              border: (theme) => `1px solid ${theme.palette.divider}`,
+              borderRadius: 1,
+              px: 2,
+              py: 1.5,
+            }}
+          >
+            <Typography sx={{ fontWeight: 700, fontSize: 16 }}>
+              Modifiche richieste dal Dipartimento
+            </Typography>
+            <Typography sx={{ mt: 0.5, color: 'text.secondary', fontSize: 16 }}>
+              {detail.rejectionMessage}
+            </Typography>
+          </Box>
+        )}
+
         <OpportunityDetailCard detail={detail} />
 
         <OpportunityDetailListSection

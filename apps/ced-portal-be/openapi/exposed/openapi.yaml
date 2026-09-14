@@ -1369,6 +1369,49 @@ paths:
               example:
                 statusCode: 412
                 message: Precondition Failed
+  /opportunities/{opportunityId}/request-changes:
+    patch:
+      tags:
+        - Opportunities
+      summary: Request changes to an opportunity (department only)
+      operationId: requestOpportunityChanges
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: opportunityId
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: "^[0-9A-HJKMNP-TV-Z]{26}$"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required:
+                - rejectionMessage
+              properties:
+                rejectionMessage:
+                  type: string
+                  minLength: 1
+                  maxLength: 300
+                  description: Requested changes. Leading/trailing whitespace is trimmed.
+      responses:
+        "204":
+          description: Changes requested
+        "401":
+          description: Invalid or missing JWT
+        "403":
+          description: Forbidden
+        "404":
+          description: Opportunity not found
+        "409":
+          description: Concurrent status modification
+        "412":
+          description: Opportunity is not under review
   /opportunities/{opportunityId}/suspension/schedule:
     patch:
       tags:
@@ -2522,6 +2565,11 @@ components:
           description: >-
             Reason provided for the suspension (raw text). null when not
             suspended.
+        rejectionMessage:
+          type: string
+          maxLength: 300
+          nullable: true
+          description: Requested changes from the department. null when no changes were requested.
     OpportunityDetailAdminResponse:
       type: object
       additionalProperties: false
@@ -2599,6 +2647,11 @@ components:
             Reason the opportunity was deleted (raw text). Present only for
             opportunities deleted from a suspended state; null otherwise.
             Exposed to department/admin only.
+        rejectionMessage:
+          type: string
+          maxLength: 300
+          nullable: true
+          description: Requested changes from the department. null when no changes were requested.
         suspendedBy:
           type: string
           enum:

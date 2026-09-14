@@ -10,6 +10,7 @@ export { mountAdminApproveOpportunityHandler } from "./opportunities/admin-appro
 export { mountAdminCancelScheduledSuspensionHandler } from "./opportunities/admin-cancel-scheduled-suspension.handler.js";
 export { mountAdminGetOpportunityHandler } from "./opportunities/admin-get-opportunity.handler.js";
 export { mountAdminListOpportunitiesHandler } from "./opportunities/admin-list-opportunities.handler.js";
+export { mountAdminRequestOpportunityChangesHandler } from "./opportunities/admin-request-opportunity-changes.handler.js";
 export { mountAdminSuspendOpportunityHandler } from "./opportunities/admin-suspend-opportunity.handler.js";
 export { mountOperatorCancelScheduledSuspensionHandler } from "./opportunities/operator-cancel-scheduled-suspension.handler.js";
 export { mountOperatorCreateOpportunityHandler } from "./opportunities/operator-create-opportunity.handler.js";

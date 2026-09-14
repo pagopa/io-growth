@@ -30,6 +30,7 @@ import type {
   OpportunitySearchField,
   OpportunityStatusFilter,
   PaginatedOpportunities,
+  RequestChangesByIdInput,
   SuspendByIdAndOperatorIdInput,
   SuspendByIdInput,
   UpdateByIdAndOperatorIdInput,
@@ -138,6 +139,7 @@ const findByIdAndOperatorId = async (
         id: true,
         nationalTerritory: true,
         operatorId: true,
+        rejectionMessage: true,
         status: true,
         suspendedBy: true,
         suspendFrom: true,
@@ -202,6 +204,7 @@ const findById =
           id: true,
           nationalTerritory: true,
           operatorId: true,
+          rejectionMessage: true,
           status: true,
           suspendedBy: true,
           suspendFrom: true,
@@ -272,6 +275,42 @@ const updateStatusById =
       return err(
         new GenericError(
           `Failed to update opportunity status: ${String(error)}`,
+        ),
+      );
+    }
+  };
+
+const requestChangesById =
+  (db: TypedDbClient<typeof schema>) =>
+  async (
+    input: RequestChangesByIdInput,
+  ): Promise<Result<void, ConflictError | GenericError>> => {
+    try {
+      const result = await db
+        .update(opportunity)
+        .set({
+          rejectionMessage: input.rejectionMessage,
+          status: OPPORTUNITY_STATUS.TEST_REJECTED,
+          updatedAt: new Date(),
+        })
+        .where(
+          and(
+            eq(opportunity.id, input.opportunityId),
+            eq(opportunity.status, input.expectedStatus),
+          ),
+        );
+
+      if (result.count === 0) {
+        return err(
+          new ConflictError("Opportunity status was modified concurrently"),
+        );
+      }
+
+      return ok(undefined);
+    } catch (error) {
+      return err(
+        new GenericError(
+          `Failed to request opportunity changes: ${String(error)}`,
         ),
       );
     }
@@ -749,6 +788,8 @@ export const createDrizzleOpportunityRepository = (
 
   findByIdAndOperatorId: async (input: FindByIdAndOperatorIdInput) =>
     findByIdAndOperatorId(db, input),
+
+  requestChangesById: requestChangesById(db),
 
   suspendById: suspendById(db),
 

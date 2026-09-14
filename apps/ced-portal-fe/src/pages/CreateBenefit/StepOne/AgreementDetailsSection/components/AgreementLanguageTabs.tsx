@@ -2,7 +2,7 @@ import { Tab, Tabs } from '@mui/material';
 import { useAppDispatch, useAppSelector } from '../../../../../hooks';
 import { AGREEMENT_LANGUAGE_TABS } from '../../AgreementCompanionSection/utils/agreementLanguageTabs.config';
 import { setActiveLanguage } from '../../../../../features/opportunityCreation/opportunityCreationSlice';
-import { LocalizedMetadataItemLanguage } from '../../../../../core/api/generated/model';
+import { LocalizedMetadataItemLanguage } from '../../../../../generated/model';
 import { selectActiveFormLanguage } from '../../../../../features/opportunityCreation/selectors';
 
 export function AgreementLanguageTabs() {

@@ -2,7 +2,7 @@ import {
   BenefitDiscountDiscountType,
   BenefitRequest,
   LocalizedMetadataItemLanguage,
-} from '../../core/api/generated/model';
+} from '../../generated/model';
 
 type BenefitTypeMap = Record<BenefitRequest['type'], string>;
 

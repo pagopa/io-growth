@@ -7,7 +7,7 @@ import {
 } from '../../../../features/opportunities/api';
 import { useToast } from '../../../../contexts';
 import { APP_ROUTES } from '../../../../app/routeConfig';
-import type { OperatorDeleteOpportunityBody } from '../../../../core/api/generated/model';
+import type { OperatorDeleteOpportunityBody } from '../../../../generated/model';
 import type {
   OpportunityStatus,
   SuspendOpportunityPayload,

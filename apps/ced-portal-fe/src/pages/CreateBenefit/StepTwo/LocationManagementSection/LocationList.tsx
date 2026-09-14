@@ -1,5 +1,5 @@
 import type { DataTableColumn } from '../../../../components/DataTable/types';
-import type { OfflinePlaceResponse } from '../../../../core/api/generated/model';
+import type { OfflinePlaceResponse } from '../../../../generated/model';
 import { ItemDataTable } from '../components/ItemDataTable';
 
 const columns: DataTableColumn<OfflinePlaceResponse>[] = [

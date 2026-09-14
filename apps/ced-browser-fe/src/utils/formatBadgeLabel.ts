@@ -1,4 +1,4 @@
-import { PlaceBenefit } from '../core/api/generated/model';
+import { PlaceBenefit } from '../generated/model';
 
 export const formatBadgeLabel = (benefit: PlaceBenefit) => {
   if (benefit.type === 'free') return 'GRATIS';

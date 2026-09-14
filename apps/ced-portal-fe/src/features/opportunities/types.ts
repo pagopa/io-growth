@@ -1,12 +1,12 @@
-import type { AdminOpportunitySummaryItem } from '../../core/api/generated/model';
-import type { ApproveOpportunityBody } from '../../core/api/generated/model/approveOpportunityBody';
-import type { ListOperatorOpportunitiesStatus } from '../../core/api/generated/model/listOperatorOpportunitiesStatus';
-import type { OpportunityDetailAdminResponse } from '../../core/api/generated/model/opportunityDetailAdminResponse';
-import type { OpportunityDetailResponse } from '../../core/api/generated/model/opportunityDetailResponse';
-import type { OpportunityListResponse } from '../../core/api/generated/model/opportunityListResponse';
-import type { OpportunitySummaryItem } from '../../core/api/generated/model/opportunitySummaryItem';
-export { type LocalizedMetadataItem } from '../../core/api/generated/model/localizedMetadataItem';
-export { OpportunitySummaryItemStatus as OpportunityStatusEnum } from '../../core/api/generated/model/opportunitySummaryItemStatus';
+import type { AdminOpportunitySummaryItem } from '../../generated/model';
+import type { ApproveOpportunityBody } from '../../generated/model/approveOpportunityBody';
+import type { ListOperatorOpportunitiesStatus } from '../../generated/model/listOperatorOpportunitiesStatus';
+import type { OpportunityDetailAdminResponse } from '../../generated/model/opportunityDetailAdminResponse';
+import type { OpportunityDetailResponse } from '../../generated/model/opportunityDetailResponse';
+import type { OpportunityListResponse } from '../../generated/model/opportunityListResponse';
+import type { OpportunitySummaryItem } from '../../generated/model/opportunitySummaryItem';
+export { type LocalizedMetadataItem } from '../../generated/model/localizedMetadataItem';
+export { OpportunitySummaryItemStatus as OpportunityStatusEnum } from '../../generated/model/opportunitySummaryItemStatus';
 
 interface OpportunitySuspensionMetadata {
   suspendFrom?: string | null;

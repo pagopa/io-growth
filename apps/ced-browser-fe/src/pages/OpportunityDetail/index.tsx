@@ -2,7 +2,7 @@ import { TheaterComedyOutlined } from '@mui/icons-material';
 import OpenInNewOutlinedIcon from '@mui/icons-material/OpenInNewOutlined';
 import { Box, Button, Divider, Link, Stack, useTheme } from '@mui/material';
 import { Body, VSpacer } from '@pagopa/io-core-ui';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useLocation, useParams } from 'react-router-dom';
 import {
   toEntityAccessPointDetailRoute,
   toEntityDetailRoute,
@@ -17,7 +17,13 @@ import { PageErrorType } from '../../components/QueryGuard/ErrorScreen/types.js'
 import { useGetOpportunityDetailQuery } from '../../features/opportunities/api.js';
 import { formatAddress } from '../../utils/formatAddress.js';
 import { formatBadgeLabel } from '../../utils/formatBadgeLabel.js';
+import { useTrackLandedInPage } from '../../mixpanel/useTrackLandedInPage.js';
+import { useCallback } from 'react';
+import { trackBrowserEvent } from '../../mixpanel/trackEvent.js';
+import { useTrackErrorEvent } from '../../mixpanel/useTrackErrorEvent.js';
+import { Place } from '../../generated/model/place.js';
 import { MIChip } from '@pagopa/mui-italia';
+import { OpportunityDetail } from '../../generated/model/opportunityDetail.js';
 
 function formatPlacesAddress(venue: {
   street?: string | null;
@@ -32,6 +38,10 @@ function formatPlacesAddress(venue: {
 
 export default function OpportunityDetailPage() {
   const { id } = useParams<{ id: string }>();
+  const location = useLocation();
+
+  const state = location.state as { source: string };
+
   const navigate = useNavigate();
   const theme = useTheme();
 
@@ -48,6 +58,63 @@ export default function OpportunityDetailPage() {
   };
 
   const categoryLabel = (category: string) => category.toUpperCase();
+
+  useTrackLandedInPage(
+    'CED_OPPORTUNITY_DETAIL',
+    {
+      opportunity_name: data?.name ?? '',
+      organization_name: data?.profile.displayName ?? '',
+      organization_fiscal_code: '',
+      location_name: data?.places[0]?.name ?? '',
+      source: state?.source,
+    },
+    !!data,
+  );
+
+  useTrackErrorEvent(
+    'CED_PAGE_DETAIL_ERROR',
+    !!(isError || (!data && !isLoading)),
+  );
+
+  const handleGoToITWClick = useCallback(() => {
+    trackBrowserEvent('CED_GO_TO_ITW_CREDENTIAL', {
+      opportunity_name: data?.name ?? '',
+    });
+    window.location.replace('ioit://wallet');
+  }, [data?.name]);
+
+  const handleEntityClick = useCallback(
+    (opportunity: OpportunityDetail) => {
+      trackBrowserEvent('CED_ORGANIZATION_SELECTED', {
+        organization_name: opportunity.profile.displayName,
+        organization_fiscal_code: '',
+      });
+      navigate(toEntityDetailRoute(opportunity.profile.id), {
+        state: { source: 'opportunity_detail' },
+      });
+    },
+    [navigate],
+  );
+
+  const handleLocationClick = useCallback(
+    ({
+      name,
+      profile,
+      id: placeId,
+    }: Place & Pick<OpportunityDetail, 'profile'>) => {
+      // Some values from the search API are not yet available in the current response model.
+      trackBrowserEvent('CED_LOCATION_SELECTED', {
+        event_type: 'tap',
+        organization_name: profile.displayName,
+        organization_fiscal_code: '',
+        location_name: name,
+      });
+      navigate(toEntityAccessPointDetailRoute(placeId), {
+        state: { source: 'opportunity_detail' },
+      });
+    },
+    [navigate],
+  );
 
   return (
     <QueryGuard
@@ -184,6 +251,11 @@ export default function OpportunityDetailPage() {
                     </Body>
                     <Link
                       href={resolvedData.url}
+                      onClick={() =>
+                        trackBrowserEvent('CED_OPPORTUNITY_WEBSITE', {
+                          opportunity_name: data?.name ?? '',
+                        })
+                      }
                       target="_blank"
                       rel="noreferrer"
                       sx={{
@@ -210,7 +282,10 @@ export default function OpportunityDetailPage() {
                   title={place.name}
                   subtitle={formatPlacesAddress(place)}
                   onClick={() =>
-                    navigate(toEntityAccessPointDetailRoute(place.id))
+                    handleLocationClick({
+                      ...place,
+                      profile: resolvedData.profile,
+                    })
                   }
                   sx={{ px: 0, bgcolor: 'background.paper' }}
                 />
@@ -226,9 +301,7 @@ export default function OpportunityDetailPage() {
                   resolvedData.profile.place.website ??
                   formatAddress(resolvedData.profile.place.address)
                 }
-                onClick={() =>
-                  navigate(toEntityDetailRoute(resolvedData.profile.id))
-                }
+                onClick={() => handleEntityClick(resolvedData)}
                 sx={{ px: 0, bgcolor: 'background.paper' }}
               />
             </Box>
@@ -242,6 +315,7 @@ export default function OpportunityDetailPage() {
           >
             <Button
               fullWidth
+              onClick={handleGoToITWClick}
               variant="contained"
               size="large"
               sx={{

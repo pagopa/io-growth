@@ -9,7 +9,7 @@ import tseslint from 'typescript-eslint';
 const { configs: tsConfigs, plugin: tsPlugin, parser: tsParser } = tseslint;
 
 export default tseslint.config(
-  { ignores: ['dist', 'build', '**/src/core/api/generated/**'] },
+  { ignores: ['dist', 'build', '**/src/generated/**'] },
 
   {
     files: ['**/*.{ts,tsx}'],

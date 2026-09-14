@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import type { DraftDataResponse } from '../../../core/api/generated/model';
+import type { DraftDataResponse } from '../../../generated/model';
 
 import { buildRecoveredDraftState } from '../draftRecovery';
 

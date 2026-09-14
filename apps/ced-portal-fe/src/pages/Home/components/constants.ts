@@ -1,5 +1,5 @@
 import type { MIChipProps } from '@pagopa/mui-italia';
-import type { OpportunitySummaryItemStatus } from '../../../core/api/generated/model';
+import type { OpportunitySummaryItemStatus } from '../../../generated/model';
 
 export const opportunityStatusLabelMap: Record<
   OpportunitySummaryItemStatus,

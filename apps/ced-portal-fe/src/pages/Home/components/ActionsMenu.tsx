@@ -7,7 +7,7 @@ import type {
   OperatorDeleteOpportunityBody,
   OpportunitySummaryItemStatus,
   OpportunitySummaryItemSuspendedBy,
-} from '../../../core/api/generated/model';
+} from '../../../generated/model';
 import {
   DeleteOpportunityModal,
   SuspendOpportunityModal,

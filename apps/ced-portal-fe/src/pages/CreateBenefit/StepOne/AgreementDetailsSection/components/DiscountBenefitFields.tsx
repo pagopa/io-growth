@@ -17,7 +17,7 @@ import { FieldWithIcon } from './FieldWithIcon';
 import {
   BenefitDiscountDiscountType,
   BenefitDiscountType,
-} from '../../../../../core/api/generated/model';
+} from '../../../../../generated/model';
 import { setBenefit } from '../../../../../features/opportunityCreation/opportunityCreationSlice';
 
 export const DiscountBenefitFields = () => {

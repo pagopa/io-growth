@@ -3,7 +3,7 @@ import type {
   OpportunityDetail,
   OpportunitySearchResponse,
   SearchOpportunitiesParams,
-} from '../../core/api/generated/model/index.js';
+} from '../../generated/model/index.js';
 import { searchQueryGenerator } from '../../utils/searchQueryGenerator.js';
 
 const opportunitiesApi = baseApi.injectEndpoints({

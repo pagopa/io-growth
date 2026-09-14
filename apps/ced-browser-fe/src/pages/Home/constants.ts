@@ -3,7 +3,7 @@ import {
   OpportunitySearchResult,
   OpportunitySearchResultBeneficiaryBenefitDiscountType,
   OpportunitySearchResultBeneficiaryBenefitType,
-} from '../../core/api/generated/model';
+} from '../../generated/model';
 
 const getImageAsset = (
   entityId: string,

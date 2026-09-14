@@ -1,7 +1,7 @@
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
 import type { RootState } from '../../core/store';
 import { isValidHttpsUrl } from '../../utils';
-import type { SupportContactCreateRequest } from '../../core/api/generated/model';
+import type { SupportContactCreateRequest } from '../../generated/model';
 
 interface WebsiteFormState {
   name: string | null;

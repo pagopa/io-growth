@@ -39,6 +39,7 @@ declare module '@mui/material/styles' {
     decorativeBlue: string;
     decorativeCyan: string;
     neutral900: string;
+    neutral600: string;
     neutral500: string;
     badgeBg: string;
     badgeText: string;
@@ -77,6 +78,7 @@ const createAppTheme = () =>
         decorativeBlue: DECORATIVE_BLUE,
         decorativeCyan: DECORATIVE_CYAN,
         neutral900: NEUTRAL_900,
+        neutral600: NEUTRAL_600,
         neutral500: NEUTRAL_500,
         badgeBg: BADGE_BG,
         badgeText: BADGE_TEXT,

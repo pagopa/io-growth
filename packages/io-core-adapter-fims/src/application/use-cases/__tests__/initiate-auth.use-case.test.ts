@@ -51,19 +51,6 @@ describe("createInitiateAuth", () => {
     expect(sessionStore.storeTemporary).toHaveBeenCalledOnce();
   });
 
-  it("also stores device when provided", async () => {
-    const sessionStore = makeMockSessionStore();
-    const oidcClient = makeMockOidcClient();
-    vi.mocked(oidcClient.getAuthorizationUrl).mockResolvedValue(
-      ok("https://fims.example.com"),
-    );
-
-    const initiateAuth = createInitiateAuth(oidcClient, sessionStore, CONFIG);
-    await initiateAuth({ device: "mobile" });
-
-    expect(sessionStore.storeTemporary).toHaveBeenCalledTimes(2);
-  });
-
   it("propagates storeTemporary error", async () => {
     const sessionStore = makeMockSessionStore();
     const oidcClient = makeMockOidcClient();

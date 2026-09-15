@@ -46,7 +46,7 @@ resource "azurerm_api_management_api" "ced_portal_be_v1" {
 
   import {
     content_format = "openapi-link"
-    content_value  = "https://raw.githubusercontent.com/pagopa/io-growth/e83fafb047a366659451e04c3d80a0b1efdf3e6c/apps/ced-portal-be/openapi/exposed/openapi.yaml"
+    content_value  = "https://raw.githubusercontent.com/pagopa/io-growth/2ddf31ae80cba7a44b08cfdebe042d93b3728325/apps/ced-portal-be/openapi/exposed/openapi.yaml"
   }
 }
 

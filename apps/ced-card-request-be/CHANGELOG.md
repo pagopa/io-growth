@@ -1,5 +1,13 @@
 # ced-card-request-be
 
+## 0.3.1
+
+### Patch Changes
+
+- 91f7384: Remove device parameter passthrough on FIMS auth flow
+- Updated dependencies [91f7384]
+  - @pagopa/io-core-adapter-fims@0.0.11
+
 ## 0.3.0
 
 ### Minor Changes

@@ -13,16 +13,17 @@ import type {
   AcsOutput,
 } from "../../../../application/use-cases/auth/acs.use-case.js";
 
-const AUTHORIZE_PAGE_BASE_URL = process.env.CED_PORTAL_FE_BASE_URL;
-
 const acsSchema = zod
   .object({
-    query: zod.object({
-      token: zod.string().min(1),
+    headers: zod.object({
+      authorization: zod
+        .string()
+        .regex(/^Bearer\s+.+$/i)
+        .transform((value) => value.replace(/^Bearer\s+/i, "")),
     }),
   })
-  .transform(({ query }) => ({
-    token: query.token,
+  .transform(({ headers }) => ({
+    token: headers.authorization,
   }));
 
 export const mountAcsHandler = (
@@ -31,10 +32,6 @@ export const mountAcsHandler = (
 ) => {
   fastify.get(
     "/api/acs",
-    createHttpHandler(useCase, createHttpRequestValidator(acsSchema), {
-      redirect: true,
-      redirectUrlBuilder: ({ sessionId }) =>
-        `${AUTHORIZE_PAGE_BASE_URL}/authorize?id=${sessionId}`,
-    }),
+    createHttpHandler(useCase, createHttpRequestValidator(acsSchema)),
   );
 };

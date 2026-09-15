@@ -11,13 +11,13 @@ import type { FimsSession } from "../../entities.js";
  * browser-be must use `browser:…` and card-request-be must use `card:…`).
  */
 export interface FimsSessionStore {
-  /** Delete a temporary key (nonce, OTP, device). */
+  /** Delete a temporary key (nonce, OTP). */
   readonly deleteTemporary: (key: string) => Promise<Result<void, BaseError>>;
   /** Retrieve a durable session by token. Returns null if not found. */
   readonly getSession: (
     token: string,
   ) => Promise<Result<FimsSession | null, BaseError>>;
-  /** Retrieve a temporary value (nonce, OTP, device). Returns null if not found. */
+  /** Retrieve a temporary value (nonce, OTP). Returns null if not found. */
   readonly getTemporary: (
     key: string,
   ) => Promise<Result<null | string, BaseError>>;
@@ -27,7 +27,7 @@ export interface FimsSessionStore {
     session: FimsSession,
     ttlSeconds: number,
   ) => Promise<Result<void, BaseError>>;
-  /** Store a temporary value with TTL (nonce, OTP, device). */
+  /** Store a temporary value with TTL (nonce, OTP). */
   readonly storeTemporary: (
     key: string,
     value: string,

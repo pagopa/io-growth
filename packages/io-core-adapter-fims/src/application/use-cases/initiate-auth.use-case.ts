@@ -11,7 +11,7 @@ import { randomHex } from "./session.helpers.js";
 
 const DEFAULT_OTP_TTL = 60;
 
-export type InitiateAuth = UseCase<{ device?: string }, string, BaseError>;
+export type InitiateAuth = UseCase<Record<string, never>, string, BaseError>;
 
 export const createInitiateAuth = (
   oidcClient: OidcClient,
@@ -20,7 +20,7 @@ export const createInitiateAuth = (
 ): InitiateAuth => {
   const otpTtl = config.otpTtlSeconds ?? DEFAULT_OTP_TTL;
 
-  return async ({ device }) => {
+  return async () => {
     const state = randomHex();
     const nonce = randomHex();
 
@@ -30,15 +30,6 @@ export const createInitiateAuth = (
       otpTtl,
     );
     if (nonceResult.isErr()) return err(nonceResult.error);
-
-    if (device) {
-      const deviceResult = await sessionStore.storeTemporary(
-        `device:${state}`,
-        device,
-        otpTtl,
-      );
-      if (deviceResult.isErr()) return err(deviceResult.error);
-    }
 
     return oidcClient.getAuthorizationUrl(state, nonce);
   };

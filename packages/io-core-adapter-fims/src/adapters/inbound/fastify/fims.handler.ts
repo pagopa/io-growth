@@ -3,15 +3,12 @@ import type { FastifyInstance } from "fastify";
 import {
   createHttpHandler,
   createHttpRequestValidator,
+  emptyValidator,
 } from "@pagopa/io-core-adapter-fastify";
 import { z } from "zod";
 
 import type { FimsAuthFlow } from "../../../application/use-cases/fims-auth-flow.js";
 import type { LollipopHeaders } from "../../../domain/entities.js";
-
-const initiateAuthHttpSchema = z.object({
-  query: z.object({ device: z.string().optional() }),
-});
 
 const callbackHttpSchema = z.object({
   // `.passthrough()` keeps the `x-pagopa-lollipop-*` custom headers that are
@@ -44,7 +41,6 @@ const testSessionHttpSchema = z.object({
 
 type AuthorizeInput = z.infer<typeof authorizeHttpSchema>;
 type CallbackInput = z.infer<typeof callbackHttpSchema>;
-type InitiateAuthInput = z.infer<typeof initiateAuthHttpSchema>;
 type TestSessionInput = z.infer<typeof testSessionHttpSchema>;
 
 /**
@@ -64,12 +60,11 @@ export const mountFimsHandlers = (
   // GET /api/fauth — initiate FIMS authentication
   fastify.get(
     "/api/fauth",
-    createHttpHandler(
-      async ({ query }: InitiateAuthInput) =>
-        fimsAuthFlow.initiateAuth({ device: query.device }),
-      createHttpRequestValidator(initiateAuthHttpSchema),
-      { redirect: true, redirectCode: 302, redirectUrlBuilder: (url) => url },
-    ),
+    createHttpHandler(fimsAuthFlow.initiateAuth, emptyValidator, {
+      redirect: true,
+      redirectCode: 302,
+      redirectUrlBuilder: (url) => url,
+    }),
   );
 
   // GET /api/fcb — FIMS callback from identity provider

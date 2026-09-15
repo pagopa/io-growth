@@ -5,6 +5,7 @@ import type { OpportunityDetailAdminResponse } from '../../generated/model/oppor
 import type { OpportunityDetailResponse } from '../../generated/model/opportunityDetailResponse';
 import type { OpportunityListResponse } from '../../generated/model/opportunityListResponse';
 import type { OpportunitySummaryItem } from '../../generated/model/opportunitySummaryItem';
+import type { OpportunityCreateRequest } from '../../generated/model/opportunityCreateRequest';
 export { type LocalizedMetadataItem } from '../../generated/model/localizedMetadataItem';
 export { OpportunitySummaryItemStatus as OpportunityStatusEnum } from '../../generated/model/opportunitySummaryItemStatus';
 
@@ -42,6 +43,20 @@ export interface ListAdminOpportunitiesParams {
 }
 
 export type ApproveOpportunityPayload = ApproveOpportunityBody;
+
+export type OpportunityUpdatePayload = Pick<
+  OpportunityDetail,
+  | 'updatedAt'
+  | 'dateFrom'
+  | 'categoryId'
+  | 'nationalTerritory'
+  | 'placeIds'
+  | 'beneficiaryBenefit'
+  | 'localizedMetadata'
+> &
+  Partial<
+    Pick<OpportunityCreateRequest, 'dateTo' | 'url' | 'caregiverBenefit'>
+  >;
 
 export interface SuspendOpportunityPayload {
   suspensionMessage: string;

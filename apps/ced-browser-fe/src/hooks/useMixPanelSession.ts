@@ -12,7 +12,7 @@ export const useMixPanelSession = () => {
 
   const cachedDeviceId = useAppSelector(selectDeviceId);
 
-  const deviceIdQuery = params.get('device');
+  const deviceIdQuery = params.get('mixpanelId');
 
   const deviceId = useMemo(
     () => (isEmptySearch ? cachedDeviceId : deviceIdQuery),
@@ -20,8 +20,7 @@ export const useMixPanelSession = () => {
   );
 
   useEffect(() => {
-    // TODO forcing init for test purpose only, after that change with !!deviceId
-    initAnalytics(true, {
+    initAnalytics(!!deviceId, {
       deviceId,
       ANALYTICS_ENABLE: import.meta.env.VITE_ANALYTICS_ENABLE === 'true',
       ANALYTICS_TOKEN: import.meta.env.VITE_ANALYTICS_TOKEN || '',

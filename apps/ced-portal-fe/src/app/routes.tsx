@@ -12,6 +12,7 @@ import {
   OpportunitiesPage,
   OpportunityDetailPage,
   UnauthorizedPage,
+  AcsPage,
   AuthorizePage,
   EntitiesPage,
   EntityDetailPage,
@@ -58,6 +59,7 @@ export function AppRoutes() {
           </Route>
           <Route path={APP_ROUTES.NOT_FOUND} element={<NotFoundPage />} />
         </Route>
+        <Route path={APP_ROUTES.ACS} element={<AcsPage />} />
         <Route path={APP_ROUTES.AUTHORIZE} element={<AuthorizePage />} />
         <Route path={APP_ROUTES.UNAUTHORIZED} element={<UnauthorizedPage />} />
         <Route element={<ProtectedRoute />}>

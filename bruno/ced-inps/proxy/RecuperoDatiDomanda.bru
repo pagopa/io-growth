@@ -15,6 +15,7 @@ headers {
   INPS-Identity-UserId: {{fiscalCode}}
   INPS-Identity-CodiceUfficio: {{inpsOfficeCode}}
   Idempotency-Key: {{$guid}}
+  Accept-Encoding: Identity
 }
 
 body:json {
@@ -27,7 +28,7 @@ body:json {
 script:post-response {
   if (res.status >= 200 && res.status < 300) {
     const photo = res.body?.fotoCED;
-
+  
     if (typeof photo !== "string" || photo.length === 0) {
       bru.visualize("html", {
         name: "Foto CED",
@@ -40,7 +41,7 @@ script:post-response {
         : photoBase64.startsWith("/9j/")
           ? "image/jpeg"
           : undefined;
-
+  
       bru.visualize("html", {
         name: "Foto CED",
         content: imageMimeType

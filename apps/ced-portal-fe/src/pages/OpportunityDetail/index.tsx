@@ -346,7 +346,7 @@ export default function OpportunityDetailPage() {
             }).unwrap();
             setRequestChangesOpen(false);
             navigate(APP_ROUTES.OPPORTUNITIES);
-            showToast('Modifiche richieste con successo', 'success');
+            showToast('Fatto!', 'success');
           } catch {
             showToast(
               "Errore durante l'invio della richiesta di modifiche",

@@ -54,13 +54,22 @@ export function RequestChangesModal({
       <DialogContent sx={{ p: { xs: 3, sm: 4 }, position: 'relative' }}>
         <IconButton
           onClick={handleClose}
-          sx={{ position: 'absolute', top: 16, right: 16 }}
+          aria-label="Chiudi"
+          sx={{
+            position: 'absolute',
+            top: 16,
+            right: 16,
+            color: 'text.primary',
+          }}
         >
           <CloseIcon />
         </IconButton>
 
         <Stack spacing={2.5}>
-          <Typography variant="h5" sx={{ fontWeight: 700 }}>
+          <Typography
+            variant="h5"
+            sx={{ fontWeight: 700, color: 'text.primary' }}
+          >
             Richiedi modifiche
           </Typography>
 
@@ -71,7 +80,9 @@ export function RequestChangesModal({
           </Typography>
 
           <Box>
-            <Typography sx={{ fontWeight: 700, mb: 1 }}>
+            <Typography
+              sx={{ color: 'text.secondary', fontWeight: 700, mb: 1 }}
+            >
               Descrivi la tua richiesta
             </Typography>
             <TextField
@@ -90,6 +101,9 @@ export function RequestChangesModal({
                 if (error) setError(false);
               }}
               inputProps={{ maxLength: MAX_LENGTH }}
+              sx={{
+                '& .MuiOutlinedInput-root': { borderRadius: 2 },
+              }}
             />
           </Box>
 
@@ -100,7 +114,11 @@ export function RequestChangesModal({
               size="large"
               onClick={handleConfirm}
               disabled={isLoading}
-              sx={{ fontWeight: 700, borderRadius: 2, px: 4 }}
+              sx={{
+                borderRadius: 2,
+                fontWeight: 700,
+                px: 4,
+              }}
             >
               {isLoading ? 'Invio in corso' : 'Conferma'}
             </Button>

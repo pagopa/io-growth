@@ -37,12 +37,5 @@ export const buildSessionAndRedirect = async (
   if (otpResult.isErr())
     return err(new UnauthorizedError("Cannot create session OTP"));
 
-  // Optional device query param (from state stored during /fauth)
-  const deviceResult = await sessionStore.getTemporary(`device:${state}`);
-  const device =
-    deviceResult.isOk() && deviceResult.value
-      ? `&device=${encodeURIComponent(deviceResult.value)}`
-      : "";
-
-  return ok(`${config.baseUrl}/authorize?id=${sessionId}${device}`);
+  return ok(`${config.baseUrl}/authorize?id=${sessionId}`);
 };

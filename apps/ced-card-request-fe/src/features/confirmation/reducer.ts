@@ -1,7 +1,25 @@
-import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
+import {
+  createSelector,
+  createSlice,
+  type PayloadAction,
+} from '@reduxjs/toolkit';
+import type { RootState } from '../../core/store';
 import { ConfermaDomandaRequest } from '../../generated/model';
 
-const initialState: ConfermaDomandaRequest = {} as ConfermaDomandaRequest;
+type YesNo = 'yes' | 'no' | null;
+type Province = 'trento' | 'bolzano' | 'aosta' | 'other' | null;
+
+export type DocumentTypeFormState = {
+  hasDoc: YesNo;
+  province: Province;
+  judgment: YesNo;
+  inps: YesNo;
+};
+
+export type ConfirmationFormState = ConfermaDomandaRequest &
+  DocumentTypeFormState;
+
+const initialState: ConfirmationFormState = {} as ConfirmationFormState;
 
 const confirmRequestFormSlice = createSlice({
   name: 'confirmRequestForm',
@@ -10,8 +28,8 @@ const confirmRequestFormSlice = createSlice({
     setField: (
       state,
       action: PayloadAction<{
-        field: keyof ConfermaDomandaRequest;
-        value: ConfermaDomandaRequest[keyof ConfermaDomandaRequest];
+        field: keyof ConfirmationFormState;
+        value: ConfirmationFormState[keyof ConfirmationFormState];
       }>,
     ) => {
       const { field, value } = action.payload;
@@ -22,7 +40,7 @@ const confirmRequestFormSlice = createSlice({
     },
     setForm: (
       state,
-      action: PayloadAction<Partial<ConfermaDomandaRequest>>,
+      action: PayloadAction<Partial<ConfirmationFormState>>,
     ) => ({
       ...state,
       ...action.payload,
@@ -31,6 +49,41 @@ const confirmRequestFormSlice = createSlice({
   },
 });
 
-export const { resetForm } = confirmRequestFormSlice.actions;
-
+export const { setField, setForm, resetForm } = confirmRequestFormSlice.actions;
 export const confirmRequestFormReducer = confirmRequestFormSlice.reducer;
+
+export const selectConfirmationForm = (state: RootState) => state.confirmation;
+export const selectConfirmationPayload = (state: RootState) => {
+  const {
+    idLavorazione,
+    allegato,
+    autodichiarazioneSentenza,
+    dataSentenza,
+    descrizioneComuneTribunale,
+    dichiarazioneConformitaVerbale,
+    dirittoAccompagnatore,
+    nomeFile,
+    siglaProvinciaTribunale,
+    tipologiaUlterioreDocumentazione,
+  } = state.confirmation;
+  return {
+    idLavorazione,
+    allegato,
+    autodichiarazioneSentenza,
+    dataSentenza,
+    descrizioneComuneTribunale,
+    dichiarazioneConformitaVerbale,
+    dirittoAccompagnatore,
+    nomeFile,
+    siglaProvinciaTribunale,
+    tipologiaUlterioreDocumentazione,
+  };
+};
+export const selectDocumentTypeForm = (state: RootState) => {
+  const { province, hasDoc, judgment, inps } = state.confirmation;
+  return { province, hasDoc, judgment, inps };
+};
+export const makeSelectConfirmationField = createSelector(
+  selectConfirmationForm,
+  (confirmation) => (field: keyof ConfirmationFormState) => confirmation[field],
+);

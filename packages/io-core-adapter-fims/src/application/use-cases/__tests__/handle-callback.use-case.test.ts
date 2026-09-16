@@ -116,7 +116,7 @@ describe("createHandleCallback", () => {
     const oidcClient = makeMockOidcClient();
     const auditLogger = makeMockAuditLogger();
 
-    // First getTemporary call = nonce, subsequent = null (no device)
+    // First getTemporary call = nonce, subsequent = null
     vi.mocked(sessionStore.getTemporary)
       .mockResolvedValueOnce(ok("some-nonce"))
       .mockResolvedValue(ok(null));

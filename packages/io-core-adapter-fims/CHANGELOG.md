@@ -1,5 +1,11 @@
 # @pagopa/io-core-adapter-fims
 
+## 0.0.11
+
+### Patch Changes
+
+- 91f7384: Remove device parameter passthrough on FIMS auth flow
+
 ## 0.0.10
 
 ### Patch Changes

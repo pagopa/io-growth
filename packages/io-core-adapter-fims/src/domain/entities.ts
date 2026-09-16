@@ -7,7 +7,7 @@ export interface FimsAuthFlowConfig {
   readonly idpKeysBaseUrl: string;
   /** FIMS OIDC issuer URL. The `iss` query parameter in the callback is validated against this. */
   readonly issuerUrl: string;
-  /** TTL in seconds for one-time session IDs and nonce/device state. Defaults to 60. */
+  /** TTL in seconds for one-time session IDs state. Defaults to 60. */
   readonly otpTtlSeconds?: number;
   /** TTL in seconds for durable session tokens. Defaults to 1800 (30 min). */
   readonly sessionTtlSeconds?: number;

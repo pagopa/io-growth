@@ -1,10 +1,12 @@
 import CloseIcon from '@mui/icons-material/Close';
+import ErrorIcon from '@mui/icons-material/Error';
 import {
   Box,
   Button,
   Dialog,
   DialogContent,
   IconButton,
+  InputAdornment,
   Stack,
   TextField,
   Typography,
@@ -101,8 +103,19 @@ export function RequestChangesModal({
                 if (error) setError(false);
               }}
               inputProps={{ maxLength: MAX_LENGTH }}
+              InputProps={{
+                endAdornment: error ? (
+                  <InputAdornment position="end">
+                    <ErrorIcon color="error" />
+                  </InputAdornment>
+                ) : undefined,
+              }}
               sx={{
-                '& .MuiOutlinedInput-root': { borderRadius: 2 },
+                '& .MuiOutlinedInput-root': {
+                  borderRadius: 2,
+                  '& .MuiOutlinedInput-notchedOutline': { borderWidth: 2 },
+                },
+                '& .MuiInputLabel-root.Mui-error': { color: 'text.secondary' },
               }}
             />
           </Box>

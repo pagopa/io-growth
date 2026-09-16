@@ -15,13 +15,8 @@ interface OpportunitySuspensionMetadata {
   suspendedBy?: 'operator' | 'department' | null;
 }
 
-interface OpportunityRevisionMetadata {
-  rejectionMessage?: string | null;
-}
-
 export type OpportunityDetail = OpportunityDetailResponse &
-  OpportunitySuspensionMetadata &
-  OpportunityRevisionMetadata;
+  OpportunitySuspensionMetadata;
 export type OpportunitiesResponse = OpportunityListResponse;
 export type Opportunity = AdminOpportunitySummaryItem &
   OpportunitySuspensionMetadata;
@@ -29,8 +24,7 @@ export type Opportunity = AdminOpportunitySummaryItem &
 export type AdminOpportunity = AdminOpportunitySummaryItem &
   OpportunitySuspensionMetadata;
 export type AdminOpportunityDetail = OpportunityDetailAdminResponse &
-  OpportunitySuspensionMetadata &
-  OpportunityRevisionMetadata;
+  OpportunitySuspensionMetadata;
 
 export type OpportunityStatus = OpportunitySummaryItem['status'];
 export type AdminOpportunityStatusFilter = ListOperatorOpportunitiesStatus;
@@ -63,11 +57,6 @@ export type OpportunityUpdatePayload = Pick<
   Partial<
     Pick<OpportunityCreateRequest, 'dateTo' | 'url' | 'caregiverBenefit'>
   >;
-
-export interface RequestOpportunityChangesPayload {
-  rejectionMessage: string;
-}
-
 export interface SuspendOpportunityPayload {
   suspensionMessage: string;
   suspendFrom: string;

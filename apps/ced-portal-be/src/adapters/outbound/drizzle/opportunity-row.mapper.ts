@@ -43,7 +43,6 @@ export interface OpportunityDetailRow {
   readonly operator?: null | { readonly name: string };
   readonly operatorId: string;
   readonly opportunityPlaces: readonly { readonly placeId: string }[];
-  readonly rejectionMessage?: null | string;
   readonly status: Opportunity["status"];
   readonly suspendedBy?: "department" | "operator" | null;
   readonly suspendFrom?: null | string;
@@ -150,7 +149,6 @@ export const mapOpportunityDetailRow = (
     operatorId: row.operatorId,
     operatorName: row.operator?.name,
     placeIds: row.opportunityPlaces.map((op) => op.placeId),
-    rejectionMessage: row.rejectionMessage ?? null,
     status: deriveOpportunityDisplayStatus(
       row.status,
       row.dateFrom,

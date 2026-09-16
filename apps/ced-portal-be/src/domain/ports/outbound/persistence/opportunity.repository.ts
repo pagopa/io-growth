@@ -83,9 +83,6 @@ export interface OpportunityRepository {
   readonly findByIdAndOperatorId: (
     input: FindByIdAndOperatorIdInput,
   ) => Promise<Result<OpportunityDetail | undefined, GenericError>>;
-  readonly requestChangesById: (
-    input: RequestChangesByIdInput,
-  ) => Promise<Result<void, ConflictError | GenericError>>;
   readonly suspendById: (
     input: SuspendByIdInput,
   ) => Promise<Result<void, ConflictError | GenericError>>;
@@ -112,15 +109,9 @@ export type OpportunityStatusFilter =
   | "scheduled"
   | "scheduled_suspension"
   | Opportunity["status"];
-
 export interface PaginatedOpportunities {
   items: OpportunitySummary[];
   total: number;
-}
-export interface RequestChangesByIdInput {
-  expectedStatus: Opportunity["status"];
-  opportunityId: string;
-  rejectionMessage: string;
 }
 
 export interface SuspendByIdAndOperatorIdInput {

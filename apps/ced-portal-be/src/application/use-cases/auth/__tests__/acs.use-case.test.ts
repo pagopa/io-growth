@@ -3,10 +3,14 @@ import { err, ok } from "neverthrow";
 import { describe, expect, it, vi } from "vitest";
 
 import type { OperatorRepository } from "../../../../domain/ports/outbound/persistence/operator.repository.js";
-import type { SessionRepository } from "../../../../domain/ports/outbound/persistence/session.repository.js";
 
 import { getRequestSession } from "../../../../async-local-storage-session-context.js";
+import {
+  ONE_TIME_SESSION_ID_TTL_SECONDS,
+  SESSION_TTL_SECONDS,
+} from "../../../../domain/entities/session.js";
 import { makeAcsUseCase } from "../acs.use-case.js";
+import { createMockSessionRepository } from "./mocks.js";
 
 const makeToken = async (payload: Record<string, unknown>) =>
   new SignJWT(payload)
@@ -34,13 +38,6 @@ const mockOperator = {
   status: "active" as const,
 };
 
-const createMockSessionRepository = (): SessionRepository => ({
-  createOneTimeSessionId: vi.fn().mockResolvedValue(ok(undefined)),
-  createSession: vi.fn().mockResolvedValue(ok(undefined)),
-  getSession: vi.fn(),
-  getSessionTokenByOneTimeId: vi.fn(),
-});
-
 const mockConfig = {
   ADMIN_FISCAL_CODES: [] as string[],
   ADMIN_FISCAL_CODES_TEST: [] as string[],
@@ -53,6 +50,7 @@ const createMockOperatorRepository = (
   create: vi.fn().mockResolvedValue(ok(mockOperator)),
   getByExternalId: vi.fn().mockResolvedValue(ok(existing)),
   getById: vi.fn(),
+  revokeById: vi.fn(),
 });
 
 describe("makeAcsUseCase", () => {
@@ -112,7 +110,7 @@ describe("makeAcsUseCase", () => {
     expect(sessionId).toHaveLength(64);
     expect(sessionId).toMatch(/^[a-f0-9]{64}$/);
     expect(boundToken).toBe(sessionToken);
-    expect(ttl).toBe(60);
+    expect(ttl).toBe(ONE_TIME_SESSION_ID_TTL_SECONDS);
   });
 
   it("should create operator when not found, then create session", async () => {
@@ -273,6 +271,7 @@ describe("makeAcsUseCase — environment routing", () => {
         return Promise.resolve(ok(undefined));
       }),
       getById: vi.fn(),
+      revokeById: vi.fn(),
     };
     const useCase = makeAcsUseCase(
       sessionRepository,
@@ -296,6 +295,7 @@ describe("makeAcsUseCase — environment routing", () => {
       }),
       getByExternalId: vi.fn().mockResolvedValue(ok(undefined)),
       getById: vi.fn(),
+      revokeById: vi.fn(),
     };
     const useCase = makeAcsUseCase(
       sessionRepository,
@@ -322,5 +322,30 @@ describe("makeAcsUseCase — environment routing", () => {
     await useCase({ token });
 
     expect(getRequestSession()).toBeUndefined();
+  });
+});
+
+describe("makeAcsUseCase — session TTL", () => {
+  it("should create the session with the TTL the revocation tombstone is bound to", async () => {
+    const sessionRepository = createMockSessionRepository();
+    const operatorRepository = createMockOperatorRepository(mockOperator);
+    const useCase = makeAcsUseCase(
+      sessionRepository,
+      operatorRepository,
+      mockConfig,
+    );
+    const token = await makeToken(validPayload);
+
+    const result = await useCase({ token });
+
+    expect(result).toEqual(
+      ok({ sessionId: expect.stringMatching(/^[a-f0-9]{64}$/) }),
+    );
+
+    const [, , ttlSeconds] = (
+      sessionRepository.createSession as ReturnType<typeof vi.fn>
+    ).mock.calls[0] as [string, unknown, number];
+
+    expect(ttlSeconds).toBe(SESSION_TTL_SECONDS);
   });
 });

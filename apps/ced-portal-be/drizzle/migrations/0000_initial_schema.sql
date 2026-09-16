@@ -18,7 +18,7 @@ CREATE TYPE localized_metadata_key AS ENUM ('name', 'description', 'condition');
 
 CREATE TYPE localized_metadata_language AS ENUM ('en', 'fr', 'de', 'sl', 'it');
 
-CREATE TYPE change_audit_entity_type AS ENUM ('place', 'profile', 'website', 'address', 'support_contact', 'opportunity', 'beneficiary_benefit', 'caregiver_benefit', 'localized_metadata');
+CREATE TYPE change_audit_entity_type AS ENUM ('place', 'profile', 'website', 'address', 'support_contact', 'opportunity', 'beneficiary_benefit', 'caregiver_benefit', 'localized_metadata', 'operator');
 
 CREATE TYPE change_audit_change_type AS ENUM ('create', 'update');
 
@@ -27,6 +27,8 @@ CREATE TABLE operator (
   external_id UUID NOT NULL,
   name VARCHAR(512) NOT NULL,
   status operator_status NOT NULL,
+  revocation_message VARCHAR(4096),
+  revoked_at TIMESTAMPTZ,
   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );

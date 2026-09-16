@@ -13,6 +13,17 @@ export const OnboardingStatusSchema = z.enum([
 
 export type OnboardingStatus = z.infer<typeof OnboardingStatusSchema>;
 
+export const ONBOARDING_STATUS = {
+  COMPLETED: "COMPLETED",
+  DELETED: "DELETED",
+  FAILED: "FAILED",
+  PENDING: "PENDING",
+  PENDING_IN_REVIEW: "PENDING_IN_REVIEW",
+  REJECTED: "REJECTED",
+  REQUEST: "REQUEST",
+  TOBEVALIDATED: "TOBEVALIDATED",
+} as const;
+
 export const OnboardingInstitutionSchema = z.object({
   city: z.string().optional(),
   county: z.string().optional(),

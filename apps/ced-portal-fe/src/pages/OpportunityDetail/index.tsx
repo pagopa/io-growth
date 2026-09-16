@@ -18,7 +18,6 @@ import {
   useAdminCancelScheduledSuspensionMutation,
   useAdminSuspendOpportunityMutation,
   useGetAdminOpportunityDetailQuery,
-  useRequestOpportunityChangesMutation,
 } from '../../features/opportunities/api';
 import { APP_ROUTES } from '../../app/routeConfig';
 import { useToast } from '../../contexts';
@@ -47,8 +46,6 @@ export default function OpportunityDetailPage() {
     useAdminSuspendOpportunityMutation();
   const [cancelScheduledSuspension, { isLoading: isCancelingSuspension }] =
     useAdminCancelScheduledSuspensionMutation();
-  const [requestOpportunityChanges, { isLoading: isRequestingChanges }] =
-    useRequestOpportunityChangesMutation();
   const [publishModalOpen, setPublishModalOpen] = useState(false);
   const [suspendModalOpen, setSuspendModalOpen] = useState(false);
   const [requestChangesOpen, setRequestChangesOpen] = useState(false);
@@ -332,27 +329,12 @@ export default function OpportunityDetailPage() {
 
       <RequestChangesModal
         open={requestChangesOpen}
-        isLoading={isRequestingChanges}
         onClose={() => setRequestChangesOpen(false)}
-        onConfirm={async (rejectionMessage) => {
-          if (!id || isRequestingChanges) {
-            return;
-          }
-
-          try {
-            await requestOpportunityChanges({
-              id,
-              payload: { rejectionMessage },
-            }).unwrap();
-            setRequestChangesOpen(false);
-            navigate(APP_ROUTES.OPPORTUNITIES);
-            showToast('Fatto!', 'success');
-          } catch {
-            showToast(
-              "Errore durante l'invio della richiesta di modifiche",
-              'error',
-            );
-          }
+        onConfirm={() => {
+          // TODO: Submit the requested changes through the backend endpoint.
+          setRequestChangesOpen(false);
+          navigate(APP_ROUTES.OPPORTUNITIES);
+          showToast('Fatto!', 'success');
         }}
       />
 

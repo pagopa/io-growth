@@ -2,13 +2,15 @@ import type { FastifyInstance } from "fastify";
 
 import {
   createHttpHandler,
-  createHttpRequestValidator,
   createHttpResponseFormatter,
+  createMultipartRequestValidator,
   withSession,
 } from "@pagopa/io-core-adapter-fastify";
-import { z as zod } from "zod";
 
-import type { OperatorCreateProfileUseCase } from "../../../../application/use-cases/profile/operator-create-profile.use-case.js";
+import type {
+  OperatorCreateProfileInput,
+  OperatorCreateProfileUseCase,
+} from "../../../../application/use-cases/profile/operator-create-profile.use-case.js";
 
 import { OPERATOR_USER_TYPES } from "../../../../domain/entities/user-type.js";
 import { OperatorSessionSchema } from "../auth/session.js";
@@ -18,19 +20,16 @@ import {
   GetOperatorProfileResponse,
 } from "../contracts/profile/profile.js";
 
-const operatorCreateProfileHttpSchema = zod.object({
-  body: CreateOperatorProfileBody,
-});
-
 const operatorCreateProfileValidator = withUserTypeAuthorization(
   OPERATOR_USER_TYPES,
   withSession(
     OperatorSessionSchema,
-    createHttpRequestValidator(operatorCreateProfileHttpSchema),
-    (session, { body }) => ({
-      displayName: body.displayName,
+    createMultipartRequestValidator(CreateOperatorProfileBody),
+    (session, { image, logo, profile }): OperatorCreateProfileInput => ({
+      ...profile,
+      image,
+      logo,
       operatorId: session.operatorId,
-      place: body.place,
     }),
   ),
 );

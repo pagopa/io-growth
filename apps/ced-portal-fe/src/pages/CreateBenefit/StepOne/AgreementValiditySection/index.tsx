@@ -44,6 +44,16 @@ export function AgreementValiditySection({
   const startDateError = attempted && !dateFrom.trim();
   const minimumDate = format(addDays(new Date(), 1), 'yyyy-MM-dd');
 
+  const handleEndDateToggle = useCallback(
+    (checked: boolean) => {
+      setHasEndDateLocal(checked);
+      if (!checked) {
+        dispatch(setField({ field: 'dateTo', value: undefined }));
+      }
+    },
+    [dispatch],
+  );
+
   const renderEndDateField = useCallback(() => {
     if (!hasEndDateLocal) {
       return <Box sx={{ display: { xs: 'none', sm: 'block' } }} />;
@@ -95,7 +105,7 @@ export function AgreementValiditySection({
           <Switch
             checked={hasEndDateLocal}
             disabled={disabledNotLocalizedField}
-            onChange={(_, checked) => setHasEndDateLocal(checked)}
+            onChange={(_, checked) => handleEndDateToggle(checked)}
             inputProps={{ 'aria-label': copy.setEndDateAriaLabel }}
           />
           <Typography sx={{ fontWeight: 600 }}>

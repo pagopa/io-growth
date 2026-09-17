@@ -3,6 +3,7 @@ import { useGetOpportunityDetailQuery } from '../../../features/opportunities/ap
 import { useAppDispatch } from '../../../hooks/store';
 import type { CreateBenefitNavigationState } from '../types';
 import {
+  resetForm,
   setField,
   setBenefit,
   setLocalizedValue,
@@ -11,6 +12,7 @@ import {
 } from '../../../features/opportunityCreation/opportunityCreationSlice';
 import {
   setAccessPoint,
+  resetPlaces,
   setSelectedLocationIds,
   setSelectedWebsiteIds,
 } from '../../../features/places/placesSlice';
@@ -65,6 +67,11 @@ export const useHydrateFromSourceOpportunity = (
       return;
     }
 
+    if (!places) {
+      return;
+    }
+
+    dispatch(resetForm());
     dispatch(setField({ field: 'dateFrom', value: dateFrom }));
     dispatch(setField({ field: 'dateTo', value: dateTo ?? undefined }));
     dispatch(setField({ field: 'url', value: url ?? undefined }));
@@ -111,12 +118,16 @@ export const useHydrateFromSourceOpportunity = (
             : 'online';
 
       dispatch(setAccessPoint(accessPoint));
+    } else {
+      dispatch(resetPlaces());
     }
 
     localizedMetadata?.map((payload) => dispatch(setLocalizedValue(payload)));
 
+    dispatch(setCaregiverEnabled(Boolean(caregiverBenefit)));
+    dispatch(setCaregiverHasSameConditions(false));
+
     if (caregiverBenefit) {
-      dispatch(setCaregiverEnabled(true));
       dispatch(
         setBenefit({
           which: 'caregiverBenefit',

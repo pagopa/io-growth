@@ -3,7 +3,11 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { Box, Button, Container, Typography } from '@mui/material';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { APP_ROUTES } from '../../app/routeConfig';
-import { useRequestApprovalMutation } from '../../features/opportunities/api';
+import { hasStatus } from '../../core/api/baseApi';
+import {
+  useGetOpportunityDetailQuery,
+  useRequestApprovalMutation,
+} from '../../features/opportunities/api';
 import { resetPlaces } from '../../features/places/placesSlice';
 import {
   selectAccessPoint,
@@ -22,10 +26,15 @@ import { useCreateOpportunity } from './hooks/useCreateOpportunity';
 import type { CreateBenefitNavigationState } from './types';
 import { useHydrateFromSourceOpportunity } from './hooks/useHydrateFromSourceOpportunity';
 import { selectNationalTerritory } from '../../features/opportunityCreation/selectors';
-import { resetForm } from '../../features/opportunityCreation/opportunityCreationSlice';
+import {
+  resetForm,
+  type OpportunityCreationForm,
+} from '../../features/opportunityCreation/opportunityCreationSlice';
+import { selectOpportunityForm } from '../../features/opportunityCreation/selectors';
 
 export interface StepProps {
   attempted: boolean;
+  isStartDateDisabled?: boolean;
 }
 
 interface StepConfig {
@@ -38,6 +47,33 @@ const STEPS: StepConfig[] = [
   { label: 'Indica i punti di accesso', component: StepTwo },
 ];
 
+const REVIEW_ON_UPDATE_STATUSES = new Set(['draft', 'test_rejected']);
+
+const BENEFIT_REVIEW_STATUSES = new Set([
+  'scheduled',
+  'published',
+  'suspended',
+]);
+
+const benefitsAreEqual = (
+  current: OpportunityCreationForm['beneficiaryBenefit'] | null | undefined,
+  source: OpportunityCreationForm['beneficiaryBenefit'] | null | undefined,
+) => {
+  if (!current || !source) {
+    return current === source || (!current && !source);
+  }
+
+  return (
+    current.type === source.type &&
+    ('value' in current ? current.value : undefined) ===
+      ('value' in source ? source.value : undefined) &&
+    ('discountType' in current ? current.discountType : undefined) ===
+      ('discountType' in source ? source.discountType : undefined) &&
+    ('description' in current ? current.description : undefined) ===
+      ('description' in source ? source.description : undefined)
+  );
+};
+
 export default function CreateBenefitPage() {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
@@ -47,6 +83,10 @@ export default function CreateBenefitPage() {
 
   const sourceOpportunityId = location.state?.sourceOpportunityId ?? null;
   useHydrateFromSourceOpportunity(sourceOpportunityId);
+  const { data: sourceOpportunity } = useGetOpportunityDetailQuery(
+    sourceOpportunityId ?? '',
+    { skip: !sourceOpportunityId },
+  );
 
   const [currentStep, setCurrentStep] = useState(0);
   const [attempted, setAttempted] = useState(false);
@@ -59,11 +99,27 @@ export default function CreateBenefitPage() {
     useRequestApprovalMutation();
 
   const accessPoint = useAppSelector(selectAccessPoint);
+  const opportunityForm = useAppSelector(selectOpportunityForm);
   const nationwide = useAppSelector(selectNationalTerritory);
   const selectedLocationIds = useAppSelector(selectSelectedLocationIds);
   const selectedWebsiteIds = useAppSelector(selectSelectedWebsiteIds);
 
   const isFirstStepValid = useGetFirstStepValidation();
+
+  const benefitsChanged = sourceOpportunity
+    ? !benefitsAreEqual(
+        opportunityForm.beneficiaryBenefit,
+        sourceOpportunity.beneficiaryBenefit,
+      ) ||
+      !benefitsAreEqual(
+        opportunityForm.caregiverBenefit,
+        sourceOpportunity.caregiverBenefit,
+      )
+    : true;
+  const isReviewRequired = sourceOpportunity
+    ? REVIEW_ON_UPDATE_STATUSES.has(sourceOpportunity.status) ||
+      (BENEFIT_REVIEW_STATUSES.has(sourceOpportunity.status) && benefitsChanged)
+    : true;
 
   const isStepValid = (step: number): boolean => {
     if (step === 0) return isFirstStepValid;
@@ -80,7 +136,16 @@ export default function CreateBenefitPage() {
   };
 
   const handleSaveDraft = async () => {
-    await createOpportunity({ isDraft: true });
+    const result = await createOpportunity({
+      isDraft: true,
+      sourceOpportunityId,
+      sourceOpportunityUpdatedAt: sourceOpportunity?.updatedAt,
+    });
+
+    if (!result) {
+      return;
+    }
+
     dispatch(resetForm());
     dispatch(resetPlaces());
     navigate(APP_ROUTES.HOME);
@@ -116,7 +181,16 @@ export default function CreateBenefitPage() {
       dispatch(resetPlaces());
       showToast('Richiesta di approvazione inviata con successo', 'success');
       navigate(APP_ROUTES.HOME);
-    } catch {
+    } catch (error) {
+      if (hasStatus(error, 409)) {
+        showToast(
+          'È già in corso una modifica dell’opportunità. Riprova più tardi.',
+          'error',
+        );
+        navigate(APP_ROUTES.HOME);
+        return;
+      }
+
       showToast(
         "Errore durante l'invio della richiesta di approvazione",
         'error',
@@ -128,25 +202,41 @@ export default function CreateBenefitPage() {
     setSubmitReviewOpen(false);
 
     if (!sourceOpportunityId) {
-      try {
-        const result = await createOpportunity();
-        if (!result?.id) {
-          showToast(
-            "Impossibile inviare in revisione senza un'opportunità esistente",
-            'error',
-          );
-          return;
-        }
-        handleRequestApproval(result.id);
-        dispatch(resetForm());
-        dispatch(resetPlaces());
-      } catch {
+      const result = await createOpportunity();
+      if (!result?.id) {
+        showToast(
+          "Impossibile inviare in revisione senza un'opportunità esistente",
+          'error',
+        );
         return;
       }
+
+      await handleRequestApproval(result.id);
+      dispatch(resetForm());
+      dispatch(resetPlaces());
       return;
     }
 
-    handleRequestApproval(sourceOpportunityId);
+    const result = await createOpportunity({
+      sourceOpportunityId,
+      sourceOpportunityUpdatedAt: sourceOpportunity?.updatedAt,
+      showSuccessToast: sourceOpportunity?.status !== 'draft',
+    });
+
+    if (!result) {
+      return;
+    }
+
+    if (
+      sourceOpportunity?.status === 'draft' ||
+      sourceOpportunity?.status === 'test_rejected'
+    ) {
+      await handleRequestApproval(sourceOpportunityId);
+    } else {
+      dispatch(resetForm());
+      dispatch(resetPlaces());
+      navigate(APP_ROUTES.HOME);
+    }
   };
 
   const CurrentStep = STEPS[currentStep]?.component ?? null;
@@ -197,7 +287,12 @@ export default function CreateBenefitPage() {
             steps={STEPS.map((s) => s.label)}
             currentStep={currentStep}
           />
-          {CurrentStep && <CurrentStep attempted={attempted} />}
+          {CurrentStep && (
+            <CurrentStep
+              attempted={attempted}
+              isStartDateDisabled={sourceOpportunity?.status === 'published'}
+            />
+          )}
           <WizardFooter
             currentStep={currentStep}
             totalSteps={STEPS.length}
@@ -205,14 +300,19 @@ export default function CreateBenefitPage() {
             onNext={handleNext}
             onSaveDraft={handleSaveDraft}
             isSavingDraft={isCreatingOpportunity}
+            isReviewRequired={isReviewRequired}
           />
         </Container>
       </Box>
       <AppModal
         open={submitReviewOpen}
         onClose={() => setSubmitReviewOpen(false)}
-        title="Invia in revisione"
-        description="Il Dipartimento effettuerà la revisione della tua opportunità. Il processo potrebbe richiedere un po' di tempo. Se approvata, sarà pubblicata su IO a partire dalla data di inizio validità che hai scelto."
+        title={isReviewRequired ? 'Invia in revisione' : 'Modifica opportunità'}
+        description={
+          isReviewRequired
+            ? "Il Dipartimento effettuerà la revisione della tua opportunità. Il processo potrebbe richiedere un po' di tempo. Se approvata, sarà pubblicata su IO a partire dalla data di inizio validità che hai scelto."
+            : 'Le modifiche verranno salvate immediatamente.'
+        }
       >
         <Button
           variant="contained"
@@ -220,7 +320,7 @@ export default function CreateBenefitPage() {
           onClick={handleConfirmSubmitReview}
           disabled={isCreatingOpportunity || isRequestingApproval}
         >
-          Invia in revisione
+          {isReviewRequired ? 'Invia in revisione' : 'Salva modifiche'}
         </Button>
       </AppModal>
     </Box>

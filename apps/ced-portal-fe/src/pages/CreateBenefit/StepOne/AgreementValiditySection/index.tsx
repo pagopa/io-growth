@@ -7,6 +7,7 @@ import {
   Typography,
   Stack,
 } from '@mui/material';
+import { addDays, format } from 'date-fns';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useAppDispatch, useAppSelector } from '../../../../hooks';
 import { getAgreementCopy } from '../../../../constants';
@@ -19,7 +20,8 @@ import { setField } from '../../../../features/opportunityCreation/opportunityCr
 
 export function AgreementValiditySection({
   attempted,
-}: Readonly<{ attempted: boolean }>) {
+  isStartDateDisabled = false,
+}: Readonly<{ attempted: boolean; isStartDateDisabled?: boolean }>) {
   const dispatch = useAppDispatch();
   const dateFrom = useAppSelector(selectDateFrom);
   const dateTo = useAppSelector(selectDateTo);
@@ -40,6 +42,17 @@ export function AgreementValiditySection({
   );
 
   const startDateError = attempted && !dateFrom.trim();
+  const minimumDate = format(addDays(new Date(), 1), 'yyyy-MM-dd');
+
+  const handleEndDateToggle = useCallback(
+    (checked: boolean) => {
+      setHasEndDateLocal(checked);
+      if (!checked) {
+        dispatch(setField({ field: 'dateTo', value: undefined }));
+      }
+    },
+    [dispatch],
+  );
 
   const renderEndDateField = useCallback(() => {
     if (!hasEndDateLocal) {
@@ -50,6 +63,7 @@ export function AgreementValiditySection({
       <Box sx={{ width: '100%' }}>
         <TextField
           type="date"
+          inputProps={{ min: minimumDate }}
           disabled={disabledNotLocalizedField}
           fullWidth
           label={copy.endDateLabel}
@@ -76,6 +90,7 @@ export function AgreementValiditySection({
     disabledNotLocalizedField,
     dispatch,
     hasEndDateLocal,
+    minimumDate,
   ]);
 
   return (
@@ -90,7 +105,7 @@ export function AgreementValiditySection({
           <Switch
             checked={hasEndDateLocal}
             disabled={disabledNotLocalizedField}
-            onChange={(_, checked) => setHasEndDateLocal(checked)}
+            onChange={(_, checked) => handleEndDateToggle(checked)}
             inputProps={{ 'aria-label': copy.setEndDateAriaLabel }}
           />
           <Typography sx={{ fontWeight: 600 }}>
@@ -110,7 +125,7 @@ export function AgreementValiditySection({
               type="date"
               fullWidth
               label={copy.startDateLabel}
-              disabled={disabledNotLocalizedField}
+              disabled={disabledNotLocalizedField || isStartDateDisabled}
               required
               error={startDateError}
               helperText={startDateError ? 'Campo obbligatorio' : undefined}

@@ -9,6 +9,7 @@ interface WizardFooterProps {
   onNext: () => void;
   onSaveDraft: () => void;
   isSavingDraft?: boolean;
+  isReviewRequired?: boolean;
 }
 
 export function WizardFooter({
@@ -18,6 +19,7 @@ export function WizardFooter({
   onNext,
   onSaveDraft,
   isSavingDraft = false,
+  isReviewRequired = true,
 }: WizardFooterProps) {
   const isLastStep = currentStep === totalSteps - 1;
 
@@ -36,7 +38,11 @@ export function WizardFooter({
           {isSavingDraft ? 'Salvataggio...' : 'Salva bozza'}
         </Button>
         <Button variant="contained" onClick={onNext}>
-          {isLastStep ? 'Invia in revisione' : 'Continua'}
+          {isLastStep
+            ? isReviewRequired
+              ? 'Invia in revisione'
+              : 'Modifica'
+            : 'Continua'}
         </Button>
       </Stack>
     </Stack>

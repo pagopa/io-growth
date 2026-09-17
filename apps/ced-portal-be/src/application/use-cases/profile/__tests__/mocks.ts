@@ -16,6 +16,7 @@ const ONE_PIXEL_PNG = Buffer.from(
 const createPng = () => new Blob([ONE_PIXEL_PNG], { type: "image/png" });
 
 export const mockProfile = {
+  contactEmail: "contatto@example.org",
   displayName: "Operatore Demo",
   operatorId: MOCK_OPERATOR_ID,
   place: {
@@ -36,6 +37,7 @@ export const mockProfile = {
 };
 
 export const mockCreateProfileInput = {
+  contactEmail: "contatto@example.org",
   displayName: "Operatore Demo",
   image: createPng(),
   logo: createPng(),

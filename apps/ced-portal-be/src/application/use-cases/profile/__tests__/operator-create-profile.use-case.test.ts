@@ -28,6 +28,7 @@ describe("makeOperatorCreateProfileUseCase", () => {
     expect(result).toEqual(
       ok(
         expect.objectContaining({
+          contactEmail: mockCreateProfileInput.contactEmail,
           displayName: mockCreateProfileInput.displayName,
           operatorId: mockCreateProfileInput.operatorId,
           place: expect.objectContaining({
@@ -43,6 +44,7 @@ describe("makeOperatorCreateProfileUseCase", () => {
     );
     expect(profileRepository.create).toHaveBeenCalledWith(
       expect.objectContaining({
+        contactEmail: mockCreateProfileInput.contactEmail,
         displayName: mockCreateProfileInput.displayName,
         operatorId: mockCreateProfileInput.operatorId,
         place: expect.objectContaining({
@@ -194,6 +196,24 @@ describe("profile input validation", () => {
     const result = await useCase({
       ...mockCreateProfileInput,
       displayName: "",
+    });
+
+    expect(result).toEqual(
+      err(expect.objectContaining({ kind: "ValidationError" })),
+    );
+  });
+
+  it("should return ValidationError when contactEmail is invalid", async () => {
+    const profileRepository = createMockProfileRepository();
+    const profileAssetsRepository = createMockProfileAssetsRepository();
+    const useCase = makeOperatorCreateProfileUseCase(
+      profileRepository,
+      profileAssetsRepository,
+    );
+
+    const result = await useCase({
+      ...mockCreateProfileInput,
+      contactEmail: "invalid-email",
     });
 
     expect(result).toEqual(

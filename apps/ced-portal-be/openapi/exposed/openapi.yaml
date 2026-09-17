@@ -37,6 +37,7 @@ paths:
                   summary: Operator with online place
                   value:
                     displayName: Operatore Demo
+                    contactEmail: contatto@example.org
                     place:
                       id: 01JVMK3N8XQZP5T6G2WYHAB4CD
                       type: online
@@ -54,6 +55,7 @@ paths:
                   summary: Operator with offline place
                   value:
                     displayName: Operatore Demo
+                    contactEmail: contatto@example.org
                     place:
                       id: 01JVMK3N8XQZP5T6G2WYHAB4CG
                       type: offline
@@ -1887,9 +1889,14 @@ components:
       type: object
       additionalProperties: false
       required:
+        - contactEmail
         - displayName
         - place
       properties:
+        contactEmail:
+          type: string
+          format: email
+          maxLength: 512
         displayName:
           type: string
           maxLength: 512
@@ -2001,9 +2008,14 @@ components:
       type: object
       additionalProperties: false
       required:
+        - contactEmail
         - displayName
         - place
       properties:
+        contactEmail:
+          type: string
+          format: email
+          maxLength: 512
         displayName:
           type: string
           maxLength: 512

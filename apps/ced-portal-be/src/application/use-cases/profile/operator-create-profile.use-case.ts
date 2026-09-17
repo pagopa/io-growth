@@ -49,6 +49,7 @@ const OperatorCreateProfilePlaceSchema = z.discriminatedUnion("type", [
 ]);
 
 const OperatorCreateProfileInputSchema = z.object({
+  contactEmail: z.email().max(512),
   displayName: z.string().min(1).max(512),
   image: z.instanceof(Blob),
   logo: z.instanceof(Blob),
@@ -88,6 +89,7 @@ export const makeOperatorCreateProfileUseCase =
             }),
           ).andThen((validatedAssets) => {
             const profile = {
+              contactEmail: validatedInput.contactEmail,
               displayName: validatedInput.displayName,
               operatorId: validatedInput.operatorId,
               place: {

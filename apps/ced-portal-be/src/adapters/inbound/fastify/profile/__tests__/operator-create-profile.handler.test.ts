@@ -21,6 +21,7 @@ const ONE_PIXEL_PNG = Buffer.from(
   "base64",
 );
 const profile = {
+  contactEmail: "contatto@example.org",
   displayName: "Operatore Demo",
   place: {
     name: "Sportello remoto",
@@ -127,6 +128,7 @@ describe("mountOperatorCreateProfileHandler", () => {
 
     expect(response.statusCode).toBe(201);
     expect(useCase).toHaveBeenCalledWith({
+      contactEmail: profile.contactEmail,
       displayName: profile.displayName,
       image: expect.any(Blob),
       logo: expect.any(Blob),

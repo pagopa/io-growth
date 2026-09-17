@@ -36,6 +36,7 @@ export const operator = pgTable("operator", {
     .notNull()
     .defaultNow(),
   externalId: uuid("external_id").notNull(),
+  fiscalCode: varchar("fiscal_code", { length: 32 }).notNull(),
   id: char({ length: 26 }).primaryKey(),
   name: varchar({ length: 512 }).notNull(),
   status: operatorStatusEnum().notNull(),
@@ -60,6 +61,7 @@ export const place = pgTable("place", {
 });
 
 export const profile = pgTable("profile", {
+  contactEmail: varchar("contact_email", { length: 512 }).notNull(),
   createdAt: timestamp("created_at", { withTimezone: true })
     .notNull()
     .defaultNow(),

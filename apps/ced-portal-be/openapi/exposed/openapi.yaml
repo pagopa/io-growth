@@ -1880,6 +1880,92 @@ paths:
               example:
                 statusCode: 403
                 message: Forbidden
+  /department/onboardings/{onboardingId}/reject:
+    patch:
+      tags:
+        - Department
+      summary: Reject an onboarding request (department only)
+      description: >-
+        Rejects a pending onboarding request, recording the reason on Area
+        Riservata, which notifies the institution. Nothing is persisted on this
+        side: a rejected request never becomes an operator. The action applies
+        only to requests still under review and is irreversible.
+      operationId: adminRejectOnboarding
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: onboardingId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required:
+                - rejectionMessage
+              properties:
+                rejectionMessage:
+                  type: string
+                  minLength: 1
+                  maxLength: 4096
+                  description: >-
+                    Reason for the rejection. Recorded on Area Riservata and
+                    sent to the institution.
+      responses:
+        "204":
+          description: Onboarding request rejected
+        "400":
+          description: "Invalid payload: rejectionMessage missing, empty or too long"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 400
+                message: "Validation error: rejectionMessage is required"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 401
+                message: Unauthorized
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 403
+                message: Forbidden
+        "404":
+          description: Onboarding not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 404
+                message: Onboarding not found
+        "412":
+          description: >-
+            The onboarding request is not under review. A completed onboarding
+            is revoked, not rejected.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 412
+                message: Precondition Failed
 components:
   securitySchemes:
     bearerAuth:

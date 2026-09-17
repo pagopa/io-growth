@@ -11,7 +11,7 @@ post {
 }
 
 body:multipart-form {
-  profile: {"displayName":"Operatore Demo","place":{"type":"online","name":"Sportello remoto","website":{"url":"https://example.org"},"supportContacts":[{"type":"email","value":"support@example.org"}]}}
+  profile: {"contactEmail":"contatto@example.org","displayName":"Operatore Demo","place":{"type":"online","name":"Sportello remoto","website":{"url":"https://example.org"},"supportContacts":[{"type":"email","value":"support@example.org"}]}} @contentType(application/json)
   logo: @file(/path/to/logo.png)
   image: @file(/path/to/image.png)
 }

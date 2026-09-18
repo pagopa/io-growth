@@ -56,6 +56,18 @@ module "browser_be_container_app" {
     {
       name                = "APPINSIGHTS_INSTRUMENTATION_KEY"
       key_vault_secret_id = module.azure_core_values.application_insights.instrumentation_key_kv_secret_id
+    },
+    {
+      name                = "EMAIL_FROM_ADDRESS"
+      key_vault_secret_id = format(local.secrets_id_template, "ced-p-itn-browser-be-email-from-address")
+    },
+    {
+      name                = "ONE_MAIL_API_KEY"
+      key_vault_secret_id = format(local.secrets_id_template, "ced-p-itn-browser-be-one-mail-api-key")
+    },
+    {
+      name                = "ONE_MAIL_BASE_URL"
+      key_vault_secret_id = format(local.secrets_id_template, "ced-p-itn-browser-be-one-mail-base-url")
     }
   ]
 

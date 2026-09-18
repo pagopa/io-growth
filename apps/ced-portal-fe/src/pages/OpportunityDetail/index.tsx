@@ -331,6 +331,7 @@ export default function OpportunityDetailPage() {
         open={requestChangesOpen}
         onClose={() => setRequestChangesOpen(false)}
         onConfirm={() => {
+          // TODO: Submit the requested changes through the backend endpoint.
           setRequestChangesOpen(false);
           navigate(APP_ROUTES.OPPORTUNITIES);
           showToast('Fatto!', 'success');

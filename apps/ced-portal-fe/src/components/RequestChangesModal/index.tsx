@@ -1,10 +1,12 @@
 import CloseIcon from '@mui/icons-material/Close';
+import ErrorIcon from '@mui/icons-material/Error';
 import {
   Box,
   Button,
   Dialog,
   DialogContent,
   IconButton,
+  InputAdornment,
   Stack,
   TextField,
   Typography,
@@ -12,6 +14,7 @@ import {
 import { useState } from 'react';
 
 interface RequestChangesModalProps {
+  isLoading?: boolean;
   open: boolean;
   onClose: () => void;
   onConfirm: (message: string) => void;
@@ -20,6 +23,7 @@ interface RequestChangesModalProps {
 const MAX_LENGTH = 300;
 
 export function RequestChangesModal({
+  isLoading = false,
   open,
   onClose,
   onConfirm,
@@ -39,8 +43,6 @@ export function RequestChangesModal({
       return;
     }
     onConfirm(message);
-    setMessage('');
-    setError(false);
   };
 
   return (
@@ -54,13 +56,22 @@ export function RequestChangesModal({
       <DialogContent sx={{ p: { xs: 3, sm: 4 }, position: 'relative' }}>
         <IconButton
           onClick={handleClose}
-          sx={{ position: 'absolute', top: 16, right: 16 }}
+          aria-label="Chiudi"
+          sx={{
+            position: 'absolute',
+            top: 16,
+            right: 16,
+            color: 'text.primary',
+          }}
         >
           <CloseIcon />
         </IconButton>
 
         <Stack spacing={2.5}>
-          <Typography variant="h5" sx={{ fontWeight: 700 }}>
+          <Typography
+            variant="h5"
+            sx={{ fontWeight: 700, color: 'text.primary' }}
+          >
             Richiedi modifiche
           </Typography>
 
@@ -71,7 +82,9 @@ export function RequestChangesModal({
           </Typography>
 
           <Box>
-            <Typography sx={{ fontWeight: 700, mb: 1 }}>
+            <Typography
+              sx={{ color: 'text.secondary', fontWeight: 700, mb: 1 }}
+            >
               Descrivi la tua richiesta
             </Typography>
             <TextField
@@ -90,6 +103,20 @@ export function RequestChangesModal({
                 if (error) setError(false);
               }}
               inputProps={{ maxLength: MAX_LENGTH }}
+              InputProps={{
+                endAdornment: error ? (
+                  <InputAdornment position="end">
+                    <ErrorIcon color="error" />
+                  </InputAdornment>
+                ) : undefined,
+              }}
+              sx={{
+                '& .MuiOutlinedInput-root': {
+                  borderRadius: 2,
+                  '& .MuiOutlinedInput-notchedOutline': { borderWidth: 2 },
+                },
+                '& .MuiInputLabel-root.Mui-error': { color: 'text.secondary' },
+              }}
             />
           </Box>
 
@@ -99,9 +126,14 @@ export function RequestChangesModal({
               color="primary"
               size="large"
               onClick={handleConfirm}
-              sx={{ fontWeight: 700, borderRadius: 2, px: 4 }}
+              disabled={isLoading}
+              sx={{
+                borderRadius: 2,
+                fontWeight: 700,
+                px: 4,
+              }}
             >
-              Conferma
+              {isLoading ? 'Invio in corso' : 'Conferma'}
             </Button>
           </Box>
         </Stack>

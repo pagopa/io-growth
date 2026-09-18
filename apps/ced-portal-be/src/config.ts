@@ -30,6 +30,10 @@ const configSchema = z.object({
 
   AR_ENDPOINT: z.string().url(),
   AR_ENDPOINT_TEST: z.string().url(),
+  ASSETS_STORAGE_BLOB_ENDPOINT: z.url(),
+  ASSETS_STORAGE_CONNECTION_STRING: z.string().min(1).optional(),
+  ASSETS_STORAGE_CONTAINER_IMAGES: z.string().min(1),
+  ASSETS_STORAGE_CONTAINER_LOGOS: z.string().min(1),
   AZURE_CLIENT_ID: z.string().optional(),
   CED_PORTAL_FE_BASE_URL: z.string().min(1),
   CED_PRODUCT_ID: z.string().min(1),

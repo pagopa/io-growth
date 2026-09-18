@@ -3,6 +3,7 @@ import { Menu, MenuItem, useTheme } from '@mui/material';
 import { useCallback, useState } from 'react';
 import { generatePath, useNavigate } from 'react-router-dom';
 import { APP_ROUTES } from '../../../app/routeConfig';
+import { ModifyOpportunityModal } from '../../../components/ModifyOpportunityModal';
 import type {
   OperatorDeleteOpportunityBody,
   OpportunitySummaryItemStatus,
@@ -47,6 +48,7 @@ export const ActionsMenu = ({
   const navigate = useNavigate();
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isSuspendModalOpen, setIsSuspendModalOpen] = useState(false);
+  const [isModifyModalOpen, setIsModifyModalOpen] = useState(false);
 
   const menuItemsSx = {
     color: theme.palette.common.primaryButton,
@@ -61,9 +63,19 @@ export const ActionsMenu = ({
     navigate(generatePath(APP_ROUTES.ENTITY_OPPORTUNITY_DETAIL, { id }));
   };
 
-  const onEdit = async (id: string) => {
+  const onEdit = () => {
+    setIsModifyModalOpen(true);
+  };
+
+  const handleConfirmEdit = () => {
+    if (!selectedItemId) {
+      setIsModifyModalOpen(false);
+      return;
+    }
+
+    setIsModifyModalOpen(false);
     navigate(APP_ROUTES.CREATE_BENEFIT, {
-      state: { sourceOpportunityId: id },
+      state: { sourceOpportunityId: selectedItemId },
     });
   };
 
@@ -72,6 +84,13 @@ export const ActionsMenu = ({
     selectedItemStatus === 'test_rejected' ||
     selectedItemStatus === 'suspended' ||
     selectedItemStatus === 'scheduled';
+  const canEdit =
+    selectedItemStatus === 'draft' ||
+    selectedItemStatus === 'test_rejected' ||
+    selectedItemStatus === 'test_passed' ||
+    selectedItemStatus === 'scheduled' ||
+    selectedItemStatus === 'published' ||
+    selectedItemStatus === 'suspended';
   const canSuspend =
     selectedItemStatus === 'published' ||
     selectedItemStatus === 'scheduled_suspension';
@@ -188,18 +207,17 @@ export const ActionsMenu = ({
         >
           Visualizza
         </MenuItem>
-        {canDelete && (
+        {canEdit && (
           <>
-            <MenuItem
-              onClick={() => handleAction(onDuplicate)}
-              sx={menuItemsSx}
-            >
-              Duplica
-            </MenuItem>
             <MenuItem onClick={() => handleAction(onEdit)} sx={menuItemsSx}>
               Modifica
             </MenuItem>
           </>
+        )}
+        {canDelete && (
+          <MenuItem onClick={() => handleAction(onDuplicate)} sx={menuItemsSx}>
+            Duplica
+          </MenuItem>
         )}
         {canOpenSuspendModal ? (
           <MenuItem onClick={handleSuspend} sx={menuItemsSx}>
@@ -231,6 +249,11 @@ export const ActionsMenu = ({
         open={isSuspendModalOpen}
         onClose={handleCloseSuspendModal}
         onConfirm={handleConfirmSuspend}
+      />
+      <ModifyOpportunityModal
+        open={isModifyModalOpen}
+        onClose={() => setIsModifyModalOpen(false)}
+        onConfirm={handleConfirmEdit}
       />
     </>
   );

@@ -20,3 +20,4 @@ export * from './RadioGroup';
 export * from './SectionCard';
 export * from './SuspendOpportunityModal';
 export * from './UploadDropzone';
+export * from './ModifyOpportunityModal';

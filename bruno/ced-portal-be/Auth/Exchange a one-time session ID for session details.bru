@@ -5,11 +5,17 @@ meta {
 }
 
 get {
-  url: {{baseUrl}}/authorize
+  url: {{baseUrl}}/authorize?id={{sessionId}}
   body: none
   auth: none
 }
 
 params:query {
   id: {{sessionId}}
+}
+
+script:post-response {
+  if (res.status === 200) {
+    bru.setEnvVar("sessionToken", res.body.session_token, { persist: false });
+  }
 }

@@ -2,7 +2,10 @@ import type { UseCase } from "@pagopa/io-core-domain";
 import type { BaseError } from "@pagopa/io-core-domain/errors";
 
 import { emitCustomEvent } from "@pagopa/io-core-adapter-tracing";
-import { ValidationError } from "@pagopa/io-core-domain/errors";
+import {
+  UnauthorizedError,
+  ValidationError,
+} from "@pagopa/io-core-domain/errors";
 import { hashUppercasedString } from "@pagopa/io-core-domain/utilities";
 import { decodeJwt } from "jose";
 import { err, okAsync, ResultAsync } from "neverthrow";
@@ -17,7 +20,11 @@ import type { OperatorRepository } from "../../../domain/ports/outbound/persiste
 import type { SessionRepository } from "../../../domain/ports/outbound/persistence/session.repository.js";
 
 import { createSessionContext } from "../../../async-local-storage-session-context.js";
-import { Session } from "../../../domain/entities/session.js";
+import {
+  ONE_TIME_SESSION_ID_TTL_SECONDS,
+  Session,
+  SESSION_TTL_SECONDS,
+} from "../../../domain/entities/session.js";
 import { OPERATOR_USER_TYPES } from "../../../domain/entities/user-type.js";
 
 const CALLER = "AcsUseCase";
@@ -89,6 +96,17 @@ export const makeAcsUseCase =
 
     const { family_name, name, organization, uid } = parsed.data;
 
+    const revoked =
+      await sessionRepository.existsRevocationByOperatorExternalId(
+        organization.id,
+      );
+    if (revoked.isErr()) {
+      return err(revoked.error);
+    }
+    if (revoked.value) {
+      return err(new UnauthorizedError("Operator revoked"));
+    }
+
     const userType = resolveUserType(organization.fiscal_code, config);
     const isOperator = OPERATOR_USER_TYPES.includes(userType);
 
@@ -143,7 +161,7 @@ export const makeAcsUseCase =
               ...sessionData,
               operatorId: operator?.id,
             },
-            28800,
+            SESSION_TTL_SECONDS,
           ),
         ).andThen(
           () =>
@@ -151,7 +169,7 @@ export const makeAcsUseCase =
               sessionRepository.createOneTimeSessionId(
                 sessionId,
                 sessionToken,
-                60,
+                ONE_TIME_SESSION_ID_TTL_SECONDS,
               ),
             ),
         ),

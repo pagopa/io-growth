@@ -1,6 +1,7 @@
 import { PriorityHigh } from '@mui/icons-material';
 import type { GenericErrorConfig } from './index';
 
+// TODO must insert the real link to the content of the error code
 export const GENERIC_ERROR_CONFIG: Record<number, GenericErrorConfig> = {
   // #region Errors by /status
   107: {

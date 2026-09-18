@@ -12,7 +12,7 @@ export const useMixPanelSession = () => {
 
   const cachedDeviceId = useAppSelector(selectDeviceId);
 
-  const deviceIdQuery = params.get('device');
+  const deviceIdQuery = params.get('mixpanelId');
 
   const deviceId = useMemo(
     () => (isEmptySearch ? cachedDeviceId : deviceIdQuery),
@@ -20,15 +20,14 @@ export const useMixPanelSession = () => {
   );
 
   useEffect(() => {
-    if (deviceId) {
-      initAnalytics(deviceId, {
-        ANALYTICS_ENABLE: import.meta.env.VITE_ANALYTICS_ENABLE,
-        ANALYTICS_TOKEN: import.meta.env.VITE_ANALYTICS_TOKEN || '',
-        ANALYTICS_API_HOST: import.meta.env.VITE_ANALYTICS_API_HOST,
-        ANALYTICS_PERSISTENCE: import.meta.env.VITE_ANALYTICS_PERSISTENCE,
-        ANALYTICS_LOG_IP: import.meta.env.VITE_ANALYTICS_LOG_IP,
-        ANALYTICS_DEBUG: import.meta.env.VITE_ANALYTICS_DEBUG,
-      });
-    }
+    initAnalytics(!!deviceId, {
+      deviceId,
+      ANALYTICS_ENABLE: import.meta.env.VITE_ANALYTICS_ENABLE === 'true',
+      ANALYTICS_TOKEN: import.meta.env.VITE_ANALYTICS_TOKEN || '',
+      ANALYTICS_API_HOST: import.meta.env.VITE_ANALYTICS_API_HOST,
+      ANALYTICS_PERSISTENCE: import.meta.env.VITE_ANALYTICS_PERSISTENCE,
+      ANALYTICS_LOG_IP: import.meta.env.VITE_ANALYTICS_LOG_IP,
+      ANALYTICS_DEBUG: import.meta.env.VITE_ANALYTICS_DEBUG,
+    });
   }, [deviceId]);
 };

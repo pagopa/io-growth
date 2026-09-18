@@ -2,7 +2,7 @@ import { baseApi } from '../../core/api/baseApi';
 import {
   DraftDataResponse,
   GetApplicationStatus200,
-} from '../../core/api/generated/model';
+} from '../../generated/model';
 
 const readOnlyApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({

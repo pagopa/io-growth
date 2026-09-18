@@ -1,4 +1,4 @@
-import { LocalizedMetadataItemLanguage } from '../../../../../core/api/generated/model';
+import { LocalizedMetadataItemLanguage } from '../../../../../generated/model';
 
 export interface AgreementLanguageTab {
   id: LocalizedMetadataItemLanguage;

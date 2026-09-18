@@ -1,5 +1,5 @@
 import { baseApi } from '../../core/api/baseApi';
-import type { AuthorizeResponse } from '../../core/api/generated/model';
+import type { AuthorizeResponse } from '../../generated/model';
 
 const sessionApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({

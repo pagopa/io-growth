@@ -55,7 +55,11 @@ export default function EntityOpportunitiesPage() {
                 title={item.name}
                 badgeLabel={formatBadgeLabel(item.beneficiaryBenefit)}
                 sx={{ px: 0, bgcolor: 'background.paper' }}
-                onClick={() => navigate(toOpportunityDetailRoute(item.id))}
+                onClick={() =>
+                  navigate(toOpportunityDetailRoute(item.id), {
+                    state: { source: 'organization_detail' },
+                  })
+                }
               />
             ))}
           </Stack>

@@ -10,7 +10,7 @@ import type {
   OpportunitySummaryItem,
   OpportunitySummaryItemStatus,
   OpportunitySummaryItemSuspendedBy,
-} from '../../../core/api/generated/model';
+} from '../../../generated/model';
 import { publicationStatusLabels } from '../../../features/benefitsFilters/types';
 import { getChipConfig } from './utils';
 

@@ -5,7 +5,7 @@ import {
   OpportunityCategoryItem,
   OpportunityCreateRequest,
   OperatorDeleteOpportunityBody,
-} from '../../core/api/generated/model';
+} from '../../generated/model';
 import {
   getApproveOpportunityUrl,
   getCancelScheduledSuspensionUrl,
@@ -13,13 +13,14 @@ import {
   getOperatorCancelScheduledSuspensionUrl,
   getOperatorSuspendOpportunityUrl,
   getSuspendOpportunityUrl,
-} from '../../core/api/generated/endpoints/opportunities/opportunities';
+} from '../../generated/endpoints/opportunities/opportunities';
 import type {
   AdminOpportunityDetail,
   ApproveOpportunityPayload,
   ListAdminOpportunitiesParams,
   OpportunitiesResponse,
   OpportunityDetail,
+  OpportunityUpdatePayload,
   SuspendOpportunityPayload,
 } from './types';
 import { compactQueryParams } from '../../utils';
@@ -82,6 +83,20 @@ const opportunitiesApi = baseApi.injectEndpoints({
         method: 'POST',
         body: opportunity,
       }),
+    }),
+    updateOpportunity: builder.mutation<
+      void,
+      { id: string; payload: OpportunityUpdatePayload }
+    >({
+      query: ({ id, payload }) => ({
+        url: `/operator/opportunities/${id}`,
+        method: 'PUT',
+        body: payload,
+      }),
+      invalidatesTags: (_result, _error, { id }) => [
+        { type: 'Opportunities', id },
+        'Opportunities',
+      ],
     }),
     requestApproval: builder.mutation<void, string>({
       query: (id) => ({
@@ -180,6 +195,7 @@ export const {
   useGetOpportunityCategoriesQuery,
   useGetAdminOpportunityDetailQuery,
   useCreateOpportunityMutation,
+  useUpdateOpportunityMutation,
   useRequestApprovalMutation,
   useApproveOpportunityMutation,
   useAdminSuspendOpportunityMutation,

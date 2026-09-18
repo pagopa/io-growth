@@ -17,7 +17,7 @@ import {
   BenefitDiscountDiscountType,
   BenefitReducedFixedPriceType,
   BenefitRequest,
-} from '../../../../../core/api/generated/model';
+} from '../../../../../generated/model';
 import { useCallback, useMemo } from 'react';
 import { benefitTypeMap } from '../../../../../constants/formOptions/types';
 import { FieldWithIcon } from '../../AgreementDetailsSection/components/FieldWithIcon';

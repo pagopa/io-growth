@@ -1,5 +1,5 @@
 import LocationOnIcon from '@mui/icons-material/LocationOn';
-import type { OfflinePlaceResponse } from '../../../../core/api/generated/model';
+import type { OfflinePlaceResponse } from '../../../../generated/model';
 import { SelectItemModal } from '../components/SelectItemModal';
 
 interface SelectLocationModalProps {

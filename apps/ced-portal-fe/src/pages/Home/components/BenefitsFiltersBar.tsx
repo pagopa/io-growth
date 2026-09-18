@@ -2,8 +2,8 @@ import FilterAltOutlined from '@mui/icons-material/FilterAltOutlined';
 import { Button, SelectChangeEvent, Stack } from '@mui/material';
 import { useCallback } from 'react';
 import { AppSelect, AppTextField } from '../../../components';
-import type { ListOperatorOpportunitiesStatus } from '../../../core/api/generated/model';
-import type { OpportunityCategoryItem } from '../../../core/api/generated/model/opportunityCategoryItem';
+import type { ListOperatorOpportunitiesStatus } from '../../../generated/model';
+import type { OpportunityCategoryItem } from '../../../generated/model/opportunityCategoryItem';
 
 interface BenefitsFiltersBarProps {
   search: string;

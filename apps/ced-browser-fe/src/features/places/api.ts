@@ -1,8 +1,5 @@
 import { baseApi } from '../../core/api/baseApi';
-import type {
-  PlaceSearchResponse,
-  PlaceDetail,
-} from '../../core/api/generated/model';
+import type { PlaceSearchResponse, PlaceDetail } from '../../generated/model';
 
 const placesApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({

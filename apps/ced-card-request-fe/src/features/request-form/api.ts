@@ -2,7 +2,7 @@ import { baseApi } from '../../core/api/baseApi';
 import {
   CreateNewApplication200,
   NuovaDomandaInBozzaRequest,
-} from '../../core/api/generated/model';
+} from '../../generated/model';
 
 type createDraftRequest = {
   body: NuovaDomandaInBozzaRequest;

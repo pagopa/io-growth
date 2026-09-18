@@ -1,12 +1,12 @@
 import { useMemo } from 'react';
-import { ListOnboardingsStatusesItem } from '../../core/api/generated/model';
+import { ListOnboardingsStatusesItem } from '../../generated/model';
 import { useListDepartmentOnboardingsQuery } from './api.js';
 import type {
   DepartmentOnboardingStatus,
   EntityFilters,
   EntityItem,
 } from './types.js';
-import type { OnboardingItem } from '../../core/api/generated/model';
+import type { OnboardingItem } from '../../generated/model';
 
 const ONBOARDING_STATUSES = new Set<string>(
   Object.values(ListOnboardingsStatusesItem),

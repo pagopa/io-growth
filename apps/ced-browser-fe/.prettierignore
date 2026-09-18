@@ -1,2 +1,5 @@
-# ignore files that are generated from openapi by the build process
+# Ignore generated and build artifacts
+src/generated
 src/core/api/generated
+dist
+**/src/generated/**

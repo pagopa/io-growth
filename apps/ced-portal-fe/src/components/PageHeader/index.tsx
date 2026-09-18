@@ -6,7 +6,7 @@ import { useAppSelector } from '../../hooks';
 import { APP_ROUTES } from '../../app/routeConfig';
 import { selectUser } from '../../core/auth/authSelectors';
 import { useDevRoleSwitcher } from '../../features/session/authDev/useDevRoleSwitcher';
-import { AuthorizeResponseUserType } from '../../core/api/generated/model';
+import { AuthorizeResponseUserType } from '../../generated/model';
 import { devAuthStorage } from '../../features/session/authDev/wrapper';
 
 const isDev = import.meta.env.DEV;

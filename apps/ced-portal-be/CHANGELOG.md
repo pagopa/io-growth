@@ -1,5 +1,18 @@
 # ced-portal-be
 
+## 0.4.1
+
+### Patch Changes
+
+- 7b9e58d: Update the ACS callback to accept the assertion token through the Bearer Authorization header and return the one-time session ID as JSON.
+
+## 0.4.0
+
+### Minor Changes
+
+- e4df158: Add the operator opportunity-edit endpoint: PUT /api/operator/opportunities/{opportunityId}.
+  The endpoint replaces the complete writable opportunity representation; omitted optional fields are cleared.
+
 ## 0.3.1
 
 ### Patch Changes

@@ -1,5 +1,5 @@
 import { useCreatePlaceMutation } from '../places/api';
-import type { PlaceResponse } from '../../core/api/generated/model';
+import type { PlaceResponse } from '../../generated/model';
 import { useAppDispatch, useAppSelector } from '../../hooks/store';
 import { resetLocationForm, selectLocationForm } from './locationSlice';
 import { useToast } from '../../contexts';

@@ -7,7 +7,7 @@ The exact profile is selected at runtime via the `MODI_PROFILE` environment vari
 
 | Profile                      | ModI Patterns                                                             | mTLS | Body digest | Response non-repudiation |
 | ---------------------------- | ------------------------------------------------------------------------- | :--: | :---------: | :----------------------: |
-| **P1** — `ID_AUTH_REST_01`   | Auth-only JWT in `Agid-JWT-Signature`                                     |  ❌  |     ❌      |            ❌            |
+| **P1** — `ID_AUTH_CHANNEL_02`   | mTLS client certificate (no JWT signing)                              |  ✅  |     ❌      |            ❌            |
 | **P2** — `INTEGRITY_REST_01` | Auth + body-integrity JWT                                                 |  ❌  |     ✅      |            ❌            |
 | **P3** — Full                | `ID_AUTH_CHANNEL_02` + `INTEGRITY_REST_01` + `PROFILE_NON_REPUDIATION_01` |  ✅  |     ✅      |            ✅            |
 
@@ -15,7 +15,7 @@ All profiles require:
 
 | Requirement                               | Mechanism                                                                      |
 | ----------------------------------------- | ------------------------------------------------------------------------------ |
-| Application-level JWT signing of requests | `ID_AUTH_REST_01` / `INTEGRITY_REST_01` (depth varies by profile)              |
+| mTLS client certificate authentication    | `ID_AUTH_CHANNEL_02` (all profiles)                                            |
 | Caller identity threading                 | INPS `Identity` header (`INPS-Identity-UserId`, `INPS-Identity-CodiceUfficio`) |
 
 ---
@@ -39,7 +39,7 @@ flowchart LR
     kv[["**Azure Key Vault**\nCertificates & keys"]]
 
     citizen -->|"Submits application"| ioApp
-    ioApp -->|"signed JWT (ModI P1/P2)\nor mTLS + signed JWT (P3)"| inps
+    ioApp -->|"mTLS (P1) or mTLS + signed JWT (P2/P3)"| inps
     ioApp -->|"Fetches credentials\n(startup / per-request)"| kv
 ```
 
@@ -74,10 +74,10 @@ flowchart TD
 
     subgraph MODI["io-core-adapter-modi"]
         SF["createSignedFetch\n(profile-aware)"]
-        SIGNER["jose-token-signer\n(Agid-JWT-Signature)"]
+        SIGNER["jose-token-signer\n(Agid-JWT-Signature) — P2/P3 only"]
         DIGEST["computeDigest\n(SHA-256) — P2/P3 only"]
         VERIFIER["jose-response-verifier\n(request_digest check) — P3 only"]
-        MTLS["createMtlsDispatcher\n(undici Agent) — P3 only"]
+        MTLS["createMtlsDispatcher\n(undici Agent) — P1/P2/P3 (all profiles)"]
         KV["createKeyvaultCredentialProvider\n(Azure Key Vault)"]
     end
 
@@ -125,27 +125,27 @@ sequenceDiagram
     CF->>CF: set INPS-Identity-UserId / CodiceUfficio headers
     CF->>SF: signedFetch(fullUrl, opts)
 
-    Note over SF,KV: P3 only
+    Note over SF,KV: P3 only (mTLS required for all profiles)
     SF->>KV: getHttpsClientCredentials() + getInpsHttpsCaChain() [cached 24h]
     KV-->>SF: cert, key, CA PEM
 
     SF->>SF: assert INPS-Identity-UserId is present (fail-fast — all profiles)
 
-    Note over SF: P2/P3 only
+    Note over SF: P1/P2/P3 (mTLS required for all)
     SF->>SF: computeDigest(body) → SHA-256 Digest header
 
     SF->>KV: getSigningCredentials() [cached 24h — all profiles]
     Note over SF,KV: P3 only (alongside above)
     KV-->>SF: privateKey, x5c [, signingCA for P3]
 
-    Note over SF: P1: auth claims only · P2/P3: + digest + signed_headers
+    Note over SF: P1/P2/P3 (all profiles)
     SF->>SF: SignJWT { identity claims [, digest, signed_headers] }
     SF->>SF: set Agid-JWT-Signature header
 
-    SF->>INPS: POST /Domanda/CheckDomanda [Agid-JWT-Signature [+ mTLS for P3]]
+    SF->>INPS: POST /Domanda/CheckDomanda [Agid-JWT-Signature (+ mTLS for all)]
     INPS-->>SF: 200 [+ Agid-JWT-Signature response JWT for P3]
 
-    Note over SF: P3 only
+    Note over SF: P1/P2 (no response verification) · P3 (response JWT)
     SF->>SF: assert Agid-JWT-Signature present (fail-closed)
     SF->>SF: jwtVerify(responseJwt) + assert request_digest == sentDigest
     SF-->>CF: Response
@@ -164,22 +164,22 @@ flowchart LR
     end
 
     subgraph AKV_NS["Azure Key Vault"]
-        SEC1["HTTPS client cert/key\n(mTLS) — P3 only"]
+        SEC1["HTTPS client cert/key\n(mTLS) — all profiles (P1/P2/P3)"]
         SEC2["Signing cert/key\n(JWT — all profiles)"]
-        SEC3["INPS HTTPS CA\n(trust anchor) — P3 only"]
+        SEC3["INPS HTTPS CA\n(trust anchor) — required for secure transport (P1/P2/P3)"]
         SEC4["INPS Signing CA\n(response verification) — P3 only"]
     end
 
     INPS["INPS Gateway\n(api.collaudo.inps.it / api.inps.it)\nIP allowlist: 89.97.59.151 / 89.97.59.148"]
 
     APP -- "DefaultAzureCredential\n(Managed Identity)" --> AKV_NS
-    APP -- "HTTPS [+ mTLS for P3]\negressIP whitelisted at INPS" --> INPS
+    APP -- "HTTPS with mTLS\negressIP whitelisted at INPS" --> INPS
 ```
 
 Credential loading strategy:
 
 - **Signing credentials** — cached for 24 h (TTL-based, refreshed lazily on next request after expiry). All profiles.
-- **mTLS undici `Agent`** — cached for 24 h (same TTL). **P3 only.** Lazily rebuilt from Key Vault after expiry, enabling certificate rotation without a restart.
+- **mTLS undici `Agent`** — cached for 24 h (same TTL). all profiles (P1/P2/P3). Lazily rebuilt from Key Vault after expiry, enabling certificate rotation without a restart.
 
 ---
 
@@ -237,50 +237,60 @@ All 6 PEM secrets live in Azure Key Vault for P3. P1/P2 only require the 2 signi
 
 ### Pain Points
 
-#### 🔴 P1 — Agid-JWT-Signature header name unconfirmed _(OPEN)_
+#### 🔴 1. Agid-JWT-Signature header name unconfirmed _(OPEN)_
 
 **File:** `packages/io-core-adapter-inps-ced/openapi/consumed/openapi.yaml` line 820
-The consumed OpenAPI declares the ModI JWT in the `Authorization` header, but the runtime sends it as `Agid-JWT-Signature`. The spec contains a TODO comment acknowledging this ambiguity.
-**Risk:** If INPS actually expects `Authorization: Bearer <jwt>`, all requests will be rejected.
-**Fix:** Confirm the exact header name from the INPS eService descriptor before adhesion testing. Update both the OpenAPI spec and `jose-token-signer.ts`.
 
-#### 🔴 P2 — P3 non-repudiation check not enforced _(FIXED)_
+The consumed OpenAPI declares the ModI JWT in the `Authorization` header with format `'Bearer <jwt>'`, but the runtime implementation sends it as `Agid-JWT-Signature`. The spec contains a TODO comment acknowledging this ambiguity.
+
+**Explanation:** 
+- **OpenAPI declaration (line 817-820):** The spec shows `Authorization: Bearer <jwt>` format
+- **Runtime implementation:** The code uses `Agid-JWT-Signature` header
+
+This discrepancy exists because:
+1. The OpenAPI spec was generated from INPS consumed specification
+2. AGID ModI specification uses `Agid-JWT-Signature` for request signing
+3. INPS eService descriptor will confirm the exact header name
+
+**Fix:** Update the OpenAPI spec to use `Agid-JWT-Signature` as the header name and change from `Authorization: Bearer <jwt>` format to apiKey type with `in: header`.
+
+#### 🔴 2. P3 non-repudiation check not enforced _(FIXED)_
 
 **File:** `packages/io-core-adapter-modi/src/signed-fetch.ts`
 ~~The `Agid-JWT-Signature` response header was only verified **if present** — absence was silently accepted.~~
 **Applied fix:** `signedFetch` now throws `"ModI P3 violation: INPS response is missing the required Agid-JWT-Signature header"` when the header is absent (fail-closed).
 
-#### 🟠 P3 — Silent empty userId _(FIXED)_
+#### 🟠 3. Silent empty userId _(FIXED)_
 
 **File:** `packages/io-core-adapter-modi/src/signed-fetch.ts`
 ~~`const userId = headers.get("INPS-Identity-UserId") ?? ""` silently produced a blank `userId` in the signed JWT.~~
 **Applied fix:** `signedFetch` now throws `"INPS-Identity-UserId header is required but was not set by the caller"` when the header is missing or empty.
 
-#### 🟠 P4 — Signing credentials fetched from Key Vault on every request _(FIXED)_
+#### 🟠 4. Signing credentials fetched from Key Vault on every request _(FIXED)_
 
 **File:** `packages/io-core-adapter-modi/src/signed-fetch.ts`
 ~~`getSigningCredentials()` and `getInpsSigningCaChain()` were called per request (2 Key Vault round-trips with no caching).~~
 **Applied fix:** Signing credentials are now cached inside the `createSignedFetch` closure with a 24 h TTL (`CachedSigningCredentials` + `expiresAt`), refreshed lazily on the next request after expiry.
 
-#### 🟡 P5 — signedFetch throws instead of returning Result _(FIXED)_
+#### 🟡 5. signedFetch throws instead of returning Result _(FIXED)_
 
 **File:** `packages/io-core-adapter-modi/src/signed-fetch.ts`
 ~~`SignedFetch` was typed as `(url, options) => Promise<Response>` and threw exceptions for Key Vault failures, JWT errors, and guard violations.~~
 **Applied fix:** `SignedFetch` now returns `Promise<Result<Response, BaseError>>`. All internal `throw` statements are replaced with `return err(...)`. An outer `try/catch` converts unexpected failures from internal helpers into `GenericError`. The `customFetch` mutator in `io-core-adapter-inps-ced` unwraps the `Result` and re-throws on error, bridging into the orval-generated call chain.
 
-#### 🟡 P6 — ModiRequestContext entity exported but unused _(FIXED)_
+#### 🟡 6. ModiRequestContext entity exported but unused _(FIXED)_
 
 **Files:** `packages/io-core-adapter-modi/src/domain/entities.ts`, `src/index.ts`
 ~~`ModiRequestContext` was exported in the public API but identity was threaded via raw headers, not this type.~~
 **Applied fix:** The unused interface and its barrel export have been removed.
 
-#### 🟡 P7 — Stale sequence diagrams _(FIXED)_
+#### 🟡 7. Stale sequence diagrams _(FIXED)_
 
 **Files:** `docs/ced-card-request/sequence/*.puml` (5 files)
 ~~Diagrams labelled INPS as `"INPS Services (PDND)"`. PDND was administratively discarded.~~
 **Applied fix:** All 5 diagrams updated to `"INPS Services (ModI P3)"`.
 
-#### 🟡 P8 — mTLS dispatcher cache invalidation on certificate rotation _(FIXED)_
+#### 🟡 8. mTLS dispatcher cache invalidation on certificate rotation _(FIXED)_
 
 **File:** `packages/io-core-adapter-modi/src/signed-fetch.ts`
 ~~The `cachedDispatcher` lived for the process lifetime. Rotating the HTTPS client certificate in Key Vault had no effect until restart.~~
@@ -292,10 +302,10 @@ The consumed OpenAPI declares the ModI JWT in the `Authorization` header, but th
 
 | Quality         | Mechanism                                                                     | Status                                                              |
 | --------------- | ----------------------------------------------------------------------------- | ------------------------------------------------------------------- |
-| Confidentiality | JWT signing (all profiles); mTLS (P3 only)                                    | Header name unconfirmed (P1); profile selectable via `MODI_PROFILE` |
+| Confidentiality | mTLS (all profiles); JWT signing (P2/P3 only)                                    | Header name unconfirmed (P1); profile selectable via `MODI_PROFILE` |
 | Non-repudiation | Response JWT verification fail-closed (P3 only; P1/P2 don’t require it)       | Fixed (P2)                                                          |
 | Auditability    | Identity headers in signed JWT; fail-fast on empty `UserId` (all profiles)    | Fixed (P3)                                                          |
-| Availability    | Signing credentials cached 24 h (all profiles); mTLS dispatcher cached for P3 | Signing creds fixed (P4); mTLS cache still no TTL (P8)              |
+| Availability    | Signing credentials cached 24 h (all profiles); mTLS dispatcher cached (all profiles) | Signing creds fixed (4); mTLS cache still no TTL (8)              |
 | Performance     | 24 h credential cache avoids per-request Key Vault round-trips (all profiles) | Fixed (P4)                                                          |
 
 ---

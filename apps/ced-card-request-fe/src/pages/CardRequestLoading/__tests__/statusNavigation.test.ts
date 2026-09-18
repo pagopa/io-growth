@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 
-import type { GetApplicationStatus200 } from '../../../core/api/generated/model';
+import type { GetApplicationStatus200 } from '../../../generated/model';
 
 import { APP_ROUTES } from '../../../app/routeConfig';
 import { runStatusNavigation } from '../statusNavigation';

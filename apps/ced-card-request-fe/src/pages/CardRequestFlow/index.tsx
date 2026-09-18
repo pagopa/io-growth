@@ -92,9 +92,14 @@ export default function CardRequestFlowPage() {
     confirmRequest,
     isDraftError,
     isPhotoError,
+    isConfirmError,
+    draftErrorCode,
+    photoErrorCode,
+    confirmErrorCode,
     isLoading,
     resetDraft,
     resetPhoto,
+    resetConfirm,
   } = useSaveDataByStep(goNextStep);
 
   const handleBack = () => {
@@ -123,13 +128,36 @@ export default function CardRequestFlowPage() {
     return <MobileSpinnerLoader title="Attendi qualche secondo" fullscreen />;
   }
 
-  // TODO debug only
   if (isDraftError) {
-    return <GenericError onRetry={saveFirstDraftData} onBack={resetDraft} />;
+    return (
+      <GenericError
+        errorCode={draftErrorCode}
+        multiTitle="Ci sono alcuni errori nei tuoi dati anagrafici"
+        onRetry={saveFirstDraftData}
+        onClose={resetDraft}
+        onBack={resetDraft}
+      />
+    );
   }
-  // TODO debug only
   if (isPhotoError) {
-    return <GenericError onRetry={savePhoto} onBack={resetPhoto} />;
+    return (
+      <GenericError
+        errorCode={photoErrorCode}
+        onRetry={savePhoto}
+        onClose={resetPhoto}
+        onBack={resetPhoto}
+      />
+    );
+  }
+  if (isConfirmError) {
+    return (
+      <GenericError
+        errorCode={confirmErrorCode}
+        onRetry={confirmRequest}
+        onClose={resetConfirm}
+        onBack={resetConfirm}
+      />
+    );
   }
 
   if (draftSaved) {

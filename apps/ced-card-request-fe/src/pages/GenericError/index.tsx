@@ -1,49 +1,138 @@
-import { ArrowBack, Download, PriorityHigh } from '@mui/icons-material';
+import { ArrowBack, PriorityHigh } from '@mui/icons-material';
 import { Box, Button, ButtonBase, useTheme } from '@mui/material';
+import type { SvgIconComponent } from '@mui/icons-material';
 import { Body, Title, VSpacer } from '@pagopa/io-core-ui';
+import { useCallback, useMemo, type ReactNode } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { CopyToClipboardButton } from '../../components/CopyToClipboardButton';
+import { GENERIC_ERROR_CONFIG } from './constants';
 
-interface Props {
+export interface GenericErrorConfig {
+  errorCode?: string | number | Array<string | number>;
+  title: string;
+  description: ReactNode;
+  additionalDescription?: ReactNode;
+  cAcLink: string;
+  icon?: SvgIconComponent;
+  multiTitle?: string;
+}
+
+interface Props extends Partial<GenericErrorConfig> {
+  config?: GenericErrorConfig;
   onClose?: () => void;
   onRetry?: () => void;
   onBack?: () => void;
 }
 
-//TODO should use the DS error screen in the future
-export default function GenericError({ onClose, onBack, onRetry }: Props) {
+export default function GenericError({
+  config,
+  errorCode,
+  title = 'Errore generico',
+  description = 'Si è verificato un errore. Riprova più tardi.',
+  additionalDescription,
+  onClose,
+  onBack,
+  onRetry,
+  multiTitle,
+}: Props) {
   const theme = useTheme();
+  const location = useLocation();
+  const navigate = useNavigate();
 
-  /**
-   * TODO debug only
-   * ----------------------------------------------------------------------------
-   */
-  const error = localStorage.getItem('log-error');
+  const locationErrorCode = (
+    location.state as { errorCode?: GenericErrorConfig['errorCode'] } | null
+  )?.errorCode;
 
-  const handleDownloadError = () => {
-    if (!error) return;
+  const resolvedErrorCode = errorCode ?? locationErrorCode;
 
-    try {
-      const parsedError = JSON.parse(error);
-      const dataStr =
-        'data:text/json;charset=utf-8,' +
-        encodeURIComponent(JSON.stringify(parsedError, null, 2));
+  const resolvedErrorCodes = useMemo(
+    () =>
+      resolvedErrorCode === undefined
+        ? []
+        : Array.isArray(resolvedErrorCode)
+          ? resolvedErrorCode
+          : [resolvedErrorCode],
+    [resolvedErrorCode],
+  );
 
-      const downloadAnchor = document.createElement('a');
-      downloadAnchor.setAttribute('href', dataStr);
-      downloadAnchor.setAttribute('download', `error-log-${Date.now()}.json`);
-      document.body.appendChild(downloadAnchor);
-      downloadAnchor.click();
-      downloadAnchor.remove();
-    } catch (e) {
-      console.error('Impossibile scaricare il file di errore', e);
+  const configuredErrors = useMemo(
+    () =>
+      resolvedErrorCodes
+        .map((code) => GENERIC_ERROR_CONFIG[Number(code)])
+        .filter((error): error is GenericErrorConfig => error !== undefined),
+    [resolvedErrorCodes],
+  );
+
+  const content = useMemo(() => {
+    if (config) return config;
+    if (configuredErrors.length === 0) {
+      return {
+        errorCode: resolvedErrorCode,
+        title,
+        description,
+        additionalDescription,
+        cAcLink: 'https://test.it',
+      };
     }
-  };
-  // --------------------------------------------------------------------------------
 
-  const handleClose = () => {
+    const isMulti = configuredErrors.length > 1;
+    const firstError = configuredErrors[0];
+
+    const uniqueErrors = configuredErrors.reduce<typeof configuredErrors>(
+      (acc, curr) =>
+        acc.some(({ description }) => description === curr.description)
+          ? acc
+          : [...acc, curr],
+      [],
+    );
+
+    return {
+      ...firstError,
+      errorCode: resolvedErrorCode,
+      title: isMulti ? (multiTitle ?? firstError.title) : firstError.title,
+      description: isMulti ? (
+        <Box component="ul" sx={{ m: 0, pl: 3, textAlign: 'left' }}>
+          {uniqueErrors.map((error) => (
+            <Box component="li" key={String(error.errorCode)}>
+              <Body>{error.description}</Body>
+            </Box>
+          ))}
+        </Box>
+      ) : (
+        firstError.description
+      ),
+    };
+  }, [
+    config,
+    configuredErrors,
+    resolvedErrorCode,
+    title,
+    description,
+    additionalDescription,
+    multiTitle,
+  ]);
+
+  const ErrorIcon = content.icon ?? PriorityHigh;
+  const errorCodeLabel = Array.isArray(content.errorCode)
+    ? content.errorCode.join(', ')
+    : String(content.errorCode);
+
+  const handleClose = useCallback(() => {
     if (onClose) {
       onClose();
+      return;
     }
-  };
+
+    navigate(-1);
+  }, [navigate, onClose]);
+
+  const closeButtonProps = useMemo(
+    () =>
+      resolvedErrorCode
+        ? { variant: 'contained' as const, label: 'Ho capito' }
+        : { variant: 'text' as const, label: 'Chiudi' },
+    [resolvedErrorCode],
+  );
 
   return (
     <Box sx={{ px: 3, pt: 3, pb: 2 }}>
@@ -53,7 +142,6 @@ export default function GenericError({ onClose, onBack, onRetry }: Props) {
           sx={{
             display: 'inline-flex',
             alignItems: 'center',
-            justifyContent: 'center',
             gap: 0.5,
             color: 'text.primary',
             fontSize: 16,
@@ -65,6 +153,7 @@ export default function GenericError({ onClose, onBack, onRetry }: Props) {
           Indietro
         </ButtonBase>
       )}
+
       <Box
         sx={{
           inset: 0,
@@ -76,12 +165,7 @@ export default function GenericError({ onClose, onBack, onRetry }: Props) {
           mx: 2,
         }}
       >
-        <Box
-          sx={{
-            p: { xs: 2.5, sm: 3 },
-            textAlign: 'center',
-          }}
-        >
+        <Box sx={{ p: { xs: 2.5, sm: 3 }, textAlign: 'center' }}>
           <Box
             sx={{
               width: 72,
@@ -95,39 +179,45 @@ export default function GenericError({ onClose, onBack, onRetry }: Props) {
               mx: 'auto',
             }}
           >
-            <PriorityHigh
+            <ErrorIcon
               sx={{ color: theme.palette.primary.main, fontSize: 32 }}
             />
           </Box>
-          <Title variant="MD" text="Errore generico" />
-          <VSpacer size={8} />
-          <Body>Generic error</Body>
 
-          {/* START- TODO debug only */}
-          {error && (
+          <Title variant="MD" text={content.title} />
+          <VSpacer size={8} />
+          <Body>{content.description}</Body>
+
+          {content.additionalDescription && (
             <>
               <VSpacer size={16} />
-              <ButtonBase
-                onClick={handleDownloadError}
-                sx={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: 0.5,
-                  color: theme.palette.primary.main,
-                  fontSize: 14,
-                  fontWeight: 500,
-                  textDecoration: 'underline',
-                  '&:hover': { opacity: 0.8 },
-                }}
-              >
-                <Download sx={{ fontSize: 16 }} />
-                Scarica dettagli errore (JSON)
-              </ButtonBase>
+              <Body>{content.additionalDescription}</Body>
             </>
           )}
-          {/* END- TODO debug only */}
+
+          {content.errorCode !== undefined && (
+            <>
+              <VSpacer size={16} />
+              <CopyToClipboardButton
+                textToCopy={errorCodeLabel}
+                label={`Errore ${errorCodeLabel}`}
+                variant="outlined"
+                iconColor="primary"
+                sx={{
+                  width: '100%',
+                  justifyContent: 'space-between',
+                  '&.MuiButton-outlined': {
+                    borderColor: theme.palette.common.neutralGray,
+                    color: theme.palette.text.primary,
+                    bgcolor: 'common.white',
+                  },
+                }}
+              />
+            </>
+          )}
 
           <VSpacer size={32} />
+
           <Box
             sx={{
               display: 'flex',
@@ -136,7 +226,7 @@ export default function GenericError({ onClose, onBack, onRetry }: Props) {
               alignItems: 'center',
             }}
           >
-            {onRetry && (
+            {!errorCode && onRetry && (
               <Button
                 variant="text"
                 onClick={onRetry}
@@ -145,13 +235,24 @@ export default function GenericError({ onClose, onBack, onRetry }: Props) {
                 Riprova
               </Button>
             )}
+
             <Button
-              variant="text"
+              variant={closeButtonProps.variant}
               onClick={handleClose}
-              sx={{ color: theme.palette.common.primaryButton, fontSize: 16 }}
+              sx={{ fontSize: 16 }}
             >
-              Chiudi
+              {closeButtonProps.label}
             </Button>
+
+            {resolvedErrorCode && (
+              <Button
+                variant="text"
+                onClick={() => window.location.replace(content.cAcLink)}
+                sx={{ color: theme.palette.common.primaryButton, fontSize: 16 }}
+              >
+                Cosa puoi fare
+              </Button>
+            )}
           </Box>
         </Box>
       </Box>

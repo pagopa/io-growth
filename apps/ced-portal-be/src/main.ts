@@ -26,6 +26,7 @@ import {
   mountAdminGetOpportunityHandler,
   mountAdminListOpportunitiesHandler,
   mountAdminListPendingOnboardingsHandler,
+  mountAdminRejectOnboardingHandler,
   mountAdminSuspendOpportunityHandler,
   mountAuthorizeHandler,
   mountInfoReadinessHandler,
@@ -63,6 +64,7 @@ import { makeAdminCompleteOnboardingUseCase } from "./application/use-cases/depa
 import { makeAdminGetContractSignedUseCase } from "./application/use-cases/department/admin-get-contract-signed.use-case.js";
 import { makeAdminGetOnboardingUseCase } from "./application/use-cases/department/admin-get-onboarding.use-case.js";
 import { makeAdminListPendingOnboardingsUseCase } from "./application/use-cases/department/admin-list-pending-onboardings.use-case.js";
+import { makeAdminRejectOnboardingUseCase } from "./application/use-cases/department/admin-reject-onboarding.use-case.js";
 import { makeInfoReadinessUseCase } from "./application/use-cases/health/info-readiness.use-case.js";
 import { makeInfoStartupUseCase } from "./application/use-cases/health/info-startup.use-case.js";
 import { makeAdminApproveOpportunityUseCase } from "./application/use-cases/opportunities/admin-approve-opportunity.use-case.js";
@@ -284,6 +286,10 @@ app.register(async (app) => {
   mountAdminGetOnboardingHandler(
     app,
     makeAdminGetOnboardingUseCase(arOnboardingRepository),
+  );
+  mountAdminRejectOnboardingHandler(
+    app,
+    makeAdminRejectOnboardingUseCase(arOnboardingRepository),
   );
   mountAdminGetOpportunityHandler(
     app,

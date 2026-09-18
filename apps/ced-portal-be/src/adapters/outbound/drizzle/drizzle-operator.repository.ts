@@ -120,7 +120,7 @@ export const createDrizzleOperatorRepository = (
         const result = await tx
           .update(operator)
           .set({
-            revocationMessage: input.revocationMessage,
+            revocationMessage: input.revocationMessage ?? null,
             revokedAt: now,
             status: OPERATOR_STATUS.REVOKED,
             updatedAt: now,

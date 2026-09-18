@@ -27,6 +27,7 @@ export interface OperatorRepository {
 
 export interface RevokeByIdInput {
   operatorId: string;
-  revocationMessage: string;
+  /** Absent when the department gave no reason: the column is set to null. */
+  revocationMessage?: string;
   suspensionMessage: string;
 }

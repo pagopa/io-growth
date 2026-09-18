@@ -21,7 +21,7 @@ const CASCADE_SUSPENSION_MESSAGE =
 
 const AdminRevokeOperatorInputSchema = z.object({
   onboardingId: z.string().min(1),
-  revocationMessage: z.string().min(1).max(4096),
+  revocationMessage: z.string().trim().min(1).max(4096).optional(),
 });
 
 export type AdminRevokeOperatorInput = z.infer<

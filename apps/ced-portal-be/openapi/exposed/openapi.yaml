@@ -1913,32 +1913,35 @@ paths:
           schema:
             type: string
       requestBody:
-        required: true
+        required: false
         content:
           application/json:
             schema:
               type: object
               additionalProperties: false
-              required:
-                - revocationMessage
               properties:
                 revocationMessage:
                   type: string
                   minLength: 1
                   maxLength: 4096
-                  description: Reason for the revocation. Recorded on the operator.
+                  description: >-
+                    Reason for the revocation, recorded on the operator and kept
+                    in the audit trail. Optional: when omitted the column is set
+                    to null and the audit records the revocation without a
+                    reason. Leading/trailing whitespace is trimmed; must be
+                    non-empty once trimmed.
       responses:
         "204":
           description: Operator revoked
         "400":
-          description: "Invalid payload: revocationMessage missing or empty"
+          description: "Invalid payload: revocationMessage present but empty or too long"
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
               example:
                 statusCode: 400
-                message: "Validation error: revocationMessage is required"
+                message: "Validation error: revocationMessage must not be empty"
         "401":
           description: Invalid or missing JWT
           content:

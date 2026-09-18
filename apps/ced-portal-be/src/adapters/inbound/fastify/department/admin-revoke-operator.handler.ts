@@ -18,7 +18,7 @@ import {
 } from "../contracts/department/department.js";
 
 const adminRevokeOperatorHttpSchema = zod.object({
-  body: AdminRevokeOperatorBody,
+  body: AdminRevokeOperatorBody.optional(),
   path: AdminRevokeOperatorParams,
 });
 
@@ -29,7 +29,7 @@ const adminRevokeOperatorValidator = withUserTypeAuthorization(
     createHttpRequestValidator(adminRevokeOperatorHttpSchema),
     (_session, { body, path }) => ({
       onboardingId: path.onboardingId,
-      revocationMessage: body.revocationMessage,
+      revocationMessage: body?.revocationMessage,
     }),
   ),
 );

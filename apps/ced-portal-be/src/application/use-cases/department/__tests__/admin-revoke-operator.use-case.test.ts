@@ -155,17 +155,33 @@ describe("makeAdminRevokeOperatorUseCase — preconditions", () => {
     expect(deps.arOnboardingRepository.deleteOnboarding).not.toHaveBeenCalled();
   });
 
-  it("should reject an empty revocation message", async () => {
+  it.each([
+    ["empty", ""],
+    ["blank once trimmed", "   "],
+    ["over the 4096 cap", "x".repeat(4097)],
+  ])("should reject a revocation message %s", async (_label, message) => {
     const deps = makeDeps();
     const result = await makeAdminRevokeOperatorUseCase(deps)({
       ...validInput,
-      revocationMessage: "",
+      revocationMessage: message,
     });
 
     expect(result).toEqual(
       err(expect.objectContaining({ kind: "ValidationError" })),
     );
     expect(deps.arOnboardingRepository.getById).not.toHaveBeenCalled();
+  });
+
+  it("should accept a revocation without a message", async () => {
+    const deps = makeDeps();
+    const result = await makeAdminRevokeOperatorUseCase(deps)({
+      onboardingId: validInput.onboardingId,
+    });
+
+    expect(result).toEqual(ok(undefined));
+    expect(deps.operatorRepository.revokeById).toHaveBeenCalledWith(
+      expect.objectContaining({ revocationMessage: undefined }),
+    );
   });
 });
 

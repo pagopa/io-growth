@@ -1,6 +1,6 @@
 {
   "name": "ced-portal-be",
-  "version": "0.4.1",
+  "version": "0.4.2",
   "private": true,
   "type": "module",
   "main": "dist/main.js",
@@ -27,6 +27,7 @@
     "generate": "orval"
   },
   "dependencies": {
+    "@pagopa/io-core-adapter-azure-blob-storage": "workspace:^",
     "@pagopa/io-core-adapter-ar": "workspace:^",
     "@pagopa/io-core-adapter-tracing": "workspace:^",
     "@pagopa/io-core-adapter-drizzle": "workspace:^",
@@ -37,6 +38,7 @@
     "@standard-schema/spec": "^1.1.0",
     "drizzle-orm": "^0.45.0",
     "fastify": "catalog:",
+    "image-size": "^2.0.2",
     "jose": "^6.2.2",
     "neverthrow": "catalog:",
     "ulid": "^3.0.2",

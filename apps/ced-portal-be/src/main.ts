@@ -2,6 +2,7 @@
 // before any instrumented library (Fastify, PostgreSQL, Redis, fetch) loads.
 import "./telemetry.js";
 
+import { createBlobRepository } from "@pagopa/io-core-adapter-azure-blob-storage";
 import {
   createAuthenticationPreHandler,
   getSessionFromRequest,
@@ -46,6 +47,7 @@ import {
   mountOperatorUpdateOpportunityHandler,
 } from "./adapters/inbound/fastify/index.js";
 import { createArOnboardingRepository } from "./adapters/outbound/ar/ar-onboarding.repository.js";
+import { createAzureProfileAssetsRepository } from "./adapters/outbound/blob/azure-profile-assets.repository.js";
 import { createDrizzleHealthCheckRepository } from "./adapters/outbound/drizzle/drizzle-health-check.repository.js";
 import { createDrizzleMaterializedViewRepository } from "./adapters/outbound/drizzle/drizzle-materialized-view.repository.js";
 import { createDrizzleOperatorRepository } from "./adapters/outbound/drizzle/drizzle-operator.repository.js";
@@ -120,6 +122,20 @@ const materializedViewRepository =
   createDrizzleMaterializedViewRepository(dbClient);
 const placeRepository = createDrizzlePlaceRepository(dbClient);
 const profileRepository = createDrizzleProfileRepository(dbClient);
+const profileAssetsRepository = createAzureProfileAssetsRepository({
+  imagesRepository: createBlobRepository({
+    clientId: config.AZURE_CLIENT_ID,
+    connectionString: config.ASSETS_STORAGE_CONNECTION_STRING,
+    containerName: config.ASSETS_STORAGE_CONTAINER_IMAGES,
+    endpoint: config.ASSETS_STORAGE_BLOB_ENDPOINT,
+  }),
+  logosRepository: createBlobRepository({
+    clientId: config.AZURE_CLIENT_ID,
+    connectionString: config.ASSETS_STORAGE_CONNECTION_STRING,
+    containerName: config.ASSETS_STORAGE_CONTAINER_LOGOS,
+    endpoint: config.ASSETS_STORAGE_BLOB_ENDPOINT,
+  }),
+});
 const arOnboardingRepository = createArOnboardingRepository(arClient);
 
 const app = Fastify();
@@ -167,7 +183,10 @@ app.register(async (app) => {
   );
   mountOperatorCreateProfileHandler(
     app,
-    makeOperatorCreateProfileUseCase(profileRepository),
+    makeOperatorCreateProfileUseCase(
+      profileRepository,
+      profileAssetsRepository,
+    ),
   );
   mountOperatorListPlacesHandler(
     app,

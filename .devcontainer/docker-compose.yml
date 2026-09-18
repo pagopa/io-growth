@@ -59,6 +59,8 @@ services:
       echo 'Waiting for Azurite to start...' &&
       sleep 3 &&
       az storage container create --name audit &&
+      az storage container create --name logos &&
+      az storage container create --name images &&
       echo 'Container created successfully!'"
 
   redis:

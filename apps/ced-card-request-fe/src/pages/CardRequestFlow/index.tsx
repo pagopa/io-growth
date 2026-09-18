@@ -134,6 +134,7 @@ export default function CardRequestFlowPage() {
         errorCode={draftErrorCode}
         multiTitle="Ci sono alcuni errori nei tuoi dati anagrafici"
         onRetry={saveFirstDraftData}
+        onClose={resetDraft}
         onBack={resetDraft}
       />
     );
@@ -143,6 +144,7 @@ export default function CardRequestFlowPage() {
       <GenericError
         errorCode={photoErrorCode}
         onRetry={savePhoto}
+        onClose={resetPhoto}
         onBack={resetPhoto}
       />
     );
@@ -152,6 +154,7 @@ export default function CardRequestFlowPage() {
       <GenericError
         errorCode={confirmErrorCode}
         onRetry={confirmRequest}
+        onClose={resetConfirm}
         onBack={resetConfirm}
       />
     );

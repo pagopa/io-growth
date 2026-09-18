@@ -88,7 +88,7 @@ export const GENERIC_ERROR_CONFIG: Record<number, GenericErrorConfig> = {
   },
   203: {
     errorCode: 203,
-    title: 'La tuo sesso non corrisponde',
+    title: 'Il tuo sesso non corrisponde',
     description:
       'Verifica che le informazioni presenti sul portale dell’Anagrafe Nazionale e sul tuo profilo INPS siano aggiornate e corrispondano.',
     icon: PriorityHigh,

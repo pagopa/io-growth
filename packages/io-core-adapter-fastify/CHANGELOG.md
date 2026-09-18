@@ -1,5 +1,11 @@
 # @pagopa/io-core-adapter-fastify
 
+## 0.0.8
+
+### Patch Changes
+
+- cc58ed4: Add multipart operator profile creation with validated logo and image uploads to Azure Blob Storage.
+
 ## 0.0.7
 
 ### Patch Changes

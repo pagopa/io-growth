@@ -31,12 +31,14 @@ export const createDrizzleProfileRepository = (
         const [createdProfile] = await tx
           .insert(profile)
           .values({
+            contactEmail: input.contactEmail,
             displayName: input.displayName,
             operatorId: input.operatorId,
             placeId: input.place.id,
           })
           .onConflictDoNothing({ target: profile.operatorId })
           .returning({
+            contactEmail: profile.contactEmail,
             displayName: profile.displayName,
             operatorId: profile.operatorId,
           });
@@ -46,6 +48,7 @@ export const createDrizzleProfileRepository = (
         }
 
         created = {
+          contactEmail: createdProfile.contactEmail,
           displayName: createdProfile.displayName,
           operatorId: createdProfile.operatorId,
           place: returnedPlace,
@@ -69,6 +72,7 @@ export const createDrizzleProfileRepository = (
     try {
       const profileRow = await db.query.profile.findFirst({
         columns: {
+          contactEmail: true,
           displayName: true,
           operatorId: true,
           placeId: true,
@@ -115,6 +119,7 @@ export const createDrizzleProfileRepository = (
       }
 
       return ok({
+        contactEmail: profileRow.contactEmail,
         displayName: profileRow.displayName,
         operatorId: profileRow.operatorId,
         place: mappedPlace.value,

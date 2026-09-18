@@ -111,9 +111,6 @@ export const createMockOpportunityRepository = (
   findAll: overrides.findAll ?? vi.fn(),
   findById: overrides.findById ?? vi.fn(),
   findByIdAndOperatorId: overrides.findByIdAndOperatorId ?? vi.fn(),
-  findOperatorIdById:
-    overrides.findOperatorIdById ??
-    vi.fn().mockResolvedValue(ok(MOCK_OPERATOR_ID)),
   suspendById: overrides.suspendById ?? vi.fn(),
   suspendByIdAndOperatorId: overrides.suspendByIdAndOperatorId ?? vi.fn(),
   updateByIdAndOperatorId: overrides.updateByIdAndOperatorId ?? vi.fn(),

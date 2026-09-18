@@ -12,6 +12,7 @@ import {
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { z } from "zod";
 
+import type { OpportunityDetail } from "../../../domain/entities/opportunity.js";
 import type { OpportunityRepository } from "../../../domain/ports/outbound/persistence/opportunity.repository.js";
 import type { ProfileRepository } from "../../../domain/ports/outbound/persistence/profile.repository.js";
 
@@ -38,25 +39,29 @@ export type AdminApproveOpportunityUseCase = UseCase<
   | ValidationError
 >;
 
+// Falls back to the opportunity id when no Italian display name is set.
+const getOpportunityName = (data: OpportunityDetail): string =>
+  data.localizedMetadata.find(
+    (metadata) => metadata.key === "name" && metadata.language === "it",
+  )?.value ?? data.id;
+
 // Notifying the operator is best-effort: a failed lookup or send must not
 // fail an otherwise successful approval.
 const notifyOperatorOfApproval = (
-  opportunityRepository: OpportunityRepository,
   profileRepository: ProfileRepository,
   emailRepository: EmailRepository,
-  opportunityId: string,
+  operatorId: string | undefined,
+  opportunityName: string,
 ) =>
-  new ResultAsync(opportunityRepository.findOperatorIdById(opportunityId))
-    .andThen((operatorId) =>
-      operatorId
-        ? new ResultAsync(profileRepository.getByOperatorId(operatorId))
-        : okAsync(undefined),
-    )
+  (operatorId
+    ? new ResultAsync(profileRepository.getByOperatorId(operatorId))
+    : okAsync(undefined)
+  )
     .andThen((profile) =>
-      profile?.contactEmail
+      profile
         ? new ResultAsync(
             emailRepository.sendOpportunityApprovedEmail({
-              opportunityId,
+              opportunityName,
               to: profile.contactEmail,
             }),
           )
@@ -106,10 +111,10 @@ export const makeAdminApproveOpportunityUseCase =
             )
             .andThen(() =>
               notifyOperatorOfApproval(
-                opportunityRepository,
                 profileRepository,
                 emailRepository,
-                validatedInput.opportunityId,
+                data.operatorId,
+                getOpportunityName(data),
               ),
             );
         }),

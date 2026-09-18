@@ -8,6 +8,6 @@ export interface EmailRepository {
 }
 
 export interface SendOpportunityApprovedEmailInput {
-  readonly opportunityId: string;
+  readonly opportunityName: string;
   readonly to: string;
 }

@@ -1,6 +1,7 @@
 import { baseApi } from '../../core/api/baseApi.js';
 import {
   getCompleteOnboardingUrl,
+  getAdminRevokeOperatorUrl,
   getGetContractSignedUrl,
   getGetOnboardingUrl,
 } from '../../core/api/generated/endpoints/department/department';
@@ -76,11 +77,10 @@ const entitiesApi = baseApi.injectEndpoints({
       },
       invalidatesTags: ['Entities'],
     }),
-    // TODO: align with generated client once the BE endpoint is available
     terminateOnboarding: builder.mutation<void, { onboardingId: string }>({
       query: ({ onboardingId }) => ({
-        url: getGetOnboardingUrl(onboardingId),
-        method: 'DELETE',
+        url: getAdminRevokeOperatorUrl(onboardingId),
+        method: 'PATCH',
       }),
       invalidatesTags: ['Entities'],
     }),

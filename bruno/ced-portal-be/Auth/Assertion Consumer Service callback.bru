@@ -7,14 +7,11 @@ meta {
 get {
   url: {{baseUrl}}/acs
   body: none
-}
-
-auth {
-  mode: bearer
+  auth: bearer
 }
 
 auth:bearer {
-  token: {{tokenAdminTest}}
+  token: {{token}}
 }
 
 script:post-response {

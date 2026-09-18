@@ -20,6 +20,7 @@ export const createDrizzleOperatorRepository = (
       await db.transaction(async (tx) => {
         await tx.insert(operator).values({
           externalId: input.externalId,
+          fiscalCode: input.fiscalCode,
           id: input.id,
           name: input.name,
           status: input.status,
@@ -39,6 +40,7 @@ export const createDrizzleOperatorRepository = (
       const result = await db
         .select({
           externalId: operator.externalId,
+          fiscalCode: operator.fiscalCode,
           id: operator.id,
           name: operator.name,
           status: operator.status,
@@ -50,6 +52,7 @@ export const createDrizzleOperatorRepository = (
         result[0]
           ? {
               externalId: result[0].externalId,
+              fiscalCode: result[0].fiscalCode,
               id: result[0].id,
               name: result[0].name,
               status: result[0].status,
@@ -71,6 +74,7 @@ export const createDrizzleOperatorRepository = (
       const result = await db
         .select({
           externalId: operator.externalId,
+          fiscalCode: operator.fiscalCode,
           id: operator.id,
           name: operator.name,
           status: operator.status,
@@ -82,6 +86,7 @@ export const createDrizzleOperatorRepository = (
         result[0]
           ? {
               externalId: result[0].externalId,
+              fiscalCode: result[0].fiscalCode,
               id: result[0].id,
               name: result[0].name,
               status: result[0].status,

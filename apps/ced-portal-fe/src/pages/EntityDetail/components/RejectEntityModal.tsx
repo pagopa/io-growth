@@ -2,6 +2,7 @@ import CloseIcon from '@mui/icons-material/Close';
 import {
   Box,
   Button,
+  CircularProgress,
   Dialog,
   DialogContent,
   IconButton,
@@ -14,9 +15,10 @@ import { useState } from 'react';
 interface Props {
   open: boolean;
   onClose: () => void;
-  onConfirm: (message: string) => void;
+  onConfirm: (message: string) => Promise<void> | void;
   entityName: string;
   productName: string;
+  isLoading?: boolean;
 }
 
 const MAX_LENGTH = 200;
@@ -27,6 +29,7 @@ export function RejectEntityModal({
   onConfirm,
   entityName,
   productName,
+  isLoading = false,
 }: Readonly<Props>) {
   const [message, setMessage] = useState('');
   const [error, setError] = useState(false);
@@ -37,12 +40,13 @@ export function RejectEntityModal({
     onClose();
   };
 
-  const handleConfirm = () => {
+  const handleConfirm = async () => {
     if (message.trim().length === 0) {
       setError(true);
       return;
     }
-    onConfirm(message);
+
+    await onConfirm(message.trim());
     setMessage('');
     setError(false);
   };
@@ -58,6 +62,7 @@ export function RejectEntityModal({
       <DialogContent sx={{ p: { xs: 3, sm: 4 }, position: 'relative' }}>
         <IconButton
           onClick={handleClose}
+          disabled={isLoading}
           sx={{ position: 'absolute', top: 16, right: 16 }}
         >
           <CloseIcon />
@@ -83,6 +88,7 @@ export function RejectEntityModal({
               fullWidth
               required
               error={error}
+              disabled={isLoading}
               label="Spiega il motivo"
               helperText={
                 error
@@ -104,9 +110,15 @@ export function RejectEntityModal({
               color="primary"
               size="large"
               onClick={handleConfirm}
+              disabled={isLoading}
+              startIcon={
+                isLoading ? (
+                  <CircularProgress size={16} color="inherit" thickness={5} />
+                ) : undefined
+              }
               sx={{ fontWeight: 700, borderRadius: 2, px: 4 }}
             >
-              Conferma
+              {isLoading ? 'Conferma in corso...' : 'Conferma'}
             </Button>
           </Box>
         </Stack>

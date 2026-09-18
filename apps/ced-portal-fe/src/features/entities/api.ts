@@ -78,12 +78,12 @@ const entitiesApi = baseApi.injectEndpoints({
     }),
     rejectOnboarding: builder.mutation<
       void,
-      { onboardingId: string; reason: string }
+      { onboardingId: string; rejectionMessage: string }
     >({
-      query: ({ onboardingId, reason }) => ({
+      query: ({ onboardingId, rejectionMessage }) => ({
         url: `/department/onboardings/${onboardingId}/reject`,
-        method: 'POST',
-        body: { reason },
+        method: 'PATCH',
+        body: { rejectionMessage },
       }),
       invalidatesTags: ['Entities'],
     }),

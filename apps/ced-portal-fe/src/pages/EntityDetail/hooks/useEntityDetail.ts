@@ -88,7 +88,10 @@ function useEntityDetail() {
     if (!id) return;
 
     try {
-      await rejectOnboarding({ onboardingId: id, reason: message }).unwrap();
+      await rejectOnboarding({
+        onboardingId: id,
+        rejectionMessage: message,
+      }).unwrap();
       setOpenRejectModal(false);
       navigate(APP_ROUTES.ENTITIES);
       showToast('Richiesta rifiutata con successo', 'success');

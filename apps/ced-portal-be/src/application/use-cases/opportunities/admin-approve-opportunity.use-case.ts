@@ -12,8 +12,11 @@ import {
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { z } from "zod";
 
+import type { OpportunityDetail } from "../../../domain/entities/opportunity.js";
 import type { OpportunityRepository } from "../../../domain/ports/outbound/persistence/opportunity.repository.js";
+import type { ProfileRepository } from "../../../domain/ports/outbound/persistence/profile.repository.js";
 
+import { EmailRepository } from "../../../domain/ports/outbound/email.repository.js";
 import { MaterializedViewRepository } from "../../../domain/ports/outbound/materialized-view.repository.js";
 import { validateUseCaseInput } from "../utils/validate-use-case-input.js";
 
@@ -36,10 +39,42 @@ export type AdminApproveOpportunityUseCase = UseCase<
   | ValidationError
 >;
 
+// Falls back to the opportunity id when no Italian display name is set.
+const getOpportunityName = (data: OpportunityDetail): string =>
+  data.localizedMetadata.find(
+    (metadata) => metadata.key === "name" && metadata.language === "it",
+  )?.value ?? data.id;
+
+// Notifying the operator is best-effort: a failed lookup or send must not
+// fail an otherwise successful approval.
+const notifyOperatorOfApproval = (
+  profileRepository: ProfileRepository,
+  emailRepository: EmailRepository,
+  operatorId: string | undefined,
+  opportunityName: string,
+) =>
+  (operatorId
+    ? new ResultAsync(profileRepository.getByOperatorId(operatorId))
+    : okAsync(undefined)
+  )
+    .andThen((profile) =>
+      profile
+        ? new ResultAsync(
+            emailRepository.sendOpportunityApprovedEmail({
+              opportunityName,
+              to: profile.contactEmail,
+            }),
+          )
+        : okAsync(undefined),
+    )
+    .orElse(() => okAsync(undefined));
+
 export const makeAdminApproveOpportunityUseCase =
   (
     opportunityRepository: OpportunityRepository,
     materializedViewRepository: MaterializedViewRepository,
+    profileRepository: ProfileRepository,
+    emailRepository: EmailRepository,
   ): AdminApproveOpportunityUseCase =>
   async (input) =>
     validateUseCaseInput(AdminApproveOpportunityInputSchema, input).andThen(
@@ -66,12 +101,21 @@ export const makeAdminApproveOpportunityUseCase =
               opportunityId: validatedInput.opportunityId,
               status: "published",
             }),
-          ).andThen(() =>
-            data.dateFrom <= today
-              ? new ResultAsync(materializedViewRepository.refreshAll()).orElse(
-                  () => okAsync(undefined),
-                )
-              : okAsync(undefined),
-          );
+          )
+            .andThen(() =>
+              data.dateFrom <= today
+                ? new ResultAsync(
+                    materializedViewRepository.refreshAll(),
+                  ).orElse(() => okAsync(undefined))
+                : okAsync(undefined),
+            )
+            .andThen(() =>
+              notifyOperatorOfApproval(
+                profileRepository,
+                emailRepository,
+                data.operatorId,
+                getOpportunityName(data),
+              ),
+            );
         }),
     );

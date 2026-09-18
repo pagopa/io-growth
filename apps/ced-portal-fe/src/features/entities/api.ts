@@ -1,7 +1,6 @@
 import { baseApi } from '../../core/api/baseApi.js';
 import {
   getCompleteOnboardingUrl,
-  getAdminRevokeOperatorUrl,
   getGetContractSignedUrl,
   getGetOnboardingUrl,
 } from '../../generated/endpoints/department/department';
@@ -79,7 +78,7 @@ const entitiesApi = baseApi.injectEndpoints({
     }),
     terminateOnboarding: builder.mutation<void, { onboardingId: string }>({
       query: ({ onboardingId }) => ({
-        url: getAdminRevokeOperatorUrl(onboardingId),
+        url: `/department/onboardings/${onboardingId}/revoke`,
         method: 'PATCH',
       }),
       invalidatesTags: ['Entities'],

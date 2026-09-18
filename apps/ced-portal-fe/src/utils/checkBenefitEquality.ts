@@ -1,4 +1,4 @@
-import { BenefitRequest } from '../core/api/generated/model';
+import { BenefitRequest } from '../generated/model';
 
 export const checkBenefitEquality = (
   benefit: BenefitRequest,

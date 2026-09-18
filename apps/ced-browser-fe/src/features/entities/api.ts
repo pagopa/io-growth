@@ -1,5 +1,5 @@
 import { baseApi } from '../../core/api/baseApi.js';
-import { OperatorProfileDetail } from '../../core/api/generated/model/operatorProfileDetail.js';
+import { OperatorProfileDetail } from '../../generated/model/operatorProfileDetail.js';
 
 const entitiesApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({

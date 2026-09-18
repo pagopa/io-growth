@@ -1,7 +1,7 @@
 import type {
   DraftDataResponse,
   NuovaDomandaInBozzaRequest,
-} from '../../core/api/generated/model';
+} from '../../generated/model';
 import { toFormDate } from '../request-form/date';
 
 export interface RecoveredDraftState {

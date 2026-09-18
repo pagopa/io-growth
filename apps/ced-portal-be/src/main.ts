@@ -43,6 +43,7 @@ import {
   mountOperatorPublishOpportunityHandler,
   mountOperatorRequestOpportunityTestHandler,
   mountOperatorSuspendOpportunityHandler,
+  mountOperatorUpdateOpportunityHandler,
 } from "./adapters/inbound/fastify/index.js";
 import { createArOnboardingRepository } from "./adapters/outbound/ar/ar-onboarding.repository.js";
 import { createDrizzleHealthCheckRepository } from "./adapters/outbound/drizzle/drizzle-health-check.repository.js";
@@ -76,6 +77,7 @@ import { makeOperatorListOpportunityCategoriesUseCase } from "./application/use-
 import { makeOperatorPublishOpportunityUseCase } from "./application/use-cases/opportunities/operator-publish-opportunity.use-case.js";
 import { makeOperatorRequestOpportunityTestUseCase } from "./application/use-cases/opportunities/operator-request-opportunity-test.use-case.js";
 import { makeOperatorSuspendOpportunityUseCase } from "./application/use-cases/opportunities/operator-suspend-opportunity.use-case.js";
+import { makeOperatorUpdateOpportunityUseCase } from "./application/use-cases/opportunities/operator-update-opportunity.use-case.js";
 import { makeOperatorCreatePlaceUseCase } from "./application/use-cases/places/operator-create-place.use-case.js";
 import { makeOperatorGetPlaceUseCase } from "./application/use-cases/places/operator-get-place.use-case.js";
 import { makeOperatorListPlacesUseCase } from "./application/use-cases/places/operator-list-places.use-case.js";
@@ -182,6 +184,16 @@ app.register(async (app) => {
   mountOperatorCreateOpportunityHandler(
     app,
     makeOperatorCreateOpportunityUseCase({
+      operatorRepository,
+      opportunityCategoryRepository,
+      opportunityRepository,
+      placeRepository,
+    }),
+  );
+  mountOperatorUpdateOpportunityHandler(
+    app,
+    makeOperatorUpdateOpportunityUseCase({
+      materializedViewRepository,
       operatorRepository,
       opportunityCategoryRepository,
       opportunityRepository,

@@ -31,17 +31,9 @@ paths:
       summary: Initiate FIMS authentication
       description: |
         Starts the OIDC/FIMS authentication flow. Redirects the user-agent to the
-        identity provider. The `device` parameter is forwarded to the IdP for
-        device-specific flows.
+        identity provider.
       operationId: fimsAuth
       security: []
-      parameters:
-        - in: query
-          name: device
-          required: false
-          description: Device identifier forwarded to the identity provider.
-          schema:
-            type: string
       responses:
         "302":
           description: Redirect to the OpenID Connect provider.
@@ -91,7 +83,7 @@ paths:
             type: string
       responses:
         "302":
-          description: Redirect to `/authorize` with the session `id` and `device` in the query parameters.
+          description: Redirect to `/authorize` with the session `id` in the query parameters.
         "401":
           description: Unauthorized — invalid or expired OIDC response.
           content:

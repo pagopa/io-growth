@@ -1,5 +1,5 @@
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
-import { NuovaDomandaInBozzaRequest } from '../../core/api/generated/model';
+import { NuovaDomandaInBozzaRequest } from '../../generated/model';
 
 export type RequestFormState = NuovaDomandaInBozzaRequest;
 

@@ -22,7 +22,7 @@ export const useGetSession = () => {
     [search],
   );
   const deviceId = useMemo(
-    () => new URLSearchParams(search).get('device'),
+    () => new URLSearchParams(search).get('mixpanelId'),
     [search],
   );
 

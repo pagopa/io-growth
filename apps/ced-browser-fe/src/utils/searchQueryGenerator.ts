@@ -1,4 +1,4 @@
-import { SearchOpportunitiesParams } from '../core/api/generated/model';
+import { SearchOpportunitiesParams } from '../generated/model';
 
 export const searchQueryGenerator = ({
   orderBy = 'dateFrom',

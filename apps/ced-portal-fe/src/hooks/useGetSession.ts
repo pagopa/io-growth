@@ -1,5 +1,5 @@
-import { useLocation, useNavigate } from 'react-router-dom';
 import { useEffect, useCallback } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { APP_ROUTES } from '../app/routeConfig';
 import { useAuthorize } from '../features/session/hooks';
 import { useAppSelector } from './store';
@@ -7,12 +7,10 @@ import { selectToken, selectUser } from '../core/auth/authSelectors';
 import { partyRoleMap } from '../components/PageHeader/constants';
 import { devAuthStorage } from '../features/session/authDev/wrapper';
 import {
-  getDevAssertionToken,
   getLandingRoute,
   resolveRole,
 } from '../features/session/authDev/utils';
-import { API_BASE_URL } from '../features/session/authDev/constant';
-import type { AuthorizeResponseUserType } from '../core/api/generated/model';
+import type { AuthorizeResponseUserType } from '../generated/model';
 
 export const useGetSession = () => {
   const { search } = useLocation();
@@ -52,48 +50,17 @@ export const useGetSession = () => {
     };
 
     const retrieveSession = async () => {
-      const params = new URLSearchParams(search);
-
-      const rawRedirectToken = params.get('id');
-      const rawAssertionToken = params.get('token') ?? params.get('jwt');
+      const searchParams = new URLSearchParams(search);
+      const rawRedirectToken = searchParams.get('id');
 
       const redirectToken = isValidToken(rawRedirectToken)
         ? rawRedirectToken
         : null;
 
-      const assertionToken = isValidToken(rawAssertionToken)
-        ? rawAssertionToken
-        : null;
-
       if (!redirectToken) {
-        if (assertionToken) {
-          const last = devAuthStorage.getLastAcsToken();
-
-          if (last === assertionToken) {
-            return;
-          }
-
-          devAuthStorage.setLastAcsToken(assertionToken);
-
-          const acsUrl = `${API_BASE_URL}/acs?token=${encodeURIComponent(assertionToken)}`;
-          window.location.replace(acsUrl);
-          return;
-        }
-
         if (token) {
           navigateToLanding(getCurrentRole());
           return;
-        }
-
-        if (import.meta.env.DEV && !token) {
-          const devToken = getDevAssertionToken(getCurrentRole());
-          if (devToken && isValidToken(devToken)) {
-            navigate(
-              `${APP_ROUTES.AUTHORIZE}?token=${encodeURIComponent(devToken)}`,
-              { replace: true },
-            );
-            return;
-          }
         }
 
         navigate(APP_ROUTES.UNAUTHORIZED, { replace: true });

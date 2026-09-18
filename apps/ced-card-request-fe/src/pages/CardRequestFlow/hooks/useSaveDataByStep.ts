@@ -10,13 +10,17 @@ import { useUploadPhotoMutation } from '../../../features/photo-upload/api';
 import { selectB64Photo } from '../../../features/photo-upload/reducer';
 import { selectIdLavorazione } from '../../../features/status/selectors';
 import { useConfirmMutation } from '../../../features/confirmation/api';
+import { selectConfirmationPayload } from '../../../features/confirmation/reducer';
+import { toApiDateTime } from '../../../features/request-form/date';
 
-const sanitazeObject = <T extends Record<string, unknown>>(data: T): T =>
+const sanitizeObject = <T extends Record<string, unknown>>(data: T): T =>
   Object.fromEntries(
-    Object.entries(data).map(([key, value]) => [
-      key,
-      typeof value === 'string' ? value.trim() : value,
-    ]),
+    Object.entries(data)
+      .filter(([, value]) => value !== null && value !== undefined)
+      .map(([key, value]) => [
+        key,
+        typeof value === 'string' ? value.trim() : value,
+      ]),
   ) as T;
 
 export const useSaveDataByStep = (next: () => void) => {
@@ -36,7 +40,14 @@ export const useSaveDataByStep = (next: () => void) => {
   const [isActionLoading, setIsActionLoading] = useState(false);
 
   const firstDraftForm = useAppSelector(selectRequestForm);
-  const sanitazedFirstDataForm = sanitazeObject(firstDraftForm);
+  const sanitizedFirstDataForm = sanitizeObject(firstDraftForm);
+  const confirmationForm = useAppSelector(selectConfirmationPayload);
+  const confirmationPayload = sanitizeObject({
+    ...confirmationForm,
+    dataSentenza: confirmationForm.dataSentenza
+      ? toApiDateTime(confirmationForm.dataSentenza)
+      : confirmationForm.dataSentenza,
+  });
 
   const idLavorazione = useAppSelector(selectIdLavorazione);
   const photo = useAppSelector(selectB64Photo);
@@ -57,7 +68,7 @@ export const useSaveDataByStep = (next: () => void) => {
     try {
       const idempotencyKey = getIdempotencyKey();
       const response = await saveFirstDraft({
-        body: sanitazedFirstDataForm,
+        body: sanitizedFirstDataForm,
         idempotency_key: idempotencyKey,
       }).unwrap();
 
@@ -114,6 +125,7 @@ export const useSaveDataByStep = (next: () => void) => {
       const idempotencyKey = getIdempotencyKey();
       const responseUnwrapped = await confirm({
         body: {
+          ...confirmationPayload,
           idLavorazione,
         },
         idempotency_key: idempotencyKey,

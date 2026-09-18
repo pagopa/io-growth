@@ -1,7 +1,4 @@
-import type {
-  PlaceBaseType,
-  PlaceResponseBase,
-} from '../../core/api/generated/model';
+import type { PlaceBaseType, PlaceResponseBase } from '../../generated/model';
 
 export interface PlacesState {
   accessPoint: PlaceBaseType | 'both' | null;

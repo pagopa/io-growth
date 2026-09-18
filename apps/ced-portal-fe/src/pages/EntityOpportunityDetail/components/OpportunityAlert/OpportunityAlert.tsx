@@ -3,7 +3,7 @@ import { Box, Button, Stack, Typography } from '@mui/material';
 import { MIAlert } from '@pagopa/mui-italia';
 import { format, parseISO } from 'date-fns';
 import { useToast } from '../../../../contexts';
-import { OpportunitySummaryItemSuspendedBy } from '../../../../core/api/generated/model';
+import { OpportunitySummaryItemSuspendedBy } from '../../../../generated/model';
 import { useOperatorCancelScheduledSuspensionMutation } from '../../../../features/opportunities/api';
 import type { OpportunityStatus } from '../../../../features/opportunities/types';
 import { opportunityAlertMap } from './constants';

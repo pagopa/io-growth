@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Button } from '@mui/material';
 import { AppModal } from '../../../../components';
-import type { PlaceResponse } from '../../../../core/api/generated/model';
+import type { PlaceResponse } from '../../../../generated/model';
 import { useWebsiteSubmit } from '../../../../features/website/hooks';
 import { WebsiteContactsSection } from './WebsiteContactsSection';
 import { WebsiteFields } from './WebsiteFields';

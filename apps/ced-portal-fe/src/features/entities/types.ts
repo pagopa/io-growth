@@ -3,7 +3,7 @@ import type {
   OnboardingDetail,
   OnboardingInstitutionDetail,
   OnboardingUser,
-} from '../../core/api/generated/model';
+} from '../../generated/model';
 
 export type DepartmentOnboardingStatus = ListOnboardingsStatusesItem;
 

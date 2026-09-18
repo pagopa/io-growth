@@ -1,4 +1,4 @@
-import { SupportContactResponseType } from '../../core/api/generated/model';
+import { SupportContactResponseType } from '../../generated/model';
 import { isValidHttpsUrl } from '../../utils';
 
 const getRequiredError = (

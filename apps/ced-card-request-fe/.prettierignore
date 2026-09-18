@@ -1,2 +1,6 @@
-# Ignore files generated from the OpenAPI specification.
+# Ignore generated and build artifacts
+src/generated
 src/core/api/generated
+dist
+coverage
+**/src/generated/**

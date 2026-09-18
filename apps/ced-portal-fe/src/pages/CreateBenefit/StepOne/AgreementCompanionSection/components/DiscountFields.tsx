@@ -15,7 +15,7 @@ import {
   BenefitDiscount,
   BenefitDiscountDiscountType,
   BenefitDiscountType,
-} from '../../../../../core/api/generated/model';
+} from '../../../../../generated/model';
 import { selectActiveFormLanguage } from '../../../../../features/opportunityCreation/selectors';
 import { setBenefit } from '../../../../../features/opportunityCreation/opportunityCreationSlice';
 

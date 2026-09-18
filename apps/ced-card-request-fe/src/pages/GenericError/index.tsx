@@ -3,7 +3,7 @@ import { Box, Button, ButtonBase, useTheme } from '@mui/material';
 import type { SvgIconComponent } from '@mui/icons-material';
 import { Body, Title, VSpacer } from '@pagopa/io-core-ui';
 import { useCallback, useMemo, type ReactNode } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { CopyToClipboardButton } from '../../components/CopyToClipboardButton';
 import { GENERIC_ERROR_CONFIG } from './constants';
 
@@ -37,6 +37,7 @@ export default function GenericError({
 }: Props) {
   const theme = useTheme();
   const location = useLocation();
+  const navigate = useNavigate();
 
   const locationErrorCode = (
     location.state as { errorCode?: GenericErrorConfig['errorCode'] } | null
@@ -117,8 +118,13 @@ export default function GenericError({
     : String(content.errorCode);
 
   const handleClose = useCallback(() => {
-    onClose?.();
-  }, [onClose]);
+    if (onClose) {
+      onClose();
+      return;
+    }
+
+    navigate(-1);
+  }, [navigate, onClose]);
 
   const closeButtonProps = useMemo(
     () =>

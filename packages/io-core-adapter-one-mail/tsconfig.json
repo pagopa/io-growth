@@ -17,6 +17,7 @@
     "dist",
     "node_modules",
     "**/__tests__/*",
-    "vite.config.mts"
+    "vite.config.mts",
+    "orval.config.ts"
   ]
 }

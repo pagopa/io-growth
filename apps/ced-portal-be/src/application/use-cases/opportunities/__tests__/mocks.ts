@@ -2,6 +2,7 @@ import { ok } from "neverthrow";
 import { vi } from "vitest";
 
 import type { Profile } from "../../../../domain/entities/profile.js";
+import type { EmailRepository } from "../../../../domain/ports/outbound/email.repository.js";
 import type { MaterializedViewRepository } from "../../../../domain/ports/outbound/materialized-view.repository.js";
 import type { OpportunityRepository } from "../../../../domain/ports/outbound/persistence/opportunity.repository.js";
 import type { ProfileRepository } from "../../../../domain/ports/outbound/persistence/profile.repository.js";
@@ -63,6 +64,7 @@ export const mockOpportunityDetail = {
 };
 
 export const mockProfile: Profile = {
+  contactEmail: "operatore.demo@example.org",
   displayName: "Operatore Demo",
   operatorId: MOCK_OPERATOR_ID,
   place: {
@@ -88,6 +90,14 @@ export const createMockMaterializedViewRepository = (
   refreshAll: overrides.refreshAll ?? vi.fn().mockResolvedValue(ok(undefined)),
 });
 
+export const createMockEmailRepository = (
+  overrides: Partial<EmailRepository> = {},
+): EmailRepository => ({
+  sendOpportunityApprovedEmail:
+    overrides.sendOpportunityApprovedEmail ??
+    vi.fn().mockResolvedValue(ok(undefined)),
+});
+
 export const createMockOpportunityRepository = (
   overrides: Partial<OpportunityRepository> = {},
 ): OpportunityRepository => ({
@@ -101,6 +111,9 @@ export const createMockOpportunityRepository = (
   findAll: overrides.findAll ?? vi.fn(),
   findById: overrides.findById ?? vi.fn(),
   findByIdAndOperatorId: overrides.findByIdAndOperatorId ?? vi.fn(),
+  findOperatorIdById:
+    overrides.findOperatorIdById ??
+    vi.fn().mockResolvedValue(ok(MOCK_OPERATOR_ID)),
   suspendById: overrides.suspendById ?? vi.fn(),
   suspendByIdAndOperatorId: overrides.suspendByIdAndOperatorId ?? vi.fn(),
   updateByIdAndOperatorId: overrides.updateByIdAndOperatorId ?? vi.fn(),

@@ -242,6 +242,26 @@ const findById =
     }
   };
 
+const findOperatorIdById =
+  (db: TypedDbClient<typeof schema>) =>
+  async (
+    opportunityId: string,
+  ): Promise<Result<string | undefined, GenericError>> => {
+    try {
+      const row = await db.query.opportunity.findFirst({
+        columns: { operatorId: true },
+        where: eq(opportunity.id, opportunityId),
+      });
+      return ok(row?.operatorId);
+    } catch (error) {
+      return err(
+        new GenericError(
+          `Failed to get opportunity operator: ${String(error)}`,
+        ),
+      );
+    }
+  };
+
 const updateStatusById =
   (db: TypedDbClient<typeof schema>) =>
   async (
@@ -747,6 +767,8 @@ export const createDrizzleOpportunityRepository = (
 
   findByIdAndOperatorId: async (input: FindByIdAndOperatorIdInput) =>
     findByIdAndOperatorId(db, input),
+
+  findOperatorIdById: findOperatorIdById(db),
 
   suspendById: suspendById(db),
 

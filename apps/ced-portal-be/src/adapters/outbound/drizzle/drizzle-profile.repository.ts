@@ -69,6 +69,7 @@ export const createDrizzleProfileRepository = (
     try {
       const profileRow = await db.query.profile.findFirst({
         columns: {
+          contactEmail: true,
           displayName: true,
           operatorId: true,
           placeId: true,
@@ -115,6 +116,7 @@ export const createDrizzleProfileRepository = (
       }
 
       return ok({
+        contactEmail: profileRow.contactEmail,
         displayName: profileRow.displayName,
         operatorId: profileRow.operatorId,
         place: mappedPlace.value,

@@ -83,6 +83,9 @@ export interface OpportunityRepository {
   readonly findByIdAndOperatorId: (
     input: FindByIdAndOperatorIdInput,
   ) => Promise<Result<OpportunityDetail | undefined, GenericError>>;
+  readonly findOperatorIdById: (
+    opportunityId: string,
+  ) => Promise<Result<string | undefined, GenericError>>;
   readonly suspendById: (
     input: SuspendByIdInput,
   ) => Promise<Result<void, ConflictError | GenericError>>;

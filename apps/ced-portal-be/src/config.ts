@@ -33,7 +33,10 @@ const configSchema = z.object({
   AZURE_CLIENT_ID: z.string().optional(),
   CED_PORTAL_FE_BASE_URL: z.string().min(1),
   CED_PRODUCT_ID: z.string().min(1),
+  EMAIL_FROM_ADDRESS: z.string().email(),
   HOST: z.string().default("0.0.0.0"),
+  ONE_MAIL_API_KEY: z.string().min(1),
+  ONE_MAIL_BASE_URL: z.string().url(),
   OPERATORS_FISCAL_CODES_TEST: z
     .string()
     .optional()

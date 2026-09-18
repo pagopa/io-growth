@@ -13,7 +13,9 @@ import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { z } from "zod";
 
 import type { OpportunityRepository } from "../../../domain/ports/outbound/persistence/opportunity.repository.js";
+import type { ProfileRepository } from "../../../domain/ports/outbound/persistence/profile.repository.js";
 
+import { EmailRepository } from "../../../domain/ports/outbound/email.repository.js";
 import { MaterializedViewRepository } from "../../../domain/ports/outbound/materialized-view.repository.js";
 import { validateUseCaseInput } from "../utils/validate-use-case-input.js";
 
@@ -36,10 +38,38 @@ export type AdminApproveOpportunityUseCase = UseCase<
   | ValidationError
 >;
 
+// Notifying the operator is best-effort: a failed lookup or send must not
+// fail an otherwise successful approval.
+const notifyOperatorOfApproval = (
+  opportunityRepository: OpportunityRepository,
+  profileRepository: ProfileRepository,
+  emailRepository: EmailRepository,
+  opportunityId: string,
+) =>
+  new ResultAsync(opportunityRepository.findOperatorIdById(opportunityId))
+    .andThen((operatorId) =>
+      operatorId
+        ? new ResultAsync(profileRepository.getByOperatorId(operatorId))
+        : okAsync(undefined),
+    )
+    .andThen((profile) =>
+      profile?.contactEmail
+        ? new ResultAsync(
+            emailRepository.sendOpportunityApprovedEmail({
+              opportunityId,
+              to: profile.contactEmail,
+            }),
+          )
+        : okAsync(undefined),
+    )
+    .orElse(() => okAsync(undefined));
+
 export const makeAdminApproveOpportunityUseCase =
   (
     opportunityRepository: OpportunityRepository,
     materializedViewRepository: MaterializedViewRepository,
+    profileRepository: ProfileRepository,
+    emailRepository: EmailRepository,
   ): AdminApproveOpportunityUseCase =>
   async (input) =>
     validateUseCaseInput(AdminApproveOpportunityInputSchema, input).andThen(
@@ -66,12 +96,21 @@ export const makeAdminApproveOpportunityUseCase =
               opportunityId: validatedInput.opportunityId,
               status: "published",
             }),
-          ).andThen(() =>
-            data.dateFrom <= today
-              ? new ResultAsync(materializedViewRepository.refreshAll()).orElse(
-                  () => okAsync(undefined),
-                )
-              : okAsync(undefined),
-          );
+          )
+            .andThen(() =>
+              data.dateFrom <= today
+                ? new ResultAsync(
+                    materializedViewRepository.refreshAll(),
+                  ).orElse(() => okAsync(undefined))
+                : okAsync(undefined),
+            )
+            .andThen(() =>
+              notifyOperatorOfApproval(
+                opportunityRepository,
+                profileRepository,
+                emailRepository,
+                validatedInput.opportunityId,
+              ),
+            );
         }),
     );

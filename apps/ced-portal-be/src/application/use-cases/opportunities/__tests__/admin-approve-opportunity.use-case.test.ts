@@ -7,8 +7,10 @@ import type { MaterializedViewRepository } from "../../../../domain/ports/outbou
 
 import { makeAdminApproveOpportunityUseCase } from "../admin-approve-opportunity.use-case.js";
 import {
+  createMockEmailRepository,
   createMockMaterializedViewRepository,
   createMockOpportunityRepository,
+  createMockProfileRepository,
 } from "./mocks.js";
 
 const MOCK_OPPORTUNITY_ID = "01JVMK3N8XQZP5T6G2WYHAB4CF";
@@ -44,12 +46,14 @@ const makeDeps = (overrides?: {
     Parameters<typeof createMockOpportunityRepository>[0]
   >;
 }) => ({
+  emailRepository: createMockEmailRepository(),
   materializedViewRepository: createMockMaterializedViewRepository(
     overrides?.materializedViewRepository,
   ),
   opportunityRepository: createMockOpportunityRepository(
     overrides?.opportunityRepository,
   ),
+  profileRepository: createMockProfileRepository(),
 });
 
 const validInput = {
@@ -70,6 +74,8 @@ describe("makeAdminApproveOpportunityUseCase", () => {
     const useCase = makeAdminApproveOpportunityUseCase(
       deps.opportunityRepository,
       deps.materializedViewRepository,
+      deps.profileRepository,
+      deps.emailRepository,
     );
 
     const result = await useCase(validInput);
@@ -95,6 +101,8 @@ describe("makeAdminApproveOpportunityUseCase", () => {
     const useCase = makeAdminApproveOpportunityUseCase(
       deps.opportunityRepository,
       deps.materializedViewRepository,
+      deps.profileRepository,
+      deps.emailRepository,
     );
 
     const result = await useCase(validInput);
@@ -117,6 +125,8 @@ describe("makeAdminApproveOpportunityUseCase", () => {
     const useCase = makeAdminApproveOpportunityUseCase(
       deps.opportunityRepository,
       deps.materializedViewRepository,
+      deps.profileRepository,
+      deps.emailRepository,
     );
 
     await useCase({ ...validInput, dateFrom: "2026-09-01" });
@@ -141,6 +151,8 @@ describe("makeAdminApproveOpportunityUseCase", () => {
     const useCase = makeAdminApproveOpportunityUseCase(
       deps.opportunityRepository,
       deps.materializedViewRepository,
+      deps.profileRepository,
+      deps.emailRepository,
     );
 
     const result = await useCase(validInput);
@@ -162,6 +174,8 @@ describe("makeAdminApproveOpportunityUseCase", () => {
     const useCase = makeAdminApproveOpportunityUseCase(
       deps.opportunityRepository,
       deps.materializedViewRepository,
+      deps.profileRepository,
+      deps.emailRepository,
     );
 
     const result = await useCase(validInput);
@@ -187,6 +201,8 @@ describe("makeAdminApproveOpportunityUseCase", () => {
     const useCase = makeAdminApproveOpportunityUseCase(
       deps.opportunityRepository,
       deps.materializedViewRepository,
+      deps.profileRepository,
+      deps.emailRepository,
     );
 
     const result = await useCase(validInput);
@@ -204,6 +220,8 @@ describe("makeAdminApproveOpportunityUseCase", () => {
     const useCase = makeAdminApproveOpportunityUseCase(
       deps.opportunityRepository,
       deps.materializedViewRepository,
+      deps.profileRepository,
+      deps.emailRepository,
     );
 
     const result = await useCase(validInput);
@@ -231,6 +249,8 @@ describe("makeAdminApproveOpportunityUseCase", () => {
       const useCase = makeAdminApproveOpportunityUseCase(
         deps.opportunityRepository,
         deps.materializedViewRepository,
+        deps.profileRepository,
+        deps.emailRepository,
       );
 
       const result = await useCase(validInput);
@@ -257,6 +277,8 @@ describe("makeAdminApproveOpportunityUseCase", () => {
     const useCase = makeAdminApproveOpportunityUseCase(
       deps.opportunityRepository,
       deps.materializedViewRepository,
+      deps.profileRepository,
+      deps.emailRepository,
     );
 
     const result = await useCase(validInput);
@@ -274,6 +296,8 @@ describe("makeAdminApproveOpportunityUseCase", () => {
     const useCase = makeAdminApproveOpportunityUseCase(
       deps.opportunityRepository,
       deps.materializedViewRepository,
+      deps.profileRepository,
+      deps.emailRepository,
     );
 
     const result = await useCase(validInput);
@@ -295,6 +319,8 @@ describe("makeAdminApproveOpportunityUseCase", () => {
     const useCase = makeAdminApproveOpportunityUseCase(
       deps.opportunityRepository,
       deps.materializedViewRepository,
+      deps.profileRepository,
+      deps.emailRepository,
     );
 
     const result = await useCase(validInput);
@@ -307,6 +333,8 @@ describe("makeAdminApproveOpportunityUseCase", () => {
     const useCase = makeAdminApproveOpportunityUseCase(
       deps.opportunityRepository,
       deps.materializedViewRepository,
+      deps.profileRepository,
+      deps.emailRepository,
     );
 
     const result = await useCase({
@@ -325,6 +353,8 @@ describe("makeAdminApproveOpportunityUseCase", () => {
     const useCase = makeAdminApproveOpportunityUseCase(
       deps.opportunityRepository,
       deps.materializedViewRepository,
+      deps.profileRepository,
+      deps.emailRepository,
     );
 
     const result = await useCase({ ...validInput, dateFrom: "not-a-date" });

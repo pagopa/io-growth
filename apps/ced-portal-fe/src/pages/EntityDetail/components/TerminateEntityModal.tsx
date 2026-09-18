@@ -23,17 +23,25 @@ export function TerminateEntityModal({
   entityName,
   isLoading = false,
 }: Readonly<Props>) {
+  const handleClose = () => {
+    if (!isLoading) {
+      onClose();
+    }
+  };
+
   return (
     <Dialog
       open={open}
-      onClose={onClose}
+      onClose={handleClose}
       fullWidth
       maxWidth="sm"
       PaperProps={{ sx: { borderRadius: 3, p: 0 } }}
     >
       <DialogContent sx={{ p: { xs: 3, sm: 4 }, position: 'relative' }}>
         <IconButton
-          onClick={onClose}
+          aria-label="Chiudi dialog"
+          onClick={handleClose}
+          disabled={isLoading}
           sx={{ position: 'absolute', top: 16, right: 16 }}
         >
           <CloseIcon />
@@ -58,7 +66,8 @@ export function TerminateEntityModal({
         >
           <Button
             variant="text"
-            onClick={onClose}
+            onClick={handleClose}
+            disabled={isLoading}
             sx={{ fontWeight: 700, borderRadius: 2, px: 5 }}
           >
             Annulla

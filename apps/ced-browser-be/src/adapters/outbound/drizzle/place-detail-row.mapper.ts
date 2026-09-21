@@ -20,7 +20,8 @@ interface PlaceRow {
   };
   id: string;
   name: string;
-  operator?: null | {
+  operator: {
+    fiscalCode: string;
     name: string;
     profile?: null | { displayName: string; id: string };
   };
@@ -67,10 +68,12 @@ export const mapPlaceDetailRow = (
       ...(phone !== undefined ? { phone } : {}),
       ...(website !== undefined ? { website } : {}),
     },
-    entityId: placeRow.operator?.profile?.id ?? "",
+    entityId: placeRow.operator.profile?.id ?? "",
     entityName:
-      placeRow.operator?.profile?.displayName ?? placeRow.operator?.name ?? "",
+      placeRow.operator.profile?.displayName ?? placeRow.operator.name,
     id: placeRow.id,
+    operatorFiscalCode: placeRow.operator.fiscalCode,
+    operatorName: placeRow.operator.name,
     opportunities: opportunityRows
       .filter(
         (row): row is OpportunityRow & { opportunityId: string } =>

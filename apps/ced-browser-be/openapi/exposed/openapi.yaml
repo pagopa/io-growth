@@ -178,6 +178,8 @@ paths:
                       - id: 01JVMK3N8XQZP5T6G2WYHAB4CD
                         name: Comune di Alessandria
                         entityId: 01JVMK3N8XQZP5T6G2WYHAB4CA
+                        operatorName: Operator Test Name
+                        operatorFiscalCode: "00000000000"
                         type: profile
                         address:
                           street: Piazza della Libertà 1
@@ -187,6 +189,8 @@ paths:
                       - id: 01JVMK3N8XQZP5T6G2WYHAB4CE
                         name: Biblioteca civica Francesca Calvo
                         entityId: 01JVMK3N8XQZP5T6G2WYHAB4CA
+                        operatorName: Operator Test Name
+                        operatorFiscalCode: "00000000000"
                         type: place
                         address:
                           street: Piazza Vittorio Veneto 1
@@ -201,6 +205,8 @@ paths:
                       - id: 01JVMK3N8XQZP5T6G2WYHAB4CF
                         name: Flixbus
                         entityId: 01JVMK3N8XQZP5T6G2WYHAB4CB
+                        operatorName: Operator Test Name 2
+                        operatorFiscalCode: "00000000001"
                         type: place
                         address: null
                         url: https://flixbus.it
@@ -251,6 +257,26 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/PlaceDetail"
+              examples:
+                default:
+                  summary: Place detail with opportunities and related places
+                  value:
+                    address:
+                      street: Test Street 1
+                      city: Test City
+                      state: TS
+                      postalCode: "00000"
+                    contacts:
+                      phone: "0000000000"
+                      website: https://example.com
+                    entityId: 01JVMK3N8XQZP5T6G2WYHAB4CA
+                    entityName: Test Entity Name
+                    operatorName: Operator Test Name
+                    operatorFiscalCode: "00000000000"
+                    id: 01JVMK3N8XQZP5T6G2WYHAB4CF
+                    opportunities: []
+                    relatedPlaces: []
+                    title: Test Place
         "400":
           description: Invalid or malformed Accept-Language header.
           content:
@@ -318,6 +344,8 @@ paths:
                   summary: Operator profile with recent places and opportunities
                   value:
                     displayName: Comune di Alessandria
+                    operatorName: Operator Test Name
+                    operatorFiscalCode: "00000000000"
                     place:
                       id: 01JVMK3N8XQZP5T6G2WYHAB4CD
                       name: Sportello Carta Europea della Disabilita
@@ -510,6 +538,8 @@ paths:
                   summary: Published opportunity detail
                   value:
                     id: 01JVMK3N8XQZP5T6G2WYHAB4CD
+                    operatorFiscalCode: "00000000000"
+                    operatorName: Operator Test Name
                     name: Sconto mensile palestra
                     description: 20% di sconto sulla quota mensile per portatori di disabilità.
                     condition: Riservato ai titolari della Carta Europea della Disabilità.
@@ -619,6 +649,8 @@ components:
         - id
         - name
         - entityId
+        - operatorName
+        - operatorFiscalCode
         - type
         - address
       properties:
@@ -633,6 +665,14 @@ components:
         entityId:
           type: string
           description: operator.id — used by the FE to build navigation paths.
+        operatorName:
+          allOf:
+            - $ref: "#/components/schemas/OperatorName"
+          description: Legal name of the operator owning the place.
+        operatorFiscalCode:
+          allOf:
+            - $ref: "#/components/schemas/OperatorFiscalCode"
+          description: Fiscal code of the operator owning the place.
         type:
           type: string
           enum:
@@ -668,6 +708,17 @@ components:
           type: string
         postalCode:
           type: string
+
+    OperatorFiscalCode:
+      type: string
+      minLength: 1
+      maxLength: 32
+      description: Operator fiscal code.
+    OperatorName:
+      type: string
+      minLength: 1
+      maxLength: 512
+      description: Legal name of the operator.
 
     # -------------------------------------------------------------------------
     # Place Detail
@@ -755,6 +806,8 @@ components:
         - entityId
         - entityName
         - id
+        - operatorName
+        - operatorFiscalCode
         - opportunities
         - relatedPlaces
         - title
@@ -773,6 +826,14 @@ components:
         entityName:
           type: string
           description: Operator display name.
+        operatorName:
+          allOf:
+            - $ref: "#/components/schemas/OperatorName"
+          description: Legal name of the operator owning the place.
+        operatorFiscalCode:
+          allOf:
+            - $ref: "#/components/schemas/OperatorFiscalCode"
+          description: Fiscal code of the operator owning the place.
         id:
           type: string
           description: Place identifier.
@@ -933,6 +994,8 @@ components:
       additionalProperties: false
       required:
         - displayName
+        - operatorName
+        - operatorFiscalCode
         - place
         - recentPlaces
         - recentOpportunities
@@ -940,6 +1003,14 @@ components:
         displayName:
           type: string
           description: Public display name of the operator profile.
+        operatorName:
+          allOf:
+            - $ref: "#/components/schemas/OperatorName"
+          description: Legal name of the operator profile.
+        operatorFiscalCode:
+          allOf:
+            - $ref: "#/components/schemas/OperatorFiscalCode"
+          description: Fiscal code of the operator profile.
         place:
           $ref: "#/components/schemas/ProfilePlace"
         recentPlaces:
@@ -1129,6 +1200,8 @@ components:
         - language
         - name
         - nationalTerritory
+        - operatorName
+        - operatorFiscalCode
         - places
         - profile
       properties:
@@ -1166,6 +1239,14 @@ components:
         nationalTerritory:
           type: boolean
           description: Whether the opportunity is valid on the whole national territory.
+        operatorName:
+          allOf:
+            - $ref: "#/components/schemas/OperatorName"
+          description: Legal name of the operator owning the opportunity.
+        operatorFiscalCode:
+          allOf:
+            - $ref: "#/components/schemas/OperatorFiscalCode"
+          description: Fiscal code of the operator owning the opportunity.
         dateFrom:
           type: string
           format: date
@@ -1276,6 +1357,8 @@ components:
           - id: 01JVMK3N8XQZP5T6G2WYHAB4CD
             name: Sconto mensile palestra
             profileDisplayName: Palestra FitLife Roma Centro
+            operatorName: Operator Test Name
+            operatorFiscalCode: "00000000000"
             beneficiaryBenefitType: discount
             beneficiaryBenefitDiscountType: percentage
             beneficiaryBenefitValue: 20
@@ -1289,6 +1372,8 @@ components:
         - id
         - name
         - profileDisplayName
+        - operatorName
+        - operatorFiscalCode
         - beneficiaryBenefitType
         - beneficiaryBenefitDiscountType
         - beneficiaryBenefitValue
@@ -1302,6 +1387,14 @@ components:
         profileDisplayName:
           type: string
           description: Display name of the operator profile.
+        operatorName:
+          allOf:
+            - $ref: "#/components/schemas/OperatorName"
+          description: Legal name of the operator owning the opportunity.
+        operatorFiscalCode:
+          allOf:
+            - $ref: "#/components/schemas/OperatorFiscalCode"
+          description: Fiscal code of the operator owning the opportunity.
         beneficiaryBenefitType:
           type: string
           enum:

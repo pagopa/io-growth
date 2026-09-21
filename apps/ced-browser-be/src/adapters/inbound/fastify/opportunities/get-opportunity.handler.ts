@@ -10,7 +10,7 @@ import { z } from "zod";
 
 import type { GetOpportunityUseCase } from "../../../../application/use-cases/opportunities/get-opportunity.use-case.js";
 
-import { LANGUAGE_VALUES } from "../../../../domain/ports/outbound/persistence/place.repository.js";
+import { LANGUAGE_VALUES } from "../../../../domain/entities/language.js";
 import { CitizenSessionSchema } from "../auth/session.js";
 import {
   GetOpportunityParams,

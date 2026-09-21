@@ -82,7 +82,7 @@ export const useGetStatusAndNavigate = () => {
           const errorCode = getErrorCodes(
             error as FetchBaseQueryError | SerializedError,
           );
-          navigate(APP_ROUTES.GENERIC_ERROR, {
+          return navigate(APP_ROUTES.GENERIC_ERROR, {
             replace: true,
             state: errorCode === undefined ? undefined : { errorCode },
           });

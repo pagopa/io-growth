@@ -22,6 +22,7 @@ import {
 import { resetForm as resetConfirmationForm } from '../../features/confirmation/reducer';
 import { buildRecoveredDraftState } from '../../features/read-only-apis/draftRecovery';
 import { runStatusNavigation } from './statusNavigation';
+import { getErrorCodes } from '../../utils';
 
 export const useGetStatusAndNavigate = () => {
   const navigate = useNavigate();
@@ -77,7 +78,11 @@ export const useGetStatusAndNavigate = () => {
       } catch (error) {
         localStorage.setItem('log-error', JSON.stringify(error));
         console.error(error);
-        navigate(APP_ROUTES.GENERIC_ERROR, { replace: true });
+        const errorCode = getErrorCodes(error);
+        navigate(APP_ROUTES.GENERIC_ERROR, {
+          replace: true,
+          state: errorCode === undefined ? undefined : { errorCode },
+        });
       }
     };
 

@@ -618,6 +618,9 @@ importers:
       '@pagopa/io-core-adapter-fastify':
         specifier: workspace:^
         version: link:../../packages/io-core-adapter-fastify
+      '@pagopa/io-core-adapter-one-mail':
+        specifier: workspace:^
+        version: link:../../packages/io-core-adapter-one-mail
       '@pagopa/io-core-adapter-redis':
         specifier: workspace:^
         version: link:../../packages/io-core-adapter-redis

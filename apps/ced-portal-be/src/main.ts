@@ -8,6 +8,7 @@ import {
   getSessionFromRequest,
   multipart,
 } from "@pagopa/io-core-adapter-fastify";
+import { createOneMailClient } from "@pagopa/io-core-adapter-one-mail";
 import { createResilientRedisClient } from "@pagopa/io-core-adapter-redis";
 import {
   emitCustomEvent,
@@ -55,6 +56,7 @@ import { createDrizzleOpportunityCategoryRepository } from "./adapters/outbound/
 import { createDrizzleOpportunityRepository } from "./adapters/outbound/drizzle/drizzle-opportunity.repository.js";
 import { createDrizzlePlaceRepository } from "./adapters/outbound/drizzle/drizzle-place.repository.js";
 import { createDrizzleProfileRepository } from "./adapters/outbound/drizzle/drizzle-profile.repository.js";
+import { createOneMailEmailRepository } from "./adapters/outbound/one-mail/one-mail-email.repository.js";
 import { createRedisHealthCheckRepository } from "./adapters/outbound/redis/redis-health-check.repository.js";
 import { createRedisSessionRepository } from "./adapters/outbound/redis/redis-session.repository.js";
 import { makeAcsUseCase } from "./application/use-cases/auth/acs.use-case.js";
@@ -95,6 +97,22 @@ const dbRouter = createDbRouter(config);
 const arClientRouter = createArRouter(config);
 const dbClient = dbRouter.getInstance();
 const arClient = arClientRouter.getInstance();
+const oneMailClient = createOneMailClient({
+  apiKey: config.ONE_MAIL_API_KEY,
+  baseUrl: config.ONE_MAIL_BASE_URL,
+  onEmailError: (event) => {
+    emitCustomEvent("email.failed", {
+      caller: "OneMailClient",
+      data: { ...event },
+    })("OneMailClient");
+  },
+  onEmailSent: (event) => {
+    emitCustomEvent("email.sent", {
+      caller: "OneMailClient",
+      data: { ...event },
+    })("OneMailClient");
+  },
+});
 
 const redisClient = await createResilientRedisClient({
   endpoint: config.REDIS_ENDPOINT,
@@ -137,6 +155,10 @@ const profileAssetsRepository = createAzureProfileAssetsRepository({
   }),
 });
 const arOnboardingRepository = createArOnboardingRepository(arClient);
+const emailRepository = createOneMailEmailRepository(
+  oneMailClient.emailClient,
+  { fromAddress: config.EMAIL_FROM_ADDRESS },
+);
 
 const app = Fastify();
 
@@ -294,6 +316,8 @@ app.register(async (app) => {
     makeAdminApproveOpportunityUseCase(
       opportunityRepository,
       materializedViewRepository,
+      profileRepository,
+      emailRepository,
     ),
   );
   mountAdminSuspendOpportunityHandler(

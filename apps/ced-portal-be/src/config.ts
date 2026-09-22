@@ -28,8 +28,8 @@ const configSchema = z.object({
   // AR (Area Riservata) — test instance
   AR_API_KEY_TEST: z.string().min(1),
 
-  AR_ENDPOINT: z.string().url(),
-  AR_ENDPOINT_TEST: z.string().url(),
+  AR_ENDPOINT: z.url(),
+  AR_ENDPOINT_TEST: z.url(),
   ASSETS_STORAGE_BLOB_ENDPOINT: z.url(),
   ASSETS_STORAGE_CONNECTION_STRING: z.string().min(1).optional(),
   ASSETS_STORAGE_CONTAINER_IMAGES: z.string().min(1),
@@ -37,7 +37,10 @@ const configSchema = z.object({
   AZURE_CLIENT_ID: z.string().optional(),
   CED_PORTAL_FE_BASE_URL: z.string().min(1),
   CED_PRODUCT_ID: z.string().min(1),
+  EMAIL_FROM_ADDRESS: z.email(),
   HOST: z.string().default("0.0.0.0"),
+  ONE_MAIL_API_KEY: z.string().min(1),
+  ONE_MAIL_BASE_URL: z.url(),
   OPERATORS_FISCAL_CODES_TEST: z
     .string()
     .optional()

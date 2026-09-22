@@ -1,5 +1,11 @@
 # @pagopa/io-core-adapter-ar
 
+## 0.1.1
+
+### Patch Changes
+
+- b795362: Add the department onboarding-rejection endpoint: PATCH /api/department/onboardings/{onboardingId}/reject
+
 ## 0.1.0
 
 ### Minor Changes

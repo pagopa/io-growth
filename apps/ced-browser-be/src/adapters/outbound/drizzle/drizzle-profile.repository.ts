@@ -31,6 +31,12 @@ export const createDrizzleProfileRepository = (
         },
         where: eq(profile.id, profileId),
         with: {
+          operator: {
+            columns: {
+              fiscalCode: true,
+              name: true,
+            },
+          },
           place: {
             columns: {
               id: true,
@@ -75,6 +81,14 @@ export const createDrizzleProfileRepository = (
         return err(
           new GenericError(
             `Data integrity error: profile ${profileId} references a missing place`,
+          ),
+        );
+      }
+
+      if (!profileRow.operator) {
+        return err(
+          new GenericError(
+            `Data integrity error: profile ${profileId} references a missing operator`,
           ),
         );
       }
@@ -135,6 +149,8 @@ export const createDrizzleProfileRepository = (
 
       return ok({
         displayName: profileRow.displayName,
+        operatorFiscalCode: profileRow.operator.fiscalCode,
+        operatorName: profileRow.operator.name,
         place: {
           address: profileRow.place.address
             ? {

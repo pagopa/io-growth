@@ -36,6 +36,7 @@ export const operator = pgTable("operator", {
     .notNull()
     .defaultNow(),
   externalId: uuid("external_id").notNull(),
+  fiscalCode: varchar("fiscal_code", { length: 32 }).notNull(),
   id: char({ length: 26 }).primaryKey(),
   name: varchar({ length: 512 }).notNull(),
   revocationMessage: varchar("revocation_message", { length: 4096 }),
@@ -62,6 +63,7 @@ export const place = pgTable("place", {
 });
 
 export const profile = pgTable("profile", {
+  contactEmail: varchar("contact_email", { length: 512 }).notNull(),
   createdAt: timestamp("created_at", { withTimezone: true })
     .notNull()
     .defaultNow(),
@@ -266,7 +268,11 @@ export const placeMaterializedView = pgMaterializedView(
     country: varchar({ length: 255 }),
     id: char({ length: 26 }).notNull(),
     name: varchar({ length: 512 }),
+    operatorFiscalCode: varchar("operator_fiscal_code", {
+      length: 32,
+    }).notNull(),
     operatorId: char("operator_id", { length: 26 }).notNull(),
+    operatorName: varchar("operator_name", { length: 512 }).notNull(),
     postalCode: varchar("postal_code", { length: 20 }),
     profileDisplayName: varchar("profile_display_name", { length: 512 }),
     profileId: char("profile_id", { length: 26 }),
@@ -294,7 +300,11 @@ export const opportunityMaterializedView = pgMaterializedView(
     language: localizedMetadataLanguageEnum(),
     name: varchar({ length: 512 }),
     nationalTerritory: boolean("national_territory"),
+    operatorFiscalCode: varchar("operator_fiscal_code", {
+      length: 32,
+    }).notNull(),
     operatorId: char("operator_id", { length: 26 }),
+    operatorName: varchar("operator_name", { length: 512 }).notNull(),
     placeId: char("place_id", { length: 26 }),
     profileDisplayName: varchar("profile_display_name", { length: 512 }),
   },

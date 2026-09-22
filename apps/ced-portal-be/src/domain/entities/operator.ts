@@ -8,6 +8,7 @@ export const OPERATOR_STATUS = {
 
 export const OperatorSchema = z.object({
   externalId: z.uuid(),
+  fiscalCode: z.string().min(1).max(32),
   id: z.ulid(),
   name: z.string().min(1).max(512),
   status: z.enum(OPERATOR_STATUS),

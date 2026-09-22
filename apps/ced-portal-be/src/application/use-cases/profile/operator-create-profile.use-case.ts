@@ -11,8 +11,10 @@ import { z } from "zod";
 
 import type { Profile } from "../../../domain/entities/profile.js";
 import type { ProfileRepository } from "../../../domain/ports/outbound/persistence/profile.repository.js";
+import type { ProfileAssetsRepository } from "../../../domain/ports/outbound/profile-assets.repository.js";
 
 import { validateUseCaseInput } from "../utils/validate-use-case-input.js";
+import { validateProfileAssets } from "./utils/validate-profile-assets.js";
 
 const OperatorCreateProfileSupportContactSchema = z.object({
   type: z.enum(["email", "phone", "website"]),
@@ -47,7 +49,10 @@ const OperatorCreateProfilePlaceSchema = z.discriminatedUnion("type", [
 ]);
 
 const OperatorCreateProfileInputSchema = z.object({
+  contactEmail: z.email().max(512),
   displayName: z.string().min(1).max(512),
+  image: z.instanceof(Blob),
+  logo: z.instanceof(Blob),
   operatorId: z.ulid(),
   place: OperatorCreateProfilePlaceSchema,
 });
@@ -63,7 +68,10 @@ export type OperatorCreateProfileUseCase = UseCase<
 >;
 
 export const makeOperatorCreateProfileUseCase =
-  (profileRepository: ProfileRepository): OperatorCreateProfileUseCase =>
+  (
+    profileRepository: ProfileRepository,
+    profileAssetsRepository: ProfileAssetsRepository,
+  ): OperatorCreateProfileUseCase =>
   async (input) =>
     validateUseCaseInput(OperatorCreateProfileInputSchema, input).andThen(
       (validatedInput) =>
@@ -74,21 +82,34 @@ export const makeOperatorCreateProfileUseCase =
             return err(new ConflictError("Operator profile already exists"));
           }
 
-          const profile = {
-            displayName: validatedInput.displayName,
-            operatorId: validatedInput.operatorId,
-            place: {
-              ...validatedInput.place,
-              id: ulid(),
-              supportContacts: validatedInput.place.supportContacts.map(
-                (sc) => ({
-                  ...sc,
-                  id: ulid(),
-                }),
-              ),
-            },
-          };
+          return new ResultAsync(
+            validateProfileAssets({
+              image: validatedInput.image,
+              logo: validatedInput.logo,
+            }),
+          ).andThen((validatedAssets) => {
+            const profile = {
+              contactEmail: validatedInput.contactEmail,
+              displayName: validatedInput.displayName,
+              operatorId: validatedInput.operatorId,
+              place: {
+                ...validatedInput.place,
+                id: ulid(),
+                supportContacts: validatedInput.place.supportContacts.map(
+                  (sc) => ({
+                    ...sc,
+                    id: ulid(),
+                  }),
+                ),
+              },
+            };
 
-          return new ResultAsync(profileRepository.create(profile));
+            return new ResultAsync(
+              profileAssetsRepository.uploadProfileAssets({
+                ...validatedAssets,
+                operatorId: validatedInput.operatorId,
+              }),
+            ).andThen(() => new ResultAsync(profileRepository.create(profile)));
+          });
         }),
     );

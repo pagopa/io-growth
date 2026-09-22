@@ -11,7 +11,7 @@
     "yaml": "^2.7.1"
   },
   "scripts": {
-    "code-review": "turbo run format:check lint:check test:coverage",
+    "code-review": "turbo run format:check lint:check test:coverage typecheck",
     "js:auto-fix": "turbo run lint format --affected",
     "lint": "turbo run lint",
     "format": "turbo run format",

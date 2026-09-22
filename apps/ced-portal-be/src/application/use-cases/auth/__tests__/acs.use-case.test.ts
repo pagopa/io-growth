@@ -134,6 +134,7 @@ describe("makeAcsUseCase", () => {
     );
     expect(operatorRepository.create).toHaveBeenCalledWith({
       externalId: "internalID",
+      fiscalCode: "org-vat",
       id: expect.stringMatching(/^[0-9A-HJKMNP-TV-Z]{26}$/),
       name: "Organization legal name",
       status: "active",

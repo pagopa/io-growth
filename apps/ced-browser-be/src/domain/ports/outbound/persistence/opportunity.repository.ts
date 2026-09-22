@@ -1,8 +1,9 @@
 import type { GenericError } from "@pagopa/io-core-domain/errors";
 import type { Result } from "neverthrow";
 
+import type { Language } from "../../../entities/language.js";
+import type { OperatorMetadata } from "../../../entities/operator.js";
 import type { OpportunityDetail } from "../../../entities/opportunity.js";
-import type { Language } from "./place.repository.js";
 
 export const BENEFIT_TYPE_VALUES = [
   "free",
@@ -45,7 +46,7 @@ export interface OpportunityRepository {
   ) => Promise<Result<SearchOpportunitiesResult, GenericError>>;
 }
 
-export interface OpportunitySearchItem {
+export interface OpportunitySearchItem extends OperatorMetadata {
   beneficiaryBenefitDiscountType: BenefitDiscountType | null;
   beneficiaryBenefitType: BenefitType;
   beneficiaryBenefitValue: null | number;

@@ -23,6 +23,7 @@ const DECORATIVE_CYAN = '#AAEEEF';
 const BADGE_BG = '#DBF9FA';
 const BADGE_TEXT = '#003B3D';
 const LINK_COLOR = '#007BFF';
+const CARD_BORDER = '#E8EBF1';
 
 declare module '@mui/material/styles' {
   interface CommonColors {
@@ -44,6 +45,7 @@ declare module '@mui/material/styles' {
     badgeBg: string;
     badgeText: string;
     linkColor: string;
+    cardBorder: string;
   }
 }
 
@@ -83,6 +85,7 @@ const createAppTheme = () =>
         badgeBg: BADGE_BG,
         badgeText: BADGE_TEXT,
         linkColor: LINK_COLOR,
+        cardBorder: CARD_BORDER,
       },
     },
     components: {

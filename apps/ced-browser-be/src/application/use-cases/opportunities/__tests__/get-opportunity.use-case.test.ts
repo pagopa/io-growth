@@ -27,6 +27,8 @@ const mockOpportunityDetail: OpportunityDetail = {
   language: "it",
   name: "Sconto mensile palestra",
   nationalTerritory: false,
+  operatorFiscalCode: "00000000000",
+  operatorName: "Operator Test Name",
   places: [
     {
       city: "Roma",

@@ -609,12 +609,18 @@ importers:
       '@pagopa/io-core-adapter-ar':
         specifier: workspace:^
         version: link:../../packages/io-core-adapter-ar
+      '@pagopa/io-core-adapter-azure-blob-storage':
+        specifier: workspace:^
+        version: link:../../packages/io-core-adapter-azure-blob-storage
       '@pagopa/io-core-adapter-drizzle':
         specifier: workspace:^
         version: link:../../packages/io-core-adapter-drizzle
       '@pagopa/io-core-adapter-fastify':
         specifier: workspace:^
         version: link:../../packages/io-core-adapter-fastify
+      '@pagopa/io-core-adapter-one-mail':
+        specifier: workspace:^
+        version: link:../../packages/io-core-adapter-one-mail
       '@pagopa/io-core-adapter-redis':
         specifier: workspace:^
         version: link:../../packages/io-core-adapter-redis
@@ -636,6 +642,9 @@ importers:
       fastify:
         specifier: 'catalog:'
         version: 5.8.5
+      image-size:
+        specifier: ^2.0.2
+        version: 2.0.2
       jose:
         specifier: ^6.2.2
         version: 6.2.2
@@ -858,6 +867,49 @@ importers:
       undici-types:
         specifier: 'catalog:'
         version: 6.21.0
+      vitest:
+        specifier: 'catalog:'
+        version: 3.2.6(@types/node@22.19.17)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.3)
+
+  packages/io-core-adapter-azure-blob-storage:
+    dependencies:
+      '@azure/identity':
+        specifier: ^4.13.1
+        version: 4.13.1
+      '@azure/storage-blob':
+        specifier: ^12.31.0
+        version: 12.31.0
+      '@pagopa/io-core-domain':
+        specifier: workspace:^
+        version: link:../io-core-domain
+      neverthrow:
+        specifier: 'catalog:'
+        version: 8.2.0
+      zod:
+        specifier: 'catalog:'
+        version: 4.4.3
+    devDependencies:
+      '@pagopa/eslint-config':
+        specifier: 'catalog:'
+        version: 6.0.4(@typescript-eslint/eslint-plugin@8.61.1(@typescript-eslint/parser@8.61.1(eslint@10.8.1(jiti@2.6.1))(typescript@5.9.3))(eslint@10.8.1(jiti@2.6.1))(typescript@5.9.3))(eslint@10.8.1(jiti@2.6.1))(prettier@3.8.3)(vitest@3.2.6(@types/node@22.19.17)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.3))
+      '@tsconfig/node22':
+        specifier: 'catalog:'
+        version: 22.0.5
+      '@types/node':
+        specifier: 'catalog:'
+        version: 22.19.17
+      '@vitest/coverage-v8':
+        specifier: 'catalog:'
+        version: 3.2.6(vitest@3.2.6(@types/node@22.19.17)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.3))
+      eslint:
+        specifier: 'catalog:'
+        version: 10.8.1(jiti@2.6.1)
+      prettier:
+        specifier: 'catalog:'
+        version: 3.8.3
+      typescript:
+        specifier: 'catalog:'
+        version: 5.9.3
       vitest:
         specifier: 'catalog:'
         version: 3.2.6(@types/node@22.19.17)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.3)
@@ -1100,6 +1152,52 @@ importers:
       typescript:
         specifier: 'catalog:'
         version: 5.9.3
+      vitest:
+        specifier: 'catalog:'
+        version: 3.2.6(@types/node@22.19.17)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.3)
+
+  packages/io-core-adapter-one-mail:
+    dependencies:
+      '@pagopa/io-core-domain':
+        specifier: workspace:^
+        version: link:../io-core-domain
+      neverthrow:
+        specifier: 'catalog:'
+        version: 8.2.0
+      zod:
+        specifier: 'catalog:'
+        version: 4.4.3
+    devDependencies:
+      '@pagopa/eslint-config':
+        specifier: 'catalog:'
+        version: 6.0.4(@typescript-eslint/eslint-plugin@8.61.1(@typescript-eslint/parser@8.61.1(eslint@10.8.1(jiti@2.6.1))(typescript@5.9.3))(eslint@10.8.1(jiti@2.6.1))(typescript@5.9.3))(eslint@10.8.1(jiti@2.6.1))(prettier@3.8.3)(vitest@3.2.6(@types/node@22.19.17)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.3))
+      '@tsconfig/node22':
+        specifier: 'catalog:'
+        version: 22.0.5
+      '@types/node':
+        specifier: 'catalog:'
+        version: 22.19.17
+      '@vitest/coverage-v8':
+        specifier: 'catalog:'
+        version: 3.2.6(vitest@3.2.6(@types/node@22.19.17)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.3))
+      eslint:
+        specifier: 'catalog:'
+        version: 10.8.1(jiti@2.6.1)
+      orval:
+        specifier: 'catalog:'
+        version: 8.9.0(prettier@3.8.3)(typescript@5.9.3)
+      prettier:
+        specifier: 'catalog:'
+        version: 3.8.3
+      ts2esm:
+        specifier: ^2.2.7
+        version: 2.2.7(@types/node@22.19.17)
+      typescript:
+        specifier: 'catalog:'
+        version: 5.9.3
+      undici-types:
+        specifier: 'catalog:'
+        version: 6.21.0
       vitest:
         specifier: 'catalog:'
         version: 3.2.6(@types/node@22.19.17)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.3)
@@ -5075,6 +5173,11 @@ packages:
   ignore@7.0.5:
     resolution: {integrity: sha512-Hs59xBNfUIunMFgWAbGX5cq6893IbWg4KnrjbYwX3tx0ztorVgTDA6B2sxf8ejHJ4wz8BqGUMYlnzNBer5NvGg==}
     engines: {node: '>= 4'}
+
+  image-size@2.0.2:
+    resolution: {integrity: sha512-IRqXKlaXwgSMAMtpNzZa1ZAe8m+Sa1770Dhk8VkSsP9LS+iHD62Zd8FQKs8fbPiagBE7BzoFX23cxFnwshpV6w==}
+    engines: {node: '>=16.x'}
+    hasBin: true
 
   immer@11.1.4:
     resolution: {integrity: sha512-XREFCPo6ksxVzP4E0ekD5aMdf8WMwmdNaz6vuvxgI40UaEiu6q3p8X52aU6GdyvLY3XXX/8R7JOTXStz/nBbRw==}
@@ -11093,6 +11196,8 @@ snapshots:
   ignore@5.3.2: {}
 
   ignore@7.0.5: {}
+
+  image-size@2.0.2: {}
 
   immer@11.1.4: {}
 

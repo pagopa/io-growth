@@ -37,6 +37,7 @@ paths:
                   summary: Operator with online place
                   value:
                     displayName: Operatore Demo
+                    contactEmail: contatto@example.org
                     place:
                       id: 01JVMK3N8XQZP5T6G2WYHAB4CD
                       type: online
@@ -54,6 +55,7 @@ paths:
                   summary: Operator with offline place
                   value:
                     displayName: Operatore Demo
+                    contactEmail: contatto@example.org
                     place:
                       id: 01JVMK3N8XQZP5T6G2WYHAB4CG
                       type: offline
@@ -105,38 +107,28 @@ paths:
       requestBody:
         required: true
         content:
-          application/json:
+          multipart/form-data:
             schema:
-              $ref: "#/components/schemas/OperatorProfileCreateRequest"
-            examples:
-              onlinePlace:
-                summary: Creating an online place
-                value:
-                  displayName: Operatore Demo
-                  place:
-                    type: online
-                    name: Sportello remoto
-                    website:
-                      url: https://example.org
-                    supportContacts:
-                      - type: email
-                        value: support@example.org
-              offlinePlace:
-                summary: Creating an offline place
-                value:
-                  displayName: Operatore Demo
-                  place:
-                    type: offline
-                    name: Sportello centrale
-                    address:
-                      street: Via Roma 1
-                      city: Roma
-                      state: RM
-                      postalCode: "00100"
-                      country: IT
-                    supportContacts:
-                      - type: website
-                        value: https://example.org/support
+              type: object
+              additionalProperties: false
+              required:
+                - profile
+                - logo
+                - image
+              properties:
+                profile:
+                  $ref: "#/components/schemas/OperatorProfileCreateRequest"
+                logo:
+                  type: string
+                  format: binary
+                  description: PNG or JPEG logo, up to 300x300 pixels.
+                image:
+                  type: string
+                  format: binary
+                  description: PNG or JPEG profile image, up to 300x600 pixels.
+            encoding:
+              profile:
+                contentType: application/json
       responses:
         "201":
           description: Operator profile created successfully
@@ -144,6 +136,12 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/OperatorProfileResponse"
+        "400":
+          description: Invalid profile JSON or invalid image files
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
         "401":
           description: Invalid or missing JWT
           content:
@@ -1628,17 +1626,6 @@ paths:
               example:
                 statusCode: 400
                 message: Validation error
-        "401":
-          description: >-
-            The operator has been revoked. No session is created and no
-            operator record is persisted.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
-              example:
-                statusCode: 401
-                message: "Unauthorized: Operator revoked"
   /authorize:
     get:
       tags:
@@ -1891,6 +1878,92 @@ paths:
               example:
                 statusCode: 403
                 message: Forbidden
+  /department/onboardings/{onboardingId}/reject:
+    patch:
+      tags:
+        - Department
+      summary: Reject an onboarding request (department only)
+      description: >-
+        Rejects a pending onboarding request, recording the reason on Area
+        Riservata, which notifies the institution. Nothing is persisted on this
+        side: a rejected request never becomes an operator. The action applies
+        only to requests still under review and is irreversible.
+      operationId: adminRejectOnboarding
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: onboardingId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required:
+                - rejectionMessage
+              properties:
+                rejectionMessage:
+                  type: string
+                  minLength: 1
+                  maxLength: 4096
+                  description: >-
+                    Reason for the rejection. Recorded on Area Riservata and
+                    sent to the institution.
+      responses:
+        "204":
+          description: Onboarding request rejected
+        "400":
+          description: "Invalid payload: rejectionMessage missing, empty or too long"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 400
+                message: "Validation error: rejectionMessage is required"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 401
+                message: Unauthorized
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 403
+                message: Forbidden
+        "404":
+          description: Onboarding not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 404
+                message: Onboarding not found
+        "412":
+          description: >-
+            The onboarding request is not under review. A completed onboarding
+            is revoked, not rejected.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 412
+                message: Precondition Failed
   /department/onboardings/{onboardingId}/revoke:
     patch:
       tags:
@@ -2000,9 +2073,14 @@ components:
       type: object
       additionalProperties: false
       required:
+        - contactEmail
         - displayName
         - place
       properties:
+        contactEmail:
+          type: string
+          format: email
+          maxLength: 512
         displayName:
           type: string
           maxLength: 512
@@ -2114,9 +2192,14 @@ components:
       type: object
       additionalProperties: false
       required:
+        - contactEmail
         - displayName
         - place
       properties:
+        contactEmail:
+          type: string
+          format: email
+          maxLength: 512
         displayName:
           type: string
           maxLength: 512

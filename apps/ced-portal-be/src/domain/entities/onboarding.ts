@@ -13,6 +13,11 @@ export const OnboardingStatusSchema = z.enum([
 
 export type OnboardingStatus = z.infer<typeof OnboardingStatusSchema>;
 
+/**
+ * Named handles over the exact strings Area Riservata uses, so that no status
+ * literal appears outside this file. The values are upper case because that is
+ * the upstream vocabulary, not a style choice.
+ */
 export const ONBOARDING_STATUS = {
   COMPLETED: "COMPLETED",
   DELETED: "DELETED",

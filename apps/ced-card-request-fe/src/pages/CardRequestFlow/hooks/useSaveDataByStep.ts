@@ -12,6 +12,7 @@ import { selectIdLavorazione } from '../../../features/status/selectors';
 import { useConfirmMutation } from '../../../features/confirmation/api';
 import { selectConfirmationPayload } from '../../../features/confirmation/reducer';
 import { toApiDateTime } from '../../../features/request-form/date';
+import { getErrorCodes } from '../../../utils';
 
 const sanitizeObject = <T extends Record<string, unknown>>(data: T): T =>
   Object.fromEntries(
@@ -29,13 +30,31 @@ export const useSaveDataByStep = (next: () => void) => {
   const { showToast } = useToast();
   const [
     saveFirstDraft,
-    { isError: isDraftError, isLoading: isDraftLoading, reset: resetDraft },
+    {
+      isError: isDraftError,
+      isLoading: isDraftLoading,
+      error: draftError,
+      reset: resetDraft,
+    },
   ] = useCreateDraftRequestMutation();
   const [
     uploadPhoto,
-    { isError: isPhotoError, isLoading: isPhotoLoading, reset: resetPhoto },
+    {
+      isError: isPhotoError,
+      isLoading: isPhotoLoading,
+      error: photoError,
+      reset: resetPhoto,
+    },
   ] = useUploadPhotoMutation();
-  const [confirm, { isLoading: isConfirmLoading }] = useConfirmMutation();
+  const [
+    confirm,
+    {
+      isError: isConfirmError,
+      isLoading: isConfirmLoading,
+      error: confirmError,
+      reset: resetConfirm,
+    },
+  ] = useConfirmMutation();
 
   const [isActionLoading, setIsActionLoading] = useState(false);
 
@@ -162,7 +181,12 @@ export const useSaveDataByStep = (next: () => void) => {
     isLoading,
     isPhotoError,
     isDraftError,
+    isConfirmError,
+    draftErrorCode: getErrorCodes(draftError),
+    photoErrorCode: getErrorCodes(photoError),
+    confirmErrorCode: getErrorCodes(confirmError),
     resetDraft,
     resetPhoto,
+    resetConfirm,
   };
 };

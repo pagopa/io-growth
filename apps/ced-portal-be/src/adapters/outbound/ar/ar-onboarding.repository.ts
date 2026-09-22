@@ -253,4 +253,11 @@ export const createArOnboardingRepository = (
       (error) => err(new GenericError(error.message)),
     );
   },
+
+  // referentExternalId is our name for the acting user; upstream the field is called userUid
+  rejectOnboarding: async (input) =>
+    arClient.onboardingClient.rejectOnboarding(input.onboardingId, {
+      reasonForReject: input.rejectionMessage,
+      userUid: input.referentExternalId,
+    }),
 });

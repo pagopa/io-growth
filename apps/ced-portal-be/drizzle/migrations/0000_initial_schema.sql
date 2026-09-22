@@ -26,6 +26,7 @@ CREATE TABLE operator (
   id CHAR(26) PRIMARY KEY,
   external_id UUID NOT NULL,
   name VARCHAR(512) NOT NULL,
+  fiscal_code VARCHAR(32) NOT NULL,
   status operator_status NOT NULL,
   revocation_message VARCHAR(4096),
   revoked_at TIMESTAMPTZ,
@@ -47,6 +48,7 @@ CREATE TABLE profile (
   operator_id CHAR(26) NOT NULL REFERENCES operator(id) ON DELETE CASCADE,
   place_id CHAR(26) NOT NULL REFERENCES place(id),
   display_name VARCHAR(512) NOT NULL,
+  contact_email VARCHAR(512) NOT NULL,
   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   UNIQUE (operator_id)

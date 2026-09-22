@@ -48,4 +48,21 @@ export interface OnboardingRepository {
   readonly listByProduct: (
     input: ListOnboardingsInput,
   ) => Promise<Result<PaginatedOnboardings, GenericError>>;
+
+  /**
+   * Propagates the rejection of an onboarding request to Area Riservata, which
+   * records the reason and notifies the institution. Upstream the operation is
+   * allowed only on requests that are not COMPLETED.
+   */
+  readonly rejectOnboarding: (
+    input: RejectOnboardingInput,
+  ) => Promise<Result<void, GenericError>>;
+}
+
+export interface RejectOnboardingInput {
+  readonly onboardingId: string;
+  /** Uid of the department user disposing the rejection. Upstream `userUid`. */
+  readonly referentExternalId: string;
+  /** Reason given by the department. Upstream the field is `reasonForReject`. */
+  readonly rejectionMessage: string;
 }

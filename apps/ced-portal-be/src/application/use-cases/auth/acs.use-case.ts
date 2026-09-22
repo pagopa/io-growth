@@ -60,7 +60,7 @@ const TokenPayloadSchema = z.object({
   family_name: z.string(),
   name: z.string(),
   organization: z.object({
-    fiscal_code: z.string().optional(),
+    fiscal_code: z.string(),
     id: z.string(),
     name: z.string(),
     roles: z.array(z.object({ partyRole: z.string() })).nonempty(),
@@ -133,6 +133,7 @@ export const makeAcsUseCase =
               : new ResultAsync(
                   operatorRepository.create({
                     externalId: organization.id,
+                    fiscalCode: organization.fiscal_code,
                     id: ulid(),
                     name: organization.name,
                     status: "active",

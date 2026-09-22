@@ -1,5 +1,13 @@
 # ced-portal-be
 
+## 0.4.3
+
+### Patch Changes
+
+- e4e3837: one mail integration
+- Updated dependencies [e4e3837]
+  - @pagopa/io-core-adapter-one-mail@0.1.1
+
 ## 0.4.2
 
 ### Patch Changes

@@ -1,5 +1,8 @@
 import { z } from "zod";
 
+import { LANGUAGE_VALUES } from "./language.js";
+import { OperatorMetadataSchema } from "./operator.js";
+
 export const OpportunityBenefitSchema = z.object({
   discountType: z.enum(["percentage", "fixed_amount"]).nullable(),
   type: z.enum([
@@ -59,7 +62,7 @@ export const OpportunityProfileSchema = z.object({
 
 export type OpportunityProfile = z.infer<typeof OpportunityProfileSchema>;
 
-export const OpportunityDetailSchema = z.object({
+export const OpportunityDetailSchema = OperatorMetadataSchema.extend({
   beneficiaryBenefit: OpportunityBenefitSchema,
   caregiverBenefit: OpportunityBenefitSchema.nullable().optional(),
   category: z.string().min(1),
@@ -68,7 +71,7 @@ export const OpportunityDetailSchema = z.object({
   dateTo: z.iso.date().nullable().optional(),
   description: z.string().min(1),
   id: z.ulid(),
-  language: z.enum(["en", "fr", "de", "sl", "it"]),
+  language: z.enum(LANGUAGE_VALUES),
   name: z.string().min(1),
   nationalTerritory: z.boolean(),
   places: z.array(OpportunityPlaceSchema).min(1),

@@ -1,5 +1,22 @@
 # ced-portal-be
 
+## 0.4.3
+
+### Patch Changes
+
+- e4e3837: one mail integration
+- Updated dependencies [e4e3837]
+  - @pagopa/io-core-adapter-one-mail@0.1.1
+
+## 0.4.2
+
+### Patch Changes
+
+- cc58ed4: Add multipart operator profile creation with validated logo and image uploads to Azure Blob Storage.
+- Updated dependencies [cc58ed4]
+  - @pagopa/io-core-adapter-azure-blob-storage@0.0.2
+  - @pagopa/io-core-adapter-fastify@0.0.8
+
 ## 0.4.1
 
 ### Patch Changes

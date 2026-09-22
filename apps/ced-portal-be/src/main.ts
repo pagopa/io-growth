@@ -2,11 +2,13 @@
 // before any instrumented library (Fastify, PostgreSQL, Redis, fetch) loads.
 import "./telemetry.js";
 
+import { createBlobRepository } from "@pagopa/io-core-adapter-azure-blob-storage";
 import {
   createAuthenticationPreHandler,
   getSessionFromRequest,
   multipart,
 } from "@pagopa/io-core-adapter-fastify";
+import { createOneMailClient } from "@pagopa/io-core-adapter-one-mail";
 import { createResilientRedisClient } from "@pagopa/io-core-adapter-redis";
 import {
   emitCustomEvent,
@@ -47,6 +49,7 @@ import {
   mountOperatorUpdateOpportunityHandler,
 } from "./adapters/inbound/fastify/index.js";
 import { createArOnboardingRepository } from "./adapters/outbound/ar/ar-onboarding.repository.js";
+import { createAzureProfileAssetsRepository } from "./adapters/outbound/blob/azure-profile-assets.repository.js";
 import { createDrizzleHealthCheckRepository } from "./adapters/outbound/drizzle/drizzle-health-check.repository.js";
 import { createDrizzleMaterializedViewRepository } from "./adapters/outbound/drizzle/drizzle-materialized-view.repository.js";
 import { createDrizzleOperatorRepository } from "./adapters/outbound/drizzle/drizzle-operator.repository.js";
@@ -54,6 +57,7 @@ import { createDrizzleOpportunityCategoryRepository } from "./adapters/outbound/
 import { createDrizzleOpportunityRepository } from "./adapters/outbound/drizzle/drizzle-opportunity.repository.js";
 import { createDrizzlePlaceRepository } from "./adapters/outbound/drizzle/drizzle-place.repository.js";
 import { createDrizzleProfileRepository } from "./adapters/outbound/drizzle/drizzle-profile.repository.js";
+import { createOneMailEmailRepository } from "./adapters/outbound/one-mail/one-mail-email.repository.js";
 import { createRedisHealthCheckRepository } from "./adapters/outbound/redis/redis-health-check.repository.js";
 import { createRedisSessionRepository } from "./adapters/outbound/redis/redis-session.repository.js";
 import { makeAcsUseCase } from "./application/use-cases/auth/acs.use-case.js";
@@ -95,6 +99,22 @@ const dbRouter = createDbRouter(config);
 const arClientRouter = createArRouter(config);
 const dbClient = dbRouter.getInstance();
 const arClient = arClientRouter.getInstance();
+const oneMailClient = createOneMailClient({
+  apiKey: config.ONE_MAIL_API_KEY,
+  baseUrl: config.ONE_MAIL_BASE_URL,
+  onEmailError: (event) => {
+    emitCustomEvent("email.failed", {
+      caller: "OneMailClient",
+      data: { ...event },
+    })("OneMailClient");
+  },
+  onEmailSent: (event) => {
+    emitCustomEvent("email.sent", {
+      caller: "OneMailClient",
+      data: { ...event },
+    })("OneMailClient");
+  },
+});
 
 const redisClient = await createResilientRedisClient({
   endpoint: config.REDIS_ENDPOINT,
@@ -122,7 +142,25 @@ const materializedViewRepository =
   createDrizzleMaterializedViewRepository(dbClient);
 const placeRepository = createDrizzlePlaceRepository(dbClient);
 const profileRepository = createDrizzleProfileRepository(dbClient);
+const profileAssetsRepository = createAzureProfileAssetsRepository({
+  imagesRepository: createBlobRepository({
+    clientId: config.AZURE_CLIENT_ID,
+    connectionString: config.ASSETS_STORAGE_CONNECTION_STRING,
+    containerName: config.ASSETS_STORAGE_CONTAINER_IMAGES,
+    endpoint: config.ASSETS_STORAGE_BLOB_ENDPOINT,
+  }),
+  logosRepository: createBlobRepository({
+    clientId: config.AZURE_CLIENT_ID,
+    connectionString: config.ASSETS_STORAGE_CONNECTION_STRING,
+    containerName: config.ASSETS_STORAGE_CONTAINER_LOGOS,
+    endpoint: config.ASSETS_STORAGE_BLOB_ENDPOINT,
+  }),
+});
 const arOnboardingRepository = createArOnboardingRepository(arClient);
+const emailRepository = createOneMailEmailRepository(
+  oneMailClient.emailClient,
+  { fromAddress: config.EMAIL_FROM_ADDRESS },
+);
 
 const app = Fastify();
 
@@ -169,7 +207,10 @@ app.register(async (app) => {
   );
   mountOperatorCreateProfileHandler(
     app,
-    makeOperatorCreateProfileUseCase(profileRepository),
+    makeOperatorCreateProfileUseCase(
+      profileRepository,
+      profileAssetsRepository,
+    ),
   );
   mountOperatorListPlacesHandler(
     app,
@@ -281,6 +322,8 @@ app.register(async (app) => {
     makeAdminApproveOpportunityUseCase(
       opportunityRepository,
       materializedViewRepository,
+      profileRepository,
+      emailRepository,
     ),
   );
   mountAdminSuspendOpportunityHandler(

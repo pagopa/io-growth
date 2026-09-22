@@ -1,13 +1,13 @@
 import { GenericError } from "@pagopa/io-core-domain/errors";
 import { err, ok, type Result } from "neverthrow";
 
+import type { Language } from "../../../domain/entities/language.js";
 import type {
   OpportunityBenefit,
   OpportunityDetail,
   OpportunityPlace,
   OpportunityProfile,
 } from "../../../domain/entities/opportunity.js";
-import type { Language } from "../../../domain/ports/outbound/persistence/place.repository.js";
 
 export interface OpportunityDetailRow {
   beneficiaryBenefit: BenefitRow | null;
@@ -19,6 +19,8 @@ export interface OpportunityDetailRow {
   localizedMetadata: LocalizedMetadataRow[];
   nationalTerritory: boolean;
   operator: null | {
+    fiscalCode: string;
+    name: string;
     profile: null | ProfileRow;
   };
   opportunityPlaces: OpportunityPlaceRow[];
@@ -208,7 +210,16 @@ export const mapOpportunityDetailRow = (
     );
   }
 
-  const profile = row.operator?.profile;
+  const operator = row.operator;
+  if (!operator) {
+    return err(
+      new GenericError(
+        `Data integrity error: opportunity ${row.id} has no associated operator`,
+      ),
+    );
+  }
+
+  const profile = operator.profile;
   if (!profile) {
     return err(
       new GenericError(
@@ -240,6 +251,8 @@ export const mapOpportunityDetailRow = (
     language: localizedFields.language,
     name: localizedFields.name,
     nationalTerritory: row.nationalTerritory,
+    operatorFiscalCode: operator.fiscalCode,
+    operatorName: operator.name,
     places,
     profile: mapProfileRow({ ...profile, place: profile.place }),
     url: row.url,

@@ -10,7 +10,7 @@ import { z as zod } from "zod";
 
 import type { SearchOpportunitiesUseCase } from "../../../../application/use-cases/opportunities/search-opportunities.use-case.js";
 
-import { LANGUAGE_VALUES } from "../../../../domain/ports/outbound/persistence/place.repository.js";
+import { LANGUAGE_VALUES } from "../../../../domain/entities/language.js";
 import { CitizenSessionSchema } from "../auth/session.js";
 import {
   SearchOpportunitiesQueryParams,

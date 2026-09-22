@@ -8,6 +8,7 @@ import { NotFoundError } from "@pagopa/io-core-domain/errors";
 import { err, ok } from "neverthrow";
 import { z } from "zod";
 
+import type { OperatorMetadata } from "../../../domain/entities/operator.js";
 import type {
   PlaceAddress,
   PlaceBenefit,
@@ -15,7 +16,7 @@ import type {
   RelatedPlace,
 } from "../../../domain/ports/outbound/persistence/place.repository.js";
 
-import { LANGUAGE_VALUES } from "../../../domain/ports/outbound/persistence/place.repository.js";
+import { LANGUAGE_VALUES } from "../../../domain/entities/language.js";
 import { validateUseCaseInput } from "../utils/validate-use-case-input.js";
 
 const GetPlaceDetailInputSchema = z.object({
@@ -25,7 +26,7 @@ const GetPlaceDetailInputSchema = z.object({
 
 export type GetPlaceDetailInput = z.input<typeof GetPlaceDetailInputSchema>;
 
-export interface GetPlaceDetailOutput {
+export interface GetPlaceDetailOutput extends OperatorMetadata {
   address: null | PlaceAddress;
   contacts: { phone?: string; website?: string };
   entityId: string;
@@ -69,6 +70,8 @@ export const makeGetPlaceDetailUseCase =
       entityId: detail.entityId,
       entityName: detail.entityName,
       id: detail.id,
+      operatorFiscalCode: detail.operatorFiscalCode,
+      operatorName: detail.operatorName,
       opportunities: detail.opportunities.map((o) => ({
         benefit: o.benefit,
         id: o.id,

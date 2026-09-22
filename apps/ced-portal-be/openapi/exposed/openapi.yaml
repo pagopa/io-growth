@@ -37,6 +37,7 @@ paths:
                   summary: Operator with online place
                   value:
                     displayName: Operatore Demo
+                    contactEmail: contatto@example.org
                     place:
                       id: 01JVMK3N8XQZP5T6G2WYHAB4CD
                       type: online
@@ -54,6 +55,7 @@ paths:
                   summary: Operator with offline place
                   value:
                     displayName: Operatore Demo
+                    contactEmail: contatto@example.org
                     place:
                       id: 01JVMK3N8XQZP5T6G2WYHAB4CG
                       type: offline
@@ -105,38 +107,28 @@ paths:
       requestBody:
         required: true
         content:
-          application/json:
+          multipart/form-data:
             schema:
-              $ref: "#/components/schemas/OperatorProfileCreateRequest"
-            examples:
-              onlinePlace:
-                summary: Creating an online place
-                value:
-                  displayName: Operatore Demo
-                  place:
-                    type: online
-                    name: Sportello remoto
-                    website:
-                      url: https://example.org
-                    supportContacts:
-                      - type: email
-                        value: support@example.org
-              offlinePlace:
-                summary: Creating an offline place
-                value:
-                  displayName: Operatore Demo
-                  place:
-                    type: offline
-                    name: Sportello centrale
-                    address:
-                      street: Via Roma 1
-                      city: Roma
-                      state: RM
-                      postalCode: "00100"
-                      country: IT
-                    supportContacts:
-                      - type: website
-                        value: https://example.org/support
+              type: object
+              additionalProperties: false
+              required:
+                - profile
+                - logo
+                - image
+              properties:
+                profile:
+                  $ref: "#/components/schemas/OperatorProfileCreateRequest"
+                logo:
+                  type: string
+                  format: binary
+                  description: PNG or JPEG logo, up to 300x300 pixels.
+                image:
+                  type: string
+                  format: binary
+                  description: PNG or JPEG profile image, up to 300x600 pixels.
+            encoding:
+              profile:
+                contentType: application/json
       responses:
         "201":
           description: Operator profile created successfully
@@ -144,6 +136,12 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/OperatorProfileResponse"
+        "400":
+          description: Invalid profile JSON or invalid image files
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
         "401":
           description: Invalid or missing JWT
           content:
@@ -1977,9 +1975,14 @@ components:
       type: object
       additionalProperties: false
       required:
+        - contactEmail
         - displayName
         - place
       properties:
+        contactEmail:
+          type: string
+          format: email
+          maxLength: 512
         displayName:
           type: string
           maxLength: 512
@@ -2091,9 +2094,14 @@ components:
       type: object
       additionalProperties: false
       required:
+        - contactEmail
         - displayName
         - place
       properties:
+        contactEmail:
+          type: string
+          format: email
+          maxLength: 512
         displayName:
           type: string
           maxLength: 512

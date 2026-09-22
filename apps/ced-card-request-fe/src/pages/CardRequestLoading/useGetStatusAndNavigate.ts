@@ -22,6 +22,9 @@ import {
 import { resetForm as resetConfirmationForm } from '../../features/confirmation/reducer';
 import { buildRecoveredDraftState } from '../../features/read-only-apis/draftRecovery';
 import { runStatusNavigation } from './statusNavigation';
+import { getErrorCodes } from '../../utils';
+import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
+import { SerializedError } from '@reduxjs/toolkit';
 
 export const useGetStatusAndNavigate = () => {
   const navigate = useNavigate();
@@ -74,9 +77,16 @@ export const useGetStatusAndNavigate = () => {
           resetDraft,
           saveStatus: saveFieldFromStatus,
         });
-      } catch (error) {
-        localStorage.setItem('log-error', JSON.stringify(error));
-        console.error(error);
+      } catch (error: unknown) {
+        if ('data' in (error as FetchBaseQueryError | SerializedError)) {
+          const errorCode = getErrorCodes(
+            error as FetchBaseQueryError | SerializedError,
+          );
+          return navigate(APP_ROUTES.GENERIC_ERROR, {
+            replace: true,
+            state: errorCode === undefined ? undefined : { errorCode },
+          });
+        }
         navigate(APP_ROUTES.GENERIC_ERROR, { replace: true });
       }
     };

@@ -21,6 +21,8 @@ export type UploadDropzoneProps = {
   isError?: boolean;
   /** Error message to display */
   errorMessage?: string;
+  /** Validation error state for an empty or invalid form field */
+  fieldError?: boolean;
   /** Success state - file uploaded */
   isSuccess?: boolean;
   /** Uploaded file name to display in success state */
@@ -82,6 +84,7 @@ export function UploadDropzone({
   isLoading = false,
   isError = false,
   errorMessage,
+  fieldError = false,
   isSuccess = false,
   uploadedFileName,
   uploadedFileLabel,
@@ -139,6 +142,9 @@ export function UploadDropzone({
       <Box
         sx={{
           border: '1px dashed #6D8BEE',
+          ...(fieldError && {
+            borderColor: 'common.requiredField',
+          }),
           borderRadius: '8px',
           p: 3,
           display: 'flex',
@@ -274,7 +280,7 @@ export function UploadDropzone({
         component="label"
         sx={{
           border: '1px solid',
-          borderColor: 'divider',
+          borderColor: fieldError ? 'common.requiredField' : 'divider',
           borderRadius: '8px',
           p: { xs: 2, md: 2.5 },
           display: 'flex',
@@ -321,6 +327,10 @@ export function UploadDropzone({
       onDrop={handleDrop}
       sx={{
         border: '1px dashed #6D8BEE',
+        ...(fieldError && {
+          borderColor: 'common.requiredField',
+          bgcolor: 'rgba(244, 67, 54, 0.04)',
+        }),
         borderRadius: '8px',
         p: 3,
         display: 'flex',
@@ -352,7 +362,9 @@ export function UploadDropzone({
             }}
           />
         ) : (
-          <UploadFile sx={{ color: 'common.black' }} />
+          <UploadFile
+            sx={{ color: fieldError ? 'common.requiredField' : 'common.black' }}
+          />
         )}
         <Stack spacing={0.25}>
           <Typography variant="body2" fontWeight={600}>

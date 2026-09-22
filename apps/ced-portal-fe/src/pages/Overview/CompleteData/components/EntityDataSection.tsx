@@ -233,8 +233,7 @@ export const EntityDataSection = ({
             acceptedTypes={['image/png', 'image/jpeg', '.png', '.jpg', '.jpeg']}
             title="Trascina qui il logo del tuo ente"
             subtitle={'Dimensione massima 300 x 300px - Formato .jpg o .png'}
-            isError={Boolean(logoError)}
-            errorMessage={logoError}
+            fieldError={Boolean(logoError)}
           />
           <Typography
             variant="body2"
@@ -280,8 +279,7 @@ export const EntityDataSection = ({
             acceptedTypes={['image/png', 'image/jpeg', '.png', '.jpg', '.jpeg']}
             title={"Trascina qui un'immagine di copertina"}
             subtitle={'Dimensione massima 300 x 600 px - Formato .jpg o .png'}
-            isError={Boolean(coverError)}
-            errorMessage={coverError}
+            fieldError={Boolean(coverError)}
           />
           <Typography
             variant="body2"

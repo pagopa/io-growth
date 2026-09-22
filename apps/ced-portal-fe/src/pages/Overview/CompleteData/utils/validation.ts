@@ -77,7 +77,9 @@ export const validateCompleteDataForm = ({
     isPhysical && !province.trim() ? 'Campo obbligatorio' : '';
   const logoError = logoFile ? '' : 'Campo obbligatorio';
   const coverError = coverFile ? '' : 'Campo obbligatorio';
-  const internalEmailError = internalEmail.trim() ? '' : 'Campo obbligatorio';
+  const internalEmailError = internalEmail.trim()
+    ? ''
+    : 'Indica almeno un indirizzo mail';
   const firstContactErrors = validateFirstContact(contacts);
   const isValid = [
     nameError,

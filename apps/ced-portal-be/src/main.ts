@@ -100,6 +100,18 @@ const arClient = arClientRouter.getInstance();
 const oneMailClient = createOneMailClient({
   apiKey: config.ONE_MAIL_API_KEY,
   baseUrl: config.ONE_MAIL_BASE_URL,
+  onEmailError: (event) => {
+    emitCustomEvent("email.failed", {
+      caller: "OneMailClient",
+      data: { ...event },
+    })("OneMailClient");
+  },
+  onEmailSent: (event) => {
+    emitCustomEvent("email.sent", {
+      caller: "OneMailClient",
+      data: { ...event },
+    })("OneMailClient");
+  },
 });
 
 const redisClient = await createResilientRedisClient({

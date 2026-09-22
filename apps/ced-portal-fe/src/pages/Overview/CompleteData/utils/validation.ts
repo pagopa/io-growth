@@ -31,6 +31,9 @@ const validateFirstContact = (
 };
 
 export type CompleteDataValidationResult = {
+  logoError: string;
+  coverError: string;
+  internalEmailError: string;
   firstContactErrors: FirstContactErrors;
   isValid: boolean;
 };
@@ -44,6 +47,9 @@ export const validateCompleteDataForm = ({
   postalCode,
   province,
   contacts,
+  internalEmail,
+  logoFile,
+  coverFile,
 }: Pick<
   CompleteDataFormData,
   | 'name'
@@ -54,6 +60,9 @@ export const validateCompleteDataForm = ({
   | 'postalCode'
   | 'province'
   | 'contacts'
+  | 'internalEmail'
+  | 'logoFile'
+  | 'coverFile'
 >): CompleteDataValidationResult => {
   const nameError = name.trim() ? '' : 'Campo obbligatorio';
   const isWebsite = sede === 'sito_web';
@@ -66,6 +75,9 @@ export const validateCompleteDataForm = ({
     isPhysical && !postalCode.trim() ? 'Campo obbligatorio' : '';
   const provinceError =
     isPhysical && !province.trim() ? 'Campo obbligatorio' : '';
+  const logoError = logoFile ? '' : 'Campo obbligatorio';
+  const coverError = coverFile ? '' : 'Campo obbligatorio';
+  const internalEmailError = internalEmail.trim() ? '' : 'Campo obbligatorio';
   const firstContactErrors = validateFirstContact(contacts);
   const isValid = [
     nameError,
@@ -74,11 +86,17 @@ export const validateCompleteDataForm = ({
     cityError,
     postalCodeError,
     provinceError,
+    logoError,
+    coverError,
+    internalEmailError,
     firstContactErrors.firstContactType,
     firstContactErrors.firstContactValue,
   ].every((error) => !error);
 
   return {
+    logoError,
+    coverError,
+    internalEmailError,
     firstContactErrors,
     isValid,
   };

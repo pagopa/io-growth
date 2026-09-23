@@ -1,10 +1,12 @@
 import { baseApi } from '../../core/api/baseApi.js';
 import {
   getCompleteOnboardingUrl,
+  getAdminRejectOnboardingUrl,
   getGetContractSignedUrl,
   getGetOnboardingUrl,
 } from '../../generated/endpoints/department/department';
 import type {
+  AdminRejectOnboardingBody,
   CompleteOnboardingBody,
   ListOnboardingsParams,
   PendingOnboardingsResponse,
@@ -78,12 +80,12 @@ const entitiesApi = baseApi.injectEndpoints({
     }),
     rejectOnboarding: builder.mutation<
       void,
-      { onboardingId: string; rejectionMessage: string }
+      { onboardingId: string; body: AdminRejectOnboardingBody }
     >({
-      query: ({ onboardingId, rejectionMessage }) => ({
-        url: `/department/onboardings/${onboardingId}/reject`,
+      query: ({ onboardingId, body }) => ({
+        url: getAdminRejectOnboardingUrl(onboardingId),
         method: 'PATCH',
-        body: { rejectionMessage },
+        body,
       }),
       invalidatesTags: ['Entities'],
     }),

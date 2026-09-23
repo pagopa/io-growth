@@ -90,7 +90,7 @@ function useEntityDetail() {
     try {
       await rejectOnboarding({
         onboardingId: id,
-        rejectionMessage: message,
+        body: { rejectionMessage: message },
       }).unwrap();
       setOpenRejectModal(false);
       navigate(APP_ROUTES.ENTITIES);

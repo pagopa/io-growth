@@ -1,5 +1,16 @@
 # ced-portal-be
 
+## 0.5.0
+
+### Minor Changes
+
+- b795362: Add the department onboarding-rejection endpoint: PATCH /api/department/onboardings/{onboardingId}/reject
+
+### Patch Changes
+
+- Updated dependencies [b795362]
+  - @pagopa/io-core-adapter-ar@0.1.1
+
 ## 0.4.3
 
 ### Patch Changes

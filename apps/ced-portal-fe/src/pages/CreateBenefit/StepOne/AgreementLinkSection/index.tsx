@@ -10,15 +10,22 @@ import { setField } from '../../../../features/opportunityCreation/opportunityCr
 import { isValidHttpsUrl } from '../../../../utils';
 import { AppTextField } from '../../../../components';
 
-export function AgreementLinkSection({
-  attempted,
-}: Readonly<{ attempted: boolean }>) {
+export function AgreementLinkSection() {
   const dispatch = useAppDispatch();
   const activeLanguage = useAppSelector(selectActiveFormLanguage);
   const benefitUrl = useAppSelector(selectUrl);
   const copy = getAgreementCopy(activeLanguage).additionalSections.link;
 
   const isValidUrl = isValidHttpsUrl(benefitUrl);
+
+  const handleOnChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    dispatch(
+      setField({
+        field: 'url',
+        value: event.target.value,
+      }),
+    );
+  };
 
   return (
     <Paper elevation={0} sx={{ borderRadius: 2.5, p: { xs: 2, md: 3 } }}>
@@ -31,22 +38,15 @@ export function AgreementLinkSection({
         <AppTextField
           fullWidth
           label={copy.benefitUrlLabel}
-          error={attempted && !isValidUrl}
+          error={!isValidUrl}
           helperText={
-            attempted && !isValidUrl && !!benefitUrl
+            !isValidUrl && !!benefitUrl
               ? 'Inserisci un URL valido (es. https://...)'
               : ''
           }
           disabled={activeLanguage !== 'it'}
           value={benefitUrl}
-          onChange={(event) =>
-            dispatch(
-              setField({
-                field: 'url',
-                value: event.target.value,
-              }),
-            )
-          }
+          onChange={handleOnChange}
         />
       </Stack>
     </Paper>

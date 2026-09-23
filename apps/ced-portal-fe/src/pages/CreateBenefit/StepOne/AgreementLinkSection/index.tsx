@@ -9,6 +9,7 @@ import {
 import { setField } from '../../../../features/opportunityCreation/opportunityCreationSlice';
 import { isValidHttpsUrl } from '../../../../utils';
 import { AppTextField } from '../../../../components';
+import { useCallback } from 'react';
 
 export function AgreementLinkSection() {
   const dispatch = useAppDispatch();
@@ -18,14 +19,17 @@ export function AgreementLinkSection() {
 
   const isValidUrl = isValidHttpsUrl(benefitUrl);
 
-  const handleOnChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    dispatch(
-      setField({
-        field: 'url',
-        value: event.target.value,
-      }),
-    );
-  };
+  const handleOnChange = useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      dispatch(
+        setField({
+          field: 'url',
+          value: event.target.value,
+        }),
+      );
+    },
+    [dispatch],
+  );
 
   return (
     <Paper elevation={0} sx={{ borderRadius: 2.5, p: { xs: 2, md: 3 } }}>

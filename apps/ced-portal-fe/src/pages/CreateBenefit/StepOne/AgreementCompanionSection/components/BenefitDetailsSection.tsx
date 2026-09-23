@@ -24,10 +24,12 @@ import { FieldWithIcon } from '../../AgreementDetailsSection/components/FieldWit
 
 type BenefitDetailsSectionProps = {
   isSameAsOwner: boolean;
+  attempted?: boolean;
 };
 
 export const BenefitDetailsSection = ({
   isSameAsOwner,
+  attempted,
 }: BenefitDetailsSectionProps) => {
   const dispatch = useAppDispatch();
   const caregiverBenefit = useAppSelector(selectCaregiverBenefit);
@@ -101,6 +103,8 @@ export const BenefitDetailsSection = ({
         name={'companionBenefitType'}
         disabled={disabledNotLocalizedField}
         path="caregiverBenefit.type"
+        required
+        attempted={attempted}
         onChange={(event) =>
           handleBenefitTypeChange(event.target.value as BenefitRequest['type'])
         }

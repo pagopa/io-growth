@@ -61,6 +61,10 @@ const opportunityCreationSlice = createSlice({
     },
     setCaregiverEnabled: (state, action: PayloadAction<boolean>) => {
       state.caregiverEnabled = action.payload;
+      if (!action.payload) {
+        state.form.caregiverBenefit = undefined;
+        state.caregiverHasSameConditions = false;
+      }
     },
     setCaregiverHasSameConditions: (state, action: PayloadAction<boolean>) => {
       state.caregiverHasSameConditions = action.payload;

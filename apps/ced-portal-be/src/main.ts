@@ -107,13 +107,13 @@ const oneMailClient = createOneMailClient({
   onEmailError: (event) => {
     emitCustomEvent("email.failed", {
       caller: "OneMailClient",
-      data: { ...event },
+      data: { event },
     })("OneMailClient");
   },
   onEmailSent: (event) => {
     emitCustomEvent("email.sent", {
       caller: "OneMailClient",
-      data: { ...event },
+      data: { event },
     })("OneMailClient");
   },
 });

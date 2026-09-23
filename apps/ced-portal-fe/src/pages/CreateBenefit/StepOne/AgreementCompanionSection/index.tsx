@@ -24,7 +24,11 @@ import {
   setCaregiverHasSameConditions,
 } from '../../../../features/opportunityCreation/opportunityCreationSlice';
 
-export const AgreementCompanionSection = () => {
+export const AgreementCompanionSection = ({
+  attempted,
+}: {
+  attempted?: boolean;
+}) => {
   const dispatch = useAppDispatch();
   const activeLanguage = useAppSelector(selectActiveFormLanguage);
 
@@ -47,10 +51,10 @@ export const AgreementCompanionSection = () => {
   );
 
   useEffect(() => {
-    if (isSameAsOwner) {
+    if (isEnabled && isSameAsOwner) {
       dispatch(cloneOwnerBenefitToCompanion());
     }
-  }, [dispatch, isSameAsOwner]);
+  }, [dispatch, isEnabled, isSameAsOwner]);
 
   return (
     <Paper elevation={0} sx={{ borderRadius: 2.5, p: { xs: 2, md: 3 } }}>
@@ -89,7 +93,10 @@ export const AgreementCompanionSection = () => {
                 </Typography>
               }
             />
-            <BenefitDetailsSection isSameAsOwner={isSameAsOwner} />
+            <BenefitDetailsSection
+              isSameAsOwner={isSameAsOwner}
+              attempted={attempted}
+            />
           </>
         )}
       </Stack>

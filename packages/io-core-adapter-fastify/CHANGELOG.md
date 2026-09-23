@@ -1,5 +1,11 @@
 # @pagopa/io-core-adapter-fastify
 
+## 0.0.9
+
+### Patch Changes
+
+- 8cc6169: update multipart validator
+
 ## 0.0.8
 
 ### Patch Changes

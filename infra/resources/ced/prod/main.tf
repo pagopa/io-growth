@@ -50,5 +50,14 @@ module "dns" {
     name = module.azure_core_values.common_vnet.name
   }
 
+  dkim1_record = data.azurerm_key_vault_secret.dkim_record_1.value
+  dkim2_record = data.azurerm_key_vault_secret.dkim_record_2.value
+  dkim3_record = data.azurerm_key_vault_secret.dkim_record_3.value
+  cmf_mx_1_record = data.azurerm_key_vault_secret.cmf_mx_1_record.value
+  cmf_txt_1_record = data.azurerm_key_vault_secret.cmf_txt_1_record.value
+  cmf_mx_2_record = data.azurerm_key_vault_secret.cmf_mx_2_record.value
+  cmf_txt_2_record = data.azurerm_key_vault_secret.cmf_txt_2_record.value
+  dmarc_record = data.azurerm_key_vault_secret.dmarc_record.value
+
   tags = local.tags
 }

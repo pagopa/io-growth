@@ -8,6 +8,7 @@ import {
   getSessionFromRequest,
   multipart,
 } from "@pagopa/io-core-adapter-fastify";
+import { createOneMailClient } from "@pagopa/io-core-adapter-one-mail";
 import { createResilientRedisClient } from "@pagopa/io-core-adapter-redis";
 import {
   emitCustomEvent,
@@ -26,6 +27,7 @@ import {
   mountAdminGetOpportunityHandler,
   mountAdminListOpportunitiesHandler,
   mountAdminListPendingOnboardingsHandler,
+  mountAdminRejectOnboardingHandler,
   mountAdminSuspendOpportunityHandler,
   mountAuthorizeHandler,
   mountInfoReadinessHandler,
@@ -55,6 +57,7 @@ import { createDrizzleOpportunityCategoryRepository } from "./adapters/outbound/
 import { createDrizzleOpportunityRepository } from "./adapters/outbound/drizzle/drizzle-opportunity.repository.js";
 import { createDrizzlePlaceRepository } from "./adapters/outbound/drizzle/drizzle-place.repository.js";
 import { createDrizzleProfileRepository } from "./adapters/outbound/drizzle/drizzle-profile.repository.js";
+import { createOneMailEmailRepository } from "./adapters/outbound/one-mail/one-mail-email.repository.js";
 import { createRedisHealthCheckRepository } from "./adapters/outbound/redis/redis-health-check.repository.js";
 import { createRedisSessionRepository } from "./adapters/outbound/redis/redis-session.repository.js";
 import { makeAcsUseCase } from "./application/use-cases/auth/acs.use-case.js";
@@ -63,6 +66,7 @@ import { makeAdminCompleteOnboardingUseCase } from "./application/use-cases/depa
 import { makeAdminGetContractSignedUseCase } from "./application/use-cases/department/admin-get-contract-signed.use-case.js";
 import { makeAdminGetOnboardingUseCase } from "./application/use-cases/department/admin-get-onboarding.use-case.js";
 import { makeAdminListPendingOnboardingsUseCase } from "./application/use-cases/department/admin-list-pending-onboardings.use-case.js";
+import { makeAdminRejectOnboardingUseCase } from "./application/use-cases/department/admin-reject-onboarding.use-case.js";
 import { makeInfoReadinessUseCase } from "./application/use-cases/health/info-readiness.use-case.js";
 import { makeInfoStartupUseCase } from "./application/use-cases/health/info-startup.use-case.js";
 import { makeAdminApproveOpportunityUseCase } from "./application/use-cases/opportunities/admin-approve-opportunity.use-case.js";
@@ -95,6 +99,22 @@ const dbRouter = createDbRouter(config);
 const arClientRouter = createArRouter(config);
 const dbClient = dbRouter.getInstance();
 const arClient = arClientRouter.getInstance();
+const oneMailClient = createOneMailClient({
+  apiKey: config.ONE_MAIL_API_KEY,
+  baseUrl: config.ONE_MAIL_BASE_URL,
+  onEmailError: (event) => {
+    emitCustomEvent("email.failed", {
+      caller: "OneMailClient",
+      data: { event },
+    })("OneMailClient");
+  },
+  onEmailSent: (event) => {
+    emitCustomEvent("email.sent", {
+      caller: "OneMailClient",
+      data: { event },
+    })("OneMailClient");
+  },
+});
 
 const redisClient = await createResilientRedisClient({
   endpoint: config.REDIS_ENDPOINT,
@@ -137,6 +157,10 @@ const profileAssetsRepository = createAzureProfileAssetsRepository({
   }),
 });
 const arOnboardingRepository = createArOnboardingRepository(arClient);
+const emailRepository = createOneMailEmailRepository(
+  oneMailClient.emailClient,
+  { fromAddress: config.EMAIL_FROM_ADDRESS },
+);
 
 const app = Fastify();
 
@@ -285,6 +309,10 @@ app.register(async (app) => {
     app,
     makeAdminGetOnboardingUseCase(arOnboardingRepository),
   );
+  mountAdminRejectOnboardingHandler(
+    app,
+    makeAdminRejectOnboardingUseCase(arOnboardingRepository),
+  );
   mountAdminGetOpportunityHandler(
     app,
     makeAdminGetOpportunityUseCase(opportunityRepository),
@@ -294,6 +322,8 @@ app.register(async (app) => {
     makeAdminApproveOpportunityUseCase(
       opportunityRepository,
       materializedViewRepository,
+      profileRepository,
+      emailRepository,
     ),
   );
   mountAdminSuspendOpportunityHandler(

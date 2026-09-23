@@ -11,7 +11,7 @@ import { z } from "zod";
 import type { OpportunityDetail } from "../../../domain/entities/opportunity.js";
 import type { OpportunityRepository } from "../../../domain/ports/outbound/persistence/opportunity.repository.js";
 
-import { LANGUAGE_VALUES } from "../../../domain/ports/outbound/persistence/place.repository.js";
+import { LANGUAGE_VALUES } from "../../../domain/entities/language.js";
 import { validateUseCaseInput } from "../utils/validate-use-case-input.js";
 
 const GetOpportunityInputSchema = z.object({

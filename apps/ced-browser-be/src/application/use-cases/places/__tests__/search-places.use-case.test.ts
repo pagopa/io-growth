@@ -92,6 +92,8 @@ describe("makeSearchPlacesUseCase", () => {
       state: "AL",
       street: "Piazza della Libertà 1",
     });
+    expect(item.operatorName).toBe("Operator Test Name");
+    expect(item.operatorFiscalCode).toBe("00000000000");
     expect(item.url).toBeUndefined();
   });
 

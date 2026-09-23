@@ -1,5 +1,19 @@
 # ced-browser-be
 
+## 0.1.18
+
+### Patch Changes
+
+- Updated dependencies [8cc6169]
+  - @pagopa/io-core-adapter-fastify@0.0.9
+  - @pagopa/io-core-adapter-fims@0.0.13
+
+## 0.1.17
+
+### Patch Changes
+
+- a528d97: Expose the operator name and fiscal code in detail and search responses, and centralize language domain types.
+
 ## 0.1.16
 
 ### Patch Changes

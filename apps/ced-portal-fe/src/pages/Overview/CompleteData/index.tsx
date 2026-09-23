@@ -6,6 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import { ContactsSection } from './components/ContactsSection';
 import { EntityDataSection } from './components/EntityDataSection';
 import { InfoModal } from './components/InfoModal';
+import { InternalContactSection } from './components/InternalContactSection';
 import { TermsAndPrivacySection } from './components/TermsAndPrivacySection';
 import { useCompleteDataForm } from './hooks/useCompleteDataForm';
 import {
@@ -24,7 +25,7 @@ export default function OverviewCompleteDataPage() {
   const [isExitModalOpen, setIsExitModalOpen] = useState(false);
 
   const [createProfile, { isLoading }] = useCreateOperatorProfileMutation();
-  const { error: profileError } = useGetOperatorProfileQuery();
+  const { data: profile, error: profileError } = useGetOperatorProfileQuery();
   const isProfileIncomplete = hasStatus(profileError, 404);
 
   const {
@@ -37,6 +38,9 @@ export default function OverviewCompleteDataPage() {
     cityError,
     postalCodeError,
     provinceError,
+    logoError,
+    coverError,
+    internalEmailError,
     handleNameChange,
     handleSedeChange,
     handleWebsiteUrlChange,
@@ -48,14 +52,16 @@ export default function OverviewCompleteDataPage() {
     handleCoverSelect,
     handlePrivacyUrlChange,
     handleTermsUrlChange,
+    handleInternalEmailChange,
     handleAddContact,
     handleRemoveContact,
     handleContactChange,
     handleContinueClick,
   } = useCompleteDataForm({
-    onValidSubmit: async (payload) => {
+    profile,
+    onValidSubmit: async (payload, files) => {
       try {
-        await createProfile(payload).unwrap();
+        await createProfile({ profile: payload, ...files }).unwrap();
         navigate(-1);
         showToast('Dati salvati', 'success');
       } catch (error) {
@@ -109,7 +115,7 @@ export default function OverviewCompleteDataPage() {
               </Typography>
             </Box>
 
-            <Paper sx={{ p: 3 }}>
+            <Paper sx={{ p: 3, borderRadius: 2 }}>
               <Stack spacing={2}>
                 <EntityDataSection
                   name={formData.name}
@@ -128,6 +134,8 @@ export default function OverviewCompleteDataPage() {
                   cityError={cityError}
                   postalCodeError={postalCodeError}
                   provinceError={provinceError}
+                  logoError={logoError}
+                  coverError={coverError}
                   onNameChange={handleNameChange}
                   onSedeChange={handleSedeChange}
                   onWebsiteUrlChange={handleWebsiteUrlChange}
@@ -156,6 +164,13 @@ export default function OverviewCompleteDataPage() {
                 />
               </Stack>
             </Paper>
+
+            <InternalContactSection
+              submitted={isSubmitted}
+              email={formData.internalEmail}
+              emailError={internalEmailError}
+              onEmailChange={handleInternalEmailChange}
+            />
 
             <Box display="flex" justifyContent="flex-end">
               <Button

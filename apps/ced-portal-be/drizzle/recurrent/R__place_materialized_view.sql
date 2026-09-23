@@ -9,6 +9,8 @@ SELECT
   pf.display_name AS profile_display_name,
   pf.id AS profile_id,
   p.operator_id,
+  op.name AS operator_name,
+  op.fiscal_code AS operator_fiscal_code,
   p.name,
   p.type,
   a.street,
@@ -27,6 +29,7 @@ SELECT
     coalesce(pf.display_name, '')
   ) AS search_vector_display_name
 FROM place p
+JOIN operator op ON op.id = p.operator_id
 LEFT JOIN profile pf ON pf.place_id = p.id
 LEFT JOIN address a ON a.place_id = p.id
 LEFT JOIN website w ON w.place_id = p.id

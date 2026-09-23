@@ -1,5 +1,13 @@
 # ced-card-request-be
 
+## 0.3.3
+
+### Patch Changes
+
+- Updated dependencies [8cc6169]
+  - @pagopa/io-core-adapter-fastify@0.0.9
+  - @pagopa/io-core-adapter-fims@0.0.13
+
 ## 0.3.2
 
 ### Patch Changes

@@ -33,6 +33,7 @@
     "@pagopa/io-core-adapter-drizzle": "workspace:^",
     "@pagopa/io-core-adapter-fastify": "workspace:^",
     "@pagopa/io-core-adapter-one-mail": "workspace:^",
+    "@pagopa/io-core-adapter-pgboss": "workspace:^",
     "@pagopa/io-core-adapter-redis": "workspace:^",
     "@pagopa/io-core-domain": "workspace:^",
     "@pagopa/io-core-environment-router": "workspace:^",

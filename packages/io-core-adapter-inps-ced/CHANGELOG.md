@@ -1,5 +1,11 @@
 # @pagopa/io-core-adapter-inps-ced
 
+## 0.0.6
+
+### Patch Changes
+
+- 8f9c71e: Stop re-running `generate` inside `build`: turbo already runs it as a dependency, and the duplicate run rewrote `src/generated` while `typecheck` was compiling it.
+
 ## 0.0.5
 
 ### Patch Changes

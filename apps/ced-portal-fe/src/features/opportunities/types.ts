@@ -57,7 +57,6 @@ export type OpportunityUpdatePayload = Pick<
   Partial<
     Pick<OpportunityCreateRequest, 'dateTo' | 'url' | 'caregiverBenefit'>
   >;
-
 export interface SuspendOpportunityPayload {
   suspensionMessage: string;
   suspendFrom: string;

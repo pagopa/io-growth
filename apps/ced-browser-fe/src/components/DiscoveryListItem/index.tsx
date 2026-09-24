@@ -48,9 +48,22 @@ function SimpleContent({ title, subtitle }: SimpleProps) {
         <Body fontWeight="Semibold">{title}</Body>
 
         {subtitle && (
-          <Body fontWeight="Regular" fontSize="14px">
-            {subtitle}
-          </Body>
+          <Box
+            sx={{
+              '& > .MuiTypography-root': {
+                display: '-webkit-box',
+                WebkitLineClamp: '2',
+                WebkitBoxOrient: 'vertical',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                overflowWrap: 'anywhere',
+              },
+            }}
+          >
+            <Body fontWeight="Regular" fontSize="14px">
+              {subtitle}
+            </Body>
+          </Box>
         )}
       </Stack>
     </Stack>

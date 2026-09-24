@@ -55,8 +55,8 @@ describe("createScheduler", () => {
   });
 
   it("registers an error listener that forwards to onError", () => {
-    const onError = vi.fn();
-    createScheduler({ connection, onError });
+    const onEvent = vi.fn();
+    createScheduler({ connection, onEvent: onEvent });
 
     const [, handler] = mockBossInstance.on.mock.calls[0] as [
       string,
@@ -65,7 +65,7 @@ describe("createScheduler", () => {
     const error = new Error("boom");
     handler(error);
 
-    expect(onError).toHaveBeenCalledWith(error);
+    expect(onEvent).toHaveBeenCalledWith(error);
   });
 
   describe("start", () => {

@@ -1964,6 +1964,104 @@ paths:
               example:
                 statusCode: 412
                 message: Precondition Failed
+  /department/onboardings/{onboardingId}/revoke:
+    patch:
+      tags:
+        - Department
+      summary: Revoke the contract with an operator (department only)
+      description: >-
+        Terminates the agreement with the operator behind the given onboarding.
+        The revocation is propagated to Area Riservata first, then every active
+        session of the operator is revoked and all its published opportunities
+        are suspended. The operator record may not exist yet — it is created at
+        the referent's first login — in which case only the propagation and the
+        session revocation take effect. The action is irreversible.
+      operationId: adminRevokeOperator
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: onboardingId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              properties:
+                revocationMessage:
+                  type: string
+                  minLength: 1
+                  maxLength: 4096
+                  description: >-
+                    Reason for the revocation, recorded on the operator and kept
+                    in the audit trail. Optional: when omitted the column is set
+                    to null and the audit records the revocation without a
+                    reason. Leading/trailing whitespace is trimmed; must be
+                    non-empty once trimmed.
+      responses:
+        "204":
+          description: Operator revoked
+        "400":
+          description: "Invalid payload: revocationMessage present but empty or too long"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 400
+                message: "Validation error: revocationMessage must not be empty"
+        "401":
+          description: Invalid or missing JWT
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 401
+                message: Unauthorized
+        "403":
+          description: Forbidden — operator userType not allowed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 403
+                message: Forbidden
+        "404":
+          description: Onboarding not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 404
+                message: Onboarding not found
+        "409":
+          description: The operator has already been revoked
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 409
+                message: Conflict
+        "412":
+          description: >-
+            Onboarding not in COMPLETED status. A request that is not yet
+            completed is rejected, not revoked.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 412
+                message: Precondition Failed
 components:
   securitySchemes:
     bearerAuth:

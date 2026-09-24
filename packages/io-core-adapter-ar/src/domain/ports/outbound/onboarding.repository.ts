@@ -14,6 +14,15 @@ export interface OnboardingRepository {
     body?: CompleteOnboardingUsingPUTBody,
   ) => Promise<Result<void, GenericError>>;
 
+  /**
+   * Deletes an onboarding request. Upstream this starts an asynchronous process
+   * that sets DELETED on the institution and its user onboardings, so a
+   * successful call does not mean the change has already been applied.
+   */
+  readonly deleteOnboarding: (
+    onboardingId: string,
+  ) => Promise<Result<void, GenericError>>;
+
   readonly getOnboardingWithFilter: (
     params?: GetOnboardingWithFilterParams,
   ) => Promise<Result<OnboardingGetResponse, GenericError>>;

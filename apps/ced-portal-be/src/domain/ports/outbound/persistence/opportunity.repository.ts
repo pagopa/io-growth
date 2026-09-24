@@ -32,6 +32,11 @@ export interface DeleteOpportunityByIdAndOperatorIdInput {
   opportunityId: string;
 }
 
+export interface ExistsWithSolePlaceByPlaceIdAndStatusesInput {
+  placeId: string;
+  statuses: Opportunity["status"][];
+}
+
 export interface FindByIdAndOperatorIdInput {
   operatorId: string;
   opportunityId: string;
@@ -74,6 +79,9 @@ export interface OpportunityRepository {
   readonly deleteByIdAndOperatorId: (
     input: DeleteOpportunityByIdAndOperatorIdInput,
   ) => Promise<Result<void, ConflictError | GenericError>>;
+  readonly existsWithSolePlaceByPlaceIdAndStatuses: (
+    input: ExistsWithSolePlaceByPlaceIdAndStatusesInput,
+  ) => Promise<Result<boolean, GenericError>>;
   readonly findAll: (
     input: ListOpportunitiesInput,
   ) => Promise<Result<PaginatedOpportunities, GenericError>>;

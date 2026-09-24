@@ -371,6 +371,79 @@ paths:
               example:
                 statusCode: 404
                 message: Place not found
+    delete:
+      tags:
+        - Places
+      summary: Delete a place of the authenticated operator
+      description: >-
+        Permanently deletes a place of the authenticated operator, together with
+        its address or website, its support contacts and its links with
+        opportunities.
+
+        The place referenced by the operator profile is not exposed by this
+        resource and answers 404: it is not returned by GET /operator/places nor
+        by GET /operator/places/{placeId} either.
+      operationId: deleteOperatorPlace
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: placeId
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: "^[0-9A-HJKMNP-TV-Z]{26}$"
+      responses:
+        "204":
+          description: Place deleted
+        "400":
+          description: "Invalid placeId: not a ULID"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 400
+                message: Validation error
+        "401":
+          description: Invalid or missing JWT
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 401
+                message: Unauthorized
+        "403":
+          description: Authenticated user is not an operator
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 403
+                message: Forbidden
+        "404":
+          description: Place not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 404
+                message: Place not found
+        "412":
+          description: >-
+            The place is the only one of an opportunity that is published,
+            suspended, or awaiting/passed testing and is not valid on the
+            national territory
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 412
+                message: Place is the only one of an active opportunity and cannot be deleted
   /operator/opportunities/{opportunityId}:
     get:
       tags:

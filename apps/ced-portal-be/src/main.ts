@@ -37,6 +37,7 @@ import {
   mountOperatorCreatePlaceHandler,
   mountOperatorCreateProfileHandler,
   mountOperatorDeleteOpportunityHandler,
+  mountOperatorDeletePlaceHandler,
   mountOperatorGetOpportunityHandler,
   mountOperatorGetPlaceHandler,
   mountOperatorGetProfileHandler,
@@ -85,6 +86,7 @@ import { makeOperatorRequestOpportunityTestUseCase } from "./application/use-cas
 import { makeOperatorSuspendOpportunityUseCase } from "./application/use-cases/opportunities/operator-suspend-opportunity.use-case.js";
 import { makeOperatorUpdateOpportunityUseCase } from "./application/use-cases/opportunities/operator-update-opportunity.use-case.js";
 import { makeOperatorCreatePlaceUseCase } from "./application/use-cases/places/operator-create-place.use-case.js";
+import { makeOperatorDeletePlaceUseCase } from "./application/use-cases/places/operator-delete-place.use-case.js";
 import { makeOperatorGetPlaceUseCase } from "./application/use-cases/places/operator-get-place.use-case.js";
 import { makeOperatorListPlacesUseCase } from "./application/use-cases/places/operator-list-places.use-case.js";
 import { makeOperatorCreateProfileUseCase } from "./application/use-cases/profile/operator-create-profile.use-case.js";
@@ -223,6 +225,14 @@ app.register(async (app) => {
   mountOperatorGetPlaceHandler(
     app,
     makeOperatorGetPlaceUseCase(placeRepository),
+  );
+  mountOperatorDeletePlaceHandler(
+    app,
+    makeOperatorDeletePlaceUseCase(
+      placeRepository,
+      materializedViewRepository,
+      opportunityRepository,
+    ),
   );
   mountOperatorCreateOpportunityHandler(
     app,

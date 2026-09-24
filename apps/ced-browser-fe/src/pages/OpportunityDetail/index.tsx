@@ -40,7 +40,8 @@ export default function OpportunityDetailPage() {
   const { id } = useParams<{ id: string }>();
   const location = useLocation();
 
-  const state = location.state as { source: string };
+  const source =
+    (location.state as { source?: string } | null)?.source ?? 'direct';
 
   const navigate = useNavigate();
   const theme = useTheme();
@@ -63,10 +64,10 @@ export default function OpportunityDetailPage() {
     'CED_OPPORTUNITY_DETAIL',
     {
       opportunity_name: data?.name ?? '',
-      organization_name: data?.profile.displayName ?? '',
-      organization_fiscal_code: '',
+      organization_name: data?.operatorName ?? '',
+      organization_fiscal_code: data?.operatorFiscalCode ?? '',
       location_name: data?.places[0]?.name ?? '',
-      source: state?.source,
+      source,
     },
     !!data,
   );
@@ -86,8 +87,8 @@ export default function OpportunityDetailPage() {
   const handleEntityClick = useCallback(
     (opportunity: OpportunityDetail) => {
       trackBrowserEvent('CED_ORGANIZATION_SELECTED', {
-        organization_name: opportunity.profile.displayName,
-        organization_fiscal_code: '',
+        organization_name: opportunity.operatorName,
+        organization_fiscal_code: opportunity.operatorFiscalCode,
       });
       navigate(toEntityDetailRoute(opportunity.profile.id), {
         state: { source: 'opportunity_detail' },
@@ -99,14 +100,15 @@ export default function OpportunityDetailPage() {
   const handleLocationClick = useCallback(
     ({
       name,
-      profile,
+      operatorName,
+      operatorFiscalCode,
       id: placeId,
-    }: Place & Pick<OpportunityDetail, 'profile'>) => {
-      // Some values from the search API are not yet available in the current response model.
+    }: Place &
+      Pick<OpportunityDetail, 'operatorFiscalCode' | 'operatorName'>) => {
       trackBrowserEvent('CED_LOCATION_SELECTED', {
         event_type: 'tap',
-        organization_name: profile.displayName,
-        organization_fiscal_code: '',
+        organization_name: operatorName,
+        organization_fiscal_code: operatorFiscalCode,
         location_name: name,
       });
       navigate(toEntityAccessPointDetailRoute(placeId), {
@@ -284,7 +286,9 @@ export default function OpportunityDetailPage() {
                   onClick={() =>
                     handleLocationClick({
                       ...place,
-                      profile: resolvedData.profile,
+                      id: place.id,
+                      operatorName: resolvedData.operatorName,
+                      operatorFiscalCode: resolvedData.operatorFiscalCode,
                     })
                   }
                   sx={{ px: 0, bgcolor: 'background.paper' }}

@@ -28,19 +28,15 @@ export default function OpportunitiesList() {
   const handleItemClick = (
     item: ReturnType<typeof generateDiscoveryItemsConfig>[number],
   ) => {
-    // Tracking values are kept in the event payload for now; they may move into the item config in a future refactor.
-    const findInfo = data?.items.find(({ id }) => id === item.id);
-    navigate(toOpportunityDetailRoute(item.id), {
-      state: { source: 'opportunity_list' },
-    });
-
-    // Some values from the search API are not yet available in the current response model.
     trackBrowserEvent('CED_OPPORTUNITY_SELECTED', {
       event_type: 'tap',
       opportunity_name: item.title,
-      organization_name: findInfo?.profileDisplayName,
-      organization_fiscal_code: '',
+      organization_name: item?.operatorName,
+      organization_fiscal_code: item?.operatorFiscalCode,
       location_name: '',
+    });
+    navigate(toOpportunityDetailRoute(item.id), {
+      state: { source: 'opportunity_list' },
     });
   };
 

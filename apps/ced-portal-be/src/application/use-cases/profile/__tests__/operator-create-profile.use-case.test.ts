@@ -54,16 +54,14 @@ describe("makeOperatorCreateProfileUseCase", () => {
         }),
       }),
     );
-    expect(profileAssetsRepository.uploadProfileAssets).toHaveBeenCalledWith({
+    expect(profileAssetsRepository.storeProfileAssets).toHaveBeenCalledWith({
       image: {
         content: expect.any(Uint8Array),
         contentType: "image/png",
-        extension: "png",
       },
       logo: {
         content: expect.any(Uint8Array),
         contentType: "image/png",
-        extension: "png",
       },
       operatorId: MOCK_OPERATOR_ID,
     });
@@ -79,7 +77,7 @@ describe("makeOperatorCreateProfileUseCase", () => {
       getByOperatorId: vi.fn().mockResolvedValue(ok(undefined)),
     });
     const profileAssetsRepository = createMockProfileAssetsRepository({
-      uploadProfileAssets: vi.fn().mockImplementation(async () => {
+      storeProfileAssets: vi.fn().mockImplementation(async () => {
         calls.push("assets");
         return ok(undefined);
       }),
@@ -115,7 +113,7 @@ describe("makeOperatorCreateProfileUseCase", () => {
       ),
     );
     expect(profileRepository.create).not.toHaveBeenCalled();
-    expect(profileAssetsRepository.uploadProfileAssets).not.toHaveBeenCalled();
+    expect(profileAssetsRepository.storeProfileAssets).not.toHaveBeenCalled();
   });
 
   it("should propagate repository errors from getByOperatorId", async () => {
@@ -253,13 +251,13 @@ describe("profile asset validation", () => {
 
     const result = await useCase({
       ...mockCreateProfileInput,
-      image: new Blob(["not an image"], { type: "image/png" }),
+      image: new File(["not an image"], "image.png", { type: "image/png" }),
     });
 
     expect(result).toEqual(
       err(expect.objectContaining({ kind: "ValidationError" })),
     );
-    expect(profileAssetsRepository.uploadProfileAssets).not.toHaveBeenCalled();
+    expect(profileAssetsRepository.storeProfileAssets).not.toHaveBeenCalled();
     expect(profileRepository.create).not.toHaveBeenCalled();
   });
 });
@@ -271,7 +269,7 @@ describe("profile asset orchestration", () => {
       getByOperatorId: vi.fn().mockResolvedValue(ok(undefined)),
     });
     const profileAssetsRepository = createMockProfileAssetsRepository({
-      uploadProfileAssets: vi.fn().mockResolvedValue(err(assetError)),
+      storeProfileAssets: vi.fn().mockResolvedValue(err(assetError)),
     });
     const useCase = makeOperatorCreateProfileUseCase(
       profileRepository,

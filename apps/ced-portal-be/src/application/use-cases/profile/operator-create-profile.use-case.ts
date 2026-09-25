@@ -14,48 +14,8 @@ import type { ProfileRepository } from "../../../domain/ports/outbound/persisten
 import type { ProfileAssetsRepository } from "../../../domain/ports/outbound/profile-assets.repository.js";
 
 import { validateUseCaseInput } from "../utils/validate-use-case-input.js";
+import { OperatorCreateProfileInputSchema } from "./utils/profile-input.schemas.js";
 import { validateProfileAssets } from "./utils/validate-profile-assets.js";
-
-const OperatorCreateProfileSupportContactSchema = z.object({
-  type: z.enum(["email", "phone", "website"]),
-  value: z.string().min(1).max(2048),
-});
-
-const OperatorCreateProfileAddressSchema = z.object({
-  city: z.string().min(1).max(64),
-  country: z.string().min(1).max(64),
-  postalCode: z.string().min(1).max(64),
-  state: z.string().min(1).max(64),
-  street: z.string().min(1).max(512),
-});
-
-const OperatorCreateProfileWebsiteSchema = z.object({
-  url: z.url().max(2048),
-});
-
-const OperatorCreateProfilePlaceSchema = z.discriminatedUnion("type", [
-  z.object({
-    address: OperatorCreateProfileAddressSchema,
-    name: z.string().min(1).max(512),
-    supportContacts: z.array(OperatorCreateProfileSupportContactSchema),
-    type: z.literal("offline"),
-  }),
-  z.object({
-    name: z.string().min(1).max(512),
-    supportContacts: z.array(OperatorCreateProfileSupportContactSchema),
-    type: z.literal("online"),
-    website: OperatorCreateProfileWebsiteSchema,
-  }),
-]);
-
-const OperatorCreateProfileInputSchema = z.object({
-  contactEmail: z.email().max(512),
-  displayName: z.string().min(1).max(512),
-  image: z.instanceof(Blob),
-  logo: z.instanceof(Blob),
-  operatorId: z.ulid(),
-  place: OperatorCreateProfilePlaceSchema,
-});
 
 export type OperatorCreateProfileInput = z.infer<
   typeof OperatorCreateProfileInputSchema
@@ -105,7 +65,7 @@ export const makeOperatorCreateProfileUseCase =
             };
 
             return new ResultAsync(
-              profileAssetsRepository.uploadProfileAssets({
+              profileAssetsRepository.storeProfileAssets({
                 ...validatedAssets,
                 operatorId: validatedInput.operatorId,
               }),

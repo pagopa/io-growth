@@ -1,6 +1,6 @@
 {
   "name": "@pagopa/io-core-adapter-inps-ced",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "type": "module",
   "exports": {
     ".": {
@@ -14,7 +14,7 @@
   "scripts": {
     "clean": "rm -rf dist",
     "generate": "orval && pnpm esm:generated",
-    "build": "pnpm clean && pnpm generate && tsc",
+    "build": "pnpm clean && tsc",
     "typecheck": "tsc --noEmit",
     "lint": "pnpm lint:check --fix",
     "lint:check": "eslint .",

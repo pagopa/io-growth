@@ -1,0 +1,15 @@
+meta {
+  name: Update the authenticated operator profile
+  type: http
+  seq: 3
+}
+
+put {
+  url: {{baseUrl}}/operator/profile
+  body: multipartForm
+  auth: inherit
+}
+
+body:multipart-form {
+  profile: {"contactEmail":"contatto@example.org","displayName":"Operatore Demo","place":{"type":"online","name":"Sportello remoto","website":{"url":"https://example.org"},"supportContacts":[{"type":"email","value":"support@example.org"}]}} @contentType(application/json)
+}

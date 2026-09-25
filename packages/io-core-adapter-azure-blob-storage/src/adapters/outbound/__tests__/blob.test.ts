@@ -31,25 +31,28 @@ describe("createBlobRepository", () => {
     uploadData.mockResolvedValue(ok(undefined));
   });
 
-  it("uploads the blob to the configured container with its content type", async () => {
+  it("uploads blobs with the configured content type and metadata", async () => {
     const repository = createBlobRepository({
       clientId: "client-id",
       containerName: "logos",
       endpoint: "https://storage.blob.core.windows.net",
     });
     const content = new Uint8Array([1, 2, 3]);
+    const metadata = { imagecontenttype: "image/png" };
 
     const result = await repository.upload({
       blobName: "operator-id",
       content,
-      contentType: "image/png",
+      contentType: "text/plain; charset=utf-8",
+      metadata,
     });
 
     expect(result).toEqual(ok(undefined));
     expect(getContainerClient).toHaveBeenCalledWith("logos");
     expect(getBlockBlobClient).toHaveBeenCalledWith("operator-id");
     expect(uploadData).toHaveBeenCalledWith(content, {
-      blobHTTPHeaders: { blobContentType: "image/png" },
+      blobHTTPHeaders: { blobContentType: "text/plain; charset=utf-8" },
+      metadata,
     });
   });
 
@@ -63,7 +66,7 @@ describe("createBlobRepository", () => {
     const result = await repository.upload({
       blobName: "operator-id",
       content: new Uint8Array([1]),
-      contentType: "image/jpeg",
+      contentType: "text/plain; charset=utf-8",
     });
 
     expect(result).toEqual(err(expect.any(GenericError)));
@@ -81,7 +84,7 @@ describe("createBlobRepository", () => {
     await repository.upload({
       blobName: "operator-id",
       content: new Uint8Array([1]),
-      contentType: "image/jpeg",
+      contentType: "text/plain; charset=utf-8",
     });
 
     expect(BlobServiceClient.fromConnectionString).toHaveBeenCalledWith(

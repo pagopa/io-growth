@@ -82,6 +82,7 @@ export const createMockProfileRepository = (
   create: overrides.create ?? vi.fn(),
   getByOperatorId:
     overrides.getByOperatorId ?? vi.fn().mockResolvedValue(ok(mockProfile)),
+  updateByOperatorId: overrides.updateByOperatorId ?? vi.fn(),
 });
 
 export const createMockMaterializedViewRepository = (

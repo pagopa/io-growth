@@ -12,11 +12,16 @@ const ONE_PIXEL_JPEG = Buffer.from(
   "base64",
 );
 
-const png = (width: number, height: number, type = "image/png"): Blob => {
+const png = (
+  width: number,
+  height: number,
+  type = "image/png",
+  filename = "asset.png",
+): File => {
   const content = Buffer.from(ONE_PIXEL_PNG);
   content.writeUInt32BE(width, 16);
   content.writeUInt32BE(height, 20);
-  return new Blob([content], { type });
+  return new File([content], filename, { type });
 };
 
 describe("validateProfileAssets", () => {
@@ -31,12 +36,10 @@ describe("validateProfileAssets", () => {
         image: {
           content: expect.any(Uint8Array),
           contentType: "image/png",
-          extension: "png",
         },
         logo: {
           content: expect.any(Uint8Array),
           contentType: "image/png",
-          extension: "png",
         },
       }),
     );
@@ -53,10 +56,10 @@ describe("validateProfileAssets", () => {
     );
   });
 
-  it("accepts JPEG assets and derives the jpg extension", async () => {
+  it("accepts JPEG assets with a case-insensitive filename extension", async () => {
     const result = await validateProfileAssets({
       image: png(1, 1),
-      logo: new Blob([ONE_PIXEL_JPEG], { type: "image/jpeg" }),
+      logo: new File([ONE_PIXEL_JPEG], "logo.JPEG", { type: "image/jpeg" }),
     });
 
     expect(result).toEqual(
@@ -64,12 +67,10 @@ describe("validateProfileAssets", () => {
         image: {
           content: expect.any(Uint8Array),
           contentType: "image/png",
-          extension: "png",
         },
         logo: {
           content: expect.any(Uint8Array),
           contentType: "image/jpeg",
-          extension: "jpg",
         },
       }),
     );
@@ -77,18 +78,25 @@ describe("validateProfileAssets", () => {
 
   it("rejects malformed images and mismatched content types", async () => {
     const malformedResult = await validateProfileAssets({
-      image: new Blob(["not an image"], { type: "image/png" }),
+      image: new File(["not an image"], "image.png", { type: "image/png" }),
       logo: png(1, 1),
     });
     const mismatchedResult = await validateProfileAssets({
       image: png(1, 1),
       logo: png(1, 1, "image/jpeg"),
     });
+    const mismatchedExtensionResult = await validateProfileAssets({
+      image: png(1, 1, "image/png", "image.jpg"),
+      logo: png(1, 1),
+    });
 
     expect(malformedResult).toEqual(
       err(expect.objectContaining({ kind: "ValidationError" })),
     );
     expect(mismatchedResult).toEqual(
+      err(expect.objectContaining({ kind: "ValidationError" })),
+    );
+    expect(mismatchedExtensionResult).toEqual(
       err(expect.objectContaining({ kind: "ValidationError" })),
     );
   });

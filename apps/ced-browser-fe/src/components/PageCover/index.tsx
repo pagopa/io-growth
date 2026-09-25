@@ -12,7 +12,6 @@ type PageCoverProps = {
   rounded?: boolean;
 };
 
-// decorative: the page title already names what the cover shows
 export function PageCover({
   imageUrl,
   placeholderUrl,

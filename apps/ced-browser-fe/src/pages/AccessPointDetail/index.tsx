@@ -32,6 +32,19 @@ export default function AccessPointDetailPage() {
       { skip: !accessPointId },
     );
 
+  const renderCover = () => {
+    if (data?.address) {
+      return (
+        <PageCover
+          placeholderUrl="/assets/point-access-cover-placeholder.png"
+          rounded
+        />
+      );
+    } else {
+      return undefined;
+    }
+  };
+
   const opportunities: EntityOpportunityItems[] = useMemo(
     () =>
       data?.opportunities.map(({ id, title, benefit }) => ({
@@ -98,12 +111,7 @@ export default function AccessPointDetailPage() {
         >
           <PageHeader
             title={resolvedData.title}
-            leadingContent={
-              <PageCover
-                placeholderUrl="/assets/point-access-cover-placeholder.png"
-                rounded
-              />
-            }
+            leadingContent={renderCover()}
           />
 
           <Stack

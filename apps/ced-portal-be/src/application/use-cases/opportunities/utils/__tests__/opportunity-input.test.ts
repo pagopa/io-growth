@@ -39,6 +39,7 @@ const categoryRepo = (
 
 const placeRepo = (o?: Partial<PlaceRepository>): PlaceRepository => ({
   create: vi.fn(),
+  deleteByIdAndOperatorId: vi.fn(),
   getById: vi.fn(),
   getIdsByOperator: vi.fn().mockResolvedValue(ok([PLACE_ID])),
   listByOperatorId: vi.fn(),

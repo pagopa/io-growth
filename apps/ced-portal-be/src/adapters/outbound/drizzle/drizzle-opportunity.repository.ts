@@ -14,6 +14,7 @@ import {
   isNull,
   lte,
   ne,
+  notExists,
   or,
   sql,
 } from "drizzle-orm";
@@ -23,6 +24,7 @@ import type {
   CancelScheduledSuspensionByIdAndOperatorIdInput,
   CancelScheduledSuspensionByIdInput,
   DeleteOpportunityByIdAndOperatorIdInput,
+  ExistsWithSolePlaceByPlaceIdAndStatusesInput,
   FindByIdAndOperatorIdInput,
   FindByIdInput,
   ListOpportunitiesInput,
@@ -504,6 +506,51 @@ const countByExternalOperatorIds =
     }
   };
 
+const existsWithSolePlaceByPlaceIdAndStatuses =
+  (db: TypedDbClient<typeof schema>) =>
+  async (
+    input: ExistsWithSolePlaceByPlaceIdAndStatusesInput,
+  ): Promise<Result<boolean, GenericError>> => {
+    if (input.statuses.length === 0) {
+      return ok(false);
+    }
+    try {
+      const rows = await db
+        .select({ opportunityId: opportunity.id })
+        .from(opportunityPlace)
+        .innerJoin(
+          opportunity,
+          eq(opportunity.id, opportunityPlace.opportunityId),
+        )
+        .where(
+          and(
+            eq(opportunityPlace.placeId, input.placeId),
+            eq(opportunity.nationalTerritory, false),
+            inArray(opportunity.status, input.statuses),
+            notExists(
+              db
+                .select({ placeId: opportunityPlace.placeId })
+                .from(opportunityPlace)
+                .where(
+                  and(
+                    eq(opportunityPlace.opportunityId, opportunity.id),
+                    ne(opportunityPlace.placeId, input.placeId),
+                  ),
+                ),
+            ),
+          ),
+        )
+        .limit(1);
+      return ok(rows.length > 0);
+    } catch (error) {
+      return err(
+        new GenericError(
+          `Failed to check opportunities with sole place: ${String(error)}`,
+        ),
+      );
+    }
+  };
+
 // Maps a BenefitSummary to the FULL set of type-specific columns, nulling the
 // ones not relevant to the type. Used for UPDATE/upsert so a type change (e.g.
 // discount -> free) clears stale value/discountType/description; a partial
@@ -656,6 +703,8 @@ export const createDrizzleOpportunityRepository = (
   },
 
   deleteByIdAndOperatorId: deleteByIdAndOperatorId(db),
+  existsWithSolePlaceByPlaceIdAndStatuses:
+    existsWithSolePlaceByPlaceIdAndStatuses(db),
 
   findAll: async (
     input: ListOpportunitiesInput,

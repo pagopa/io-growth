@@ -173,7 +173,8 @@ paths:
         The authenticated operator must already have a profile. Omitted logo
         or image parts leave the corresponding asset unchanged. A supplied
         asset must have a filename extension matching its PNG or JPEG format.
-        The profile place ID is preserved.
+        The profile place ID is preserved. Both privacyUrl and tosUrl are
+        required HTTPS URLs on every replacement.
       operationId: updateOperatorProfile
       security:
         - bearerAuth: []
@@ -2064,6 +2065,8 @@ components:
         - contactEmail
         - displayName
         - place
+        - privacyUrl
+        - tosUrl
       properties:
         contactEmail:
           type: string
@@ -2074,6 +2077,18 @@ components:
           maxLength: 512
         place:
           $ref: "#/components/schemas/PlaceCreateRequest"
+        privacyUrl:
+          type: string
+          format: uri
+          pattern: "^[Hh][Tt][Tt][Pp][Ss]:[/][/]"
+          maxLength: 2048
+          description: HTTPS link to the operator's privacy notice.
+        tosUrl:
+          type: string
+          format: uri
+          pattern: "^[Hh][Tt][Tt][Pp][Ss]:[/][/]"
+          maxLength: 2048
+          description: HTTPS link to the operator's terms and conditions of use.
     PlaceBase:
       type: object
       additionalProperties: false
@@ -2183,6 +2198,8 @@ components:
         - contactEmail
         - displayName
         - place
+        - privacyUrl
+        - tosUrl
       properties:
         contactEmail:
           type: string
@@ -2193,6 +2210,18 @@ components:
           maxLength: 512
         place:
           $ref: "#/components/schemas/PlaceResponse"
+        privacyUrl:
+          type: string
+          format: uri
+          pattern: "^[Hh][Tt][Tt][Pp][Ss]:[/][/]"
+          maxLength: 2048
+          description: HTTPS link to the operator's privacy notice.
+        tosUrl:
+          type: string
+          format: uri
+          pattern: "^[Hh][Tt][Tt][Pp][Ss]:[/][/]"
+          maxLength: 2048
+          description: HTTPS link to the operator's terms and conditions of use.
     Address:
       type: object
       additionalProperties: false

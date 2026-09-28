@@ -35,6 +35,8 @@ export const mockProfile = {
       url: "https://example.org",
     },
   },
+  privacyUrl: "https://example.org/privacy",
+  tosUrl: "https://example.org/terms",
 };
 
 export const mockCreateProfileInput = {
@@ -51,6 +53,8 @@ export const mockCreateProfileInput = {
       url: "https://example.org",
     },
   },
+  privacyUrl: "https://example.org/privacy",
+  tosUrl: "https://example.org/terms",
 };
 
 export const createMockProfileRepository = (

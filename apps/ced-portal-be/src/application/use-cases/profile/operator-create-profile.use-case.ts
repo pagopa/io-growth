@@ -62,6 +62,8 @@ export const makeOperatorCreateProfileUseCase =
                   }),
                 ),
               },
+              privacyUrl: validatedInput.privacyUrl,
+              tosUrl: validatedInput.tosUrl,
             };
 
             return new ResultAsync(

@@ -55,6 +55,8 @@ const makeUpdatedProfile = (
         return { ...contact, id };
       }),
     },
+    privacyUrl: input.privacyUrl,
+    tosUrl: input.tosUrl,
   };
 };
 

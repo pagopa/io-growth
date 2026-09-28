@@ -27,6 +27,8 @@ const updateInput = {
     supportContacts: [],
     type: "offline" as const,
   },
+  privacyUrl: "https://updated.example.org/privacy",
+  tosUrl: "https://updated.example.org/terms",
 };
 
 const createMaterializedViewRepository = (
@@ -69,6 +71,70 @@ describe("makeOperatorUpdateProfileUseCase", () => {
     });
     expect(profileAssetsRepository.storeProfileAssets).not.toHaveBeenCalled();
     expect(materializedViewRepository.refreshAll).toHaveBeenCalledOnce();
+  });
+
+  it.each(["privacyUrl", "tosUrl"] as const)(
+    "rejects an omitted %s without changing the profile",
+    async (field) => {
+      const profileRepository = createMockProfileRepository();
+      const profileAssetsRepository = createMockProfileAssetsRepository();
+      const useCase = makeOperatorUpdateProfileUseCase(
+        profileRepository,
+        profileAssetsRepository,
+        createMaterializedViewRepository(),
+      );
+      const input = { ...updateInput };
+      Reflect.deleteProperty(input, field);
+
+      const result = await useCase(input);
+
+      expect(result).toEqual(
+        err(expect.objectContaining({ kind: "ValidationError" })),
+      );
+      expect(profileRepository.getByOperatorId).not.toHaveBeenCalled();
+      expect(profileAssetsRepository.storeProfileAssets).not.toHaveBeenCalled();
+    },
+  );
+
+  it.each(["privacyUrl", "tosUrl"] as const)(
+    "rejects a non-HTTPS %s",
+    async (field) => {
+      const profileRepository = createMockProfileRepository();
+      const useCase = makeOperatorUpdateProfileUseCase(
+        profileRepository,
+        createMockProfileAssetsRepository(),
+        createMaterializedViewRepository(),
+      );
+
+      const result = await useCase({
+        ...updateInput,
+        [field]: "http://example.org/legal",
+      });
+
+      expect(result).toEqual(
+        err(expect.objectContaining({ kind: "ValidationError" })),
+      );
+      expect(profileRepository.getByOperatorId).not.toHaveBeenCalled();
+    },
+  );
+
+  it("rejects an HTTPS URL with a missing slash", async () => {
+    const profileRepository = createMockProfileRepository();
+    const useCase = makeOperatorUpdateProfileUseCase(
+      profileRepository,
+      createMockProfileAssetsRepository(),
+      createMaterializedViewRepository(),
+    );
+
+    const result = await useCase({
+      ...updateInput,
+      tosUrl: "https:/example.org/terms",
+    });
+
+    expect(result).toEqual(
+      err(expect.objectContaining({ kind: "ValidationError" })),
+    );
+    expect(profileRepository.getByOperatorId).not.toHaveBeenCalled();
   });
 
   it("validates and replaces only the supplied image", async () => {

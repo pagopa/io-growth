@@ -29,6 +29,8 @@ const profile = {
     type: "online",
     website: { url: "https://example.org" },
   },
+  privacyUrl: "https://example.org/privacy",
+  tosUrl: "https://example.org/terms",
 };
 
 const multipartPayload = (
@@ -61,6 +63,27 @@ const multipartPayload = (
     payload: Buffer.concat([payload, Buffer.from(`--${boundary}--\r\n`)]),
   };
 };
+
+const profileForm = (data: object) =>
+  multipartPayload([
+    {
+      content: JSON.stringify(data),
+      contentType: "application/json",
+      name: "profile",
+    },
+    {
+      content: ONE_PIXEL_PNG,
+      contentType: "image/png",
+      filename: "logo.png",
+      name: "logo",
+    },
+    {
+      content: ONE_PIXEL_PNG,
+      contentType: "image/png",
+      filename: "image.png",
+      name: "image",
+    },
+  ]);
 
 const buildApp = (session: Session) => {
   const app = Fastify();
@@ -96,25 +119,7 @@ describe("mountOperatorCreateProfileHandler", () => {
       .mockResolvedValue(ok(mockProfile));
     const app = buildApp(baseSession);
     mountOperatorCreateProfileHandler(app, useCase);
-    const form = multipartPayload([
-      {
-        content: JSON.stringify(profile),
-        contentType: "application/json",
-        name: "profile",
-      },
-      {
-        content: ONE_PIXEL_PNG,
-        contentType: "image/png",
-        filename: "logo.png",
-        name: "logo",
-      },
-      {
-        content: ONE_PIXEL_PNG,
-        contentType: "image/png",
-        filename: "image.png",
-        name: "image",
-      },
-    ]);
+    const form = profileForm(profile);
 
     const response = await app.inject({
       headers: {
@@ -134,7 +139,111 @@ describe("mountOperatorCreateProfileHandler", () => {
       logo: expect.any(Blob),
       operatorId: OPERATOR_ID,
       place: profile.place,
+      privacyUrl: profile.privacyUrl,
+      tosUrl: profile.tosUrl,
     });
+    expect(response.json()).toMatchObject({
+      privacyUrl: profile.privacyUrl,
+      tosUrl: profile.tosUrl,
+    });
+    expect(response.json()).not.toHaveProperty("termsUrl");
+  });
+});
+
+describe("mountOperatorCreateProfileHandler validation", () => {
+  it("does not accept termsUrl instead of tosUrl", async () => {
+    const useCase: OperatorCreateProfileUseCase = vi.fn();
+    const app = buildApp(baseSession);
+    mountOperatorCreateProfileHandler(app, useCase);
+    const { tosUrl, ...withoutTosUrl } = profile;
+    const form = profileForm({ ...withoutTosUrl, termsUrl: tosUrl });
+
+    const response = await app.inject({
+      headers: {
+        authorization: "Bearer test-token",
+        "content-type": `multipart/form-data; boundary=${form.boundary}`,
+      },
+      method: "POST",
+      payload: form.payload,
+      url: "/api/operator/profile",
+    });
+
+    expect(response.statusCode).toBe(400);
+    expect(useCase).not.toHaveBeenCalled();
+  });
+
+  it.each(["privacyUrl", "tosUrl"] as const)(
+    "returns 400 when %s is omitted",
+    async (field) => {
+      const useCase: OperatorCreateProfileUseCase = vi.fn();
+      const app = buildApp(baseSession);
+      mountOperatorCreateProfileHandler(app, useCase);
+      const input = { ...profile };
+      Reflect.deleteProperty(input, field);
+      const form = profileForm(input);
+
+      const response = await app.inject({
+        headers: {
+          authorization: "Bearer test-token",
+          "content-type": `multipart/form-data; boundary=${form.boundary}`,
+        },
+        method: "POST",
+        payload: form.payload,
+        url: "/api/operator/profile",
+      });
+
+      expect(response.statusCode).toBe(400);
+      expect(useCase).not.toHaveBeenCalled();
+    },
+  );
+
+  it.each(["privacyUrl", "tosUrl"] as const)(
+    "returns 400 for a non-HTTPS %s",
+    async (field) => {
+      const useCase: OperatorCreateProfileUseCase = vi.fn();
+      const app = buildApp(baseSession);
+      mountOperatorCreateProfileHandler(app, useCase);
+      const form = profileForm({
+        ...profile,
+        [field]: "http://example.org/legal",
+      });
+
+      const response = await app.inject({
+        headers: {
+          authorization: "Bearer test-token",
+          "content-type": `multipart/form-data; boundary=${form.boundary}`,
+        },
+        method: "POST",
+        payload: form.payload,
+        url: "/api/operator/profile",
+      });
+
+      expect(response.statusCode).toBe(400);
+      expect(useCase).not.toHaveBeenCalled();
+    },
+  );
+
+  it("rejects a URL with only one slash after the HTTPS scheme", async () => {
+    const useCase: OperatorCreateProfileUseCase = vi.fn();
+    const app = buildApp(baseSession);
+    mountOperatorCreateProfileHandler(app, useCase);
+    const form = profileForm({
+      ...profile,
+      privacyUrl: "https:/example.org/privacy",
+    });
+
+    const response = await app.inject({
+      headers: {
+        authorization: "Bearer test-token",
+        "content-type": `multipart/form-data; boundary=${form.boundary}`,
+      },
+      method: "POST",
+      payload: form.payload,
+      url: "/api/operator/profile",
+    });
+
+    expect(response.statusCode).toBe(400);
+    expect(useCase).not.toHaveBeenCalled();
   });
 
   it.each([

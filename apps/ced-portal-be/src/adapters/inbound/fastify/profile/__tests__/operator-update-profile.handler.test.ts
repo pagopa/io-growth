@@ -27,6 +27,8 @@ const profile = {
     type: "online",
     website: { url: "https://example.org" },
   },
+  privacyUrl: "https://example.org/privacy",
+  tosUrl: "https://example.org/terms",
 };
 
 const multipartPayload = (
@@ -119,7 +121,102 @@ describe("mountOperatorUpdateProfileHandler", () => {
       logo: undefined,
       operatorId: MOCK_OPERATOR_ID,
     });
+    expect(response.json()).toMatchObject({
+      privacyUrl: mockProfile.privacyUrl,
+      tosUrl: mockProfile.tosUrl,
+    });
+    expect(response.json()).not.toHaveProperty("termsUrl");
   });
+
+  it("does not accept termsUrl instead of tosUrl", async () => {
+    const useCase: OperatorUpdateProfileUseCase = vi.fn();
+    const app = buildApp(session);
+    mountOperatorUpdateProfileHandler(app, useCase);
+    const { tosUrl, ...withoutTosUrl } = profile;
+    const form = multipartPayload([
+      {
+        content: JSON.stringify({ ...withoutTosUrl, termsUrl: tosUrl }),
+        contentType: "application/json",
+        name: "profile",
+      },
+    ]);
+
+    const response = await app.inject({
+      headers: {
+        authorization: "Bearer test-token",
+        "content-type": `multipart/form-data; boundary=${form.boundary}`,
+      },
+      method: "PUT",
+      payload: form.payload,
+      url: "/api/operator/profile",
+    });
+
+    expect(response.statusCode).toBe(400);
+    expect(useCase).not.toHaveBeenCalled();
+  });
+
+  it.each(["privacyUrl", "tosUrl"] as const)(
+    "rejects an omitted %s",
+    async (field) => {
+      const useCase: OperatorUpdateProfileUseCase = vi.fn();
+      const app = buildApp(session);
+      mountOperatorUpdateProfileHandler(app, useCase);
+      const input = { ...profile };
+      Reflect.deleteProperty(input, field);
+      const form = multipartPayload([
+        {
+          content: JSON.stringify(input),
+          contentType: "application/json",
+          name: "profile",
+        },
+      ]);
+
+      const response = await app.inject({
+        headers: {
+          authorization: "Bearer test-token",
+          "content-type": `multipart/form-data; boundary=${form.boundary}`,
+        },
+        method: "PUT",
+        payload: form.payload,
+        url: "/api/operator/profile",
+      });
+
+      expect(response.statusCode).toBe(400);
+      expect(useCase).not.toHaveBeenCalled();
+    },
+  );
+
+  it.each(["privacyUrl", "tosUrl"] as const)(
+    "rejects a non-HTTPS %s",
+    async (field) => {
+      const useCase: OperatorUpdateProfileUseCase = vi.fn();
+      const app = buildApp(session);
+      mountOperatorUpdateProfileHandler(app, useCase);
+      const form = multipartPayload([
+        {
+          content: JSON.stringify({
+            ...profile,
+            [field]: "http://example.org/legal",
+          }),
+          contentType: "application/json",
+          name: "profile",
+        },
+      ]);
+
+      const response = await app.inject({
+        headers: {
+          authorization: "Bearer test-token",
+          "content-type": `multipart/form-data; boundary=${form.boundary}`,
+        },
+        method: "PUT",
+        payload: form.payload,
+        url: "/api/operator/profile",
+      });
+
+      expect(response.statusCode).toBe(400);
+      expect(useCase).not.toHaveBeenCalled();
+    },
+  );
 
   it("rejects an incomplete profile", async () => {
     const useCase: OperatorUpdateProfileUseCase = vi.fn();

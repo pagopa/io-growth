@@ -36,6 +36,8 @@ describe("makeOperatorCreateProfileUseCase", () => {
             name: mockCreateProfileInput.place.name,
             type: mockCreateProfileInput.place.type,
           }),
+          privacyUrl: mockCreateProfileInput.privacyUrl,
+          tosUrl: mockCreateProfileInput.tosUrl,
         }),
       ),
     );
@@ -52,6 +54,8 @@ describe("makeOperatorCreateProfileUseCase", () => {
           name: mockCreateProfileInput.place.name,
           type: mockCreateProfileInput.place.type,
         }),
+        privacyUrl: mockCreateProfileInput.privacyUrl,
+        tosUrl: mockCreateProfileInput.tosUrl,
       }),
     );
     expect(profileAssetsRepository.storeProfileAssets).toHaveBeenCalledWith({
@@ -167,6 +171,65 @@ describe("makeOperatorCreateProfileUseCase", () => {
 });
 
 describe("profile input validation", () => {
+  it.each(["privacyUrl", "tosUrl"] as const)(
+    "rejects an omitted %s before accessing the repository",
+    async (field) => {
+      const profileRepository = createMockProfileRepository();
+      const useCase = makeOperatorCreateProfileUseCase(
+        profileRepository,
+        createMockProfileAssetsRepository(),
+      );
+      const input = { ...mockCreateProfileInput };
+      Reflect.deleteProperty(input, field);
+
+      const result = await useCase(input);
+
+      expect(result).toEqual(
+        err(expect.objectContaining({ kind: "ValidationError" })),
+      );
+      expect(profileRepository.getByOperatorId).not.toHaveBeenCalled();
+    },
+  );
+
+  it.each(["privacyUrl", "tosUrl"] as const)(
+    "rejects an HTTP %s",
+    async (field) => {
+      const profileRepository = createMockProfileRepository();
+      const useCase = makeOperatorCreateProfileUseCase(
+        profileRepository,
+        createMockProfileAssetsRepository(),
+      );
+
+      const result = await useCase({
+        ...mockCreateProfileInput,
+        [field]: "http://example.org/legal",
+      });
+
+      expect(result).toEqual(
+        err(expect.objectContaining({ kind: "ValidationError" })),
+      );
+      expect(profileRepository.getByOperatorId).not.toHaveBeenCalled();
+    },
+  );
+
+  it("rejects URLs over 2048 characters", async () => {
+    const profileRepository = createMockProfileRepository();
+    const useCase = makeOperatorCreateProfileUseCase(
+      profileRepository,
+      createMockProfileAssetsRepository(),
+    );
+
+    const result = await useCase({
+      ...mockCreateProfileInput,
+      privacyUrl: `https://example.org/${"a".repeat(2048)}`,
+    });
+
+    expect(result).toEqual(
+      err(expect.objectContaining({ kind: "ValidationError" })),
+    );
+    expect(profileRepository.getByOperatorId).not.toHaveBeenCalled();
+  });
+
   it("should return ValidationError when operatorId is empty", async () => {
     const profileRepository = createMockProfileRepository();
     const profileAssetsRepository = createMockProfileAssetsRepository();

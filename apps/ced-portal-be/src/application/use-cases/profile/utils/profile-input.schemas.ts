@@ -1,5 +1,7 @@
 import { z } from "zod";
 
+import { ProfileLegalUrlSchema } from "../../../../domain/entities/profile.js";
+
 const OperatorProfileSupportContactSchema = z
   .object({
     type: z.enum(["email", "phone", "website"]),
@@ -47,6 +49,8 @@ export const OperatorProfileInputSchema = z
     contactEmail: z.email().max(512),
     displayName: z.string().min(1).max(512),
     place: OperatorProfilePlaceInputSchema,
+    privacyUrl: ProfileLegalUrlSchema,
+    tosUrl: ProfileLegalUrlSchema,
   })
   .strict();
 

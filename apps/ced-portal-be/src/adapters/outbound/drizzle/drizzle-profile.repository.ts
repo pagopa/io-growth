@@ -33,6 +33,8 @@ const updateByOperatorId =
           .set({
             contactEmail: input.contactEmail,
             displayName: input.displayName,
+            privacyUrl: input.privacyUrl,
+            tosUrl: input.tosUrl,
             updatedAt: new Date(),
           })
           .where(eq(profile.operatorId, input.operatorId))
@@ -41,6 +43,8 @@ const updateByOperatorId =
             displayName: profile.displayName,
             operatorId: profile.operatorId,
             placeId: profile.placeId,
+            privacyUrl: profile.privacyUrl,
+            tosUrl: profile.tosUrl,
           });
 
         if (!profileRow) {
@@ -127,6 +131,8 @@ const updateByOperatorId =
               supportContacts: returnedSupportContacts,
               type: "offline",
             },
+            privacyUrl: profileRow.privacyUrl,
+            tosUrl: profileRow.tosUrl,
           };
           return;
         }
@@ -154,6 +160,8 @@ const updateByOperatorId =
             type: "online",
             website: websiteRow,
           },
+          privacyUrl: profileRow.privacyUrl,
+          tosUrl: profileRow.tosUrl,
         };
       });
 
@@ -187,12 +195,16 @@ export const createDrizzleProfileRepository = (
             displayName: input.displayName,
             operatorId: input.operatorId,
             placeId: input.place.id,
+            privacyUrl: input.privacyUrl,
+            tosUrl: input.tosUrl,
           })
           .onConflictDoNothing({ target: profile.operatorId })
           .returning({
             contactEmail: profile.contactEmail,
             displayName: profile.displayName,
             operatorId: profile.operatorId,
+            privacyUrl: profile.privacyUrl,
+            tosUrl: profile.tosUrl,
           });
 
         if (!createdProfile) {
@@ -204,6 +216,8 @@ export const createDrizzleProfileRepository = (
           displayName: createdProfile.displayName,
           operatorId: createdProfile.operatorId,
           place: returnedPlace,
+          privacyUrl: createdProfile.privacyUrl,
+          tosUrl: createdProfile.tosUrl,
         };
       });
 
@@ -228,6 +242,8 @@ export const createDrizzleProfileRepository = (
           displayName: true,
           operatorId: true,
           placeId: true,
+          privacyUrl: true,
+          tosUrl: true,
         },
         where: eq(profile.operatorId, operatorId),
       });
@@ -275,6 +291,8 @@ export const createDrizzleProfileRepository = (
         displayName: profileRow.displayName,
         operatorId: profileRow.operatorId,
         place: mappedPlace.value,
+        privacyUrl: profileRow.privacyUrl,
+        tosUrl: profileRow.tosUrl,
       });
     } catch (error) {
       return err(

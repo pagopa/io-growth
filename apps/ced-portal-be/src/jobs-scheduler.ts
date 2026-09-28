@@ -1,15 +1,13 @@
+import type { TypedDbClient } from "@pagopa/io-core-adapter-drizzle";
 import type {
   PgBossConnectionConfig,
   ScheduledJobDefinition,
 } from "@pagopa/io-core-adapter-pgboss";
 
+import { createTypedDbClient } from "@pagopa/io-core-adapter-drizzle";
 import { createScheduler } from "@pagopa/io-core-adapter-pgboss";
 import { emitCustomEvent } from "@pagopa/io-core-adapter-tracing";
 
-import {
-  createTypedDbClient,
-  TypedDbClient,
-} from "../../../packages/io-core-adapter-drizzle/client.js";
 import { mountTestJobHandler } from "./adapters/inbound/pgboss/test-job/test-job.handler.js";
 import { createDrizzleOpportunityRepository } from "./adapters/outbound/drizzle/drizzle-opportunity.repository.js";
 import * as schema from "./adapters/outbound/drizzle/schema/index.js";

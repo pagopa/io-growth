@@ -997,8 +997,10 @@ components:
         - operatorName
         - operatorFiscalCode
         - place
+        - privacyUrl
         - recentPlaces
         - recentOpportunities
+        - tosUrl
       properties:
         displayName:
           type: string
@@ -1013,6 +1015,12 @@ components:
           description: Fiscal code of the operator profile.
         place:
           $ref: "#/components/schemas/ProfilePlace"
+        privacyUrl:
+          type: string
+          format: uri
+          pattern: "^[Hh][Tt][Tt][Pp][Ss]:[/][/]"
+          maxLength: 2048
+          description: HTTPS link to the operator's privacy notice.
         recentPlaces:
           type: array
           description: Five most recent places of the operator ordered by creation time.
@@ -1023,6 +1031,12 @@ components:
           description: Five most recent opportunities of the operator ordered by start date.
           items:
             $ref: "#/components/schemas/ProfileRecentOpportunity"
+        tosUrl:
+          type: string
+          format: uri
+          pattern: "^[Hh][Tt][Tt][Pp][Ss]:[/][/]"
+          maxLength: 2048
+          description: HTTPS link to the operator's terms and conditions of use.
 
     # -------------------------------------------------------------------------
     # Auth

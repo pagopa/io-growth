@@ -80,7 +80,7 @@ export default function EntityDetailPage() {
             return {
               id: place.id,
               title: place.name,
-              subtitle: formatAddress(address) || place.url,
+              subtitle: formatAddress(address),
             };
           });
         const contacts: EntityContacts = {

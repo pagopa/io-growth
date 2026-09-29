@@ -83,6 +83,12 @@ export interface OpportunityRepository {
   readonly findByIdAndOperatorId: (
     input: FindByIdAndOperatorIdInput,
   ) => Promise<Result<OpportunityDetail | undefined, GenericError>>;
+  readonly republishById: (
+    input: RepublishByIdInput,
+  ) => Promise<Result<void, ConflictError | GenericError>>;
+  readonly republishByIdAndOperatorId: (
+    input: RepublishByIdAndOperatorIdInput,
+  ) => Promise<Result<void, ConflictError | GenericError>>;
   readonly suspendById: (
     input: SuspendByIdInput,
   ) => Promise<Result<void, ConflictError | GenericError>>;
@@ -112,6 +118,15 @@ export type OpportunityStatusFilter =
 export interface PaginatedOpportunities {
   items: OpportunitySummary[];
   total: number;
+}
+
+export interface RepublishByIdAndOperatorIdInput {
+  operatorId: string;
+  opportunityId: string;
+}
+
+export interface RepublishByIdInput {
+  opportunityId: string;
 }
 
 export interface SuspendByIdAndOperatorIdInput {

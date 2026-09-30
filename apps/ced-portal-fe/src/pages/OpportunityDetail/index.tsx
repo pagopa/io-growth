@@ -1,5 +1,4 @@
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 import WarningAmberRoundedIcon from '@mui/icons-material/WarningAmberRounded';
 import WarningIcon from '@mui/icons-material/WarningRounded';
 import {
@@ -16,13 +15,13 @@ import { useNavigate, useParams } from 'react-router-dom';
 import {
   useApproveOpportunityMutation,
   useAdminCancelScheduledSuspensionMutation,
+  useAdminRepublishOpportunityMutation,
   useAdminSuspendOpportunityMutation,
   useGetAdminOpportunityDetailQuery,
 } from '../../features/opportunities/api';
 import { APP_ROUTES } from '../../app/routeConfig';
 import { useToast } from '../../contexts';
 import { PublishModal } from '../../components/PublishModal';
-import { RequestChangesModal } from '../../components/RequestChangesModal';
 import { OpportunityDetailCard } from './components/OpportunityDetailCard';
 import { STATE_COLORS, STATE_OPTIONS } from '../../constants/opportunityState';
 import { SuspendOpportunityModal } from '../../components/SuspendOpportunityModal';
@@ -48,7 +47,8 @@ export default function OpportunityDetailPage() {
     useAdminCancelScheduledSuspensionMutation();
   const [publishModalOpen, setPublishModalOpen] = useState(false);
   const [suspendModalOpen, setSuspendModalOpen] = useState(false);
-  const [requestChangesOpen, setRequestChangesOpen] = useState(false);
+  const [republishOpportunity, { isLoading: isRepublishing }] =
+    useAdminRepublishOpportunityMutation();
 
   const detailStatus = detail?.status;
   const detailSuspendFrom = detail?.suspendFrom;
@@ -60,6 +60,7 @@ export default function OpportunityDetailPage() {
     (detailStatus === 'published' && Boolean(detailSuspendFrom));
   const canSuspendOpportunity =
     detailStatus === 'published' && !hasScheduledSuspension;
+  const canRepublishOpportunity = detailStatus === 'suspended';
 
   const handleSuspend = async (payload: SuspendOpportunityPayload) => {
     if (!id || isSuspending) {
@@ -86,6 +87,20 @@ export default function OpportunityDetailPage() {
       showToast('Sospensione programmata annullata con successo', 'success');
     } catch {
       showToast("Errore durante l'annullamento della sospensione", 'error');
+    }
+  };
+
+  const handleRepublish = async () => {
+    if (!id || isRepublishing) {
+      return;
+    }
+
+    try {
+      await republishOpportunity({ id }).unwrap();
+      navigate(APP_ROUTES.OPPORTUNITIES);
+      showToast('Opportunità ripubblicata con successo', 'success');
+    } catch {
+      showToast("Errore durante la ripubblicazione dell'opportunità", 'error');
     }
   };
 
@@ -260,14 +275,6 @@ export default function OpportunityDetailPage() {
             sx={{ pt: 2, pb: 4 }}
           >
             <Button
-              variant="outlined"
-              startIcon={<EditOutlinedIcon />}
-              onClick={() => setRequestChangesOpen(true)}
-              sx={{ fontWeight: 700, borderRadius: 2, px: 3 }}
-            >
-              Richiedi modifiche
-            </Button>
-            <Button
               variant="contained"
               color="primary"
               onClick={() => setPublishModalOpen(true)}
@@ -293,6 +300,25 @@ export default function OpportunityDetailPage() {
               sx={{ fontWeight: 700, borderRadius: 2, px: 4 }}
             >
               Sospendi
+            </Button>
+          </Stack>
+        )}
+
+        {canRepublishOpportunity && (
+          <Stack
+            direction={{ xs: 'column', sm: 'row' }}
+            spacing={2}
+            justifyContent="flex-end"
+            sx={{ pt: 2, pb: 4 }}
+          >
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={handleRepublish}
+              disabled={isRepublishing}
+              sx={{ fontWeight: 700, borderRadius: 2, px: 4 }}
+            >
+              {isRepublishing ? 'Ripubblicazione in corso' : 'Ripubblica'}
             </Button>
           </Stack>
         )}
@@ -325,17 +351,6 @@ export default function OpportunityDetailPage() {
         }}
         count={1}
         publishDate={detail?.dateFrom}
-      />
-
-      <RequestChangesModal
-        open={requestChangesOpen}
-        onClose={() => setRequestChangesOpen(false)}
-        onConfirm={() => {
-          // TODO: Submit the requested changes through the backend endpoint.
-          setRequestChangesOpen(false);
-          navigate(APP_ROUTES.OPPORTUNITIES);
-          showToast('Fatto!', 'success');
-        }}
       />
 
       <SuspendOpportunityModal

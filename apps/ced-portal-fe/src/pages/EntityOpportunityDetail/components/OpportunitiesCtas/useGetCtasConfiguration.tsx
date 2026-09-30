@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import {
   useDeleteOpportunityMutation,
   useOperatorCancelScheduledSuspensionMutation,
+  useOperatorRepublishOpportunityMutation,
   useOperatorSuspendOpportunityMutation,
 } from '../../../../features/opportunities/api';
 import { useToast } from '../../../../contexts';
@@ -33,6 +34,7 @@ export const useGetCtasConfiguration = (
   const [suspendOpportunity] = useOperatorSuspendOpportunityMutation();
   const [cancelScheduledSuspension] =
     useOperatorCancelScheduledSuspensionMutation();
+  const [republishOpportunity] = useOperatorRepublishOpportunityMutation();
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isSuspendModalOpen, setIsSuspendModalOpen] = useState(false);
   const [isModifyModalOpen, setIsModifyModalOpen] = useState(false);
@@ -117,9 +119,15 @@ export const useGetCtasConfiguration = (
     }
   }, [cancelScheduledSuspension, id, showToast]);
 
-  const handlePublication = useCallback(() => {
-    // TODO[OUT OF MVP SCOPE]: call publish opportunity API with { id }.
-  }, []);
+  const handlePublication = useCallback(async () => {
+    try {
+      await republishOpportunity({ id }).unwrap();
+      showToast('Opportunità ripubblicata con successo', 'success');
+      navigate(APP_ROUTES.HOME);
+    } catch {
+      showToast("Errore durante la ripubblicazione dell'opportunità", 'error');
+    }
+  }, [id, navigate, republishOpportunity, showToast]);
 
   const actionsMap: Record<
     NonNullable<OpportunitiesCtaItem['actionId']>,

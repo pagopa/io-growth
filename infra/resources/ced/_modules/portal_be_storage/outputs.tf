@@ -13,3 +13,10 @@ output "containers" {
     images = azurerm_storage_container.images.name
   }
 }
+
+output "cdn_health_paths" {
+  value = {
+    for container, blob in azurerm_storage_blob.cdn_health :
+    container => "/${container}/${blob.name}"
+  }
+}

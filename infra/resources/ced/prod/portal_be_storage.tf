@@ -8,8 +8,11 @@ module "portal_be_storage" {
   app_name        = "assets"
   instance_number = "01"
 
-  resource_group_name = azurerm_resource_group.data_rg.name
-  subnet_pep_id       = module.azure_core_values.common_pep_snet.id
+  resource_group_name                  = azurerm_resource_group.data_rg.name
+  subnet_pep_id                        = module.azure_core_values.common_pep_snet.id
+  private_dns_zone_resource_group_name = module.azure_core_values.network_resource_group_name
+
+  action_group_id = azurerm_monitor_action_group.ced_error_action_group.id
 
   tags = local.tags
 }

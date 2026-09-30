@@ -64,15 +64,13 @@ import {
   opportunityCategory,
   opportunityPlace,
 } from "./schema/tables.js";
+import { escapeIlikePattern } from "./utils/escape-ilike-pattern.js";
 
 type DbOrTxClient = TransactionClient | TypedDbClient<typeof schema>;
 
 type TransactionClient = Parameters<
   Parameters<TypedDbClient<typeof schema>["transaction"]>[0]
 >[0];
-
-const escapeIlikePattern = (value: string): string =>
-  value.replace(/\\/g, "\\\\").replace(/%/g, "\\%").replace(/_/g, "\\_");
 
 const searchColumns = {
   name: localizedMetadata.value,

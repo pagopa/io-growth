@@ -1,8 +1,8 @@
-export interface OpportunityApprovedTemplateInput {
+export interface OpportunityPublishedTemplateInput {
   readonly opportunityName: string;
 }
 
 export const apply = ({
   opportunityName,
-}: OpportunityApprovedTemplateInput): string =>
+}: OpportunityPublishedTemplateInput): string =>
   `{{TEMPLATE}}`.replaceAll("{{opportunityName}}", opportunityName);

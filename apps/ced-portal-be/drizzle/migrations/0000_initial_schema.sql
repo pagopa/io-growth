@@ -47,6 +47,8 @@ CREATE TABLE profile (
   place_id CHAR(26) NOT NULL REFERENCES place(id),
   display_name VARCHAR(512) NOT NULL,
   contact_email VARCHAR(512) NOT NULL,
+  privacy_url VARCHAR(2048) NOT NULL,
+  tos_url VARCHAR(2048) NOT NULL,
   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   UNIQUE (operator_id)

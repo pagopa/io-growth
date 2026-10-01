@@ -121,11 +121,15 @@ paths:
                 logo:
                   type: string
                   format: binary
-                  description: PNG or JPEG logo, up to 300x300 pixels.
+                  description: >-
+                    PNG or JPEG logo, up to 300x300 pixels. The filename
+                    extension must match the image format.
                 image:
                   type: string
                   format: binary
-                  description: PNG or JPEG profile image, up to 300x600 pixels.
+                  description: >-
+                    PNG or JPEG profile image, up to 300x600 pixels. The
+                    filename extension must match the image format.
             encoding:
               profile:
                 contentType: application/json
@@ -160,6 +164,89 @@ paths:
               example:
                 statusCode: 403
                 message: Forbidden
+    put:
+      tags:
+        - Profile
+      summary: Replace the authenticated operator profile
+      description: >-
+        Replaces the profile fields represented by the required profile part.
+        The authenticated operator must already have a profile. Omitted logo
+        or image parts leave the corresponding asset unchanged. A supplied
+        asset must have a filename extension matching its PNG or JPEG format.
+        The profile place ID is preserved. Both privacyUrl and tosUrl are
+        required HTTPS URLs on every replacement.
+      operationId: updateOperatorProfile
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              additionalProperties: false
+              required:
+                - profile
+              properties:
+                profile:
+                  $ref: "#/components/schemas/OperatorProfileCreateRequest"
+                logo:
+                  type: string
+                  format: binary
+                  description: >-
+                    Optional PNG or JPEG logo, up to 300x300 pixels. Omit to
+                    keep the current logo. The filename extension must match
+                    the image format.
+                image:
+                  type: string
+                  format: binary
+                  description: >-
+                    Optional PNG or JPEG profile image, up to 300x600 pixels.
+                    Omit to keep the current image. The filename extension
+                    must match the image format.
+            encoding:
+              profile:
+                contentType: application/json
+      responses:
+        "200":
+          description: Operator profile replaced successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OperatorProfileResponse"
+        "400":
+          description: Invalid profile JSON or invalid image files
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "401":
+          description: Invalid or missing JWT
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 401
+                message: Unauthorized
+        "403":
+          description: Authenticated user is not an operator
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 403
+                message: Forbidden
+        "404":
+          description: No profile exists for the authenticated operator
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 404
+                message: Operator profile not found
   /operator/places:
     get:
       tags:
@@ -2073,6 +2160,8 @@ components:
         - contactEmail
         - displayName
         - place
+        - privacyUrl
+        - tosUrl
       properties:
         contactEmail:
           type: string
@@ -2083,6 +2172,18 @@ components:
           maxLength: 512
         place:
           $ref: "#/components/schemas/PlaceCreateRequest"
+        privacyUrl:
+          type: string
+          format: uri
+          pattern: "^[Hh][Tt][Tt][Pp][Ss]:[/][/]"
+          maxLength: 2048
+          description: HTTPS link to the operator's privacy notice.
+        tosUrl:
+          type: string
+          format: uri
+          pattern: "^[Hh][Tt][Tt][Pp][Ss]:[/][/]"
+          maxLength: 2048
+          description: HTTPS link to the operator's terms and conditions of use.
     PlaceBase:
       type: object
       additionalProperties: false
@@ -2192,6 +2293,8 @@ components:
         - contactEmail
         - displayName
         - place
+        - privacyUrl
+        - tosUrl
       properties:
         contactEmail:
           type: string
@@ -2202,6 +2305,18 @@ components:
           maxLength: 512
         place:
           $ref: "#/components/schemas/PlaceResponse"
+        privacyUrl:
+          type: string
+          format: uri
+          pattern: "^[Hh][Tt][Tt][Pp][Ss]:[/][/]"
+          maxLength: 2048
+          description: HTTPS link to the operator's privacy notice.
+        tosUrl:
+          type: string
+          format: uri
+          pattern: "^[Hh][Tt][Tt][Pp][Ss]:[/][/]"
+          maxLength: 2048
+          description: HTTPS link to the operator's terms and conditions of use.
     Address:
       type: object
       additionalProperties: false

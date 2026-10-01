@@ -36,6 +36,8 @@ describe("makeOperatorCreateProfileUseCase", () => {
             name: mockCreateProfileInput.place.name,
             type: mockCreateProfileInput.place.type,
           }),
+          privacyUrl: mockCreateProfileInput.privacyUrl,
+          tosUrl: mockCreateProfileInput.tosUrl,
         }),
       ),
     );
@@ -52,18 +54,18 @@ describe("makeOperatorCreateProfileUseCase", () => {
           name: mockCreateProfileInput.place.name,
           type: mockCreateProfileInput.place.type,
         }),
+        privacyUrl: mockCreateProfileInput.privacyUrl,
+        tosUrl: mockCreateProfileInput.tosUrl,
       }),
     );
-    expect(profileAssetsRepository.uploadProfileAssets).toHaveBeenCalledWith({
+    expect(profileAssetsRepository.storeProfileAssets).toHaveBeenCalledWith({
       image: {
         content: expect.any(Uint8Array),
         contentType: "image/png",
-        extension: "png",
       },
       logo: {
         content: expect.any(Uint8Array),
         contentType: "image/png",
-        extension: "png",
       },
       operatorId: MOCK_OPERATOR_ID,
     });
@@ -79,7 +81,7 @@ describe("makeOperatorCreateProfileUseCase", () => {
       getByOperatorId: vi.fn().mockResolvedValue(ok(undefined)),
     });
     const profileAssetsRepository = createMockProfileAssetsRepository({
-      uploadProfileAssets: vi.fn().mockImplementation(async () => {
+      storeProfileAssets: vi.fn().mockImplementation(async () => {
         calls.push("assets");
         return ok(undefined);
       }),
@@ -115,7 +117,7 @@ describe("makeOperatorCreateProfileUseCase", () => {
       ),
     );
     expect(profileRepository.create).not.toHaveBeenCalled();
-    expect(profileAssetsRepository.uploadProfileAssets).not.toHaveBeenCalled();
+    expect(profileAssetsRepository.storeProfileAssets).not.toHaveBeenCalled();
   });
 
   it("should propagate repository errors from getByOperatorId", async () => {
@@ -169,6 +171,65 @@ describe("makeOperatorCreateProfileUseCase", () => {
 });
 
 describe("profile input validation", () => {
+  it.each(["privacyUrl", "tosUrl"] as const)(
+    "rejects an omitted %s before accessing the repository",
+    async (field) => {
+      const profileRepository = createMockProfileRepository();
+      const useCase = makeOperatorCreateProfileUseCase(
+        profileRepository,
+        createMockProfileAssetsRepository(),
+      );
+      const input = { ...mockCreateProfileInput };
+      Reflect.deleteProperty(input, field);
+
+      const result = await useCase(input);
+
+      expect(result).toEqual(
+        err(expect.objectContaining({ kind: "ValidationError" })),
+      );
+      expect(profileRepository.getByOperatorId).not.toHaveBeenCalled();
+    },
+  );
+
+  it.each(["privacyUrl", "tosUrl"] as const)(
+    "rejects an HTTP %s",
+    async (field) => {
+      const profileRepository = createMockProfileRepository();
+      const useCase = makeOperatorCreateProfileUseCase(
+        profileRepository,
+        createMockProfileAssetsRepository(),
+      );
+
+      const result = await useCase({
+        ...mockCreateProfileInput,
+        [field]: "http://example.org/legal",
+      });
+
+      expect(result).toEqual(
+        err(expect.objectContaining({ kind: "ValidationError" })),
+      );
+      expect(profileRepository.getByOperatorId).not.toHaveBeenCalled();
+    },
+  );
+
+  it("rejects URLs over 2048 characters", async () => {
+    const profileRepository = createMockProfileRepository();
+    const useCase = makeOperatorCreateProfileUseCase(
+      profileRepository,
+      createMockProfileAssetsRepository(),
+    );
+
+    const result = await useCase({
+      ...mockCreateProfileInput,
+      privacyUrl: `https://example.org/${"a".repeat(2048)}`,
+    });
+
+    expect(result).toEqual(
+      err(expect.objectContaining({ kind: "ValidationError" })),
+    );
+    expect(profileRepository.getByOperatorId).not.toHaveBeenCalled();
+  });
+
   it("should return ValidationError when operatorId is empty", async () => {
     const profileRepository = createMockProfileRepository();
     const profileAssetsRepository = createMockProfileAssetsRepository();
@@ -253,13 +314,13 @@ describe("profile asset validation", () => {
 
     const result = await useCase({
       ...mockCreateProfileInput,
-      image: new Blob(["not an image"], { type: "image/png" }),
+      image: new File(["not an image"], "image.png", { type: "image/png" }),
     });
 
     expect(result).toEqual(
       err(expect.objectContaining({ kind: "ValidationError" })),
     );
-    expect(profileAssetsRepository.uploadProfileAssets).not.toHaveBeenCalled();
+    expect(profileAssetsRepository.storeProfileAssets).not.toHaveBeenCalled();
     expect(profileRepository.create).not.toHaveBeenCalled();
   });
 });
@@ -271,7 +332,7 @@ describe("profile asset orchestration", () => {
       getByOperatorId: vi.fn().mockResolvedValue(ok(undefined)),
     });
     const profileAssetsRepository = createMockProfileAssetsRepository({
-      uploadProfileAssets: vi.fn().mockResolvedValue(err(assetError)),
+      storeProfileAssets: vi.fn().mockResolvedValue(err(assetError)),
     });
     const useCase = makeOperatorCreateProfileUseCase(
       profileRepository,

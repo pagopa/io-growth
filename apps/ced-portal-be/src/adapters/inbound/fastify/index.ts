@@ -28,3 +28,4 @@ export { mountOperatorGetPlaceHandler } from "./places/operator-get-place.handle
 export { mountOperatorListPlacesHandler } from "./places/operator-list-places.handler.js";
 export { mountOperatorCreateProfileHandler } from "./profile/operator-create-profile.handler.js";
 export { mountOperatorGetProfileHandler } from "./profile/operator-get-profile.handler.js";
+export { mountOperatorUpdateProfileHandler } from "./profile/operator-update-profile.handler.js";

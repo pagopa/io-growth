@@ -48,6 +48,7 @@ import {
   mountOperatorRequestOpportunityTestHandler,
   mountOperatorSuspendOpportunityHandler,
   mountOperatorUpdateOpportunityHandler,
+  mountOperatorUpdateProfileHandler,
 } from "./adapters/inbound/fastify/index.js";
 import { createArOnboardingRepository } from "./adapters/outbound/ar/ar-onboarding.repository.js";
 import { createAzureProfileAssetsRepository } from "./adapters/outbound/blob/azure-profile-assets.repository.js";
@@ -91,6 +92,7 @@ import { makeOperatorGetPlaceUseCase } from "./application/use-cases/places/oper
 import { makeOperatorListPlacesUseCase } from "./application/use-cases/places/operator-list-places.use-case.js";
 import { makeOperatorCreateProfileUseCase } from "./application/use-cases/profile/operator-create-profile.use-case.js";
 import { makeOperatorGetProfileUseCase } from "./application/use-cases/profile/operator-get-profile.use-case.js";
+import { makeOperatorUpdateProfileUseCase } from "./application/use-cases/profile/operator-update-profile.use-case.js";
 import { createSessionContextPreHandler } from "./async-local-storage-session-context.js";
 import { parseConfig } from "./config.js";
 import { createArRouter, createDbRouter } from "./routed-clients.js";
@@ -212,6 +214,14 @@ app.register(async (app) => {
     makeOperatorCreateProfileUseCase(
       profileRepository,
       profileAssetsRepository,
+    ),
+  );
+  mountOperatorUpdateProfileHandler(
+    app,
+    makeOperatorUpdateProfileUseCase(
+      profileRepository,
+      profileAssetsRepository,
+      materializedViewRepository,
     ),
   );
   mountOperatorListPlacesHandler(

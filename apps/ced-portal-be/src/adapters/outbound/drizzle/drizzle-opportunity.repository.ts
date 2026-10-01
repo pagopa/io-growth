@@ -30,6 +30,8 @@ import type {
   OpportunitySearchField,
   OpportunityStatusFilter,
   PaginatedOpportunities,
+  RepublishByIdAndOperatorIdInput,
+  RepublishByIdInput,
   SuspendByIdAndOperatorIdInput,
   SuspendByIdInput,
   UpdateByIdAndOperatorIdInput,
@@ -431,6 +433,87 @@ const cancelScheduledSuspensionById =
     }
   };
 
+const republishById =
+  (db: TypedDbClient<typeof schema>) =>
+  async (
+    input: RepublishByIdInput,
+  ): Promise<Result<void, ConflictError | GenericError>> => {
+    try {
+      await db.transaction(async (tx) => {
+        const result = await tx
+          .update(opportunity)
+          .set({
+            status: OPPORTUNITY_STATUS.PUBLISHED,
+            suspendedBy: null,
+            suspendFrom: null,
+            suspensionMessage: null,
+            updatedAt: new Date(),
+          })
+          .where(
+            and(
+              eq(opportunity.id, input.opportunityId),
+              eq(opportunity.status, OPPORTUNITY_STATUS.SUSPENDED),
+            ),
+          );
+
+        if (result.count === 0) {
+          throw new ConflictError(
+            "Opportunity status was modified concurrently",
+          );
+        }
+      });
+      return ok(undefined);
+    } catch (error) {
+      if (error instanceof ConflictError) {
+        return err(error);
+      }
+      return err(
+        new GenericError(`Failed to republish opportunity: ${String(error)}`),
+      );
+    }
+  };
+
+const republishByIdAndOperatorId =
+  (db: TypedDbClient<typeof schema>) =>
+  async (
+    input: RepublishByIdAndOperatorIdInput,
+  ): Promise<Result<void, ConflictError | GenericError>> => {
+    try {
+      await db.transaction(async (tx) => {
+        const result = await tx
+          .update(opportunity)
+          .set({
+            status: OPPORTUNITY_STATUS.PUBLISHED,
+            suspendedBy: null,
+            suspendFrom: null,
+            suspensionMessage: null,
+            updatedAt: new Date(),
+          })
+          .where(
+            and(
+              eq(opportunity.id, input.opportunityId),
+              eq(opportunity.operatorId, input.operatorId),
+              eq(opportunity.status, OPPORTUNITY_STATUS.SUSPENDED),
+            ),
+          );
+
+        if (result.count === 0) {
+          throw new ConflictError(
+            "Opportunity status was modified concurrently",
+          );
+        }
+      });
+      return ok(undefined);
+    } catch (error) {
+      if (error instanceof ConflictError) {
+        return err(error);
+      }
+      return err(
+        new GenericError(`Failed to republish opportunity: ${String(error)}`),
+      );
+    }
+  };
+
 const suspendById =
   (db: TypedDbClient<typeof schema>) =>
   async (
@@ -750,6 +833,8 @@ export const createDrizzleOpportunityRepository = (
   findByIdAndOperatorId: async (input: FindByIdAndOperatorIdInput) =>
     findByIdAndOperatorId(db, input),
 
+  republishById: republishById(db),
+  republishByIdAndOperatorId: republishByIdAndOperatorId(db),
   suspendById: suspendById(db),
 
   suspendByIdAndOperatorId: suspendByIdAndOperatorId(db),

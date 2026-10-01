@@ -4,4 +4,3 @@
 # Ignore built files
 dist
 **/src/generated/**
-**/email-templates/**

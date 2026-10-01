@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="it">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Titolo</title>
+  <style>
+    /* ─── Design System Tokens ────────────────────────────────── */
+    :root {
+      /* Colors */
+      --color-text-primary: #17324d;
+      --color-text-secondary: #5c6f82;
+      --color-divider: #e3e7eb;
+      --color-bg-paper: #ffffff;
+      --color-bg-page: #f5f7fa;
+
+      /* Typography – font families */
+      --font-regular: 'Titillium Web', sans-serif;
+      --font-weight-regular: 400;
+      --font-weight-semibold: 600;
+      --font-weight-bold: 700;
+
+      /* Typography – sizes */
+      --font-size-h4: 32px;
+      --line-height-h4: 42px;
+      --font-size-body: 16px;
+      --line-height-body: 24px;
+      --font-size-caption: 14px;
+      --line-height-caption: 18px;
+
+      /* Spacing */
+      --spacing-xs: 8px;
+      --spacing-sm: 16px;
+      --spacing-md: 24px;
+      --spacing-lg: 40px;
+
+      /* Border */
+      --border-width: 1px;
+      --border-color: var(--color-divider);
+
+      /* Card */
+      --radius-card: 0px;
+    }
+
+    /* ─── Reset ───────────────────────────────────────────────── */
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    /* ─── Fonts ───────────────────────────────────────────────── */
+    @import url('https://fonts.googleapis.com/css2?family=Titillium+Web:wght@400;600;700&display=swap');
+
+    /* ─── Page shell ──────────────────────────────────────────── */
+    body {
+      background-color: var(--color-bg-page);
+      font-family: var(--font-regular);
+      font-weight: var(--font-weight-regular);
+      font-size: var(--font-size-body);
+      line-height: var(--line-height-body);
+      color: var(--color-text-primary);
+      padding: var(--spacing-lg) var(--spacing-sm);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ─── Email card wrapper ──────────────────────────────────── */
+    .email-wrapper {
+      max-width: 600px;
+      margin: 0 auto;
+      background-color: var(--color-bg-paper);
+      border-radius: var(--radius-card);
+    }
+
+    .email-body {
+      padding: var(--spacing-lg) var(--spacing-md);
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-lg);
+    }
+
+    /* ─── Logo row ────────────────────────────────────────────── */
+    .email-logo {
+      height: 28px;
+      display: flex;
+      align-items: center;
+    }
+
+    .email-logo svg {
+      height: 28px;
+      width: auto;
+    }
+
+    /* ─── Content section ─────────────────────────────────────── */
+    .email-content {
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-sm);
+    }
+
+    /* ─── Heading ─────────────────────────────────────────────── */
+    .email-heading {
+      font-family: var(--font-regular);
+      font-weight: var(--font-weight-bold);
+      font-size: var(--font-size-h4);
+      line-height: var(--line-height-h4);
+      color: var(--color-text-primary);
+    }
+
+    /* ─── Body paragraphs ─────────────────────────────────────── */
+    .email-text {
+      font-family: var(--font-regular);
+      font-weight: var(--font-weight-regular);
+      font-size: var(--font-size-body);
+      line-height: var(--line-height-body);
+      color: var(--color-text-primary);
+    }
+
+    .email-text p {
+      margin-bottom: 12px;
+    }
+
+    .email-text p:last-child {
+      margin-bottom: 0;
+    }
+
+    .email-text strong,
+    .email-text b {
+      font-family: var(--font-regular);
+      font-weight: var(--font-weight-bold);
+    }
+
+    .email-text .semibold {
+      font-family: var(--font-regular);
+      font-weight: var(--font-weight-semibold);
+    }
+
+    .email-text a {
+      font-family: var(--font-regular);
+      font-weight: var(--font-weight-regular);
+      color: var(--color-text-primary);
+      text-decoration: underline;
+      text-decoration-skip-ink: none;
+    }
+
+    /* ─── Divider ─────────────────────────────────────────────── */
+    .email-divider {
+      border: none;
+      border-top: var(--border-width) solid var(--border-color);
+      width: 100%;
+    }
+
+    /* ─── Footer caption ──────────────────────────────────────── */
+    .email-footer {
+      font-family: var(--font-regular);
+      font-weight: var(--font-weight-regular);
+      font-size: var(--font-size-caption);
+      line-height: var(--line-height-caption);
+      color: var(--color-text-secondary);
+    }
+
+    /* ─── Responsive ──────────────────────────────────────────── */
+    @media (max-width: 480px) {
+      .email-body {
+        padding: var(--spacing-md) var(--spacing-sm);
+        gap: var(--spacing-md);
+      }
+
+      .email-heading {
+        font-size: 26px;
+        line-height: 34px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="email-wrapper">
+    <div class="email-body">
+
+      <!-- Logo header row -->
+      <!-- PagoPA Logo -->
+      <svg preserveAspectRatio="none" overflow="visible" style="display:block;" width="100" height="28"
+        viewBox="0 0 100 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <g clip-path="url(#clip0_email)">
+          <path opacity="0.3"
+            d="M100 1.97183V21.2958H96.8504L96.8505 18.7761C95.1363 20.3414 92.8567 21.2958 90.3544 21.2958C86.978 21.2958 84.0067 19.5579 82.2835 16.9265C83.2794 15.4062 83.8585 13.5877 83.8585 11.6338C83.8585 9.67986 83.2794 7.86138 82.2839 6.34115C84.0067 3.70968 86.978 1.97183 90.3544 1.97183C92.8567 1.97183 95.1363 2.92624 96.8505 4.49147L96.8504 1.97183H100ZM90.3544 5.12676C86.7668 5.12676 83.8585 8.04006 83.8585 11.6338C83.8585 15.2275 86.7668 18.1408 90.3544 18.1408C93.9421 18.1408 96.8504 15.2275 96.8504 11.6338C96.8504 8.04006 93.9421 5.12676 90.3544 5.12676Z"
+            fill="#00B2C2" />
+          <path opacity="0.3"
+            d="M3.14957 1.97183L3.14954 4.49147C4.86367 2.92624 7.14334 1.97183 9.64555 1.97183C13.022 1.97183 15.9933 3.70968 17.7165 6.34115C16.7206 7.86138 16.1415 9.67986 16.1415 11.6338C16.1415 13.5877 16.7206 15.4062 17.7161 16.9265C15.9933 19.5579 13.022 21.2958 9.64555 21.2958C7.14334 21.2958 4.86367 20.3414 3.14954 18.7761L3.14957 26.8169H0V1.97183H3.14957ZM9.64555 5.12676C6.05792 5.12676 3.14957 8.04006 3.14957 11.6338C3.14957 15.2275 6.05792 18.1408 9.64555 18.1408C13.2332 18.1408 16.1415 15.2275 16.1415 11.6338C16.1415 8.04006 13.2332 5.12676 9.64555 5.12676Z"
+            fill="#00B2C2" />
+          <path opacity="0.6"
+            d="M35.4327 1.97183V4.50057C33.4975 6.27122 32.2832 8.82197 32.2832 11.6574C32.2832 14.4928 33.4975 17.0436 35.4327 18.8142V21.2958H32.2832L32.2832 18.7761C30.5691 20.3414 28.2894 21.2958 25.7872 21.2958C20.4602 21.2958 16.1417 16.97 16.1417 11.6338C16.1417 6.29764 20.4602 1.97183 25.7872 1.97183C28.2894 1.97183 30.5691 2.92624 32.2832 4.49147L32.2832 1.97183H35.4327ZM25.7872 5.12676C22.1996 5.12676 19.2913 8.04006 19.2913 11.6338C19.2913 15.2275 22.1996 18.1408 25.7872 18.1408C29.3748 18.1408 32.2832 15.2275 32.2832 11.6338C32.2832 8.04006 29.3748 5.12676 25.7872 5.12676Z"
+            fill="#00B2C2" />
+          <path opacity="0.6"
+            d="M67.7165 1.97183L67.7169 4.49111C69.431 2.9261 71.7106 1.97183 74.2126 1.97183C79.5398 1.97183 83.8583 6.29764 83.8583 11.6338C83.8583 16.97 79.5398 21.2958 74.2126 21.2958C71.7106 21.2958 69.431 20.3415 67.7169 18.7765L67.7165 26.8169H64.5669V18.7761C66.5022 17.0091 67.7165 14.4635 67.7165 11.6338C67.7165 8.80411 66.5022 6.25853 64.5669 4.49146V1.97183H67.7165ZM74.2126 5.12676C70.6249 5.12676 67.7165 8.04006 67.7165 11.6338C67.7165 15.2275 70.6249 18.1408 74.2126 18.1408C77.8003 18.1408 80.7087 15.2275 80.7087 11.6338C80.7087 8.04006 77.8003 5.12676 74.2126 5.12676Z"
+            fill="#00B2C2" />
+          <path
+            d="M51.5748 0V4.49104L51.7074 4.3726C53.4057 2.87806 55.6326 1.97183 58.0709 1.97183C63.398 1.97183 67.7165 6.29764 67.7165 11.6338C67.7165 16.97 63.398 21.2958 58.0709 21.2958C55.5687 21.2958 53.289 20.3414 51.5748 18.7762L51.5748 21.339C51.5748 23.7997 50.5922 26.1127 48.8678 27.8722L48.7403 28L46.5353 25.7426C47.707 24.5896 48.3808 23.0932 48.4231 21.4987L48.4252 21.339L48.4252 18.8142C46.7111 20.3826 44.4314 21.339 41.9291 21.339C36.602 21.339 32.2835 17.0044 32.2835 11.6574C32.2835 6.31042 36.602 1.97583 41.9291 1.97583C44.4314 1.97583 46.7111 2.93218 48.4252 4.50058L48.4252 0H51.5748ZM41.9291 5.13716C38.3415 5.13716 35.4331 8.05637 35.4331 11.6574C35.4331 15.2584 38.3415 18.1776 41.9291 18.1776C45.5168 18.1776 48.4252 15.2584 48.4252 11.6574C48.4252 8.05637 45.5168 5.13716 41.9291 5.13716ZM58.0709 5.12676C54.4832 5.12676 51.5748 8.04006 51.5748 11.6338C51.5748 15.2275 54.4832 18.1408 58.0709 18.1408C61.6586 18.1408 64.5669 15.2275 64.5669 11.6338C64.5669 8.04006 61.6586 5.12676 58.0709 5.12676Z"
+            fill="#00B2C2" />
+        </g>
+        <defs>
+          <clipPath id="clip0_email">
+            <rect width="100" height="28" fill="white" />
+          </clipPath>
+        </defs>
+      </svg>
+
+      <!-- Main content -->
+      <div class="email-content">
+        <h4 class="email-heading">Titolo</h4>
+
+        <div class="email-text">
+          <p>Ciao,</p>
+
+          <p>
+              abbiamo <strong>fatto</strong> qualcosa a <strong>{{objectProperty}}</strong>.
+          </p>
+
+          <p>
+            L&rsquo;occasione dal <span class="semibold">{{anydate}}</span>.
+          </p>
+
+          [OTHER CONTENT]
+
+          <p>
+            Per consultare o gestire le tue opportunità, accedi ad
+            <a href="#">Area Riservata</a>
+            e seleziona il prodotto Carta Europea della Disabilità.
+          </p>
+
+          <p>
+            Se hai bisogno di supporto con le opportunità, consulta il
+            <a href="#">manuale operativo</a>.
+          </p>
+
+          <p>
+            Per problemi tecnici nell&rsquo;uso della piattaforma
+            <a href="#">vai nel portale</a>
+            e apri una richiesta.
+          </p>
+          
+          <p>A presto,</p>
+
+          <p>Il Dipartimento per le politiche in favore delle persone con disabilità</p>
+        </div>
+      </div>
+
+      <!-- Divider -->
+      <hr class="email-divider" />
+
+      <!-- Footer -->
+      <p class="email-footer">
+        Ricevi questo messaggio per il tuo coinvolgimento nell&rsquo;iniziativa Carta Europea della Disabilità.
+      </p>
+
+    </div>
+  </div>
+</body>
+
+</html>

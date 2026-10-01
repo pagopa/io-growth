@@ -5,5 +5,4 @@ export interface OpportunityApprovedTemplateInput {
 export const apply = ({
   opportunityName,
 }: OpportunityApprovedTemplateInput): string =>
-  `{{TEMPLATE}}`
-    .replaceAll("{{opportunityName}}", opportunityName);
+  `{{TEMPLATE}}`.replaceAll("{{opportunityName}}", opportunityName);

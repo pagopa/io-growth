@@ -5,8 +5,8 @@ import { apply } from "../index.js";
 describe("opportunity-rejected template", () => {
   it("renders the opportunity name and rejection message into the HTML output", () => {
     const html = apply({
-      rejectionMessage: "Modifica richiesta",
       opportunityName: "Opportunità di test",
+      rejectionMessage: "Modifica richiesta",
     });
 
     expect(html).toContain("Opportunità di test");
@@ -17,8 +17,8 @@ describe("opportunity-rejected template", () => {
 
   it("matches the snapshot", () => {
     const html = apply({
-      rejectionMessage: "Modifica richiesta",
       opportunityName: "Opportunità di test",
+      rejectionMessage: "Modifica richiesta",
     });
 
     expect(html).toMatchSnapshot();

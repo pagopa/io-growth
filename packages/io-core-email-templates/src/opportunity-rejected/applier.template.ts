@@ -1,15 +1,12 @@
 export interface OpportunityRejectedTemplateInput {
-  readonly rejectionMessage: string;
   readonly opportunityName: string;
+  readonly rejectionMessage: string;
 }
 
 export const apply = ({
-  rejectionMessage,
   opportunityName,
+  rejectionMessage,
 }: OpportunityRejectedTemplateInput): string =>
   `{{TEMPLATE}}`
     .replaceAll("{{opportunityName}}", opportunityName)
-    .replaceAll(
-      "{{rejectionMessage}}",
-      rejectionMessage,
-    );
+    .replaceAll("{{rejectionMessage}}", rejectionMessage);

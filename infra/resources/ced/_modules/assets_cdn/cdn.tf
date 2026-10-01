@@ -27,6 +27,7 @@ locals {
   }
 }
 
+# The module retains its built-in origin group for the default-domain route.
 module "frontdoor" {
   source  = "pagopa-dx/azure-cdn/azurerm"
   version = "~> 2.1"
@@ -50,6 +51,39 @@ module "frontdoor" {
   }
 
   tags = var.tags
+}
+
+resource "azurerm_cdn_frontdoor_origin_group" "logos" {
+  name = provider::dx::resource_name(merge(local.naming_config, {
+    name          = "${var.environment.app_name}-logos"
+    resource_type = "cdn_frontdoor_origin_group"
+  }))
+  cdn_frontdoor_profile_id = module.frontdoor.id
+
+  health_probe {
+    interval_in_seconds = 100
+    protocol            = "Https"
+    path                = var.origin_health_paths.logos
+    request_type        = "HEAD"
+  }
+
+  load_balancing {}
+}
+
+resource "azurerm_cdn_frontdoor_origin" "logos" {
+  name = provider::dx::resource_name(merge(local.naming_config, {
+    name          = "${var.environment.app_name}-logos"
+    resource_type = "cdn_frontdoor_origin"
+  }))
+  cdn_frontdoor_origin_group_id  = azurerm_cdn_frontdoor_origin_group.logos.id
+  enabled                        = true
+  host_name                      = local.blob_origin_host
+  http_port                      = 80
+  https_port                     = 443
+  origin_host_header             = local.blob_origin_host
+  priority                       = 1
+  weight                         = 1000
+  certificate_name_check_enabled = true
 }
 
 resource "azurerm_cdn_frontdoor_origin_group" "images" {
@@ -93,8 +127,8 @@ resource "azurerm_cdn_frontdoor_route" "assets" {
     resource_type = "cdn_frontdoor_route"
   }))
   cdn_frontdoor_endpoint_id       = module.frontdoor.endpoint_id
-  cdn_frontdoor_origin_group_id   = each.key == "logos" ? module.frontdoor.origin_group_id : azurerm_cdn_frontdoor_origin_group.images.id
-  cdn_frontdoor_origin_ids        = each.key == "images" ? [azurerm_cdn_frontdoor_origin.images.id] : null
+  cdn_frontdoor_origin_group_id   = each.key == "logos" ? azurerm_cdn_frontdoor_origin_group.logos.id : azurerm_cdn_frontdoor_origin_group.images.id
+  cdn_frontdoor_origin_ids        = each.key == "logos" ? [azurerm_cdn_frontdoor_origin.logos.id] : [azurerm_cdn_frontdoor_origin.images.id]
   cdn_frontdoor_rule_set_ids      = [module.frontdoor.rule_set_id]
   cdn_frontdoor_custom_domain_ids = [azurerm_cdn_frontdoor_custom_domain.assets[each.key].id]
   cdn_frontdoor_origin_path       = "/${each.key}"
@@ -182,7 +216,13 @@ resource "azurerm_cdn_frontdoor_rule" "disable_cache" {
     }
   }
 
-  depends_on = [module.frontdoor, azurerm_cdn_frontdoor_origin_group.images, azurerm_cdn_frontdoor_origin.images]
+  depends_on = [
+    module.frontdoor,
+    azurerm_cdn_frontdoor_origin_group.logos,
+    azurerm_cdn_frontdoor_origin.logos,
+    azurerm_cdn_frontdoor_origin_group.images,
+    azurerm_cdn_frontdoor_origin.images,
+  ]
 }
 
 resource "azurerm_cdn_frontdoor_rule" "enforce_https" {
@@ -207,5 +247,11 @@ resource "azurerm_cdn_frontdoor_rule" "enforce_https" {
     }
   }
 
-  depends_on = [module.frontdoor, azurerm_cdn_frontdoor_origin_group.images, azurerm_cdn_frontdoor_origin.images]
+  depends_on = [
+    module.frontdoor,
+    azurerm_cdn_frontdoor_origin_group.logos,
+    azurerm_cdn_frontdoor_origin.logos,
+    azurerm_cdn_frontdoor_origin_group.images,
+    azurerm_cdn_frontdoor_origin.images,
+  ]
 }

@@ -38,6 +38,16 @@ variable "subnet_pep_id" {
   description = "ID of the subnet for private endpoints"
 }
 
+variable "private_dns_zone_resource_group_name" {
+  type        = string
+  description = "Name of the resource group containing the storage private DNS zone"
+}
+
+variable "action_group_id" {
+  type        = string
+  description = "ID of the action group receiving storage availability alerts"
+}
+
 variable "tags" {
   type        = map(any)
   description = "Resource tags"

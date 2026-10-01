@@ -76,6 +76,8 @@ export const profile = pgTable("profile", {
   placeId: char("place_id", { length: 26 })
     .notNull()
     .references(() => place.id),
+  privacyUrl: varchar("privacy_url", { length: 2048 }).notNull(),
+  tosUrl: varchar("tos_url", { length: 2048 }).notNull(),
   updatedAt: timestamp("updated_at", { withTimezone: true })
     .notNull()
     .defaultNow(),

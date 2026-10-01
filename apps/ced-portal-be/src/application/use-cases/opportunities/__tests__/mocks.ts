@@ -74,6 +74,8 @@ export const mockProfile: Profile = {
     type: "online",
     website: { url: "https://example.org" },
   },
+  privacyUrl: "https://example.org/privacy",
+  tosUrl: "https://example.org/terms",
 };
 
 export const createMockProfileRepository = (
@@ -82,6 +84,7 @@ export const createMockProfileRepository = (
   create: overrides.create ?? vi.fn(),
   getByOperatorId:
     overrides.getByOperatorId ?? vi.fn().mockResolvedValue(ok(mockProfile)),
+  updateByOperatorId: overrides.updateByOperatorId ?? vi.fn(),
 });
 
 export const createMockMaterializedViewRepository = (

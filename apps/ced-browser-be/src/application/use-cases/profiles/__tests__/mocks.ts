@@ -29,6 +29,7 @@ export const mockOperatorProfileDetail: OperatorProfileDetail = {
     type: "offline",
     website: null,
   },
+  privacyUrl: "https://example.org/privacy",
   recentOpportunities: [
     {
       beneficiaryBenefit: {
@@ -55,6 +56,7 @@ export const mockOperatorProfileDetail: OperatorProfileDetail = {
       url: null,
     },
   ],
+  tosUrl: "https://example.org/terms",
 };
 
 export const createMockProfileRepository = (

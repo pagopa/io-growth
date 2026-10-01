@@ -1,10 +1,10 @@
 meta {
-  name: Create the authenticated operator profile
+  name: Update the authenticated operator profile
   type: http
-  seq: 2
+  seq: 3
 }
 
-post {
+put {
   url: {{baseUrl}}/operator/profile
   body: multipartForm
   auth: inherit
@@ -12,6 +12,4 @@ post {
 
 body:multipart-form {
   profile: {"contactEmail":"contatto@example.org","displayName":"Operatore Demo","place":{"type":"online","name":"Sportello remoto","website":{"url":"https://example.org"},"supportContacts":[{"type":"email","value":"support@example.org"}]},"privacyUrl":"https://example.org/privacy","tosUrl":"https://example.org/terms"} @contentType(application/json)
-  logo: @file(/path/to/logo.png)
-  image: @file(/path/to/image.png)
 }

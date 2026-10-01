@@ -65,11 +65,15 @@ export const generateDiscoveryItemsConfig: (
       beneficiaryBenefitValue,
       beneficiaryBenefitType,
       beneficiaryBenefitDiscountType,
+      operatorFiscalCode,
+      operatorName,
     }) => ({
       id,
       variant: 'opportunity',
       eyebrow: profileDisplayName,
       title: name,
+      operatorFiscalCode,
+      operatorName,
       badgeLabel: generateBadgeLabel(
         beneficiaryBenefitValue,
         beneficiaryBenefitDiscountType,

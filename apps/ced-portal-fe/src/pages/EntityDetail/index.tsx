@@ -18,7 +18,6 @@ import {
   ENTITY_STATE_COLORS,
   ENTITY_STATE_OPTIONS,
 } from '../../constants/opportunityState';
-import { useToast } from '../../contexts';
 import { DetailSection } from '../OpportunityDetail/components/DetailSection';
 import { PublishEntityModal } from './components/PublishEntityModal';
 import { RejectEntityModal } from './components/RejectEntityModal';
@@ -47,6 +46,7 @@ export default function EntityDetailPage() {
       downloadContract: handleDownloadContract,
       approve: handleApprove,
       publish: handlePublish,
+      reject: handleReject,
       refetch,
     },
     modals: {
@@ -58,9 +58,9 @@ export default function EntityDetailPage() {
       isError,
       isDownloadingContract,
       isCompletingOnboarding,
+      isRejectingOnboarding,
     },
   } = useEntityDetail();
-  const { showToast } = useToast();
 
   if (isLoading) {
     return (
@@ -165,6 +165,32 @@ export default function EntityDetailPage() {
             color={ENTITY_STATE_COLORS[onboarding.status ?? ''] ?? 'default'}
           />
         </Stack>
+        {onboarding.status === 'REJECTED' && (
+          <Box
+            sx={{
+              p: 2.5,
+              borderRadius: 2,
+              border: '1px solid',
+              borderColor: 'error.light',
+              bgcolor: 'rgba(211, 47, 47, 0.04)',
+            }}
+          >
+            <Typography
+              variant="subtitle2"
+              sx={{ color: 'error.main', mb: 0.5 }}
+            >
+              Esito del rifiuto
+            </Typography>
+            <Typography sx={{ fontWeight: 700, mb: 0.5 }}>
+              La richiesta di convenzionamento è stata rifiutata.
+            </Typography>
+            <Typography sx={{ color: 'text.secondary' }}>
+              {onboarding.reasonForReject ||
+                'La motivazione del rifiuto non è stata specificata.'}
+            </Typography>
+          </Box>
+        )}
+
         <SectionCard title="Dati dell'ente">
           <DetailSection fields={entityFields} />
           <Box sx={{ py: 2, px: 3 }}>
@@ -292,13 +318,10 @@ export default function EntityDetailPage() {
             <RejectEntityModal
               open={openRejectModal}
               onClose={() => setOpenRejectModal(false)}
-              onConfirm={() => {
-                setOpenRejectModal(false);
-                navigate(APP_ROUTES.ENTITIES);
-                showToast('Fatto', 'success');
-              }}
+              onConfirm={handleReject}
               entityName={entityName}
               productName={onboarding.productId ?? '-'}
+              isLoading={isRejectingOnboarding}
             />
             <PublishEntityModal
               open={openPublishModal}

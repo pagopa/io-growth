@@ -1,10 +1,14 @@
 import { BenefitRequest } from '../../../generated/model';
-import { baseSelectOpportunityForm } from '../../../features/opportunityCreation/selectors';
+import {
+  baseSelectOpportunityForm,
+  selectEnabledCaregiver,
+} from '../../../features/opportunityCreation/selectors';
 import { useAppSelector } from '../../../hooks';
 import { isValidHttpsUrl } from '../../../utils';
 
 export const useGetFirstStepValidation = () => {
   const opportunityForm = useAppSelector(baseSelectOpportunityForm);
+  const caregiverEnabled = useAppSelector(selectEnabledCaregiver);
 
   const {
     localizedMetadata,
@@ -50,8 +54,9 @@ export const useGetFirstStepValidation = () => {
 
   const validateBenefits = getValidateBenefits(beneficiaryBenefit);
 
-  const caregiverBenefitValid =
-    !caregiverBenefit || getValidateBenefits(caregiverBenefit);
+  const caregiverBenefitValid = caregiverEnabled
+    ? getValidateBenefits(caregiverBenefit)
+    : true;
 
   const validateDates =
     !!dateFrom && !!dateTo ? new Date(dateFrom) < new Date(dateTo) : !!dateFrom;

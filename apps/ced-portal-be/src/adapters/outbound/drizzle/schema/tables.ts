@@ -146,6 +146,7 @@ export const opportunity = pgTable("opportunity", {
   categoryId: char("category_id", { length: 26 })
     .notNull()
     .references(() => opportunityCategory.id),
+  changeRequestMessage: varchar("change_request_message", { length: 4096 }),
   createdAt: timestamp("created_at", { withTimezone: true })
     .notNull()
     .defaultNow(),

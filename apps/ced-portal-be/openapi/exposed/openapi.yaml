@@ -1367,6 +1367,101 @@ paths:
               example:
                 statusCode: 412
                 message: Precondition Failed
+  /opportunities/{opportunityId}/request-changes:
+    patch:
+      tags:
+        - Opportunities
+      summary: Request changes on an opportunity under review (department only)
+      description: >-
+        Sends the operator a change request on an opportunity under review. The
+        opportunity goes back to "draft" and becomes editable by the operator
+        again, which can then send it back for review. The message overwrites
+        any change request from a previous review cycle.
+      operationId: requestOpportunityChanges
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: opportunityId
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: "^[0-9A-HJKMNP-TV-Z]{26}$"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required:
+                - changeRequestMessage
+              properties:
+                changeRequestMessage:
+                  type: string
+                  minLength: 1
+                  maxLength: 4096
+                  description: >-
+                    Changes the operator is asked to make (raw text).
+                    Leading/trailing whitespace is trimmed; must be non-empty
+                    once trimmed.
+      responses:
+        "204":
+          description: Changes requested, opportunity back to draft
+        "400":
+          description: "Invalid payload: changeRequestMessage missing, empty or too long"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 400
+                message: "Validation error: changeRequestMessage is required"
+        "401":
+          description: Invalid or missing JWT
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 401
+                message: Unauthorized
+        "403":
+          description: Forbidden — operator userType not allowed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 403
+                message: Forbidden
+        "404":
+          description: Opportunity not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 404
+                message: Opportunity not found
+        "409":
+          description: Concurrent status modification
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 409
+                message: Conflict
+        "412":
+          description: Opportunity not in test_pending status
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 412
+                message: Precondition Failed
   /opportunities/{opportunityId}/suspension/schedule:
     patch:
       tags:
@@ -2616,6 +2711,13 @@ components:
           description: >-
             Reason provided for the suspension (raw text). null when not
             suspended.
+        changeRequestMessage:
+          type: string
+          maxLength: 4096
+          nullable: true
+          description: >-
+            Changes the department asked the operator to make on the last review
+            cycle (raw text). null when no change was ever requested.
     OpportunityDetailAdminResponse:
       type: object
       additionalProperties: false
@@ -2717,6 +2819,13 @@ components:
           description: >-
             Reason provided for the suspension (raw text). null when not
             suspended.
+        changeRequestMessage:
+          type: string
+          maxLength: 4096
+          nullable: true
+          description: >-
+            Changes the department asked the operator to make on the last review
+            cycle (raw text). null when no change was ever requested.
     ErrorResponse:
       type: object
       additionalProperties: false

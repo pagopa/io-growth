@@ -34,6 +34,8 @@ export type CompleteDataValidationResult = {
   logoError: string;
   coverError: string;
   internalEmailError: string;
+  privacyUrlError: string;
+  termsUrlError: string;
   firstContactErrors: FirstContactErrors;
   isValid: boolean;
 };
@@ -50,6 +52,8 @@ export const validateCompleteDataForm = ({
   internalEmail,
   logoFile,
   coverFile,
+  privacyUrl,
+  termsUrl,
 }: Pick<
   CompleteDataFormData,
   | 'name'
@@ -63,6 +67,8 @@ export const validateCompleteDataForm = ({
   | 'internalEmail'
   | 'logoFile'
   | 'coverFile'
+  | 'privacyUrl'
+  | 'termsUrl'
 >): CompleteDataValidationResult => {
   const nameError = name.trim() ? '' : 'Campo obbligatorio';
   const isWebsite = sede === 'sito_web';
@@ -80,6 +86,16 @@ export const validateCompleteDataForm = ({
   const internalEmailError = internalEmail.trim()
     ? ''
     : 'Indica almeno un indirizzo mail';
+  const privacyUrlError = !privacyUrl.trim()
+    ? 'Campo obbligatorio'
+    : isValidHttpsUrl(privacyUrl.trim())
+      ? ''
+      : 'Inserisci un URL valido (es. https://...)';
+  const termsUrlError = !termsUrl.trim()
+    ? 'Campo obbligatorio'
+    : isValidHttpsUrl(termsUrl.trim())
+      ? ''
+      : 'Inserisci un URL valido (es. https://...)';
   const firstContactErrors = validateFirstContact(contacts);
   const isValid = [
     nameError,
@@ -91,6 +107,8 @@ export const validateCompleteDataForm = ({
     logoError,
     coverError,
     internalEmailError,
+    privacyUrlError,
+    termsUrlError,
     firstContactErrors.firstContactType,
     firstContactErrors.firstContactValue,
   ].every((error) => !error);
@@ -99,6 +117,8 @@ export const validateCompleteDataForm = ({
     logoError,
     coverError,
     internalEmailError,
+    privacyUrlError,
+    termsUrlError,
     firstContactErrors,
     isValid,
   };

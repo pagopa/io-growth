@@ -17,6 +17,20 @@ const createEmptyContact = (): ContactFormData => ({
   value: '',
 });
 
+const IMAGE_SIZE_ERROR =
+  'L’immagine supera la dimensione massima consentita. Riprova';
+
+const exceedsImageDimensions = async (
+  file: File,
+  maxWidth: number,
+  maxHeight: number,
+): Promise<boolean> => {
+  const bitmap = await createImageBitmap(file);
+  const exceedsLimit = bitmap.width > maxWidth || bitmap.height > maxHeight;
+  bitmap.close();
+  return exceedsLimit;
+};
+
 const isFirstContactValueField = (field: keyof ContactFormData): boolean =>
   field === 'value';
 
@@ -56,6 +70,8 @@ export type UseCompleteDataFormResult = {
   provinceError: string;
   logoError: string;
   coverError: string;
+  privacyUrlError: string;
+  termsUrlError: string;
   internalEmailError: string;
   visibleFirstContactTypeError: string;
   visibleFirstContactValueError: string;
@@ -120,6 +136,8 @@ export const useCompleteDataForm = ({
         value,
       })),
       internalEmail: profile.contactEmail,
+      privacyUrl: profile.privacyUrl,
+      termsUrl: profile.tosUrl,
     }));
   }, [profile]);
 
@@ -182,6 +200,8 @@ export const useCompleteDataForm = ({
   const [logoError, setLogoError] = useState('');
   const [coverError, setCoverError] = useState('');
   const [internalEmailError, setInternalEmailError] = useState('');
+  const [privacyUrlError, setPrivacyUrlError] = useState('');
+  const [termsUrlError, setTermsUrlError] = useState('');
 
   const websiteUrlField = useCheckRequiredField({
     value: formData.websiteUrl,
@@ -219,6 +239,8 @@ export const useCompleteDataForm = ({
     setLogoError(validation.logoError);
     setCoverError(validation.coverError);
     setInternalEmailError(validation.internalEmailError);
+    setPrivacyUrlError(validation.privacyUrlError);
+    setTermsUrlError(validation.termsUrlError);
     return validation.isValid;
   }, [formData]);
 
@@ -265,6 +287,8 @@ export const useCompleteDataForm = ({
       displayName: formData.name.trim(),
       contactEmail: formData.internalEmail.trim(),
       place,
+      privacyUrl: formData.privacyUrl.trim(),
+      tosUrl: formData.termsUrl.trim(),
     };
 
     onValidSubmit?.(payload, {
@@ -309,22 +333,64 @@ export const useCompleteDataForm = ({
   );
 
   const handleLogoSelect = useCallback(
-    (file: File | null) => updateField('logoFile', file),
+    async (file: File | null) => {
+      if (!file) {
+        updateField('logoFile', null);
+        return;
+      }
+
+      try {
+        if (await exceedsImageDimensions(file, 300, 300)) {
+          updateField('logoFile', null);
+          setLogoError(IMAGE_SIZE_ERROR);
+          return;
+        }
+        updateField('logoFile', file);
+        setLogoError('');
+      } catch {
+        updateField('logoFile', null);
+        setLogoError('Impossibile leggere l’immagine. Riprova');
+      }
+    },
     [updateField],
   );
 
   const handleCoverSelect = useCallback(
-    (file: File | null) => updateField('coverFile', file),
+    async (file: File | null) => {
+      if (!file) {
+        updateField('coverFile', null);
+        return;
+      }
+
+      try {
+        if (await exceedsImageDimensions(file, 300, 600)) {
+          updateField('coverFile', null);
+          setCoverError(IMAGE_SIZE_ERROR);
+          return;
+        }
+        updateField('coverFile', file);
+        setCoverError('');
+      } catch {
+        updateField('coverFile', null);
+        setCoverError('Impossibile leggere l’immagine. Riprova');
+      }
+    },
     [updateField],
   );
 
   const handlePrivacyUrlChange = useCallback(
-    (value: string) => updateField('privacyUrl', value),
+    (value: string) => {
+      updateField('privacyUrl', value);
+      setPrivacyUrlError('');
+    },
     [updateField],
   );
 
   const handleTermsUrlChange = useCallback(
-    (value: string) => updateField('termsUrl', value),
+    (value: string) => {
+      updateField('termsUrl', value);
+      setTermsUrlError('');
+    },
     [updateField],
   );
 
@@ -365,6 +431,8 @@ export const useCompleteDataForm = ({
     provinceError: provinceField.error ? (provinceField.helperText ?? '') : '',
     logoError,
     coverError,
+    privacyUrlError,
+    termsUrlError,
     internalEmailError,
     visibleFirstContactTypeError,
     visibleFirstContactValueError,

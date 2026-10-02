@@ -1,7 +1,7 @@
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { Box, Button, Paper, Stack, Typography } from '@mui/material';
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 import { ContactsSection } from './components/ContactsSection';
 import { EntityDataSection } from './components/EntityDataSection';
@@ -19,10 +19,17 @@ import { CompleteProfileModal } from '../../../components';
 
 export default function OverviewCompleteDataPage() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const routeState = location.state as { operatorId?: unknown } | null;
+  const operatorId =
+    typeof routeState?.operatorId === 'string' && routeState.operatorId.trim()
+      ? encodeURIComponent(routeState.operatorId)
+      : undefined;
   const [infoModalType, setInfoModalType] = useState<'logo' | 'cover' | null>(
     null,
   );
   const [isExitModalOpen, setIsExitModalOpen] = useState(false);
+  const [profileAssetError, setProfileAssetError] = useState('');
 
   const [createProfile, { isLoading }] = useCreateOperatorProfileMutation();
   const { data: profile, error: profileError } = useGetOperatorProfileQuery();
@@ -40,6 +47,8 @@ export default function OverviewCompleteDataPage() {
     provinceError,
     logoError,
     coverError,
+    privacyUrlError,
+    termsUrlError,
     internalEmailError,
     handleNameChange,
     handleSedeChange,
@@ -61,12 +70,17 @@ export default function OverviewCompleteDataPage() {
     profile,
     onValidSubmit: async (payload, files) => {
       try {
+        setProfileAssetError('');
         await createProfile({ profile: payload, ...files }).unwrap();
         navigate(-1);
         showToast('Dati salvati', 'success');
       } catch (error) {
+        if (hasStatus(error, 400)) {
+          setProfileAssetError(
+            'L’immagine supera la dimensione massima consentita. Riprova',
+          );
+        }
         showToast('Errore nella creazione dell’ente', 'error');
-        throw error;
       }
     },
   });
@@ -128,14 +142,24 @@ export default function OverviewCompleteDataPage() {
                   province={formData.province}
                   logoFile={formData.logoFile}
                   coverFile={formData.coverFile}
+                  logoPreviewSrc={
+                    operatorId
+                      ? `https://logos.ced.pagopa.it/${operatorId}`
+                      : undefined
+                  }
+                  coverPreviewSrc={
+                    operatorId
+                      ? `https://images.ced.pagopa.it/${operatorId}`
+                      : undefined
+                  }
                   nameError={nameError}
                   websiteUrlError={websiteUrlError}
                   streetError={streetError}
                   cityError={cityError}
                   postalCodeError={postalCodeError}
                   provinceError={provinceError}
-                  logoError={logoError}
-                  coverError={coverError}
+                  logoError={profileAssetError || logoError}
+                  coverError={profileAssetError || coverError}
                   onNameChange={handleNameChange}
                   onSedeChange={handleSedeChange}
                   onWebsiteUrlChange={handleWebsiteUrlChange}
@@ -143,8 +167,14 @@ export default function OverviewCompleteDataPage() {
                   onCityChange={handleCityChange}
                   onPostalCodeChange={handlePostalCodeChange}
                   onProvinceChange={handleProvinceChange}
-                  onLogoSelect={handleLogoSelect}
-                  onCoverSelect={handleCoverSelect}
+                  onLogoSelect={(file) => {
+                    setProfileAssetError('');
+                    void handleLogoSelect(file);
+                  }}
+                  onCoverSelect={(file) => {
+                    setProfileAssetError('');
+                    void handleCoverSelect(file);
+                  }}
                   onInfoClick={setInfoModalType}
                 />
 
@@ -159,6 +189,8 @@ export default function OverviewCompleteDataPage() {
                 <TermsAndPrivacySection
                   privacyUrl={formData.privacyUrl}
                   termsUrl={formData.termsUrl}
+                  privacyUrlError={privacyUrlError}
+                  termsUrlError={termsUrlError}
                   onPrivacyUrlChange={handlePrivacyUrlChange}
                   onTermsUrlChange={handleTermsUrlChange}
                 />

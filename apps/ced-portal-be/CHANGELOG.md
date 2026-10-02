@@ -1,5 +1,11 @@
 # ced-portal-be
 
+## 0.6.0
+
+### Minor Changes
+
+- de179a4: Add the republish endpoints for suspended opportunities: PATCH /api/opportunities/{opportunityId}/republish (department) and PATCH /api/operator/opportunities/{opportunityId}/republish (operator)
+
 ## 0.5.2
 
 ### Patch Changes

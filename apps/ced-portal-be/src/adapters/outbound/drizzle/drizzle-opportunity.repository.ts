@@ -30,6 +30,9 @@ import type {
   OpportunitySearchField,
   OpportunityStatusFilter,
   PaginatedOpportunities,
+  RepublishByIdAndOperatorIdInput,
+  RepublishByIdInput,
+  RequestChangesByIdInput,
   SuspendByIdAndOperatorIdInput,
   SuspendByIdInput,
   UpdateByIdAndOperatorIdInput,
@@ -132,6 +135,7 @@ const findByIdAndOperatorId = async (
     const row = await db.query.opportunity.findFirst({
       columns: {
         categoryId: true,
+        changeRequestMessage: true,
         createdAt: true,
         dateFrom: true,
         dateTo: true,
@@ -195,6 +199,7 @@ const findById =
       const row = await db.query.opportunity.findFirst({
         columns: {
           categoryId: true,
+          changeRequestMessage: true,
           createdAt: true,
           dateFrom: true,
           dateTo: true,
@@ -426,6 +431,127 @@ const cancelScheduledSuspensionById =
       return err(
         new GenericError(
           `Failed to cancel scheduled suspension: ${String(error)}`,
+        ),
+      );
+    }
+  };
+
+const republishById =
+  (db: TypedDbClient<typeof schema>) =>
+  async (
+    input: RepublishByIdInput,
+  ): Promise<Result<void, ConflictError | GenericError>> => {
+    try {
+      await db.transaction(async (tx) => {
+        const result = await tx
+          .update(opportunity)
+          .set({
+            status: OPPORTUNITY_STATUS.PUBLISHED,
+            suspendedBy: null,
+            suspendFrom: null,
+            suspensionMessage: null,
+            updatedAt: new Date(),
+          })
+          .where(
+            and(
+              eq(opportunity.id, input.opportunityId),
+              eq(opportunity.status, OPPORTUNITY_STATUS.SUSPENDED),
+            ),
+          );
+
+        if (result.count === 0) {
+          throw new ConflictError(
+            "Opportunity status was modified concurrently",
+          );
+        }
+      });
+      return ok(undefined);
+    } catch (error) {
+      if (error instanceof ConflictError) {
+        return err(error);
+      }
+      return err(
+        new GenericError(`Failed to republish opportunity: ${String(error)}`),
+      );
+    }
+  };
+
+const republishByIdAndOperatorId =
+  (db: TypedDbClient<typeof schema>) =>
+  async (
+    input: RepublishByIdAndOperatorIdInput,
+  ): Promise<Result<void, ConflictError | GenericError>> => {
+    try {
+      await db.transaction(async (tx) => {
+        const result = await tx
+          .update(opportunity)
+          .set({
+            status: OPPORTUNITY_STATUS.PUBLISHED,
+            suspendedBy: null,
+            suspendFrom: null,
+            suspensionMessage: null,
+            updatedAt: new Date(),
+          })
+          .where(
+            and(
+              eq(opportunity.id, input.opportunityId),
+              eq(opportunity.operatorId, input.operatorId),
+              eq(opportunity.status, OPPORTUNITY_STATUS.SUSPENDED),
+            ),
+          );
+
+        if (result.count === 0) {
+          throw new ConflictError(
+            "Opportunity status was modified concurrently",
+          );
+        }
+      });
+      return ok(undefined);
+    } catch (error) {
+      if (error instanceof ConflictError) {
+        return err(error);
+      }
+      return err(
+        new GenericError(`Failed to republish opportunity: ${String(error)}`),
+      );
+    }
+  };
+
+const requestChangesById =
+  (db: TypedDbClient<typeof schema>) =>
+  async (
+    input: RequestChangesByIdInput,
+  ): Promise<Result<void, ConflictError | GenericError>> => {
+    try {
+      await db.transaction(async (tx) => {
+        const result = await tx
+          .update(opportunity)
+          .set({
+            changeRequestMessage: input.changeRequestMessage,
+            status: OPPORTUNITY_STATUS.DRAFT,
+            updatedAt: new Date(),
+          })
+          .where(
+            and(
+              eq(opportunity.id, input.opportunityId),
+              eq(opportunity.status, OPPORTUNITY_STATUS.TEST_PENDING),
+            ),
+          );
+
+        if (result.count === 0) {
+          throw new ConflictError(
+            "Opportunity status was modified concurrently",
+          );
+        }
+      });
+      return ok(undefined);
+    } catch (error) {
+      if (error instanceof ConflictError) {
+        return err(error);
+      }
+      return err(
+        new GenericError(
+          `Failed to request opportunity changes: ${String(error)}`,
         ),
       );
     }
@@ -750,6 +876,9 @@ export const createDrizzleOpportunityRepository = (
   findByIdAndOperatorId: async (input: FindByIdAndOperatorIdInput) =>
     findByIdAndOperatorId(db, input),
 
+  republishById: republishById(db),
+  republishByIdAndOperatorId: republishByIdAndOperatorId(db),
+  requestChangesById: requestChangesById(db),
   suspendById: suspendById(db),
 
   suspendByIdAndOperatorId: suspendByIdAndOperatorId(db),

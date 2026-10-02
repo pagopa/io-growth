@@ -29,6 +29,7 @@ export interface OpportunityDetailRow {
   readonly caregiverBenefit: BenefitRow | null;
   readonly category: null | { readonly title: string };
   readonly categoryId: string;
+  readonly changeRequestMessage?: null | string;
   readonly createdAt: Date;
   readonly dateFrom: string;
   readonly dateTo: null | string;
@@ -135,6 +136,7 @@ export const mapOpportunityDetailRow = (
     caregiverBenefit,
     categoryId: row.categoryId,
     categoryTitle: row.category.title,
+    changeRequestMessage: row.changeRequestMessage ?? null,
     createdAt: row.createdAt.toISOString(),
     dateFrom: row.dateFrom,
     dateTo: row.dateTo,

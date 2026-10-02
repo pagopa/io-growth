@@ -178,6 +178,7 @@ export const OpportunityDetailSchema = z.object({
   caregiverBenefit: BenefitSummarySchema.nullable(),
   categoryId: z.ulid(),
   categoryTitle: z.string(),
+  changeRequestMessage: z.string().max(4096).nullish(),
   createdAt: z.string(),
   dateFrom: z.string(),
   dateTo: z.string().nullable(),

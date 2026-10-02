@@ -38,6 +38,7 @@ paths:
                   value:
                     displayName: Operatore Demo
                     contactEmail: contatto@example.org
+                    operatorId: 01JVMK3N8XQZP5T6G2WYHAB4D0
                     place:
                       id: 01JVMK3N8XQZP5T6G2WYHAB4CD
                       type: online
@@ -56,6 +57,7 @@ paths:
                   value:
                     displayName: Operatore Demo
                     contactEmail: contatto@example.org
+                    operatorId: 01JVMK3N8XQZP5T6G2WYHAB4D0
                     place:
                       id: 01JVMK3N8XQZP5T6G2WYHAB4CG
                       type: offline
@@ -2353,6 +2355,7 @@ components:
       required:
         - contactEmail
         - displayName
+        - operatorId
         - place
         - privacyUrl
         - tosUrl
@@ -2364,6 +2367,10 @@ components:
         displayName:
           type: string
           maxLength: 512
+        operatorId:
+          type: string
+          pattern: "^[0-9A-HJKMNP-TV-Z]{26}$"
+          description: Unique identifier of the operator.
         place:
           $ref: "#/components/schemas/PlaceResponse"
         privacyUrl:

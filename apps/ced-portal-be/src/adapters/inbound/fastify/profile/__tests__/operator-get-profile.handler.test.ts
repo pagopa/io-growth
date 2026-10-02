@@ -29,7 +29,7 @@ const session: Session = {
 };
 
 describe("mountOperatorGetProfileHandler", () => {
-  it("returns the persisted privacy and terms URLs", async () => {
+  it("returns the operator ID and persisted privacy and terms URLs", async () => {
     const app = Fastify();
     const useCase: OperatorGetProfileUseCase = vi
       .fn()
@@ -55,6 +55,7 @@ describe("mountOperatorGetProfileHandler", () => {
     expect(response.statusCode).toBe(200);
     expect(useCase).toHaveBeenCalledWith({ operatorId: MOCK_OPERATOR_ID });
     expect(response.json()).toMatchObject({
+      operatorId: mockProfile.operatorId,
       privacyUrl: mockProfile.privacyUrl,
       tosUrl: mockProfile.tosUrl,
     });

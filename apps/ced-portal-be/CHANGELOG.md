@@ -1,5 +1,11 @@
 # ced-portal-be
 
+## 0.7.0
+
+### Minor Changes
+
+- b1d9d6e: Add the department endpoint to request changes on an opportunity under review: PATCH /api/opportunities/{opportunityId}/request-changes sends the operator a message and sends the opportunity back to draft for editing.
+
 ## 0.6.0
 
 ### Minor Changes

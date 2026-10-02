@@ -7,15 +7,14 @@ import { describe, expect, it, vi } from "vitest";
 import { createAzureProfileAssetsRepository } from "../azure-profile-assets.repository.js";
 
 const createAsset = ({
+  content = new Uint8Array([0, 1, 2, 255]),
   contentType = "image/png",
-  extension = "png",
 }: {
+  readonly content?: Uint8Array;
   readonly contentType?: "image/jpeg" | "image/png";
-  readonly extension?: "jpg" | "png";
 } = {}) => ({
-  content: new Uint8Array([1, 2, 3]),
+  content,
   contentType,
-  extension,
 });
 
 const createBlobMock = (): BlobRepository => ({
@@ -23,7 +22,7 @@ const createBlobMock = (): BlobRepository => ({
 });
 
 describe("createAzureProfileAssetsRepository", () => {
-  it("uploads normalized assets under the operator ID", async () => {
+  it("stores Base64 assets under extensionless operator IDs with image metadata", async () => {
     const logosRepository = createBlobMock();
     const imagesRepository = createBlobMock();
     const repository = createAzureProfileAssetsRepository({
@@ -31,12 +30,9 @@ describe("createAzureProfileAssetsRepository", () => {
       logosRepository,
     });
     const image = createAsset();
-    const logo = createAsset({
-      contentType: "image/jpeg",
-      extension: "jpg",
-    });
+    const logo = createAsset({ contentType: "image/jpeg" });
 
-    const result = await repository.uploadProfileAssets({
+    const result = await repository.storeProfileAssets({
       image,
       logo,
       operatorId: "operator-id",
@@ -44,15 +40,56 @@ describe("createAzureProfileAssetsRepository", () => {
 
     expect(result).toEqual(ok(undefined));
     expect(logosRepository.upload).toHaveBeenCalledWith({
-      blobName: "operator-id.jpg",
-      content: logo.content,
-      contentType: "image/jpeg",
+      blobName: "operator-id",
+      content: new TextEncoder().encode(
+        Buffer.from(logo.content).toString("base64"),
+      ),
+      contentType: "text/plain; charset=utf-8",
+      metadata: { imagecontenttype: "image/jpeg" },
     });
     expect(imagesRepository.upload).toHaveBeenCalledWith({
-      blobName: "operator-id.png",
-      content: image.content,
-      contentType: "image/png",
+      blobName: "operator-id",
+      content: new TextEncoder().encode(
+        Buffer.from(image.content).toString("base64"),
+      ),
+      contentType: "text/plain; charset=utf-8",
+      metadata: { imagecontenttype: "image/png" },
     });
+  });
+
+  it("stores only supplied assets and leaves omitted assets untouched", async () => {
+    const logosRepository = createBlobMock();
+    const imagesRepository = createBlobMock();
+    const repository = createAzureProfileAssetsRepository({
+      imagesRepository,
+      logosRepository,
+    });
+
+    const result = await repository.storeProfileAssets({
+      logo: createAsset(),
+      operatorId: "operator-id",
+    });
+
+    expect(result).toEqual(ok(undefined));
+    expect(logosRepository.upload).toHaveBeenCalledOnce();
+    expect(imagesRepository.upload).not.toHaveBeenCalled();
+  });
+
+  it("does not call storage when no assets are supplied", async () => {
+    const logosRepository = createBlobMock();
+    const imagesRepository = createBlobMock();
+    const repository = createAzureProfileAssetsRepository({
+      imagesRepository,
+      logosRepository,
+    });
+
+    const result = await repository.storeProfileAssets({
+      operatorId: "operator-id",
+    });
+
+    expect(result).toEqual(ok(undefined));
+    expect(logosRepository.upload).not.toHaveBeenCalled();
+    expect(imagesRepository.upload).not.toHaveBeenCalled();
   });
 
   it("propagates storage errors", async () => {
@@ -66,7 +103,7 @@ describe("createAzureProfileAssetsRepository", () => {
       logosRepository,
     });
 
-    const result = await repository.uploadProfileAssets({
+    const result = await repository.storeProfileAssets({
       image: createAsset(),
       logo: createAsset(),
       operatorId: "operator-id",

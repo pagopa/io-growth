@@ -28,6 +28,7 @@ import {
   mountAdminListOpportunitiesHandler,
   mountAdminListPendingOnboardingsHandler,
   mountAdminRejectOnboardingHandler,
+  mountAdminRepublishOpportunityHandler,
   mountAdminRequestOpportunityChangesHandler,
   mountAdminSuspendOpportunityHandler,
   mountAuthorizeHandler,
@@ -45,6 +46,7 @@ import {
   mountOperatorListOpportunityCategoriesHandler,
   mountOperatorListPlacesHandler,
   mountOperatorPublishOpportunityHandler,
+  mountOperatorRepublishOpportunityHandler,
   mountOperatorRequestOpportunityTestHandler,
   mountOperatorSuspendOpportunityHandler,
   mountOperatorUpdateOpportunityHandler,
@@ -75,6 +77,7 @@ import { makeAdminApproveOpportunityUseCase } from "./application/use-cases/oppo
 import { makeAdminCancelScheduledSuspensionUseCase } from "./application/use-cases/opportunities/admin-cancel-scheduled-suspension.use-case.js";
 import { makeAdminGetOpportunityUseCase } from "./application/use-cases/opportunities/admin-get-opportunity.use-case.js";
 import { makeAdminListOpportunitiesUseCase } from "./application/use-cases/opportunities/admin-list-opportunities.use-case.js";
+import { makeAdminRepublishOpportunityUseCase } from "./application/use-cases/opportunities/admin-republish-opportunity.use-case.js";
 import { makeAdminRequestOpportunityChangesUseCase } from "./application/use-cases/opportunities/admin-request-opportunity-changes.use-case.js";
 import { makeAdminSuspendOpportunityUseCase } from "./application/use-cases/opportunities/admin-suspend-opportunity.use-case.js";
 import { makeOperatorCancelScheduledSuspensionUseCase } from "./application/use-cases/opportunities/operator-cancel-scheduled-suspension.use-case.js";
@@ -84,6 +87,7 @@ import { makeOperatorGetOpportunityUseCase } from "./application/use-cases/oppor
 import { makeOperatorListOpportunitiesUseCase } from "./application/use-cases/opportunities/operator-list-opportunities.use-case.js";
 import { makeOperatorListOpportunityCategoriesUseCase } from "./application/use-cases/opportunities/operator-list-opportunity-categories.use-case.js";
 import { makeOperatorPublishOpportunityUseCase } from "./application/use-cases/opportunities/operator-publish-opportunity.use-case.js";
+import { makeOperatorRepublishOpportunityUseCase } from "./application/use-cases/opportunities/operator-republish-opportunity.use-case.js";
 import { makeOperatorRequestOpportunityTestUseCase } from "./application/use-cases/opportunities/operator-request-opportunity-test.use-case.js";
 import { makeOperatorSuspendOpportunityUseCase } from "./application/use-cases/opportunities/operator-suspend-opportunity.use-case.js";
 import { makeOperatorUpdateOpportunityUseCase } from "./application/use-cases/opportunities/operator-update-opportunity.use-case.js";
@@ -345,6 +349,20 @@ app.register(async (app) => {
   mountAdminSuspendOpportunityHandler(
     app,
     makeAdminSuspendOpportunityUseCase(
+      opportunityRepository,
+      materializedViewRepository,
+    ),
+  );
+  mountAdminRepublishOpportunityHandler(
+    app,
+    makeAdminRepublishOpportunityUseCase(
+      opportunityRepository,
+      materializedViewRepository,
+    ),
+  );
+  mountOperatorRepublishOpportunityHandler(
+    app,
+    makeOperatorRepublishOpportunityUseCase(
       opportunityRepository,
       materializedViewRepository,
     ),

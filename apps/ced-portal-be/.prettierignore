@@ -6,4 +6,3 @@ dist
 
 
 src/adapters/inbound/fastify/contracts
-mail-templates/**

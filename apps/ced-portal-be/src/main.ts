@@ -29,6 +29,7 @@ import {
   mountAdminListPendingOnboardingsHandler,
   mountAdminRejectOnboardingHandler,
   mountAdminRepublishOpportunityHandler,
+  mountAdminRequestOpportunityChangesHandler,
   mountAdminSuspendOpportunityHandler,
   mountAuthorizeHandler,
   mountInfoReadinessHandler,
@@ -77,6 +78,7 @@ import { makeAdminCancelScheduledSuspensionUseCase } from "./application/use-cas
 import { makeAdminGetOpportunityUseCase } from "./application/use-cases/opportunities/admin-get-opportunity.use-case.js";
 import { makeAdminListOpportunitiesUseCase } from "./application/use-cases/opportunities/admin-list-opportunities.use-case.js";
 import { makeAdminRepublishOpportunityUseCase } from "./application/use-cases/opportunities/admin-republish-opportunity.use-case.js";
+import { makeAdminRequestOpportunityChangesUseCase } from "./application/use-cases/opportunities/admin-request-opportunity-changes.use-case.js";
 import { makeAdminSuspendOpportunityUseCase } from "./application/use-cases/opportunities/admin-suspend-opportunity.use-case.js";
 import { makeOperatorCancelScheduledSuspensionUseCase } from "./application/use-cases/opportunities/operator-cancel-scheduled-suspension.use-case.js";
 import { makeOperatorCreateOpportunityUseCase } from "./application/use-cases/opportunities/operator-create-opportunity.use-case.js";
@@ -339,6 +341,10 @@ app.register(async (app) => {
       profileRepository,
       emailRepository,
     ),
+  );
+  mountAdminRequestOpportunityChangesHandler(
+    app,
+    makeAdminRequestOpportunityChangesUseCase(opportunityRepository),
   );
   mountAdminSuspendOpportunityHandler(
     app,

@@ -114,6 +114,7 @@ CREATE TABLE opportunity (
   national_territory BOOLEAN NOT NULL DEFAULT false,
   rejection_message VARCHAR(4096),
   deletion_message VARCHAR(4096),
+  change_request_message VARCHAR(4096),
   suspension_message VARCHAR(4096),
   suspended_by actor_type,
   suspend_from DATE,

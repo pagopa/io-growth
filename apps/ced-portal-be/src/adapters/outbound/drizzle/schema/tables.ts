@@ -39,6 +39,8 @@ export const operator = pgTable("operator", {
   fiscalCode: varchar("fiscal_code", { length: 32 }).notNull(),
   id: char({ length: 26 }).primaryKey(),
   name: varchar({ length: 512 }).notNull(),
+  revocationMessage: varchar("revocation_message", { length: 4096 }),
+  revokedAt: timestamp("revoked_at", { withTimezone: true }),
   status: operatorStatusEnum().notNull(),
   updatedAt: timestamp("updated_at", { withTimezone: true })
     .notNull()

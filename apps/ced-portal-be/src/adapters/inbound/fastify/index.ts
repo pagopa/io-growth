@@ -5,6 +5,7 @@ export { mountAdminGetContractSignedHandler } from "./department/admin-get-contr
 export { mountAdminGetOnboardingHandler } from "./department/admin-get-onboarding.handler.js";
 export { mountAdminListPendingOnboardingsHandler } from "./department/admin-list-pending-onboardings.handler.js";
 export { mountAdminRejectOnboardingHandler } from "./department/admin-reject-onboarding.handler.js";
+export { mountAdminRevokeOperatorHandler } from "./department/admin-revoke-operator.handler.js";
 export { mountInfoReadinessHandler } from "./health/info-readiness.handler.js";
 export { mountInfoStartupHandler } from "./health/info-startup.handler.js";
 export { mountAdminApproveOpportunityHandler } from "./opportunities/admin-approve-opportunity.handler.js";

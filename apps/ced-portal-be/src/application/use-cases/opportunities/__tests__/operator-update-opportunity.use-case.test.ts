@@ -33,6 +33,7 @@ const createMockOperatorRepository = (
       status: "active",
     }),
   ),
+  revokeById: vi.fn(),
   ...overrides,
 });
 

@@ -1,12 +1,14 @@
 # @pagopa/io-core-email-templates
 
 HTML email templates used by `ced-portal-be`, authored in [MJML](https://mjml.io/) and
-compiled to plain TypeScript modules at build time.
+compiled into SESv2-compliant template JSON files.
 
-This package only **generates typed template content** — it does not send email
-or know about any email provider (OneMail, Mailjet, etc.). Consumers import the
-generated `apply*Template` functions and pass the resulting HTML string to
-whatever `EmailRepository` outbound adapter they use.
+This package only **generates typed, parameterized template content** — it
+does not send email, resolve placeholders, or know about any email provider.
+The generated `<name>.json` files are committed to the repo and can be fed
+directly to the AWS SES `CreateEmailTemplate` API (or copied wherever
+needed), which resolves `{{variableName}}` placeholders from the
+caller-supplied `TemplateData` at send time.
 
 ## How it works
 
@@ -15,11 +17,9 @@ shared `style.css`, `partials/`, and `assets/` folders):
 
 ```
 src/opportunity-approved/
-├── index.mjml              # MJML source (edit this)
-├── applier.template.ts     # Typed `apply(input)` function, contains `{{TEMPLATE}}`
-├── index.ts                # Generated — do not edit, do not commit
-└── __tests__/
-    └── index.test.ts
+├── index.mjml                    # MJML source for the Html part (edit this)
+├── meta.json                     # Subject / Text parts, as `{{placeholder}}` strings (edit this)
+└── opportunity-approved.json     # Generated — commit this, do not hand-edit
 ```
 
 Running `pnpm --filter=@pagopa/io-core-email-templates generate`:
@@ -29,28 +29,29 @@ Running `pnpm --filter=@pagopa/io-core-email-templates generate`:
 2. Rewrites local `../assets/` image paths to this repo's
    `raw.githubusercontent.com` URL (email clients can't resolve relative/local
    paths — see "Image hosting" below).
-3. Reads `applier.template.ts` and replaces the `{{TEMPLATE}}` placeholder
-   with the compiled HTML.
-4. Writes the result to `index.ts` in the same folder (gitignored — it is
-   regenerated on every `build`/`test` via the turbo `generate` task).
+3. Collapses the compiled Html to a single line (no newlines or redundant
+   whitespace) and swaps double-quoted attributes for single-quoted ones, so
+   it embeds in the JSON file without any escaping.
+4. Reads `meta.json` for the `subject` and `text` parts.
+5. Writes `<name>/<name>.json` shaped like:
+   ```json
+   {
+     "TemplateContent": { "Html": "...", "Subject": "...", "Text": "..." },
+     "TemplateName": "opportunity-approved"
+   }
+   ```
 
-The `apply(input)` function in `applier.template.ts` resolves any remaining
-`{{variableName}}` placeholders left in the MJML markup (e.g.
-`{{opportunityName}}`) using its typed parameters, so the function returns a
-fully-resolved HTML string with no leftover placeholders.
+`{{variableName}}` placeholders (e.g. `{{opportunityName}}`) are left
+**unresolved** in all three parts — this package never substitutes values.
 
 ## Add a new template
 
 1. Create `src/<name>/index.mjml`. Reuse `../style.css` and
    `../partials/*.mjml` via `<mj-include>` for shared layout/branding.
-2. Create `src/<name>/applier.template.ts` exporting:
-   - A typed input interface for the template's parameters.
-   - An `apply(input)` function returning `` `{{TEMPLATE}}` `` with any
-     placeholders in the markup replaced using the input.
+2. Create `src/<name>/meta.json` with `subject` and `text` string fields,
+   using the same `{{placeholder}}` names referenced in the MJML markup.
 3. Run `pnpm generate` (or `pnpm build`, which runs it first) to produce
-   `index.ts`.
-4. Add a snapshot test under `src/<name>/__tests__/index.test.ts`.
-5. Export the `apply` function from `src/index.ts`.
+   `src/<name>/<name>.json`, and commit it.
 
 ## Image hosting
 
@@ -65,10 +66,9 @@ once the file exists on `main`.
 
 ## Scripts
 
-| Script                | Description                                         |
-| --------------------- | --------------------------------------------------- |
-| `generate`            | Compile all `.mjml` templates into `index.ts` files |
-| `build`               | `generate` + `tsc` (produces `dist/`)               |
-| `test`                | Run Vitest snapshot tests                           |
-| `typecheck`           | `tsc --noEmit`                                      |
-| `lint` / `lint:check` | ESLint                                              |
+| Script                | Description                                                      |
+| --------------------- | ---------------------------------------------------------------- |
+| `generate`            | Compile all `.mjml`/`meta.json` sources into `<name>.json` files |
+| `build`               | `generate` + `tsc` (produces `dist/`)                            |
+| `typecheck`           | `tsc --noEmit`                                                   |
+| `lint` / `lint:check` | ESLint                                                           |

@@ -323,9 +323,6 @@ packages/io-core-adapter-ar/src/generated/
 packages/io-core-adapter-inps-ced/src/generated/
 packages/io-core-adapter-one-mail/src/generated/
 
-# Email templates generated from MJML sources + applier.template.ts files
-packages/io-core-email-templates/src/*/index.ts
-
 infra/**/temp
 
 # Linux core dumps

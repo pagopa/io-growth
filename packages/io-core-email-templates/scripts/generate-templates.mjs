@@ -6,18 +6,27 @@ import { fileURLToPath } from "node:url";
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const templatesDir = resolve(__dirname, "../src");
 
-const TEMPLATE_PLACEHOLDER = "{{TEMPLATE}}";
-
 // Email clients can't resolve local/relative paths, so <mj-image> references
 // to ../assets/ are rewritten to this repo's raw.githubusercontent.com URL.
 const LOCAL_ASSET_REGEX = /\.\.\/assets\//g;
 const REMOTE_ASSET_BASE_URL =
   "https://raw.githubusercontent.com/pagopa/io-growth/main/packages/io-core-email-templates/src/assets/";
 
+// SES stores/sends the Html as-is, so formatting whitespace (indentation,
+// line breaks between tags) is pure dead weight — collapse it to one line.
+const collapseWhitespace = (html) =>
+  html.replace(/\s+/g, " ").replace(/>\s+</g, "><").trim();
+
+// Double-quoted attributes would need escaping once embedded in the
+// generated JSON file's Html string — single quotes stay valid HTML without
+// any escaping.
+const useSingleQuotedAttributes = (html) =>
+  html.replace(/="([^"]*)"/g, "='$1'");
+
 const generateTemplate = async (templateName) => {
   const templateDir = resolve(templatesDir, templateName);
   const mjmlPath = resolve(templateDir, "index.mjml");
-  const applierPath = resolve(templateDir, "applier.template.ts");
+  const metaPath = resolve(templateDir, "meta.json");
 
   const mjmlContent = readFileSync(mjmlPath, "utf8");
   // filePath lets mjml resolve <mj-include> paths (../style.css, ../partials/*)
@@ -34,22 +43,26 @@ const generateTemplate = async (templateName) => {
     process.exit(1);
   }
 
-  const html = compiledHtml.replace(LOCAL_ASSET_REGEX, REMOTE_ASSET_BASE_URL);
-
-  const applierContent = readFileSync(applierPath, "utf8");
-  if (!applierContent.includes(TEMPLATE_PLACEHOLDER)) {
-    throw new Error(
-      `Template placeholder (${TEMPLATE_PLACEHOLDER}) not found in "${templateName}/applier.template.ts". Make sure it hasn't been accidentally removed.`,
-    );
-  }
-
-  const generatedContent = applierContent.replace(
-    TEMPLATE_PLACEHOLDER,
-    () => html,
+  const html = useSingleQuotedAttributes(
+    collapseWhitespace(
+      compiledHtml.replace(LOCAL_ASSET_REGEX, REMOTE_ASSET_BASE_URL),
+    ),
   );
+  const { subject, text } = JSON.parse(readFileSync(metaPath, "utf8"));
 
-  writeFileSync(resolve(templateDir, "index.ts"), generatedContent);
-  console.log(`Generated "${templateName}/index.ts"`);
+  // Shape matches the SESv2 `CreateEmailTemplate` request (see `../src/types.ts`).
+  // Placeholders (e.g. `{{opportunityName}}`) are left unresolved — SES
+  // substitutes them at send time from the caller's `TemplateData`.
+  const template = {
+    TemplateContent: { Html: html, Subject: subject, Text: text },
+    TemplateName: templateName,
+  };
+
+  writeFileSync(
+    resolve(templateDir, `${templateName}.json`),
+    `${JSON.stringify(template, null, 2)}\n`,
+  );
+  console.log(`Generated "${templateName}/${templateName}.json"`);
 };
 
 const templateNames = readdirSync(templatesDir, { withFileTypes: true })

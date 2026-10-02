@@ -6,7 +6,7 @@
         "openapi/**/*.yaml",
         "orval.config.ts",
         "src/*/index.mjml",
-        "src/*/applier.template.ts",
+        "src/*/meta.json",
         "src/style.css",
         "src/partials/**",
         "src/assets/**",
@@ -15,7 +15,8 @@
       "outputs": [
         "src/adapters/inbound/fastify/contracts/**",
         "src/generated/**",
-        "src/*/index.ts"
+        "src/*/*.json",
+        "!src/*/meta.json"
       ]
     },
     "build": {

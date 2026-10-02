@@ -12,8 +12,6 @@ export default defineConfig({
         "**/*.d.ts",
         "**/*.test.ts",
         "**/*.config.*",
-        "src/*/index.ts",
-        "src/*/applier.template.ts",
       ],
       reporter: ["lcov", "text"],
     },

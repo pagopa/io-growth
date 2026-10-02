@@ -1038,6 +1038,84 @@ paths:
                   value:
                     statusCode: 412
                     message: "Precondition failed: Only the department can cancel a department-scheduled suspension"
+  /operator/opportunities/{opportunityId}/republish:
+    patch:
+      tags:
+        - Opportunities
+      summary: Republish the operator's own suspended opportunity
+      description: >-
+        Lifts a suspension the operator applied itself and makes the opportunity
+        visible on IO again. The suspension reason and actor are cleared. A
+        department-applied suspension is out of the operator's reach.
+      operationId: operatorRepublishOpportunity
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: opportunityId
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: "^[0-9A-HJKMNP-TV-Z]{26}$"
+      responses:
+        "204":
+          description: Opportunity republished
+        "400":
+          description: "Invalid opportunityId: not a ULID"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 400
+                message: Validation error
+        "401":
+          description: Invalid or missing JWT
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 401
+                message: Unauthorized
+        "403":
+          description: Authenticated user is not an operator
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 403
+                message: Forbidden
+        "404":
+          description: Opportunity not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 404
+                message: Opportunity not found
+        "409":
+          description: Opportunity status was modified concurrently
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 409
+                message: Conflict
+        "412":
+          description: >-
+            The opportunity is not suspended, or it was suspended by the department,
+            or its end date is not in the future.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 412
+                message: Opportunity must be suspended to be republished
   /operator/opportunities:
     get:
       tags:
@@ -1646,6 +1724,84 @@ paths:
               example:
                 statusCode: 412
                 message: "Precondition failed: No scheduled suspension is pending for this opportunity"
+  /opportunities/{opportunityId}/republish:
+    patch:
+      tags:
+        - Opportunities
+      summary: Republish a suspended opportunity (department only, absolute)
+      description: >-
+        Lifts an active suspension and makes the opportunity visible on IO again,
+        whether it was suspended by the department or by the operator. The
+        suspension reason and actor are cleared. A pending scheduled suspension is
+        not affected: use the suspension/cancel endpoint for that.
+      operationId: republishOpportunity
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: opportunityId
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: "^[0-9A-HJKMNP-TV-Z]{26}$"
+      responses:
+        "204":
+          description: Opportunity republished
+        "400":
+          description: "Invalid opportunityId: not a ULID"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 400
+                message: Validation error
+        "401":
+          description: Invalid or missing JWT
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 401
+                message: Unauthorized
+        "403":
+          description: Authenticated user is not a department admin
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 403
+                message: Forbidden
+        "404":
+          description: Opportunity not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 404
+                message: Opportunity not found
+        "409":
+          description: Opportunity status was modified concurrently
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 409
+                message: Conflict
+        "412":
+          description: >-
+            The opportunity is not suspended.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 412
+                message: Opportunity must be suspended to be republished
   /opportunity-categories:
     get:
       tags:

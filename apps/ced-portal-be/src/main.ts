@@ -28,6 +28,7 @@ import {
   mountAdminListOpportunitiesHandler,
   mountAdminListPendingOnboardingsHandler,
   mountAdminRejectOnboardingHandler,
+  mountAdminRepublishOpportunityHandler,
   mountAdminSuspendOpportunityHandler,
   mountAuthorizeHandler,
   mountInfoReadinessHandler,
@@ -44,9 +45,11 @@ import {
   mountOperatorListOpportunityCategoriesHandler,
   mountOperatorListPlacesHandler,
   mountOperatorPublishOpportunityHandler,
+  mountOperatorRepublishOpportunityHandler,
   mountOperatorRequestOpportunityTestHandler,
   mountOperatorSuspendOpportunityHandler,
   mountOperatorUpdateOpportunityHandler,
+  mountOperatorUpdateProfileHandler,
 } from "./adapters/inbound/fastify/index.js";
 import { createArOnboardingRepository } from "./adapters/outbound/ar/ar-onboarding.repository.js";
 import { createAzureProfileAssetsRepository } from "./adapters/outbound/blob/azure-profile-assets.repository.js";
@@ -73,6 +76,7 @@ import { makeAdminApproveOpportunityUseCase } from "./application/use-cases/oppo
 import { makeAdminCancelScheduledSuspensionUseCase } from "./application/use-cases/opportunities/admin-cancel-scheduled-suspension.use-case.js";
 import { makeAdminGetOpportunityUseCase } from "./application/use-cases/opportunities/admin-get-opportunity.use-case.js";
 import { makeAdminListOpportunitiesUseCase } from "./application/use-cases/opportunities/admin-list-opportunities.use-case.js";
+import { makeAdminRepublishOpportunityUseCase } from "./application/use-cases/opportunities/admin-republish-opportunity.use-case.js";
 import { makeAdminSuspendOpportunityUseCase } from "./application/use-cases/opportunities/admin-suspend-opportunity.use-case.js";
 import { makeOperatorCancelScheduledSuspensionUseCase } from "./application/use-cases/opportunities/operator-cancel-scheduled-suspension.use-case.js";
 import { makeOperatorCreateOpportunityUseCase } from "./application/use-cases/opportunities/operator-create-opportunity.use-case.js";
@@ -81,6 +85,7 @@ import { makeOperatorGetOpportunityUseCase } from "./application/use-cases/oppor
 import { makeOperatorListOpportunitiesUseCase } from "./application/use-cases/opportunities/operator-list-opportunities.use-case.js";
 import { makeOperatorListOpportunityCategoriesUseCase } from "./application/use-cases/opportunities/operator-list-opportunity-categories.use-case.js";
 import { makeOperatorPublishOpportunityUseCase } from "./application/use-cases/opportunities/operator-publish-opportunity.use-case.js";
+import { makeOperatorRepublishOpportunityUseCase } from "./application/use-cases/opportunities/operator-republish-opportunity.use-case.js";
 import { makeOperatorRequestOpportunityTestUseCase } from "./application/use-cases/opportunities/operator-request-opportunity-test.use-case.js";
 import { makeOperatorSuspendOpportunityUseCase } from "./application/use-cases/opportunities/operator-suspend-opportunity.use-case.js";
 import { makeOperatorUpdateOpportunityUseCase } from "./application/use-cases/opportunities/operator-update-opportunity.use-case.js";
@@ -89,6 +94,7 @@ import { makeOperatorGetPlaceUseCase } from "./application/use-cases/places/oper
 import { makeOperatorListPlacesUseCase } from "./application/use-cases/places/operator-list-places.use-case.js";
 import { makeOperatorCreateProfileUseCase } from "./application/use-cases/profile/operator-create-profile.use-case.js";
 import { makeOperatorGetProfileUseCase } from "./application/use-cases/profile/operator-get-profile.use-case.js";
+import { makeOperatorUpdateProfileUseCase } from "./application/use-cases/profile/operator-update-profile.use-case.js";
 import { createSessionContextPreHandler } from "./async-local-storage-session-context.js";
 import { parseConfig } from "./config.js";
 import { createArRouter, createDbRouter } from "./routed-clients.js";
@@ -212,6 +218,14 @@ app.register(async (app) => {
       profileAssetsRepository,
     ),
   );
+  mountOperatorUpdateProfileHandler(
+    app,
+    makeOperatorUpdateProfileUseCase(
+      profileRepository,
+      profileAssetsRepository,
+      materializedViewRepository,
+    ),
+  );
   mountOperatorListPlacesHandler(
     app,
     makeOperatorListPlacesUseCase(placeRepository),
@@ -329,6 +343,20 @@ app.register(async (app) => {
   mountAdminSuspendOpportunityHandler(
     app,
     makeAdminSuspendOpportunityUseCase(
+      opportunityRepository,
+      materializedViewRepository,
+    ),
+  );
+  mountAdminRepublishOpportunityHandler(
+    app,
+    makeAdminRepublishOpportunityUseCase(
+      opportunityRepository,
+      materializedViewRepository,
+    ),
+  );
+  mountOperatorRepublishOpportunityHandler(
+    app,
+    makeOperatorRepublishOpportunityUseCase(
       opportunityRepository,
       materializedViewRepository,
     ),

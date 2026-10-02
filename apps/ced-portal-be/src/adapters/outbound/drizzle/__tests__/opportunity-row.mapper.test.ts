@@ -85,6 +85,7 @@ describe("mapOpportunityDetailRow", () => {
       },
       categoryId: "01KRJXEYD44B58700GT982CCYY",
       categoryTitle: "Culture",
+      changeRequestMessage: null,
       createdAt: "2026-01-01T00:00:00.000Z",
       dateFrom: "2026-01-01",
       dateTo: "2026-12-31",

@@ -89,6 +89,9 @@ export interface OpportunityRepository {
   readonly republishByIdAndOperatorId: (
     input: RepublishByIdAndOperatorIdInput,
   ) => Promise<Result<void, ConflictError | GenericError>>;
+  readonly requestChangesById: (
+    input: RequestChangesByIdInput,
+  ) => Promise<Result<void, ConflictError | GenericError>>;
   readonly suspendById: (
     input: SuspendByIdInput,
   ) => Promise<Result<void, ConflictError | GenericError>>;
@@ -126,6 +129,11 @@ export interface RepublishByIdAndOperatorIdInput {
 }
 
 export interface RepublishByIdInput {
+  opportunityId: string;
+}
+
+export interface RequestChangesByIdInput {
+  changeRequestMessage: string;
   opportunityId: string;
 }
 

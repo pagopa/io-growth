@@ -50,7 +50,7 @@ Running `pnpm --filter=@pagopa/io-core-email-templates generate`:
    `../partials/*.mjml` via `<mj-include>` for shared layout/branding.
 2. Create `src/<name>/meta.json` with `subject` and `text` string fields,
    using the same `{{placeholder}}` names referenced in the MJML markup.
-3. Run `pnpm generate` (or `pnpm build`, which runs it first) to produce
+3. Run `pnpm generate` from the package folder to produce
    `src/<name>/<name>.json`, and commit it.
 
 ## Image hosting

@@ -13,14 +13,20 @@ export const createOneMailEmailRepository = (
   emailClient: OneMailEmailClient,
   config: OneMailEmailRepositoryConfig,
 ): EmailRepository => ({
-  sendOpportunityApprovedEmail: async ({ opportunityName, to }) => {
+  sendOpportunityApprovedEmail: async ({
+    availabilityDate,
+    opportunityName,
+    to,
+  }) => {
     const result = await emailClient.sendHighPriorityEmail({
-      emailContent: {
-        html: `<p>La tua opportunità "${opportunityName}" è stata approvata ed è ora pubblicata.</p>`,
-        subject: "La tua opportunità è stata approvata",
-        text: `La tua opportunità "${opportunityName}" è stata approvata ed è ora pubblicata.`,
-      },
       from: { email: config.fromAddress },
+      templateContent: {
+        templateAttributes: {
+          availabilityDate,
+          opportunityName,
+        },
+        templateId: "ced_opportunity-approved",
+      },
       to: { email: to },
     });
 

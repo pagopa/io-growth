@@ -35,6 +35,26 @@ export const createDrizzlePlaceRepository = (
     }
   },
 
+  deleteByIdAndOperatorId: async (
+    input,
+  ): Promise<Result<void, GenericError>> => {
+    try {
+      await db
+        .delete(place)
+        .where(
+          and(
+            eq(place.id, input.placeId),
+            eq(place.operatorId, input.operatorId),
+          ),
+        );
+      return ok(undefined);
+    } catch (error) {
+      return err(
+        new GenericError(`Failed to delete operator place: ${String(error)}`),
+      );
+    }
+  },
+
   getById: async (input): Promise<Result<Place | undefined, GenericError>> => {
     try {
       const row = await db.query.place.findFirst({

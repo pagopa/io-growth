@@ -3,16 +3,18 @@ import { useMemo } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { ContactsSection } from '../../components/ContactsSection/index.js';
 import { ItemsSection } from '../../components/ItemsSection/index.js';
-import { PageHeader, QueryGuard } from '../../components/index.js';
+import { PageCover, PageHeader, QueryGuard } from '../../components/index.js';
 import { toEntityDetailRoute } from '../../app/routeConfig.js';
 import { useGetAccessPointDetailQuery } from '../../features/places/api.js';
 import { formatBadgeLabel } from '../../utils';
+import { formatAddress } from '../../utils/formatAddress.js';
 import { PageErrorType } from '../../components/QueryGuard/ErrorScreen/types.js';
 import { useTrackLandedInPage } from '../../mixpanel/useTrackLandedInPage.js';
 import {
   EntityOpportunityItems,
   PlaceDetailItems,
 } from '../../components/ItemsSection/types.js';
+import { EntityPlaceholderIcon } from '../EntityDetail/components/EntityPlaceholderIcon';
 
 export default function AccessPointDetailPage() {
   const location = useLocation();
@@ -29,6 +31,19 @@ export default function AccessPointDetailPage() {
       { accessPointId: accessPointId ?? '' },
       { skip: !accessPointId },
     );
+
+  const renderCover = () => {
+    if (data?.address) {
+      return (
+        <PageCover
+          placeholderUrl="/assets/point-access-cover-placeholder.png"
+          rounded
+        />
+      );
+    } else {
+      return undefined;
+    }
+  };
 
   const opportunities: EntityOpportunityItems[] = useMemo(
     () =>
@@ -48,7 +63,7 @@ export default function AccessPointDetailPage() {
       data?.relatedPlaces.map(({ id, title, address }) => ({
         id,
         title,
-        subtitle: address ? `${address.street}, ${address.city}` : '',
+        subtitle: formatAddress(address),
         organization_name: data?.entityName,
         organization_fiscal_code: '',
         location_name: data?.title,
@@ -96,24 +111,42 @@ export default function AccessPointDetailPage() {
         >
           <PageHeader
             title={resolvedData.title}
-            subtitle={
-              <ButtonBase
-                onClick={() =>
-                  navigate(toEntityDetailRoute(resolvedData.entityId), {
-                    state: { source: 'location_detail' },
-                  })
-                }
-                sx={{
-                  fontSize: 16,
-                  fontWeight: 600,
-                  color: theme.palette.common.primaryButton,
-                  textDecoration: 'underline',
-                }}
-              >
-                {resolvedData.entityName}
-              </ButtonBase>
-            }
+            leadingContent={renderCover()}
           />
+
+          <Stack
+            direction="row"
+            alignItems="center"
+            spacing={1.5}
+            sx={{ px: 3 }}
+          >
+            {/* TODO: show the entity logo once the API exposes it */}
+            <Box
+              aria-hidden="true"
+              sx={{
+                display: 'flex',
+                '& > .MuiBox-root': { width: 44, height: 44 },
+                '& .MuiSvgIcon-root': { fontSize: 28 },
+              }}
+            >
+              <EntityPlaceholderIcon />
+            </Box>
+            <ButtonBase
+              onClick={() =>
+                navigate(toEntityDetailRoute(resolvedData.entityId), {
+                  state: { source: 'location_detail' },
+                })
+              }
+              sx={{
+                fontSize: 16,
+                fontWeight: 600,
+                color: theme.palette.common.primaryButton,
+                textDecoration: 'underline',
+              }}
+            >
+              {resolvedData.entityName}
+            </ButtonBase>
+          </Stack>
 
           <Stack spacing={2} sx={{ mt: 2, mb: 4 }}>
             <ItemsSection
@@ -123,7 +156,10 @@ export default function AccessPointDetailPage() {
               hideEyebrow
             />
             <ContactsSection
-              contacts={resolvedData.contacts}
+              contacts={{
+                ...resolvedData.contacts,
+                address: formatAddress(resolvedData.address),
+              }}
               trackExtraProperties={trackExtraProperties}
             />
             <ItemsSection

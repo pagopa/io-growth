@@ -117,7 +117,7 @@ export const makeAdminApproveOpportunityUseCase =
                 emailRepository,
                 data.operatorId,
                 getOpportunityName(data),
-                data.dateFrom,
+                new Date(data.dateFrom).toLocaleDateString("it-IT"),
               ),
             );
         }),

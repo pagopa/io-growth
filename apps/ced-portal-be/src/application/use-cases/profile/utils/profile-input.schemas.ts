@@ -56,22 +56,22 @@ export const OperatorProfileInputSchema = z
 
 export const OperatorCreateProfileInputSchema =
   OperatorProfileInputSchema.extend({
-    image: z.instanceof(File),
-    logo: z.instanceof(File),
+    image: z.instanceof(Blob),
+    logo: z.instanceof(Blob),
     operatorId: z.ulid(),
   });
 
 export const OperatorUpdateProfileInputSchema =
   OperatorProfileInputSchema.extend({
-    image: z.instanceof(File).optional(),
-    logo: z.instanceof(File).optional(),
+    image: z.instanceof(Blob).optional(),
+    logo: z.instanceof(Blob).optional(),
     operatorId: z.ulid(),
   });
 
 export const OperatorUpdateProfileMultipartBodySchema = z
   .object({
-    image: z.instanceof(File).optional(),
-    logo: z.instanceof(File).optional(),
+    image: z.instanceof(Blob).optional(),
+    logo: z.instanceof(Blob).optional(),
     profile: OperatorProfileInputSchema,
   })
   .strict();

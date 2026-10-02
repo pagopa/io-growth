@@ -12,6 +12,7 @@ import { useCompleteDataForm } from './hooks/useCompleteDataForm';
 import {
   useCreateOperatorProfileMutation,
   useGetOperatorProfileQuery,
+  useUpdateOperatorProfileMutation,
 } from '../../../features/profile/api';
 import { hasStatus } from '../../../core/api/baseApi';
 import { useToast } from '../../../contexts';
@@ -31,7 +32,11 @@ export default function OverviewCompleteDataPage() {
   const [isExitModalOpen, setIsExitModalOpen] = useState(false);
   const [profileAssetError, setProfileAssetError] = useState('');
 
-  const [createProfile, { isLoading }] = useCreateOperatorProfileMutation();
+  const [createProfile, { isLoading: isCreating }] =
+    useCreateOperatorProfileMutation();
+  const [updateProfile, { isLoading: isUpdating }] =
+    useUpdateOperatorProfileMutation();
+  const isLoading = isCreating || isUpdating;
   const { data: profile, error: profileError } = useGetOperatorProfileQuery();
   const isProfileIncomplete = hasStatus(profileError, 404);
 
@@ -71,7 +76,16 @@ export default function OverviewCompleteDataPage() {
     onValidSubmit: async (payload, files) => {
       try {
         setProfileAssetError('');
-        await createProfile({ profile: payload, ...files }).unwrap();
+        if (profile) {
+          await updateProfile({ profile: payload, ...files }).unwrap();
+        } else {
+          if (!files.logo || !files.image) return;
+          await createProfile({
+            profile: payload,
+            logo: files.logo,
+            image: files.image,
+          }).unwrap();
+        }
         navigate(-1);
         showToast('Dati salvati', 'success');
       } catch (error) {
@@ -80,7 +94,12 @@ export default function OverviewCompleteDataPage() {
             'L’immagine supera la dimensione massima consentita. Riprova',
           );
         }
-        showToast('Errore nella creazione dell’ente', 'error');
+        showToast(
+          profile
+            ? 'Errore nella modifica dei dati dell’ente'
+            : 'Errore nella creazione dell’ente',
+          'error',
+        );
       }
     },
   });

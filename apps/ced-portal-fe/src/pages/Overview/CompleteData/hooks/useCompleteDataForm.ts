@@ -54,7 +54,7 @@ type UseCompleteDataFormParams = {
   profile?: OperatorProfileResponse;
   onValidSubmit?: (
     payload: OperatorProfileCreateRequest,
-    files: { logo: File; image: File },
+    files: { logo?: File; image?: File },
   ) => void;
 };
 
@@ -234,7 +234,7 @@ export const useCompleteDataForm = ({
   });
 
   const validateForm = useCallback(() => {
-    const validation = validateCompleteDataForm(formData);
+    const validation = validateCompleteDataForm(formData, !profile);
     setErrors(validation.firstContactErrors);
     setLogoError(validation.logoError);
     setCoverError(validation.coverError);
@@ -242,7 +242,7 @@ export const useCompleteDataForm = ({
     setPrivacyUrlError(validation.privacyUrlError);
     setTermsUrlError(validation.termsUrlError);
     return validation.isValid;
-  }, [formData]);
+  }, [formData, profile]);
 
   const handleContinueClick = useCallback(() => {
     setIsSubmitted(true);
@@ -281,7 +281,7 @@ export const useCompleteDataForm = ({
           supportContacts,
         };
 
-    if (!formData.logoFile || !formData.coverFile) return;
+    if (!profile && (!formData.logoFile || !formData.coverFile)) return;
 
     const payload: OperatorProfileCreateRequest = {
       displayName: formData.name.trim(),
@@ -292,10 +292,10 @@ export const useCompleteDataForm = ({
     };
 
     onValidSubmit?.(payload, {
-      logo: formData.logoFile,
-      image: formData.coverFile,
+      ...(formData.logoFile ? { logo: formData.logoFile } : {}),
+      ...(formData.coverFile ? { image: formData.coverFile } : {}),
     });
-  }, [formData, validateForm, onValidSubmit]);
+  }, [formData, profile, validateForm, onValidSubmit]);
 
   const handleNameChange = useCallback(
     (value: string) => updateField('name', value),

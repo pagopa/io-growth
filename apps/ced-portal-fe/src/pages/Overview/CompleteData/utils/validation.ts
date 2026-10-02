@@ -40,36 +40,39 @@ export type CompleteDataValidationResult = {
   isValid: boolean;
 };
 
-export const validateCompleteDataForm = ({
-  name,
-  sede,
-  websiteUrl,
-  street,
-  city,
-  postalCode,
-  province,
-  contacts,
-  internalEmail,
-  logoFile,
-  coverFile,
-  privacyUrl,
-  termsUrl,
-}: Pick<
-  CompleteDataFormData,
-  | 'name'
-  | 'sede'
-  | 'websiteUrl'
-  | 'street'
-  | 'city'
-  | 'postalCode'
-  | 'province'
-  | 'contacts'
-  | 'internalEmail'
-  | 'logoFile'
-  | 'coverFile'
-  | 'privacyUrl'
-  | 'termsUrl'
->): CompleteDataValidationResult => {
+export const validateCompleteDataForm = (
+  {
+    name,
+    sede,
+    websiteUrl,
+    street,
+    city,
+    postalCode,
+    province,
+    contacts,
+    internalEmail,
+    logoFile,
+    coverFile,
+    privacyUrl,
+    termsUrl,
+  }: Pick<
+    CompleteDataFormData,
+    | 'name'
+    | 'sede'
+    | 'websiteUrl'
+    | 'street'
+    | 'city'
+    | 'postalCode'
+    | 'province'
+    | 'contacts'
+    | 'internalEmail'
+    | 'logoFile'
+    | 'coverFile'
+    | 'privacyUrl'
+    | 'termsUrl'
+  >,
+  requireImages = true,
+): CompleteDataValidationResult => {
   const nameError = name.trim() ? '' : 'Campo obbligatorio';
   const isWebsite = sede === 'sito_web';
   const isPhysical = sede === 'fisica';
@@ -81,8 +84,8 @@ export const validateCompleteDataForm = ({
     isPhysical && !postalCode.trim() ? 'Campo obbligatorio' : '';
   const provinceError =
     isPhysical && !province.trim() ? 'Campo obbligatorio' : '';
-  const logoError = logoFile ? '' : 'Campo obbligatorio';
-  const coverError = coverFile ? '' : 'Campo obbligatorio';
+  const logoError = logoFile || !requireImages ? '' : 'Campo obbligatorio';
+  const coverError = coverFile || !requireImages ? '' : 'Campo obbligatorio';
   const internalEmailError = internalEmail.trim()
     ? ''
     : 'Indica almeno un indirizzo mail';

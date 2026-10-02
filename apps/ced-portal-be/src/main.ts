@@ -97,6 +97,7 @@ import { makeOperatorGetProfileUseCase } from "./application/use-cases/profile/o
 import { makeOperatorUpdateProfileUseCase } from "./application/use-cases/profile/operator-update-profile.use-case.js";
 import { createSessionContextPreHandler } from "./async-local-storage-session-context.js";
 import { parseConfig } from "./config.js";
+import { jobsScheduler } from "./jobs-scheduler.js";
 import { createArRouter, createDbRouter } from "./routed-clients.js";
 
 const config = parseConfig();
@@ -168,6 +169,11 @@ const emailRepository = createOneMailEmailRepository(
   { fromAddress: config.EMAIL_FROM_ADDRESS },
 );
 
+// jobs scheduler
+const scheduler = jobsScheduler(config);
+await scheduler.start();
+
+// web application instance
 const app = Fastify();
 
 // Register telemetry plugin to auto-track every endpoint result and exception.
@@ -368,6 +374,7 @@ app.register(async (app) => {
 });
 
 app.addHook("onClose", async () => {
+  await scheduler.stop();
   await redisClient.closeConnection();
   await Promise.all(
     dbRouter.instances.map((instance) => instance.closeConnection()),

@@ -69,6 +69,11 @@ const configSchema = z.object({
     .string()
     .optional()
     .transform((v) => v === "true"),
+  SCHEDULER_POLLING_INTERVAL_SECONDS: z.coerce
+    .number()
+    .int()
+    .positive()
+    .default(60),
 });
 
 export type AppConfig = z.infer<typeof configSchema>;

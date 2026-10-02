@@ -8,6 +8,7 @@ import type { ChangeEvent, DragEvent } from 'react';
 export type UploadDropzoneProps = {
   selectedFileName?: string;
   previewFile?: File | null;
+  previewSrc?: string;
   previewKind?: 'logo' | 'cover';
   uploadLabel?: string;
   title: string;
@@ -75,6 +76,7 @@ const normalizeImageFileType = (file: File): File => {
 export function UploadDropzone({
   selectedFileName,
   previewFile,
+  previewSrc,
   previewKind,
   uploadLabel = 'Carica file',
   title,
@@ -93,6 +95,7 @@ export function UploadDropzone({
   onDelete,
 }: Readonly<UploadDropzoneProps>) {
   const [previewUrl, setPreviewUrl] = useState<string>();
+  const [failedPreviewSrc, setFailedPreviewSrc] = useState<string>();
 
   useEffect(() => {
     if (!previewFile) {
@@ -273,13 +276,15 @@ export function UploadDropzone({
   const displayFileName = selectedFileName
     ? truncateFileName(selectedFileName)
     : subtitle;
+  const displayedPreviewUrl =
+    previewUrl ?? (previewSrc !== failedPreviewSrc ? previewSrc : undefined);
 
-  if (previewUrl && previewKind) {
+  if (displayedPreviewUrl && previewKind) {
     return (
       <Box
         component="label"
         sx={{
-          border: '1px solid',
+          border: fieldError ? '1px dashed' : '1px solid',
           borderColor: fieldError ? 'common.requiredField' : 'divider',
           borderRadius: '8px',
           p: { xs: 2, md: 2.5 },
@@ -288,13 +293,18 @@ export function UploadDropzone({
           alignItems: 'center',
           gap: 1.5,
           cursor: 'pointer',
-          bgcolor: '#f6f7fa',
+          bgcolor: fieldError ? 'rgba(244, 67, 54, 0.16)' : '#f6f7fa',
         }}
       >
         <Box
           component="img"
-          src={previewUrl}
-          alt="Anteprima file selezionato"
+          src={displayedPreviewUrl}
+          alt={previewFile ? 'Anteprima file selezionato' : title}
+          onError={() => {
+            if (previewSrc && !previewFile) {
+              setFailedPreviewSrc(previewSrc);
+            }
+          }}
           sx={{
             width: previewKind === 'logo' ? 100 : 158,
             height: previewKind === 'logo' ? 100 : 102,
@@ -303,10 +313,18 @@ export function UploadDropzone({
             bgcolor: 'common.white',
           }}
         />
-        <Button component="span" variant="contained" sx={{ px: 2.5, py: 1 }}>
+        <Button
+          component="span"
+          variant="contained"
+          color={fieldError ? 'error' : 'primary'}
+          sx={{ px: 2.5, py: 1 }}
+        >
           {uploadLabel}
         </Button>
-        <Typography variant="caption" color="text.secondary">
+        <Typography
+          variant="caption"
+          color={fieldError ? 'common.requiredField' : 'text.secondary'}
+        >
           {subtitle}
         </Typography>
         <Box
@@ -327,10 +345,7 @@ export function UploadDropzone({
       onDrop={handleDrop}
       sx={{
         border: '1px dashed #6D8BEE',
-        ...(fieldError && {
-          borderColor: 'common.requiredField',
-          bgcolor: 'rgba(244, 67, 54, 0.04)',
-        }),
+        borderColor: fieldError ? 'common.requiredField' : '#6D8BEE',
         borderRadius: '8px',
         p: 3,
         display: 'flex',
@@ -339,7 +354,9 @@ export function UploadDropzone({
         gap: 3,
         alignSelf: 'stretch',
         cursor: 'pointer',
-        bgcolor: 'rgba(11, 62, 227, 0.08)',
+        bgcolor: fieldError
+          ? 'rgba(244, 67, 54, 0.16)'
+          : 'rgba(11, 62, 227, 0.08)',
       }}
     >
       <Stack
@@ -367,12 +384,16 @@ export function UploadDropzone({
           />
         )}
         <Stack spacing={0.25}>
-          <Typography variant="body2" fontWeight={600}>
+          <Typography
+            variant="body2"
+            fontWeight={600}
+            sx={{ color: fieldError ? 'common.requiredField' : 'inherit' }}
+          >
             {title}
           </Typography>
           <Typography
             variant="caption"
-            color="text.secondary"
+            color={fieldError ? 'common.requiredField' : 'text.secondary'}
             noWrap
             title={selectedFileName ?? undefined}
             sx={{
@@ -389,6 +410,7 @@ export function UploadDropzone({
       <Button
         component="span"
         variant="contained"
+        color={fieldError ? 'error' : 'primary'}
         sx={{
           px: 4,
           py: 1.5,

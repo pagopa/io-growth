@@ -10,6 +10,7 @@ import {
 import { useMemo } from 'react';
 import { SectionCard } from '../../../../components';
 import { useGetPlacesQuery } from '../../../../features/places/api';
+import type { PlaceListItem } from '../../../../generated/model';
 
 import {
   selectAccessPoint,
@@ -23,6 +24,11 @@ import { SelectLocationModal } from './SelectLocationModal';
 import { setField } from '../../../../features/opportunityCreation/opportunityCreationSlice';
 import { selectNationalTerritory } from '../../../../features/opportunityCreation/selectors';
 
+type OfflinePlaceListItem = PlaceListItem & {
+  type: 'offline';
+  address: NonNullable<PlaceListItem['address']>;
+};
+
 export function LocationManagementSection() {
   const dispatch = useAppDispatch();
   const accessPoint = useAppSelector(selectAccessPoint);
@@ -31,13 +37,20 @@ export function LocationManagementSection() {
     accessPoint === 'offline' || accessPoint === 'both';
 
   const selectedLocationIds = useAppSelector(selectSelectedLocationIds);
-  const { data: allPlaces = [] } = useGetPlacesQuery(undefined, {
-    skip: !showTerritorySection,
-  });
-  const availableLocations = useMemo(
-    () => allPlaces.filter((p) => p.type === 'offline'),
-    [allPlaces],
+  const { data: placesData } = useGetPlacesQuery(
+    { type: 'offline' }, // Fetch offline places
+    { skip: !showTerritorySection },
   );
+
+  const availableLocations = useMemo(
+    () =>
+      (placesData?.items ?? []).filter(
+        (place): place is OfflinePlaceListItem =>
+          place.type === 'offline' && Boolean(place.address),
+      ),
+    [placesData],
+  );
+
   const selectedLocations = useMemo(
     () => availableLocations.filter((s) => selectedLocationIds.includes(s.id)),
     [availableLocations, selectedLocationIds],

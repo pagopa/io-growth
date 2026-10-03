@@ -4,6 +4,7 @@ import { Box, Button, Typography } from '@mui/material';
 import { useMemo } from 'react';
 import { SectionCard } from '../../../../components';
 import { useGetPlacesQuery } from '../../../../features/places/api';
+import type { PlaceListItem } from '../../../../generated/model';
 
 import {
   selectAccessPoint,
@@ -15,18 +16,30 @@ import { AddWebsiteModal } from './AddWebsiteModal';
 import { SelectWebsiteModal } from './SelectWebsiteModal';
 import { WebsiteList } from './WebsiteList';
 
+type OnlinePlaceListItem = PlaceListItem & {
+  type: 'online';
+  website: NonNullable<PlaceListItem['website']>;
+};
+
 export function WebsiteManagementSection() {
   const accessPoint = useAppSelector(selectAccessPoint);
   const showWebsiteSection = accessPoint === 'online' || accessPoint === 'both';
 
   const selectedWebsiteIds = useAppSelector(selectSelectedWebsiteIds);
-  const { data: allPlaces = [] } = useGetPlacesQuery(undefined, {
-    skip: !showWebsiteSection,
-  });
-  const availableWebsites = useMemo(
-    () => allPlaces.filter((p) => p.type === 'online'),
-    [allPlaces],
+  const { data: placesData } = useGetPlacesQuery(
+    { type: 'online' }, // Fetch online places
+    { skip: !showWebsiteSection },
   );
+
+  const availableWebsites = useMemo(
+    () =>
+      (placesData?.items ?? []).filter(
+        (place): place is OnlinePlaceListItem =>
+          place.type === 'online' && Boolean(place.website?.url),
+      ),
+    [placesData],
+  );
+
   const selectedWebsites = useMemo(
     () => availableWebsites.filter((w) => selectedWebsiteIds.includes(w.id)),
     [availableWebsites, selectedWebsiteIds],

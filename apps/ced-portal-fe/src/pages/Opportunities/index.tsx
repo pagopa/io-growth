@@ -245,12 +245,7 @@ export default function OpportunitiesPage() {
     } catch {
       showToast("Errore durante la ripubblicazione dell'opportunità", 'error');
     }
-  }, [
-    isRepublishing,
-    opportunityToRepublish,
-    republishOpportunity,
-    showToast,
-  ]);
+  }, [isRepublishing, opportunityToRepublish, republishOpportunity, showToast]);
 
   return (
     <Box

@@ -28,9 +28,17 @@ export const createDrizzleProfileRepository = (
         columns: {
           displayName: true,
           operatorId: true,
+          privacyUrl: true,
+          tosUrl: true,
         },
         where: eq(profile.id, profileId),
         with: {
+          operator: {
+            columns: {
+              fiscalCode: true,
+              name: true,
+            },
+          },
           place: {
             columns: {
               id: true,
@@ -75,6 +83,14 @@ export const createDrizzleProfileRepository = (
         return err(
           new GenericError(
             `Data integrity error: profile ${profileId} references a missing place`,
+          ),
+        );
+      }
+
+      if (!profileRow.operator) {
+        return err(
+          new GenericError(
+            `Data integrity error: profile ${profileId} references a missing operator`,
           ),
         );
       }
@@ -135,6 +151,8 @@ export const createDrizzleProfileRepository = (
 
       return ok({
         displayName: profileRow.displayName,
+        operatorFiscalCode: profileRow.operator.fiscalCode,
+        operatorName: profileRow.operator.name,
         place: {
           address: profileRow.place.address
             ? {
@@ -154,6 +172,7 @@ export const createDrizzleProfileRepository = (
           type: profileRow.place.type,
           website: profileRow.place.website?.url ?? null,
         },
+        privacyUrl: profileRow.privacyUrl,
         recentOpportunities: opportunityRows.flatMap((row) =>
           row.dateFrom
             ? [
@@ -182,6 +201,7 @@ export const createDrizzleProfileRepository = (
           type: row.type,
           url: row.url ?? null,
         })),
+        tosUrl: profileRow.tosUrl,
       });
     } catch (error) {
       return err(

@@ -1,5 +1,65 @@
 # ced-portal-be
 
+## 0.7.1
+
+### Patch Changes
+
+- e46b30e: Add `io-core-email-templates` package: compiles MJML email templates into typed, parameterized SESv2 `CreateEmailTemplate` objects (`{ TemplateContent: { Html, Subject, Text }, TemplateName }`). `{{variableName}}` placeholders are left unresolved for SES to substitute at send time. Includes the `opportunity-approved`, `opportunity-published`, and `opportunity-rejected` templates.
+
+  Used template in `ced-portal-be` instead of html.
+
+  Updated deps and added fix for orval File to Blob change.
+
+- Updated dependencies [e46b30e]
+  - @pagopa/io-core-adapter-fastify@0.0.10
+
+## 0.7.0
+
+### Minor Changes
+
+- b1d9d6e: Add the department endpoint to request changes on an opportunity under review: PATCH /api/opportunities/{opportunityId}/request-changes sends the operator a message and sends the opportunity back to draft for editing.
+
+## 0.6.0
+
+### Minor Changes
+
+- de179a4: Add the republish endpoints for suspended opportunities: PATCH /api/opportunities/{opportunityId}/republish (department) and PATCH /api/operator/opportunities/{opportunityId}/republish (operator)
+
+## 0.5.2
+
+### Patch Changes
+
+- 82c1702: Add an authenticated multipart PUT endpoint to replace an operator profile and optionally replace its logo and image. Store validated profile assets as Base64 text under extensionless blob names, with the original image MIME type in blob metadata.
+- 82c1702: Require `privacyUrl` and `tosUrl` HTTPS links for operator profiles, persist them, and expose them in portal and browser profile responses.
+- Updated dependencies [82c1702]
+  - @pagopa/io-core-adapter-azure-blob-storage@0.0.3
+
+## 0.5.1
+
+### Patch Changes
+
+- Updated dependencies [8cc6169]
+  - @pagopa/io-core-adapter-fastify@0.0.9
+
+## 0.5.0
+
+### Minor Changes
+
+- b795362: Add the department onboarding-rejection endpoint: PATCH /api/department/onboardings/{onboardingId}/reject
+
+### Patch Changes
+
+- Updated dependencies [b795362]
+  - @pagopa/io-core-adapter-ar@0.1.1
+
+## 0.4.3
+
+### Patch Changes
+
+- e4e3837: one mail integration
+- Updated dependencies [e4e3837]
+  - @pagopa/io-core-adapter-one-mail@0.1.1
+
 ## 0.4.2
 
 ### Patch Changes

@@ -27,12 +27,13 @@ export const createBlobRepository = ({
   const containerClient = blobServiceClient.getContainerClient(containerName);
 
   return {
-    upload: async ({ blobName, content, contentType }) => {
+    upload: async ({ blobName, content, contentType, metadata }) => {
       try {
         await containerClient.getBlockBlobClient(blobName).uploadData(content, {
           blobHTTPHeaders: {
             blobContentType: contentType,
           },
+          ...(metadata && { metadata }),
         });
 
         return ok(undefined);

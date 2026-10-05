@@ -6,7 +6,8 @@ const baseRow = {
   id: "place-id",
   name: "Sportello CED",
   operator: {
-    name: "Comune di Alessandria SRL",
+    fiscalCode: "00000000000",
+    name: "Operator Test Name",
     profile: { displayName: "Comune di Alessandria", id: "profile-id" },
   },
   operatorId: "operator-id",
@@ -21,16 +22,26 @@ describe("mapPlaceDetailRow", () => {
     expect(result.entityId).toBe("profile-id");
     expect(result.entityId).not.toBe("operator-id");
     expect(result.entityName).toBe("Comune di Alessandria");
+    expect(result.operatorFiscalCode).toBe("00000000000");
+    expect(result.operatorName).toBe("Operator Test Name");
   });
 
   it("falls back to an empty entityId when the operator has no profile", () => {
     const result = mapPlaceDetailRow(
-      { ...baseRow, operator: { name: "Operatore senza profilo" } },
+      {
+        ...baseRow,
+        operator: {
+          fiscalCode: "00000000000",
+          name: "Operatore senza profilo",
+        },
+      },
       [],
       [],
     );
 
     expect(result.entityId).toBe("");
     expect(result.entityName).toBe("Operatore senza profilo");
+    expect(result.operatorFiscalCode).toBe("00000000000");
+    expect(result.operatorName).toBe("Operatore senza profilo");
   });
 });

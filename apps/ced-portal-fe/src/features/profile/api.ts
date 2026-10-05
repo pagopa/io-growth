@@ -4,6 +4,18 @@ import type {
   OperatorProfileCreateRequest,
 } from '../../generated/model';
 
+type CreateOperatorProfileArgs = {
+  profile: OperatorProfileCreateRequest;
+  logo: File;
+  image: File;
+};
+
+type UpdateOperatorProfileArgs = {
+  profile: OperatorProfileCreateRequest;
+  logo?: File;
+  image?: File;
+};
+
 const profileApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     getOperatorProfile: builder.query<OperatorProfileResponse, void>({
@@ -13,17 +25,52 @@ const profileApi = baseApi.injectEndpoints({
 
     createOperatorProfile: builder.mutation<
       OperatorProfileResponse,
-      OperatorProfileCreateRequest
+      CreateOperatorProfileArgs
     >({
-      query: (body) => ({
-        url: '/operator/profile',
-        method: 'POST',
-        body,
-      }),
+      query: ({ profile, logo, image }) => {
+        const body = new FormData();
+        body.append(
+          'profile',
+          new Blob([JSON.stringify(profile)], { type: 'application/json' }),
+        );
+        body.append('logo', logo);
+        body.append('image', image);
+
+        return {
+          url: '/operator/profile',
+          method: 'POST',
+          body,
+        };
+      },
+      invalidatesTags: ['Profile'],
+    }),
+
+    updateOperatorProfile: builder.mutation<
+      OperatorProfileResponse,
+      UpdateOperatorProfileArgs
+    >({
+      query: ({ profile, logo, image }) => {
+        const body = new FormData();
+        body.append(
+          'profile',
+          new Blob([JSON.stringify(profile)], { type: 'application/json' }),
+        );
+        if (logo) body.append('logo', logo);
+        if (image) body.append('image', image);
+
+        return {
+          url: '/operator/profile',
+          method: 'PUT',
+          body,
+        };
+      },
       invalidatesTags: ['Profile'],
     }),
   }),
 });
 
-export const { useGetOperatorProfileQuery, useCreateOperatorProfileMutation } =
-  profileApi;
+export const {
+  useGetOperatorProfileQuery,
+  useCreateOperatorProfileMutation,
+  useUpdateOperatorProfileMutation,
+} = profileApi;

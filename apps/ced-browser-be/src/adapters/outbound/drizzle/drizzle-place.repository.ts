@@ -37,6 +37,8 @@ export const createDrizzlePlaceRepository = (
           entityId: placeMaterializedView.operatorId,
           id: placeMaterializedView.id,
           name: sql<string>`COALESCE(${placeMaterializedView.profileDisplayName}, ${placeMaterializedView.name})`,
+          operatorFiscalCode: placeMaterializedView.operatorFiscalCode,
+          operatorName: placeMaterializedView.operatorName,
           postalCode: placeMaterializedView.postalCode,
           state: placeMaterializedView.state,
           street: placeMaterializedView.street,
@@ -69,6 +71,8 @@ export const createDrizzlePlaceRepository = (
           entityId: row.entityId,
           id: row.id,
           name: row.name,
+          operatorFiscalCode: row.operatorFiscalCode,
+          operatorName: row.operatorName,
           type: row.type,
           ...(row.url ? { url: row.url } : {}),
         })),
@@ -98,7 +102,7 @@ export const createDrizzlePlaceRepository = (
             },
           },
           operator: {
-            columns: { name: true },
+            columns: { fiscalCode: true, name: true },
             with: { profile: { columns: { displayName: true, id: true } } },
           },
           supportContacts: { columns: { type: true, value: true } },
@@ -107,6 +111,14 @@ export const createDrizzlePlaceRepository = (
       });
 
       if (!placeRow) return ok(undefined);
+
+      if (!placeRow.operator) {
+        return err(
+          new GenericError(
+            `Data integrity error: place ${placeId} references a missing operator`,
+          ),
+        );
+      }
 
       const [opportunityRows, relatedRows] = await Promise.all([
         db

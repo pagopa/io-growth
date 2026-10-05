@@ -2,6 +2,7 @@ import { ok } from "neverthrow";
 import { vi } from "vitest";
 
 import type { Profile } from "../../../../domain/entities/profile.js";
+import type { EmailRepository } from "../../../../domain/ports/outbound/email.repository.js";
 import type { MaterializedViewRepository } from "../../../../domain/ports/outbound/materialized-view.repository.js";
 import type { OpportunityRepository } from "../../../../domain/ports/outbound/persistence/opportunity.repository.js";
 import type { ProfileRepository } from "../../../../domain/ports/outbound/persistence/profile.repository.js";
@@ -63,6 +64,7 @@ export const mockOpportunityDetail = {
 };
 
 export const mockProfile: Profile = {
+  contactEmail: "operatore.demo@example.org",
   displayName: "Operatore Demo",
   operatorId: MOCK_OPERATOR_ID,
   place: {
@@ -72,6 +74,8 @@ export const mockProfile: Profile = {
     type: "online",
     website: { url: "https://example.org" },
   },
+  privacyUrl: "https://example.org/privacy",
+  tosUrl: "https://example.org/terms",
 };
 
 export const createMockProfileRepository = (
@@ -80,12 +84,21 @@ export const createMockProfileRepository = (
   create: overrides.create ?? vi.fn(),
   getByOperatorId:
     overrides.getByOperatorId ?? vi.fn().mockResolvedValue(ok(mockProfile)),
+  updateByOperatorId: overrides.updateByOperatorId ?? vi.fn(),
 });
 
 export const createMockMaterializedViewRepository = (
   overrides: Partial<MaterializedViewRepository> = {},
 ): MaterializedViewRepository => ({
   refreshAll: overrides.refreshAll ?? vi.fn().mockResolvedValue(ok(undefined)),
+});
+
+export const createMockEmailRepository = (
+  overrides: Partial<EmailRepository> = {},
+): EmailRepository => ({
+  sendOpportunityApprovedEmail:
+    overrides.sendOpportunityApprovedEmail ??
+    vi.fn().mockResolvedValue(ok(undefined)),
 });
 
 export const createMockOpportunityRepository = (
@@ -101,6 +114,9 @@ export const createMockOpportunityRepository = (
   findAll: overrides.findAll ?? vi.fn(),
   findById: overrides.findById ?? vi.fn(),
   findByIdAndOperatorId: overrides.findByIdAndOperatorId ?? vi.fn(),
+  republishById: overrides.republishById ?? vi.fn(),
+  republishByIdAndOperatorId: overrides.republishByIdAndOperatorId ?? vi.fn(),
+  requestChangesById: overrides.requestChangesById ?? vi.fn(),
   suspendById: overrides.suspendById ?? vi.fn(),
   suspendByIdAndOperatorId: overrides.suspendByIdAndOperatorId ?? vi.fn(),
   updateByIdAndOperatorId: overrides.updateByIdAndOperatorId ?? vi.fn(),

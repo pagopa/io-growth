@@ -20,6 +20,8 @@ const mockDetail: PlaceDetail = {
   entityId: "01JVMK3N8XQZP5T6G2WYHAB4CD",
   entityName: "Comune di Alessandria",
   id: "01JVMK3N8XQZP5T6G2WYHAB4CE",
+  operatorFiscalCode: "00000000000",
+  operatorName: "Operator Test Name",
   opportunities: [
     {
       benefit: { discountType: "percentage", type: "discount", value: 30 },
@@ -58,6 +60,8 @@ describe("makeGetPlaceDetailUseCase", () => {
         entityId: "01JVMK3N8XQZP5T6G2WYHAB4CD",
         entityName: "Comune di Alessandria",
         id: "01JVMK3N8XQZP5T6G2WYHAB4CE",
+        operatorFiscalCode: "00000000000",
+        operatorName: "Operator Test Name",
         opportunities: [
           {
             benefit: {

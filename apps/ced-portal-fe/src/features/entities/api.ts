@@ -1,10 +1,12 @@
 import { baseApi } from '../../core/api/baseApi.js';
 import {
   getCompleteOnboardingUrl,
+  getAdminRejectOnboardingUrl,
   getGetContractSignedUrl,
   getGetOnboardingUrl,
 } from '../../generated/endpoints/department/department';
 import type {
+  AdminRejectOnboardingBody,
   CompleteOnboardingBody,
   ListOnboardingsParams,
   PendingOnboardingsResponse,
@@ -80,6 +82,14 @@ const entitiesApi = baseApi.injectEndpoints({
       query: ({ onboardingId }) => ({
         url: `/department/onboardings/${onboardingId}/revoke`,
         method: 'PATCH',
+    rejectOnboarding: builder.mutation<
+      void,
+      { onboardingId: string; body: AdminRejectOnboardingBody }
+    >({
+      query: ({ onboardingId, body }) => ({
+        url: getAdminRejectOnboardingUrl(onboardingId),
+        method: 'PATCH',
+        body,
       }),
       invalidatesTags: ['Entities'],
     }),
@@ -92,4 +102,5 @@ export const {
   useGetContractSignedMutation,
   useCompleteOnboardingMutation,
   useTerminateOnboardingMutation,
+  useRejectOnboardingMutation,
 } = entitiesApi;

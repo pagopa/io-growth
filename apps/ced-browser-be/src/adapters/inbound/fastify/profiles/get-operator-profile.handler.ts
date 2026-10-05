@@ -10,7 +10,7 @@ import { z } from "zod";
 
 import type { GetOperatorProfileUseCase } from "../../../../application/use-cases/profiles/get-operator-profile.use-case.js";
 
-import { LANGUAGE_VALUES } from "../../../../domain/ports/outbound/persistence/place.repository.js";
+import { LANGUAGE_VALUES } from "../../../../domain/entities/language.js";
 import { CitizenSessionSchema } from "../auth/session.js";
 import {
   GetOperatorProfileParams,

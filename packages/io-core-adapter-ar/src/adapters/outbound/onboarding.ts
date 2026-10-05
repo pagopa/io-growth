@@ -6,12 +6,17 @@ import type { CustomFetch } from "../../fetch.js";
 import type {
   completeOnboardingUsingPUTResponse,
   getOnboardingWithFilterResponse,
+  rejectOnboardingUsingPUTResponse,
 } from "../../generated/endpoints/onboarding-controller/onboarding-controller.js";
-import type { CompleteOnboardingUsingPUTBody } from "../../generated/model/index.js";
+import type {
+  CompleteOnboardingUsingPUTBody,
+  ReasonRequest,
+} from "../../generated/model/index.js";
 
 import {
   getCompleteOnboardingUsingPUTUrl,
   getGetOnboardingWithFilterUrl,
+  getRejectOnboardingUsingPUTUrl,
 } from "../../generated/endpoints/onboarding-controller/onboarding-controller.js";
 
 export const createOnboardingClient = (
@@ -63,6 +68,31 @@ export const createOnboardingClient = (
       return err(
         new GenericError(`getOnboardingWithFilter failed: ${String(error)}`),
       );
+    }
+  },
+
+  rejectOnboarding: async (onboardingId, body?: ReasonRequest) => {
+    try {
+      const response = await customFetch<rejectOnboardingUsingPUTResponse>(
+        getRejectOnboardingUsingPUTUrl(onboardingId),
+        {
+          body: JSON.stringify(body),
+          headers: { "Content-Type": "application/json" },
+          method: "PUT",
+        },
+      );
+
+      const { status } = response as unknown as { status: number };
+      if (status < 200 || status >= 300) {
+        return err(
+          new GenericError(
+            `rejectOnboarding failed with status ${String(status)}`,
+          ),
+        );
+      }
+      return ok(undefined);
+    } catch (error) {
+      return err(new GenericError(`rejectOnboarding failed: ${String(error)}`));
     }
   },
 });

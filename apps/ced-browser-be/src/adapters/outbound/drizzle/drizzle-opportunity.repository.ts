@@ -84,7 +84,10 @@ export const createDrizzleOpportunityRepository = (
             },
           },
           operator: {
-            columns: {},
+            columns: {
+              fiscalCode: true,
+              name: true,
+            },
             with: {
               profile: {
                 columns: {
@@ -193,6 +196,8 @@ export const createDrizzleOpportunityRepository = (
             id: opportunityMaterializedView.id,
             language: opportunityMaterializedView.language,
             name: sql<string>`${opportunityMaterializedView.name}`,
+            operatorFiscalCode: opportunityMaterializedView.operatorFiscalCode,
+            operatorName: opportunityMaterializedView.operatorName,
             profileDisplayName: sql<string>`${opportunityMaterializedView.profileDisplayName}`,
           })
           .from(opportunityMaterializedView)
@@ -214,6 +219,8 @@ export const createDrizzleOpportunityRepository = (
         beneficiaryBenefitValue: row.beneficiaryBenefitValue,
         id: row.id,
         name: row.name,
+        operatorFiscalCode: row.operatorFiscalCode,
+        operatorName: row.operatorName,
         profileDisplayName: row.profileDisplayName,
         ...(row.dateFrom ? { dateFrom: row.dateFrom } : {}),
         ...(row.dateTo ? { dateTo: row.dateTo } : {}),

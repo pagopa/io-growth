@@ -4,12 +4,15 @@ export { mountAdminCompleteOnboardingHandler } from "./department/admin-complete
 export { mountAdminGetContractSignedHandler } from "./department/admin-get-contract-signed.handler.js";
 export { mountAdminGetOnboardingHandler } from "./department/admin-get-onboarding.handler.js";
 export { mountAdminListPendingOnboardingsHandler } from "./department/admin-list-pending-onboardings.handler.js";
+export { mountAdminRejectOnboardingHandler } from "./department/admin-reject-onboarding.handler.js";
 export { mountInfoReadinessHandler } from "./health/info-readiness.handler.js";
 export { mountInfoStartupHandler } from "./health/info-startup.handler.js";
 export { mountAdminApproveOpportunityHandler } from "./opportunities/admin-approve-opportunity.handler.js";
 export { mountAdminCancelScheduledSuspensionHandler } from "./opportunities/admin-cancel-scheduled-suspension.handler.js";
 export { mountAdminGetOpportunityHandler } from "./opportunities/admin-get-opportunity.handler.js";
 export { mountAdminListOpportunitiesHandler } from "./opportunities/admin-list-opportunities.handler.js";
+export { mountAdminRepublishOpportunityHandler } from "./opportunities/admin-republish-opportunity.handler.js";
+export { mountAdminRequestOpportunityChangesHandler } from "./opportunities/admin-request-opportunity-changes.handler.js";
 export { mountAdminSuspendOpportunityHandler } from "./opportunities/admin-suspend-opportunity.handler.js";
 export { mountOperatorCancelScheduledSuspensionHandler } from "./opportunities/operator-cancel-scheduled-suspension.handler.js";
 export { mountOperatorCreateOpportunityHandler } from "./opportunities/operator-create-opportunity.handler.js";
@@ -18,6 +21,7 @@ export { mountOperatorGetOpportunityHandler } from "./opportunities/operator-get
 export { mountOperatorListOpportunitiesHandler } from "./opportunities/operator-list-opportunities.handler.js";
 export { mountOperatorListOpportunityCategoriesHandler } from "./opportunities/operator-list-opportunity-categories.handler.js";
 export { mountOperatorPublishOpportunityHandler } from "./opportunities/operator-publish-opportunity.handler.js";
+export { mountOperatorRepublishOpportunityHandler } from "./opportunities/operator-republish-opportunity.handler.js";
 export { mountOperatorRequestOpportunityTestHandler } from "./opportunities/operator-request-opportunity-test.handler.js";
 export { mountOperatorSuspendOpportunityHandler } from "./opportunities/operator-suspend-opportunity.handler.js";
 export { mountOperatorUpdateOpportunityHandler } from "./opportunities/operator-update-opportunity.handler.js";
@@ -26,3 +30,4 @@ export { mountOperatorGetPlaceHandler } from "./places/operator-get-place.handle
 export { mountOperatorListPlacesHandler } from "./places/operator-list-places.handler.js";
 export { mountOperatorCreateProfileHandler } from "./profile/operator-create-profile.handler.js";
 export { mountOperatorGetProfileHandler } from "./profile/operator-get-profile.handler.js";
+export { mountOperatorUpdateProfileHandler } from "./profile/operator-update-profile.handler.js";

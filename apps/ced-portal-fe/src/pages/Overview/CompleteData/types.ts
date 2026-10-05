@@ -19,6 +19,7 @@ export interface CompleteDataFormData {
   postalCode: string;
   province: string;
   contacts: ContactFormData[];
+  internalEmail: string;
   logoFile: File | null;
   coverFile: File | null;
   privacyUrl: string;

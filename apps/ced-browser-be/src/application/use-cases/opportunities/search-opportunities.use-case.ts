@@ -12,11 +12,11 @@ import type {
   SearchOpportunitiesResult,
 } from "../../../domain/ports/outbound/persistence/opportunity.repository.js";
 
+import { LANGUAGE_VALUES } from "../../../domain/entities/language.js";
 import {
   OPPORTUNITY_ORDER_BY_VALUES,
   OPPORTUNITY_ORDER_DIRECTION_VALUES,
 } from "../../../domain/ports/outbound/persistence/opportunity.repository.js";
-import { LANGUAGE_VALUES } from "../../../domain/ports/outbound/persistence/place.repository.js";
 import { validateUseCaseInput } from "../utils/validate-use-case-input.js";
 
 const SearchOpportunitiesInputSchema = z.object({

@@ -9,22 +9,22 @@ import type { ContactFormData } from '../types';
 interface ContactsSectionProps {
   submitted: boolean;
   contacts: ContactFormData[];
-  onAddContact: () => void;
-  onRemoveContact: (index: number) => void;
   onContactChange: (
     index: number,
     field: keyof ContactFormData,
     value: string,
   ) => void;
+  onAddContact: () => void;
+  onRemoveContact: (index: number) => void;
 }
 
 export const ContactsSection = memo(
   ({
     submitted,
     contacts,
+    onContactChange,
     onAddContact,
     onRemoveContact,
-    onContactChange,
   }: ContactsSectionProps) => {
     return (
       <Paper

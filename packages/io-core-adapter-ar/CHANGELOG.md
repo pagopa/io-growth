@@ -1,5 +1,17 @@
 # @pagopa/io-core-adapter-ar
 
+## 0.1.2
+
+### Patch Changes
+
+- 8f9c71e: Stop re-running `generate` inside `build`: turbo already runs it as a dependency, and the duplicate run rewrote `src/generated` while `typecheck` was compiling it.
+
+## 0.1.1
+
+### Patch Changes
+
+- b795362: Add the department onboarding-rejection endpoint: PATCH /api/department/onboardings/{onboardingId}/reject
+
 ## 0.1.0
 
 ### Minor Changes

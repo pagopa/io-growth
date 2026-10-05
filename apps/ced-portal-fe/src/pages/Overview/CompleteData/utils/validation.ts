@@ -31,30 +31,48 @@ const validateFirstContact = (
 };
 
 export type CompleteDataValidationResult = {
+  logoError: string;
+  coverError: string;
+  internalEmailError: string;
+  privacyUrlError: string;
+  termsUrlError: string;
   firstContactErrors: FirstContactErrors;
   isValid: boolean;
 };
 
-export const validateCompleteDataForm = ({
-  name,
-  sede,
-  websiteUrl,
-  street,
-  city,
-  postalCode,
-  province,
-  contacts,
-}: Pick<
-  CompleteDataFormData,
-  | 'name'
-  | 'sede'
-  | 'websiteUrl'
-  | 'street'
-  | 'city'
-  | 'postalCode'
-  | 'province'
-  | 'contacts'
->): CompleteDataValidationResult => {
+export const validateCompleteDataForm = (
+  {
+    name,
+    sede,
+    websiteUrl,
+    street,
+    city,
+    postalCode,
+    province,
+    contacts,
+    internalEmail,
+    logoFile,
+    coverFile,
+    privacyUrl,
+    termsUrl,
+  }: Pick<
+    CompleteDataFormData,
+    | 'name'
+    | 'sede'
+    | 'websiteUrl'
+    | 'street'
+    | 'city'
+    | 'postalCode'
+    | 'province'
+    | 'contacts'
+    | 'internalEmail'
+    | 'logoFile'
+    | 'coverFile'
+    | 'privacyUrl'
+    | 'termsUrl'
+  >,
+  requireImages = true,
+): CompleteDataValidationResult => {
   const nameError = name.trim() ? '' : 'Campo obbligatorio';
   const isWebsite = sede === 'sito_web';
   const isPhysical = sede === 'fisica';
@@ -66,6 +84,21 @@ export const validateCompleteDataForm = ({
     isPhysical && !postalCode.trim() ? 'Campo obbligatorio' : '';
   const provinceError =
     isPhysical && !province.trim() ? 'Campo obbligatorio' : '';
+  const logoError = logoFile || !requireImages ? '' : 'Campo obbligatorio';
+  const coverError = coverFile || !requireImages ? '' : 'Campo obbligatorio';
+  const internalEmailError = internalEmail.trim()
+    ? ''
+    : 'Indica almeno un indirizzo mail';
+  const privacyUrlError = !privacyUrl.trim()
+    ? 'Campo obbligatorio'
+    : isValidHttpsUrl(privacyUrl.trim())
+      ? ''
+      : 'Inserisci un URL valido (es. https://...)';
+  const termsUrlError = !termsUrl.trim()
+    ? 'Campo obbligatorio'
+    : isValidHttpsUrl(termsUrl.trim())
+      ? ''
+      : 'Inserisci un URL valido (es. https://...)';
   const firstContactErrors = validateFirstContact(contacts);
   const isValid = [
     nameError,
@@ -74,11 +107,21 @@ export const validateCompleteDataForm = ({
     cityError,
     postalCodeError,
     provinceError,
+    logoError,
+    coverError,
+    internalEmailError,
+    privacyUrlError,
+    termsUrlError,
     firstContactErrors.firstContactType,
     firstContactErrors.firstContactValue,
   ].every((error) => !error);
 
   return {
+    logoError,
+    coverError,
+    internalEmailError,
+    privacyUrlError,
+    termsUrlError,
     firstContactErrors,
     isValid,
   };

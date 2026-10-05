@@ -29,6 +29,7 @@ export interface OpportunityDetailRow {
   readonly caregiverBenefit: BenefitRow | null;
   readonly category: null | { readonly title: string };
   readonly categoryId: string;
+  readonly changeRequestMessage?: null | string;
   readonly createdAt: Date;
   readonly dateFrom: string;
   readonly dateTo: null | string;
@@ -41,6 +42,7 @@ export interface OpportunityDetailRow {
   }[];
   readonly nationalTerritory: boolean;
   readonly operator?: null | { readonly name: string };
+  readonly operatorId: string;
   readonly opportunityPlaces: readonly { readonly placeId: string }[];
   readonly status: Opportunity["status"];
   readonly suspendedBy?: "department" | "operator" | null;
@@ -134,6 +136,7 @@ export const mapOpportunityDetailRow = (
     caregiverBenefit,
     categoryId: row.categoryId,
     categoryTitle: row.category.title,
+    changeRequestMessage: row.changeRequestMessage ?? null,
     createdAt: row.createdAt.toISOString(),
     dateFrom: row.dateFrom,
     dateTo: row.dateTo,
@@ -145,6 +148,7 @@ export const mapOpportunityDetailRow = (
       value: lm.value,
     })),
     nationalTerritory: row.nationalTerritory,
+    operatorId: row.operatorId,
     operatorName: row.operator?.name,
     placeIds: row.opportunityPlaces.map((op) => op.placeId),
     status: deriveOpportunityDisplayStatus(

@@ -16,6 +16,8 @@ export const mockOpportunityDiscount: OpportunitySearchItem = {
   id: "01JVMK3N8XQZP5T6G2WYHAB4CD",
   language: "it",
   name: "Sconto mensile palestra",
+  operatorFiscalCode: "00000000000",
+  operatorName: "Operator Test Name",
   profileDisplayName: "Palestra FitLife Roma Centro",
 };
 
@@ -26,6 +28,8 @@ export const mockOpportunityFree: OpportunitySearchItem = {
   dateFrom: "2026-02-01",
   id: "01JVMK3N8XQZP5T6G2WYHAB4CE",
   name: "Ingresso gratuito museo",
+  operatorFiscalCode: "00000000002",
+  operatorName: "Operator Test Name 3",
   profileDisplayName: "Museo Civico",
 };
 

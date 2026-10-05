@@ -20,6 +20,8 @@ const baseRow: OpportunityDetailRow = {
   localizedMetadata: [],
   nationalTerritory: false,
   operator: {
+    fiscalCode: "00000000000",
+    name: "Operator Test Name",
     profile: {
       displayName: "Comune di Alessandria",
       id: "profile-id",
@@ -122,6 +124,8 @@ describe("mapOpportunityDetailRow", () => {
     expect(result).toEqual(
       ok(
         expect.objectContaining({
+          operatorFiscalCode: "00000000000",
+          operatorName: "Operator Test Name",
           profile: {
             displayName: "Comune di Alessandria",
             id: "profile-id",
@@ -152,6 +156,8 @@ describe("mapOpportunityDetailRow", () => {
           { key: "description", language: "it", value: "Descrizione italiana" },
         ],
         operator: {
+          fiscalCode: "00000000000",
+          name: "Operator Test Name",
           profile: {
             displayName: "Comune di Alessandria",
             id: "profile-id",
@@ -195,7 +201,27 @@ describe("mapOpportunityDetailRow", () => {
           { key: "name", language: "it", value: "Nome italiano" },
           { key: "description", language: "it", value: "Descrizione italiana" },
         ],
-        operator: { profile: null },
+        operator: {
+          fiscalCode: "00000000000",
+          name: "Operator Test Name",
+          profile: null,
+        },
+      },
+      "it",
+    );
+
+    expect(result).toEqual(err(expect.any(GenericError)));
+  });
+
+  it("returns a data integrity error when the operator is missing", () => {
+    const result = mapOpportunityDetailRow(
+      {
+        ...baseRow,
+        localizedMetadata: [
+          { key: "name", language: "it", value: "Nome italiano" },
+          { key: "description", language: "it", value: "Descrizione italiana" },
+        ],
+        operator: null,
       },
       "it",
     );

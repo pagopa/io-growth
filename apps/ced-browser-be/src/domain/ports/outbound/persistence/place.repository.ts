@@ -1,6 +1,9 @@
 import type { GenericError } from "@pagopa/io-core-domain/errors";
 import type { Result } from "neverthrow";
 
+import type { Language } from "../../../entities/language.js";
+import type { OperatorMetadata } from "../../../entities/operator.js";
+
 export interface PlaceAddress {
   city: string;
   postalCode: string;
@@ -8,28 +11,14 @@ export interface PlaceAddress {
   street: string;
 }
 
-export const PLACE_TYPES = ["place", "profile"] as const;
-export interface PlaceSearchItem {
-  address: null | PlaceAddress;
-  entityId: string;
-  id: string;
-  name: string;
-  type: PlaceType;
-  url?: string;
-}
-
-export type PlaceType = (typeof PLACE_TYPES)[number];
-
-export const LANGUAGE_VALUES = ["en", "fr", "de", "sl", "it"] as const;
-export type Language = (typeof LANGUAGE_VALUES)[number];
-
 export interface PlaceBenefit {
   discountType: "fixed_amount" | "percentage" | null;
   type: "discount" | "free" | "other" | "priority" | "reduced_fixed_price";
   value: null | number;
 }
 
-export interface PlaceDetail {
+export const PLACE_TYPES = ["place", "profile"] as const;
+export interface PlaceDetail extends OperatorMetadata {
   address: null | PlaceAddress;
   contacts: { phone?: string; website?: string };
   entityId: string;
@@ -59,6 +48,17 @@ export interface PlaceRepository {
     input: PlaceDetailInput,
   ) => Promise<Result<PlaceDetail | undefined, GenericError>>;
 }
+
+export interface PlaceSearchItem extends OperatorMetadata {
+  address: null | PlaceAddress;
+  entityId: string;
+  id: string;
+  name: string;
+  type: PlaceType;
+  url?: string;
+}
+
+export type PlaceType = (typeof PLACE_TYPES)[number];
 
 export interface RelatedPlace {
   address: null | PlaceAddress;

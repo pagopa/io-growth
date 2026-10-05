@@ -11,7 +11,7 @@ import {
   Typography,
   useTheme,
 } from '@mui/material';
-import { MIChip } from '@pagopa/mui-italia';
+import { MIAlert, MIChip } from '@pagopa/mui-italia';
 import { useNavigate } from 'react-router-dom';
 import { APP_ROUTES } from '../../app/routeConfig';
 import { UploadDropzone } from '../../components';
@@ -19,7 +19,6 @@ import {
   ENTITY_STATE_COLORS,
   ENTITY_STATE_OPTIONS,
 } from '../../constants/opportunityState';
-import { useToast } from '../../contexts';
 import { DetailSection } from '../OpportunityDetail/components/DetailSection';
 import { PublishEntityModal } from './components/PublishEntityModal';
 import { RejectEntityModal } from './components/RejectEntityModal';
@@ -51,6 +50,7 @@ export default function EntityDetailPage() {
       approve: handleApprove,
       publish: handlePublish,
       terminate: handleTerminate,
+      reject: handleReject,
       refetch,
     },
     modals: {
@@ -64,9 +64,9 @@ export default function EntityDetailPage() {
       isDownloadingContract,
       isCompletingOnboarding,
       isTerminatingOnboarding,
+      isRejectingOnboarding,
     },
   } = useEntityDetail();
-  const { showToast } = useToast();
 
   if (isLoading) {
     return (
@@ -181,6 +181,32 @@ export default function EntityDetailPage() {
             Termina convenzione
           </Button>
         )}
+        {onboarding.status === 'REJECTED' && (
+          <MIAlert severity="error">
+            <Typography
+              sx={{
+                color: 'text.primary',
+                fontSize: 18,
+                fontWeight: 600,
+                lineHeight: 1.2,
+              }}
+            >
+              Perché hai rifiutato la richiesta di convenzionamento
+            </Typography>
+            <Typography
+              sx={{
+                color: 'text.primary',
+                fontSize: 16,
+                fontStyle: 'italic',
+                lineHeight: 1.3,
+                mt: 1.5,
+              }}
+            >
+              {onboarding.reasonForReject || '{Value}'}
+            </Typography>
+          </MIAlert>
+        )}
+
         <SectionCard title="Dati dell'ente">
           <DetailSection fields={entityFields} />
           <Box sx={{ py: 2, px: 3 }}>
@@ -308,13 +334,10 @@ export default function EntityDetailPage() {
             <RejectEntityModal
               open={openRejectModal}
               onClose={() => setOpenRejectModal(false)}
-              onConfirm={() => {
-                setOpenRejectModal(false);
-                navigate(APP_ROUTES.ENTITIES);
-                showToast('Fatto', 'success');
-              }}
+              onConfirm={handleReject}
               entityName={entityName}
               productName={onboarding.productId ?? '-'}
+              isLoading={isRejectingOnboarding}
             />
             <PublishEntityModal
               open={openPublishModal}

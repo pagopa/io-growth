@@ -1,6 +1,6 @@
 {
   "name": "@pagopa/io-core-adapter-fims",
-  "version": "0.0.12",
+  "version": "0.0.14",
   "type": "module",
   "exports": {
     ".": {
@@ -25,7 +25,7 @@
     "@mattrglobal/http-signatures": "^4.0.1",
     "@pagopa/io-core-adapter-fastify": "workspace:^",
     "@pagopa/io-core-domain": "workspace:^",
-    "@xmldom/xmldom": "^0.9.8",
+    "@xmldom/xmldom": "^0.9.12",
     "fastify": "catalog:",
     "jose": "^6.2.2",
     "neverthrow": "catalog:",

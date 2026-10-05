@@ -1,4 +1,5 @@
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
+import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 import StorefrontOutlinedIcon from '@mui/icons-material/StorefrontOutlined';
 import { IconButton, Paper, Stack, Typography } from '@mui/material';
 import {
@@ -23,6 +24,8 @@ interface EntityDataSectionProps {
   province: string;
   logoFile: File | null;
   coverFile: File | null;
+  logoPreviewSrc?: string;
+  coverPreviewSrc?: string;
   onNameChange: (value: string) => void;
   onSedeChange: (value: '' | 'fisica' | 'sito_web') => void;
   onWebsiteUrlChange: (value: string) => void;
@@ -39,6 +42,8 @@ interface EntityDataSectionProps {
   cityError?: string;
   postalCodeError?: string;
   provinceError?: string;
+  logoError?: string;
+  coverError?: string;
 }
 
 export const EntityDataSection = ({
@@ -52,6 +57,8 @@ export const EntityDataSection = ({
   province,
   logoFile,
   coverFile,
+  logoPreviewSrc,
+  coverPreviewSrc,
   onNameChange,
   onSedeChange,
   onWebsiteUrlChange,
@@ -68,6 +75,8 @@ export const EntityDataSection = ({
   cityError,
   postalCodeError,
   provinceError,
+  logoError,
+  coverError,
 }: EntityDataSectionProps) => {
   const isWebsite = sede === 'sito_web';
   const isPhysical = sede === 'fisica';
@@ -222,17 +231,35 @@ export const EntityDataSection = ({
           </Stack>
           <UploadDropzone
             selectedFileName={logoFile?.name}
+            previewFile={logoFile}
+            previewSrc={logoPreviewSrc}
+            previewKind="logo"
+            uploadLabel="Carica logo"
             onFileSelect={onLogoSelect}
+            acceptedTypes={['image/png', 'image/jpeg', '.png', '.jpg', '.jpeg']}
             title="Trascina qui il logo del tuo ente"
             subtitle={'Dimensione massima 300 x 300px - Formato .jpg o .png'}
+            fieldError={Boolean(logoError)}
           />
-          <Typography
-            variant="body2"
-            sx={{ ml: 4 }}
-            color="common.requiredField"
-          >
-            * Campo obbligatorio
-          </Typography>
+          {logoError ? (
+            <Stack direction="row" spacing={1} sx={{ ml: 4 }}>
+              <ErrorOutlineIcon
+                fontSize="small"
+                sx={{ color: 'common.requiredField' }}
+              />
+              <Typography variant="body2" color="common.requiredField">
+                {logoError}
+              </Typography>
+            </Stack>
+          ) : (
+            <Typography
+              variant="body2"
+              sx={{ ml: 4 }}
+              color="common.requiredField"
+            >
+              * Campo obbligatorio
+            </Typography>
+          )}
         </Stack>
 
         <Stack spacing={2}>
@@ -263,10 +290,35 @@ export const EntityDataSection = ({
           </Stack>
           <UploadDropzone
             selectedFileName={coverFile?.name}
+            previewFile={coverFile}
+            previewSrc={coverPreviewSrc}
+            previewKind="cover"
+            uploadLabel="Carica copertina"
             onFileSelect={onCoverSelect}
+            acceptedTypes={['image/png', 'image/jpeg', '.png', '.jpg', '.jpeg']}
             title={"Trascina qui un'immagine di copertina"}
             subtitle={'Dimensione massima 300 x 600 px - Formato .jpg o .png'}
+            fieldError={Boolean(coverError)}
           />
+          {coverError ? (
+            <Stack direction="row" spacing={1} sx={{ ml: 4 }}>
+              <ErrorOutlineIcon
+                fontSize="small"
+                sx={{ color: 'common.requiredField' }}
+              />
+              <Typography variant="body2" color="common.requiredField">
+                {coverError}
+              </Typography>
+            </Stack>
+          ) : (
+            <Typography
+              variant="body2"
+              sx={{ ml: 4 }}
+              color="common.requiredField"
+            >
+              * Campo obbligatorio
+            </Typography>
+          )}
         </Stack>
       </Stack>
     </Paper>

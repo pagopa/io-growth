@@ -8,6 +8,7 @@ import {
   getSessionFromRequest,
   multipart,
 } from "@pagopa/io-core-adapter-fastify";
+import { createOneMailClient } from "@pagopa/io-core-adapter-one-mail";
 import { createResilientRedisClient } from "@pagopa/io-core-adapter-redis";
 import {
   emitCustomEvent,
@@ -26,6 +27,9 @@ import {
   mountAdminGetOpportunityHandler,
   mountAdminListOpportunitiesHandler,
   mountAdminListPendingOnboardingsHandler,
+  mountAdminRejectOnboardingHandler,
+  mountAdminRepublishOpportunityHandler,
+  mountAdminRequestOpportunityChangesHandler,
   mountAdminSuspendOpportunityHandler,
   mountAuthorizeHandler,
   mountInfoReadinessHandler,
@@ -42,9 +46,11 @@ import {
   mountOperatorListOpportunityCategoriesHandler,
   mountOperatorListPlacesHandler,
   mountOperatorPublishOpportunityHandler,
+  mountOperatorRepublishOpportunityHandler,
   mountOperatorRequestOpportunityTestHandler,
   mountOperatorSuspendOpportunityHandler,
   mountOperatorUpdateOpportunityHandler,
+  mountOperatorUpdateProfileHandler,
 } from "./adapters/inbound/fastify/index.js";
 import { createArOnboardingRepository } from "./adapters/outbound/ar/ar-onboarding.repository.js";
 import { createAzureProfileAssetsRepository } from "./adapters/outbound/blob/azure-profile-assets.repository.js";
@@ -55,6 +61,7 @@ import { createDrizzleOpportunityCategoryRepository } from "./adapters/outbound/
 import { createDrizzleOpportunityRepository } from "./adapters/outbound/drizzle/drizzle-opportunity.repository.js";
 import { createDrizzlePlaceRepository } from "./adapters/outbound/drizzle/drizzle-place.repository.js";
 import { createDrizzleProfileRepository } from "./adapters/outbound/drizzle/drizzle-profile.repository.js";
+import { createOneMailEmailRepository } from "./adapters/outbound/one-mail/one-mail-email.repository.js";
 import { createRedisHealthCheckRepository } from "./adapters/outbound/redis/redis-health-check.repository.js";
 import { createRedisSessionRepository } from "./adapters/outbound/redis/redis-session.repository.js";
 import { makeAcsUseCase } from "./application/use-cases/auth/acs.use-case.js";
@@ -63,12 +70,15 @@ import { makeAdminCompleteOnboardingUseCase } from "./application/use-cases/depa
 import { makeAdminGetContractSignedUseCase } from "./application/use-cases/department/admin-get-contract-signed.use-case.js";
 import { makeAdminGetOnboardingUseCase } from "./application/use-cases/department/admin-get-onboarding.use-case.js";
 import { makeAdminListPendingOnboardingsUseCase } from "./application/use-cases/department/admin-list-pending-onboardings.use-case.js";
+import { makeAdminRejectOnboardingUseCase } from "./application/use-cases/department/admin-reject-onboarding.use-case.js";
 import { makeInfoReadinessUseCase } from "./application/use-cases/health/info-readiness.use-case.js";
 import { makeInfoStartupUseCase } from "./application/use-cases/health/info-startup.use-case.js";
 import { makeAdminApproveOpportunityUseCase } from "./application/use-cases/opportunities/admin-approve-opportunity.use-case.js";
 import { makeAdminCancelScheduledSuspensionUseCase } from "./application/use-cases/opportunities/admin-cancel-scheduled-suspension.use-case.js";
 import { makeAdminGetOpportunityUseCase } from "./application/use-cases/opportunities/admin-get-opportunity.use-case.js";
 import { makeAdminListOpportunitiesUseCase } from "./application/use-cases/opportunities/admin-list-opportunities.use-case.js";
+import { makeAdminRepublishOpportunityUseCase } from "./application/use-cases/opportunities/admin-republish-opportunity.use-case.js";
+import { makeAdminRequestOpportunityChangesUseCase } from "./application/use-cases/opportunities/admin-request-opportunity-changes.use-case.js";
 import { makeAdminSuspendOpportunityUseCase } from "./application/use-cases/opportunities/admin-suspend-opportunity.use-case.js";
 import { makeOperatorCancelScheduledSuspensionUseCase } from "./application/use-cases/opportunities/operator-cancel-scheduled-suspension.use-case.js";
 import { makeOperatorCreateOpportunityUseCase } from "./application/use-cases/opportunities/operator-create-opportunity.use-case.js";
@@ -77,6 +87,7 @@ import { makeOperatorGetOpportunityUseCase } from "./application/use-cases/oppor
 import { makeOperatorListOpportunitiesUseCase } from "./application/use-cases/opportunities/operator-list-opportunities.use-case.js";
 import { makeOperatorListOpportunityCategoriesUseCase } from "./application/use-cases/opportunities/operator-list-opportunity-categories.use-case.js";
 import { makeOperatorPublishOpportunityUseCase } from "./application/use-cases/opportunities/operator-publish-opportunity.use-case.js";
+import { makeOperatorRepublishOpportunityUseCase } from "./application/use-cases/opportunities/operator-republish-opportunity.use-case.js";
 import { makeOperatorRequestOpportunityTestUseCase } from "./application/use-cases/opportunities/operator-request-opportunity-test.use-case.js";
 import { makeOperatorSuspendOpportunityUseCase } from "./application/use-cases/opportunities/operator-suspend-opportunity.use-case.js";
 import { makeOperatorUpdateOpportunityUseCase } from "./application/use-cases/opportunities/operator-update-opportunity.use-case.js";
@@ -85,6 +96,7 @@ import { makeOperatorGetPlaceUseCase } from "./application/use-cases/places/oper
 import { makeOperatorListPlacesUseCase } from "./application/use-cases/places/operator-list-places.use-case.js";
 import { makeOperatorCreateProfileUseCase } from "./application/use-cases/profile/operator-create-profile.use-case.js";
 import { makeOperatorGetProfileUseCase } from "./application/use-cases/profile/operator-get-profile.use-case.js";
+import { makeOperatorUpdateProfileUseCase } from "./application/use-cases/profile/operator-update-profile.use-case.js";
 import { createSessionContextPreHandler } from "./async-local-storage-session-context.js";
 import { parseConfig } from "./config.js";
 import { createArRouter, createDbRouter } from "./routed-clients.js";
@@ -95,6 +107,22 @@ const dbRouter = createDbRouter(config);
 const arClientRouter = createArRouter(config);
 const dbClient = dbRouter.getInstance();
 const arClient = arClientRouter.getInstance();
+const oneMailClient = createOneMailClient({
+  apiKey: config.ONE_MAIL_API_KEY,
+  baseUrl: config.ONE_MAIL_BASE_URL,
+  onEmailError: (event) => {
+    emitCustomEvent("email.failed", {
+      caller: "OneMailClient",
+      data: { event },
+    })("OneMailClient");
+  },
+  onEmailSent: (event) => {
+    emitCustomEvent("email.sent", {
+      caller: "OneMailClient",
+      data: { event },
+    })("OneMailClient");
+  },
+});
 
 const redisClient = await createResilientRedisClient({
   endpoint: config.REDIS_ENDPOINT,
@@ -137,6 +165,10 @@ const profileAssetsRepository = createAzureProfileAssetsRepository({
   }),
 });
 const arOnboardingRepository = createArOnboardingRepository(arClient);
+const emailRepository = createOneMailEmailRepository(
+  oneMailClient.emailClient,
+  { fromAddress: config.EMAIL_FROM_ADDRESS },
+);
 
 const app = Fastify();
 
@@ -186,6 +218,14 @@ app.register(async (app) => {
     makeOperatorCreateProfileUseCase(
       profileRepository,
       profileAssetsRepository,
+    ),
+  );
+  mountOperatorUpdateProfileHandler(
+    app,
+    makeOperatorUpdateProfileUseCase(
+      profileRepository,
+      profileAssetsRepository,
+      materializedViewRepository,
     ),
   );
   mountOperatorListPlacesHandler(
@@ -285,6 +325,10 @@ app.register(async (app) => {
     app,
     makeAdminGetOnboardingUseCase(arOnboardingRepository),
   );
+  mountAdminRejectOnboardingHandler(
+    app,
+    makeAdminRejectOnboardingUseCase(arOnboardingRepository),
+  );
   mountAdminGetOpportunityHandler(
     app,
     makeAdminGetOpportunityUseCase(opportunityRepository),
@@ -294,11 +338,31 @@ app.register(async (app) => {
     makeAdminApproveOpportunityUseCase(
       opportunityRepository,
       materializedViewRepository,
+      profileRepository,
+      emailRepository,
     ),
+  );
+  mountAdminRequestOpportunityChangesHandler(
+    app,
+    makeAdminRequestOpportunityChangesUseCase(opportunityRepository),
   );
   mountAdminSuspendOpportunityHandler(
     app,
     makeAdminSuspendOpportunityUseCase(
+      opportunityRepository,
+      materializedViewRepository,
+    ),
+  );
+  mountAdminRepublishOpportunityHandler(
+    app,
+    makeAdminRepublishOpportunityUseCase(
+      opportunityRepository,
+      materializedViewRepository,
+    ),
+  );
+  mountOperatorRepublishOpportunityHandler(
+    app,
+    makeOperatorRepublishOpportunityUseCase(
       opportunityRepository,
       materializedViewRepository,
     ),

@@ -193,6 +193,7 @@ export const OpportunityDetailSchema = z.object({
   caregiverBenefit: BenefitSummarySchema.nullable(),
   categoryId: z.ulid(),
   categoryTitle: z.string(),
+  changeRequestMessage: z.string().max(4096).nullish(),
   createdAt: z.string(),
   dateFrom: z.string(),
   dateTo: z.string().nullable(),
@@ -200,6 +201,7 @@ export const OpportunityDetailSchema = z.object({
   id: z.ulid(),
   localizedMetadata: z.array(LocalizedMetadataSummarySchema),
   nationalTerritory: z.boolean(),
+  operatorId: z.ulid().optional(),
   operatorName: z.string().optional(),
   placeIds: z.array(z.ulid()),
   status: z.enum([

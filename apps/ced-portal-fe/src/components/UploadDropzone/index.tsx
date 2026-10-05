@@ -2,10 +2,16 @@ import { UploadFile } from '@mui/icons-material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import InfoRoundedIcon from '@mui/icons-material/InfoRounded';
 import { Box, Button, LinearProgress, Stack, Typography } from '@mui/material';
+import { alpha } from '@mui/material/styles';
+import { useEffect, useState } from 'react';
 import type { ChangeEvent, DragEvent } from 'react';
 
 export type UploadDropzoneProps = {
   selectedFileName?: string;
+  previewFile?: File | null;
+  previewSrc?: string;
+  previewKind?: 'logo' | 'cover';
+  uploadLabel?: string;
   title: string;
   subtitle: string;
   onFileSelect: (file: File | null) => void;
@@ -17,6 +23,8 @@ export type UploadDropzoneProps = {
   isError?: boolean;
   /** Error message to display */
   errorMessage?: string;
+  /** Validation error state for an empty or invalid form field */
+  fieldError?: boolean;
   /** Success state - file uploaded */
   isSuccess?: boolean;
   /** Uploaded file name to display in success state */
@@ -51,8 +59,27 @@ const truncateFileName = (
   return `${truncatedBase}...${extension}`;
 };
 
+const normalizeImageFileType = (file: File): File => {
+  if (file.type === 'image/png' || file.type === 'image/jpeg') return file;
+
+  const fileName = file.name.toLowerCase();
+  const type = fileName.endsWith('.png')
+    ? 'image/png'
+    : fileName.endsWith('.jpg') || fileName.endsWith('.jpeg')
+      ? 'image/jpeg'
+      : undefined;
+
+  return type
+    ? new File([file], file.name, { type, lastModified: file.lastModified })
+    : file;
+};
+
 export function UploadDropzone({
   selectedFileName,
+  previewFile,
+  previewSrc,
+  previewKind,
+  uploadLabel = 'Carica file',
   title,
   subtitle,
   onFileSelect,
@@ -60,6 +87,7 @@ export function UploadDropzone({
   isLoading = false,
   isError = false,
   errorMessage,
+  fieldError = false,
   isSuccess = false,
   uploadedFileName,
   uploadedFileLabel,
@@ -67,6 +95,21 @@ export function UploadDropzone({
   onRetry,
   onDelete,
 }: Readonly<UploadDropzoneProps>) {
+  const [previewUrl, setPreviewUrl] = useState<string>();
+  const [failedPreviewSrc, setFailedPreviewSrc] = useState<string>();
+
+  useEffect(() => {
+    if (!previewFile) {
+      setPreviewUrl(undefined);
+      return;
+    }
+
+    const url = URL.createObjectURL(previewFile);
+    setPreviewUrl(url);
+
+    return () => URL.revokeObjectURL(url);
+  }, [previewFile]);
+
   const handleDragOver = (event: DragEvent<HTMLLabelElement>) => {
     event.preventDefault();
   };
@@ -82,13 +125,17 @@ export function UploadDropzone({
 
   const handleDrop = (event: DragEvent<HTMLLabelElement>) => {
     event.preventDefault();
-    const file = event.dataTransfer.files?.[0] ?? null;
+    const file = event.dataTransfer.files?.[0]
+      ? normalizeImageFileType(event.dataTransfer.files[0])
+      : null;
     if (file && !isAccepted(file)) return;
     onFileSelect(file);
   };
 
   const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0] ?? null;
+    const file = event.target.files?.[0]
+      ? normalizeImageFileType(event.target.files[0])
+      : null;
     if (file && !isAccepted(file)) return;
     onFileSelect(file);
   };
@@ -99,13 +146,16 @@ export function UploadDropzone({
       <Box
         sx={{
           border: '1px dashed #6D8BEE',
+          ...(fieldError && {
+            borderColor: 'common.requiredField',
+          }),
           borderRadius: '8px',
           p: 3,
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
           gap: 3,
-          bgcolor: 'rgba(11, 62, 227, 0.08)',
+          bgcolor: (theme) => alpha(theme.palette.common.primaryButton, 0.08),
         }}
       >
         <Stack spacing={1} sx={{ flex: 1 }}>
@@ -138,7 +188,7 @@ export function UploadDropzone({
           justifyContent: 'space-between',
           alignItems: 'flex-start',
           gap: 3,
-          bgcolor: 'rgba(244, 67, 54, 0.04)',
+          bgcolor: 'common.alertErrorBg',
         }}
       >
         <Stack direction="row" spacing={1.5} sx={{ flex: 1 }}>
@@ -227,6 +277,67 @@ export function UploadDropzone({
   const displayFileName = selectedFileName
     ? truncateFileName(selectedFileName)
     : subtitle;
+  const displayedPreviewUrl =
+    previewUrl ?? (previewSrc !== failedPreviewSrc ? previewSrc : undefined);
+
+  if (displayedPreviewUrl && previewKind) {
+    return (
+      <Box
+        component="label"
+        sx={{
+          border: fieldError ? '1px dashed' : '1px solid',
+          borderColor: fieldError ? 'common.requiredField' : 'divider',
+          borderRadius: '8px',
+          p: { xs: 2, md: 2.5 },
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          gap: 1.5,
+          cursor: 'pointer',
+          bgcolor: fieldError ? 'common.alertErrorBg' : 'common.neutralGray',
+        }}
+      >
+        <Box
+          component="img"
+          src={displayedPreviewUrl}
+          alt={previewFile ? 'Anteprima file selezionato' : title}
+          onError={() => {
+            if (previewSrc && !previewFile) {
+              setFailedPreviewSrc(previewSrc);
+            }
+          }}
+          sx={{
+            width: previewKind === 'logo' ? 100 : 158,
+            height: previewKind === 'logo' ? 100 : 102,
+            objectFit: previewKind === 'logo' ? 'contain' : 'cover',
+            borderRadius: 1,
+            bgcolor: 'common.white',
+          }}
+        />
+        <Button
+          component="span"
+          variant="contained"
+          color={fieldError ? 'error' : 'primary'}
+          sx={{ px: 2.5, py: 1 }}
+        >
+          {uploadLabel}
+        </Button>
+        <Typography
+          variant="caption"
+          color={fieldError ? 'common.requiredField' : 'text.secondary'}
+        >
+          {subtitle}
+        </Typography>
+        <Box
+          component="input"
+          type="file"
+          onChange={handleChange}
+          accept={acceptedTypes?.join(',')}
+          sx={{ display: 'none' }}
+        />
+      </Box>
+    );
+  }
 
   return (
     <Box
@@ -235,6 +346,7 @@ export function UploadDropzone({
       onDrop={handleDrop}
       sx={{
         border: '1px dashed #6D8BEE',
+        borderColor: fieldError ? 'common.requiredField' : '#6D8BEE',
         borderRadius: '8px',
         p: 3,
         display: 'flex',
@@ -243,7 +355,10 @@ export function UploadDropzone({
         gap: 3,
         alignSelf: 'stretch',
         cursor: 'pointer',
-        bgcolor: 'rgba(11, 62, 227, 0.08)',
+        bgcolor: (theme) =>
+          fieldError
+            ? theme.palette.common.alertErrorBg
+            : alpha(theme.palette.common.primaryButton, 0.08),
       }}
     >
       <Stack
@@ -252,14 +367,35 @@ export function UploadDropzone({
         alignItems="center"
         sx={{ minWidth: 0 }}
       >
-        <UploadFile sx={{ color: 'common.black' }} />
+        {previewUrl ? (
+          <Box
+            component="img"
+            src={previewUrl}
+            alt="Anteprima file selezionato"
+            sx={{
+              width: 56,
+              height: 56,
+              objectFit: 'cover',
+              borderRadius: 1,
+              flexShrink: 0,
+            }}
+          />
+        ) : (
+          <UploadFile
+            sx={{ color: fieldError ? 'common.requiredField' : 'common.black' }}
+          />
+        )}
         <Stack spacing={0.25}>
-          <Typography variant="body2" fontWeight={600}>
+          <Typography
+            variant="body2"
+            fontWeight={600}
+            sx={{ color: fieldError ? 'common.requiredField' : 'inherit' }}
+          >
             {title}
           </Typography>
           <Typography
             variant="caption"
-            color="text.secondary"
+            color={fieldError ? 'common.requiredField' : 'text.secondary'}
             noWrap
             title={selectedFileName ?? undefined}
             sx={{
@@ -276,6 +412,7 @@ export function UploadDropzone({
       <Button
         component="span"
         variant="contained"
+        color={fieldError ? 'error' : 'primary'}
         sx={{
           px: 4,
           py: 1.5,

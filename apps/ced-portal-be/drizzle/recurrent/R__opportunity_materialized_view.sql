@@ -7,6 +7,8 @@ CREATE MATERIALIZED VIEW opportunity_materialized_view AS
 SELECT
   o.id,
   o.operator_id,
+  op.name AS operator_name,
+  op.fiscal_code AS operator_fiscal_code,
   o.national_territory,
   o.date_from,
   o.date_to,
@@ -18,6 +20,7 @@ SELECT
   bb.discount_type AS beneficiary_benefit_discount_type,
   opp_p.place_id AS place_id
 FROM opportunity o
+JOIN operator op ON op.id = o.operator_id
 JOIN beneficiary_benefit bb ON bb.opportunity_id = o.id
 JOIN profile pf ON pf.operator_id = o.operator_id
 LEFT JOIN opportunity_place opp_p ON opp_p.opportunity_id = o.id

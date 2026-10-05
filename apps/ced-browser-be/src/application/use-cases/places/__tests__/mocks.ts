@@ -14,6 +14,8 @@ export const mockPlaceOffline = {
   entityId: MOCK_OPERATOR_ID,
   id: "01JVMK3N8XQZP5T6G2WYHAB4CE",
   name: "Comune di Alessandria",
+  operatorFiscalCode: "00000000000",
+  operatorName: "Operator Test Name",
   type: "profile" as const,
 };
 
@@ -22,6 +24,8 @@ export const mockPlaceOnline = {
   entityId: MOCK_OPERATOR_ID,
   id: "01JVMK3N8XQZP5T6G2WYHAB4CF",
   name: "Flixbus",
+  operatorFiscalCode: "00000000001",
+  operatorName: "Operator Test Name 2",
   type: "place" as const,
   url: "https://flixbus.it",
 };

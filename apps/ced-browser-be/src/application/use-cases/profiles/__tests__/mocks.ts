@@ -8,6 +8,8 @@ export const MOCK_PROFILE_ID = "01JVMK3N8XQZP5T6G2WYHAB4CD";
 
 export const mockOperatorProfileDetail: OperatorProfileDetail = {
   displayName: "Comune di Alessandria",
+  operatorFiscalCode: "00000000000",
+  operatorName: "Operator Test Name",
   place: {
     address: {
       city: "Alessandria",
@@ -27,6 +29,7 @@ export const mockOperatorProfileDetail: OperatorProfileDetail = {
     type: "offline",
     website: null,
   },
+  privacyUrl: "https://example.org/privacy",
   recentOpportunities: [
     {
       beneficiaryBenefit: {
@@ -53,6 +56,7 @@ export const mockOperatorProfileDetail: OperatorProfileDetail = {
       url: null,
     },
   ],
+  tosUrl: "https://example.org/terms",
 };
 
 export const createMockProfileRepository = (

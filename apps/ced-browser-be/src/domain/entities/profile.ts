@@ -1,5 +1,6 @@
 import { z } from "zod";
 
+import { OperatorMetadataSchema } from "./operator.js";
 import { OpportunityBenefitSchema } from "./opportunity.js";
 
 export const ProfileSupportContactSchema = z.object({
@@ -56,11 +57,18 @@ export type ProfileRecentOpportunity = z.infer<
   typeof ProfileRecentOpportunitySchema
 >;
 
-export const OperatorProfileDetailSchema = z.object({
+const ProfileLegalUrlSchema = z
+  .url({ protocol: /^https$/ })
+  .max(2048)
+  .regex(/^https:\/\//i);
+
+export const OperatorProfileDetailSchema = OperatorMetadataSchema.extend({
   displayName: z.string().min(1),
   place: ProfilePlaceSchema,
+  privacyUrl: ProfileLegalUrlSchema,
   recentOpportunities: z.array(ProfileRecentOpportunitySchema),
   recentPlaces: z.array(ProfileRecentPlaceSchema),
+  tosUrl: ProfileLegalUrlSchema,
 });
 
 export type OperatorProfileDetail = z.infer<typeof OperatorProfileDetailSchema>;

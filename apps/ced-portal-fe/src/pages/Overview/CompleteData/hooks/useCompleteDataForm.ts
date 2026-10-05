@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import type { CompleteDataFormData, Contact, ContactFormData } from '../types';
 import { useCheckRequiredField } from './useCheckRequiredField';
 import {
@@ -8,6 +8,7 @@ import {
 } from '../utils/validation';
 import type {
   Address,
+  OperatorProfileResponse,
   OperatorProfileCreateRequest,
 } from '../../../../generated/model';
 
@@ -15,6 +16,20 @@ const createEmptyContact = (): ContactFormData => ({
   type: 'email',
   value: '',
 });
+
+const IMAGE_SIZE_ERROR =
+  'L’immagine supera la dimensione massima consentita. Riprova';
+
+const exceedsImageDimensions = async (
+  file: File,
+  maxWidth: number,
+  maxHeight: number,
+): Promise<boolean> => {
+  const bitmap = await createImageBitmap(file);
+  const exceedsLimit = bitmap.width > maxWidth || bitmap.height > maxHeight;
+  bitmap.close();
+  return exceedsLimit;
+};
 
 const isFirstContactValueField = (field: keyof ContactFormData): boolean =>
   field === 'value';
@@ -28,6 +43,7 @@ const INITIAL_FORM_DATA: CompleteDataFormData = {
   postalCode: '',
   province: '',
   contacts: [createEmptyContact()],
+  internalEmail: '',
   logoFile: null,
   coverFile: null,
   privacyUrl: '',
@@ -35,7 +51,11 @@ const INITIAL_FORM_DATA: CompleteDataFormData = {
 };
 
 type UseCompleteDataFormParams = {
-  onValidSubmit?: (payload: OperatorProfileCreateRequest) => void;
+  profile?: OperatorProfileResponse;
+  onValidSubmit?: (
+    payload: OperatorProfileCreateRequest,
+    files: { logo?: File; image?: File },
+  ) => void;
 };
 
 export type UseCompleteDataFormResult = {
@@ -48,6 +68,11 @@ export type UseCompleteDataFormResult = {
   cityError: string;
   postalCodeError: string;
   provinceError: string;
+  logoError: string;
+  coverError: string;
+  privacyUrlError: string;
+  termsUrlError: string;
+  internalEmailError: string;
   visibleFirstContactTypeError: string;
   visibleFirstContactValueError: string;
   handleNameChange: (value: string) => void;
@@ -68,6 +93,7 @@ export type UseCompleteDataFormResult = {
   ) => void;
   handlePrivacyUrlChange: (value: string) => void;
   handleTermsUrlChange: (value: string) => void;
+  handleInternalEmailChange: (value: string) => void;
   handleContinueClick: () => void;
 };
 
@@ -80,6 +106,7 @@ const buildSupportContacts = (contacts: ContactFormData[]) =>
     }));
 
 export const useCompleteDataForm = ({
+  profile,
   onValidSubmit,
 }: UseCompleteDataFormParams = {}): UseCompleteDataFormResult => {
   const [formData, setFormData] =
@@ -88,6 +115,33 @@ export const useCompleteDataForm = ({
     INITIAL_FIRST_CONTACT_ERRORS,
   );
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const logoValidationRequest = useRef(0);
+  const coverValidationRequest = useRef(0);
+
+  useEffect(() => {
+    if (!profile) return;
+
+    const place = profile.place;
+    const isOnline = place.type === 'online';
+
+    setFormData((prev) => ({
+      ...prev,
+      name: profile.displayName,
+      sede: isOnline ? 'sito_web' : 'fisica',
+      websiteUrl: isOnline ? place.website.url : '',
+      street: isOnline ? '' : place.address.street,
+      city: isOnline ? '' : place.address.city,
+      postalCode: isOnline ? '' : place.address.postalCode,
+      province: isOnline ? '' : place.address.state,
+      contacts: place.supportContacts.map(({ type, value }) => ({
+        type,
+        value,
+      })),
+      internalEmail: profile.contactEmail,
+      privacyUrl: profile.privacyUrl,
+      termsUrl: profile.tosUrl,
+    }));
+  }, [profile]);
 
   const updateField = useCallback(
     <K extends keyof CompleteDataFormData>(
@@ -145,6 +199,12 @@ export const useCompleteDataForm = ({
     attempted: isSubmitted,
   });
 
+  const [logoError, setLogoError] = useState('');
+  const [coverError, setCoverError] = useState('');
+  const [internalEmailError, setInternalEmailError] = useState('');
+  const [privacyUrlError, setPrivacyUrlError] = useState('');
+  const [termsUrlError, setTermsUrlError] = useState('');
+
   const websiteUrlField = useCheckRequiredField({
     value: formData.websiteUrl,
     required: formData.sede === 'sito_web',
@@ -176,10 +236,15 @@ export const useCompleteDataForm = ({
   });
 
   const validateForm = useCallback(() => {
-    const validation = validateCompleteDataForm(formData);
+    const validation = validateCompleteDataForm(formData, !profile);
     setErrors(validation.firstContactErrors);
+    setLogoError(validation.logoError);
+    setCoverError(validation.coverError);
+    setInternalEmailError(validation.internalEmailError);
+    setPrivacyUrlError(validation.privacyUrlError);
+    setTermsUrlError(validation.termsUrlError);
     return validation.isValid;
-  }, [formData]);
+  }, [formData, profile]);
 
   const handleContinueClick = useCallback(() => {
     setIsSubmitted(true);
@@ -218,13 +283,21 @@ export const useCompleteDataForm = ({
           supportContacts,
         };
 
+    if (!profile && (!formData.logoFile || !formData.coverFile)) return;
+
     const payload: OperatorProfileCreateRequest = {
       displayName: formData.name.trim(),
+      contactEmail: formData.internalEmail.trim(),
       place,
+      privacyUrl: formData.privacyUrl.trim(),
+      tosUrl: formData.termsUrl.trim(),
     };
 
-    onValidSubmit?.(payload);
-  }, [formData, validateForm, onValidSubmit]);
+    onValidSubmit?.(payload, {
+      ...(formData.logoFile ? { logo: formData.logoFile } : {}),
+      ...(formData.coverFile ? { image: formData.coverFile } : {}),
+    });
+  }, [formData, profile, validateForm, onValidSubmit]);
 
   const handleNameChange = useCallback(
     (value: string) => updateField('name', value),
@@ -262,22 +335,86 @@ export const useCompleteDataForm = ({
   );
 
   const handleLogoSelect = useCallback(
-    (file: File | null) => updateField('logoFile', file),
+    async (file: File | null) => {
+      const validationRequest = ++logoValidationRequest.current;
+
+      if (!file) {
+        updateField('logoFile', null);
+        return;
+      }
+
+      try {
+        const exceedsLimit = await exceedsImageDimensions(file, 300, 300);
+        if (validationRequest !== logoValidationRequest.current) return;
+
+        if (exceedsLimit) {
+          updateField('logoFile', null);
+          setLogoError(IMAGE_SIZE_ERROR);
+          return;
+        }
+        updateField('logoFile', file);
+        setLogoError('');
+      } catch {
+        if (validationRequest !== logoValidationRequest.current) return;
+
+        updateField('logoFile', null);
+        setLogoError('Impossibile leggere l’immagine. Riprova');
+      }
+    },
     [updateField],
   );
 
   const handleCoverSelect = useCallback(
-    (file: File | null) => updateField('coverFile', file),
+    async (file: File | null) => {
+      const validationRequest = ++coverValidationRequest.current;
+
+      if (!file) {
+        updateField('coverFile', null);
+        return;
+      }
+
+      try {
+        const exceedsLimit = await exceedsImageDimensions(file, 300, 600);
+        if (validationRequest !== coverValidationRequest.current) return;
+
+        if (exceedsLimit) {
+          updateField('coverFile', null);
+          setCoverError(IMAGE_SIZE_ERROR);
+          return;
+        }
+        updateField('coverFile', file);
+        setCoverError('');
+      } catch {
+        if (validationRequest !== coverValidationRequest.current) return;
+
+        updateField('coverFile', null);
+        setCoverError('Impossibile leggere l’immagine. Riprova');
+      }
+    },
     [updateField],
   );
 
   const handlePrivacyUrlChange = useCallback(
-    (value: string) => updateField('privacyUrl', value),
+    (value: string) => {
+      updateField('privacyUrl', value);
+      setPrivacyUrlError('');
+    },
     [updateField],
   );
 
   const handleTermsUrlChange = useCallback(
-    (value: string) => updateField('termsUrl', value),
+    (value: string) => {
+      updateField('termsUrl', value);
+      setTermsUrlError('');
+    },
+    [updateField],
+  );
+
+  const handleInternalEmailChange = useCallback(
+    (value: string) => {
+      updateField('internalEmail', value);
+      setInternalEmailError('');
+    },
     [updateField],
   );
 
@@ -308,6 +445,11 @@ export const useCompleteDataForm = ({
       ? (postalCodeField.helperText ?? '')
       : '',
     provinceError: provinceField.error ? (provinceField.helperText ?? '') : '',
+    logoError,
+    coverError,
+    privacyUrlError,
+    termsUrlError,
+    internalEmailError,
     visibleFirstContactTypeError,
     visibleFirstContactValueError,
     handleNameChange,
@@ -321,6 +463,7 @@ export const useCompleteDataForm = ({
     handleCoverSelect,
     handlePrivacyUrlChange,
     handleTermsUrlChange,
+    handleInternalEmailChange,
     handleAddContact,
     handleRemoveContact,
     handleContactChange,

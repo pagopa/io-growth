@@ -1,5 +1,19 @@
 # @pagopa/io-core-adapter-fims
 
+## 0.0.14
+
+### Patch Changes
+
+- Updated dependencies [e46b30e]
+  - @pagopa/io-core-adapter-fastify@0.0.10
+
+## 0.0.13
+
+### Patch Changes
+
+- Updated dependencies [8cc6169]
+  - @pagopa/io-core-adapter-fastify@0.0.9
+
 ## 0.0.12
 
 ### Patch Changes

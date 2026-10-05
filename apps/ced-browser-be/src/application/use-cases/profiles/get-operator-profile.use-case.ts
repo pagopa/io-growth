@@ -11,7 +11,7 @@ import { z } from "zod";
 import type { OperatorProfileDetail } from "../../../domain/entities/profile.js";
 import type { ProfileRepository } from "../../../domain/ports/outbound/persistence/profile.repository.js";
 
-import { LANGUAGE_VALUES } from "../../../domain/ports/outbound/persistence/place.repository.js";
+import { LANGUAGE_VALUES } from "../../../domain/entities/language.js";
 import { validateUseCaseInput } from "../utils/validate-use-case-input.js";
 
 const GetOperatorProfileInputSchema = z.object({

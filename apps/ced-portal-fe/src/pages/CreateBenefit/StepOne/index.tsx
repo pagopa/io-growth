@@ -9,12 +9,12 @@ export function StepOne({ attempted, isStartDateDisabled }: StepProps) {
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
       <AgreementDetailsSection attempted={attempted} />
-      <AgreementCompanionSection />
+      <AgreementCompanionSection attempted={attempted} />
       <AgreementValiditySection
         attempted={attempted}
         isStartDateDisabled={isStartDateDisabled}
       />
-      <AgreementLinkSection attempted={attempted} />
+      <AgreementLinkSection />
     </Box>
   );
 }

@@ -8,6 +8,7 @@ import {
   useGetContractSignedMutation,
   useGetDepartmentOnboardingQuery,
   useTerminateOnboardingMutation,
+  useRejectOnboardingMutation,
 } from '../../../features/entities/api';
 import {
   getEntityFields,
@@ -35,6 +36,8 @@ function useEntityDetail() {
     useCompleteOnboardingMutation();
   const [terminateOnboarding, { isLoading: isTerminatingOnboarding }] =
     useTerminateOnboardingMutation();
+  const [rejectOnboarding, { isLoading: isRejectingOnboarding }] =
+    useRejectOnboardingMutation();
 
   const [uploadState, setUploadState] = useState<UploadState>('idle');
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
@@ -94,6 +97,19 @@ function useEntityDetail() {
       navigate(APP_ROUTES.ENTITIES);
     } catch {
       showToast('Errore durante la cessazione della convenzione', 'error');
+  const handleReject = async (message: string) => {
+    if (!id) return;
+
+    try {
+      await rejectOnboarding({
+        onboardingId: id,
+        body: { rejectionMessage: message },
+      }).unwrap();
+      setOpenRejectModal(false);
+      navigate(APP_ROUTES.ENTITIES);
+      showToast('Richiesta rifiutata con successo', 'success');
+    } catch {
+      showToast('Errore durante il rifiuto della richiesta', 'error');
     }
   };
 
@@ -126,6 +142,7 @@ function useEntityDetail() {
       approve: handleApprove,
       publish: handlePublish,
       terminate: handleTerminate,
+      reject: handleReject,
       refetch,
     },
     modals: {
@@ -148,6 +165,7 @@ function useEntityDetail() {
       isDownloadingContract,
       isCompletingOnboarding,
       isTerminatingOnboarding,
+      isRejectingOnboarding,
     },
   };
 }

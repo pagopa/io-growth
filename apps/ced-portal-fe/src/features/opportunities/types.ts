@@ -60,6 +60,10 @@ export type OpportunityUpdatePayload = Pick<
     Pick<OpportunityCreateRequest, 'dateTo' | 'url' | 'caregiverBenefit'>
   >;
 
+export interface RequestOpportunityChangesPayload {
+  changeRequestMessage: string;
+}
+
 export interface SuspendOpportunityPayload {
   suspensionMessage: string;
   suspendFrom: string;

@@ -2,6 +2,7 @@ import { UploadFile } from '@mui/icons-material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import InfoRoundedIcon from '@mui/icons-material/InfoRounded';
 import { Box, Button, LinearProgress, Stack, Typography } from '@mui/material';
+import { alpha } from '@mui/material/styles';
 import { useEffect, useState } from 'react';
 import type { ChangeEvent, DragEvent } from 'react';
 
@@ -154,7 +155,7 @@ export function UploadDropzone({
           justifyContent: 'space-between',
           alignItems: 'center',
           gap: 3,
-          bgcolor: 'rgba(11, 62, 227, 0.08)',
+          bgcolor: (theme) => alpha(theme.palette.common.primaryButton, 0.08),
         }}
       >
         <Stack spacing={1} sx={{ flex: 1 }}>
@@ -187,7 +188,7 @@ export function UploadDropzone({
           justifyContent: 'space-between',
           alignItems: 'flex-start',
           gap: 3,
-          bgcolor: 'rgba(244, 67, 54, 0.04)',
+          bgcolor: 'common.alertErrorBg',
         }}
       >
         <Stack direction="row" spacing={1.5} sx={{ flex: 1 }}>
@@ -293,7 +294,7 @@ export function UploadDropzone({
           alignItems: 'center',
           gap: 1.5,
           cursor: 'pointer',
-          bgcolor: fieldError ? 'rgba(244, 67, 54, 0.16)' : '#f6f7fa',
+          bgcolor: fieldError ? 'common.alertErrorBg' : 'common.neutralGray',
         }}
       >
         <Box
@@ -354,9 +355,10 @@ export function UploadDropzone({
         gap: 3,
         alignSelf: 'stretch',
         cursor: 'pointer',
-        bgcolor: fieldError
-          ? 'rgba(244, 67, 54, 0.16)'
-          : 'rgba(11, 62, 227, 0.08)',
+        bgcolor: (theme) =>
+          fieldError
+            ? theme.palette.common.alertErrorBg
+            : alpha(theme.palette.common.primaryButton, 0.08),
       }}
     >
       <Stack

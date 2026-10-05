@@ -1,5 +1,19 @@
 # ced-browser-be
 
+## 0.1.20
+
+### Patch Changes
+
+- Updated dependencies [e46b30e]
+  - @pagopa/io-core-adapter-fastify@0.0.10
+  - @pagopa/io-core-adapter-fims@0.0.14
+
+## 0.1.19
+
+### Patch Changes
+
+- 82c1702: Require `privacyUrl` and `tosUrl` HTTPS links for operator profiles, persist them, and expose them in portal and browser profile responses.
+
 ## 0.1.18
 
 ### Patch Changes

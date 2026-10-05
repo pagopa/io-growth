@@ -7,6 +7,7 @@ import {
   useTheme,
 } from '@mui/material';
 import { MIAlert } from '@pagopa/mui-italia';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { APP_ROUTES } from '../../app/routeConfig';
 import { SectionCard } from '../../components/SectionCard';
@@ -16,6 +17,8 @@ import { useGetOperatorProfileQuery } from '../../features/profile/api';
 export default function OverviewPage() {
   const theme = useTheme();
   const navigate = useNavigate();
+  const [logoUnavailable, setLogoUnavailable] = useState(false);
+  const [coverUnavailable, setCoverUnavailable] = useState(false);
 
   const { data, isLoading, error } = useGetOperatorProfileQuery();
 
@@ -119,6 +122,80 @@ export default function OverviewPage() {
                       {place.address.state}) - {place.address.postalCode}
                     </Typography>
                   </>
+                )}
+
+                {data.operatorId && (!logoUnavailable || !coverUnavailable) && (
+                  <Stack
+                    direction={{ xs: 'column', sm: 'row' }}
+                    spacing={2}
+                    sx={{ mt: 3, mb: 1 }}
+                  >
+                    {!logoUnavailable && (
+                      <Stack
+                        spacing={1}
+                        alignItems="center"
+                        justifyContent="center"
+                        sx={{
+                          flex: 1,
+                          aspectRatio: '1.92 / 1',
+                          p: 2,
+                          bgcolor: 'common.neutralGray',
+                          border: '1px solid',
+                          borderColor: 'divider',
+                          borderRadius: 2,
+                        }}
+                      >
+                        <Box
+                          component="img"
+                          src={`https://logos.ced.pagopa.it/${encodeURIComponent(data.operatorId)}`}
+                          alt="Logo dell’ente"
+                          onError={() => setLogoUnavailable(true)}
+                          sx={{
+                            width: { xs: 88, sm: 104 },
+                            height: { xs: 88, sm: 104 },
+                            objectFit: 'contain',
+                            borderRadius: 2,
+                            bgcolor: 'common.white',
+                          }}
+                        />
+                        <Typography variant="caption" color="text.secondary">
+                          Logo
+                        </Typography>
+                      </Stack>
+                    )}
+                    {!coverUnavailable && (
+                      <Stack
+                        spacing={1}
+                        alignItems="center"
+                        justifyContent="center"
+                        sx={{
+                          flex: 1,
+                          aspectRatio: '1.92 / 1',
+                          p: 2,
+                          bgcolor: 'common.neutralGray',
+                          border: '1px solid',
+                          borderColor: 'divider',
+                          borderRadius: 2,
+                        }}
+                      >
+                        <Box
+                          component="img"
+                          src={`https://images.ced.pagopa.it/${encodeURIComponent(data.operatorId)}`}
+                          alt="Immagine di copertina dell’ente"
+                          onError={() => setCoverUnavailable(true)}
+                          sx={{
+                            width: { xs: 88, sm: 104 },
+                            height: { xs: 88, sm: 104 },
+                            objectFit: 'cover',
+                            borderRadius: 2,
+                          }}
+                        />
+                        <Typography variant="caption" color="text.secondary">
+                          Copertina
+                        </Typography>
+                      </Stack>
+                    )}
+                  </Stack>
                 )}
 
                 <Typography variant="overline" color="text.secondary" mt={4}>

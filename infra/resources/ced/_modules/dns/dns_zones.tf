@@ -18,37 +18,37 @@ resource "azurerm_dns_zone" "public" {
 ####################
 
 resource "azurerm_dns_cname_record" "dkim1" {
-  name                = "trwtzdool6n4argcfpo3pz3bvzpstaej._domainkey"
-  record               = var.dkim1_record
+  name   = "trwtzdool6n4argcfpo3pz3bvzpstaej._domainkey"
+  record = var.dkim1_record
 
   zone_name           = azurerm_dns_zone.public.name
   resource_group_name = var.resource_group_name
 
-  ttl                 = 300
+  ttl = 300
 
   tags = var.tags
 }
 
 resource "azurerm_dns_cname_record" "dkim2" {
-  name                = "u7rskmxwm6bpsh7ukjlonmacce35ygv5._domainkey"
-  record               = var.dkim2_record
+  name   = "u7rskmxwm6bpsh7ukjlonmacce35ygv5._domainkey"
+  record = var.dkim2_record
 
   zone_name           = azurerm_dns_zone.public.name
   resource_group_name = var.resource_group_name
 
-  ttl                 = 300
+  ttl = 300
 
   tags = var.tags
 }
 
 resource "azurerm_dns_cname_record" "dkim3" {
-  name                = "2oekew7jzmtnpendmmesp6jv37ptf2ak._domainkey"
-  record               = var.dkim3_record
+  name   = "2oekew7jzmtnpendmmesp6jv37ptf2ak._domainkey"
+  record = var.dkim3_record
 
   zone_name           = azurerm_dns_zone.public.name
   resource_group_name = var.resource_group_name
 
-  ttl                 = 300
+  ttl = 300
 
   tags = var.tags
 }

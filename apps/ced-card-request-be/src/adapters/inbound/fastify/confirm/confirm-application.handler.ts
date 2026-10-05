@@ -16,6 +16,8 @@ import {
   ConfirmApplicationResponse,
 } from "../contracts/confirmation-and-documentation/confirmation-and-documentation.js";
 
+const UPLOAD_DOCUMENTATION_BODY_LIMIT_BYTES = 2 * 1024 * 1024;
+
 // Node/Fastify always lowercases incoming header names, regardless of the
 // casing declared in the OpenAPI spec (`Idempotency-Key`). The generated
 // `ConfirmApplicationHeader` schema keeps the spec's casing, so headers are
@@ -45,6 +47,7 @@ export const mountConfirmApplicationHandler = (
 ) => {
   fastify.post(
     "/api/confirm",
+    { bodyLimit: UPLOAD_DOCUMENTATION_BODY_LIMIT_BYTES },
     createHttpHandler(
       useCase,
       confirmApplicationValidator,

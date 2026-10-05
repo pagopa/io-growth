@@ -1,5 +1,21 @@
 # ced-card-request-be
 
+## 0.3.5
+
+### Patch Changes
+
+- Updated dependencies [e46b30e]
+  - @pagopa/io-core-adapter-fastify@0.0.10
+  - @pagopa/io-core-adapter-fims@0.0.14
+
+## 0.3.4
+
+### Patch Changes
+
+- 2c133a7: increased body limit for documentation upload to 2mb
+- Updated dependencies [8f9c71e]
+  - @pagopa/io-core-adapter-inps-ced@0.0.6
+
 ## 0.3.3
 
 ### Patch Changes

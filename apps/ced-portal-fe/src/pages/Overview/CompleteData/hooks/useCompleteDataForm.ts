@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import type { CompleteDataFormData, Contact, ContactFormData } from '../types';
 import { useCheckRequiredField } from './useCheckRequiredField';
 import {
@@ -115,6 +115,8 @@ export const useCompleteDataForm = ({
     INITIAL_FIRST_CONTACT_ERRORS,
   );
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const logoValidationRequest = useRef(0);
+  const coverValidationRequest = useRef(0);
 
   useEffect(() => {
     if (!profile) return;
@@ -334,13 +336,18 @@ export const useCompleteDataForm = ({
 
   const handleLogoSelect = useCallback(
     async (file: File | null) => {
+      const validationRequest = ++logoValidationRequest.current;
+
       if (!file) {
         updateField('logoFile', null);
         return;
       }
 
       try {
-        if (await exceedsImageDimensions(file, 300, 300)) {
+        const exceedsLimit = await exceedsImageDimensions(file, 300, 300);
+        if (validationRequest !== logoValidationRequest.current) return;
+
+        if (exceedsLimit) {
           updateField('logoFile', null);
           setLogoError(IMAGE_SIZE_ERROR);
           return;
@@ -348,6 +355,8 @@ export const useCompleteDataForm = ({
         updateField('logoFile', file);
         setLogoError('');
       } catch {
+        if (validationRequest !== logoValidationRequest.current) return;
+
         updateField('logoFile', null);
         setLogoError('Impossibile leggere l’immagine. Riprova');
       }
@@ -357,13 +366,18 @@ export const useCompleteDataForm = ({
 
   const handleCoverSelect = useCallback(
     async (file: File | null) => {
+      const validationRequest = ++coverValidationRequest.current;
+
       if (!file) {
         updateField('coverFile', null);
         return;
       }
 
       try {
-        if (await exceedsImageDimensions(file, 300, 600)) {
+        const exceedsLimit = await exceedsImageDimensions(file, 300, 600);
+        if (validationRequest !== coverValidationRequest.current) return;
+
+        if (exceedsLimit) {
           updateField('coverFile', null);
           setCoverError(IMAGE_SIZE_ERROR);
           return;
@@ -371,6 +385,8 @@ export const useCompleteDataForm = ({
         updateField('coverFile', file);
         setCoverError('');
       } catch {
+        if (validationRequest !== coverValidationRequest.current) return;
+
         updateField('coverFile', null);
         setCoverError('Impossibile leggere l’immagine. Riprova');
       }

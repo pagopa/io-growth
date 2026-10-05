@@ -29,13 +29,8 @@ export const OpportunitiesCtas = ({
   suspendFrom,
   suspendedBy,
 }: OpportunitiesCtasProps) => {
-  const {
-    ctasConfig,
-    deleteModal,
-    suspendModal,
-    modifyModal,
-    republishModal,
-  } = useGetCtasConfiguration(id, status, suspendFrom, suspendedBy);
+  const { ctasConfig, deleteModal, suspendModal, modifyModal, republishModal } =
+    useGetCtasConfiguration(id, status, suspendFrom, suspendedBy);
 
   const layout = ctasConfig[status];
   const ctas = layout?.ctas;

@@ -19,6 +19,7 @@ import {
   useAdminRejectOpportunityRepublishMutation,
   useAdminSuspendOpportunityMutation,
   useGetAdminOpportunityDetailQuery,
+  useRequestOpportunityChangesMutation,
 } from '../../features/opportunities/api';
 import { APP_ROUTES } from '../../app/routeConfig';
 import { useToast } from '../../contexts';
@@ -61,6 +62,8 @@ export default function OpportunityDetailPage() {
     useState(false);
   const [suspendModalOpen, setSuspendModalOpen] = useState(false);
   const [requestChangesOpen, setRequestChangesOpen] = useState(false);
+  const [requestOpportunityChanges, { isLoading: isRequestingChanges }] =
+    useRequestOpportunityChangesMutation();
 
   const detailStatus = detail?.status;
   const detailSuspendFrom = detail?.suspendFrom;
@@ -420,11 +423,27 @@ export default function OpportunityDetailPage() {
 
       <RequestChangesModal
         open={requestChangesOpen}
+        isLoading={isRequestingChanges}
         onClose={() => setRequestChangesOpen(false)}
-        onConfirm={() => {
-          setRequestChangesOpen(false);
-          navigate(APP_ROUTES.OPPORTUNITIES);
-          showToast('Fatto!', 'success');
+        onConfirm={async (changeRequestMessage) => {
+          if (!id || isRequestingChanges) {
+            return;
+          }
+
+          try {
+            await requestOpportunityChanges({
+              id,
+              payload: { changeRequestMessage },
+            }).unwrap();
+            setRequestChangesOpen(false);
+            navigate(APP_ROUTES.OPPORTUNITIES);
+            showToast('Fatto!', 'success');
+          } catch {
+            showToast(
+              "Errore durante l'invio della richiesta di modifiche",
+              'error',
+            );
+          }
         }}
       />
 

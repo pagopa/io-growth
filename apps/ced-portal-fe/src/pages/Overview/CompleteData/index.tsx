@@ -1,7 +1,7 @@
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { Box, Button, Paper, Stack, Typography } from '@mui/material';
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 import { ContactsSection } from './components/ContactsSection';
 import { EntityDataSection } from './components/EntityDataSection';
@@ -12,19 +12,38 @@ import { useCompleteDataForm } from './hooks/useCompleteDataForm';
 import {
   useCreateOperatorProfileMutation,
   useGetOperatorProfileQuery,
+  useUpdateOperatorProfileMutation,
 } from '../../../features/profile/api';
 import { hasStatus } from '../../../core/api/baseApi';
 import { useToast } from '../../../contexts';
 import { CompleteProfileModal } from '../../../components';
+import { useBase64Image } from '../../../hooks/useBase64Image';
 
 export default function OverviewCompleteDataPage() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const routeState = location.state as { operatorId?: unknown } | null;
+  const operatorId =
+    typeof routeState?.operatorId === 'string' && routeState.operatorId.trim()
+      ? encodeURIComponent(routeState.operatorId)
+      : undefined;
+  const logoPreview = useBase64Image(
+    operatorId ? `https://logos.ced.pagopa.it/${operatorId}` : undefined,
+  );
+  const coverPreview = useBase64Image(
+    operatorId ? `https://images.ced.pagopa.it/${operatorId}` : undefined,
+  );
   const [infoModalType, setInfoModalType] = useState<'logo' | 'cover' | null>(
     null,
   );
   const [isExitModalOpen, setIsExitModalOpen] = useState(false);
+  const [profileAssetError, setProfileAssetError] = useState('');
 
-  const [createProfile, { isLoading }] = useCreateOperatorProfileMutation();
+  const [createProfile, { isLoading: isCreating }] =
+    useCreateOperatorProfileMutation();
+  const [updateProfile, { isLoading: isUpdating }] =
+    useUpdateOperatorProfileMutation();
+  const isLoading = isCreating || isUpdating;
   const { data: profile, error: profileError } = useGetOperatorProfileQuery();
   const isProfileIncomplete = hasStatus(profileError, 404);
 
@@ -40,6 +59,8 @@ export default function OverviewCompleteDataPage() {
     provinceError,
     logoError,
     coverError,
+    privacyUrlError,
+    termsUrlError,
     internalEmailError,
     handleNameChange,
     handleSedeChange,
@@ -61,12 +82,31 @@ export default function OverviewCompleteDataPage() {
     profile,
     onValidSubmit: async (payload, files) => {
       try {
-        await createProfile({ profile: payload, ...files }).unwrap();
+        setProfileAssetError('');
+        if (profile) {
+          await updateProfile({ profile: payload, ...files }).unwrap();
+        } else {
+          if (!files.logo || !files.image) return;
+          await createProfile({
+            profile: payload,
+            logo: files.logo,
+            image: files.image,
+          }).unwrap();
+        }
         navigate(-1);
         showToast('Dati salvati', 'success');
       } catch (error) {
-        showToast('Errore nella creazione dell’ente', 'error');
-        throw error;
+        if (hasStatus(error, 400)) {
+          setProfileAssetError(
+            'L’immagine supera la dimensione massima consentita. Riprova',
+          );
+        }
+        showToast(
+          profile
+            ? 'Errore nella modifica dei dati dell’ente'
+            : 'Errore nella creazione dell’ente',
+          'error',
+        );
       }
     },
   });
@@ -128,14 +168,16 @@ export default function OverviewCompleteDataPage() {
                   province={formData.province}
                   logoFile={formData.logoFile}
                   coverFile={formData.coverFile}
+                  logoPreviewSrc={logoPreview?.src}
+                  coverPreviewSrc={coverPreview?.src}
                   nameError={nameError}
                   websiteUrlError={websiteUrlError}
                   streetError={streetError}
                   cityError={cityError}
                   postalCodeError={postalCodeError}
                   provinceError={provinceError}
-                  logoError={logoError}
-                  coverError={coverError}
+                  logoError={profileAssetError || logoError}
+                  coverError={profileAssetError || coverError}
                   onNameChange={handleNameChange}
                   onSedeChange={handleSedeChange}
                   onWebsiteUrlChange={handleWebsiteUrlChange}
@@ -143,8 +185,14 @@ export default function OverviewCompleteDataPage() {
                   onCityChange={handleCityChange}
                   onPostalCodeChange={handlePostalCodeChange}
                   onProvinceChange={handleProvinceChange}
-                  onLogoSelect={handleLogoSelect}
-                  onCoverSelect={handleCoverSelect}
+                  onLogoSelect={(file) => {
+                    setProfileAssetError('');
+                    void handleLogoSelect(file);
+                  }}
+                  onCoverSelect={(file) => {
+                    setProfileAssetError('');
+                    void handleCoverSelect(file);
+                  }}
                   onInfoClick={setInfoModalType}
                 />
 
@@ -159,6 +207,8 @@ export default function OverviewCompleteDataPage() {
                 <TermsAndPrivacySection
                   privacyUrl={formData.privacyUrl}
                   termsUrl={formData.termsUrl}
+                  privacyUrlError={privacyUrlError}
+                  termsUrlError={termsUrlError}
                   onPrivacyUrlChange={handlePrivacyUrlChange}
                   onTermsUrlChange={handleTermsUrlChange}
                 />

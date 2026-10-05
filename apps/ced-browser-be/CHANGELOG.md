@@ -1,5 +1,13 @@
 # ced-browser-be
 
+## 0.1.20
+
+### Patch Changes
+
+- Updated dependencies [e46b30e]
+  - @pagopa/io-core-adapter-fastify@0.0.10
+  - @pagopa/io-core-adapter-fims@0.0.14
+
 ## 0.1.19
 
 ### Patch Changes

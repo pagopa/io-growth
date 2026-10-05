@@ -8,6 +8,7 @@ export interface EmailRepository {
 }
 
 export interface SendOpportunityApprovedEmailInput {
+  readonly availabilityDate: string;
   readonly opportunityName: string;
   readonly to: string;
 }

@@ -7,17 +7,31 @@ import {
   useTheme,
 } from '@mui/material';
 import { MIAlert } from '@pagopa/mui-italia';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { APP_ROUTES } from '../../app/routeConfig';
 import { SectionCard } from '../../components/SectionCard';
 import { hasStatus } from '../../core/api/baseApi';
 import { useGetOperatorProfileQuery } from '../../features/profile/api';
+import { useBase64Image } from '../../hooks/useBase64Image';
 
 export default function OverviewPage() {
   const theme = useTheme();
   const navigate = useNavigate();
+  const [logoUnavailable, setLogoUnavailable] = useState(false);
+  const [coverUnavailable, setCoverUnavailable] = useState(false);
 
   const { data, isLoading, error } = useGetOperatorProfileQuery();
+  const logo = useBase64Image(
+    data?.operatorId
+      ? `https://logos.ced.pagopa.it/${encodeURIComponent(data.operatorId)}`
+      : undefined,
+  );
+  const cover = useBase64Image(
+    data?.operatorId
+      ? `https://images.ced.pagopa.it/${encodeURIComponent(data.operatorId)}`
+      : undefined,
+  );
 
   const isNotFound = hasStatus(error, 404);
 
@@ -120,6 +134,82 @@ export default function OverviewPage() {
                     </Typography>
                   </>
                 )}
+
+                {data.operatorId &&
+                  ((logo?.src && !logoUnavailable) ||
+                    (cover?.src && !coverUnavailable)) && (
+                    <Stack
+                      direction={{ xs: 'column', sm: 'row' }}
+                      spacing={2}
+                      sx={{ mt: 3, mb: 1 }}
+                    >
+                      {logo?.src && !logoUnavailable && (
+                        <Stack
+                          spacing={1}
+                          alignItems="center"
+                          justifyContent="center"
+                          sx={{
+                            flex: 1,
+                            aspectRatio: '1.92 / 1',
+                            p: 2,
+                            bgcolor: 'common.neutralGray',
+                            border: '1px solid',
+                            borderColor: 'divider',
+                            borderRadius: 2,
+                          }}
+                        >
+                          <Box
+                            component="img"
+                            src={logo.src}
+                            alt="Logo dell’ente"
+                            onError={() => setLogoUnavailable(true)}
+                            sx={{
+                              width: { xs: 88, sm: 104 },
+                              height: { xs: 88, sm: 104 },
+                              objectFit: 'contain',
+                              borderRadius: 2,
+                              bgcolor: 'common.white',
+                            }}
+                          />
+                          <Typography variant="caption" color="text.secondary">
+                            Logo
+                          </Typography>
+                        </Stack>
+                      )}
+                      {cover?.src && !coverUnavailable && (
+                        <Stack
+                          spacing={1}
+                          alignItems="center"
+                          justifyContent="center"
+                          sx={{
+                            flex: 1,
+                            aspectRatio: '1.92 / 1',
+                            p: 2,
+                            bgcolor: 'common.neutralGray',
+                            border: '1px solid',
+                            borderColor: 'divider',
+                            borderRadius: 2,
+                          }}
+                        >
+                          <Box
+                            component="img"
+                            src={cover.src}
+                            alt="Immagine di copertina dell’ente"
+                            onError={() => setCoverUnavailable(true)}
+                            sx={{
+                              width: { xs: 88, sm: 104 },
+                              height: { xs: 88, sm: 104 },
+                              objectFit: 'cover',
+                              borderRadius: 2,
+                            }}
+                          />
+                          <Typography variant="caption" color="text.secondary">
+                            Copertina
+                          </Typography>
+                        </Stack>
+                      )}
+                    </Stack>
+                  )}
 
                 <Typography variant="overline" color="text.secondary" mt={4}>
                   CONTATTI ASSISTENZA

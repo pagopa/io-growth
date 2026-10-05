@@ -1,7 +1,7 @@
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { Box, Button, Paper, Stack, Typography } from '@mui/material';
 import { useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 import { ContactsSection } from './components/ContactsSection';
 import { EntityDataSection } from './components/EntityDataSection';
@@ -21,17 +21,16 @@ import { useBase64Image } from '../../../hooks/useBase64Image';
 
 export default function OverviewCompleteDataPage() {
   const navigate = useNavigate();
-  const location = useLocation();
-  const routeState = location.state as { operatorId?: unknown } | null;
-  const operatorId =
-    typeof routeState?.operatorId === 'string' && routeState.operatorId.trim()
-      ? encodeURIComponent(routeState.operatorId)
-      : undefined;
+  const { data: profile, error: profileError } = useGetOperatorProfileQuery();
   const logoPreview = useBase64Image(
-    operatorId ? `https://logos.ced.pagopa.it/${operatorId}` : undefined,
+    profile?.operatorId
+      ? `https://logos.ced.pagopa.it/${encodeURIComponent(profile.operatorId)}`
+      : undefined,
   );
   const coverPreview = useBase64Image(
-    operatorId ? `https://images.ced.pagopa.it/${operatorId}` : undefined,
+    profile?.operatorId
+      ? `https://images.ced.pagopa.it/${encodeURIComponent(profile.operatorId)}`
+      : undefined,
   );
   const [infoModalType, setInfoModalType] = useState<'logo' | 'cover' | null>(
     null,
@@ -44,7 +43,6 @@ export default function OverviewCompleteDataPage() {
   const [updateProfile, { isLoading: isUpdating }] =
     useUpdateOperatorProfileMutation();
   const isLoading = isCreating || isUpdating;
-  const { data: profile, error: profileError } = useGetOperatorProfileQuery();
   const isProfileIncomplete = hasStatus(profileError, 404);
 
   const {

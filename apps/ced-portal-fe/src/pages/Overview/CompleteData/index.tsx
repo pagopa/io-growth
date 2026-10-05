@@ -17,6 +17,7 @@ import {
 import { hasStatus } from '../../../core/api/baseApi';
 import { useToast } from '../../../contexts';
 import { CompleteProfileModal } from '../../../components';
+import { useBase64Image } from '../../../hooks/useBase64Image';
 
 export default function OverviewCompleteDataPage() {
   const navigate = useNavigate();
@@ -26,6 +27,12 @@ export default function OverviewCompleteDataPage() {
     typeof routeState?.operatorId === 'string' && routeState.operatorId.trim()
       ? encodeURIComponent(routeState.operatorId)
       : undefined;
+  const logoPreview = useBase64Image(
+    operatorId ? `https://logos.ced.pagopa.it/${operatorId}` : undefined,
+  );
+  const coverPreview = useBase64Image(
+    operatorId ? `https://images.ced.pagopa.it/${operatorId}` : undefined,
+  );
   const [infoModalType, setInfoModalType] = useState<'logo' | 'cover' | null>(
     null,
   );
@@ -161,16 +168,8 @@ export default function OverviewCompleteDataPage() {
                   province={formData.province}
                   logoFile={formData.logoFile}
                   coverFile={formData.coverFile}
-                  logoPreviewSrc={
-                    operatorId
-                      ? `https://logos.ced.pagopa.it/${operatorId}`
-                      : undefined
-                  }
-                  coverPreviewSrc={
-                    operatorId
-                      ? `https://images.ced.pagopa.it/${operatorId}`
-                      : undefined
-                  }
+                  logoPreviewSrc={logoPreview?.src}
+                  coverPreviewSrc={coverPreview?.src}
                   nameError={nameError}
                   websiteUrlError={websiteUrlError}
                   streetError={streetError}

@@ -117,6 +117,7 @@ describe("makeAdminApproveOpportunityUseCase", () => {
     expect(
       deps.emailRepository.sendOpportunityApprovedEmail,
     ).toHaveBeenCalledWith({
+      availabilityDate: "01/01/2026",
       opportunityName: "Discount 20%",
       to: mockProfile.contactEmail,
     });

@@ -74,6 +74,8 @@ export const mockProfile: Profile = {
     type: "online",
     website: { url: "https://example.org" },
   },
+  privacyUrl: "https://example.org/privacy",
+  tosUrl: "https://example.org/terms",
 };
 
 export const createMockProfileRepository = (
@@ -82,6 +84,7 @@ export const createMockProfileRepository = (
   create: overrides.create ?? vi.fn(),
   getByOperatorId:
     overrides.getByOperatorId ?? vi.fn().mockResolvedValue(ok(mockProfile)),
+  updateByOperatorId: overrides.updateByOperatorId ?? vi.fn(),
 });
 
 export const createMockMaterializedViewRepository = (
@@ -111,6 +114,9 @@ export const createMockOpportunityRepository = (
   findAll: overrides.findAll ?? vi.fn(),
   findById: overrides.findById ?? vi.fn(),
   findByIdAndOperatorId: overrides.findByIdAndOperatorId ?? vi.fn(),
+  republishById: overrides.republishById ?? vi.fn(),
+  republishByIdAndOperatorId: overrides.republishByIdAndOperatorId ?? vi.fn(),
+  requestChangesById: overrides.requestChangesById ?? vi.fn(),
   suspendById: overrides.suspendById ?? vi.fn(),
   suspendByIdAndOperatorId: overrides.suspendByIdAndOperatorId ?? vi.fn(),
   updateByIdAndOperatorId: overrides.updateByIdAndOperatorId ?? vi.fn(),

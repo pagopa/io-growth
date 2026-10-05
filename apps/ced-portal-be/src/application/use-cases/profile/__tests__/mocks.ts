@@ -13,7 +13,8 @@ const ONE_PIXEL_PNG = Buffer.from(
   "base64",
 );
 
-const createPng = () => new Blob([ONE_PIXEL_PNG], { type: "image/png" });
+const createPng = () =>
+  new File([ONE_PIXEL_PNG], "profile.png", { type: "image/png" });
 
 export const mockProfile = {
   contactEmail: "contatto@example.org",
@@ -34,6 +35,8 @@ export const mockProfile = {
       url: "https://example.org",
     },
   },
+  privacyUrl: "https://example.org/privacy",
+  tosUrl: "https://example.org/terms",
 };
 
 export const mockCreateProfileInput = {
@@ -50,6 +53,8 @@ export const mockCreateProfileInput = {
       url: "https://example.org",
     },
   },
+  privacyUrl: "https://example.org/privacy",
+  tosUrl: "https://example.org/terms",
 };
 
 export const createMockProfileRepository = (
@@ -57,12 +62,13 @@ export const createMockProfileRepository = (
 ): ProfileRepository => ({
   create: vi.fn(),
   getByOperatorId: vi.fn(),
+  updateByOperatorId: vi.fn(),
   ...overrides,
 });
 
 export const createMockProfileAssetsRepository = (
   overrides?: Partial<ProfileAssetsRepository>,
 ): ProfileAssetsRepository => ({
-  uploadProfileAssets: vi.fn().mockResolvedValue(ok(undefined)),
+  storeProfileAssets: vi.fn().mockResolvedValue(ok(undefined)),
   ...overrides,
 });

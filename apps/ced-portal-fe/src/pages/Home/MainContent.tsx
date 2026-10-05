@@ -5,6 +5,7 @@ import {
   useGetOpportunityCategoriesQuery,
   useDeleteOpportunityMutation,
   useOperatorCancelScheduledSuspensionMutation,
+  useOperatorRepublishOpportunityMutation,
   useOperatorSuspendOpportunityMutation,
 } from '../../features/opportunities/api';
 import { useBenefitsData } from '../../features/opportunities/hooks';
@@ -94,6 +95,8 @@ export const MainContent = () => {
   const [suspendOpportunity] = useOperatorSuspendOpportunityMutation();
   const [cancelScheduledSuspension] =
     useOperatorCancelScheduledSuspensionMutation();
+  const [republishOpportunity, { isLoading: isRepublishing }] =
+    useOperatorRepublishOpportunityMutation();
 
   const handleDeleteOpportunity = async (
     id: string,
@@ -134,6 +137,18 @@ export const MainContent = () => {
     }
   };
 
+  const handleRepublishOpportunity = async (id: string) => {
+    try {
+      await republishOpportunity(id).unwrap();
+      showToast('Opportunità ripubblicata con successo', 'success');
+      refetch();
+      return true;
+    } catch {
+      showToast("Errore durante la ripubblicazione dell'opportunità", 'error');
+      return false;
+    }
+  };
+
   const displayedItems = tab === 0 ? inManagementItems : approvedItems;
   const filterForDisplayedItems =
     tab === 0 ? OPERATOR_REQUEST_STATE_OPTIONS : OPERATOR_MANAGED_STATE_OPTIONS;
@@ -170,6 +185,8 @@ export const MainContent = () => {
             onDeleteOpportunity={handleDeleteOpportunity}
             onSuspendOpportunity={handleSuspendOpportunity}
             onCancelScheduledSuspension={handleCancelScheduledSuspension}
+            onRepublishOpportunity={handleRepublishOpportunity}
+            isRepublishing={isRepublishing}
           />
           {showPagination ? (
             <Box sx={{ px: { xs: 1, md: 0 }, pt: 2 }}>

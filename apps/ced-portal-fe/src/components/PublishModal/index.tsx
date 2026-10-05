@@ -16,6 +16,10 @@ interface PublishModalProps {
   onPublish: () => void;
   count: number;
   publishDate?: string;
+  title?: string;
+  description?: string;
+  actionLabel?: string;
+  isLoading?: boolean;
 }
 
 export function PublishModal({
@@ -24,6 +28,10 @@ export function PublishModal({
   onPublish,
   count,
   publishDate,
+  title = 'Pubblica su IO',
+  description: descriptionOverride,
+  actionLabel = 'Pubblica',
+  isLoading = false,
 }: Readonly<PublishModalProps>) {
   const isSingle = count === 1;
 
@@ -32,9 +40,9 @@ export function PublishModal({
     ? new Date(publishDate).toLocaleDateString('it-IT')
     : `{gg/mm/aaaa}`;
 
-  const description = isSingle
+  const description = descriptionOverride ?? (isSingle
     ? `L'opportunità sarà disponibile su IO a partire dal ${renderDate}. Invieremo un'email di conferma all'ente.`
-    : `Le opportunità selezionate (${count}) saranno disponibili su IO a partire dalla data indicata nel dettaglio. Invieremo un'email di conferma agli enti.`;
+    : `Le opportunità selezionate (${count}) saranno disponibili su IO a partire dalla data indicata nel dettaglio. Invieremo un'email di conferma agli enti.`);
 
   return (
     <Dialog
@@ -67,7 +75,7 @@ export function PublishModal({
           </Box>
 
           <Typography variant="h5" sx={{ fontWeight: 700 }}>
-            Pubblica su IO
+            {title}
           </Typography>
 
           <Typography sx={{ color: 'text.secondary', fontSize: 16, px: 2 }}>
@@ -79,9 +87,10 @@ export function PublishModal({
             color="primary"
             size="large"
             onClick={onPublish}
+            disabled={isLoading}
             sx={{ fontWeight: 700, borderRadius: 2, px: 5 }}
           >
-            Pubblica
+            {actionLabel}
           </Button>
         </Stack>
       </DialogContent>

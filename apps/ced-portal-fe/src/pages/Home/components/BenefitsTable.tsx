@@ -32,6 +32,8 @@ interface BenefitsTableProps {
     payload: SuspendOpportunityPayload,
   ) => void;
   onCancelScheduledSuspension: (id: string) => void;
+  onRepublishOpportunity: (id: string) => Promise<boolean>;
+  isRepublishing: boolean;
 }
 
 export const BenefitsTable = ({
@@ -39,6 +41,8 @@ export const BenefitsTable = ({
   onDeleteOpportunity,
   onSuspendOpportunity,
   onCancelScheduledSuspension,
+  onRepublishOpportunity,
+  isRepublishing,
 }: BenefitsTableProps) => {
   const theme = useTheme();
   const [menuAnchor, setMenuAnchor] = useState<null | HTMLElement>(null);
@@ -186,6 +190,8 @@ export const BenefitsTable = ({
         onDeleteOpportunity={onDeleteOpportunity}
         onSuspendOpportunity={onSuspendOpportunity}
         onCancelScheduledSuspension={onCancelScheduledSuspension}
+        onRepublishOpportunity={onRepublishOpportunity}
+        isRepublishing={isRepublishing}
       />
     </TableContainer>
   );

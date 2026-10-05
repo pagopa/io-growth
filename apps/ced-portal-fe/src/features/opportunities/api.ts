@@ -11,7 +11,9 @@ import {
   getCancelScheduledSuspensionUrl,
   getGetOpportunityUrl,
   getOperatorCancelScheduledSuspensionUrl,
+  getOperatorRepublishOpportunityUrl,
   getOperatorSuspendOpportunityUrl,
+  getRepublishOpportunityUrl,
   getSuspendOpportunityUrl,
 } from '../../generated/endpoints/opportunities/opportunities';
 import type {
@@ -147,6 +149,16 @@ const opportunitiesApi = baseApi.injectEndpoints({
         'Opportunities',
       ],
     }),
+    adminRepublishOpportunity: builder.mutation<void, string>({
+      query: (id) => ({
+        url: getRepublishOpportunityUrl(id),
+        method: 'PATCH',
+      }),
+      invalidatesTags: (_result, _error, id) => [
+        { type: 'Opportunities', id },
+        'Opportunities',
+      ],
+    }),
     deleteOpportunity: builder.mutation<
       void,
       { id: string; payload?: OperatorDeleteOpportunityBody }
@@ -185,6 +197,16 @@ const opportunitiesApi = baseApi.injectEndpoints({
         'Opportunities',
       ],
     }),
+    operatorRepublishOpportunity: builder.mutation<void, string>({
+      query: (id) => ({
+        url: getOperatorRepublishOpportunityUrl(id),
+        method: 'PATCH',
+      }),
+      invalidatesTags: (_result, _error, id) => [
+        { type: 'Opportunities', id },
+        'Opportunities',
+      ],
+    }),
   }),
 });
 
@@ -200,7 +222,9 @@ export const {
   useApproveOpportunityMutation,
   useAdminSuspendOpportunityMutation,
   useAdminCancelScheduledSuspensionMutation,
+  useAdminRepublishOpportunityMutation,
   useDeleteOpportunityMutation,
   useOperatorSuspendOpportunityMutation,
   useOperatorCancelScheduledSuspensionMutation,
+  useOperatorRepublishOpportunityMutation,
 } = opportunitiesApi;

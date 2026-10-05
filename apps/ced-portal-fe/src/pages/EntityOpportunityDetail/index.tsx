@@ -203,6 +203,7 @@ export default function OpportunityDetailPage() {
           status={detail.status}
           id={detail.id}
           suspendFrom={detail.suspendFrom}
+          suspendedBy={detail.suspendedBy}
         />
       </Stack>
     </Box>

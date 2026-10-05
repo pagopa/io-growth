@@ -16,6 +16,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import {
   useApproveOpportunityMutation,
   useAdminCancelScheduledSuspensionMutation,
+  useAdminRepublishOpportunityMutation,
   useAdminSuspendOpportunityMutation,
   useGetAdminOpportunityDetailQuery,
 } from '../../features/opportunities/api';
@@ -46,7 +47,10 @@ export default function OpportunityDetailPage() {
     useAdminSuspendOpportunityMutation();
   const [cancelScheduledSuspension, { isLoading: isCancelingSuspension }] =
     useAdminCancelScheduledSuspensionMutation();
+  const [republishOpportunity, { isLoading: isRepublishing }] =
+    useAdminRepublishOpportunityMutation();
   const [publishModalOpen, setPublishModalOpen] = useState(false);
+  const [republishModalOpen, setRepublishModalOpen] = useState(false);
   const [suspendModalOpen, setSuspendModalOpen] = useState(false);
   const [requestChangesOpen, setRequestChangesOpen] = useState(false);
 
@@ -60,6 +64,7 @@ export default function OpportunityDetailPage() {
     (detailStatus === 'published' && Boolean(detailSuspendFrom));
   const canSuspendOpportunity =
     detailStatus === 'published' && !hasScheduledSuspension;
+  const canRepublishOpportunity = detailStatus === 'suspended';
 
   const handleSuspend = async (payload: SuspendOpportunityPayload) => {
     if (!id || isSuspending) {
@@ -86,6 +91,20 @@ export default function OpportunityDetailPage() {
       showToast('Sospensione programmata annullata con successo', 'success');
     } catch {
       showToast("Errore durante l'annullamento della sospensione", 'error');
+    }
+  };
+
+  const handleRepublish = async () => {
+    if (!id || isRepublishing) {
+      return;
+    }
+
+    try {
+      await republishOpportunity(id).unwrap();
+      setRepublishModalOpen(false);
+      showToast('Opportunità ripubblicata con successo', 'success');
+    } catch {
+      showToast("Errore durante la ripubblicazione dell'opportunità", 'error');
     }
   };
 
@@ -296,6 +315,24 @@ export default function OpportunityDetailPage() {
             </Button>
           </Stack>
         )}
+        {canRepublishOpportunity && (
+          <Stack
+            direction={{ xs: 'column', sm: 'row' }}
+            spacing={2}
+            justifyContent="flex-end"
+            sx={{ pt: 2, pb: 4 }}
+          >
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={() => setRepublishModalOpen(true)}
+              disabled={isRepublishing}
+              sx={{ fontWeight: 700, borderRadius: 2, px: 4 }}
+            >
+              Ripubblica
+            </Button>
+          </Stack>
+        )}
       </Stack>
 
       <PublishModal
@@ -325,6 +362,17 @@ export default function OpportunityDetailPage() {
         }}
         count={1}
         publishDate={detail?.dateFrom}
+      />
+
+      <PublishModal
+        open={republishModalOpen}
+        onClose={() => setRepublishModalOpen(false)}
+        onPublish={handleRepublish}
+        count={1}
+        title="Ripubblica su IO"
+        description="Invieremo un'email all'ente per informarlo. L'opportunità sarà di nuovo disponibile su IO."
+        actionLabel="Conferma"
+        isLoading={isRepublishing}
       />
 
       <RequestChangesModal

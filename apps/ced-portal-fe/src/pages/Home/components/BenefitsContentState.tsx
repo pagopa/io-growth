@@ -29,6 +29,8 @@ interface BenefitsContentStateProps {
     payload: SuspendOpportunityPayload,
   ) => void;
   onCancelScheduledSuspension: (id: string) => void;
+  onRepublishOpportunity: (id: string) => Promise<boolean>;
+  isRepublishing: boolean;
 }
 
 export function BenefitsContentState({
@@ -40,6 +42,8 @@ export function BenefitsContentState({
   onDeleteOpportunity,
   onSuspendOpportunity,
   onCancelScheduledSuspension,
+  onRepublishOpportunity,
+  isRepublishing,
 }: BenefitsContentStateProps) {
   const theme = useTheme();
   const hasData = !isLoading && !isError && items.length > 0;
@@ -102,6 +106,8 @@ export function BenefitsContentState({
         onDeleteOpportunity={onDeleteOpportunity}
         onSuspendOpportunity={onSuspendOpportunity}
         onCancelScheduledSuspension={onCancelScheduledSuspension}
+        onRepublishOpportunity={onRepublishOpportunity}
+        isRepublishing={isRepublishing}
       />
     );
   };

@@ -5,7 +5,7 @@ type ActionId =
   | 'MODIFY'
   | 'DELETE'
   | 'SUSPEND'
-  | 'PUBLISH'
+  | 'REPUBLISH'
   | 'CANCEL_SUSPENSION';
 
 export type OpportunitiesCtaItem = {
@@ -21,6 +21,7 @@ export type OpportunitiesCtasProps = {
   status: OpportunityDetail['status'];
   id: OpportunityDetail['id'];
   suspendFrom?: OpportunityDetail['suspendFrom'];
+  suspendedBy?: OpportunityDetail['suspendedBy'];
 };
 
 export type OpportunitiesCtasLayout = {

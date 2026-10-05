@@ -1,6 +1,7 @@
 import { Button, Stack } from '@mui/material';
 import { OpportunitiesCtaItem, OpportunitiesCtasProps } from './types';
 import { useGetCtasConfiguration } from './useGetCtasConfiguration';
+import { PublishModal } from '../../../../components/PublishModal';
 import {
   DeleteOpportunityModal,
   SuspendOpportunityModal,
@@ -26,9 +27,15 @@ export const OpportunitiesCtas = ({
   status,
   id,
   suspendFrom,
+  suspendedBy,
 }: OpportunitiesCtasProps) => {
-  const { ctasConfig, deleteModal, suspendModal, modifyModal } =
-    useGetCtasConfiguration(id, status, suspendFrom);
+  const {
+    ctasConfig,
+    deleteModal,
+    suspendModal,
+    modifyModal,
+    republishModal,
+  } = useGetCtasConfiguration(id, status, suspendFrom, suspendedBy);
 
   const layout = ctasConfig[status];
   const ctas = layout?.ctas;
@@ -88,6 +95,16 @@ export const OpportunitiesCtas = ({
         onClose={modifyModal.onClose}
         onConfirm={modifyModal.onConfirm}
         isLoading={modifyModal.isLoading}
+      />
+      <PublishModal
+        open={republishModal.open}
+        onClose={republishModal.onClose}
+        onPublish={republishModal.onConfirm}
+        count={1}
+        title="Ripubblica su IO"
+        description="Invieremo un'email all'ente per informarlo. L'opportunità sarà di nuovo disponibile su IO."
+        actionLabel="Conferma"
+        isLoading={republishModal.isLoading}
       />
     </>
   );

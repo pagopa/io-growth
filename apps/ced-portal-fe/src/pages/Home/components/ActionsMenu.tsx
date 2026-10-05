@@ -4,6 +4,7 @@ import { useCallback, useState } from 'react';
 import { generatePath, useNavigate } from 'react-router-dom';
 import { APP_ROUTES } from '../../../app/routeConfig';
 import { ModifyOpportunityModal } from '../../../components/ModifyOpportunityModal';
+import { PublishModal } from '../../../components/PublishModal';
 import type {
   OperatorDeleteOpportunityBody,
   OpportunitySummaryItemStatus,
@@ -31,6 +32,8 @@ type ActionsMenuProps = {
     payload: SuspendOpportunityPayload,
   ) => void;
   onCancelScheduledSuspension: (id: string) => void;
+  onRepublishOpportunity: (id: string) => Promise<boolean>;
+  isRepublishing: boolean;
 };
 
 export const ActionsMenu = ({
@@ -43,12 +46,15 @@ export const ActionsMenu = ({
   onDeleteOpportunity,
   onSuspendOpportunity,
   onCancelScheduledSuspension,
+  onRepublishOpportunity,
+  isRepublishing,
 }: ActionsMenuProps) => {
   const theme = useTheme();
   const navigate = useNavigate();
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isSuspendModalOpen, setIsSuspendModalOpen] = useState(false);
   const [isModifyModalOpen, setIsModifyModalOpen] = useState(false);
+  const [isRepublishModalOpen, setIsRepublishModalOpen] = useState(false);
 
   const menuItemsSx = {
     color: theme.palette.common.primaryButton,
@@ -98,6 +104,9 @@ export const ActionsMenu = ({
   const canCancelScheduledSuspension =
     hasScheduledSuspension && selectedItemSuspendedBy === 'operator';
   const canOpenSuspendModal = canSuspend && !hasScheduledSuspension;
+  const canRepublish =
+    selectedItemStatus === 'suspended' &&
+    selectedItemSuspendedBy === 'operator';
 
   const handleSuspend = useCallback(() => {
     if (!selectedItemId) {
@@ -175,6 +184,12 @@ export const ActionsMenu = ({
     [handleCloseSuspendModal, onSuspendOpportunity, selectedItemId],
   );
 
+  const handleConfirmRepublish = useCallback(async () => {
+    if (selectedItemId && (await onRepublishOpportunity(selectedItemId))) {
+      setIsRepublishModalOpen(false);
+    }
+  }, [onRepublishOpportunity, selectedItemId]);
+
   const handleAction = useCallback(
     (cb?: (id: string) => void) => {
       if (selectedItemId && cb) {
@@ -229,6 +244,17 @@ export const ActionsMenu = ({
             Annulla sospensione programmata
           </MenuItem>
         ) : null}
+        {canRepublish ? (
+          <MenuItem
+            onClick={() => {
+              setIsRepublishModalOpen(true);
+              handleMenuClose();
+            }}
+            sx={menuItemsSx}
+          >
+            Ripubblica
+          </MenuItem>
+        ) : null}
 
         {canDelete && (
           <MenuItem
@@ -254,6 +280,16 @@ export const ActionsMenu = ({
         open={isModifyModalOpen}
         onClose={() => setIsModifyModalOpen(false)}
         onConfirm={handleConfirmEdit}
+      />
+      <PublishModal
+        open={isRepublishModalOpen}
+        onClose={() => setIsRepublishModalOpen(false)}
+        onPublish={handleConfirmRepublish}
+        count={1}
+        title="Ripubblica su IO"
+        description="Invieremo un'email all'ente per informarlo. L'opportunità sarà di nuovo disponibile su IO."
+        actionLabel="Conferma"
+        isLoading={isRepublishing}
       />
     </>
   );

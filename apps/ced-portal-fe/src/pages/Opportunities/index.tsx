@@ -10,6 +10,7 @@ import { FiltersBar, PageTabs, ResultsPagination } from '../../components';
 import {
   useApproveOpportunityMutation,
   useAdminCancelScheduledSuspensionMutation,
+  useAdminRepublishOpportunityMutation,
   useAdminSuspendOpportunityMutation,
 } from '../../features/opportunities/api';
 import { useOpportunitiesData } from '../../features/opportunities/hooks';
@@ -50,6 +51,9 @@ export default function OpportunitiesPage() {
   const [suspendModalOpen, setSuspendModalOpen] = useState(false);
   const [opportunityToSuspend, setOpportunityToSuspend] =
     useState<Opportunity | null>(null);
+  const [republishModalOpen, setRepublishModalOpen] = useState(false);
+  const [opportunityToRepublish, setOpportunityToRepublish] =
+    useState<Opportunity | null>(null);
 
   const [approveOpportunity, { isLoading: isApproving }] =
     useApproveOpportunityMutation();
@@ -57,6 +61,8 @@ export default function OpportunitiesPage() {
     useAdminSuspendOpportunityMutation();
   const [cancelScheduledSuspension, { isLoading: isCancelingSuspension }] =
     useAdminCancelScheduledSuspensionMutation();
+  const [republishOpportunity, { isLoading: isRepublishing }] =
+    useAdminRepublishOpportunityMutation();
 
   useEffect(() => {
     setSelected(new Set());
@@ -216,6 +222,36 @@ export default function OpportunitiesPage() {
     [cancelScheduledSuspension, isCancelingSuspension, showToast],
   );
 
+  const handleOpenRepublishModal = useCallback((item: Opportunity) => {
+    setOpportunityToRepublish(item);
+    setRepublishModalOpen(true);
+  }, []);
+
+  const handleRepublish = useCallback(async () => {
+    if (!opportunityToRepublish || isRepublishing) {
+      return;
+    }
+
+    try {
+      await republishOpportunity(opportunityToRepublish.id).unwrap();
+      setRepublishModalOpen(false);
+      setOpportunityToRepublish(null);
+      setSelected((prev) => {
+        const next = new Set(prev);
+        next.delete(opportunityToRepublish.id);
+        return next;
+      });
+      showToast('Opportunità ripubblicata con successo', 'success');
+    } catch {
+      showToast("Errore durante la ripubblicazione dell'opportunità", 'error');
+    }
+  }, [
+    isRepublishing,
+    opportunityToRepublish,
+    republishOpportunity,
+    showToast,
+  ]);
+
   return (
     <Box
       sx={{
@@ -289,6 +325,7 @@ export default function OpportunitiesPage() {
               onSelectChange={setSelected}
               onSuspend={handleOpenSuspendModal}
               onCancelSuspension={handleCancelSuspension}
+              onRepublish={handleOpenRepublishModal}
               onPublish={(id) => {
                 setIdsToPublish([id]);
                 setPublishCount(1);
@@ -317,6 +354,20 @@ export default function OpportunitiesPage() {
           displayedItems.find((item) => idsToPublish.includes(item.id))
             ?.dateFrom
         }
+      />
+
+      <PublishModal
+        open={republishModalOpen}
+        onClose={() => {
+          setRepublishModalOpen(false);
+          setOpportunityToRepublish(null);
+        }}
+        onPublish={handleRepublish}
+        count={1}
+        title="Ripubblica su IO"
+        description="Invieremo un'email all'ente per informarlo. L'opportunità sarà di nuovo disponibile su IO."
+        actionLabel="Conferma"
+        isLoading={isRepublishing}
       />
 
       <SuspendOpportunityModal

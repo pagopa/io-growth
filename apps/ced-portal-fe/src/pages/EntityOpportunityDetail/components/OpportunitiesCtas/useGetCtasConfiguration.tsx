@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import {
   useDeleteOpportunityMutation,
   useOperatorCancelScheduledSuspensionMutation,
+  useOperatorRepublishOpportunityMutation,
   useOperatorSuspendOpportunityMutation,
 } from '../../../../features/opportunities/api';
 import { useToast } from '../../../../contexts';
@@ -26,6 +27,7 @@ export const useGetCtasConfiguration = (
   id: string,
   status?: OpportunityStatus,
   suspendFrom?: string | null,
+  suspendedBy?: 'operator' | 'department' | null,
 ) => {
   const navigate = useNavigate();
   const { showToast } = useToast();
@@ -33,8 +35,11 @@ export const useGetCtasConfiguration = (
   const [suspendOpportunity] = useOperatorSuspendOpportunityMutation();
   const [cancelScheduledSuspension] =
     useOperatorCancelScheduledSuspensionMutation();
+  const [republishOpportunity, { isLoading: isRepublishing }] =
+    useOperatorRepublishOpportunityMutation();
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isSuspendModalOpen, setIsSuspendModalOpen] = useState(false);
+  const [isRepublishModalOpen, setIsRepublishModalOpen] = useState(false);
   const [isModifyModalOpen, setIsModifyModalOpen] = useState(false);
 
   const canShowSuspendAction = Boolean(
@@ -117,8 +122,18 @@ export const useGetCtasConfiguration = (
     }
   }, [cancelScheduledSuspension, id, showToast]);
 
-  const handlePublication = useCallback(() => {
-    // TODO[OUT OF MVP SCOPE]: call publish opportunity API with { id }.
+  const handleConfirmRepublish = useCallback(async () => {
+    try {
+      await republishOpportunity(id).unwrap();
+      setIsRepublishModalOpen(false);
+      showToast('Opportunità ripubblicata con successo', 'success');
+    } catch {
+      showToast("Errore durante la ripubblicazione dell'opportunità", 'error');
+    }
+  }, [id, republishOpportunity, showToast]);
+
+  const handleOpenRepublishModal = useCallback(() => {
+    setIsRepublishModalOpen(true);
   }, []);
 
   const actionsMap: Record<
@@ -128,7 +143,7 @@ export const useGetCtasConfiguration = (
     () => ({
       DELETE: handleDelete,
       MODIFY: handleOpenModifyModal,
-      PUBLISH: handlePublication,
+      REPUBLISH: handleOpenRepublishModal,
       SUSPEND: handleSuspension,
       CANCEL_SUSPENSION: handleCancelScheduledSuspension,
     }),
@@ -136,7 +151,7 @@ export const useGetCtasConfiguration = (
       handleCancelScheduledSuspension,
       handleDelete,
       handleOpenModifyModal,
-      handlePublication,
+      handleOpenRepublishModal,
       handleSuspension,
     ],
   );
@@ -151,12 +166,17 @@ export const useGetCtasConfiguration = (
   );
 
   const ctasConfig = useMemo(() => {
+    const canRepublish = status === 'suspended' && suspendedBy === 'operator';
     const mapped = Object.fromEntries(
       Object.entries(CTAS_BY_STATUS).map(([key, layout]) => {
+        const filterRepublishCta = (ctas?: OpportunitiesCtaItem[]) =>
+          withActions(ctas)?.filter(
+            (cta) => cta.actionId !== 'REPUBLISH' || canRepublish,
+          );
         const mappedLayout = {
-          ctas: withActions(layout?.ctas),
-          leftCtas: withActions(layout?.leftCtas),
-          rightCtas: withActions(layout?.rightCtas),
+          ctas: filterRepublishCta(layout?.ctas),
+          leftCtas: filterRepublishCta(layout?.leftCtas),
+          rightCtas: filterRepublishCta(layout?.rightCtas),
         } satisfies OpportunitiesCtasLayout;
 
         if (
@@ -186,7 +206,13 @@ export const useGetCtasConfiguration = (
     ) as Partial<Record<OpportunityStatus, OpportunitiesCtasLayout>>;
 
     return mapped;
-  }, [actionsMap.CANCEL_SUSPENSION, hasScheduledSuspension, withActions]);
+  }, [
+    actionsMap.CANCEL_SUSPENSION,
+    hasScheduledSuspension,
+    status,
+    suspendedBy,
+    withActions,
+  ]);
 
   return {
     ctasConfig,
@@ -199,6 +225,12 @@ export const useGetCtasConfiguration = (
       open: isSuspendModalOpen,
       onClose: handleCloseSuspendModal,
       onConfirm: handleConfirmSuspension,
+    },
+    republishModal: {
+      open: isRepublishModalOpen,
+      onClose: () => setIsRepublishModalOpen(false),
+      onConfirm: handleConfirmRepublish,
+      isLoading: isRepublishing,
     },
     modifyModal: {
       open: isModifyModalOpen,

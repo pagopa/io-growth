@@ -41,9 +41,13 @@ const hasMatchingFilenameExtension = (
     : /\.jpe?g$/i.test(filename);
 
 export const validateProfileAsset = async (
-  content: File,
+  content: Blob,
   assetKind: AssetKind,
 ): Promise<Result<ProfileAsset, ValidationError>> => {
+  if (!(content instanceof File)) {
+    return err(new ValidationError(`${assetKind} must be a file`));
+  }
+
   const bytes = new Uint8Array(await content.arrayBuffer());
 
   try {
@@ -88,8 +92,8 @@ export const validateProfileAssets = async ({
   image,
   logo,
 }: {
-  readonly image: File;
-  readonly logo: File;
+  readonly image: Blob;
+  readonly logo: Blob;
 }): Promise<
   Result<
     {
@@ -121,8 +125,8 @@ export const validateOptionalProfileAssets = async ({
   image,
   logo,
 }: {
-  readonly image?: File;
-  readonly logo?: File;
+  readonly image?: Blob;
+  readonly logo?: Blob;
 }): Promise<Result<ValidatedOptionalProfileAssets, ValidationError>> => {
   const [validatedLogo, validatedImage] = await Promise.all([
     logo === undefined ? undefined : validateProfileAsset(logo, "logo"),

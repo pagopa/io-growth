@@ -1,5 +1,24 @@
 # ced-portal-be
 
+## 0.7.1
+
+### Patch Changes
+
+- e46b30e: Add `io-core-email-templates` package: compiles MJML email templates into typed, parameterized SESv2 `CreateEmailTemplate` objects (`{ TemplateContent: { Html, Subject, Text }, TemplateName }`). `{{variableName}}` placeholders are left unresolved for SES to substitute at send time. Includes the `opportunity-approved`, `opportunity-published`, and `opportunity-rejected` templates.
+
+  Used template in `ced-portal-be` instead of html.
+
+  Updated deps and added fix for orval File to Blob change.
+
+- Updated dependencies [e46b30e]
+  - @pagopa/io-core-adapter-fastify@0.0.10
+
+## 0.7.0
+
+### Minor Changes
+
+- b1d9d6e: Add the department endpoint to request changes on an opportunity under review: PATCH /api/opportunities/{opportunityId}/request-changes sends the operator a message and sends the opportunity back to draft for editing.
+
 ## 0.6.0
 
 ### Minor Changes

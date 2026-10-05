@@ -95,6 +95,8 @@ export default function EntityDetailPage() {
           address: resolvedData.place.address
             ? `${resolvedData.place.address.street}, ${resolvedData.place.address.city}`
             : undefined,
+          privacyUrl: resolvedData.privacyUrl,
+          termsUrl: resolvedData.tosUrl,
         };
 
         return (

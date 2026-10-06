@@ -5,6 +5,7 @@ import type { OnboardingRepository } from "../../domain/ports/outbound/onboardin
 import type { CustomFetch } from "../../fetch.js";
 import type {
   completeOnboardingUsingPUTResponse,
+  deleteOnboardingResponse,
   getOnboardingWithFilterResponse,
   rejectOnboardingUsingPUTResponse,
 } from "../../generated/endpoints/onboarding-controller/onboarding-controller.js";
@@ -15,6 +16,7 @@ import type {
 
 import {
   getCompleteOnboardingUsingPUTUrl,
+  getDeleteOnboardingUrl,
   getGetOnboardingWithFilterUrl,
   getRejectOnboardingUsingPUTUrl,
 } from "../../generated/endpoints/onboarding-controller/onboarding-controller.js";
@@ -47,6 +49,29 @@ export const createOnboardingClient = (
       return err(
         new GenericError(`completeOnboarding failed: ${String(error)}`),
       );
+    }
+  },
+
+  deleteOnboarding: async (onboardingId) => {
+    try {
+      const response = await customFetch<deleteOnboardingResponse>(
+        getDeleteOnboardingUrl(onboardingId),
+        { method: "DELETE" },
+      );
+
+      // The generated type declares `status: 401 | 403` and no success variant,
+      // because the upstream spec gives the 200 an empty media type.
+      const { status } = response as unknown as { status: number };
+      if (status < 200 || status >= 300) {
+        return err(
+          new GenericError(
+            `deleteOnboarding failed with status ${String(status)}`,
+          ),
+        );
+      }
+      return ok(undefined);
+    } catch (error) {
+      return err(new GenericError(`deleteOnboarding failed: ${String(error)}`));
     }
   },
 

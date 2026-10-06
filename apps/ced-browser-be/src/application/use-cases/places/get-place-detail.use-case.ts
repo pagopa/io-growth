@@ -32,6 +32,7 @@ export interface GetPlaceDetailOutput extends OperatorMetadata {
   entityId: string;
   entityName: string;
   id: string;
+  operatorId: string;
   opportunities: { benefit: PlaceBenefit; id: string; title: string }[];
   relatedPlaces: RelatedPlace[];
   title: string;
@@ -71,6 +72,7 @@ export const makeGetPlaceDetailUseCase =
       entityName: detail.entityName,
       id: detail.id,
       operatorFiscalCode: detail.operatorFiscalCode,
+      operatorId: detail.operatorId,
       operatorName: detail.operatorName,
       opportunities: detail.opportunities.map((o) => ({
         benefit: o.benefit,

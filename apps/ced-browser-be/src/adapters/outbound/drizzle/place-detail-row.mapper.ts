@@ -73,6 +73,7 @@ export const mapPlaceDetailRow = (
       placeRow.operator.profile?.displayName ?? placeRow.operator.name,
     id: placeRow.id,
     operatorFiscalCode: placeRow.operator.fiscalCode,
+    operatorId: placeRow.operatorId,
     operatorName: placeRow.operator.name,
     opportunities: opportunityRows
       .filter(

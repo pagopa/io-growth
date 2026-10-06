@@ -204,6 +204,8 @@ export const OpportunityDetailSchema = z.object({
   operatorId: z.ulid().optional(),
   operatorName: z.string().optional(),
   placeIds: z.array(z.ulid()),
+  republishMessage: z.string().max(4096).nullish(),
+  republishRejectionMessage: z.string().max(4096).nullish(),
   status: z.enum([
     "draft",
     "test_pending",

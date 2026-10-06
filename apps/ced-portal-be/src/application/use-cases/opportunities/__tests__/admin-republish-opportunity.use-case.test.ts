@@ -6,8 +6,12 @@ import type { OpportunityDetail } from "../../../../domain/entities/opportunity.
 
 import { makeAdminRepublishOpportunityUseCase } from "../admin-republish-opportunity.use-case.js";
 import {
+  createMockEmailRepository,
   createMockMaterializedViewRepository,
   createMockOpportunityRepository,
+  createMockProfileRepository,
+  MOCK_OPERATOR_ID,
+  mockProfile,
 } from "./mocks.js";
 
 const MOCK_OPPORTUNITY_ID = "01JVMK3N8XQZP5T6G2WYHAB4CF";
@@ -29,6 +33,7 @@ const mockOpportunity = (
   id: MOCK_OPPORTUNITY_ID,
   localizedMetadata: [{ key: "name", language: "it", value: "Discount 20%" }],
   nationalTerritory: false,
+  operatorId: MOCK_OPERATOR_ID,
   placeIds: ["01JVMK3N8XQZP5T6G2WYHAB4CD"],
   status,
   suspendedBy: "department",
@@ -38,10 +43,21 @@ const mockOpportunity = (
 });
 
 const makeDeps = (overrides?: {
+  emailFails?: boolean;
   found?: OpportunityDetail | undefined;
+  profileFails?: boolean;
   refreshFails?: boolean;
   republishFails?: boolean;
 }) => ({
+  emailRepository: createMockEmailRepository({
+    sendOpportunityPublishedEmail: vi
+      .fn()
+      .mockResolvedValue(
+        overrides?.emailFails
+          ? err(new GenericError("smtp down"))
+          : ok(undefined),
+      ),
+  }),
   materializedViewRepository: createMockMaterializedViewRepository({
     refreshAll: vi
       .fn()
@@ -63,12 +79,23 @@ const makeDeps = (overrides?: {
           : ok(undefined),
       ),
   }),
+  profileRepository: createMockProfileRepository({
+    getByOperatorId: vi
+      .fn()
+      .mockResolvedValue(
+        overrides?.profileFails
+          ? err(new GenericError("no profile"))
+          : ok(mockProfile),
+      ),
+  }),
 });
 
 const makeUseCase = (deps: ReturnType<typeof makeDeps>) =>
   makeAdminRepublishOpportunityUseCase(
     deps.opportunityRepository,
     deps.materializedViewRepository,
+    deps.profileRepository,
+    deps.emailRepository,
   );
 
 const validInput = { opportunityId: MOCK_OPPORTUNITY_ID };
@@ -145,5 +172,58 @@ describe("makeAdminRepublishOpportunityUseCase", () => {
       err(expect.objectContaining({ kind: "ValidationError" })),
     );
     expect(deps.opportunityRepository.findById).not.toHaveBeenCalled();
+  });
+});
+
+describe("makeAdminRepublishOpportunityUseCase - notification", () => {
+  it("should notify the operator that the opportunity is published again", async () => {
+    const deps = makeDeps();
+
+    const result = await makeUseCase(deps)(validInput);
+
+    expect(result).toEqual(ok(undefined));
+    expect(deps.profileRepository.getByOperatorId).toHaveBeenCalledWith(
+      MOCK_OPERATOR_ID,
+    );
+    expect(
+      deps.emailRepository.sendOpportunityPublishedEmail,
+    ).toHaveBeenCalledWith({
+      opportunityName: "Discount 20%",
+      to: mockProfile.contactEmail,
+    });
+  });
+
+  it("should not fail the republication when the profile lookup fails", async () => {
+    const deps = makeDeps({ profileFails: true });
+
+    const result = await makeUseCase(deps)(validInput);
+
+    expect(result).toEqual(ok(undefined));
+    expect(
+      deps.emailRepository.sendOpportunityPublishedEmail,
+    ).not.toHaveBeenCalled();
+  });
+
+  it("should not fail the republication when the email cannot be sent", async () => {
+    const deps = makeDeps({ emailFails: true });
+
+    const result = await makeUseCase(deps)(validInput);
+
+    expect(result).toEqual(ok(undefined));
+  });
+
+  it("should fall back to the opportunity id when no italian name is set", async () => {
+    const deps = makeDeps({
+      found: { ...mockOpportunity(), localizedMetadata: [] },
+    });
+
+    await makeUseCase(deps)(validInput);
+
+    expect(
+      deps.emailRepository.sendOpportunityPublishedEmail,
+    ).toHaveBeenCalledWith({
+      opportunityName: MOCK_OPPORTUNITY_ID,
+      to: mockProfile.contactEmail,
+    });
   });
 });

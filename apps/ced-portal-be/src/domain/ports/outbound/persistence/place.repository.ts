@@ -8,6 +8,11 @@ export interface CreatePlaceInput {
   place: Place;
 }
 
+export interface DeletePlaceByIdAndOperatorIdInput {
+  operatorId: string;
+  placeId: string;
+}
+
 export interface GetPlaceByIdInput {
   operatorId: string;
   placeId: string;
@@ -35,6 +40,9 @@ export interface PlaceRepository {
   readonly create: (
     input: CreatePlaceInput,
   ) => Promise<Result<Place, GenericError>>;
+  readonly deleteByIdAndOperatorId: (
+    input: DeletePlaceByIdAndOperatorIdInput,
+  ) => Promise<Result<void, GenericError>>;
   readonly getById: (
     input: GetPlaceByIdInput,
   ) => Promise<Result<Place | undefined, GenericError>>;

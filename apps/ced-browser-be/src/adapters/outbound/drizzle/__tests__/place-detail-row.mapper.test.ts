@@ -23,6 +23,7 @@ describe("mapPlaceDetailRow", () => {
     expect(result.entityId).not.toBe("operator-id");
     expect(result.entityName).toBe("Comune di Alessandria");
     expect(result.operatorFiscalCode).toBe("00000000000");
+    expect(result.operatorId).toBe("operator-id");
     expect(result.operatorName).toBe("Operator Test Name");
   });
 
@@ -42,6 +43,7 @@ describe("mapPlaceDetailRow", () => {
     expect(result.entityId).toBe("");
     expect(result.entityName).toBe("Operatore senza profilo");
     expect(result.operatorFiscalCode).toBe("00000000000");
+    expect(result.operatorId).toBe("operator-id");
     expect(result.operatorName).toBe("Operatore senza profilo");
   });
 });

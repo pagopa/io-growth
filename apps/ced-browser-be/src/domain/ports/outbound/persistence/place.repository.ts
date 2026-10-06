@@ -24,6 +24,7 @@ export interface PlaceDetail extends OperatorMetadata {
   entityId: string;
   entityName: string;
   id: string;
+  operatorId: string;
   opportunities: PlaceOpportunity[];
   relatedPlaces: RelatedPlace[];
   title: string;

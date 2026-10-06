@@ -99,6 +99,9 @@ export const createMockEmailRepository = (
   sendOpportunityApprovedEmail:
     overrides.sendOpportunityApprovedEmail ??
     vi.fn().mockResolvedValue(ok(undefined)),
+  sendOpportunityPublishedEmail:
+    overrides.sendOpportunityPublishedEmail ??
+    vi.fn().mockResolvedValue(ok(undefined)),
 });
 
 export const createMockOpportunityRepository = (
@@ -116,9 +119,12 @@ export const createMockOpportunityRepository = (
   findAll: overrides.findAll ?? vi.fn(),
   findById: overrides.findById ?? vi.fn(),
   findByIdAndOperatorId: overrides.findByIdAndOperatorId ?? vi.fn(),
+  rejectRepublishById: overrides.rejectRepublishById ?? vi.fn(),
   republishById: overrides.republishById ?? vi.fn(),
   republishByIdAndOperatorId: overrides.republishByIdAndOperatorId ?? vi.fn(),
   requestChangesById: overrides.requestChangesById ?? vi.fn(),
+  requestRepublishByIdAndOperatorId:
+    overrides.requestRepublishByIdAndOperatorId ?? vi.fn(),
   suspendById: overrides.suspendById ?? vi.fn(),
   suspendByIdAndOperatorId: overrides.suspendByIdAndOperatorId ?? vi.fn(),
   updateByIdAndOperatorId: overrides.updateByIdAndOperatorId ?? vi.fn(),

@@ -52,6 +52,7 @@ const createMockPlaceRepository = (
   overrides?: Partial<PlaceRepository>,
 ): PlaceRepository => ({
   create: vi.fn(),
+  deleteByIdAndOperatorId: vi.fn(),
   getById: vi.fn(),
   getIdsByOperator: vi.fn().mockResolvedValue(ok([MOCK_PLACE_ID])),
   listByOperatorId: vi.fn(),

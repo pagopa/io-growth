@@ -35,4 +35,22 @@ export const createOneMailEmailRepository = (
     }
     return ok(undefined);
   },
+
+  sendOpportunityPublishedEmail: async ({ opportunityName, to }) => {
+    const result = await emailClient.sendHighPriorityEmail({
+      from: { email: config.fromAddress },
+      templateContent: {
+        templateAttributes: {
+          opportunityName,
+        },
+        templateId: "ced_opportunity-published",
+      },
+      to: { email: to },
+    });
+
+    if (result.isErr()) {
+      return err(new GenericError(result.error.message));
+    }
+    return ok(undefined);
+  },
 });

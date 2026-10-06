@@ -30,9 +30,11 @@ import type {
   OpportunitySearchField,
   OpportunityStatusFilter,
   PaginatedOpportunities,
+  RejectRepublishByIdInput,
   RepublishByIdAndOperatorIdInput,
   RepublishByIdInput,
   RequestChangesByIdInput,
+  RequestRepublishByIdAndOperatorIdInput,
   SuspendByIdAndOperatorIdInput,
   SuspendByIdInput,
   UpdateByIdAndOperatorIdInput,
@@ -62,15 +64,13 @@ import {
   opportunityCategory,
   opportunityPlace,
 } from "./schema/tables.js";
+import { escapeIlikePattern } from "./utils/escape-ilike-pattern.js";
 
 type DbOrTxClient = TransactionClient | TypedDbClient<typeof schema>;
 
 type TransactionClient = Parameters<
   Parameters<TypedDbClient<typeof schema>["transaction"]>[0]
 >[0];
-
-const escapeIlikePattern = (value: string): string =>
-  value.replace(/\\/g, "\\\\").replace(/%/g, "\\%").replace(/_/g, "\\_");
 
 const searchColumns = {
   name: localizedMetadata.value,
@@ -142,6 +142,8 @@ const findByIdAndOperatorId = async (
         id: true,
         nationalTerritory: true,
         operatorId: true,
+        republishMessage: true,
+        republishRejectionMessage: true,
         status: true,
         suspendedBy: true,
         suspendFrom: true,
@@ -207,6 +209,8 @@ const findById =
           id: true,
           nationalTerritory: true,
           operatorId: true,
+          republishMessage: true,
+          republishRejectionMessage: true,
           status: true,
           suspendedBy: true,
           suspendFrom: true,
@@ -296,6 +300,8 @@ const deleteByIdAndOperatorId =
             ...(input.deletionMessage
               ? { deletionMessage: input.deletionMessage }
               : {}),
+            republishMessage: null,
+            republishRejectionMessage: null,
             status: OPPORTUNITY_STATUS.DELETED,
             updatedAt: new Date(),
           })
@@ -436,6 +442,47 @@ const cancelScheduledSuspensionById =
     }
   };
 
+const rejectRepublishById =
+  (db: TypedDbClient<typeof schema>) =>
+  async (
+    input: RejectRepublishByIdInput,
+  ): Promise<Result<void, ConflictError | GenericError>> => {
+    try {
+      await db.transaction(async (tx) => {
+        const result = await tx
+          .update(opportunity)
+          .set({
+            republishMessage: null,
+            republishRejectionMessage: input.republishRejectionMessage,
+            updatedAt: new Date(),
+          })
+          .where(
+            and(
+              eq(opportunity.id, input.opportunityId),
+              eq(opportunity.status, OPPORTUNITY_STATUS.SUSPENDED),
+              isNotNull(opportunity.republishMessage),
+            ),
+          );
+
+        if (result.count === 0) {
+          throw new ConflictError(
+            "Opportunity status was modified concurrently",
+          );
+        }
+      });
+      return ok(undefined);
+    } catch (error) {
+      if (error instanceof ConflictError) {
+        return err(error);
+      }
+      return err(
+        new GenericError(
+          `Failed to reject republish request: ${String(error)}`,
+        ),
+      );
+    }
+  };
+
 const republishById =
   (db: TypedDbClient<typeof schema>) =>
   async (
@@ -446,6 +493,8 @@ const republishById =
         const result = await tx
           .update(opportunity)
           .set({
+            republishMessage: null,
+            republishRejectionMessage: null,
             status: OPPORTUNITY_STATUS.PUBLISHED,
             suspendedBy: null,
             suspendFrom: null,
@@ -486,6 +535,8 @@ const republishByIdAndOperatorId =
         const result = await tx
           .update(opportunity)
           .set({
+            republishMessage: null,
+            republishRejectionMessage: null,
             status: OPPORTUNITY_STATUS.PUBLISHED,
             suspendedBy: null,
             suspendFrom: null,
@@ -552,6 +603,49 @@ const requestChangesById =
       return err(
         new GenericError(
           `Failed to request opportunity changes: ${String(error)}`,
+        ),
+      );
+    }
+  };
+
+const requestRepublishByIdAndOperatorId =
+  (db: TypedDbClient<typeof schema>) =>
+  async (
+    input: RequestRepublishByIdAndOperatorIdInput,
+  ): Promise<Result<void, ConflictError | GenericError>> => {
+    try {
+      await db.transaction(async (tx) => {
+        const result = await tx
+          .update(opportunity)
+          .set({
+            republishMessage: input.republishMessage,
+            republishRejectionMessage: null,
+            updatedAt: new Date(),
+          })
+          .where(
+            and(
+              eq(opportunity.id, input.opportunityId),
+              eq(opportunity.operatorId, input.operatorId),
+              eq(opportunity.status, OPPORTUNITY_STATUS.SUSPENDED),
+              eq(opportunity.suspendedBy, ACTOR_TYPE.DEPARTMENT),
+              isNull(opportunity.republishMessage),
+            ),
+          );
+
+        if (result.count === 0) {
+          throw new ConflictError(
+            "Opportunity status was modified concurrently",
+          );
+        }
+      });
+      return ok(undefined);
+    } catch (error) {
+      if (error instanceof ConflictError) {
+        return err(error);
+      }
+      return err(
+        new GenericError(
+          `Failed to request opportunity republish: ${String(error)}`,
         ),
       );
     }
@@ -660,6 +754,9 @@ const updateByIdAndOperatorId =
             dateFrom: input.dateFrom,
             dateTo: input.dateTo ?? null,
             nationalTerritory: input.nationalTerritory,
+            ...(input.status === OPPORTUNITY_STATUS.SUSPENDED
+              ? {}
+              : { republishMessage: null, republishRejectionMessage: null }),
             status: input.status,
             updatedAt: new Date(),
             url: input.url ?? null,
@@ -876,9 +973,11 @@ export const createDrizzleOpportunityRepository = (
   findByIdAndOperatorId: async (input: FindByIdAndOperatorIdInput) =>
     findByIdAndOperatorId(db, input),
 
+  rejectRepublishById: rejectRepublishById(db),
   republishById: republishById(db),
   republishByIdAndOperatorId: republishByIdAndOperatorId(db),
   requestChangesById: requestChangesById(db),
+  requestRepublishByIdAndOperatorId: requestRepublishByIdAndOperatorId(db),
   suspendById: suspendById(db),
 
   suspendByIdAndOperatorId: suspendByIdAndOperatorId(db),

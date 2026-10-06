@@ -427,7 +427,7 @@ export default function OpportunityDetailPage() {
         onClose={() => setRequestChangesOpen(false)}
         onConfirm={async (changeRequestMessage) => {
           if (!id || isRequestingChanges) {
-            return;
+            return false;
           }
 
           try {
@@ -438,11 +438,13 @@ export default function OpportunityDetailPage() {
             setRequestChangesOpen(false);
             navigate(APP_ROUTES.OPPORTUNITIES);
             showToast('Fatto!', 'success');
+            return true;
           } catch {
             showToast(
               "Errore durante l'invio della richiesta di modifiche",
               'error',
             );
+            return false;
           }
         }}
       />

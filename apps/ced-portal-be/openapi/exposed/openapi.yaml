@@ -257,41 +257,80 @@ paths:
       operationId: listOperatorPlaces
       security:
         - bearerAuth: []
+      parameters:
+        - name: offset
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+        - name: search
+          in: query
+          required: false
+          description: Case-insensitive substring search on the place name.
+          schema:
+            type: string
+        - name: type
+          in: query
+          required: false
+          description: Filter by place type. When omitted, both types are included.
+          schema:
+            type: string
+            enum:
+              - online
+              - offline
       responses:
         "200":
-          description: Operator places
+          description: Paginated list of operator places
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/PlaceResponse"
+                $ref: "#/components/schemas/PlaceListResponse"
               examples:
                 mixedPlaces:
                   summary: Online and offline places
                   value:
-                    - id: 01JVMK3N8XQZP5T6G2WYHAB4CD
-                      type: online
-                      name: Sportello remoto
-                      website:
-                        url: https://example.org
-                      supportContacts:
-                        - id: 01JVMK3N8XQZP5T6G2WYHAB4CE
-                          type: email
-                          value: support@example.org
-                    - id: 01JVMK3N8XQZP5T6G2WYHAB4CG
-                      type: offline
-                      name: Sportello centrale
-                      address:
-                        street: Via Roma 1
-                        city: Roma
-                        state: RM
-                        postalCode: "00100"
-                        country: IT
-                      supportContacts:
-                        - id: 01JVMK3N8XQZP5T6G2WYHAB4CF
-                          type: phone
-                          value: "+39 0000000000"
+                    items:
+                      - id: 01JVMK3N8XQZP5T6G2WYHAB4CD
+                        type: online
+                        name: Sportello remoto
+                        associatedOpportunities: 2
+                        website:
+                          url: https://example.org
+                        supportContacts:
+                          - id: 01JVMK3N8XQZP5T6G2WYHAB4CE
+                            type: email
+                            value: support@example.org
+                      - id: 01JVMK3N8XQZP5T6G2WYHAB4CG
+                        type: offline
+                        name: Sportello centrale
+                        associatedOpportunities: 0
+                        address:
+                          street: Via Roma 1
+                          city: Roma
+                          state: RM
+                          postalCode: "00100"
+                          country: IT
+                        supportContacts:
+                          - id: 01JVMK3N8XQZP5T6G2WYHAB4CF
+                            type: phone
+                            value: "+39 0000000000"
+                    total: 2
+        "400":
+          description: Invalid pagination or place type query parameter
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
         "401":
           description: Invalid or missing JWT
           content:
@@ -2707,6 +2746,70 @@ components:
         mapping:
           online: "#/components/schemas/OnlinePlaceResponse"
           offline: "#/components/schemas/OfflinePlaceResponse"
+    PlaceListItem:
+      type: object
+      additionalProperties: false
+      required:
+        - id
+        - type
+        - name
+        - supportContacts
+        - associatedOpportunities
+      properties:
+        id:
+          $ref: "#/components/schemas/PlaceResponseBase/properties/id"
+        type:
+          $ref: "#/components/schemas/PlaceResponseBase/properties/type"
+        name:
+          $ref: "#/components/schemas/PlaceResponseBase/properties/name"
+        supportContacts:
+          $ref: "#/components/schemas/PlaceResponseBase/properties/supportContacts"
+        address:
+          $ref: "#/components/schemas/Address"
+        website:
+          $ref: "#/components/schemas/Website"
+        associatedOpportunities:
+          type: integer
+          minimum: 0
+          description: >-
+            Number of currently linked opportunities belonging to the operator,
+            excluding deleted opportunities and including all other statuses.
+      oneOf:
+        - type: object
+          required:
+            - website
+          properties:
+            type:
+              type: string
+              enum:
+                - online
+            website:
+              $ref: "#/components/schemas/Website"
+        - type: object
+          required:
+            - address
+          properties:
+            type:
+              type: string
+              enum:
+                - offline
+            address:
+              $ref: "#/components/schemas/Address"
+    PlaceListResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - items
+        - total
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/PlaceListItem"
+        total:
+          type: integer
+          minimum: 0
+          description: Number of matching places before pagination.
     OperatorProfileResponse:
       type: object
       additionalProperties: false

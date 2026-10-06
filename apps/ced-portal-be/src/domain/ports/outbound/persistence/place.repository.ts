@@ -1,7 +1,7 @@
 import type { GenericError } from "@pagopa/io-core-domain/errors";
 import type { Result } from "neverthrow";
 
-import type { Place } from "../../../entities/place.js";
+import type { Place, PlaceListItem } from "../../../entities/place.js";
 
 export interface CreatePlaceInput {
   operatorId: string;
@@ -23,6 +23,19 @@ export interface GetPlaceIdsByOperatorInput {
   placeIds: readonly string[];
 }
 
+export interface ListPlacesInput {
+  limit: number;
+  offset: number;
+  operatorId: string;
+  search?: string;
+  type?: Place["type"];
+}
+
+export interface PaginatedPlaces {
+  items: PlaceListItem[];
+  total: number;
+}
+
 export interface PlaceRepository {
   readonly create: (
     input: CreatePlaceInput,
@@ -37,6 +50,6 @@ export interface PlaceRepository {
     input: GetPlaceIdsByOperatorInput,
   ) => Promise<Result<string[], GenericError>>;
   readonly listByOperatorId: (
-    operatorId: string,
-  ) => Promise<Result<Place[], GenericError>>;
+    input: ListPlacesInput,
+  ) => Promise<Result<PaginatedPlaces, GenericError>>;
 }

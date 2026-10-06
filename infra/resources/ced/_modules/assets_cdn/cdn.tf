@@ -255,3 +255,35 @@ resource "azurerm_cdn_frontdoor_rule" "enforce_https" {
     azurerm_cdn_frontdoor_origin.images,
   ]
 }
+
+resource "azurerm_cdn_frontdoor_rule" "allow_cors" {
+  name                      = "AllowCors"
+  cdn_frontdoor_rule_set_id = module.frontdoor.rule_set_id
+  order                     = 3
+  behavior_on_match         = "Continue"
+
+  actions {
+    response_header_action {
+      header_action = "Overwrite"
+      header_name   = "Access-Control-Allow-Origin"
+      value         = "{http_req_header_Origin}"
+    }
+  }
+
+  conditions {
+    request_header_condition {
+      header_name      = "Origin"
+      operator         = "Equal"
+      match_values     = tolist(var.cors_allowed_origins)
+      negate_condition = false
+    }
+  }
+
+  depends_on = [
+    module.frontdoor,
+    azurerm_cdn_frontdoor_origin_group.logos,
+    azurerm_cdn_frontdoor_origin.logos,
+    azurerm_cdn_frontdoor_origin_group.images,
+    azurerm_cdn_frontdoor_origin.images,
+  ]
+}

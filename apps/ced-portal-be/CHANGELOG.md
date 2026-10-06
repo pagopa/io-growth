@@ -1,5 +1,25 @@
 # ced-portal-be
 
+## 0.8.0
+
+### Minor Changes
+
+- be15700: Return operator places as a paginated `{ items, total }` response with optional
+  offset, limit, case-insensitive name search, and online/offline type filters.
+  Each item includes `associatedOpportunities`, counting linked non-deleted
+  opportunities. Existing list consumers must adopt the new response shape and
+  request additional pages.
+- 10090fa: Add the operator place-deletion endpoint: DELETE /api/operator/places/{placeId}
+- 3ef5939: Add the department contract-revocation endpoint: PATCH /api/department/onboardings/{onboardingId}/revoke.
+  The operator moves to the revoked status and its published opportunities are suspended in the same transaction.
+  Its users' active sessions stop working, new logins are refused, and the onboarding is deleted on Area Riservata.
+- 25e4e98: Add the republish request flow: the operator can ask the department to republish an opportunity it suspended, giving a reason; the department approves through the existing republish endpoint, which now also notifies the operator by email, or rejects the request with PATCH /api/opportunities/{opportunityId}/republish/reject.
+
+### Patch Changes
+
+- Updated dependencies [3ef5939]
+  - @pagopa/io-core-adapter-ar@0.1.3
+
 ## 0.7.1
 
 ### Patch Changes

@@ -107,28 +107,24 @@ export const createMockEmailRepository = (
 export const createMockOpportunityRepository = (
   overrides: Partial<OpportunityRepository> = {},
 ): OpportunityRepository => ({
-  cancelScheduledSuspensionById:
-    overrides.cancelScheduledSuspensionById ?? vi.fn(),
-  cancelScheduledSuspensionByIdAndOperatorId:
-    overrides.cancelScheduledSuspensionByIdAndOperatorId ?? vi.fn(),
-  countByExternalOperatorIds: overrides.countByExternalOperatorIds ?? vi.fn(),
-  create: overrides.create ?? vi.fn(),
-  deleteByIdAndOperatorId: overrides.deleteByIdAndOperatorId ?? vi.fn(),
-  existsWithSolePlaceByPlaceIdAndStatuses:
-    overrides.existsWithSolePlaceByPlaceIdAndStatuses ?? vi.fn(),
-  findAll: overrides.findAll ?? vi.fn(),
-  findById: overrides.findById ?? vi.fn(),
-  findByIdAndOperatorId: overrides.findByIdAndOperatorId ?? vi.fn(),
-  rejectRepublishById: overrides.rejectRepublishById ?? vi.fn(),
-  republishById: overrides.republishById ?? vi.fn(),
-  republishByIdAndOperatorId: overrides.republishByIdAndOperatorId ?? vi.fn(),
-  requestChangesById: overrides.requestChangesById ?? vi.fn(),
-  requestRepublishByIdAndOperatorId:
-    overrides.requestRepublishByIdAndOperatorId ?? vi.fn(),
-  suspendById: overrides.suspendById ?? vi.fn(),
-  suspendByIdAndOperatorId: overrides.suspendByIdAndOperatorId ?? vi.fn(),
-  updateByIdAndOperatorId: overrides.updateByIdAndOperatorId ?? vi.fn(),
-  updateStatusById: overrides.updateStatusById ?? vi.fn(),
-  updateStatusByIdAndOperatorId:
-    overrides.updateStatusByIdAndOperatorId ?? vi.fn(),
+  cancelScheduledSuspensionById: vi.fn(),
+  cancelScheduledSuspensionByIdAndOperatorId: vi.fn(),
+  countByExternalOperatorIds: vi.fn(),
+  create: vi.fn(),
+  deleteByIdAndOperatorId: vi.fn(),
+  existsWithSolePlaceByPlaceIdAndStatuses: vi.fn(),
+  findAll: vi.fn(),
+  findById: vi.fn(),
+  findByIdAndOperatorId: vi.fn(),
+  rejectRepublishById: vi.fn(),
+  republishById: vi.fn(),
+  republishByIdAndOperatorId: vi.fn(),
+  requestChangesById: vi.fn(),
+  requestRepublishByIdAndOperatorId: vi.fn(),
+  suspendById: vi.fn(),
+  suspendByIdAndOperatorId: vi.fn(),
+  updateByIdAndOperatorId: vi.fn(),
+  updateStatusById: vi.fn(),
+  updateStatusByIdAndOperatorId: vi.fn(),
+  ...overrides,
 });

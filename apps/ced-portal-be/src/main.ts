@@ -205,6 +205,7 @@ const authPreHandler = createAuthenticationPreHandler(
   sessionRepository.getSession,
 );
 
+// eslint-disable-next-line max-lines-per-function
 app.register(async (app) => {
   app.addHook("preHandler", authPreHandler);
 

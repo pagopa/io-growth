@@ -165,6 +165,10 @@ export const opportunity = pgTable("opportunity", {
     .notNull()
     .references(() => operator.id, { onDelete: "cascade" }),
   rejectionMessage: varchar("rejection_message", { length: 4096 }),
+  republishMessage: varchar("republish_message", { length: 4096 }),
+  republishRejectionMessage: varchar("republish_rejection_message", {
+    length: 4096,
+  }),
   status: opportunityStatusEnum().notNull(),
   suspendedBy: actorTypeEnum("suspended_by"),
   suspendFrom: date("suspend_from"),

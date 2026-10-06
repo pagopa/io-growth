@@ -1118,6 +1118,103 @@ paths:
               example:
                 statusCode: 412
                 message: Opportunity must be suspended to be republished
+  /operator/opportunities/{opportunityId}/republish/request:
+    patch:
+      tags:
+        - Opportunities
+      summary: Request republication of a department-suspended opportunity
+      description: >-
+        Asks the department to republish an opportunity it suspended. A reason is
+        required. The opportunity stays suspended: only the department can
+        approve the request, through the republish endpoint, or reject it.
+        A pending request from a previous cycle must be decided first.
+      operationId: operatorRequestOpportunityRepublish
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: opportunityId
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: "^[0-9A-HJKMNP-TV-Z]{26}$"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required:
+                - republishMessage
+              properties:
+                republishMessage:
+                  type: string
+                  minLength: 1
+                  maxLength: 4096
+                  description: >-
+                    Reason the operator asks for the opportunity to be
+                    republished. Leading/trailing whitespace is trimmed; must be
+                    non-empty once trimmed.
+      responses:
+        "204":
+          description: Request registered, the opportunity stays suspended
+        "400":
+          description: "Invalid payload: republishMessage missing, empty or too long"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 400
+                message: "Validation error: republishMessage is required"
+        "401":
+          description: Invalid or missing JWT
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 401
+                message: Unauthorized
+        "403":
+          description: Forbidden — admin userType not allowed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 403
+                message: Forbidden
+        "404":
+          description: Opportunity not found or not owned by the operator
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 404
+                message: Opportunity not found
+        "409":
+          description: Concurrent status modification
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 409
+                message: Conflict
+        "412":
+          description: >-
+            The opportunity is not suspended, or it was suspended by the
+            operator itself, or a republish request is already pending.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 412
+                message: Precondition Failed
   /operator/opportunities:
     get:
       tags:
@@ -1899,6 +1996,99 @@ paths:
               example:
                 statusCode: 412
                 message: Opportunity must be suspended to be republished
+  /opportunities/{opportunityId}/republish/reject:
+    patch:
+      tags:
+        - Opportunities
+      summary: Reject a pending republish request (department only)
+      description: >-
+        Rejects the operator's request to republish a suspended opportunity. The
+        opportunity stays suspended, the request is cleared and the reason given
+        here replaces it.
+      operationId: rejectOpportunityRepublish
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: opportunityId
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: "^[0-9A-HJKMNP-TV-Z]{26}$"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required:
+                - republishRejectionMessage
+              properties:
+                republishRejectionMessage:
+                  type: string
+                  minLength: 1
+                  maxLength: 4096
+                  description: >-
+                    Reason the request is rejected. Leading/trailing whitespace
+                    is trimmed; must be non-empty once trimmed.
+      responses:
+        "204":
+          description: Request rejected, the opportunity stays suspended
+        "400":
+          description: "Invalid payload: republishRejectionMessage missing, empty or too long"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 400
+                message: "Validation error: republishRejectionMessage is required"
+        "401":
+          description: Invalid or missing JWT
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 401
+                message: Unauthorized
+        "403":
+          description: Forbidden — operator userType not allowed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 403
+                message: Forbidden
+        "404":
+          description: Opportunity not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 404
+                message: Opportunity not found
+        "409":
+          description: Concurrent status modification
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 409
+                message: Conflict
+        "412":
+          description: No republish request is pending on this opportunity
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 412
+                message: Precondition Failed
   /opportunity-categories:
     get:
       tags:
@@ -3094,6 +3284,21 @@ components:
           description: >-
             Changes the department asked the operator to make on the last review
             cycle (raw text). null when no change was ever requested.
+        republishMessage:
+          type: string
+          maxLength: 4096
+          nullable: true
+          description: >-
+            Reason the operator gave asking for the opportunity to be
+            republished, while the request is pending. Only set while the
+            opportunity is suspended; null otherwise.
+        republishRejectionMessage:
+          type: string
+          maxLength: 4096
+          nullable: true
+          description: >-
+            Reason the department rejected the last republish request. Only set
+            while the opportunity is suspended; null otherwise.
     OpportunityDetailAdminResponse:
       type: object
       additionalProperties: false
@@ -3202,6 +3407,21 @@ components:
           description: >-
             Changes the department asked the operator to make on the last review
             cycle (raw text). null when no change was ever requested.
+        republishMessage:
+          type: string
+          maxLength: 4096
+          nullable: true
+          description: >-
+            Reason the operator gave asking for the opportunity to be
+            republished, while the request is pending. Only set while the
+            opportunity is suspended; null otherwise.
+        republishRejectionMessage:
+          type: string
+          maxLength: 4096
+          nullable: true
+          description: >-
+            Reason the department rejected the last republish request. Only set
+            while the opportunity is suspended; null otherwise.
     ErrorResponse:
       type: object
       additionalProperties: false

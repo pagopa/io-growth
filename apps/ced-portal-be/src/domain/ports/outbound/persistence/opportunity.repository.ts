@@ -83,6 +83,9 @@ export interface OpportunityRepository {
   readonly findByIdAndOperatorId: (
     input: FindByIdAndOperatorIdInput,
   ) => Promise<Result<OpportunityDetail | undefined, GenericError>>;
+  readonly rejectRepublishById: (
+    input: RejectRepublishByIdInput,
+  ) => Promise<Result<void, ConflictError | GenericError>>;
   readonly republishById: (
     input: RepublishByIdInput,
   ) => Promise<Result<void, ConflictError | GenericError>>;
@@ -91,6 +94,9 @@ export interface OpportunityRepository {
   ) => Promise<Result<void, ConflictError | GenericError>>;
   readonly requestChangesById: (
     input: RequestChangesByIdInput,
+  ) => Promise<Result<void, ConflictError | GenericError>>;
+  readonly requestRepublishByIdAndOperatorId: (
+    input: RequestRepublishByIdAndOperatorIdInput,
   ) => Promise<Result<void, ConflictError | GenericError>>;
   readonly suspendById: (
     input: SuspendByIdInput,
@@ -123,6 +129,11 @@ export interface PaginatedOpportunities {
   total: number;
 }
 
+export interface RejectRepublishByIdInput {
+  opportunityId: string;
+  republishRejectionMessage: string;
+}
+
 export interface RepublishByIdAndOperatorIdInput {
   operatorId: string;
   opportunityId: string;
@@ -135,6 +146,12 @@ export interface RepublishByIdInput {
 export interface RequestChangesByIdInput {
   changeRequestMessage: string;
   opportunityId: string;
+}
+
+export interface RequestRepublishByIdAndOperatorIdInput {
+  operatorId: string;
+  opportunityId: string;
+  republishMessage: string;
 }
 
 export interface SuspendByIdAndOperatorIdInput {

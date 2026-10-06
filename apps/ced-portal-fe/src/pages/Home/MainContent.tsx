@@ -5,6 +5,7 @@ import {
   useGetOpportunityCategoriesQuery,
   useDeleteOpportunityMutation,
   useOperatorCancelScheduledSuspensionMutation,
+  useOperatorRequestOpportunityRepublishMutation,
   useOperatorRepublishOpportunityMutation,
   useOperatorSuspendOpportunityMutation,
 } from '../../features/opportunities/api';
@@ -25,7 +26,10 @@ import {
   OPERATOR_MANAGED_STATE_OPTIONS,
   OPERATOR_REQUEST_STATE_OPTIONS,
 } from '../../constants';
-import type { SuspendOpportunityPayload } from '../../features/opportunities/types';
+import type {
+  OperatorRepublishOpportunityPayload,
+  SuspendOpportunityPayload,
+} from '../../features/opportunities/types';
 
 const INITIAL_FILTERS = {
   search: '',
@@ -97,6 +101,8 @@ export const MainContent = () => {
     useOperatorCancelScheduledSuspensionMutation();
   const [republishOpportunity, { isLoading: isRepublishing }] =
     useOperatorRepublishOpportunityMutation();
+  const [requestOpportunityRepublish, { isLoading: isRequestingRepublish }] =
+    useOperatorRequestOpportunityRepublishMutation();
 
   const handleDeleteOpportunity = async (
     id: string,
@@ -137,10 +143,22 @@ export const MainContent = () => {
     }
   };
 
-  const handleRepublishOpportunity = async (id: string) => {
+  const handleRepublishOpportunity = async (
+    id: string,
+    payload?: OperatorRepublishOpportunityPayload,
+  ) => {
     try {
-      await republishOpportunity(id).unwrap();
-      showToast('Opportunità ripubblicata con successo', 'success');
+      if (payload) {
+        await requestOpportunityRepublish({ id, payload }).unwrap();
+      } else {
+        await republishOpportunity(id).unwrap();
+      }
+      showToast(
+        payload
+          ? 'Richiesta di ripubblicazione inviata al Dipartimento'
+          : 'Opportunità ripubblicata con successo',
+        'success',
+      );
       refetch();
       return true;
     } catch {
@@ -186,7 +204,7 @@ export const MainContent = () => {
             onSuspendOpportunity={handleSuspendOpportunity}
             onCancelScheduledSuspension={handleCancelScheduledSuspension}
             onRepublishOpportunity={handleRepublishOpportunity}
-            isRepublishing={isRepublishing}
+            isRepublishing={isRepublishing || isRequestingRepublish}
           />
           {showPagination ? (
             <Box sx={{ px: { xs: 1, md: 0 }, pt: 2 }}>

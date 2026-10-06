@@ -15,14 +15,17 @@ import { ActionsMenu } from './ActionsMenu';
 import { benefitsTableColumns } from './BenefitsTable.config';
 import type {
   OperatorDeleteOpportunityBody,
-  OpportunitySummaryItem,
   OpportunitySummaryItemStatus,
   OpportunitySummaryItemSuspendedBy,
 } from '../../../generated/model';
-import type { SuspendOpportunityPayload } from '../../../features/opportunities/types';
+import type {
+  Opportunity,
+  OperatorRepublishOpportunityPayload,
+  SuspendOpportunityPayload,
+} from '../../../features/opportunities/types';
 
 interface BenefitsTableProps {
-  items: OpportunitySummaryItem[];
+  items: Opportunity[];
   onDeleteOpportunity: (
     id: string,
     payload?: OperatorDeleteOpportunityBody,
@@ -32,7 +35,10 @@ interface BenefitsTableProps {
     payload: SuspendOpportunityPayload,
   ) => void;
   onCancelScheduledSuspension: (id: string) => void;
-  onRepublishOpportunity: (id: string) => Promise<boolean>;
+  onRepublishOpportunity: (
+    id: string,
+    payload?: OperatorRepublishOpportunityPayload,
+  ) => Promise<boolean>;
   isRepublishing: boolean;
 }
 
@@ -54,6 +60,8 @@ export const BenefitsTable = ({
   >(null);
   const [selectedItemSuspendedBy, setSelectedItemSuspendedBy] =
     useState<OpportunitySummaryItemSuspendedBy | null>(null);
+  const [selectedItemRepublishMessage, setSelectedItemRepublishMessage] =
+    useState<string | null>(null);
 
   const { sortedItems, sortBy, sortDirection, handleSort } = useTableSort({
     items,
@@ -68,11 +76,13 @@ export const BenefitsTable = ({
     itemStatus: OpportunitySummaryItemStatus,
     itemSuspendFrom?: string,
     itemSuspendedBy?: OpportunitySummaryItemSuspendedBy,
+    itemRepublishMessage?: string | null,
   ) => {
     setSelectedItemId(itemId);
     setSelectedItemStatus(itemStatus);
     setSelectedItemSuspendFrom(itemSuspendFrom ?? null);
     setSelectedItemSuspendedBy(itemSuspendedBy ?? null);
+    setSelectedItemRepublishMessage(itemRepublishMessage ?? null);
     setMenuAnchor(event.currentTarget);
   };
 
@@ -136,7 +146,7 @@ export const BenefitsTable = ({
     [sortBy, sortDirection, theme, handleSort],
   );
 
-  const renderTableRow = (item: OpportunitySummaryItem, index: number) => (
+  const renderTableRow = (item: Opportunity, index: number) => (
     <TableRow
       key={item.id}
       sx={{
@@ -186,6 +196,7 @@ export const BenefitsTable = ({
         selectedItemStatus={selectedItemStatus}
         selectedItemSuspendFrom={selectedItemSuspendFrom}
         selectedItemSuspendedBy={selectedItemSuspendedBy}
+        selectedItemRepublishMessage={selectedItemRepublishMessage}
         handleMenuClose={handleMenuClose}
         onDeleteOpportunity={onDeleteOpportunity}
         onSuspendOpportunity={onSuspendOpportunity}

@@ -4,6 +4,7 @@ import { useGetCtasConfiguration } from './useGetCtasConfiguration';
 import { PublishModal } from '../../../../components/PublishModal';
 import {
   DeleteOpportunityModal,
+  RepublishOpportunityActionModal,
   SuspendOpportunityModal,
 } from '../../../Home/components/OpportunityActionModal';
 import { ModifyOpportunityModal } from '../../../../components/ModifyOpportunityModal';
@@ -28,9 +29,16 @@ export const OpportunitiesCtas = ({
   id,
   suspendFrom,
   suspendedBy,
+  republishMessage,
 }: OpportunitiesCtasProps) => {
   const { ctasConfig, deleteModal, suspendModal, modifyModal, republishModal } =
-    useGetCtasConfiguration(id, status, suspendFrom, suspendedBy);
+    useGetCtasConfiguration(
+      id,
+      status,
+      suspendFrom,
+      suspendedBy,
+      republishMessage,
+    );
 
   const layout = ctasConfig[status];
   const ctas = layout?.ctas;
@@ -92,13 +100,19 @@ export const OpportunitiesCtas = ({
         isLoading={modifyModal.isLoading}
       />
       <PublishModal
-        open={republishModal.open}
+        open={republishModal.open && !republishModal.requiresDepartmentApproval}
         onClose={republishModal.onClose}
         onPublish={republishModal.onConfirm}
         count={1}
         title="Ripubblica su IO"
         description="Invieremo un'email all'ente per informarlo. L'opportunità sarà di nuovo disponibile su IO."
         actionLabel="Conferma"
+        isLoading={republishModal.isLoading}
+      />
+      <RepublishOpportunityActionModal
+        open={republishModal.open && republishModal.requiresDepartmentApproval}
+        onClose={republishModal.onClose}
+        onConfirm={republishModal.onConfirm}
         isLoading={republishModal.isLoading}
       />
     </>

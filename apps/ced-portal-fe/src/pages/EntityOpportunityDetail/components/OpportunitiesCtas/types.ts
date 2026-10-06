@@ -22,6 +22,7 @@ export type OpportunitiesCtasProps = {
   id: OpportunityDetail['id'];
   suspendFrom?: OpportunityDetail['suspendFrom'];
   suspendedBy?: OpportunityDetail['suspendedBy'];
+  republishMessage?: OpportunityDetail['republishMessage'];
 };
 
 export type OpportunitiesCtasLayout = {

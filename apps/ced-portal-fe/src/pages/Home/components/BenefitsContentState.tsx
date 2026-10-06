@@ -8,16 +8,17 @@ import {
   useTheme,
 } from '@mui/material';
 import { BenefitsTable } from './BenefitsTable';
+import type { OperatorDeleteOpportunityBody } from '../../../generated/model';
 import type {
-  OperatorDeleteOpportunityBody,
-  OpportunitySummaryItem,
-} from '../../../generated/model';
-import type { SuspendOpportunityPayload } from '../../../features/opportunities/types';
+  Opportunity,
+  OperatorRepublishOpportunityPayload,
+  SuspendOpportunityPayload,
+} from '../../../features/opportunities/types';
 
 interface BenefitsContentStateProps {
   isLoading: boolean;
   isError: boolean;
-  items: OpportunitySummaryItem[];
+  items: Opportunity[];
   activeTab: number;
   onRetry: () => void;
   onDeleteOpportunity: (
@@ -29,7 +30,10 @@ interface BenefitsContentStateProps {
     payload: SuspendOpportunityPayload,
   ) => void;
   onCancelScheduledSuspension: (id: string) => void;
-  onRepublishOpportunity: (id: string) => Promise<boolean>;
+  onRepublishOpportunity: (
+    id: string,
+    payload?: OperatorRepublishOpportunityPayload,
+  ) => Promise<boolean>;
   isRepublishing: boolean;
 }
 

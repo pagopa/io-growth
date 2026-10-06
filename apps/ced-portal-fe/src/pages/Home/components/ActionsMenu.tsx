@@ -12,9 +12,13 @@ import type {
 } from '../../../generated/model';
 import {
   DeleteOpportunityModal,
+  RepublishOpportunityActionModal,
   SuspendOpportunityModal,
 } from './OpportunityActionModal';
-import type { SuspendOpportunityPayload } from '../../../features/opportunities/types';
+import type {
+  OperatorRepublishOpportunityPayload,
+  SuspendOpportunityPayload,
+} from '../../../features/opportunities/types';
 
 type ActionsMenuProps = {
   anchor: null | HTMLElement;
@@ -22,6 +26,7 @@ type ActionsMenuProps = {
   selectedItemStatus?: OpportunitySummaryItemStatus | null;
   selectedItemSuspendFrom?: string | null;
   selectedItemSuspendedBy?: OpportunitySummaryItemSuspendedBy | null;
+  selectedItemRepublishMessage?: string | null;
   handleMenuClose: () => void;
   onDeleteOpportunity: (
     id: string,
@@ -32,7 +37,10 @@ type ActionsMenuProps = {
     payload: SuspendOpportunityPayload,
   ) => void;
   onCancelScheduledSuspension: (id: string) => void;
-  onRepublishOpportunity: (id: string) => Promise<boolean>;
+  onRepublishOpportunity: (
+    id: string,
+    payload?: OperatorRepublishOpportunityPayload,
+  ) => Promise<boolean>;
   isRepublishing: boolean;
 };
 
@@ -42,6 +50,7 @@ export const ActionsMenu = ({
   selectedItemStatus,
   selectedItemSuspendFrom,
   selectedItemSuspendedBy,
+  selectedItemRepublishMessage,
   handleMenuClose,
   onDeleteOpportunity,
   onSuspendOpportunity,
@@ -106,7 +115,12 @@ export const ActionsMenu = ({
   const canOpenSuspendModal = canSuspend && !hasScheduledSuspension;
   const canRepublish =
     selectedItemStatus === 'suspended' &&
-    selectedItemSuspendedBy === 'operator';
+    (selectedItemSuspendedBy === 'operator' ||
+      selectedItemSuspendedBy === 'department') &&
+    !selectedItemRepublishMessage?.trim();
+  const hasPendingRepublishRequest = Boolean(
+    selectedItemRepublishMessage?.trim(),
+  );
 
   const handleSuspend = useCallback(() => {
     if (!selectedItemId) {
@@ -184,11 +198,20 @@ export const ActionsMenu = ({
     [handleCloseSuspendModal, onSuspendOpportunity, selectedItemId],
   );
 
-  const handleConfirmRepublish = useCallback(async () => {
-    if (selectedItemId && (await onRepublishOpportunity(selectedItemId))) {
-      setIsRepublishModalOpen(false);
-    }
-  }, [onRepublishOpportunity, selectedItemId]);
+  const handleConfirmRepublish = useCallback(
+    async (payload?: OperatorRepublishOpportunityPayload) => {
+      if (!selectedItemId) {
+        return false;
+      }
+
+      const succeeded = await onRepublishOpportunity(selectedItemId, payload);
+      if (succeeded) {
+        setIsRepublishModalOpen(false);
+      }
+      return succeeded;
+    },
+    [onRepublishOpportunity, selectedItemId],
+  );
 
   const handleAction = useCallback(
     (cb?: (id: string) => void) => {
@@ -244,6 +267,11 @@ export const ActionsMenu = ({
             Annulla sospensione programmata
           </MenuItem>
         ) : null}
+        {hasPendingRepublishRequest ? (
+          <MenuItem disabled sx={menuItemsSx}>
+            Richiesta di ripubblicazione inviata
+          </MenuItem>
+        ) : null}
         {canRepublish ? (
           <MenuItem
             onClick={() => {
@@ -282,13 +310,19 @@ export const ActionsMenu = ({
         onConfirm={handleConfirmEdit}
       />
       <PublishModal
-        open={isRepublishModalOpen}
+        open={isRepublishModalOpen && selectedItemSuspendedBy === 'operator'}
         onClose={() => setIsRepublishModalOpen(false)}
         onPublish={handleConfirmRepublish}
         count={1}
         title="Ripubblica su IO"
         description="Invieremo un'email all'ente per informarlo. L'opportunità sarà di nuovo disponibile su IO."
         actionLabel="Conferma"
+        isLoading={isRepublishing}
+      />
+      <RepublishOpportunityActionModal
+        open={isRepublishModalOpen && selectedItemSuspendedBy === 'department'}
+        onClose={() => setIsRepublishModalOpen(false)}
+        onConfirm={handleConfirmRepublish}
         isLoading={isRepublishing}
       />
     </>

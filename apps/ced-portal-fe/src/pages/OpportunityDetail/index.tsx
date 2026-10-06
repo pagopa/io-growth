@@ -17,6 +17,7 @@ import {
   useApproveOpportunityMutation,
   useAdminCancelScheduledSuspensionMutation,
   useAdminRepublishOpportunityMutation,
+  useAdminRejectOpportunityRepublishMutation,
   useAdminSuspendOpportunityMutation,
   useGetAdminOpportunityDetailQuery,
 } from '../../features/opportunities/api';
@@ -27,7 +28,11 @@ import { RequestChangesModal } from '../../components/RequestChangesModal';
 import { OpportunityDetailCard } from './components/OpportunityDetailCard';
 import { STATE_COLORS, STATE_OPTIONS } from '../../constants/opportunityState';
 import { SuspendOpportunityModal } from '../../components/SuspendOpportunityModal';
-import type { SuspendOpportunityPayload } from '../../features/opportunities/types';
+import { RejectOpportunityRepublishModal } from '../Home/components/OpportunityActionModal';
+import type {
+  RejectOpportunityRepublishPayload,
+  SuspendOpportunityPayload,
+} from '../../features/opportunities/types';
 import { MIChip } from '@pagopa/mui-italia';
 
 export default function OpportunityDetailPage() {
@@ -49,8 +54,12 @@ export default function OpportunityDetailPage() {
     useAdminCancelScheduledSuspensionMutation();
   const [republishOpportunity, { isLoading: isRepublishing }] =
     useAdminRepublishOpportunityMutation();
+  const [rejectOpportunityRepublish, { isLoading: isRejectingRepublish }] =
+    useAdminRejectOpportunityRepublishMutation();
   const [publishModalOpen, setPublishModalOpen] = useState(false);
   const [republishModalOpen, setRepublishModalOpen] = useState(false);
+  const [rejectRepublishModalOpen, setRejectRepublishModalOpen] =
+    useState(false);
   const [suspendModalOpen, setSuspendModalOpen] = useState(false);
   const [requestChangesOpen, setRequestChangesOpen] = useState(false);
 
@@ -102,9 +111,36 @@ export default function OpportunityDetailPage() {
     try {
       await republishOpportunity(id).unwrap();
       setRepublishModalOpen(false);
-      showToast('Opportunità ripubblicata con successo', 'success');
+      showToast(
+        detail?.republishMessage?.trim()
+          ? 'Richiesta di ripubblicazione approvata'
+          : 'Opportunità ripubblicata con successo',
+        'success',
+      );
     } catch {
       showToast("Errore durante la ripubblicazione dell'opportunità", 'error');
+    }
+  };
+
+  const handleRejectRepublish = async (
+    payload: RejectOpportunityRepublishPayload,
+  ) => {
+    if (!id || isRejectingRepublish) {
+      return false;
+    }
+
+    try {
+      await rejectOpportunityRepublish({ id, payload }).unwrap();
+      setRejectRepublishModalOpen(false);
+      await refetch();
+      showToast('Richiesta di ripubblicazione rifiutata', 'success');
+      return true;
+    } catch {
+      showToast(
+        'Errore durante il rifiuto della richiesta di ripubblicazione',
+        'error',
+      );
+      return false;
     }
   };
 
@@ -204,6 +240,24 @@ export default function OpportunityDetailPage() {
             color={STATE_COLORS[detail.status] ?? 'default'}
           />
         </Stack>
+
+        {detail.republishMessage?.trim() && (
+          <Box
+            sx={{
+              borderRadius: 2,
+              p: 2,
+              border: (theme) => `1px solid ${theme.palette.info.light}`,
+              bgcolor: 'action.hover',
+            }}
+          >
+            <Typography sx={{ fontWeight: 700, fontSize: 18 }}>
+              Richiesta di ripubblicazione dell’ente
+            </Typography>
+            <Typography sx={{ mt: 0.5, fontSize: 16 }}>
+              {detail.republishMessage.trim()}
+            </Typography>
+          </Box>
+        )}
 
         {hasScheduledSuspension && formattedSuspendFrom && (
           <Box
@@ -329,8 +383,21 @@ export default function OpportunityDetailPage() {
               disabled={isRepublishing}
               sx={{ fontWeight: 700, borderRadius: 2, px: 4 }}
             >
-              Ripubblica
+              {detail.republishMessage?.trim()
+                ? 'Approva richiesta'
+                : 'Ripubblica'}
             </Button>
+            {detail.republishMessage?.trim() && (
+              <Button
+                variant="outlined"
+                color="error"
+                onClick={() => setRejectRepublishModalOpen(true)}
+                disabled={isRejectingRepublish}
+                sx={{ fontWeight: 700, borderRadius: 2, px: 4 }}
+              >
+                Rifiuta richiesta
+              </Button>
+            )}
           </Stack>
         )}
       </Stack>
@@ -369,10 +436,27 @@ export default function OpportunityDetailPage() {
         onClose={() => setRepublishModalOpen(false)}
         onPublish={handleRepublish}
         count={1}
-        title="Ripubblica su IO"
-        description="Invieremo un'email all'ente per informarlo. L'opportunità sarà di nuovo disponibile su IO."
-        actionLabel="Conferma"
+        description={
+          detail.republishMessage?.trim()
+            ? 'Accettando la richiesta, l’opportunità sarà pubblicata di nuovo su IO e l’ente riceverà una comunicazione.'
+            : "Invieremo un'email all'ente per informarlo. L'opportunità sarà di nuovo disponibile su IO."
+        }
+        title={
+          detail.republishMessage?.trim()
+            ? 'Approva la richiesta di ripubblicazione'
+            : 'Ripubblica su IO'
+        }
+        actionLabel={
+          detail.republishMessage?.trim() ? 'Approva richiesta' : 'Conferma'
+        }
         isLoading={isRepublishing}
+      />
+
+      <RejectOpportunityRepublishModal
+        open={rejectRepublishModalOpen}
+        onClose={() => setRejectRepublishModalOpen(false)}
+        onConfirm={handleRejectRepublish}
+        isLoading={isRejectingRepublish}
       />
 
       <RequestChangesModal

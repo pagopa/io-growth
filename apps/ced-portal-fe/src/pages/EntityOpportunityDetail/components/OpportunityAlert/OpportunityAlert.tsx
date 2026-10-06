@@ -14,6 +14,8 @@ type OpportunityAlertProps = {
   suspendFrom?: string | null;
   suspensionMessage?: string | null;
   suspendedBy?: OpportunitySummaryItemSuspendedBy;
+  republishMessage?: string | null;
+  republishRejectionMessage?: string | null;
   onCancelSuccess?: () => void;
 };
 
@@ -23,6 +25,8 @@ export const OpportunityAlert = ({
   suspendFrom,
   suspensionMessage,
   suspendedBy,
+  republishMessage,
+  republishRejectionMessage,
   onCancelSuccess,
 }: OpportunityAlertProps) => {
   const { showToast } = useToast();
@@ -117,6 +121,32 @@ export const OpportunityAlert = ({
           </Stack>
         </Stack>
       </Box>
+    );
+  }
+
+  if (status === 'suspended' && republishMessage?.trim()) {
+    return (
+      <MIAlert severity="info">
+        <Typography sx={{ fontWeight: 700, fontSize: 18 }}>
+          Richiesta di ripubblicazione inviata al Dipartimento
+        </Typography>
+        <Typography sx={{ mt: 0.5, fontSize: 16 }}>
+          {republishMessage.trim()}
+        </Typography>
+      </MIAlert>
+    );
+  }
+
+  if (status === 'suspended' && republishRejectionMessage?.trim()) {
+    return (
+      <MIAlert severity="warning">
+        <Typography sx={{ fontWeight: 700, fontSize: 18 }}>
+          Richiesta di ripubblicazione rifiutata
+        </Typography>
+        <Typography sx={{ mt: 0.5, fontSize: 16 }}>
+          {republishRejectionMessage.trim()}
+        </Typography>
+      </MIAlert>
     );
   }
 

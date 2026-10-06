@@ -38,6 +38,7 @@ interface OpportunitiesTableProps {
   onSuspend: (item: Opportunity) => void;
   onCancelSuspension: (id: string) => void;
   onRepublish: (item: Opportunity) => void;
+  onRejectRepublishRequest: (item: Opportunity) => void;
   activeTab: number;
 }
 
@@ -52,6 +53,7 @@ export const OpportunitiesTable = ({
   onSuspend,
   onCancelSuspension,
   onRepublish,
+  onRejectRepublishRequest,
   activeTab,
 }: OpportunitiesTableProps) => {
   const theme = useTheme();
@@ -117,6 +119,13 @@ export const OpportunitiesTable = ({
   const handleRepublish = () => {
     if (menuItem) {
       onRepublish(menuItem);
+    }
+    handleMenuClose();
+  };
+
+  const handleRejectRepublishRequest = () => {
+    if (menuItem?.republishMessage?.trim()) {
+      onRejectRepublishRequest(menuItem);
     }
     handleMenuClose();
   };
@@ -312,7 +321,16 @@ export const OpportunitiesTable = ({
           </MenuItem>
         )}
         {canRepublish && (
-          <MenuItem onClick={handleRepublish}>Ripubblica</MenuItem>
+          <MenuItem onClick={handleRepublish}>
+            {menuItem?.republishMessage?.trim()
+              ? 'Approva richiesta'
+              : 'Ripubblica'}
+          </MenuItem>
+        )}
+        {menuItem?.republishMessage?.trim() && (
+          <MenuItem onClick={handleRejectRepublishRequest}>
+            Rifiuta richiesta
+          </MenuItem>
         )}
       </Menu>
     </TableContainer>

@@ -3,6 +3,8 @@ import type { SxProps, Theme } from '@mui/material';
 
 type DiscoveryListItemBaseProps = {
   title: ReactNode;
+  operatorName?: string;
+  operatorFiscalCode?: string;
   onClick?: () => void;
   disabled?: boolean;
   sx?: SxProps<Theme>;

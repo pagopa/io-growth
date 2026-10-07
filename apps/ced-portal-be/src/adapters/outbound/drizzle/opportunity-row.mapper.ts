@@ -29,6 +29,7 @@ export interface OpportunityDetailRow {
   readonly caregiverBenefit: BenefitRow | null;
   readonly category: null | { readonly title: string };
   readonly categoryId: string;
+  readonly changeRequestMessage?: null | string;
   readonly createdAt: Date;
   readonly dateFrom: string;
   readonly dateTo: null | string;
@@ -43,6 +44,8 @@ export interface OpportunityDetailRow {
   readonly operator?: null | { readonly name: string };
   readonly operatorId: string;
   readonly opportunityPlaces: readonly { readonly placeId: string }[];
+  readonly republishMessage?: null | string;
+  readonly republishRejectionMessage?: null | string;
   readonly status: Opportunity["status"];
   readonly suspendedBy?: "department" | "operator" | null;
   readonly suspendFrom?: null | string;
@@ -135,6 +138,7 @@ export const mapOpportunityDetailRow = (
     caregiverBenefit,
     categoryId: row.categoryId,
     categoryTitle: row.category.title,
+    changeRequestMessage: row.changeRequestMessage ?? null,
     createdAt: row.createdAt.toISOString(),
     dateFrom: row.dateFrom,
     dateTo: row.dateTo,
@@ -149,6 +153,8 @@ export const mapOpportunityDetailRow = (
     operatorId: row.operatorId,
     operatorName: row.operator?.name,
     placeIds: row.opportunityPlaces.map((op) => op.placeId),
+    republishMessage: row.republishMessage ?? null,
+    republishRejectionMessage: row.republishRejectionMessage ?? null,
     status: deriveOpportunityDisplayStatus(
       row.status,
       row.dateFrom,

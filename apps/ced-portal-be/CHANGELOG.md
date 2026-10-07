@@ -1,5 +1,59 @@
 # ced-portal-be
 
+## 0.8.0
+
+### Minor Changes
+
+- be15700: Return operator places as a paginated `{ items, total }` response with optional
+  offset, limit, case-insensitive name search, and online/offline type filters.
+  Each item includes `associatedOpportunities`, counting linked non-deleted
+  opportunities. Existing list consumers must adopt the new response shape and
+  request additional pages.
+- 10090fa: Add the operator place-deletion endpoint: DELETE /api/operator/places/{placeId}
+- 3ef5939: Add the department contract-revocation endpoint: PATCH /api/department/onboardings/{onboardingId}/revoke.
+  The operator moves to the revoked status and its published opportunities are suspended in the same transaction.
+  Its users' active sessions stop working, new logins are refused, and the onboarding is deleted on Area Riservata.
+- 25e4e98: Add the republish request flow: the operator can ask the department to republish an opportunity it suspended, giving a reason; the department approves through the existing republish endpoint, which now also notifies the operator by email, or rejects the request with PATCH /api/opportunities/{opportunityId}/republish/reject.
+
+### Patch Changes
+
+- Updated dependencies [3ef5939]
+  - @pagopa/io-core-adapter-ar@0.1.3
+
+## 0.7.1
+
+### Patch Changes
+
+- e46b30e: Add `io-core-email-templates` package: compiles MJML email templates into typed, parameterized SESv2 `CreateEmailTemplate` objects (`{ TemplateContent: { Html, Subject, Text }, TemplateName }`). `{{variableName}}` placeholders are left unresolved for SES to substitute at send time. Includes the `opportunity-approved`, `opportunity-published`, and `opportunity-rejected` templates.
+
+  Used template in `ced-portal-be` instead of html.
+
+  Updated deps and added fix for orval File to Blob change.
+
+- Updated dependencies [e46b30e]
+  - @pagopa/io-core-adapter-fastify@0.0.10
+
+## 0.7.0
+
+### Minor Changes
+
+- b1d9d6e: Add the department endpoint to request changes on an opportunity under review: PATCH /api/opportunities/{opportunityId}/request-changes sends the operator a message and sends the opportunity back to draft for editing.
+
+## 0.6.0
+
+### Minor Changes
+
+- de179a4: Add the republish endpoints for suspended opportunities: PATCH /api/opportunities/{opportunityId}/republish (department) and PATCH /api/operator/opportunities/{opportunityId}/republish (operator)
+
+## 0.5.2
+
+### Patch Changes
+
+- 82c1702: Add an authenticated multipart PUT endpoint to replace an operator profile and optionally replace its logo and image. Store validated profile assets as Base64 text under extensionless blob names, with the original image MIME type in blob metadata.
+- 82c1702: Require `privacyUrl` and `tosUrl` HTTPS links for operator profiles, persist them, and expose them in portal and browser profile responses.
+- Updated dependencies [82c1702]
+  - @pagopa/io-core-adapter-azure-blob-storage@0.0.3
+
 ## 0.5.1
 
 ### Patch Changes

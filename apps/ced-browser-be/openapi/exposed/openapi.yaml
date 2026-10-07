@@ -271,6 +271,7 @@ paths:
                       website: https://example.com
                     entityId: 01JVMK3N8XQZP5T6G2WYHAB4CA
                     entityName: Test Entity Name
+                    operatorId: 01JVMK3N8XQZP5T6G2WYHAB4CB
                     operatorName: Operator Test Name
                     operatorFiscalCode: "00000000000"
                     id: 01JVMK3N8XQZP5T6G2WYHAB4CF
@@ -344,6 +345,7 @@ paths:
                   summary: Operator profile with recent places and opportunities
                   value:
                     displayName: Comune di Alessandria
+                    operatorId: 01JVMK3N8XQZP5T6G2WYHAB4CA
                     operatorName: Operator Test Name
                     operatorFiscalCode: "00000000000"
                     place:
@@ -806,6 +808,7 @@ components:
         - entityId
         - entityName
         - id
+        - operatorId
         - operatorName
         - operatorFiscalCode
         - opportunities
@@ -826,6 +829,10 @@ components:
         entityName:
           type: string
           description: Operator display name.
+        operatorId:
+          type: string
+          minLength: 1
+          description: Identifier of the operator owning the place, distinct from the profile identifier.
         operatorName:
           allOf:
             - $ref: "#/components/schemas/OperatorName"
@@ -994,15 +1001,22 @@ components:
       additionalProperties: false
       required:
         - displayName
+        - operatorId
         - operatorName
         - operatorFiscalCode
         - place
+        - privacyUrl
         - recentPlaces
         - recentOpportunities
+        - tosUrl
       properties:
         displayName:
           type: string
           description: Public display name of the operator profile.
+        operatorId:
+          type: string
+          minLength: 1
+          description: Identifier of the operator owning the profile, distinct from the profile identifier.
         operatorName:
           allOf:
             - $ref: "#/components/schemas/OperatorName"
@@ -1013,6 +1027,12 @@ components:
           description: Fiscal code of the operator profile.
         place:
           $ref: "#/components/schemas/ProfilePlace"
+        privacyUrl:
+          type: string
+          format: uri
+          pattern: "^[Hh][Tt][Tt][Pp][Ss]:[/][/]"
+          maxLength: 2048
+          description: HTTPS link to the operator's privacy notice.
         recentPlaces:
           type: array
           description: Five most recent places of the operator ordered by creation time.
@@ -1023,6 +1043,12 @@ components:
           description: Five most recent opportunities of the operator ordered by start date.
           items:
             $ref: "#/components/schemas/ProfileRecentOpportunity"
+        tosUrl:
+          type: string
+          format: uri
+          pattern: "^[Hh][Tt][Tt][Pp][Ss]:[/][/]"
+          maxLength: 2048
+          description: HTTPS link to the operator's terms and conditions of use.
 
     # -------------------------------------------------------------------------
     # Auth

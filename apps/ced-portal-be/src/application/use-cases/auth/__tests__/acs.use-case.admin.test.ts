@@ -4,9 +4,9 @@ import { ok } from "neverthrow";
 import { describe, expect, it, vi } from "vitest";
 
 import type { OperatorRepository } from "../../../../domain/ports/outbound/persistence/operator.repository.js";
-import type { SessionRepository } from "../../../../domain/ports/outbound/persistence/session.repository.js";
 
 import { makeAcsUseCase } from "../acs.use-case.js";
+import { createMockSessionRepository } from "./mocks.js";
 
 const makeToken = async (payload: Record<string, unknown>) =>
   new SignJWT(payload)
@@ -27,17 +27,11 @@ const validPayload = {
   uid: "uid_12345",
 };
 
-const createMockSessionRepository = (): SessionRepository => ({
-  createOneTimeSessionId: vi.fn().mockResolvedValue(ok(undefined)),
-  createSession: vi.fn().mockResolvedValue(ok(undefined)),
-  getSession: vi.fn(),
-  getSessionTokenByOneTimeId: vi.fn(),
-});
-
 const createMockOperatorRepository = (): OperatorRepository => ({
   create: vi.fn(),
   getByExternalId: vi.fn(),
   getById: vi.fn(),
+  revokeById: vi.fn(),
 });
 
 describe("makeAcsUseCase — admin path", () => {
@@ -117,6 +111,7 @@ describe("makeAcsUseCase — admin path", () => {
         }),
       ),
       getById: vi.fn(),
+      revokeById: vi.fn(),
     };
     const testOperatorConfig = {
       ADMIN_FISCAL_CODES: [] as string[],

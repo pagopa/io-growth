@@ -10,7 +10,7 @@ import {
   Typography,
   useTheme,
 } from '@mui/material';
-import { MIChip } from '@pagopa/mui-italia';
+import { MIAlert, MIChip } from '@pagopa/mui-italia';
 import { useNavigate } from 'react-router-dom';
 import { APP_ROUTES } from '../../app/routeConfig';
 import { UploadDropzone } from '../../components';
@@ -166,29 +166,29 @@ export default function EntityDetailPage() {
           />
         </Stack>
         {onboarding.status === 'REJECTED' && (
-          <Box
-            sx={{
-              p: 2.5,
-              borderRadius: 2,
-              border: '1px solid',
-              borderColor: 'error.light',
-              bgcolor: 'rgba(211, 47, 47, 0.04)',
-            }}
-          >
+          <MIAlert severity="error">
             <Typography
-              variant="subtitle2"
-              sx={{ color: 'error.main', mb: 0.5 }}
+              sx={{
+                color: 'text.primary',
+                fontSize: 18,
+                fontWeight: 600,
+                lineHeight: 1.2,
+              }}
             >
-              Esito del rifiuto
+              Perché hai rifiutato la richiesta di convenzionamento
             </Typography>
-            <Typography sx={{ fontWeight: 700, mb: 0.5 }}>
-              La richiesta di convenzionamento è stata rifiutata.
+            <Typography
+              sx={{
+                color: 'text.primary',
+                fontSize: 16,
+                fontStyle: 'italic',
+                lineHeight: 1.3,
+                mt: 1.5,
+              }}
+            >
+              {onboarding.reasonForReject || '{Value}'}
             </Typography>
-            <Typography sx={{ color: 'text.secondary' }}>
-              {onboarding.reasonForReject ||
-                'La motivazione del rifiuto non è stata specificata.'}
-            </Typography>
-          </Box>
+          </MIAlert>
         )}
 
         <SectionCard title="Dati dell'ente">

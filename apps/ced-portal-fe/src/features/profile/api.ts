@@ -10,6 +10,12 @@ type CreateOperatorProfileArgs = {
   image: File;
 };
 
+type UpdateOperatorProfileArgs = {
+  profile: OperatorProfileCreateRequest;
+  logo?: File;
+  image?: File;
+};
+
 const profileApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     getOperatorProfile: builder.query<OperatorProfileResponse, void>({
@@ -38,8 +44,33 @@ const profileApi = baseApi.injectEndpoints({
       },
       invalidatesTags: ['Profile'],
     }),
+
+    updateOperatorProfile: builder.mutation<
+      OperatorProfileResponse,
+      UpdateOperatorProfileArgs
+    >({
+      query: ({ profile, logo, image }) => {
+        const body = new FormData();
+        body.append(
+          'profile',
+          new Blob([JSON.stringify(profile)], { type: 'application/json' }),
+        );
+        if (logo) body.append('logo', logo);
+        if (image) body.append('image', image);
+
+        return {
+          url: '/operator/profile',
+          method: 'PUT',
+          body,
+        };
+      },
+      invalidatesTags: ['Profile'],
+    }),
   }),
 });
 
-export const { useGetOperatorProfileQuery, useCreateOperatorProfileMutation } =
-  profileApi;
+export const {
+  useGetOperatorProfileQuery,
+  useCreateOperatorProfileMutation,
+  useUpdateOperatorProfileMutation,
+} = profileApi;

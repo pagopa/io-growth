@@ -52,6 +52,7 @@ const notifyOperatorOfApproval = (
   emailRepository: EmailRepository,
   operatorId: string | undefined,
   opportunityName: string,
+  availabilityDate: string,
 ) =>
   (operatorId
     ? new ResultAsync(profileRepository.getByOperatorId(operatorId))
@@ -61,6 +62,7 @@ const notifyOperatorOfApproval = (
       profile
         ? new ResultAsync(
             emailRepository.sendOpportunityApprovedEmail({
+              availabilityDate,
               opportunityName,
               to: profile.contactEmail,
             }),
@@ -115,6 +117,7 @@ export const makeAdminApproveOpportunityUseCase =
                 emailRepository,
                 data.operatorId,
                 getOpportunityName(data),
+                new Date(data.dateFrom).toLocaleDateString("it-IT"),
               ),
             );
         }),

@@ -1,5 +1,11 @@
 # ced-browser-be
 
+## 0.1.21
+
+### Patch Changes
+
+- e531c41: Expose the owning operator ID as `operatorId` in profile and place detail API responses.
+
 ## 0.1.20
 
 ### Patch Changes

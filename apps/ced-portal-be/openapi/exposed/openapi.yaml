@@ -257,41 +257,80 @@ paths:
       operationId: listOperatorPlaces
       security:
         - bearerAuth: []
+      parameters:
+        - name: offset
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+        - name: search
+          in: query
+          required: false
+          description: Case-insensitive substring search on the place name.
+          schema:
+            type: string
+        - name: type
+          in: query
+          required: false
+          description: Filter by place type. When omitted, both types are included.
+          schema:
+            type: string
+            enum:
+              - online
+              - offline
       responses:
         "200":
-          description: Operator places
+          description: Paginated list of operator places
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/PlaceResponse"
+                $ref: "#/components/schemas/PlaceListResponse"
               examples:
                 mixedPlaces:
                   summary: Online and offline places
                   value:
-                    - id: 01JVMK3N8XQZP5T6G2WYHAB4CD
-                      type: online
-                      name: Sportello remoto
-                      website:
-                        url: https://example.org
-                      supportContacts:
-                        - id: 01JVMK3N8XQZP5T6G2WYHAB4CE
-                          type: email
-                          value: support@example.org
-                    - id: 01JVMK3N8XQZP5T6G2WYHAB4CG
-                      type: offline
-                      name: Sportello centrale
-                      address:
-                        street: Via Roma 1
-                        city: Roma
-                        state: RM
-                        postalCode: "00100"
-                        country: IT
-                      supportContacts:
-                        - id: 01JVMK3N8XQZP5T6G2WYHAB4CF
-                          type: phone
-                          value: "+39 0000000000"
+                    items:
+                      - id: 01JVMK3N8XQZP5T6G2WYHAB4CD
+                        type: online
+                        name: Sportello remoto
+                        associatedOpportunities: 2
+                        website:
+                          url: https://example.org
+                        supportContacts:
+                          - id: 01JVMK3N8XQZP5T6G2WYHAB4CE
+                            type: email
+                            value: support@example.org
+                      - id: 01JVMK3N8XQZP5T6G2WYHAB4CG
+                        type: offline
+                        name: Sportello centrale
+                        associatedOpportunities: 0
+                        address:
+                          street: Via Roma 1
+                          city: Roma
+                          state: RM
+                          postalCode: "00100"
+                          country: IT
+                        supportContacts:
+                          - id: 01JVMK3N8XQZP5T6G2WYHAB4CF
+                            type: phone
+                            value: "+39 0000000000"
+                    total: 2
+        "400":
+          description: Invalid pagination or place type query parameter
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
         "401":
           description: Invalid or missing JWT
           content:
@@ -460,6 +499,79 @@ paths:
               example:
                 statusCode: 404
                 message: Place not found
+    delete:
+      tags:
+        - Places
+      summary: Delete a place of the authenticated operator
+      description: >-
+        Permanently deletes a place of the authenticated operator, together with
+        its address or website, its support contacts and its links with
+        opportunities.
+
+        The place referenced by the operator profile is not exposed by this
+        resource and answers 404: it is not returned by GET /operator/places nor
+        by GET /operator/places/{placeId} either.
+      operationId: deleteOperatorPlace
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: placeId
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: "^[0-9A-HJKMNP-TV-Z]{26}$"
+      responses:
+        "204":
+          description: Place deleted
+        "400":
+          description: "Invalid placeId: not a ULID"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 400
+                message: Validation error
+        "401":
+          description: Invalid or missing JWT
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 401
+                message: Unauthorized
+        "403":
+          description: Authenticated user is not an operator
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 403
+                message: Forbidden
+        "404":
+          description: Place not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 404
+                message: Place not found
+        "412":
+          description: >-
+            The place is the only one of an opportunity that is published,
+            suspended, or awaiting/passed testing and is not valid on the
+            national territory
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 412
+                message: Place is the only one of an active opportunity and cannot be deleted
   /operator/opportunities/{opportunityId}:
     get:
       tags:
@@ -2494,6 +2606,104 @@ paths:
               example:
                 statusCode: 412
                 message: Precondition Failed
+  /department/onboardings/{onboardingId}/revoke:
+    patch:
+      tags:
+        - Department
+      summary: Revoke the contract with an operator (department only)
+      description: >-
+        Terminates the agreement with the operator behind the given onboarding.
+        The revocation is propagated to Area Riservata first, then every active
+        session of the operator is revoked and all its published opportunities
+        are suspended. The operator record may not exist yet — it is created at
+        the referent's first login — in which case only the propagation and the
+        session revocation take effect. The action is irreversible.
+      operationId: adminRevokeOperator
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: onboardingId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              properties:
+                revocationMessage:
+                  type: string
+                  minLength: 1
+                  maxLength: 4096
+                  description: >-
+                    Reason for the revocation, recorded on the operator and kept
+                    in the audit trail. Optional: when omitted the column is set
+                    to null and the audit records the revocation without a
+                    reason. Leading/trailing whitespace is trimmed; must be
+                    non-empty once trimmed.
+      responses:
+        "204":
+          description: Operator revoked
+        "400":
+          description: "Invalid payload: revocationMessage present but empty or too long"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 400
+                message: "Validation error: revocationMessage must not be empty"
+        "401":
+          description: Invalid or missing JWT
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 401
+                message: Unauthorized
+        "403":
+          description: Forbidden — operator userType not allowed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 403
+                message: Forbidden
+        "404":
+          description: Onboarding not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 404
+                message: Onboarding not found
+        "409":
+          description: The operator has already been revoked
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 409
+                message: Conflict
+        "412":
+          description: >-
+            Onboarding not in COMPLETED status. A request that is not yet
+            completed is rejected, not revoked.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 412
+                message: Precondition Failed
 components:
   securitySchemes:
     bearerAuth:
@@ -2634,6 +2844,70 @@ components:
         mapping:
           online: "#/components/schemas/OnlinePlaceResponse"
           offline: "#/components/schemas/OfflinePlaceResponse"
+    PlaceListItem:
+      type: object
+      additionalProperties: false
+      required:
+        - id
+        - type
+        - name
+        - supportContacts
+        - associatedOpportunities
+      properties:
+        id:
+          $ref: "#/components/schemas/PlaceResponseBase/properties/id"
+        type:
+          $ref: "#/components/schemas/PlaceResponseBase/properties/type"
+        name:
+          $ref: "#/components/schemas/PlaceResponseBase/properties/name"
+        supportContacts:
+          $ref: "#/components/schemas/PlaceResponseBase/properties/supportContacts"
+        address:
+          $ref: "#/components/schemas/Address"
+        website:
+          $ref: "#/components/schemas/Website"
+        associatedOpportunities:
+          type: integer
+          minimum: 0
+          description: >-
+            Number of currently linked opportunities belonging to the operator,
+            excluding deleted opportunities and including all other statuses.
+      oneOf:
+        - type: object
+          required:
+            - website
+          properties:
+            type:
+              type: string
+              enum:
+                - online
+            website:
+              $ref: "#/components/schemas/Website"
+        - type: object
+          required:
+            - address
+          properties:
+            type:
+              type: string
+              enum:
+                - offline
+            address:
+              $ref: "#/components/schemas/Address"
+    PlaceListResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - items
+        - total
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/PlaceListItem"
+        total:
+          type: integer
+          minimum: 0
+          description: Number of matching places before pagination.
     OperatorProfileResponse:
       type: object
       additionalProperties: false

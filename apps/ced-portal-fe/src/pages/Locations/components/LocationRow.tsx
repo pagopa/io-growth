@@ -18,10 +18,7 @@ const formatAddress = (address: OfflinePlaceResponse['address']) => {
   return `${street}, ${city}`;
 };
 
-export const PlaceRow = ({
-  item,
-  onMenuOpen,
-}: PlaceRowProps) => {
+export const PlaceRow = ({ item, onMenuOpen }: PlaceRowProps) => {
   return (
     <TableRow hover>
       <TableCell>
@@ -56,4 +53,3 @@ export const PlaceRow = ({
     </TableRow>
   );
 };
-

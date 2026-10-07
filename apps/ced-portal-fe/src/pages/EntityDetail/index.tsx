@@ -171,16 +171,6 @@ export default function EntityDetailPage() {
             color={ENTITY_STATE_COLORS[onboarding.status ?? ''] ?? 'default'}
           />
         </Stack>
-        {isTerminable && (
-          <Button
-            startIcon={<CancelIcon />}
-            color="error"
-            onClick={() => setOpenTerminateModal(true)}
-            sx={{ alignSelf: 'flex-start', fontWeight: 700 }}
-          >
-            Termina convenzione
-          </Button>
-        )}
         {onboarding.status === 'REJECTED' && (
           <MIAlert severity="error">
             <Typography
@@ -308,6 +298,16 @@ export default function EntityDetailPage() {
             </>
           )}
         </SectionCard>
+        {isTerminable && (
+          <Button
+            startIcon={<CancelIcon />}
+            color="error"
+            onClick={() => setOpenTerminateModal(true)}
+            sx={{ alignSelf: 'flex-start', fontWeight: 700 }}
+          >
+            Termina convenzione
+          </Button>
+        )}
         {isEditable && (
           <Stack
             direction="row"

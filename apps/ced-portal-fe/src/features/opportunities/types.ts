@@ -13,6 +13,8 @@ interface OpportunitySuspensionMetadata {
   suspendFrom?: string | null;
   suspensionMessage?: string | null;
   suspendedBy?: 'operator' | 'department' | null;
+  republishMessage?: string | null;
+  republishRejectionMessage?: string | null;
 }
 
 export type OpportunityDetail = OpportunityDetailResponse &
@@ -61,6 +63,14 @@ export type OpportunityUpdatePayload = Pick<
 export interface SuspendOpportunityPayload {
   suspensionMessage: string;
   suspendFrom: string;
+}
+
+export interface OperatorRepublishOpportunityPayload {
+  republishMessage: string;
+}
+
+export interface RejectOpportunityRepublishPayload {
+  republishRejectionMessage: string;
 }
 
 // UI-only filter state

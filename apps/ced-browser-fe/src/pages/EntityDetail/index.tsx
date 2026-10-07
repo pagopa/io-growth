@@ -14,6 +14,10 @@ import { formatBadgeLabel } from '../../utils/formatBadgeLabel.js';
 import { EntityPlaceholderIcon } from './components/EntityPlaceholderIcon';
 import { PageErrorType } from '../../components/QueryGuard/ErrorScreen/types.js';
 import { useTrackLandedInPage } from '../../mixpanel/useTrackLandedInPage.js';
+import {
+  useOperatorCover,
+  useOperatorLogo,
+} from '../../hooks/useOperatorImages';
 import { useMemo } from 'react';
 
 export default function EntityDetailPage() {
@@ -24,6 +28,8 @@ export default function EntityDetailPage() {
   const { data, isLoading, isError, error, refetch } = useGetEntityDetailQuery(
     id ?? '',
   );
+  const coverUrl = useOperatorCover(data?.operatorId);
+  const logo = useOperatorLogo(data?.operatorId);
 
   useTrackLandedInPage(
     'CED_ORGANIZATION_DETAIL',
@@ -108,10 +114,12 @@ export default function EntityDetailPage() {
             <PageHeader
               title={resolvedData.displayName}
               leadingContent={
-                // TODO: pass imageUrl and logoUrl from the API response once GET /profiles/{id} exposes them
                 <PageCover
-                  placeholderUrl="/assets/entity-cover-placeholder.png"
-                  logoFallback={<EntityPlaceholderIcon />}
+                  coverUrl={coverUrl?.src}
+                  logoUrl={logo?.src}
+                  hasLogoError={!!logo?.error}
+                  coverPlaceholder="/assets/entity-cover-placeholder.png"
+                  logoPlaceholder={<EntityPlaceholderIcon />}
                 />
               }
             />

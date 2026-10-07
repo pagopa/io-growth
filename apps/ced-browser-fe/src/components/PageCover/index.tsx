@@ -1,38 +1,38 @@
-import { Avatar, Box, Skeleton } from '@mui/material';
+import { Box, Skeleton } from '@mui/material';
 import type { ReactNode } from 'react';
 import { useState } from 'react';
-
-const LOGO_SIZE = 66;
+import { EntityLogo } from '../EntityLogo';
 
 type PageCoverProps = {
-  imageUrl?: string;
-  placeholderUrl: string;
+  coverUrl?: string;
+  coverPlaceholder: string;
   logoUrl?: string;
-  logoFallback?: ReactNode;
+  hasLogoError?: boolean;
+  logoPlaceholder?: ReactNode;
   rounded?: boolean;
 };
 
 export function PageCover({
-  imageUrl,
-  placeholderUrl,
+  coverUrl,
+  coverPlaceholder,
   logoUrl,
-  logoFallback,
+  hasLogoError,
+  logoPlaceholder,
   rounded = false,
 }: PageCoverProps) {
-  const [hasImageError, setHasImageError] = useState(false);
-  const [isImageLoaded, setIsImageLoaded] = useState(false);
-  const [hasLogoError, setHasLogoError] = useState(false);
+  const [hasCoverError, setHasCoverError] = useState(false);
+  const [isCoverLoaded, setIsCoverLoaded] = useState(false);
 
-  const imageSrc = imageUrl && !hasImageError ? imageUrl : placeholderUrl;
-  const showLogo = !!logoUrl && !hasLogoError;
-  const hasLogoArea = showLogo || !!logoFallback;
+  const showCover = !!coverUrl && !hasCoverError;
+  const coverSrc = showCover ? coverUrl : coverPlaceholder;
+  const showLogo = !!logoUrl || !!logoPlaceholder;
 
   return (
     <Box
       sx={{
         position: 'relative',
         mx: rounded ? 0 : -3,
-        mb: hasLogoArea ? `${LOGO_SIZE / 2 + 16}px` : 3,
+        mb: showLogo ? 6 : 3,
       }}
     >
       <Box
@@ -44,7 +44,7 @@ export function PageCover({
           bgcolor: 'common.neutralGray',
         }}
       >
-        {!isImageLoaded && (
+        {!isCoverLoaded && (
           <Skeleton
             variant="rectangular"
             animation="wave"
@@ -54,56 +54,49 @@ export function PageCover({
         )}
         <Box
           component="img"
-          src={imageSrc}
+          src={coverSrc}
           alt=""
           aria-hidden="true"
-          onLoad={() => setIsImageLoaded(true)}
+          onLoad={() => setIsCoverLoaded(true)}
           // falls back to the placeholder, which fires its own onLoad
-          onError={() => setHasImageError(true)}
+          onError={() => setHasCoverError(true)}
           sx={{
             display: 'block',
             width: '100%',
             height: '100%',
-            objectFit: 'cover',
-            opacity: isImageLoaded ? 1 : 0,
+            opacity: isCoverLoaded ? 1 : 0,
             transition: 'opacity 300ms ease-in',
           }}
         />
+        {showCover && isCoverLoaded && (
+          <Box
+            aria-hidden="true"
+            sx={({ palette }) => ({
+              position: 'absolute',
+              inset: 0,
+              pointerEvents: 'none',
+              background: `linear-gradient(transparent, ${palette.common.neutralBlack})`,
+              opacity: 0.4,
+            })}
+          />
+        )}
       </Box>
 
-      {hasLogoArea && (
+      {showLogo && (
         <Box
           sx={{
             position: 'absolute',
             left: 24,
-            bottom: -LOGO_SIZE / 2,
+            bottom: -33,
             display: 'flex',
           }}
         >
-          {showLogo ? (
-            <Avatar
-              src={logoUrl}
-              variant="rounded"
-              slotProps={{
-                img: {
-                  alt: '',
-                  'aria-hidden': true,
-                  onError: () => setHasLogoError(true),
-                },
-              }}
-              sx={{
-                width: LOGO_SIZE,
-                height: LOGO_SIZE,
-                borderRadius: 2,
-                border: '1px solid',
-                borderColor: 'divider',
-                bgcolor: 'background.paper',
-                '& img': { objectFit: 'contain' },
-              }}
-            />
-          ) : (
-            logoFallback
-          )}
+          <EntityLogo
+            logoUrl={logoUrl}
+            hasError={hasLogoError}
+            fallback={logoPlaceholder}
+            size={66}
+          />
         </Box>
       )}
     </Box>

@@ -3,13 +3,19 @@ import { useMemo } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { ContactsSection } from '../../components/ContactsSection/index.js';
 import { ItemsSection } from '../../components/ItemsSection/index.js';
-import { PageCover, PageHeader, QueryGuard } from '../../components/index.js';
+import {
+  EntityLogo,
+  PageCover,
+  PageHeader,
+  QueryGuard,
+} from '../../components/index.js';
 import { toEntityDetailRoute } from '../../app/routeConfig.js';
 import { useGetAccessPointDetailQuery } from '../../features/places/api.js';
 import { formatBadgeLabel } from '../../utils';
 import { formatAddress } from '../../utils/formatAddress.js';
 import { PageErrorType } from '../../components/QueryGuard/ErrorScreen/types.js';
 import { useTrackLandedInPage } from '../../mixpanel/useTrackLandedInPage.js';
+import { useOperatorLogo } from '../../hooks/useOperatorImages.js';
 import {
   EntityOpportunityItems,
   PlaceDetailItems,
@@ -31,12 +37,13 @@ export default function AccessPointDetailPage() {
       { accessPointId: accessPointId ?? '' },
       { skip: !accessPointId },
     );
+  const logo = useOperatorLogo(data?.operatorId);
 
   const renderCover = () => {
     if (data?.address) {
       return (
         <PageCover
-          placeholderUrl="/assets/point-access-cover-placeholder.png"
+          coverPlaceholder="/assets/point-access-cover-placeholder.png"
           rounded
         />
       );
@@ -120,7 +127,6 @@ export default function AccessPointDetailPage() {
             spacing={1.5}
             sx={{ px: 3 }}
           >
-            {/* TODO: show the entity logo once the API exposes it */}
             <Box
               aria-hidden="true"
               sx={{
@@ -129,7 +135,11 @@ export default function AccessPointDetailPage() {
                 '& .MuiSvgIcon-root': { fontSize: 28 },
               }}
             >
-              <EntityPlaceholderIcon />
+              <EntityLogo
+                logoUrl={logo?.src}
+                hasError={!!logo?.error}
+                fallback={<EntityPlaceholderIcon />}
+              />
             </Box>
             <ButtonBase
               onClick={() =>

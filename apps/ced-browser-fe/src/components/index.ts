@@ -1,6 +1,7 @@
 export * from './ContactRow';
 export * from './ContactsSection';
 export * from './DiscoveryListItem';
+export * from './EntityLogo';
 export * from './ItemsSection';
 export * from './PageCover';
 export * from './PageHeader';

@@ -3294,6 +3294,21 @@ components:
             Calendar date a scheduled suspension takes effect from. Present only
             while a suspension is scheduled (opportunity still published); null
             otherwise.
+        republishMessage:
+          type: string
+          maxLength: 4096
+          nullable: true
+          description: >-
+            Reason the operator gave asking for the opportunity to be
+            republished, while the request is pending. Only set while the
+            opportunity is suspended; null otherwise.
+        republishRejectionMessage:
+          type: string
+          maxLength: 4096
+          nullable: true
+          description: >-
+            Reason the department rejected the last republish request. Only set
+            while the opportunity is suspended; null otherwise.
     AdminOpportunitySummaryItem:
       type: object
       additionalProperties: false
@@ -3358,6 +3373,21 @@ components:
             Calendar date a scheduled suspension takes effect from. Present only
             while a suspension is scheduled (opportunity still published); null
             otherwise.
+        republishMessage:
+          type: string
+          maxLength: 4096
+          nullable: true
+          description: >-
+            Reason the operator gave asking for the opportunity to be
+            republished, while the request is pending. Only set while the
+            opportunity is suspended; null otherwise.
+        republishRejectionMessage:
+          type: string
+          maxLength: 4096
+          nullable: true
+          description: >-
+            Reason the department rejected the last republish request. Only set
+            while the opportunity is suspended; null otherwise.
     OpportunityDetailResponse:
       type: object
       additionalProperties: false

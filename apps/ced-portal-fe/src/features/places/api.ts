@@ -16,7 +16,7 @@ export type GetPlacesArgs = {
 export const placesApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     getPlaces: builder.query<PlaceListResponse, GetPlacesArgs>({
-      query: (args) => {
+      query: (args = {}) => {
         const params = new URLSearchParams();
         if (args.search) params.append('search', args.search);
         if (args.type && args.type !== 'both') params.append('type', args.type);

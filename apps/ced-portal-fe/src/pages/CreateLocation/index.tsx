@@ -51,6 +51,15 @@ const createDefaultLocation = (): LocationState => ({
   contacts: [{ type: 'phone', value: '' }],
 });
 
+const requiredTitle = (label: string) => (
+  <>
+    {label}{' '}
+    <Box component="span" sx={{ color: 'common.requiredField' }}>
+      *
+    </Box>
+  </>
+);
+
 export default function CreateLocationPage() {
   const theme = useTheme();
   const navigate = useNavigate();
@@ -289,7 +298,7 @@ export default function CreateLocationPage() {
 
               <Stack spacing={3}>
                 <FormField
-                  title="Nome *"
+                  title={requiredTitle('Nome')}
                   required
                   value={loc.name}
                   onChange={(e) =>
@@ -303,7 +312,7 @@ export default function CreateLocationPage() {
                 {type === 'offline' ? (
                   <>
                     <FormField
-                      title="Indirizzo *"
+                      title={requiredTitle('Indirizzo')}
                       required
                       value={loc.street}
                       onChange={(e) =>
@@ -318,7 +327,7 @@ export default function CreateLocationPage() {
                     <Stack direction={{ xs: 'column', md: 'row' }} spacing={2}>
                       <Box sx={{ flex: 1 }}>
                         <FormField
-                          title="Città *"
+                          title={requiredTitle('Città')}
                           required
                           value={loc.city}
                           onChange={(e) =>
@@ -333,7 +342,7 @@ export default function CreateLocationPage() {
                       </Box>
                       <Box sx={{ flex: 1 }}>
                         <FormField
-                          title="Provincia *"
+                          title={requiredTitle('Provincia')}
                           required
                           value={loc.state}
                           onChange={(e) =>
@@ -348,7 +357,7 @@ export default function CreateLocationPage() {
                       </Box>
                       <Box sx={{ flex: 1 }}>
                         <FormField
-                          title="CAP *"
+                          title={requiredTitle('CAP')}
                           required
                           value={loc.postalCode}
                           onChange={(e) =>
@@ -365,7 +374,7 @@ export default function CreateLocationPage() {
                   </>
                 ) : (
                   <FormField
-                    title="Sito web *"
+                    title={requiredTitle('Sito web')}
                     required
                     value={loc.websiteUrl}
                     onChange={(e) =>

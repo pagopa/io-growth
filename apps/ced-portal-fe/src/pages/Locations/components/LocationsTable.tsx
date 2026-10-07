@@ -116,6 +116,7 @@ export const LocationsTable = ({
       const bVal = b[sortBy as keyof PlaceListItem] ?? '';
       const result = String(aVal).localeCompare(String(bVal), 'it', {
         sensitivity: 'base',
+        numeric: true,
       });
       return sortDirection === 'asc' ? result : -result;
     });

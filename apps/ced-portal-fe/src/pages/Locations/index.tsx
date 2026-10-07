@@ -9,20 +9,12 @@ import {
   Typography,
   useTheme,
 } from '@mui/material';
-import {
-  SyntheticEvent,
-  useCallback,
-  useMemo,
-  useState,
-  useEffect,
-} from 'react';
+import { SyntheticEvent, useCallback, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { APP_ROUTES } from '../../app/routeConfig';
 import { AppTextField, PageTabs, ResultsPagination } from '../../components';
-import type { OpportunityFilters } from '../../features/opportunities/types';
-import { useToast } from '../../contexts';
+// import { useToast } from '../../contexts';
 import { useMemorizedTabsAndFilters } from '../../hooks/useMemorizedTabsAndFilters';
-import { PlaceBaseType } from '../../generated/model';
 import { usePlacesData } from '../../features/places/hooks';
 import { LocationsTable } from './components/LocationsTable';
 type PlacesFilter = {
@@ -36,7 +28,7 @@ const INITIAL_FILTERS: PlacesFilter = {
 export default function LocationsPage() {
   const theme = useTheme();
   const navigate = useNavigate();
-  const { showToast } = useToast();
+  // const { showToast } = useToast();
 
   const { tab, page, limit, filters, updateParams } =
     useMemorizedTabsAndFilters<PlacesFilter>(INITIAL_FILTERS, 10);

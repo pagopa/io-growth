@@ -82,6 +82,9 @@ const entitiesApi = baseApi.injectEndpoints({
       query: ({ onboardingId }) => ({
         url: `/department/onboardings/${onboardingId}/revoke`,
         method: 'PATCH',
+      }),
+      invalidatesTags: ['Entities'],
+    }),
     rejectOnboarding: builder.mutation<
       void,
       { onboardingId: string; body: AdminRejectOnboardingBody }

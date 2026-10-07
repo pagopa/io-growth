@@ -97,6 +97,9 @@ function useEntityDetail() {
       navigate(APP_ROUTES.ENTITIES);
     } catch {
       showToast('Errore durante la cessazione della convenzione', 'error');
+    }
+  };
+
   const handleReject = async (message: string) => {
     if (!id) return;
 

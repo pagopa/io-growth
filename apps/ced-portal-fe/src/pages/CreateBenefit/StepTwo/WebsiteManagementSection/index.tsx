@@ -27,7 +27,7 @@ export function WebsiteManagementSection() {
 
   const selectedWebsiteIds = useAppSelector(selectSelectedWebsiteIds);
   const { data: placesData } = useGetPlacesQuery(
-    { type: 'online' }, // Fetch online places
+    { type: 'online', limit: 100 }, // Fetch online places
     { skip: !showWebsiteSection },
   );
 

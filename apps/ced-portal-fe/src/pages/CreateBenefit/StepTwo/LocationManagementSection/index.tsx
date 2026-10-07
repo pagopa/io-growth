@@ -38,7 +38,7 @@ export function LocationManagementSection() {
 
   const selectedLocationIds = useAppSelector(selectSelectedLocationIds);
   const { data: placesData } = useGetPlacesQuery(
-    { type: 'offline' }, // Fetch offline places
+    { type: 'offline', limit: 100 }, // Fetch offline places
     { skip: !showTerritorySection },
   );
 

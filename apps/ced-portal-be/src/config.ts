@@ -69,6 +69,16 @@ const configSchema = z.object({
     .string()
     .optional()
     .transform((v) => v === "true"),
+  // Trusted Selfcare identity issuers; the JWKS is read from <issuer>/.well-known/jwks.json
+  SELFCARE_ISSUERS: z
+    .string()
+    .transform((v) =>
+      v
+        .split(",")
+        .map((s) => s.trim().replace(/\/+$/, ""))
+        .filter(Boolean),
+    )
+    .pipe(z.array(z.url()).min(1)),
 });
 
 export type AppConfig = z.infer<typeof configSchema>;

@@ -1,4 +1,3 @@
-import { SignJWT } from "jose";
 import { err, ok } from "neverthrow";
 import { describe, expect, it, vi } from "vitest";
 
@@ -9,13 +8,13 @@ import {
   ONE_TIME_SESSION_ID_TTL_SECONDS,
   SESSION_TTL_SECONDS,
 } from "../../../../domain/entities/session.js";
-import { makeAcsUseCase } from "../acs.use-case.js";
-import { createMockSessionRepository } from "./mocks.js";
+import {
+  createMockSessionRepository,
+  makeAcsUseCaseWithFakeVerifier as makeAcsUseCase,
+} from "./mocks.js";
 
-const makeToken = async (payload: Record<string, unknown>) =>
-  new SignJWT(payload)
-    .setProtectedHeader({ alg: "HS256" })
-    .sign(new TextEncoder().encode("test-secret"));
+const makeToken = (payload: Record<string, unknown>) =>
+  Promise.resolve(JSON.stringify(payload));
 
 const validPayload = {
   family_name: "Rossi",

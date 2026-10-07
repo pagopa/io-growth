@@ -7,7 +7,6 @@ import {
   ValidationError,
 } from "@pagopa/io-core-domain/errors";
 import { hashUppercasedString } from "@pagopa/io-core-domain/utilities";
-import { decodeJwt } from "jose";
 import { err, okAsync, ResultAsync } from "neverthrow";
 import { randomBytes } from "node:crypto";
 import { ulid } from "ulid";
@@ -16,6 +15,7 @@ import { z } from "zod";
 import type { AppConfig } from "../../../config.js";
 import type { Operator } from "../../../domain/entities/operator.js";
 import type { UserType } from "../../../domain/entities/user-type.js";
+import type { ArTokenRepository } from "../../../domain/ports/outbound/ar-token.repository.js";
 import type { OperatorRepository } from "../../../domain/ports/outbound/persistence/operator.repository.js";
 import type { SessionRepository } from "../../../domain/ports/outbound/persistence/session.repository.js";
 
@@ -78,6 +78,7 @@ export interface AcsOutput {
 
 export const makeAcsUseCase =
   (
+    arTokenRepository: ArTokenRepository,
     sessionRepository: SessionRepository,
     operatorRepository: OperatorRepository,
     config: Pick<
@@ -88,8 +89,12 @@ export const makeAcsUseCase =
     >,
   ): UseCase<AcsInput, AcsOutput, BaseError> =>
   async (input) => {
-    const rawPayload = decodeJwt(input.token);
-    const parsed = TokenPayloadSchema.safeParse(rawPayload);
+    const verified = await arTokenRepository.verifyToken(input.token);
+    if (verified.isErr()) {
+      return err(verified.error);
+    }
+
+    const parsed = TokenPayloadSchema.safeParse(verified.value);
     if (!parsed.success) {
       return err(new ValidationError(parsed.error.message));
     }

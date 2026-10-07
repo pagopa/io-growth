@@ -64,6 +64,8 @@ locals {
       CED_PORTAL_FE_BASE_URL = "https://${module.portal_fe_static_web_app.custom_domain}"
       CED_PRODUCT_ID         = "prod-ced"
 
+      SELFCARE_ISSUERS = "https://selfcare.pagopa.it,https://uat.selfcare.pagopa.it"
+
       # Production admin fiscal codes (comma-separated list of fiscal codes hashes)
       # These define the fiscal codes that can access the admin endpoints of the portal BE application
       ADMIN_FISCAL_CODES = "516984510c575da00a39bcfcbc7e31ca4295384940dad4d2fd39f6e402f660b4,c76485950c65824bfece422678533d27eb3df4802220aa2f75580401964875b9"

@@ -1,7 +1,6 @@
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 import WarningAmberRoundedIcon from '@mui/icons-material/WarningAmberRounded';
-import WarningIcon from '@mui/icons-material/WarningRounded';
 import {
   Box,
   Button,
@@ -16,6 +15,8 @@ import { useNavigate, useParams } from 'react-router-dom';
 import {
   useApproveOpportunityMutation,
   useAdminCancelScheduledSuspensionMutation,
+  useAdminRepublishOpportunityMutation,
+  useAdminRejectOpportunityRepublishMutation,
   useAdminSuspendOpportunityMutation,
   useGetAdminOpportunityDetailQuery,
 } from '../../features/opportunities/api';
@@ -26,8 +27,12 @@ import { RequestChangesModal } from '../../components/RequestChangesModal';
 import { OpportunityDetailCard } from './components/OpportunityDetailCard';
 import { STATE_COLORS, STATE_OPTIONS } from '../../constants/opportunityState';
 import { SuspendOpportunityModal } from '../../components/SuspendOpportunityModal';
-import type { SuspendOpportunityPayload } from '../../features/opportunities/types';
-import { MIChip } from '@pagopa/mui-italia';
+import { RejectOpportunityRepublishModal } from '../Home/components/OpportunityActionModal';
+import type {
+  RejectOpportunityRepublishPayload,
+  SuspendOpportunityPayload,
+} from '../../features/opportunities/types';
+import { MIAlert, MIChip } from '@pagopa/mui-italia';
 
 export default function OpportunityDetailPage() {
   const theme = useTheme();
@@ -46,7 +51,14 @@ export default function OpportunityDetailPage() {
     useAdminSuspendOpportunityMutation();
   const [cancelScheduledSuspension, { isLoading: isCancelingSuspension }] =
     useAdminCancelScheduledSuspensionMutation();
+  const [republishOpportunity, { isLoading: isRepublishing }] =
+    useAdminRepublishOpportunityMutation();
+  const [rejectOpportunityRepublish, { isLoading: isRejectingRepublish }] =
+    useAdminRejectOpportunityRepublishMutation();
   const [publishModalOpen, setPublishModalOpen] = useState(false);
+  const [republishModalOpen, setRepublishModalOpen] = useState(false);
+  const [rejectRepublishModalOpen, setRejectRepublishModalOpen] =
+    useState(false);
   const [suspendModalOpen, setSuspendModalOpen] = useState(false);
   const [requestChangesOpen, setRequestChangesOpen] = useState(false);
 
@@ -60,6 +72,7 @@ export default function OpportunityDetailPage() {
     (detailStatus === 'published' && Boolean(detailSuspendFrom));
   const canSuspendOpportunity =
     detailStatus === 'published' && !hasScheduledSuspension;
+  const canRepublishOpportunity = detailStatus === 'suspended';
 
   const handleSuspend = async (payload: SuspendOpportunityPayload) => {
     if (!id || isSuspending) {
@@ -86,6 +99,47 @@ export default function OpportunityDetailPage() {
       showToast('Sospensione programmata annullata con successo', 'success');
     } catch {
       showToast("Errore durante l'annullamento della sospensione", 'error');
+    }
+  };
+
+  const handleRepublish = async () => {
+    if (!id || isRepublishing) {
+      return;
+    }
+
+    try {
+      await republishOpportunity(id).unwrap();
+      setRepublishModalOpen(false);
+      showToast(
+        detail?.republishMessage?.trim()
+          ? 'Richiesta di ripubblicazione approvata'
+          : 'Opportunità ripubblicata con successo',
+        'success',
+      );
+    } catch {
+      showToast("Errore durante la ripubblicazione dell'opportunità", 'error');
+    }
+  };
+
+  const handleRejectRepublish = async (
+    payload: RejectOpportunityRepublishPayload,
+  ) => {
+    if (!id || isRejectingRepublish) {
+      return false;
+    }
+
+    try {
+      await rejectOpportunityRepublish({ id, payload }).unwrap();
+      setRejectRepublishModalOpen(false);
+      await refetch();
+      showToast('Richiesta di ripubblicazione rifiutata', 'success');
+      return true;
+    } catch {
+      showToast(
+        'Errore durante il rifiuto della richiesta di ripubblicazione',
+        'error',
+      );
+      return false;
     }
   };
 
@@ -186,68 +240,46 @@ export default function OpportunityDetailPage() {
           />
         </Stack>
 
+        {detail.republishMessage?.trim() && (
+          <MIAlert severity="info">
+            <Typography sx={{ fontWeight: 700, fontSize: 18 }}>
+              Richiesta di ripubblicazione dell’ente
+            </Typography>
+            <Typography sx={{ mt: 0.5, fontSize: 16 }}>
+              {detail.republishMessage.trim()}
+            </Typography>
+          </MIAlert>
+        )}
+
         {hasScheduledSuspension && formattedSuspendFrom && (
-          <Box
-            sx={{
-              borderRadius: '8px',
-              pt: 2.5,
-              pb: 1,
-              px: 2,
-              border: (theme) =>
-                `1px solid ${theme.palette.common.alertWarningBorder}`,
-              backgroundColor: (theme) => theme.palette.common.alertWarningBg,
-            }}
-          >
-            <Stack spacing={2}>
-              <Stack direction="row" spacing={1.5} alignItems="flex-start">
-                <WarningIcon
-                  sx={{
-                    color: (theme) => theme.palette.common.alertWarningText,
-                    fontSize: 24,
-                    mt: 0.25,
-                  }}
-                />
-                <Stack spacing={0.5} alignItems="flex-start">
-                  <Typography
-                    sx={{
-                      fontWeight: 700,
-                      fontSize: 18,
-                      color: (theme) => theme.palette.common.alertWarningText,
-                    }}
-                  >
-                    {`L'opportunità sarà sospesa dal ${formattedSuspendFrom}`}
-                  </Typography>
-                  <Typography
-                    sx={{
-                      fontSize: 16,
-                      color: (theme) => theme.palette.common.alertWarningText,
-                    }}
-                  >
-                    {detail.suspensionMessage?.trim() || '-'}
-                  </Typography>
-                  <Button
-                    variant="text"
-                    disableRipple
-                    onClick={handleCancelSuspension}
-                    sx={{
-                      alignSelf: 'flex-start',
-                      px: 0,
-                      minWidth: 0,
-                      fontSize: 16,
-                      fontWeight: 700,
-                      color: (theme) => theme.palette.common.alertWarningText,
-                      textTransform: 'none',
-                      '&:hover': {
-                        backgroundColor: 'transparent',
-                      },
-                    }}
-                  >
-                    Annulla sospensione programmata
-                  </Button>
-                </Stack>
-              </Stack>
-            </Stack>
-          </Box>
+          <MIAlert severity="warning">
+            <Typography sx={{ fontWeight: 700, fontSize: 18 }}>
+              {`L'opportunità sarà sospesa dal ${formattedSuspendFrom}`}
+            </Typography>
+            <Typography sx={{ mt: 0.5, fontSize: 16 }}>
+              {detail.suspensionMessage?.trim() || '-'}
+            </Typography>
+            <Button
+              variant="text"
+              onClick={handleCancelSuspension}
+              sx={{ px: 0, minWidth: 0, fontWeight: 700 }}
+            >
+              Annulla sospensione programmata
+            </Button>
+          </MIAlert>
+        )}
+
+        {detail.status === 'suspended' && detail.suspendedBy && (
+          <MIAlert severity="warning">
+            <Typography sx={{ fontWeight: 700, fontSize: 18 }}>
+              {detail.suspendedBy === 'department'
+                ? "Hai sospeso l'opportunità"
+                : "L'opportunità è stata sospesa dall'ente"}
+            </Typography>
+            <Typography sx={{ mt: 0.5, fontSize: 16 }}>
+              {detail.suspensionMessage?.trim() || '-'}
+            </Typography>
+          </MIAlert>
         )}
 
         <OpportunityDetailCard detail={detail} />
@@ -296,6 +328,37 @@ export default function OpportunityDetailPage() {
             </Button>
           </Stack>
         )}
+        {canRepublishOpportunity && (
+          <Stack
+            direction={{ xs: 'column', sm: 'row' }}
+            spacing={2}
+            justifyContent="flex-end"
+            sx={{ pt: 2, pb: 4 }}
+          >
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={() => setRepublishModalOpen(true)}
+              disabled={isRepublishing}
+              sx={{ fontWeight: 700, borderRadius: 2, px: 4 }}
+            >
+              {detail.republishMessage?.trim()
+                ? 'Approva richiesta'
+                : 'Ripubblica'}
+            </Button>
+            {detail.republishMessage?.trim() && (
+              <Button
+                variant="outlined"
+                color="error"
+                onClick={() => setRejectRepublishModalOpen(true)}
+                disabled={isRejectingRepublish}
+                sx={{ fontWeight: 700, borderRadius: 2, px: 4 }}
+              >
+                Rifiuta richiesta
+              </Button>
+            )}
+          </Stack>
+        )}
       </Stack>
 
       <PublishModal
@@ -325,6 +388,34 @@ export default function OpportunityDetailPage() {
         }}
         count={1}
         publishDate={detail?.dateFrom}
+      />
+
+      <PublishModal
+        open={republishModalOpen}
+        onClose={() => setRepublishModalOpen(false)}
+        onPublish={handleRepublish}
+        count={1}
+        description={
+          detail.republishMessage?.trim()
+            ? 'Accettando la richiesta, l’opportunità sarà pubblicata di nuovo su IO e l’ente riceverà una comunicazione.'
+            : "Invieremo un'email all'ente per informarlo. L'opportunità sarà di nuovo disponibile su IO."
+        }
+        title={
+          detail.republishMessage?.trim()
+            ? 'Approva la richiesta di ripubblicazione'
+            : 'Ripubblica su IO'
+        }
+        actionLabel={
+          detail.republishMessage?.trim() ? 'Approva richiesta' : 'Conferma'
+        }
+        isLoading={isRepublishing}
+      />
+
+      <RejectOpportunityRepublishModal
+        open={rejectRepublishModalOpen}
+        onClose={() => setRejectRepublishModalOpen(false)}
+        onConfirm={handleRejectRepublish}
+        isLoading={isRejectingRepublish}
       />
 
       <RequestChangesModal

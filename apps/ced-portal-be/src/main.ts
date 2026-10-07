@@ -28,8 +28,10 @@ import {
   mountAdminListOpportunitiesHandler,
   mountAdminListPendingOnboardingsHandler,
   mountAdminRejectOnboardingHandler,
+  mountAdminRejectOpportunityRepublishHandler,
   mountAdminRepublishOpportunityHandler,
   mountAdminRequestOpportunityChangesHandler,
+  mountAdminRevokeOperatorHandler,
   mountAdminSuspendOpportunityHandler,
   mountAuthorizeHandler,
   mountInfoReadinessHandler,
@@ -39,6 +41,7 @@ import {
   mountOperatorCreatePlaceHandler,
   mountOperatorCreateProfileHandler,
   mountOperatorDeleteOpportunityHandler,
+  mountOperatorDeletePlaceHandler,
   mountOperatorGetOpportunityHandler,
   mountOperatorGetPlaceHandler,
   mountOperatorGetProfileHandler,
@@ -47,6 +50,7 @@ import {
   mountOperatorListPlacesHandler,
   mountOperatorPublishOpportunityHandler,
   mountOperatorRepublishOpportunityHandler,
+  mountOperatorRequestOpportunityRepublishHandler,
   mountOperatorRequestOpportunityTestHandler,
   mountOperatorSuspendOpportunityHandler,
   mountOperatorUpdateOpportunityHandler,
@@ -71,12 +75,14 @@ import { makeAdminGetContractSignedUseCase } from "./application/use-cases/depar
 import { makeAdminGetOnboardingUseCase } from "./application/use-cases/department/admin-get-onboarding.use-case.js";
 import { makeAdminListPendingOnboardingsUseCase } from "./application/use-cases/department/admin-list-pending-onboardings.use-case.js";
 import { makeAdminRejectOnboardingUseCase } from "./application/use-cases/department/admin-reject-onboarding.use-case.js";
+import { makeAdminRevokeOperatorUseCase } from "./application/use-cases/department/admin-revoke-operator.use-case.js";
 import { makeInfoReadinessUseCase } from "./application/use-cases/health/info-readiness.use-case.js";
 import { makeInfoStartupUseCase } from "./application/use-cases/health/info-startup.use-case.js";
 import { makeAdminApproveOpportunityUseCase } from "./application/use-cases/opportunities/admin-approve-opportunity.use-case.js";
 import { makeAdminCancelScheduledSuspensionUseCase } from "./application/use-cases/opportunities/admin-cancel-scheduled-suspension.use-case.js";
 import { makeAdminGetOpportunityUseCase } from "./application/use-cases/opportunities/admin-get-opportunity.use-case.js";
 import { makeAdminListOpportunitiesUseCase } from "./application/use-cases/opportunities/admin-list-opportunities.use-case.js";
+import { makeAdminRejectOpportunityRepublishUseCase } from "./application/use-cases/opportunities/admin-reject-opportunity-republish.use-case.js";
 import { makeAdminRepublishOpportunityUseCase } from "./application/use-cases/opportunities/admin-republish-opportunity.use-case.js";
 import { makeAdminRequestOpportunityChangesUseCase } from "./application/use-cases/opportunities/admin-request-opportunity-changes.use-case.js";
 import { makeAdminSuspendOpportunityUseCase } from "./application/use-cases/opportunities/admin-suspend-opportunity.use-case.js";
@@ -88,10 +94,12 @@ import { makeOperatorListOpportunitiesUseCase } from "./application/use-cases/op
 import { makeOperatorListOpportunityCategoriesUseCase } from "./application/use-cases/opportunities/operator-list-opportunity-categories.use-case.js";
 import { makeOperatorPublishOpportunityUseCase } from "./application/use-cases/opportunities/operator-publish-opportunity.use-case.js";
 import { makeOperatorRepublishOpportunityUseCase } from "./application/use-cases/opportunities/operator-republish-opportunity.use-case.js";
+import { makeOperatorRequestOpportunityRepublishUseCase } from "./application/use-cases/opportunities/operator-request-opportunity-republish.use-case.js";
 import { makeOperatorRequestOpportunityTestUseCase } from "./application/use-cases/opportunities/operator-request-opportunity-test.use-case.js";
 import { makeOperatorSuspendOpportunityUseCase } from "./application/use-cases/opportunities/operator-suspend-opportunity.use-case.js";
 import { makeOperatorUpdateOpportunityUseCase } from "./application/use-cases/opportunities/operator-update-opportunity.use-case.js";
 import { makeOperatorCreatePlaceUseCase } from "./application/use-cases/places/operator-create-place.use-case.js";
+import { makeOperatorDeletePlaceUseCase } from "./application/use-cases/places/operator-delete-place.use-case.js";
 import { makeOperatorGetPlaceUseCase } from "./application/use-cases/places/operator-get-place.use-case.js";
 import { makeOperatorListPlacesUseCase } from "./application/use-cases/places/operator-list-places.use-case.js";
 import { makeOperatorCreateProfileUseCase } from "./application/use-cases/profile/operator-create-profile.use-case.js";
@@ -197,6 +205,7 @@ const authPreHandler = createAuthenticationPreHandler(
   sessionRepository.getSession,
 );
 
+// eslint-disable-next-line max-lines-per-function
 app.register(async (app) => {
   app.addHook("preHandler", authPreHandler);
 
@@ -239,6 +248,14 @@ app.register(async (app) => {
   mountOperatorGetPlaceHandler(
     app,
     makeOperatorGetPlaceUseCase(placeRepository),
+  );
+  mountOperatorDeletePlaceHandler(
+    app,
+    makeOperatorDeletePlaceUseCase(
+      placeRepository,
+      materializedViewRepository,
+      opportunityRepository,
+    ),
   );
   mountOperatorCreateOpportunityHandler(
     app,
@@ -317,6 +334,15 @@ app.register(async (app) => {
     app,
     makeAdminCompleteOnboardingUseCase(arOnboardingRepository),
   );
+  mountAdminRevokeOperatorHandler(
+    app,
+    makeAdminRevokeOperatorUseCase({
+      arOnboardingRepository,
+      materializedViewRepository,
+      operatorRepository,
+      sessionRepository,
+    }),
+  );
   mountAdminGetContractSignedHandler(
     app,
     makeAdminGetContractSignedUseCase(arOnboardingRepository),
@@ -353,12 +379,22 @@ app.register(async (app) => {
       materializedViewRepository,
     ),
   );
+  mountAdminRejectOpportunityRepublishHandler(
+    app,
+    makeAdminRejectOpportunityRepublishUseCase(opportunityRepository),
+  );
   mountAdminRepublishOpportunityHandler(
     app,
     makeAdminRepublishOpportunityUseCase(
       opportunityRepository,
       materializedViewRepository,
+      profileRepository,
+      emailRepository,
     ),
+  );
+  mountOperatorRequestOpportunityRepublishHandler(
+    app,
+    makeOperatorRequestOpportunityRepublishUseCase(opportunityRepository),
   );
   mountOperatorRepublishOpportunityHandler(
     app,

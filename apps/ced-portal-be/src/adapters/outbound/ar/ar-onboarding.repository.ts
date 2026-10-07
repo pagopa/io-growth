@@ -84,6 +84,9 @@ export const createArOnboardingRepository = (
       contract: input.contract,
     }),
 
+  deleteOnboarding: async (onboardingId) =>
+    arClient.onboardingClient.deleteOnboarding(onboardingId),
+
   getById: async (onboardingId) => {
     const result = await arClient.onboardingClient.getOnboardingWithFilter({
       onboardingId,

@@ -13,4 +13,7 @@ export interface ProfileRepository {
   readonly getByOperatorId: (
     operatorId: string,
   ) => Promise<Result<Profile | undefined, GenericError>>;
+  readonly updateByOperatorId: (
+    input: Profile,
+  ) => Promise<Result<Profile | undefined, GenericError>>;
 }

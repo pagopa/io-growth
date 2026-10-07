@@ -1,5 +1,13 @@
 # @pagopa/io-core-adapter-ar
 
+## 0.1.3
+
+### Patch Changes
+
+- 3ef5939: Add the department contract-revocation endpoint: PATCH /api/department/onboardings/{onboardingId}/revoke.
+  The operator moves to the revoked status and its published opportunities are suspended in the same transaction.
+  Its users' active sessions stop working, new logins are refused, and the onboarding is deleted on Area Riservata.
+
 ## 0.1.2
 
 ### Patch Changes

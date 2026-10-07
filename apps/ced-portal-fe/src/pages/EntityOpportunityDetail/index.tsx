@@ -165,6 +165,8 @@ export default function OpportunityDetailPage() {
           suspendFrom={detail.suspendFrom}
           suspensionMessage={detail.suspensionMessage}
           suspendedBy={detail.suspendedBy}
+          republishMessage={detail.republishMessage}
+          republishRejectionMessage={detail.republishRejectionMessage}
           onCancelSuccess={refetch}
         />
 
@@ -203,6 +205,8 @@ export default function OpportunityDetailPage() {
           status={detail.status}
           id={detail.id}
           suspendFrom={detail.suspendFrom}
+          suspendedBy={detail.suspendedBy}
+          republishMessage={detail.republishMessage}
         />
       </Stack>
     </Box>

@@ -13,6 +13,11 @@ const IMAGE_MAX_WIDTH = 300;
 const JPEG_CONTENT_TYPE = "image/jpeg";
 const PNG_CONTENT_TYPE = "image/png";
 
+export interface ValidatedOptionalProfileAssets {
+  readonly image?: ProfileAsset;
+  readonly logo?: ProfileAsset;
+}
+
 type AssetKind = "image" | "logo";
 
 const getExpectedContentType = (
@@ -27,20 +32,36 @@ const getExpectedContentType = (
   return undefined;
 };
 
-const validateAsset = async (
+const hasMatchingFilenameExtension = (
+  filename: string,
+  contentType: ProfileAsset["contentType"],
+): boolean =>
+  contentType === PNG_CONTENT_TYPE
+    ? /\.png$/i.test(filename)
+    : /\.jpe?g$/i.test(filename);
+
+export const validateProfileAsset = async (
   content: Blob,
   assetKind: AssetKind,
 ): Promise<Result<ProfileAsset, ValidationError>> => {
+  if (!(content instanceof File)) {
+    return err(new ValidationError(`${assetKind} must be a file`));
+  }
+
   const bytes = new Uint8Array(await content.arrayBuffer());
 
   try {
     const { height, type, width } = imageSize(bytes);
     const contentType = type ? getExpectedContentType(type) : undefined;
 
-    if (!contentType || content.type.toLowerCase() !== contentType) {
+    if (
+      !contentType ||
+      content.type.toLowerCase() !== contentType ||
+      !hasMatchingFilenameExtension(content.name, contentType)
+    ) {
       return err(
         new ValidationError(
-          `${assetKind} must be a PNG or JPEG image with a matching content type`,
+          `${assetKind} must be a PNG or JPEG image with a matching filename extension and content type`,
         ),
       );
     }
@@ -59,7 +80,6 @@ const validateAsset = async (
     return ok({
       content: bytes,
       contentType,
-      extension: contentType === PNG_CONTENT_TYPE ? "png" : "jpg",
     });
   } catch {
     return err(
@@ -84,8 +104,8 @@ export const validateProfileAssets = async ({
   >
 > => {
   const [validatedLogo, validatedImage] = await Promise.all([
-    validateAsset(logo, "logo"),
-    validateAsset(image, "image"),
+    validateProfileAsset(logo, "logo"),
+    validateProfileAsset(image, "image"),
   ]);
 
   if (validatedLogo.isErr()) {
@@ -98,5 +118,30 @@ export const validateProfileAssets = async ({
   return ok({
     image: validatedImage.value,
     logo: validatedLogo.value,
+  });
+};
+
+export const validateOptionalProfileAssets = async ({
+  image,
+  logo,
+}: {
+  readonly image?: Blob;
+  readonly logo?: Blob;
+}): Promise<Result<ValidatedOptionalProfileAssets, ValidationError>> => {
+  const [validatedLogo, validatedImage] = await Promise.all([
+    logo === undefined ? undefined : validateProfileAsset(logo, "logo"),
+    image === undefined ? undefined : validateProfileAsset(image, "image"),
+  ]);
+
+  if (validatedLogo?.isErr()) {
+    return err(validatedLogo.error);
+  }
+  if (validatedImage?.isErr()) {
+    return err(validatedImage.error);
+  }
+
+  return ok({
+    ...(validatedImage?.isOk() && { image: validatedImage.value }),
+    ...(validatedLogo?.isOk() && { logo: validatedLogo.value }),
   });
 };

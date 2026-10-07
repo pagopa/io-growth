@@ -7,10 +7,10 @@ import type { MouseEvent, ReactNode } from 'react';
 import { generatePath, Link } from 'react-router-dom';
 import { APP_ROUTES } from '../../../app/routeConfig';
 import type {
-  OpportunitySummaryItem,
   OpportunitySummaryItemStatus,
   OpportunitySummaryItemSuspendedBy,
 } from '../../../generated/model';
+import type { Opportunity } from '../../../features/opportunities/types';
 import { publicationStatusLabels } from '../../../features/benefitsFilters/types';
 import { getChipConfig } from './utils';
 
@@ -20,9 +20,9 @@ export interface BenefitsTableColumn {
   width?: number;
   align?: 'left' | 'center' | 'right';
   sortable?: boolean;
-  sortAccessor?: (item: OpportunitySummaryItem) => string | number;
+  sortAccessor?: (item: Opportunity) => string | number;
   renderCell: (
-    item: OpportunitySummaryItem,
+    item: Opportunity,
     theme: Theme,
     action: (
       event: MouseEvent<HTMLElement>,
@@ -30,6 +30,7 @@ export interface BenefitsTableColumn {
       itemStatus: OpportunitySummaryItemStatus,
       itemSuspendFrom?: string,
       itemSuspendedBy?: OpportunitySummaryItemSuspendedBy,
+      itemRepublishMessage?: string | null,
     ) => void,
   ) => ReactNode;
 }
@@ -93,6 +94,7 @@ export const benefitsTableColumns: BenefitsTableColumn[] = [
             item.status,
             item.suspendFrom ?? undefined,
             item.suspendedBy,
+            item.republishMessage,
           )
         }
       >

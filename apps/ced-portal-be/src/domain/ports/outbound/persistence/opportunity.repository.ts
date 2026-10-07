@@ -32,6 +32,11 @@ export interface DeleteOpportunityByIdAndOperatorIdInput {
   opportunityId: string;
 }
 
+export interface ExistsWithSolePlaceByPlaceIdAndStatusesInput {
+  placeId: string;
+  statuses: Opportunity["status"][];
+}
+
 export interface FindByIdAndOperatorIdInput {
   operatorId: string;
   opportunityId: string;
@@ -74,6 +79,9 @@ export interface OpportunityRepository {
   readonly deleteByIdAndOperatorId: (
     input: DeleteOpportunityByIdAndOperatorIdInput,
   ) => Promise<Result<void, ConflictError | GenericError>>;
+  readonly existsWithSolePlaceByPlaceIdAndStatuses: (
+    input: ExistsWithSolePlaceByPlaceIdAndStatusesInput,
+  ) => Promise<Result<boolean, GenericError>>;
   readonly findAll: (
     input: ListOpportunitiesInput,
   ) => Promise<Result<PaginatedOpportunities, GenericError>>;
@@ -83,6 +91,21 @@ export interface OpportunityRepository {
   readonly findByIdAndOperatorId: (
     input: FindByIdAndOperatorIdInput,
   ) => Promise<Result<OpportunityDetail | undefined, GenericError>>;
+  readonly rejectRepublishById: (
+    input: RejectRepublishByIdInput,
+  ) => Promise<Result<void, ConflictError | GenericError>>;
+  readonly republishById: (
+    input: RepublishByIdInput,
+  ) => Promise<Result<void, ConflictError | GenericError>>;
+  readonly republishByIdAndOperatorId: (
+    input: RepublishByIdAndOperatorIdInput,
+  ) => Promise<Result<void, ConflictError | GenericError>>;
+  readonly requestChangesById: (
+    input: RequestChangesByIdInput,
+  ) => Promise<Result<void, ConflictError | GenericError>>;
+  readonly requestRepublishByIdAndOperatorId: (
+    input: RequestRepublishByIdAndOperatorIdInput,
+  ) => Promise<Result<void, ConflictError | GenericError>>;
   readonly suspendById: (
     input: SuspendByIdInput,
   ) => Promise<Result<void, ConflictError | GenericError>>;
@@ -112,6 +135,31 @@ export type OpportunityStatusFilter =
 export interface PaginatedOpportunities {
   items: OpportunitySummary[];
   total: number;
+}
+
+export interface RejectRepublishByIdInput {
+  opportunityId: string;
+  republishRejectionMessage: string;
+}
+
+export interface RepublishByIdAndOperatorIdInput {
+  operatorId: string;
+  opportunityId: string;
+}
+
+export interface RepublishByIdInput {
+  opportunityId: string;
+}
+
+export interface RequestChangesByIdInput {
+  changeRequestMessage: string;
+  opportunityId: string;
+}
+
+export interface RequestRepublishByIdAndOperatorIdInput {
+  operatorId: string;
+  opportunityId: string;
+  republishMessage: string;
 }
 
 export interface SuspendByIdAndOperatorIdInput {

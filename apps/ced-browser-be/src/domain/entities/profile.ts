@@ -57,11 +57,19 @@ export type ProfileRecentOpportunity = z.infer<
   typeof ProfileRecentOpportunitySchema
 >;
 
+const ProfileLegalUrlSchema = z
+  .url({ protocol: /^https$/ })
+  .max(2048)
+  .regex(/^https:\/\//i);
+
 export const OperatorProfileDetailSchema = OperatorMetadataSchema.extend({
   displayName: z.string().min(1),
+  operatorId: z.string().min(1),
   place: ProfilePlaceSchema,
+  privacyUrl: ProfileLegalUrlSchema,
   recentOpportunities: z.array(ProfileRecentOpportunitySchema),
   recentPlaces: z.array(ProfileRecentPlaceSchema),
+  tosUrl: ProfileLegalUrlSchema,
 });
 
 export type OperatorProfileDetail = z.infer<typeof OperatorProfileDetailSchema>;

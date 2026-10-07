@@ -2,16 +2,37 @@ import type { TypedDbClient } from "@pagopa/io-core-adapter-drizzle";
 import type { Result } from "neverthrow";
 
 import { GenericError } from "@pagopa/io-core-domain/errors";
-import { and, asc, eq, inArray } from "drizzle-orm";
+import {
+  and,
+  asc,
+  count,
+  eq,
+  ilike,
+  inArray,
+  ne,
+  notExists,
+} from "drizzle-orm";
 import { err, ok } from "neverthrow";
 
 import type { Place } from "../../../domain/entities/place.js";
-import type { PlaceRepository } from "../../../domain/ports/outbound/persistence/place.repository.js";
+import type {
+  ListPlacesInput,
+  PaginatedPlaces,
+  PlaceRepository,
+} from "../../../domain/ports/outbound/persistence/place.repository.js";
 
+import { OPPORTUNITY_STATUS } from "../../../domain/entities/opportunity.js";
 import { mapPlaceRow, mapPlaceRows } from "./place-row.mapper.js";
 import { createPlaceInTransaction } from "./place.transaction.js";
 import * as schema from "./schema/index.js";
-import { place, supportContact } from "./schema/tables.js";
+import {
+  opportunity,
+  opportunityPlace,
+  place,
+  profile,
+  supportContact,
+} from "./schema/tables.js";
+import { escapeIlikePattern } from "./utils/escape-ilike-pattern.js";
 
 export const createDrizzlePlaceRepository = (
   db: TypedDbClient<typeof schema>,
@@ -31,6 +52,26 @@ export const createDrizzlePlaceRepository = (
     } catch (error) {
       return err(
         new GenericError(`Failed to create operator place: ${String(error)}`),
+      );
+    }
+  },
+
+  deleteByIdAndOperatorId: async (
+    input,
+  ): Promise<Result<void, GenericError>> => {
+    try {
+      await db
+        .delete(place)
+        .where(
+          and(
+            eq(place.id, input.placeId),
+            eq(place.operatorId, input.operatorId),
+          ),
+        );
+      return ok(undefined);
+    } catch (error) {
+      return err(
+        new GenericError(`Failed to delete operator place: ${String(error)}`),
       );
     }
   },
@@ -97,35 +138,94 @@ export const createDrizzlePlaceRepository = (
   },
 
   listByOperatorId: async (
-    operatorId: string,
-  ): Promise<Result<Place[], GenericError>> => {
+    input: ListPlacesInput,
+  ): Promise<Result<PaginatedPlaces, GenericError>> => {
     try {
-      const rows = await db.query.place.findMany({
-        columns: { id: true, name: true, type: true },
-        orderBy: [asc(place.createdAt), asc(place.id)],
-        where: eq(place.operatorId, operatorId),
-        with: {
-          address: {
-            columns: {
-              city: true,
-              country: true,
-              postalCode: true,
-              state: true,
-              street: true,
+      const where = and(
+        eq(place.operatorId, input.operatorId),
+        notExists(
+          db
+            .select({ id: profile.id })
+            .from(profile)
+            .where(eq(profile.placeId, place.id)),
+        ),
+        input.search
+          ? ilike(place.name, `%${escapeIlikePattern(input.search)}%`)
+          : undefined,
+        input.type ? eq(place.type, input.type) : undefined,
+      );
+
+      const [rows, countRows] = await Promise.all([
+        db.query.place.findMany({
+          columns: { id: true, name: true, type: true },
+          limit: input.limit,
+          offset: input.offset,
+          orderBy: [asc(place.createdAt), asc(place.id)],
+          where,
+          with: {
+            address: {
+              columns: {
+                city: true,
+                country: true,
+                postalCode: true,
+                state: true,
+                street: true,
+              },
             },
+            supportContacts: {
+              columns: { id: true, type: true, value: true },
+              orderBy: [asc(supportContact.createdAt), asc(supportContact.id)],
+            },
+            website: { columns: { url: true } },
           },
-          profile: { columns: { id: true } },
-          supportContacts: {
-            columns: { id: true, type: true, value: true },
-            orderBy: [asc(supportContact.createdAt), asc(supportContact.id)],
-          },
-          website: { columns: { url: true } },
-        },
+        }),
+        db.select({ total: count() }).from(place).where(where),
+      ]);
+
+      const mappedPlaces = mapPlaceRows(rows);
+      if (mappedPlaces.isErr()) {
+        return err(mappedPlaces.error);
+      }
+
+      const associationRows =
+        rows.length === 0
+          ? []
+          : await db
+              .select({
+                associatedOpportunities: count(),
+                placeId: opportunityPlace.placeId,
+              })
+              .from(opportunityPlace)
+              .innerJoin(
+                opportunity,
+                eq(opportunity.id, opportunityPlace.opportunityId),
+              )
+              .where(
+                and(
+                  inArray(
+                    opportunityPlace.placeId,
+                    rows.map((row) => row.id),
+                  ),
+                  eq(opportunity.operatorId, input.operatorId),
+                  ne(opportunity.status, OPPORTUNITY_STATUS.DELETED),
+                ),
+              )
+              .groupBy(opportunityPlace.placeId);
+
+      const associationCounts = new Map(
+        associationRows.map((row) => [
+          row.placeId,
+          row.associatedOpportunities,
+        ]),
+      );
+
+      return ok({
+        items: mappedPlaces.value.map((item) => ({
+          ...item,
+          associatedOpportunities: associationCounts.get(item.id) ?? 0,
+        })),
+        total: countRows[0].total,
       });
-
-      const filteredRows = rows.filter((r) => !r.profile);
-
-      return mapPlaceRows(filteredRows);
     } catch (error) {
       return err(
         new GenericError(`Failed to list operator places: ${String(error)}`),

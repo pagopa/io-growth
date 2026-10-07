@@ -37,6 +37,8 @@ interface OpportunitiesTableProps {
   onPublish: (id: string) => void;
   onSuspend: (item: Opportunity) => void;
   onCancelSuspension: (id: string) => void;
+  onRepublish: (item: Opportunity) => void;
+  onRejectRepublishRequest: (item: Opportunity) => void;
   activeTab: number;
 }
 
@@ -50,6 +52,8 @@ export const OpportunitiesTable = ({
   onPublish,
   onSuspend,
   onCancelSuspension,
+  onRepublish,
+  onRejectRepublishRequest,
   activeTab,
 }: OpportunitiesTableProps) => {
   const theme = useTheme();
@@ -96,6 +100,7 @@ export const OpportunitiesTable = ({
 
   const canPublish = menuItemStatus === 'test_pending';
   const canSuspend = menuItemStatus === 'published' && !hasScheduledSuspension;
+  const canRepublish = menuItemStatus === 'suspended';
 
   const handleSuspend = () => {
     if (menuItem) {
@@ -107,6 +112,20 @@ export const OpportunitiesTable = ({
   const handleCancelSuspension = () => {
     if (menuItemId) {
       onCancelSuspension(menuItemId);
+    }
+    handleMenuClose();
+  };
+
+  const handleRepublish = () => {
+    if (menuItem) {
+      onRepublish(menuItem);
+    }
+    handleMenuClose();
+  };
+
+  const handleRejectRepublishRequest = () => {
+    if (menuItem?.republishMessage?.trim()) {
+      onRejectRepublishRequest(menuItem);
     }
     handleMenuClose();
   };
@@ -299,6 +318,18 @@ export const OpportunitiesTable = ({
         {hasScheduledSuspension && (
           <MenuItem onClick={handleCancelSuspension}>
             Annulla sospensione programmata
+          </MenuItem>
+        )}
+        {canRepublish && (
+          <MenuItem onClick={handleRepublish}>
+            {menuItem?.republishMessage?.trim()
+              ? 'Approva richiesta'
+              : 'Ripubblica'}
+          </MenuItem>
+        )}
+        {menuItem?.republishMessage?.trim() && (
+          <MenuItem onClick={handleRejectRepublishRequest}>
+            Rifiuta richiesta
           </MenuItem>
         )}
       </Menu>

@@ -1,11 +1,12 @@
 import { Paper, Stack, Typography } from '@mui/material';
 import { PrivacyTipOutlined } from '@mui/icons-material';
 import { AppTextField } from '../../../../components';
-import { isValidHttpsUrl } from '../../../../utils/urlValidator';
 
 type TermsAndPrivacySectionProps = {
   privacyUrl: string;
   termsUrl: string;
+  privacyUrlError?: string;
+  termsUrlError?: string;
   onPrivacyUrlChange: (value: string) => void;
   onTermsUrlChange: (value: string) => void;
 };
@@ -13,13 +14,11 @@ type TermsAndPrivacySectionProps = {
 export const TermsAndPrivacySection = ({
   privacyUrl,
   termsUrl,
+  privacyUrlError,
+  termsUrlError,
   onPrivacyUrlChange,
   onTermsUrlChange,
 }: TermsAndPrivacySectionProps) => {
-  const privacyUrlError = !isValidHttpsUrl(privacyUrl);
-
-  const termsUrlError = !isValidHttpsUrl(termsUrl);
-
   return (
     <Paper
       variant="outlined"
@@ -39,12 +38,9 @@ export const TermsAndPrivacySection = ({
           label="Inserisci il link all’Informativa Privacy"
           placeholder="Inserisci il link all’Informativa Privacy"
           value={privacyUrl}
-          error={privacyUrlError}
-          helperText={
-            privacyUrlError
-              ? 'Inserisci un URL valido (es. https://...)'
-              : undefined
-          }
+          required
+          error={Boolean(privacyUrlError)}
+          helperText={privacyUrlError}
           onChange={(e) => onPrivacyUrlChange(e.target.value)}
           fullWidth
           sx={{ '& .MuiOutlinedInput-root': { borderRadius: '8px' } }}
@@ -53,12 +49,9 @@ export const TermsAndPrivacySection = ({
         <AppTextField
           label="Inserisci il link ai Termini e condizioni d’uso"
           placeholder="Inserisci il link ai Termini e condizioni d’uso"
-          error={termsUrlError}
-          helperText={
-            termsUrlError
-              ? 'Inserisci un URL valido (es. https://...)'
-              : undefined
-          }
+          required
+          error={Boolean(termsUrlError)}
+          helperText={termsUrlError}
           value={termsUrl}
           onChange={(e) => onTermsUrlChange(e.target.value)}
           fullWidth

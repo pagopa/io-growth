@@ -60,6 +60,7 @@ export const changeAuditEntityTypeEnum = pgEnum("change_audit_entity_type", [
   "beneficiary_benefit",
   "caregiver_benefit",
   "localized_metadata",
+  "operator",
 ]);
 
 export const changeAuditChangeTypeEnum = pgEnum("change_audit_change_type", [

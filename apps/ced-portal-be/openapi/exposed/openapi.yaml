@@ -38,6 +38,7 @@ paths:
                   value:
                     displayName: Operatore Demo
                     contactEmail: contatto@example.org
+                    operatorId: 01JVMK3N8XQZP5T6G2WYHAB4D0
                     place:
                       id: 01JVMK3N8XQZP5T6G2WYHAB4CD
                       type: online
@@ -56,6 +57,7 @@ paths:
                   value:
                     displayName: Operatore Demo
                     contactEmail: contatto@example.org
+                    operatorId: 01JVMK3N8XQZP5T6G2WYHAB4D0
                     place:
                       id: 01JVMK3N8XQZP5T6G2WYHAB4CG
                       type: offline
@@ -121,11 +123,15 @@ paths:
                 logo:
                   type: string
                   format: binary
-                  description: PNG or JPEG logo, up to 300x300 pixels.
+                  description: >-
+                    PNG or JPEG logo, up to 300x300 pixels. The filename
+                    extension must match the image format.
                 image:
                   type: string
                   format: binary
-                  description: PNG or JPEG profile image, up to 300x600 pixels.
+                  description: >-
+                    PNG or JPEG profile image, up to 300x600 pixels. The
+                    filename extension must match the image format.
             encoding:
               profile:
                 contentType: application/json
@@ -160,6 +166,89 @@ paths:
               example:
                 statusCode: 403
                 message: Forbidden
+    put:
+      tags:
+        - Profile
+      summary: Replace the authenticated operator profile
+      description: >-
+        Replaces the profile fields represented by the required profile part.
+        The authenticated operator must already have a profile. Omitted logo
+        or image parts leave the corresponding asset unchanged. A supplied
+        asset must have a filename extension matching its PNG or JPEG format.
+        The profile place ID is preserved. Both privacyUrl and tosUrl are
+        required HTTPS URLs on every replacement.
+      operationId: updateOperatorProfile
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              additionalProperties: false
+              required:
+                - profile
+              properties:
+                profile:
+                  $ref: "#/components/schemas/OperatorProfileCreateRequest"
+                logo:
+                  type: string
+                  format: binary
+                  description: >-
+                    Optional PNG or JPEG logo, up to 300x300 pixels. Omit to
+                    keep the current logo. The filename extension must match
+                    the image format.
+                image:
+                  type: string
+                  format: binary
+                  description: >-
+                    Optional PNG or JPEG profile image, up to 300x600 pixels.
+                    Omit to keep the current image. The filename extension
+                    must match the image format.
+            encoding:
+              profile:
+                contentType: application/json
+      responses:
+        "200":
+          description: Operator profile replaced successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OperatorProfileResponse"
+        "400":
+          description: Invalid profile JSON or invalid image files
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "401":
+          description: Invalid or missing JWT
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 401
+                message: Unauthorized
+        "403":
+          description: Authenticated user is not an operator
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 403
+                message: Forbidden
+        "404":
+          description: No profile exists for the authenticated operator
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 404
+                message: Operator profile not found
   /operator/places:
     get:
       tags:
@@ -168,41 +257,80 @@ paths:
       operationId: listOperatorPlaces
       security:
         - bearerAuth: []
+      parameters:
+        - name: offset
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+        - name: search
+          in: query
+          required: false
+          description: Case-insensitive substring search on the place name.
+          schema:
+            type: string
+        - name: type
+          in: query
+          required: false
+          description: Filter by place type. When omitted, both types are included.
+          schema:
+            type: string
+            enum:
+              - online
+              - offline
       responses:
         "200":
-          description: Operator places
+          description: Paginated list of operator places
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/PlaceResponse"
+                $ref: "#/components/schemas/PlaceListResponse"
               examples:
                 mixedPlaces:
                   summary: Online and offline places
                   value:
-                    - id: 01JVMK3N8XQZP5T6G2WYHAB4CD
-                      type: online
-                      name: Sportello remoto
-                      website:
-                        url: https://example.org
-                      supportContacts:
-                        - id: 01JVMK3N8XQZP5T6G2WYHAB4CE
-                          type: email
-                          value: support@example.org
-                    - id: 01JVMK3N8XQZP5T6G2WYHAB4CG
-                      type: offline
-                      name: Sportello centrale
-                      address:
-                        street: Via Roma 1
-                        city: Roma
-                        state: RM
-                        postalCode: "00100"
-                        country: IT
-                      supportContacts:
-                        - id: 01JVMK3N8XQZP5T6G2WYHAB4CF
-                          type: phone
-                          value: "+39 0000000000"
+                    items:
+                      - id: 01JVMK3N8XQZP5T6G2WYHAB4CD
+                        type: online
+                        name: Sportello remoto
+                        associatedOpportunities: 2
+                        website:
+                          url: https://example.org
+                        supportContacts:
+                          - id: 01JVMK3N8XQZP5T6G2WYHAB4CE
+                            type: email
+                            value: support@example.org
+                      - id: 01JVMK3N8XQZP5T6G2WYHAB4CG
+                        type: offline
+                        name: Sportello centrale
+                        associatedOpportunities: 0
+                        address:
+                          street: Via Roma 1
+                          city: Roma
+                          state: RM
+                          postalCode: "00100"
+                          country: IT
+                        supportContacts:
+                          - id: 01JVMK3N8XQZP5T6G2WYHAB4CF
+                            type: phone
+                            value: "+39 0000000000"
+                    total: 2
+        "400":
+          description: Invalid pagination or place type query parameter
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
         "401":
           description: Invalid or missing JWT
           content:
@@ -371,6 +499,79 @@ paths:
               example:
                 statusCode: 404
                 message: Place not found
+    delete:
+      tags:
+        - Places
+      summary: Delete a place of the authenticated operator
+      description: >-
+        Permanently deletes a place of the authenticated operator, together with
+        its address or website, its support contacts and its links with
+        opportunities.
+
+        The place referenced by the operator profile is not exposed by this
+        resource and answers 404: it is not returned by GET /operator/places nor
+        by GET /operator/places/{placeId} either.
+      operationId: deleteOperatorPlace
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: placeId
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: "^[0-9A-HJKMNP-TV-Z]{26}$"
+      responses:
+        "204":
+          description: Place deleted
+        "400":
+          description: "Invalid placeId: not a ULID"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 400
+                message: Validation error
+        "401":
+          description: Invalid or missing JWT
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 401
+                message: Unauthorized
+        "403":
+          description: Authenticated user is not an operator
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 403
+                message: Forbidden
+        "404":
+          description: Place not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 404
+                message: Place not found
+        "412":
+          description: >-
+            The place is the only one of an opportunity that is published,
+            suspended, or awaiting/passed testing and is not valid on the
+            national territory
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 412
+                message: Place is the only one of an active opportunity and cannot be deleted
   /operator/opportunities/{opportunityId}:
     get:
       tags:
@@ -951,6 +1152,181 @@ paths:
                   value:
                     statusCode: 412
                     message: "Precondition failed: Only the department can cancel a department-scheduled suspension"
+  /operator/opportunities/{opportunityId}/republish:
+    patch:
+      tags:
+        - Opportunities
+      summary: Republish the operator's own suspended opportunity
+      description: >-
+        Lifts a suspension the operator applied itself and makes the opportunity
+        visible on IO again. The suspension reason and actor are cleared. A
+        department-applied suspension is out of the operator's reach.
+      operationId: operatorRepublishOpportunity
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: opportunityId
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: "^[0-9A-HJKMNP-TV-Z]{26}$"
+      responses:
+        "204":
+          description: Opportunity republished
+        "400":
+          description: "Invalid opportunityId: not a ULID"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 400
+                message: Validation error
+        "401":
+          description: Invalid or missing JWT
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 401
+                message: Unauthorized
+        "403":
+          description: Authenticated user is not an operator
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 403
+                message: Forbidden
+        "404":
+          description: Opportunity not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 404
+                message: Opportunity not found
+        "409":
+          description: Opportunity status was modified concurrently
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 409
+                message: Conflict
+        "412":
+          description: >-
+            The opportunity is not suspended, or it was suspended by the department,
+            or its end date is not in the future.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 412
+                message: Opportunity must be suspended to be republished
+  /operator/opportunities/{opportunityId}/republish/request:
+    patch:
+      tags:
+        - Opportunities
+      summary: Request republication of a department-suspended opportunity
+      description: >-
+        Asks the department to republish an opportunity it suspended. A reason is
+        required. The opportunity stays suspended: only the department can
+        approve the request, through the republish endpoint, or reject it.
+        A pending request from a previous cycle must be decided first.
+      operationId: operatorRequestOpportunityRepublish
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: opportunityId
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: "^[0-9A-HJKMNP-TV-Z]{26}$"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required:
+                - republishMessage
+              properties:
+                republishMessage:
+                  type: string
+                  minLength: 1
+                  maxLength: 4096
+                  description: >-
+                    Reason the operator asks for the opportunity to be
+                    republished. Leading/trailing whitespace is trimmed; must be
+                    non-empty once trimmed.
+      responses:
+        "204":
+          description: Request registered, the opportunity stays suspended
+        "400":
+          description: "Invalid payload: republishMessage missing, empty or too long"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 400
+                message: "Validation error: republishMessage is required"
+        "401":
+          description: Invalid or missing JWT
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 401
+                message: Unauthorized
+        "403":
+          description: Forbidden — admin userType not allowed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 403
+                message: Forbidden
+        "404":
+          description: Opportunity not found or not owned by the operator
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 404
+                message: Opportunity not found
+        "409":
+          description: Concurrent status modification
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 409
+                message: Conflict
+        "412":
+          description: >-
+            The opportunity is not suspended, or it was suspended by the
+            operator itself, or a republish request is already pending.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 412
+                message: Precondition Failed
   /operator/opportunities:
     get:
       tags:
@@ -1367,6 +1743,101 @@ paths:
               example:
                 statusCode: 412
                 message: Precondition Failed
+  /opportunities/{opportunityId}/request-changes:
+    patch:
+      tags:
+        - Opportunities
+      summary: Request changes on an opportunity under review (department only)
+      description: >-
+        Sends the operator a change request on an opportunity under review. The
+        opportunity goes back to "draft" and becomes editable by the operator
+        again, which can then send it back for review. The message overwrites
+        any change request from a previous review cycle.
+      operationId: requestOpportunityChanges
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: opportunityId
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: "^[0-9A-HJKMNP-TV-Z]{26}$"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required:
+                - changeRequestMessage
+              properties:
+                changeRequestMessage:
+                  type: string
+                  minLength: 1
+                  maxLength: 4096
+                  description: >-
+                    Changes the operator is asked to make (raw text).
+                    Leading/trailing whitespace is trimmed; must be non-empty
+                    once trimmed.
+      responses:
+        "204":
+          description: Changes requested, opportunity back to draft
+        "400":
+          description: "Invalid payload: changeRequestMessage missing, empty or too long"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 400
+                message: "Validation error: changeRequestMessage is required"
+        "401":
+          description: Invalid or missing JWT
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 401
+                message: Unauthorized
+        "403":
+          description: Forbidden — operator userType not allowed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 403
+                message: Forbidden
+        "404":
+          description: Opportunity not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 404
+                message: Opportunity not found
+        "409":
+          description: Concurrent status modification
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 409
+                message: Conflict
+        "412":
+          description: Opportunity not in test_pending status
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 412
+                message: Precondition Failed
   /opportunities/{opportunityId}/suspension/schedule:
     patch:
       tags:
@@ -1559,6 +2030,177 @@ paths:
               example:
                 statusCode: 412
                 message: "Precondition failed: No scheduled suspension is pending for this opportunity"
+  /opportunities/{opportunityId}/republish:
+    patch:
+      tags:
+        - Opportunities
+      summary: Republish a suspended opportunity (department only, absolute)
+      description: >-
+        Lifts an active suspension and makes the opportunity visible on IO again,
+        whether it was suspended by the department or by the operator. The
+        suspension reason and actor are cleared. A pending scheduled suspension is
+        not affected: use the suspension/cancel endpoint for that.
+      operationId: republishOpportunity
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: opportunityId
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: "^[0-9A-HJKMNP-TV-Z]{26}$"
+      responses:
+        "204":
+          description: Opportunity republished
+        "400":
+          description: "Invalid opportunityId: not a ULID"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 400
+                message: Validation error
+        "401":
+          description: Invalid or missing JWT
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 401
+                message: Unauthorized
+        "403":
+          description: Authenticated user is not a department admin
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 403
+                message: Forbidden
+        "404":
+          description: Opportunity not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 404
+                message: Opportunity not found
+        "409":
+          description: Opportunity status was modified concurrently
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 409
+                message: Conflict
+        "412":
+          description: >-
+            The opportunity is not suspended.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 412
+                message: Opportunity must be suspended to be republished
+  /opportunities/{opportunityId}/republish/reject:
+    patch:
+      tags:
+        - Opportunities
+      summary: Reject a pending republish request (department only)
+      description: >-
+        Rejects the operator's request to republish a suspended opportunity. The
+        opportunity stays suspended, the request is cleared and the reason given
+        here replaces it.
+      operationId: rejectOpportunityRepublish
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: opportunityId
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: "^[0-9A-HJKMNP-TV-Z]{26}$"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required:
+                - republishRejectionMessage
+              properties:
+                republishRejectionMessage:
+                  type: string
+                  minLength: 1
+                  maxLength: 4096
+                  description: >-
+                    Reason the request is rejected. Leading/trailing whitespace
+                    is trimmed; must be non-empty once trimmed.
+      responses:
+        "204":
+          description: Request rejected, the opportunity stays suspended
+        "400":
+          description: "Invalid payload: republishRejectionMessage missing, empty or too long"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 400
+                message: "Validation error: republishRejectionMessage is required"
+        "401":
+          description: Invalid or missing JWT
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 401
+                message: Unauthorized
+        "403":
+          description: Forbidden — operator userType not allowed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 403
+                message: Forbidden
+        "404":
+          description: Opportunity not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 404
+                message: Opportunity not found
+        "409":
+          description: Concurrent status modification
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 409
+                message: Conflict
+        "412":
+          description: No republish request is pending on this opportunity
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 412
+                message: Precondition Failed
   /opportunity-categories:
     get:
       tags:
@@ -1964,6 +2606,104 @@ paths:
               example:
                 statusCode: 412
                 message: Precondition Failed
+  /department/onboardings/{onboardingId}/revoke:
+    patch:
+      tags:
+        - Department
+      summary: Revoke the contract with an operator (department only)
+      description: >-
+        Terminates the agreement with the operator behind the given onboarding.
+        The revocation is propagated to Area Riservata first, then every active
+        session of the operator is revoked and all its published opportunities
+        are suspended. The operator record may not exist yet — it is created at
+        the referent's first login — in which case only the propagation and the
+        session revocation take effect. The action is irreversible.
+      operationId: adminRevokeOperator
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: onboardingId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              properties:
+                revocationMessage:
+                  type: string
+                  minLength: 1
+                  maxLength: 4096
+                  description: >-
+                    Reason for the revocation, recorded on the operator and kept
+                    in the audit trail. Optional: when omitted the column is set
+                    to null and the audit records the revocation without a
+                    reason. Leading/trailing whitespace is trimmed; must be
+                    non-empty once trimmed.
+      responses:
+        "204":
+          description: Operator revoked
+        "400":
+          description: "Invalid payload: revocationMessage present but empty or too long"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 400
+                message: "Validation error: revocationMessage must not be empty"
+        "401":
+          description: Invalid or missing JWT
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 401
+                message: Unauthorized
+        "403":
+          description: Forbidden — operator userType not allowed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 403
+                message: Forbidden
+        "404":
+          description: Onboarding not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 404
+                message: Onboarding not found
+        "409":
+          description: The operator has already been revoked
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 409
+                message: Conflict
+        "412":
+          description: >-
+            Onboarding not in COMPLETED status. A request that is not yet
+            completed is rejected, not revoked.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                statusCode: 412
+                message: Precondition Failed
 components:
   securitySchemes:
     bearerAuth:
@@ -1978,6 +2718,8 @@ components:
         - contactEmail
         - displayName
         - place
+        - privacyUrl
+        - tosUrl
       properties:
         contactEmail:
           type: string
@@ -1988,6 +2730,18 @@ components:
           maxLength: 512
         place:
           $ref: "#/components/schemas/PlaceCreateRequest"
+        privacyUrl:
+          type: string
+          format: uri
+          pattern: "^[Hh][Tt][Tt][Pp][Ss]:[/][/]"
+          maxLength: 2048
+          description: HTTPS link to the operator's privacy notice.
+        tosUrl:
+          type: string
+          format: uri
+          pattern: "^[Hh][Tt][Tt][Pp][Ss]:[/][/]"
+          maxLength: 2048
+          description: HTTPS link to the operator's terms and conditions of use.
     PlaceBase:
       type: object
       additionalProperties: false
@@ -2090,13 +2844,80 @@ components:
         mapping:
           online: "#/components/schemas/OnlinePlaceResponse"
           offline: "#/components/schemas/OfflinePlaceResponse"
+    PlaceListItem:
+      type: object
+      additionalProperties: false
+      required:
+        - id
+        - type
+        - name
+        - supportContacts
+        - associatedOpportunities
+      properties:
+        id:
+          $ref: "#/components/schemas/PlaceResponseBase/properties/id"
+        type:
+          $ref: "#/components/schemas/PlaceResponseBase/properties/type"
+        name:
+          $ref: "#/components/schemas/PlaceResponseBase/properties/name"
+        supportContacts:
+          $ref: "#/components/schemas/PlaceResponseBase/properties/supportContacts"
+        address:
+          $ref: "#/components/schemas/Address"
+        website:
+          $ref: "#/components/schemas/Website"
+        associatedOpportunities:
+          type: integer
+          minimum: 0
+          description: >-
+            Number of currently linked opportunities belonging to the operator,
+            excluding deleted opportunities and including all other statuses.
+      oneOf:
+        - type: object
+          required:
+            - website
+          properties:
+            type:
+              type: string
+              enum:
+                - online
+            website:
+              $ref: "#/components/schemas/Website"
+        - type: object
+          required:
+            - address
+          properties:
+            type:
+              type: string
+              enum:
+                - offline
+            address:
+              $ref: "#/components/schemas/Address"
+    PlaceListResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - items
+        - total
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/PlaceListItem"
+        total:
+          type: integer
+          minimum: 0
+          description: Number of matching places before pagination.
     OperatorProfileResponse:
       type: object
       additionalProperties: false
       required:
         - contactEmail
         - displayName
+        - operatorId
         - place
+        - privacyUrl
+        - tosUrl
       properties:
         contactEmail:
           type: string
@@ -2105,8 +2926,24 @@ components:
         displayName:
           type: string
           maxLength: 512
+        operatorId:
+          type: string
+          pattern: "^[0-9A-HJKMNP-TV-Z]{26}$"
+          description: Unique identifier of the operator.
         place:
           $ref: "#/components/schemas/PlaceResponse"
+        privacyUrl:
+          type: string
+          format: uri
+          pattern: "^[Hh][Tt][Tt][Pp][Ss]:[/][/]"
+          maxLength: 2048
+          description: HTTPS link to the operator's privacy notice.
+        tosUrl:
+          type: string
+          format: uri
+          pattern: "^[Hh][Tt][Tt][Pp][Ss]:[/][/]"
+          maxLength: 2048
+          description: HTTPS link to the operator's terms and conditions of use.
     Address:
       type: object
       additionalProperties: false
@@ -2457,6 +3294,21 @@ components:
             Calendar date a scheduled suspension takes effect from. Present only
             while a suspension is scheduled (opportunity still published); null
             otherwise.
+        republishMessage:
+          type: string
+          maxLength: 4096
+          nullable: true
+          description: >-
+            Reason the operator gave asking for the opportunity to be
+            republished, while the request is pending. Only set while the
+            opportunity is suspended; null otherwise.
+        republishRejectionMessage:
+          type: string
+          maxLength: 4096
+          nullable: true
+          description: >-
+            Reason the department rejected the last republish request. Only set
+            while the opportunity is suspended; null otherwise.
     AdminOpportunitySummaryItem:
       type: object
       additionalProperties: false
@@ -2521,6 +3373,21 @@ components:
             Calendar date a scheduled suspension takes effect from. Present only
             while a suspension is scheduled (opportunity still published); null
             otherwise.
+        republishMessage:
+          type: string
+          maxLength: 4096
+          nullable: true
+          description: >-
+            Reason the operator gave asking for the opportunity to be
+            republished, while the request is pending. Only set while the
+            opportunity is suspended; null otherwise.
+        republishRejectionMessage:
+          type: string
+          maxLength: 4096
+          nullable: true
+          description: >-
+            Reason the department rejected the last republish request. Only set
+            while the opportunity is suspended; null otherwise.
     OpportunityDetailResponse:
       type: object
       additionalProperties: false
@@ -2616,6 +3483,28 @@ components:
           description: >-
             Reason provided for the suspension (raw text). null when not
             suspended.
+        changeRequestMessage:
+          type: string
+          maxLength: 4096
+          nullable: true
+          description: >-
+            Changes the department asked the operator to make on the last review
+            cycle (raw text). null when no change was ever requested.
+        republishMessage:
+          type: string
+          maxLength: 4096
+          nullable: true
+          description: >-
+            Reason the operator gave asking for the opportunity to be
+            republished, while the request is pending. Only set while the
+            opportunity is suspended; null otherwise.
+        republishRejectionMessage:
+          type: string
+          maxLength: 4096
+          nullable: true
+          description: >-
+            Reason the department rejected the last republish request. Only set
+            while the opportunity is suspended; null otherwise.
     OpportunityDetailAdminResponse:
       type: object
       additionalProperties: false
@@ -2717,6 +3606,28 @@ components:
           description: >-
             Reason provided for the suspension (raw text). null when not
             suspended.
+        changeRequestMessage:
+          type: string
+          maxLength: 4096
+          nullable: true
+          description: >-
+            Changes the department asked the operator to make on the last review
+            cycle (raw text). null when no change was ever requested.
+        republishMessage:
+          type: string
+          maxLength: 4096
+          nullable: true
+          description: >-
+            Reason the operator gave asking for the opportunity to be
+            republished, while the request is pending. Only set while the
+            opportunity is suspended; null otherwise.
+        republishRejectionMessage:
+          type: string
+          maxLength: 4096
+          nullable: true
+          description: >-
+            Reason the department rejected the last republish request. Only set
+            while the opportunity is suspended; null otherwise.
     ErrorResponse:
       type: object
       additionalProperties: false

@@ -14,10 +14,18 @@ export interface SessionRepository {
     session: Session,
     ttlSeconds: number,
   ) => Promise<Result<void, BaseError>>;
+
+  readonly existsRevocationByOperatorExternalId: (
+    operatorExternalId: string,
+  ) => Promise<Result<boolean, BaseError>>;
   readonly getSession: (
     sessionToken: string,
   ) => Promise<Result<Session, BaseError>>;
   readonly getSessionTokenByOneTimeId: (
     sessionId: string,
   ) => Promise<Result<string, BaseError>>;
+
+  readonly revokeByOperatorExternalId: (
+    operatorExternalId: string,
+  ) => Promise<Result<void, BaseError>>;
 }

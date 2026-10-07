@@ -1,7 +1,6 @@
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 import WarningAmberRoundedIcon from '@mui/icons-material/WarningAmberRounded';
-import WarningIcon from '@mui/icons-material/WarningRounded';
 import {
   Box,
   Button,
@@ -33,7 +32,7 @@ import type {
   RejectOpportunityRepublishPayload,
   SuspendOpportunityPayload,
 } from '../../features/opportunities/types';
-import { MIChip } from '@pagopa/mui-italia';
+import { MIAlert, MIChip } from '@pagopa/mui-italia';
 
 export default function OpportunityDetailPage() {
   const theme = useTheme();
@@ -242,85 +241,45 @@ export default function OpportunityDetailPage() {
         </Stack>
 
         {detail.republishMessage?.trim() && (
-          <Box
-            sx={{
-              borderRadius: 2,
-              p: 2,
-              border: (theme) => `1px solid ${theme.palette.info.light}`,
-              bgcolor: 'action.hover',
-            }}
-          >
+          <MIAlert severity="info">
             <Typography sx={{ fontWeight: 700, fontSize: 18 }}>
               Richiesta di ripubblicazione dell’ente
             </Typography>
             <Typography sx={{ mt: 0.5, fontSize: 16 }}>
               {detail.republishMessage.trim()}
             </Typography>
-          </Box>
+          </MIAlert>
         )}
 
         {hasScheduledSuspension && formattedSuspendFrom && (
-          <Box
-            sx={{
-              borderRadius: '8px',
-              pt: 2.5,
-              pb: 1,
-              px: 2,
-              border: (theme) =>
-                `1px solid ${theme.palette.common.alertWarningBorder}`,
-              backgroundColor: (theme) => theme.palette.common.alertWarningBg,
-            }}
-          >
-            <Stack spacing={2}>
-              <Stack direction="row" spacing={1.5} alignItems="flex-start">
-                <WarningIcon
-                  sx={{
-                    color: (theme) => theme.palette.common.alertWarningText,
-                    fontSize: 24,
-                    mt: 0.25,
-                  }}
-                />
-                <Stack spacing={0.5} alignItems="flex-start">
-                  <Typography
-                    sx={{
-                      fontWeight: 700,
-                      fontSize: 18,
-                      color: (theme) => theme.palette.common.alertWarningText,
-                    }}
-                  >
-                    {`L'opportunità sarà sospesa dal ${formattedSuspendFrom}`}
-                  </Typography>
-                  <Typography
-                    sx={{
-                      fontSize: 16,
-                      color: (theme) => theme.palette.common.alertWarningText,
-                    }}
-                  >
-                    {detail.suspensionMessage?.trim() || '-'}
-                  </Typography>
-                  <Button
-                    variant="text"
-                    disableRipple
-                    onClick={handleCancelSuspension}
-                    sx={{
-                      alignSelf: 'flex-start',
-                      px: 0,
-                      minWidth: 0,
-                      fontSize: 16,
-                      fontWeight: 700,
-                      color: (theme) => theme.palette.common.alertWarningText,
-                      textTransform: 'none',
-                      '&:hover': {
-                        backgroundColor: 'transparent',
-                      },
-                    }}
-                  >
-                    Annulla sospensione programmata
-                  </Button>
-                </Stack>
-              </Stack>
-            </Stack>
-          </Box>
+          <MIAlert severity="warning">
+            <Typography sx={{ fontWeight: 700, fontSize: 18 }}>
+              {`L'opportunità sarà sospesa dal ${formattedSuspendFrom}`}
+            </Typography>
+            <Typography sx={{ mt: 0.5, fontSize: 16 }}>
+              {detail.suspensionMessage?.trim() || '-'}
+            </Typography>
+            <Button
+              variant="text"
+              onClick={handleCancelSuspension}
+              sx={{ px: 0, minWidth: 0, fontWeight: 700 }}
+            >
+              Annulla sospensione programmata
+            </Button>
+          </MIAlert>
+        )}
+
+        {detail.status === 'suspended' && detail.suspendedBy && (
+          <MIAlert severity="warning">
+            <Typography sx={{ fontWeight: 700, fontSize: 18 }}>
+              {detail.suspendedBy === 'department'
+                ? "Hai sospeso l'opportunità"
+                : "L'opportunità è stata sospesa dall'ente"}
+            </Typography>
+            <Typography sx={{ mt: 0.5, fontSize: 16 }}>
+              {detail.suspensionMessage?.trim() || '-'}
+            </Typography>
+          </MIAlert>
         )}
 
         <OpportunityDetailCard detail={detail} />

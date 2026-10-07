@@ -3,6 +3,7 @@ import CloseIcon from '@mui/icons-material/Close';
 import {
   Box,
   Button,
+  CircularProgress,
   Dialog,
   DialogContent,
   IconButton,
@@ -90,6 +91,11 @@ export function PublishModal({
             size="large"
             onClick={onPublish}
             disabled={isLoading}
+            startIcon={
+              isLoading ? (
+                <CircularProgress size={18} color="inherit" />
+              ) : undefined
+            }
             sx={{ fontWeight: 700, borderRadius: 2, px: 5 }}
           >
             {actionLabel}

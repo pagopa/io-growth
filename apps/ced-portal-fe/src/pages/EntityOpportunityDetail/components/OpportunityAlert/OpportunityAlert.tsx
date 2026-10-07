@@ -150,6 +150,21 @@ export const OpportunityAlert = ({
     );
   }
 
+  if (status === 'suspended' && suspendedBy) {
+    return (
+      <MIAlert severity="warning">
+        <Typography sx={{ fontWeight: 700, fontSize: 18 }}>
+          {suspendedBy === 'department'
+            ? "L'opportunità è stata sospesa dal Dipartimento"
+            : "Hai sospeso l'opportunità"}
+        </Typography>
+        <Typography sx={{ mt: 0.5, fontSize: 16 }}>
+          {suspensionMessage?.trim() || '-'}
+        </Typography>
+      </MIAlert>
+    );
+  }
+
   if (!opportunityAlertMap[status]) {
     return null;
   }

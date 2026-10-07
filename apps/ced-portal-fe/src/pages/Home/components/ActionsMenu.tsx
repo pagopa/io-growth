@@ -312,7 +312,7 @@ export const ActionsMenu = ({
       <PublishModal
         open={isRepublishModalOpen && selectedItemSuspendedBy === 'operator'}
         onClose={() => setIsRepublishModalOpen(false)}
-        onPublish={handleConfirmRepublish}
+        onPublish={() => handleConfirmRepublish()}
         count={1}
         title="Ripubblica su IO"
         description="Invieremo un'email all'ente per informarlo. L'opportunità sarà di nuovo disponibile su IO."

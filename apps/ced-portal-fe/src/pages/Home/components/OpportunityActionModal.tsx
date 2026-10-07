@@ -1,4 +1,11 @@
-import { Box, Button, Stack, TextField, Typography } from '@mui/material';
+import {
+  Box,
+  Button,
+  CircularProgress,
+  Stack,
+  TextField,
+  Typography,
+} from '@mui/material';
 import { useState } from 'react';
 import type { OperatorDeleteOpportunityBody } from '../../../generated/model';
 import type {
@@ -175,6 +182,11 @@ function OpportunityActionModal({
             color="primary"
             onClick={handleConfirm}
             disabled={isLoading}
+            startIcon={
+              isLoading ? (
+                <CircularProgress size={18} color="inherit" />
+              ) : undefined
+            }
             sx={{ px: 4 }}
           >
             Conferma

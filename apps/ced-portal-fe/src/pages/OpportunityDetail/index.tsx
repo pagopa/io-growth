@@ -243,6 +243,25 @@ export default function OpportunityDetailPage() {
           />
         </Stack>
 
+        {(detail.status === 'draft' || detail.status === 'test_rejected') &&
+          detail.changeRequestMessage?.trim() && (
+            <MIAlert severity="warning">
+              <Typography sx={{ fontWeight: 700, fontSize: 18 }}>
+                Hai richiesto delle modifiche all&apos;ente
+              </Typography>
+              <Typography
+                sx={{
+                  mt: 0.5,
+                  fontSize: 16,
+                  whiteSpace: 'pre-wrap',
+                  overflowWrap: 'anywhere',
+                }}
+              >
+                {detail.changeRequestMessage.trim()}
+              </Typography>
+            </MIAlert>
+          )}
+
         {detail.republishMessage?.trim() && (
           <MIAlert severity="info">
             <Typography sx={{ fontWeight: 700, fontSize: 18 }}>

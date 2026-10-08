@@ -18,7 +18,8 @@ interface OpportunitySuspensionMetadata {
 }
 
 export type OpportunityDetail = OpportunityDetailResponse &
-  OpportunitySuspensionMetadata;
+  OpportunitySuspensionMetadata &
+  Pick<OpportunityDetailAdminResponse, 'changeRequestMessage'>;
 export type OpportunitiesResponse = OpportunityListResponse;
 export type Opportunity = AdminOpportunitySummaryItem &
   OpportunitySuspensionMetadata;

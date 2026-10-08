@@ -1,6 +1,6 @@
 import { Box, Stack } from '@mui/material';
 import { useLocation, useParams } from 'react-router-dom';
-import { PageHeader, QueryGuard } from '../../components';
+import { PageCover, PageHeader, QueryGuard } from '../../components';
 import { ContactsSection } from '../../components/ContactsSection';
 import { ItemsSection } from '../../components/ItemsSection/index';
 import type { PlaceDetailRelatedItem } from '../../generated/model/index.js';
@@ -9,10 +9,15 @@ import type {
   EntityContacts,
   EntityOpportunity,
 } from '../../features/entities/types.js';
+import { formatAddress } from '../../utils/formatAddress.js';
 import { formatBadgeLabel } from '../../utils/formatBadgeLabel.js';
 import { EntityPlaceholderIcon } from './components/EntityPlaceholderIcon';
 import { PageErrorType } from '../../components/QueryGuard/ErrorScreen/types.js';
 import { useTrackLandedInPage } from '../../mixpanel/useTrackLandedInPage.js';
+import {
+  useOperatorCover,
+  useOperatorLogo,
+} from '../../hooks/useOperatorImages';
 import { useMemo } from 'react';
 
 export default function EntityDetailPage() {
@@ -23,6 +28,8 @@ export default function EntityDetailPage() {
   const { data, isLoading, isError, error, refetch } = useGetEntityDetailQuery(
     id ?? '',
   );
+  const coverUrl = useOperatorCover(data?.operatorId);
+  const logo = useOperatorLogo(data?.operatorId);
 
   useTrackLandedInPage(
     'CED_ORGANIZATION_DETAIL',
@@ -65,10 +72,8 @@ export default function EntityDetailPage() {
           }));
 
         const accessPoints: PlaceDetailRelatedItem[] =
-          resolvedData.recentPlaces.map((place) => ({
-            id: place.id,
-            title: place.name,
-            address:
+          resolvedData.recentPlaces.map((place) => {
+            const address =
               place.street && place.city
                 ? {
                     street: place.street,
@@ -76,9 +81,14 @@ export default function EntityDetailPage() {
                     state: place.state ?? '',
                     postalCode: place.postalCode ?? '',
                   }
-                : undefined,
-          }));
+                : undefined;
 
+            return {
+              id: place.id,
+              title: place.name,
+              subtitle: formatAddress(address),
+            };
+          });
         const contacts: EntityContacts = {
           phone: resolvedData.place.supportContacts.find(
             (c) => c.type === 'phone',
@@ -91,6 +101,8 @@ export default function EntityDetailPage() {
           address: resolvedData.place.address
             ? `${resolvedData.place.address.street}, ${resolvedData.place.address.city}`
             : undefined,
+          privacyUrl: resolvedData.privacyUrl,
+          termsUrl: resolvedData.tosUrl,
         };
 
         return (
@@ -102,18 +114,17 @@ export default function EntityDetailPage() {
             <PageHeader
               title={resolvedData.displayName}
               leadingContent={
-                resolvedData.recentPlaces.length === 0 ? (
-                  <EntityPlaceholderIcon />
-                ) : undefined
+                <PageCover
+                  coverUrl={coverUrl?.src}
+                  logoUrl={logo?.src}
+                  hasLogoError={!!logo?.error}
+                  coverPlaceholder="/assets/entity-cover-placeholder.png"
+                  logoPlaceholder={<EntityPlaceholderIcon />}
+                />
               }
             />
 
             <Stack spacing={2} sx={{ mt: 2, mb: 4 }}>
-              <ItemsSection
-                variant="opportunity"
-                entityId={id ?? ''}
-                items={opportunities}
-              />
               <ItemsSection
                 variant="access-point"
                 entityId={id ?? ''}
@@ -122,6 +133,12 @@ export default function EntityDetailPage() {
               <ContactsSection
                 contacts={contacts}
                 trackExtraProperties={trackExtraProperties}
+              />
+              <ItemsSection
+                variant="opportunity"
+                entityId={id ?? ''}
+                items={opportunities}
+                hideEyebrow
               />
             </Stack>
           </Box>

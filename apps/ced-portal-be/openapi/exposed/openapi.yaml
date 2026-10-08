@@ -715,7 +715,7 @@ paths:
     patch:
       tags:
         - Opportunities
-      summary: Request testing for a draft opportunity
+      summary: Request testing for a draft or test_rejected opportunity
       operationId: operatorRequestOpportunityTest
       security:
         - bearerAuth: []
@@ -767,7 +767,7 @@ paths:
                 message: Opportunity status was modified concurrently
         "412":
           description: >-
-            Opportunity is not in draft status, or has neither places nor
+            Opportunity is not in draft or test_rejected status, or has neither places nor
             national territory coverage
           content:
             application/json:
@@ -775,7 +775,7 @@ paths:
                 $ref: "#/components/schemas/ErrorResponse"
               example:
                 statusCode: 412
-                message: Opportunity is not in draft status
+                message: Opportunity is not in draft or test_rejected status
   /operator/opportunities/{opportunityId}/publish:
     patch:
       summary: Publish an approved opportunity
@@ -1750,9 +1750,9 @@ paths:
       summary: Request changes on an opportunity under review (department only)
       description: >-
         Sends the operator a change request on an opportunity under review. The
-        opportunity goes back to "draft" and becomes editable by the operator
-        again, which can then send it back for review. The message overwrites
-        any change request from a previous review cycle.
+        opportunity moves to "test_rejected" and becomes editable by the
+        operator again, which can then send it back for review. The message
+        overwrites any change request from a previous review cycle.
       operationId: requestOpportunityChanges
       security:
         - bearerAuth: []

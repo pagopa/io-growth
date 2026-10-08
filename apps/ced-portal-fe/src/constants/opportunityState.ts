@@ -102,7 +102,7 @@ export const STATE_COLORS: Record<OpportunityStatus, MIChipProps['color']> = {
   published: 'success',
   suspended: 'warning',
   deleted: 'error',
-  test_rejected: 'default',
+  test_rejected: 'warning',
 };
 
 export const ENTITY_STATE_OPTIONS = [

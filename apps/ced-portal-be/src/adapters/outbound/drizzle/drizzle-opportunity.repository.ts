@@ -581,7 +581,7 @@ const requestChangesById =
           .update(opportunity)
           .set({
             changeRequestMessage: input.changeRequestMessage,
-            status: OPPORTUNITY_STATUS.DRAFT,
+            status: OPPORTUNITY_STATUS.TEST_REJECTED,
             updatedAt: new Date(),
           })
           .where(

@@ -64,6 +64,7 @@ export function PageCover({
             display: 'block',
             width: '100%',
             height: '100%',
+            objectFit: 'cover',
             opacity: isCoverLoaded ? 1 : 0,
             transition: 'opacity 300ms ease-in',
           }}

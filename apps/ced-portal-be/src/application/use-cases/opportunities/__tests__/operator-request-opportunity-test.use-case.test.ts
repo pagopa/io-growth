@@ -112,7 +112,37 @@ describe("makeOperatorRequestOpportunityTestUseCase", () => {
     ).not.toHaveBeenCalled();
   });
 
-  it("should return PreconditionFailedError when opportunity is not in draft status", async () => {
+  it("should request testing from a test_rejected opportunity", async () => {
+    const deps = makeDeps({
+      opportunityRepository: {
+        findByIdAndOperatorId: vi
+          .fn()
+          .mockResolvedValue(
+            ok({ ...mockDraftOpportunityDetail, status: "test_rejected" }),
+          ),
+        updateStatusByIdAndOperatorId: vi.fn().mockResolvedValue(ok(undefined)),
+      },
+    });
+    const useCase = makeOperatorRequestOpportunityTestUseCase(
+      deps.opportunityRepository,
+      deps.profileRepository,
+      deps.emailRepository,
+    );
+
+    const result = await useCase(validInput);
+
+    expect(result).toEqual(ok(undefined));
+    expect(
+      deps.opportunityRepository.updateStatusByIdAndOperatorId,
+    ).toHaveBeenCalledWith(
+      expect.objectContaining({
+        expectedStatus: "test_rejected",
+        status: "test_pending",
+      }),
+    );
+  });
+
+  it("should return PreconditionFailedError when opportunity is not in draft or test_rejected status", async () => {
     const publishedOpportunity: OpportunityDetail = {
       ...mockDraftOpportunityDetail,
       status: "published",
@@ -136,7 +166,7 @@ describe("makeOperatorRequestOpportunityTestUseCase", () => {
         expect.objectContaining({
           kind: "PreconditionFailedError",
           message:
-            "Precondition failed: Opportunity must be in draft status to request testing",
+            "Precondition failed: Opportunity must be in draft or test_rejected status to request testing",
         }),
       ),
     );

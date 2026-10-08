@@ -1,10 +1,16 @@
 import { Box, Typography } from '@mui/material';
-import { ChangeEvent, cloneElement, isValidElement, ReactElement } from 'react';
+import {
+  ChangeEvent,
+  cloneElement,
+  isValidElement,
+  ReactElement,
+  ReactNode,
+} from 'react';
 
 export type FormFieldProps = {
   children: ReactElement<Record<string, unknown>>;
   value?: string | number | boolean;
-  title?: string;
+  title?: ReactNode;
   label?: string;
   required?: boolean;
   error?: boolean;

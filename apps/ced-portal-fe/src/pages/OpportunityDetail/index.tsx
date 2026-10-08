@@ -245,9 +245,9 @@ export default function OpportunityDetailPage() {
 
         {(detail.status === 'draft' || detail.status === 'test_rejected') &&
           detail.changeRequestMessage?.trim() && (
-            <MIAlert severity="warning">
+            <MIAlert severity="info">
               <Typography sx={{ fontWeight: 700, fontSize: 18 }}>
-                Hai richiesto delle modifiche all&apos;ente
+                Modifiche richieste
               </Typography>
               <Typography
                 sx={{

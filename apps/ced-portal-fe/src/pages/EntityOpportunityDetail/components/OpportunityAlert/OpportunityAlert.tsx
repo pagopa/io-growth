@@ -174,7 +174,7 @@ export const OpportunityAlert = ({
     return (
       <MIAlert severity="warning">
         <Typography sx={{ fontWeight: 700, fontSize: 18 }}>
-          Il Dipartimento ha richiesto delle modifiche
+          Perché è richiesta una modifica
         </Typography>
         <Typography
           sx={{

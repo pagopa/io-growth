@@ -40,7 +40,7 @@ export const useHydrateFromSourceOpportunity = (
     },
   );
 
-  const { data: places } = useGetPlacesQuery();
+  const { data: places } = useGetPlacesQuery({});
 
   const {
     beneficiaryBenefit,
@@ -83,7 +83,7 @@ export const useHydrateFromSourceOpportunity = (
 
     const placesIdsMapped = placeIds?.reduce<PlacesMap>(
       (acc, placeId) => {
-        const place = places?.find(({ id }) => id === placeId);
+        const place = places?.items?.find(({ id }) => id === placeId);
         const newLocation = place?.type === 'offline' ? place.id : '';
         const newWebsite = place?.type === 'online' ? place.id : '';
         return {

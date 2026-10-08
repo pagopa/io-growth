@@ -174,9 +174,9 @@ export const resolveOpportunityStatus = (
     case OPPORTUNITY_TRANSITION.REQUEST_TEST:
       return fromStatus(
         current.status,
-        [OPPORTUNITY_STATUS.DRAFT],
+        [OPPORTUNITY_STATUS.DRAFT, OPPORTUNITY_STATUS.TEST_REJECTED],
         OPPORTUNITY_STATUS.TEST_PENDING,
-        "Opportunity must be in draft status to request testing",
+        "Opportunity must be in draft or test_rejected status to request testing",
       );
   }
 };

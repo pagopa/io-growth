@@ -146,6 +146,8 @@ export interface RejectRepublishByIdInput {
 export interface RepublishByIdAndOperatorIdInput {
   operatorId: string;
   opportunityId: string;
+  // Enqueued in the same transaction as the republication.
+  outboxMessages?: readonly MessagePayload[];
 }
 
 export interface RepublishByIdInput {

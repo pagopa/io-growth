@@ -12,42 +12,13 @@ import {
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { z } from "zod";
 
-import type { MessagePayload } from "../../../domain/entities/message-outbox.js";
-import type { OpportunityDetail } from "../../../domain/entities/opportunity.js";
 import type { MaterializedViewRepository } from "../../../domain/ports/outbound/materialized-view.repository.js";
 import type { OpportunityRepository } from "../../../domain/ports/outbound/persistence/opportunity.repository.js";
 import type { ProfileRepository } from "../../../domain/ports/outbound/persistence/profile.repository.js";
 
-import { buildOpportunityPublishedMessage } from "../../../domain/entities/message-outbox.js";
 import { OPPORTUNITY_STATUS } from "../../../domain/entities/opportunity.js";
 import { validateUseCaseInput } from "../utils/validate-use-case-input.js";
-
-const getOpportunityName = (data: OpportunityDetail): string =>
-  data.localizedMetadata.find(
-    (metadata) => metadata.key === "name" && metadata.language === "it",
-  )?.value ?? data.id;
-
-// Best-effort: a failed lookup must not block the republication.
-const buildRepublicationMessages = (
-  profileRepository: ProfileRepository,
-  operatorId: string | undefined,
-  opportunityName: string,
-): ResultAsync<readonly MessagePayload[], never> =>
-  (operatorId
-    ? new ResultAsync(profileRepository.getByOperatorId(operatorId))
-    : okAsync(undefined)
-  )
-    .map((profile) =>
-      profile
-        ? [
-            buildOpportunityPublishedMessage({
-              opportunityName,
-              to: profile.contactEmail,
-            }),
-          ]
-        : [],
-    )
-    .orElse(() => okAsync([]));
+import { buildOpportunityRepublishedMessages } from "./utils/build-opportunity-republished-messages.js";
 
 const AdminRepublishOpportunityInputSchema = z.object({
   opportunityId: z.ulid(),
@@ -91,10 +62,10 @@ export const makeAdminRepublishOpportunityUseCase =
               ),
             );
 
-          return buildRepublicationMessages(
+          return buildOpportunityRepublishedMessages(
             profileRepository,
             data.operatorId,
-            getOpportunityName(data),
+            data,
           )
             .andThen(
               (outboxMessages) =>

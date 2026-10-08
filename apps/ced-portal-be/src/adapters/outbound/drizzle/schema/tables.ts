@@ -23,6 +23,8 @@ import {
   changeAuditEntityTypeEnum,
   localizedMetadataKeyEnum,
   localizedMetadataLanguageEnum,
+  messageOutboxStatusEnum,
+  messageOutboxTypeEnum,
   operatorStatusEnum,
   opportunityStatusEnum,
   placeTypeEnum,
@@ -266,6 +268,25 @@ export const changeAudit = pgTable("change_audit", {
   }).notNull(),
   referentFullname: varchar("referent_fullname", { length: 512 }).notNull(),
   value: jsonb().notNull(),
+});
+
+export const messageOutbox = pgTable("message_outbox", {
+  attemptCount: integer("attempt_count").notNull().default(0),
+  claimedAt: timestamp("claimed_at", { withTimezone: true }),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+  id: char({ length: 26 })
+    .primaryKey()
+    .$defaultFn(() => ulid()),
+  lastError: text("last_error"),
+  payload: jsonb().notNull(),
+  sentAt: timestamp("sent_at", { withTimezone: true }),
+  status: messageOutboxStatusEnum().notNull().default("pending"),
+  type: messageOutboxTypeEnum().notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
 });
 
 export const placeMaterializedView = pgMaterializedView(

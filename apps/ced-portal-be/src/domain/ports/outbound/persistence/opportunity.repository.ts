@@ -4,6 +4,7 @@ import type {
 } from "@pagopa/io-core-domain/errors";
 import type { Result } from "neverthrow";
 
+import type { MessagePayload } from "../../../entities/message-outbox.js";
 import type {
   BenefitSummary,
   Opportunity,
@@ -149,6 +150,7 @@ export interface RepublishByIdAndOperatorIdInput {
 
 export interface RepublishByIdInput {
   opportunityId: string;
+  outboxMessages?: readonly MessagePayload[];
 }
 
 export interface RequestChangesByIdInput {
@@ -207,5 +209,6 @@ export interface UpdateOpportunityStatusByIdInput {
   dateFrom?: string;
   expectedStatuses: Opportunity["status"][];
   opportunityId: string;
+  outboxMessages?: readonly MessagePayload[];
   status: Opportunity["status"];
 }

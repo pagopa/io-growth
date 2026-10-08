@@ -8,12 +8,19 @@ import { createTypedDbClient } from "@pagopa/io-core-adapter-drizzle";
 import { createScheduler } from "@pagopa/io-core-adapter-pgboss";
 import { emitCustomEvent } from "@pagopa/io-core-adapter-tracing";
 
-import { mountTestJobHandler } from "./adapters/inbound/pgboss/test-job/test-job.handler.js";
-import { createDrizzleOpportunityRepository } from "./adapters/outbound/drizzle/drizzle-opportunity.repository.js";
+import { mountJobSendOutboxMessagesHandler } from "./adapters/inbound/pgboss/job-send-outbox-messages/job-send-outbox-messages.handler.js";
+import { createDrizzleMessageOutboxRepository } from "./adapters/outbound/drizzle/drizzle-message-outbox.repository.js";
 import * as schema from "./adapters/outbound/drizzle/schema/index.js";
-import { makeTestJobUseCase } from "./application/use-cases/jobs/test-job.use-case.js";
+import { makeJobSendOutboxMessagesUseCase } from "./application/use-cases/jobs/job-send-outbox-messages.use-case.js";
 import { AppConfig } from "./config.js";
 import { JobEnvironment } from "./domain/entities/job.js";
+import { EmailRepository } from "./domain/ports/outbound/email.repository.js";
+import { TracingRepository } from "./domain/ports/outbound/tracing.repository.js";
+
+interface JobsDependencies {
+  emailRepository: EmailRepository;
+  tracingRepository: TracingRepository;
+}
 
 interface Scheduler {
   dbClient: TypedDbClient<typeof schema>;
@@ -26,7 +33,10 @@ interface Scheduler {
 }
 
 // Create and configure the environment-specific schedulers (prod and test)
-export const jobsScheduler = (config: AppConfig) => {
+export const jobsScheduler = (
+  config: AppConfig,
+  dependencies: JobsDependencies,
+) => {
   const sharedDbConnection = {
     host: config.POSTGRES_HOST,
     password: config.POSTGRES_PASSWORD,
@@ -36,7 +46,7 @@ export const jobsScheduler = (config: AppConfig) => {
   };
 
   const scheduleJobs = (scheduler: Scheduler): void => {
-    jobRegistrations.forEach((mountTo) => mountTo(scheduler));
+    jobRegistrations.forEach((mountTo) => mountTo(scheduler, dependencies));
   };
 
   const createEnvScheduler = (
@@ -99,17 +109,22 @@ export const jobsScheduler = (config: AppConfig) => {
 };
 
 // Define Jobs with their dependencies and mount them to the scheduler
-const makeTestJob = (scheduler: Scheduler): void => {
-  const opportunityRepository = createDrizzleOpportunityRepository(
-    scheduler.dbClient,
-  );
-  const useCase = makeTestJobUseCase(
+const makeJobSendOutboxMessages = (
+  scheduler: Scheduler,
+  { emailRepository, tracingRepository }: JobsDependencies,
+): void => {
+  const useCase = makeJobSendOutboxMessagesUseCase(
     scheduler.environment,
-    opportunityRepository,
+    createDrizzleMessageOutboxRepository(scheduler.dbClient),
+    emailRepository,
+    tracingRepository,
   );
 
-  mountTestJobHandler(scheduler, useCase);
+  mountJobSendOutboxMessagesHandler(scheduler, useCase);
 };
 
 // Register every job here
-const jobRegistrations: ((scheduler: Scheduler) => void)[] = [makeTestJob];
+const jobRegistrations: ((
+  scheduler: Scheduler,
+  dependencies: JobsDependencies,
+) => void)[] = [makeJobSendOutboxMessages];

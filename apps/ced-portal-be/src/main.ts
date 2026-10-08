@@ -68,6 +68,7 @@ import { createDrizzleProfileRepository } from "./adapters/outbound/drizzle/driz
 import { createOneMailEmailRepository } from "./adapters/outbound/one-mail/one-mail-email.repository.js";
 import { createRedisHealthCheckRepository } from "./adapters/outbound/redis/redis-health-check.repository.js";
 import { createRedisSessionRepository } from "./adapters/outbound/redis/redis-session.repository.js";
+import { createIoCoreTracingRepository } from "./adapters/outbound/tracing/io-core-tracing.repository.js";
 import { makeAcsUseCase } from "./application/use-cases/auth/acs.use-case.js";
 import { makeAuthorizeUseCase } from "./application/use-cases/auth/authorize.use-case.js";
 import { makeAdminCompleteOnboardingUseCase } from "./application/use-cases/department/admin-complete-onboarding.use-case.js";
@@ -178,9 +179,10 @@ const emailRepository = createOneMailEmailRepository(
   oneMailClient.emailClient,
   { fromAddress: config.EMAIL_FROM_ADDRESS },
 );
+const tracingRepository = createIoCoreTracingRepository();
 
 // jobs scheduler
-const scheduler = jobsScheduler(config);
+const scheduler = jobsScheduler(config, { emailRepository, tracingRepository });
 await scheduler.start();
 
 // web application instance
@@ -202,7 +204,12 @@ mountInfoStartupHandler(app, makeInfoStartupUseCase);
 mountInfoReadinessHandler(app, infoReadinessUseCase);
 mountAcsHandler(
   app,
-  makeAcsUseCase(sessionRepository, operatorRepository, config),
+  makeAcsUseCase(
+    sessionRepository,
+    operatorRepository,
+    config,
+    tracingRepository,
+  ),
 );
 mountAuthorizeHandler(app, makeAuthorizeUseCase(sessionRepository));
 
@@ -211,7 +218,6 @@ const authPreHandler = createAuthenticationPreHandler(
   sessionRepository.getSession,
 );
 
-// eslint-disable-next-line max-lines-per-function
 app.register(async (app) => {
   app.addHook("preHandler", authPreHandler);
 
@@ -371,7 +377,6 @@ app.register(async (app) => {
       opportunityRepository,
       materializedViewRepository,
       profileRepository,
-      emailRepository,
     ),
   );
   mountAdminRequestOpportunityChangesHandler(
@@ -395,7 +400,6 @@ app.register(async (app) => {
       opportunityRepository,
       materializedViewRepository,
       profileRepository,
-      emailRepository,
     ),
   );
   mountOperatorRequestOpportunityRepublishHandler(

@@ -16,7 +16,10 @@ import type { OpportunityDetail } from "../../../domain/entities/opportunity.js"
 import type { OpportunityRepository } from "../../../domain/ports/outbound/persistence/opportunity.repository.js";
 import type { ProfileRepository } from "../../../domain/ports/outbound/persistence/profile.repository.js";
 
-import { EmailRepository } from "../../../domain/ports/outbound/email.repository.js";
+import {
+  buildOpportunityApprovedMessage,
+  type MessagePayload,
+} from "../../../domain/entities/message-outbox.js";
 import { MaterializedViewRepository } from "../../../domain/ports/outbound/materialized-view.repository.js";
 import { validateUseCaseInput } from "../utils/validate-use-case-input.js";
 
@@ -45,38 +48,36 @@ const getOpportunityName = (data: OpportunityDetail): string =>
     (metadata) => metadata.key === "name" && metadata.language === "it",
   )?.value ?? data.id;
 
-// Notifying the operator is best-effort: a failed lookup or send must not
-// fail an otherwise successful approval.
-const notifyOperatorOfApproval = (
+// Notifying the operator is best-effort: a failed lookup must not fail an
+// otherwise valid approval, the message is simply not enqueued.
+const buildApprovalMessages = (
   profileRepository: ProfileRepository,
-  emailRepository: EmailRepository,
   operatorId: string | undefined,
   opportunityName: string,
   availabilityDate: string,
-) =>
+): ResultAsync<readonly MessagePayload[], never> =>
   (operatorId
     ? new ResultAsync(profileRepository.getByOperatorId(operatorId))
     : okAsync(undefined)
   )
-    .andThen((profile) =>
+    .map((profile) =>
       profile
-        ? new ResultAsync(
-            emailRepository.sendOpportunityApprovedEmail({
+        ? [
+            buildOpportunityApprovedMessage({
               availabilityDate,
               opportunityName,
               to: profile.contactEmail,
             }),
-          )
-        : okAsync(undefined),
+          ]
+        : [],
     )
-    .orElse(() => okAsync(undefined));
+    .orElse(() => okAsync([]));
 
 export const makeAdminApproveOpportunityUseCase =
   (
     opportunityRepository: OpportunityRepository,
     materializedViewRepository: MaterializedViewRepository,
     profileRepository: ProfileRepository,
-    emailRepository: EmailRepository,
   ): AdminApproveOpportunityUseCase =>
   async (input) =>
     validateUseCaseInput(AdminApproveOpportunityInputSchema, input).andThen(
@@ -96,29 +97,30 @@ export const makeAdminApproveOpportunityUseCase =
             );
           const today = new Date().toISOString().slice(0, 10);
 
-          return new ResultAsync(
-            opportunityRepository.updateStatusById({
-              dateFrom: validatedInput.dateFrom,
-              expectedStatuses: ["test_pending", "test_rejected"],
-              opportunityId: validatedInput.opportunityId,
-              status: "published",
-            }),
+          return buildApprovalMessages(
+            profileRepository,
+            data.operatorId,
+            getOpportunityName(data),
+            new Date(data.dateFrom).toLocaleDateString("it-IT"),
           )
+            .andThen(
+              (outboxMessages) =>
+                new ResultAsync(
+                  opportunityRepository.updateStatusById({
+                    dateFrom: validatedInput.dateFrom,
+                    expectedStatuses: ["test_pending", "test_rejected"],
+                    opportunityId: validatedInput.opportunityId,
+                    outboxMessages,
+                    status: "published",
+                  }),
+                ),
+            )
             .andThen(() =>
               data.dateFrom <= today
                 ? new ResultAsync(
                     materializedViewRepository.refreshAll(),
                   ).orElse(() => okAsync(undefined))
                 : okAsync(undefined),
-            )
-            .andThen(() =>
-              notifyOperatorOfApproval(
-                profileRepository,
-                emailRepository,
-                data.operatorId,
-                getOpportunityName(data),
-                new Date(data.dateFrom).toLocaleDateString("it-IT"),
-              ),
             );
         }),
     );

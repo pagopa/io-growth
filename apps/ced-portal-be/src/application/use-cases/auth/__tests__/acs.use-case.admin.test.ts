@@ -5,6 +5,7 @@ import { describe, expect, it, vi } from "vitest";
 
 import type { OperatorRepository } from "../../../../domain/ports/outbound/persistence/operator.repository.js";
 
+import { createMockTracingRepository } from "../../__tests__/mocks.js";
 import { makeAcsUseCase } from "../acs.use-case.js";
 import { createMockSessionRepository } from "./mocks.js";
 
@@ -49,6 +50,7 @@ describe("makeAcsUseCase — admin path", () => {
       sessionRepository,
       operatorRepository,
       adminConfig,
+      createMockTracingRepository(),
     );
     const token = await makeToken(validPayload);
 
@@ -81,6 +83,7 @@ describe("makeAcsUseCase — admin path", () => {
       sessionRepository,
       operatorRepository,
       testAdminConfig,
+      createMockTracingRepository(),
     );
     const token = await makeToken(validPayload);
 
@@ -124,6 +127,7 @@ describe("makeAcsUseCase — admin path", () => {
       sessionRepository,
       operatorRepository,
       testOperatorConfig,
+      createMockTracingRepository(),
     );
     const token = await makeToken(validPayload);
 

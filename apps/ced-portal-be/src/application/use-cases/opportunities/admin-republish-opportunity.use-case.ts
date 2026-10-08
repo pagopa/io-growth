@@ -12,12 +12,13 @@ import {
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { z } from "zod";
 
+import type { MessagePayload } from "../../../domain/entities/message-outbox.js";
 import type { OpportunityDetail } from "../../../domain/entities/opportunity.js";
-import type { EmailRepository } from "../../../domain/ports/outbound/email.repository.js";
 import type { MaterializedViewRepository } from "../../../domain/ports/outbound/materialized-view.repository.js";
 import type { OpportunityRepository } from "../../../domain/ports/outbound/persistence/opportunity.repository.js";
 import type { ProfileRepository } from "../../../domain/ports/outbound/persistence/profile.repository.js";
 
+import { buildOpportunityPublishedMessage } from "../../../domain/entities/message-outbox.js";
 import { OPPORTUNITY_STATUS } from "../../../domain/entities/opportunity.js";
 import { validateUseCaseInput } from "../utils/validate-use-case-input.js";
 
@@ -26,27 +27,27 @@ const getOpportunityName = (data: OpportunityDetail): string =>
     (metadata) => metadata.key === "name" && metadata.language === "it",
   )?.value ?? data.id;
 
-const notifyOperatorOfRepublication = (
+// Best-effort: a failed lookup must not block the republication.
+const buildRepublicationMessages = (
   profileRepository: ProfileRepository,
-  emailRepository: EmailRepository,
   operatorId: string | undefined,
   opportunityName: string,
-) =>
+): ResultAsync<readonly MessagePayload[], never> =>
   (operatorId
     ? new ResultAsync(profileRepository.getByOperatorId(operatorId))
     : okAsync(undefined)
   )
-    .andThen((profile) =>
+    .map((profile) =>
       profile
-        ? new ResultAsync(
-            emailRepository.sendOpportunityPublishedEmail({
+        ? [
+            buildOpportunityPublishedMessage({
               opportunityName,
               to: profile.contactEmail,
             }),
-          )
-        : okAsync(undefined),
+          ]
+        : [],
     )
-    .orElse(() => okAsync(undefined));
+    .orElse(() => okAsync([]));
 
 const AdminRepublishOpportunityInputSchema = z.object({
   opportunityId: z.ulid(),
@@ -71,7 +72,6 @@ export const makeAdminRepublishOpportunityUseCase =
     opportunityRepository: OpportunityRepository,
     materializedViewRepository: MaterializedViewRepository,
     profileRepository: ProfileRepository,
-    emailRepository: EmailRepository,
   ): AdminRepublishOpportunityUseCase =>
   async (input) =>
     validateUseCaseInput(AdminRepublishOpportunityInputSchema, input).andThen(
@@ -91,22 +91,23 @@ export const makeAdminRepublishOpportunityUseCase =
               ),
             );
 
-          return new ResultAsync(
-            opportunityRepository.republishById({
-              opportunityId: validatedInput.opportunityId,
-            }),
+          return buildRepublicationMessages(
+            profileRepository,
+            data.operatorId,
+            getOpportunityName(data),
           )
+            .andThen(
+              (outboxMessages) =>
+                new ResultAsync(
+                  opportunityRepository.republishById({
+                    opportunityId: validatedInput.opportunityId,
+                    outboxMessages,
+                  }),
+                ),
+            )
             .andThen(() =>
               new ResultAsync(materializedViewRepository.refreshAll()).orElse(
                 () => okAsync(undefined),
-              ),
-            )
-            .andThen(() =>
-              notifyOperatorOfRepublication(
-                profileRepository,
-                emailRepository,
-                data.operatorId,
-                getOpportunityName(data),
               ),
             );
         }),

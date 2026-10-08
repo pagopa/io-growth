@@ -1,22 +1,16 @@
 import type { GenericError } from "@pagopa/io-core-domain/errors";
 import type { Result } from "neverthrow";
 
+import type {
+  HtmlMessagePayload,
+  TemplateMessagePayload,
+} from "../../entities/message-outbox.js";
+
 export interface EmailRepository {
-  readonly sendOpportunityApprovedEmail: (
-    input: SendOpportunityApprovedEmailInput,
+  readonly sendHtmlEmail: (
+    input: Omit<HtmlMessagePayload, "type">,
   ) => Promise<Result<void, GenericError>>;
-  readonly sendOpportunityPublishedEmail: (
-    input: SendOpportunityPublishedEmailInput,
+  readonly sendTemplateEmail: (
+    input: Omit<TemplateMessagePayload, "type">,
   ) => Promise<Result<void, GenericError>>;
-}
-
-export interface SendOpportunityApprovedEmailInput {
-  readonly availabilityDate: string;
-  readonly opportunityName: string;
-  readonly to: string;
-}
-
-export interface SendOpportunityPublishedEmailInput {
-  readonly opportunityName: string;
-  readonly to: string;
 }

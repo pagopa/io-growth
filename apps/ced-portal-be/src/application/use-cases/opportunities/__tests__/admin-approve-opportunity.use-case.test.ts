@@ -7,7 +7,6 @@ import type { MaterializedViewRepository } from "../../../../domain/ports/outbou
 
 import { makeAdminApproveOpportunityUseCase } from "../admin-approve-opportunity.use-case.js";
 import {
-  createMockEmailRepository,
   createMockMaterializedViewRepository,
   createMockOpportunityRepository,
   createMockProfileRepository,
@@ -49,7 +48,6 @@ const makeDeps = (overrides?: {
     Parameters<typeof createMockOpportunityRepository>[0]
   >;
 }) => ({
-  emailRepository: createMockEmailRepository(),
   materializedViewRepository: createMockMaterializedViewRepository(
     overrides?.materializedViewRepository,
   ),
@@ -78,7 +76,6 @@ describe("makeAdminApproveOpportunityUseCase", () => {
       deps.opportunityRepository,
       deps.materializedViewRepository,
       deps.profileRepository,
-      deps.emailRepository,
     );
 
     const result = await useCase(validInput);
@@ -88,11 +85,12 @@ describe("makeAdminApproveOpportunityUseCase", () => {
       dateFrom: undefined,
       expectedStatuses: ["test_pending", "test_rejected"],
       opportunityId: MOCK_OPPORTUNITY_ID,
+      outboxMessages: [expect.objectContaining({ type: "template" })],
       status: "published",
     });
   });
 
-  it("should send an approval email to the operator's contact email using the opportunity name", async () => {
+  it("should enqueue an approval message for the operator's contact email using the opportunity name", async () => {
     const deps = makeDeps({
       opportunityRepository: {
         findById: vi
@@ -105,7 +103,6 @@ describe("makeAdminApproveOpportunityUseCase", () => {
       deps.opportunityRepository,
       deps.materializedViewRepository,
       deps.profileRepository,
-      deps.emailRepository,
     );
 
     const result = await useCase(validInput);
@@ -114,13 +111,21 @@ describe("makeAdminApproveOpportunityUseCase", () => {
     expect(deps.profileRepository.getByOperatorId).toHaveBeenCalledWith(
       MOCK_OPERATOR_ID,
     );
-    expect(
-      deps.emailRepository.sendOpportunityApprovedEmail,
-    ).toHaveBeenCalledWith({
-      availabilityDate: "01/01/2026",
-      opportunityName: "Discount 20%",
-      to: mockProfile.contactEmail,
-    });
+    expect(deps.opportunityRepository.updateStatusById).toHaveBeenCalledWith(
+      expect.objectContaining({
+        outboxMessages: [
+          {
+            templateAttributes: {
+              availabilityDate: "01/01/2026",
+              opportunityName: "Discount 20%",
+            },
+            templateId: "ced_opportunity-approved",
+            to: mockProfile.contactEmail,
+            type: "template",
+          },
+        ],
+      }),
+    );
   });
 
   it("should approve an opportunity in test_rejected status", async () => {
@@ -136,7 +141,6 @@ describe("makeAdminApproveOpportunityUseCase", () => {
       deps.opportunityRepository,
       deps.materializedViewRepository,
       deps.profileRepository,
-      deps.emailRepository,
     );
 
     const result = await useCase(validInput);
@@ -160,7 +164,6 @@ describe("makeAdminApproveOpportunityUseCase", () => {
       deps.opportunityRepository,
       deps.materializedViewRepository,
       deps.profileRepository,
-      deps.emailRepository,
     );
 
     await useCase({ ...validInput, dateFrom: "2026-09-01" });
@@ -186,7 +189,6 @@ describe("makeAdminApproveOpportunityUseCase", () => {
       deps.opportunityRepository,
       deps.materializedViewRepository,
       deps.profileRepository,
-      deps.emailRepository,
     );
 
     const result = await useCase(validInput);
@@ -209,7 +211,6 @@ describe("makeAdminApproveOpportunityUseCase", () => {
       deps.opportunityRepository,
       deps.materializedViewRepository,
       deps.profileRepository,
-      deps.emailRepository,
     );
 
     const result = await useCase(validInput);
@@ -236,7 +237,6 @@ describe("makeAdminApproveOpportunityUseCase", () => {
       deps.opportunityRepository,
       deps.materializedViewRepository,
       deps.profileRepository,
-      deps.emailRepository,
     );
 
     const result = await useCase(validInput);
@@ -255,7 +255,6 @@ describe("makeAdminApproveOpportunityUseCase", () => {
       deps.opportunityRepository,
       deps.materializedViewRepository,
       deps.profileRepository,
-      deps.emailRepository,
     );
 
     const result = await useCase(validInput);
@@ -284,7 +283,6 @@ describe("makeAdminApproveOpportunityUseCase", () => {
         deps.opportunityRepository,
         deps.materializedViewRepository,
         deps.profileRepository,
-        deps.emailRepository,
       );
 
       const result = await useCase(validInput);
@@ -312,7 +310,6 @@ describe("makeAdminApproveOpportunityUseCase", () => {
       deps.opportunityRepository,
       deps.materializedViewRepository,
       deps.profileRepository,
-      deps.emailRepository,
     );
 
     const result = await useCase(validInput);
@@ -331,7 +328,6 @@ describe("makeAdminApproveOpportunityUseCase", () => {
       deps.opportunityRepository,
       deps.materializedViewRepository,
       deps.profileRepository,
-      deps.emailRepository,
     );
 
     const result = await useCase(validInput);
@@ -354,12 +350,37 @@ describe("makeAdminApproveOpportunityUseCase", () => {
       deps.opportunityRepository,
       deps.materializedViewRepository,
       deps.profileRepository,
-      deps.emailRepository,
     );
 
     const result = await useCase(validInput);
 
     expect(result).toEqual(err(repoError));
+  });
+
+  it("should approve without enqueuing a message when the profile lookup fails", async () => {
+    const deps = makeDeps({
+      opportunityRepository: {
+        findById: vi
+          .fn()
+          .mockResolvedValue(ok(mockOpportunity("test_pending"))),
+        updateStatusById: vi.fn().mockResolvedValue(ok(undefined)),
+      },
+    });
+    vi.spyOn(deps.profileRepository, "getByOperatorId").mockImplementation(() =>
+      Promise.resolve(err(new GenericError("no profile"))),
+    );
+    const useCase = makeAdminApproveOpportunityUseCase(
+      deps.opportunityRepository,
+      deps.materializedViewRepository,
+      deps.profileRepository,
+    );
+
+    const result = await useCase(validInput);
+
+    expect(result).toEqual(ok(undefined));
+    expect(deps.opportunityRepository.updateStatusById).toHaveBeenCalledWith(
+      expect.objectContaining({ outboxMessages: [] }),
+    );
   });
 
   it("should return ValidationError when opportunityId is invalid", async () => {
@@ -368,7 +389,6 @@ describe("makeAdminApproveOpportunityUseCase", () => {
       deps.opportunityRepository,
       deps.materializedViewRepository,
       deps.profileRepository,
-      deps.emailRepository,
     );
 
     const result = await useCase({
@@ -388,7 +408,6 @@ describe("makeAdminApproveOpportunityUseCase", () => {
       deps.opportunityRepository,
       deps.materializedViewRepository,
       deps.profileRepository,
-      deps.emailRepository,
     );
 
     const result = await useCase({ ...validInput, dateFrom: "not-a-date" });

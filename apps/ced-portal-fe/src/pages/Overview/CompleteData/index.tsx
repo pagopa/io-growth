@@ -141,7 +141,7 @@ export default function OverviewCompleteDataPage() {
                 color="text.secondary"
                 fontWeight={400}
               >
-                Queste informazioni saranno usate per identificarti sull’app IO.
+                Completa o modifica le informazioni del tuo ente.
               </Typography>
               <Typography
                 variant="body2"
@@ -154,6 +154,26 @@ export default function OverviewCompleteDataPage() {
             </Box>
 
             <Paper sx={{ p: 3, borderRadius: 2 }}>
+              <Box
+                sx={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: 1,
+                  mb: 2.5,
+                }}
+              >
+                <Typography variant="h6" fontWeight={700}>
+                  Informazioni visibili su IO
+                </Typography>
+                <Typography
+                  variant="body2"
+                  color="text.secondary"
+                  fontWeight={400}
+                >
+                  Queste informazioni saranno usate per identificarti sull’app
+                  IO.
+                </Typography>
+              </Box>
               <Stack spacing={2}>
                 <EntityDataSection
                   name={formData.name}

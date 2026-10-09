@@ -175,7 +175,7 @@ export default function EntityDetailPage() {
           <MIAlert severity="error">
             <Typography
               sx={{
-                color: 'text.primary',
+                color: (theme) => theme.palette.common.toastError,
                 fontSize: 18,
                 fontWeight: 600,
                 lineHeight: 1.2,
@@ -185,7 +185,7 @@ export default function EntityDetailPage() {
             </Typography>
             <Typography
               sx={{
-                color: 'text.primary',
+                color: (theme) => theme.palette.common.toastError,
                 fontSize: 16,
                 fontStyle: 'italic',
                 lineHeight: 1.3,

@@ -8,7 +8,7 @@ info:
     public data, access points, benefits, and opportunities offered to
     European Disability Card holders.
 servers:
-  - url: https://ced-portal-be-ca/api
+  - url: https://api.ced.pagopa.it/api/ced-portal/v1
 tags:
   - name: Auth
   - name: Profile

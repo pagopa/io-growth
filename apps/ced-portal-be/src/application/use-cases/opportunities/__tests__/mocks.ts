@@ -2,7 +2,6 @@ import { ok } from "neverthrow";
 import { vi } from "vitest";
 
 import type { Profile } from "../../../../domain/entities/profile.js";
-import type { EmailRepository } from "../../../../domain/ports/outbound/email.repository.js";
 import type { MaterializedViewRepository } from "../../../../domain/ports/outbound/materialized-view.repository.js";
 import type { OpportunityRepository } from "../../../../domain/ports/outbound/persistence/opportunity.repository.js";
 import type { ProfileRepository } from "../../../../domain/ports/outbound/persistence/profile.repository.js";
@@ -91,17 +90,6 @@ export const createMockMaterializedViewRepository = (
   overrides: Partial<MaterializedViewRepository> = {},
 ): MaterializedViewRepository => ({
   refreshAll: overrides.refreshAll ?? vi.fn().mockResolvedValue(ok(undefined)),
-});
-
-export const createMockEmailRepository = (
-  overrides: Partial<EmailRepository> = {},
-): EmailRepository => ({
-  sendOpportunityApprovedEmail:
-    overrides.sendOpportunityApprovedEmail ??
-    vi.fn().mockResolvedValue(ok(undefined)),
-  sendOpportunityPublishedEmail:
-    overrides.sendOpportunityPublishedEmail ??
-    vi.fn().mockResolvedValue(ok(undefined)),
 });
 
 export const createMockOpportunityRepository = (

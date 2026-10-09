@@ -1,7 +1,6 @@
 import type { UseCase } from "@pagopa/io-core-domain";
 import type { BaseError } from "@pagopa/io-core-domain/errors";
 
-import { emitCustomEvent } from "@pagopa/io-core-adapter-tracing";
 import {
   UnauthorizedError,
   ValidationError,
@@ -18,6 +17,7 @@ import type { Operator } from "../../../domain/entities/operator.js";
 import type { UserType } from "../../../domain/entities/user-type.js";
 import type { OperatorRepository } from "../../../domain/ports/outbound/persistence/operator.repository.js";
 import type { SessionRepository } from "../../../domain/ports/outbound/persistence/session.repository.js";
+import type { TracingRepository } from "../../../domain/ports/outbound/tracing.repository.js";
 
 import { createSessionContext } from "../../../async-local-storage-session-context.js";
 import {
@@ -86,6 +86,7 @@ export const makeAcsUseCase =
       | "ADMIN_FISCAL_CODES_TEST"
       | "OPERATORS_FISCAL_CODES_TEST"
     >,
+    tracingRepository: TracingRepository,
   ): UseCase<AcsInput, AcsOutput, BaseError> =>
   async (input) => {
     const rawPayload = decodeJwt(input.token);
@@ -139,13 +140,13 @@ export const makeAcsUseCase =
                     status: "active",
                   }),
                 ).map((operator) => {
-                  emitCustomEvent("operator_created", {
+                  tracingRepository.emitEvent("operator_created", {
                     caller: CALLER,
                     data: {
                       operatorId: operator.id,
                       operatorName: operator.name,
                     },
-                  })(CALLER);
+                  });
                   return operator;
                 }),
           ),

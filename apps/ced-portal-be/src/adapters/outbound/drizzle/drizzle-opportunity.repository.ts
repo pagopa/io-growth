@@ -51,6 +51,7 @@ import {
   OPPORTUNITY_STATUS,
   type OpportunityDetail,
 } from "../../../domain/entities/opportunity.js";
+import { enqueueMessagesInTransaction } from "./message-outbox.transaction.js";
 import {
   mapOpportunityDetailRow,
   mapOpportunitySummaryRow,
@@ -261,20 +262,27 @@ const updateStatusById =
     input: UpdateOpportunityStatusByIdInput,
   ): Promise<Result<void, ConflictError | GenericError>> => {
     try {
-      const result = await db
-        .update(opportunity)
-        .set({
-          ...(input.dateFrom ? { dateFrom: input.dateFrom } : {}),
-          status: input.status,
-          updatedAt: new Date(),
-        })
-        .where(
-          and(
-            eq(opportunity.id, input.opportunityId),
-            inArray(opportunity.status, input.expectedStatuses),
-          ),
-        );
-      if (result.count === 0)
+      let updateCount = 0;
+      await db.transaction(async (tx) => {
+        const result = await tx
+          .update(opportunity)
+          .set({
+            ...(input.dateFrom ? { dateFrom: input.dateFrom } : {}),
+            status: input.status,
+            updatedAt: new Date(),
+          })
+          .where(
+            and(
+              eq(opportunity.id, input.opportunityId),
+              inArray(opportunity.status, input.expectedStatuses),
+            ),
+          );
+        updateCount = result.count;
+        if (updateCount > 0) {
+          await enqueueMessagesInTransaction(tx, input.outboxMessages);
+        }
+      });
+      if (updateCount === 0)
         return err(
           new ConflictError("Opportunity status was modified concurrently"),
         );

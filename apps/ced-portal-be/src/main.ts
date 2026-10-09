@@ -68,6 +68,7 @@ import { createDrizzleProfileRepository } from "./adapters/outbound/drizzle/driz
 import { createOneMailEmailRepository } from "./adapters/outbound/one-mail/one-mail-email.repository.js";
 import { createRedisHealthCheckRepository } from "./adapters/outbound/redis/redis-health-check.repository.js";
 import { createRedisSessionRepository } from "./adapters/outbound/redis/redis-session.repository.js";
+import { createIoCoreTracingRepository } from "./adapters/outbound/tracing/io-core-tracing.repository.js";
 import { makeAcsUseCase } from "./application/use-cases/auth/acs.use-case.js";
 import { makeAuthorizeUseCase } from "./application/use-cases/auth/authorize.use-case.js";
 import { makeAdminCompleteOnboardingUseCase } from "./application/use-cases/department/admin-complete-onboarding.use-case.js";
@@ -107,6 +108,7 @@ import { makeOperatorGetProfileUseCase } from "./application/use-cases/profile/o
 import { makeOperatorUpdateProfileUseCase } from "./application/use-cases/profile/operator-update-profile.use-case.js";
 import { createSessionContextPreHandler } from "./async-local-storage-session-context.js";
 import { parseConfig } from "./config.js";
+import { jobsScheduler } from "./jobs-scheduler.js";
 import { createArRouter, createDbRouter } from "./routed-clients.js";
 
 const config = parseConfig();
@@ -177,7 +179,12 @@ const emailRepository = createOneMailEmailRepository(
   oneMailClient.emailClient,
   { fromAddress: config.EMAIL_FROM_ADDRESS },
 );
+const tracingRepository = createIoCoreTracingRepository();
 
+// jobs scheduler
+const scheduler = jobsScheduler(config, { emailRepository, tracingRepository });
+
+// web application instance
 const app = Fastify();
 
 // Register telemetry plugin to auto-track every endpoint result and exception.
@@ -196,7 +203,12 @@ mountInfoStartupHandler(app, makeInfoStartupUseCase);
 mountInfoReadinessHandler(app, infoReadinessUseCase);
 mountAcsHandler(
   app,
-  makeAcsUseCase(sessionRepository, operatorRepository, config),
+  makeAcsUseCase(
+    sessionRepository,
+    operatorRepository,
+    config,
+    tracingRepository,
+  ),
 );
 mountAuthorizeHandler(app, makeAuthorizeUseCase(sessionRepository));
 
@@ -205,7 +217,6 @@ const authPreHandler = createAuthenticationPreHandler(
   sessionRepository.getSession,
 );
 
-// eslint-disable-next-line max-lines-per-function
 app.register(async (app) => {
   app.addHook("preHandler", authPreHandler);
 
@@ -365,7 +376,6 @@ app.register(async (app) => {
       opportunityRepository,
       materializedViewRepository,
       profileRepository,
-      emailRepository,
     ),
   );
   mountAdminRequestOpportunityChangesHandler(
@@ -388,8 +398,6 @@ app.register(async (app) => {
     makeAdminRepublishOpportunityUseCase(
       opportunityRepository,
       materializedViewRepository,
-      profileRepository,
-      emailRepository,
     ),
   );
   mountOperatorRequestOpportunityRepublishHandler(
@@ -410,6 +418,7 @@ app.register(async (app) => {
 });
 
 app.addHook("onClose", async () => {
+  await scheduler.stop();
   await redisClient.closeConnection();
   await Promise.all(
     dbRouter.instances.map((instance) => instance.closeConnection()),
@@ -419,3 +428,30 @@ app.addHook("onClose", async () => {
 await app.listen({ host: config.HOST, port: config.PORT });
 
 console.log(`Server listening on http://${config.HOST}:${config.PORT}`);
+
+let shuttingDown = false;
+const shutdown = async (signal: string): Promise<void> => {
+  if (shuttingDown) {
+    return;
+  }
+  shuttingDown = true;
+  console.log(`Received ${signal}, shutting down`);
+  // Stays under the Container Apps termination grace period.
+  setTimeout(
+    () => process.exit(1),
+    (config.SCHEDULER_STOP_TIMEOUT_SECONDS + 3) * 1000,
+  ).unref();
+  try {
+    await app.close();
+    process.exit(0);
+  } catch (error) {
+    console.error("Graceful shutdown failed", error);
+    process.exit(1);
+  }
+};
+process.once("SIGTERM", () => void shutdown("SIGTERM"));
+process.once("SIGINT", () => void shutdown("SIGINT"));
+
+// Claims job ownership only once this revision is serving, so a revision that
+// fails to boot never takes the jobs from the working one.
+await scheduler.start();

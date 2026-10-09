@@ -4,7 +4,7 @@ export default defineConfig({
   cedBrowserBe: {
     input: {
       target:
-        'https://raw.githubusercontent.com/pagopa/io-growth/ced-browser-be@0.1.14/apps/ced-browser-be/openapi/exposed/openapi.yaml',
+        'https://raw.githubusercontent.com/pagopa/io-growth/ced-browser-be@0.1.21/apps/ced-browser-be/openapi/exposed/openapi.yaml',
     },
     output: {
       client: 'fetch',

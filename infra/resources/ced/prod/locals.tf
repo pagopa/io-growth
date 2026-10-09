@@ -103,7 +103,7 @@ locals {
 
       POSTGRES_HOST = "${module.postgresql.postgres.name}.postgres.database.azure.com"
       POSTGRES_PORT = "6432"
-      POSTGRES_DB   = azurerm_postgresql_flexible_server_database.ced_test.name
+      POSTGRES_DB   = azurerm_postgresql_flexible_server_database.ced_prod.name
       POSTGRES_SSL  = "true"
 
       REDIS_ENDPOINT  = module.redis_dx.endpoint

@@ -27,7 +27,7 @@ export const benefitStateLabelMap: Record<
   { text: string; color: MIChipProps['color'] }
 > = {
   draft: { text: 'In bozza', color: 'default' },
-  test_rejected: { text: 'Rifiutato', color: 'error' },
+  test_rejected: { text: 'Da modificare', color: 'warning' },
   test_pending: { text: 'In revisione', color: 'info' },
   //TODO for now its a duplicated state, we can review it after demo
   test_passed: { text: 'Pubblicazione programmata', color: 'highlight' },

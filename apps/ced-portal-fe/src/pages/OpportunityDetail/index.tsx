@@ -19,6 +19,7 @@ import {
   useAdminRejectOpportunityRepublishMutation,
   useAdminSuspendOpportunityMutation,
   useGetAdminOpportunityDetailQuery,
+  useRequestOpportunityChangesMutation,
 } from '../../features/opportunities/api';
 import { APP_ROUTES } from '../../app/routeConfig';
 import { useToast } from '../../contexts';
@@ -61,6 +62,8 @@ export default function OpportunityDetailPage() {
     useState(false);
   const [suspendModalOpen, setSuspendModalOpen] = useState(false);
   const [requestChangesOpen, setRequestChangesOpen] = useState(false);
+  const [requestOpportunityChanges, { isLoading: isRequestingChanges }] =
+    useRequestOpportunityChangesMutation();
 
   const detailStatus = detail?.status;
   const detailSuspendFrom = detail?.suspendFrom;
@@ -239,6 +242,25 @@ export default function OpportunityDetailPage() {
             color={STATE_COLORS[detail.status] ?? 'default'}
           />
         </Stack>
+
+        {(detail.status === 'draft' || detail.status === 'test_rejected') &&
+          detail.changeRequestMessage?.trim() && (
+            <MIAlert severity="info">
+              <Typography sx={{ fontWeight: 700, fontSize: 18 }}>
+                Modifiche richieste
+              </Typography>
+              <Typography
+                sx={{
+                  mt: 0.5,
+                  fontSize: 16,
+                  whiteSpace: 'pre-wrap',
+                  overflowWrap: 'anywhere',
+                }}
+              >
+                {detail.changeRequestMessage.trim()}
+              </Typography>
+            </MIAlert>
+          )}
 
         {detail.republishMessage?.trim() && (
           <MIAlert severity="info">
@@ -420,11 +442,29 @@ export default function OpportunityDetailPage() {
 
       <RequestChangesModal
         open={requestChangesOpen}
+        isLoading={isRequestingChanges}
         onClose={() => setRequestChangesOpen(false)}
-        onConfirm={() => {
-          setRequestChangesOpen(false);
-          navigate(APP_ROUTES.OPPORTUNITIES);
-          showToast('Fatto!', 'success');
+        onConfirm={async (changeRequestMessage) => {
+          if (!id || isRequestingChanges) {
+            return false;
+          }
+
+          try {
+            await requestOpportunityChanges({
+              id,
+              payload: { changeRequestMessage },
+            }).unwrap();
+            setRequestChangesOpen(false);
+            navigate(APP_ROUTES.OPPORTUNITIES);
+            showToast('Fatto!', 'success');
+            return true;
+          } catch {
+            showToast(
+              "Errore durante l'invio della richiesta di modifiche",
+              'error',
+            );
+            return false;
+          }
         }}
       />
 

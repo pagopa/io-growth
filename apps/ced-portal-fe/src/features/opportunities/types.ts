@@ -18,7 +18,8 @@ interface OpportunitySuspensionMetadata {
 }
 
 export type OpportunityDetail = OpportunityDetailResponse &
-  OpportunitySuspensionMetadata;
+  OpportunitySuspensionMetadata &
+  Pick<OpportunityDetailAdminResponse, 'changeRequestMessage'>;
 export type OpportunitiesResponse = OpportunityListResponse;
 export type Opportunity = AdminOpportunitySummaryItem &
   OpportunitySuspensionMetadata;
@@ -59,6 +60,10 @@ export type OpportunityUpdatePayload = Pick<
   Partial<
     Pick<OpportunityCreateRequest, 'dateTo' | 'url' | 'caregiverBenefit'>
   >;
+
+export interface RequestOpportunityChangesPayload {
+  changeRequestMessage: string;
+}
 
 export interface SuspendOpportunityPayload {
   suspensionMessage: string;

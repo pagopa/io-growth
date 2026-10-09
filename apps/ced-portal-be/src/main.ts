@@ -183,7 +183,6 @@ const tracingRepository = createIoCoreTracingRepository();
 
 // jobs scheduler
 const scheduler = jobsScheduler(config, { emailRepository, tracingRepository });
-await scheduler.start();
 
 // web application instance
 const app = Fastify();
@@ -429,3 +428,30 @@ app.addHook("onClose", async () => {
 await app.listen({ host: config.HOST, port: config.PORT });
 
 console.log(`Server listening on http://${config.HOST}:${config.PORT}`);
+
+let shuttingDown = false;
+const shutdown = async (signal: string): Promise<void> => {
+  if (shuttingDown) {
+    return;
+  }
+  shuttingDown = true;
+  console.log(`Received ${signal}, shutting down`);
+  // Stays under the Container Apps termination grace period.
+  setTimeout(
+    () => process.exit(1),
+    (config.SCHEDULER_STOP_TIMEOUT_SECONDS + 3) * 1000,
+  ).unref();
+  try {
+    await app.close();
+    process.exit(0);
+  } catch (error) {
+    console.error("Graceful shutdown failed", error);
+    process.exit(1);
+  }
+};
+process.once("SIGTERM", () => void shutdown("SIGTERM"));
+process.once("SIGINT", () => void shutdown("SIGINT"));
+
+// Claims job ownership only once this revision is serving, so a revision that
+// fails to boot never takes the jobs from the working one.
+await scheduler.start();

@@ -65,7 +65,10 @@ export const jobsScheduler = (
           data: { event },
         })("JobsScheduler");
       },
+      ownershipCheckSeconds: config.SCHEDULER_OWNERSHIP_CHECK_SECONDS,
       pollingIntervalSeconds,
+      revision: config.CONTAINER_APP_REVISION,
+      stopTimeoutSeconds: config.SCHEDULER_STOP_TIMEOUT_SECONDS,
     });
 
     const dbClient = createTypedDbClient(connection, schema);

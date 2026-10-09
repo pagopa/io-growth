@@ -87,7 +87,7 @@ export default function CardRequestInfoPage() {
         <Button
           fullWidth
           variant="text"
-          onClick={() => navigate(-1)}
+          onClick={() => window.location.replace('iossoapi://cancel')}
           sx={{
             mt: 1,
             color: theme.palette.common.primaryButton,

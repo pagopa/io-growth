@@ -218,7 +218,6 @@ const authPreHandler = createAuthenticationPreHandler(
   sessionRepository.getSession,
 );
 
-// eslint-disable-next-line max-lines-per-function -- route registry
 app.register(async (app) => {
   app.addHook("preHandler", authPreHandler);
 
@@ -400,7 +399,6 @@ app.register(async (app) => {
     makeAdminRepublishOpportunityUseCase(
       opportunityRepository,
       materializedViewRepository,
-      profileRepository,
     ),
   );
   mountOperatorRequestOpportunityRepublishHandler(
@@ -412,7 +410,6 @@ app.register(async (app) => {
     makeOperatorRepublishOpportunityUseCase(
       opportunityRepository,
       materializedViewRepository,
-      profileRepository,
     ),
   );
   mountAdminCancelScheduledSuspensionHandler(

@@ -14,11 +14,9 @@ import { z } from "zod";
 
 import type { MaterializedViewRepository } from "../../../domain/ports/outbound/materialized-view.repository.js";
 import type { OpportunityRepository } from "../../../domain/ports/outbound/persistence/opportunity.repository.js";
-import type { ProfileRepository } from "../../../domain/ports/outbound/persistence/profile.repository.js";
 
 import { OPPORTUNITY_STATUS } from "../../../domain/entities/opportunity.js";
 import { validateUseCaseInput } from "../utils/validate-use-case-input.js";
-import { buildOpportunityRepublishedMessages } from "./utils/build-opportunity-republished-messages.js";
 
 const AdminRepublishOpportunityInputSchema = z.object({
   opportunityId: z.ulid(),
@@ -42,7 +40,6 @@ export const makeAdminRepublishOpportunityUseCase =
   (
     opportunityRepository: OpportunityRepository,
     materializedViewRepository: MaterializedViewRepository,
-    profileRepository: ProfileRepository,
   ): AdminRepublishOpportunityUseCase =>
   async (input) =>
     validateUseCaseInput(AdminRepublishOpportunityInputSchema, input).andThen(
@@ -62,24 +59,14 @@ export const makeAdminRepublishOpportunityUseCase =
               ),
             );
 
-          return buildOpportunityRepublishedMessages(
-            profileRepository,
-            data.operatorId,
-            data,
-          )
-            .andThen(
-              (outboxMessages) =>
-                new ResultAsync(
-                  opportunityRepository.republishById({
-                    opportunityId: validatedInput.opportunityId,
-                    outboxMessages,
-                  }),
-                ),
-            )
-            .andThen(() =>
-              new ResultAsync(materializedViewRepository.refreshAll()).orElse(
-                () => okAsync(undefined),
-              ),
-            );
+          return new ResultAsync(
+            opportunityRepository.republishById({
+              opportunityId: validatedInput.opportunityId,
+            }),
+          ).andThen(() =>
+            new ResultAsync(materializedViewRepository.refreshAll()).orElse(
+              () => okAsync(undefined),
+            ),
+          );
         }),
     );

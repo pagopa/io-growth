@@ -8,9 +8,12 @@ import { createTypedDbClient } from "@pagopa/io-core-adapter-drizzle";
 import { createScheduler } from "@pagopa/io-core-adapter-pgboss";
 import { emitCustomEvent } from "@pagopa/io-core-adapter-tracing";
 
+import { mountJobEnqueueOpportunityPublishedMessagesHandler } from "./adapters/inbound/pgboss/job-enqueue-opportunity-published-messages/job-enqueue-opportunity-published-messages.handler.js";
 import { mountJobSendOutboxMessagesHandler } from "./adapters/inbound/pgboss/job-send-outbox-messages/job-send-outbox-messages.handler.js";
 import { createDrizzleMessageOutboxRepository } from "./adapters/outbound/drizzle/drizzle-message-outbox.repository.js";
+import { createDrizzleOpportunityNotificationRepository } from "./adapters/outbound/drizzle/drizzle-opportunity-notification.repository.js";
 import * as schema from "./adapters/outbound/drizzle/schema/index.js";
+import { makeJobEnqueueOpportunityPublishedMessagesUseCase } from "./application/use-cases/jobs/job-enqueue-opportunity-published-messages.use-case.js";
 import { makeJobSendOutboxMessagesUseCase } from "./application/use-cases/jobs/job-send-outbox-messages.use-case.js";
 import { AppConfig } from "./config.js";
 import { JobEnvironment } from "./domain/entities/job.js";
@@ -109,6 +112,18 @@ export const jobsScheduler = (
 };
 
 // Define Jobs with their dependencies and mount them to the scheduler
+const makeJobEnqueueOpportunityPublishedMessages = (
+  scheduler: Scheduler,
+  { tracingRepository }: JobsDependencies,
+): void => {
+  const useCase = makeJobEnqueueOpportunityPublishedMessagesUseCase(
+    scheduler.environment,
+    createDrizzleOpportunityNotificationRepository(scheduler.dbClient),
+    tracingRepository,
+  );
+
+  mountJobEnqueueOpportunityPublishedMessagesHandler(scheduler, useCase);
+};
 const makeJobSendOutboxMessages = (
   scheduler: Scheduler,
   { emailRepository, tracingRepository }: JobsDependencies,
@@ -127,4 +142,7 @@ const makeJobSendOutboxMessages = (
 const jobRegistrations: ((
   scheduler: Scheduler,
   dependencies: JobsDependencies,
-) => void)[] = [makeJobSendOutboxMessages];
+) => void)[] = [
+  makeJobSendOutboxMessages,
+  makeJobEnqueueOpportunityPublishedMessages,
+];

@@ -8,9 +8,7 @@ import { makeOperatorRepublishOpportunityUseCase } from "../operator-republish-o
 import {
   createMockMaterializedViewRepository,
   createMockOpportunityRepository,
-  createMockProfileRepository,
   MOCK_OPERATOR_ID,
-  mockProfile,
 } from "./mocks.js";
 
 const MOCK_OPPORTUNITY_ID = "01JVMK3N8XQZP5T6G2WYHAB4CF";
@@ -45,7 +43,6 @@ const mockOpportunity = (
 
 const makeDeps = (overrides?: {
   found?: OpportunityDetail | undefined;
-  profileFails?: boolean;
   refreshFails?: boolean;
 }) => ({
   materializedViewRepository: createMockMaterializedViewRepository({
@@ -63,22 +60,12 @@ const makeDeps = (overrides?: {
       ),
     republishByIdAndOperatorId: vi.fn().mockResolvedValue(ok(undefined)),
   }),
-  profileRepository: createMockProfileRepository({
-    getByOperatorId: vi
-      .fn()
-      .mockResolvedValue(
-        overrides?.profileFails
-          ? err(new GenericError("no profile"))
-          : ok(mockProfile),
-      ),
-  }),
 });
 
 const makeUseCase = (deps: ReturnType<typeof makeDeps>) =>
   makeOperatorRepublishOpportunityUseCase(
     deps.opportunityRepository,
     deps.materializedViewRepository,
-    deps.profileRepository,
   );
 
 const validInput = {
@@ -95,29 +82,8 @@ describe("makeOperatorRepublishOpportunityUseCase", () => {
     expect(result).toEqual(ok(undefined));
     expect(
       deps.opportunityRepository.republishByIdAndOperatorId,
-    ).toHaveBeenCalledWith({
-      ...validInput,
-      outboxMessages: [
-        {
-          templateAttributes: { opportunityName: "Discount 20%" },
-          templateId: "ced_opportunity-published",
-          to: mockProfile.contactEmail,
-          type: "template",
-        },
-      ],
-    });
+    ).toHaveBeenCalledWith(validInput);
     expect(deps.materializedViewRepository.refreshAll).toHaveBeenCalledWith();
-  });
-
-  it("should republish without enqueuing a message when the profile lookup fails", async () => {
-    const deps = makeDeps({ profileFails: true });
-
-    const result = await makeUseCase(deps)(validInput);
-
-    expect(result).toEqual(ok(undefined));
-    expect(
-      deps.opportunityRepository.republishByIdAndOperatorId,
-    ).toHaveBeenCalledWith({ ...validInput, outboxMessages: [] });
   });
 
   it("should read the opportunity scoped to the operator in session", async () => {

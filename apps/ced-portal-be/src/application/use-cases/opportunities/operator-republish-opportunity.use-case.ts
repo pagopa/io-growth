@@ -14,14 +14,12 @@ import { z } from "zod";
 
 import type { MaterializedViewRepository } from "../../../domain/ports/outbound/materialized-view.repository.js";
 import type { OpportunityRepository } from "../../../domain/ports/outbound/persistence/opportunity.repository.js";
-import type { ProfileRepository } from "../../../domain/ports/outbound/persistence/profile.repository.js";
 
 import {
   ACTOR_TYPE,
   OPPORTUNITY_STATUS,
 } from "../../../domain/entities/opportunity.js";
 import { validateUseCaseInput } from "../utils/validate-use-case-input.js";
-import { buildOpportunityRepublishedMessages } from "./utils/build-opportunity-republished-messages.js";
 
 const OperatorRepublishOpportunityInputSchema = z.object({
   operatorId: z.ulid(),
@@ -46,7 +44,6 @@ export const makeOperatorRepublishOpportunityUseCase =
   (
     opportunityRepository: OpportunityRepository,
     materializedViewRepository: MaterializedViewRepository,
-    profileRepository: ProfileRepository,
   ): OperatorRepublishOpportunityUseCase =>
   async (input) =>
     validateUseCaseInput(
@@ -84,25 +81,15 @@ export const makeOperatorRepublishOpportunityUseCase =
             ),
           );
 
-        return buildOpportunityRepublishedMessages(
-          profileRepository,
-          validatedInput.operatorId,
-          data,
-        )
-          .andThen(
-            (outboxMessages) =>
-              new ResultAsync(
-                opportunityRepository.republishByIdAndOperatorId({
-                  operatorId: validatedInput.operatorId,
-                  opportunityId: validatedInput.opportunityId,
-                  outboxMessages,
-                }),
-              ),
-          )
-          .andThen(() =>
-            new ResultAsync(materializedViewRepository.refreshAll()).orElse(
-              () => okAsync(undefined),
-            ),
-          );
+        return new ResultAsync(
+          opportunityRepository.republishByIdAndOperatorId({
+            operatorId: validatedInput.operatorId,
+            opportunityId: validatedInput.opportunityId,
+          }),
+        ).andThen(() =>
+          new ResultAsync(materializedViewRepository.refreshAll()).orElse(() =>
+            okAsync(undefined),
+          ),
+        );
       }),
     );

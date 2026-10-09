@@ -166,6 +166,9 @@ export const opportunity = pgTable("opportunity", {
   operatorId: char("operator_id", { length: 26 })
     .notNull()
     .references(() => operator.id, { onDelete: "cascade" }),
+  publishingNotifiedAt: timestamp("publishing_notified_at", {
+    withTimezone: true,
+  }),
   rejectionMessage: varchar("rejection_message", { length: 4096 }),
   republishMessage: varchar("republish_message", { length: 4096 }),
   republishRejectionMessage: varchar("republish_rejection_message", {

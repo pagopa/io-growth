@@ -8,9 +8,7 @@ import { makeAdminRepublishOpportunityUseCase } from "../admin-republish-opportu
 import {
   createMockMaterializedViewRepository,
   createMockOpportunityRepository,
-  createMockProfileRepository,
   MOCK_OPERATOR_ID,
-  mockProfile,
 } from "./mocks.js";
 
 const MOCK_OPPORTUNITY_ID = "01JVMK3N8XQZP5T6G2WYHAB4CF";
@@ -43,7 +41,6 @@ const mockOpportunity = (
 
 const makeDeps = (overrides?: {
   found?: OpportunityDetail | undefined;
-  profileFails?: boolean;
   refreshFails?: boolean;
   republishFails?: boolean;
 }) => ({
@@ -68,22 +65,12 @@ const makeDeps = (overrides?: {
           : ok(undefined),
       ),
   }),
-  profileRepository: createMockProfileRepository({
-    getByOperatorId: vi
-      .fn()
-      .mockResolvedValue(
-        overrides?.profileFails
-          ? err(new GenericError("no profile"))
-          : ok(mockProfile),
-      ),
-  }),
 });
 
 const makeUseCase = (deps: ReturnType<typeof makeDeps>) =>
   makeAdminRepublishOpportunityUseCase(
     deps.opportunityRepository,
     deps.materializedViewRepository,
-    deps.profileRepository,
   );
 
 const validInput = { opportunityId: MOCK_OPPORTUNITY_ID };
@@ -95,10 +82,9 @@ describe("makeAdminRepublishOpportunityUseCase", () => {
     const result = await makeUseCase(deps)(validInput);
 
     expect(result).toEqual(ok(undefined));
-    expect(deps.opportunityRepository.republishById).toHaveBeenCalledWith({
-      opportunityId: MOCK_OPPORTUNITY_ID,
-      outboxMessages: [expect.objectContaining({ type: "template" })],
-    });
+    expect(deps.opportunityRepository.republishById).toHaveBeenCalledWith(
+      validInput,
+    );
     expect(deps.materializedViewRepository.refreshAll).toHaveBeenCalledWith();
   });
 
@@ -161,58 +147,5 @@ describe("makeAdminRepublishOpportunityUseCase", () => {
       err(expect.objectContaining({ kind: "ValidationError" })),
     );
     expect(deps.opportunityRepository.findById).not.toHaveBeenCalled();
-  });
-});
-
-describe("makeAdminRepublishOpportunityUseCase - notification", () => {
-  it("should enqueue a published message for the operator", async () => {
-    const deps = makeDeps();
-
-    const result = await makeUseCase(deps)(validInput);
-
-    expect(result).toEqual(ok(undefined));
-    expect(deps.profileRepository.getByOperatorId).toHaveBeenCalledWith(
-      MOCK_OPERATOR_ID,
-    );
-    expect(deps.opportunityRepository.republishById).toHaveBeenCalledWith({
-      opportunityId: MOCK_OPPORTUNITY_ID,
-      outboxMessages: [
-        {
-          templateAttributes: { opportunityName: "Discount 20%" },
-          templateId: "ced_opportunity-published",
-          to: mockProfile.contactEmail,
-          type: "template",
-        },
-      ],
-    });
-  });
-
-  it("should republish without enqueuing a message when the profile lookup fails", async () => {
-    const deps = makeDeps({ profileFails: true });
-
-    const result = await makeUseCase(deps)(validInput);
-
-    expect(result).toEqual(ok(undefined));
-    expect(deps.opportunityRepository.republishById).toHaveBeenCalledWith({
-      opportunityId: MOCK_OPPORTUNITY_ID,
-      outboxMessages: [],
-    });
-  });
-
-  it("should fall back to the opportunity id when no italian name is set", async () => {
-    const deps = makeDeps({
-      found: { ...mockOpportunity(), localizedMetadata: [] },
-    });
-
-    await makeUseCase(deps)(validInput);
-
-    expect(deps.opportunityRepository.republishById).toHaveBeenCalledWith({
-      opportunityId: MOCK_OPPORTUNITY_ID,
-      outboxMessages: [
-        expect.objectContaining({
-          templateAttributes: { opportunityName: MOCK_OPPORTUNITY_ID },
-        }),
-      ],
-    });
   });
 });

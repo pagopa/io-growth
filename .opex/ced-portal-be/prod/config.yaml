@@ -3,9 +3,9 @@ name: portal-be
 location: italynorth
 resource_type: app-gateway
 resource_group: ced-p-itn-opex-rg-01
-data_source: /subscriptions/0f1c9857-d58b-47d2-874e-c905c5276dda/resourceGroups/ced-p-itn-rg-01/providers/Microsoft.Network/applicationGateways/ced-p-itn-agw-01
+data_source: /subscriptions/0f1c9857-d58b-47d2-874e-c905c5276dda/resourceGroups/ced-p-itn-common-rg-01/providers/Microsoft.Network/applicationGateways/ced-p-itn-agw-01
 action_groups:
-  - /subscriptions/0f1c9857-d58b-47d2-874e-c905c5276dda/resourceGroups/ced-p-itn-rg-01/providers/Microsoft.Insights/actionGroups/ced-p-itn-error-ag-01
+  - /subscriptions/0f1c9857-d58b-47d2-874e-c905c5276dda/resourceGroups/ced-p-itn-common-rg-01/providers/Microsoft.Insights/actionGroups/ced-p-itn-error-ag-01
 
 timespan: 5m
 availability_threshold: 0.99

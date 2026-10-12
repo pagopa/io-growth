@@ -77,7 +77,7 @@ const tracedEventNames = (): string[] =>
   mockTracing.emitEvent.mock.calls.map(([name]) => String(name));
 
 type WorkHandler = (
-  jobs: { data: object; signal: AbortSignal }[],
+  jobs: { data: object; id?: string; signal: AbortSignal }[],
 ) => Promise<void>;
 
 beforeEach(() => {
@@ -222,6 +222,33 @@ describe("createScheduler start as owner", () => {
 
     expect(handler).toHaveBeenNthCalledWith(1, { n: 1 }, { signal: signal1 });
     expect(handler).toHaveBeenNthCalledWith(2, { n: 2 }, { signal: signal2 });
+  });
+
+  it("traces and rethrows a failing job handler so pg-boss can retry it", async () => {
+    const scheduler = makeScheduler();
+    const failure = new Error("boom");
+    const handler = vi.fn().mockRejectedValue(failure);
+    scheduler.schedule({ cron: "* * * * *", handler, name: "job-a" });
+    await scheduler.start();
+    const [, , workHandler] = mockBossInstance.work.mock.calls[0] as [
+      string,
+      object,
+      WorkHandler,
+    ];
+
+    await expect(
+      workHandler([
+        { data: {}, id: "job-1", signal: new AbortController().signal },
+      ]),
+    ).rejects.toBe(failure);
+
+    expect(mockTracing.emitEvent).toHaveBeenCalledWith(
+      ...traced("scheduler.job_failed", {
+        error: { message: "boom", name: "Error" },
+        job: "job-a",
+        jobId: "job-1",
+      }),
+    );
   });
 
   it("unschedules db jobs that are no longer registered on this instance", async () => {

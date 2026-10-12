@@ -183,7 +183,19 @@ export const createScheduler = (config: SchedulerConfig): Scheduler => {
           );
         }
         for (const pgJob of pgJobs) {
-          await job.handler(pgJob.data, { signal: pgJob.signal });
+          try {
+            await job.handler(pgJob.data, { signal: pgJob.signal });
+          } catch (error) {
+            emitEvent("scheduler.job_failed", {
+              error:
+                error instanceof Error
+                  ? { message: error.message, name: error.name }
+                  : String(error),
+              job: job.name,
+              jobId: pgJob.id,
+            });
+            throw error;
+          }
         }
       },
     );

@@ -297,7 +297,7 @@ export const EntityDataSection = ({
             onFileSelect={onCoverSelect}
             acceptedTypes={['image/png', 'image/jpeg', '.png', '.jpg', '.jpeg']}
             title={"Trascina qui un'immagine di copertina"}
-            subtitle={'Dimensione massima 300 x 600 px - Formato .jpg o .png'}
+            subtitle={'Dimensione massima 600 x 300 px - Formato .jpg o .png'}
             fieldError={Boolean(coverError)}
           />
           {coverError ? (

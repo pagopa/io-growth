@@ -27,7 +27,7 @@ const png = (
 describe("validateProfileAssets", () => {
   it("validates dimensions and returns normalized assets", async () => {
     const result = await validateProfileAssets({
-      image: png(300, 600),
+      image: png(600, 300),
       logo: png(300, 300),
     });
 
@@ -47,7 +47,7 @@ describe("validateProfileAssets", () => {
 
   it.each([
     ["logo", png(301, 300), png(1, 1)],
-    ["image", png(1, 1), png(301, 600)],
+    ["image", png(1, 1), png(601, 300)],
   ])("rejects an oversized %s", async (_assetKind, logo, image) => {
     const result = await validateProfileAssets({ image, logo });
 

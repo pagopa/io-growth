@@ -6,7 +6,6 @@ import type {
 
 import { createTypedDbClient } from "@pagopa/io-core-adapter-drizzle";
 import { createScheduler } from "@pagopa/io-core-adapter-pgboss";
-import { emitCustomEvent } from "@pagopa/io-core-adapter-tracing";
 
 import { mountJobEnqueueOpportunityPublishedMessagesHandler } from "./adapters/inbound/pgboss/job-enqueue-opportunity-published-messages/job-enqueue-opportunity-published-messages.handler.js";
 import { mountJobSendOutboxMessagesHandler } from "./adapters/inbound/pgboss/job-send-outbox-messages/job-send-outbox-messages.handler.js";
@@ -59,16 +58,12 @@ export const jobsScheduler = (
   ): Scheduler => {
     const pgBossScheduler = createScheduler({
       connection,
-      onEvent: (event) => {
-        emitCustomEvent("scheduler.event", {
-          caller: "JobsScheduler",
-          data: { event },
-        })("JobsScheduler");
-      },
+      environment,
       ownershipCheckSeconds: config.SCHEDULER_OWNERSHIP_CHECK_SECONDS,
       pollingIntervalSeconds,
       revision: config.CONTAINER_APP_REVISION,
       stopTimeoutSeconds: config.SCHEDULER_STOP_TIMEOUT_SECONDS,
+      tracingRepository: dependencies.tracingRepository,
     });
 
     const dbClient = createTypedDbClient(connection, schema);

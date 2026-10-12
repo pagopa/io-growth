@@ -10,4 +10,4 @@ Send the opportunity "published" email when the opportunity becomes visible, ins
 
 Decoupled tracing into a port.
 
-Make only the latest Container Apps revision own the scheduled jobs, and shut the scheduler down gracefully on SIGTERM
+Only the latest Container Apps revision owns the scheduled jobs: revisions register in a Postgres registry, older ones stay passive and stop rejected jobs. The scheduler stops gracefully on SIGTERM and traces its ownership events through the injected tracing repository.

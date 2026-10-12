@@ -10,7 +10,8 @@ export interface RevisionRegistry {
   readonly claim: () => Promise<void>;
   readonly close: () => Promise<void>;
   readonly ensureTable: () => Promise<void>;
-  readonly isOwner: () => Promise<boolean>;
+  /** Latest registered revision, i.e. the one that owns the jobs. */
+  readonly getOwner: () => Promise<string | undefined>;
 }
 
 /**
@@ -65,11 +66,11 @@ export const createRevisionRegistry = (
     );
   };
 
-  const isOwner = async (): Promise<boolean> => {
+  const getOwner = async (): Promise<string | undefined> => {
     const { rows } = await pool.query<{ revision: string }>(
       `SELECT revision FROM ${TABLE} ORDER BY generation DESC LIMIT 1`,
     );
-    return rows[0]?.revision === revision;
+    return rows[0]?.revision;
   };
 
   const close = async (): Promise<void> => {
@@ -80,5 +81,5 @@ export const createRevisionRegistry = (
     await pool.end();
   };
 
-  return { claim, close, ensureTable, isOwner };
+  return { claim, close, ensureTable, getOwner };
 };

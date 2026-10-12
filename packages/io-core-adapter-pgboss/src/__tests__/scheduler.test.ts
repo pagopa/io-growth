@@ -49,9 +49,32 @@ const connection = {
   user: "user",
 };
 
+const mockTracing = { emitEvent: vi.fn() };
+
 const makeScheduler = (
   overrides: Partial<Parameters<typeof createScheduler>[0]> = {},
-) => createScheduler({ connection, revision: "rev-1", ...overrides });
+) =>
+  createScheduler({
+    connection,
+    environment: "prod",
+    revision: "rev-1",
+    tracingRepository: mockTracing,
+    ...overrides,
+  });
+
+const traced = (
+  name: string,
+  data: Record<string, unknown>,
+): [string, object] => [
+  name,
+  {
+    caller: "JobsScheduler",
+    data: { environment: "prod", revision: "rev-1", ...data },
+  },
+];
+
+const tracedEventNames = (): string[] =>
+  mockTracing.emitEvent.mock.calls.map(([name]) => String(name));
 
 type WorkHandler = (
   jobs: { data: object; signal: AbortSignal }[],
@@ -120,21 +143,6 @@ describe("createScheduler start as owner", () => {
       ssl: true,
       user: "user",
     });
-  });
-
-  it("forwards pg-boss errors and warnings to onEvent", async () => {
-    const onEvent = vi.fn();
-    await makeScheduler({ onEvent }).start();
-
-    const handlers = new Map(
-      mockBossInstance.on.mock.calls as [string, (e: unknown) => void][],
-    );
-    const error = new Error("boom");
-    handlers.get("error")?.(error);
-    handlers.get("warning")?.("warn");
-
-    expect(onEvent).toHaveBeenCalledWith(error);
-    expect(onEvent).toHaveBeenCalledWith("warn");
   });
 
   it("creates the queue, schedules the cron and starts a worker for every registered job", async () => {
@@ -304,20 +312,6 @@ describe("createScheduler ownership changes at runtime", () => {
     expect(mockBossInstance.start).toHaveBeenCalledOnce();
   });
 
-  it("reports ownership check failures through onEvent without stopping", async () => {
-    vi.useFakeTimers();
-    const onEvent = vi.fn();
-    const scheduler = makeScheduler({ onEvent, ownershipCheckSeconds: 5 });
-    await scheduler.start();
-
-    const failure = new Error("registry down");
-    mockPool.query.mockRejectedValue(failure);
-    await vi.advanceTimersByTimeAsync(5000);
-
-    expect(onEvent).toHaveBeenCalledWith(failure);
-    expect(mockBossInstance.stop).not.toHaveBeenCalled();
-  });
-
   it("fences a job fetched after a newer revision took over", async () => {
     const scheduler = makeScheduler();
     const handler = vi.fn().mockResolvedValue(undefined);
@@ -385,5 +379,153 @@ describe("createScheduler stop", () => {
     await vi.advanceTimersByTimeAsync(20000);
 
     expect(mockPool.query).not.toHaveBeenCalled();
+  });
+});
+
+describe("createScheduler tracing", () => {
+  it("traces a started owner with its role and the owner revision", async () => {
+    await makeScheduler().start();
+
+    expect(mockTracing.emitEvent).toHaveBeenCalledWith(
+      ...traced("scheduler.started", { ownerRevision: "rev-1", role: "owner" }),
+    );
+  });
+
+  it("traces a superseded revision as passive with the revision that owns the jobs", async () => {
+    latestRevision = "rev-2";
+
+    await makeScheduler().start();
+
+    expect(mockTracing.emitEvent).toHaveBeenCalledWith(
+      ...traced("scheduler.started", {
+        ownerRevision: "rev-2",
+        role: "passive",
+      }),
+    );
+    expect(tracedEventNames()).not.toContain("scheduler.job_rejected");
+  });
+
+  it("traces pg-boss errors and warnings as scheduler.event", async () => {
+    await makeScheduler().start();
+
+    const handlers = new Map(
+      mockBossInstance.on.mock.calls as [string, (e: unknown) => void][],
+    );
+    const error = new Error("boom");
+    handlers.get("error")?.(error);
+    handlers.get("warning")?.("warn");
+
+    expect(mockTracing.emitEvent).toHaveBeenCalledWith(
+      ...traced("scheduler.event", { event: error }),
+    );
+    expect(mockTracing.emitEvent).toHaveBeenCalledWith(
+      ...traced("scheduler.event", { event: "warn" }),
+    );
+  });
+
+  it("traces ownership check failures without stopping", async () => {
+    vi.useFakeTimers();
+    const scheduler = makeScheduler({ ownershipCheckSeconds: 5 });
+    await scheduler.start();
+
+    const failure = new Error("registry down");
+    mockPool.query.mockRejectedValue(failure);
+    await vi.advanceTimersByTimeAsync(5000);
+
+    expect(mockTracing.emitEvent).toHaveBeenCalledWith(
+      ...traced("scheduler.event", { event: failure }),
+    );
+    expect(mockBossInstance.stop).not.toHaveBeenCalled();
+  });
+
+  it("traces a passive revision that becomes the owner", async () => {
+    vi.useFakeTimers();
+    latestRevision = "rev-2";
+    await makeScheduler({ ownershipCheckSeconds: 5 }).start();
+
+    latestRevision = "rev-1";
+    await vi.advanceTimersByTimeAsync(5000);
+
+    expect(mockTracing.emitEvent).toHaveBeenCalledWith(
+      ...traced("scheduler.promoted", { ownerRevision: "rev-1" }),
+    );
+  });
+
+  it("traces a demotion found by the ownership check", async () => {
+    vi.useFakeTimers();
+    await makeScheduler({ ownershipCheckSeconds: 5 }).start();
+
+    latestRevision = "rev-2";
+    await vi.advanceTimersByTimeAsync(5000);
+
+    expect(mockTracing.emitEvent).toHaveBeenCalledWith(
+      ...traced("scheduler.demoted", {
+        ownerRevision: "rev-2",
+        trigger: "ownership_check",
+      }),
+    );
+  });
+
+  it("traces every rejected job but only one demotion when workers race", async () => {
+    const scheduler = makeScheduler();
+    scheduler.schedule({
+      cron: "* * * * *",
+      handler: vi.fn(),
+      name: "job-a",
+    });
+    await scheduler.start();
+    const [, , workHandler] = mockBossInstance.work.mock.calls[0] as [
+      string,
+      object,
+      WorkHandler,
+    ];
+    const jobs = [{ data: {}, signal: new AbortController().signal }];
+
+    latestRevision = "rev-2";
+    await Promise.allSettled([workHandler(jobs), workHandler(jobs)]);
+
+    expect(mockTracing.emitEvent).toHaveBeenCalledWith(
+      ...traced("scheduler.job_rejected", {
+        job: "job-a",
+        ownerRevision: "rev-2",
+      }),
+    );
+    expect(mockTracing.emitEvent).toHaveBeenCalledWith(
+      ...traced("scheduler.demoted", {
+        ownerRevision: "rev-2",
+        trigger: "job_fence",
+      }),
+    );
+    expect(
+      tracedEventNames().filter((name) => name === "scheduler.job_rejected"),
+    ).toHaveLength(2);
+    expect(
+      tracedEventNames().filter((name) => name === "scheduler.demoted"),
+    ).toHaveLength(1);
+    expect(mockBossInstance.stop).toHaveBeenCalledOnce();
+  });
+
+  it("traces the role on stop, once", async () => {
+    const scheduler = makeScheduler();
+    await scheduler.start();
+
+    await scheduler.stop();
+    await scheduler.stop();
+
+    expect(mockTracing.emitEvent).toHaveBeenCalledWith(
+      ...traced("scheduler.stopped", { role: "owner" }),
+    );
+    expect(
+      tracedEventNames().filter((name) => name === "scheduler.stopped"),
+    ).toHaveLength(1);
+  });
+
+  it("runs without a tracing repository", async () => {
+    const scheduler = makeScheduler({ tracingRepository: undefined });
+
+    await scheduler.start();
+    await scheduler.stop();
+
+    expect(mockTracing.emitEvent).not.toHaveBeenCalled();
   });
 });

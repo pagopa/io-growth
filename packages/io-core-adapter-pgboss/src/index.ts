@@ -6,4 +6,5 @@ export type {
   ScheduledJobHandler,
   Scheduler,
   SchedulerConfig,
+  SchedulerTracingRepository,
 } from "./scheduler.js";

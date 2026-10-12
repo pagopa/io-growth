@@ -8,8 +8,8 @@ import type { ProfileAsset } from "../../../../domain/ports/outbound/profile-ass
 
 const LOGO_MAX_HEIGHT = 300;
 const LOGO_MAX_WIDTH = 300;
-const IMAGE_MAX_HEIGHT = 600;
-const IMAGE_MAX_WIDTH = 300;
+const IMAGE_MAX_HEIGHT = 300;
+const IMAGE_MAX_WIDTH = 600;
 const JPEG_CONTENT_TYPE = "image/jpeg";
 const PNG_CONTENT_TYPE = "image/png";
 

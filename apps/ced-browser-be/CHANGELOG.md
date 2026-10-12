@@ -1,5 +1,11 @@
 # ced-browser-be
 
+## 0.1.22
+
+### Patch Changes
+
+- 17849b8: Allow national-territory opportunities to have no associated places in their detail response.
+
 ## 0.1.21
 
 ### Patch Changes

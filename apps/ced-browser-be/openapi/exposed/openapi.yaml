@@ -1300,8 +1300,9 @@ components:
             - $ref: "#/components/schemas/OpportunityBenefit"
         places:
           type: array
-          minItems: 1
-          description: Places where the opportunity can be redeemed.
+          description: |
+            Places where the opportunity can be redeemed.
+            Empty when the opportunity is valid throughout the national territory.
           items:
             $ref: "#/components/schemas/Place"
         profile:

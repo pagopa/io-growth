@@ -1,6 +1,6 @@
 import type { Scheduler } from "@pagopa/io-core-adapter-pgboss";
 
-import { JobSendOutboxMessagesUseCase } from "../../../../application/use-cases/jobs/job-send-outbox-messages.use-case.js";
+import type { JobSendOutboxMessagesUseCase } from "../../../../application/use-cases/jobs/job-send-outbox-messages.use-case.js";
 
 export const JOB_SEND_OUTBOX_MESSAGES_NAME = "job-send-outbox-messages";
 

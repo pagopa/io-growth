@@ -9,6 +9,10 @@ import { createScheduler } from "@pagopa/io-core-adapter-pgboss";
 import { createTracker } from "@pagopa/io-core-adapter-revision-tracker";
 
 import type { InfoReadinessUseCase } from "./application/use-cases/health/info-readiness.use-case.js";
+import type { AppConfig } from "./config.js";
+import type { JobEnvironment } from "./domain/entities/job.js";
+import type { EmailRepository } from "./domain/ports/outbound/email.repository.js";
+import type { TracingRepository } from "./domain/ports/outbound/tracing.repository.js";
 
 import { mountJobEnqueueOpportunityPublishedMessagesHandler } from "./adapters/inbound/pgboss/job-enqueue-opportunity-published-messages/job-enqueue-opportunity-published-messages.handler.js";
 import { mountJobSendOutboxMessagesHandler } from "./adapters/inbound/pgboss/job-send-outbox-messages/job-send-outbox-messages.handler.js";
@@ -17,10 +21,6 @@ import { createDrizzleOpportunityNotificationRepository } from "./adapters/outbo
 import * as schema from "./adapters/outbound/drizzle/schema/index.js";
 import { makeJobEnqueueOpportunityPublishedMessagesUseCase } from "./application/use-cases/jobs/job-enqueue-opportunity-published-messages.use-case.js";
 import { makeJobSendOutboxMessagesUseCase } from "./application/use-cases/jobs/job-send-outbox-messages.use-case.js";
-import type { AppConfig } from "./config.js";
-import type { JobEnvironment } from "./domain/entities/job.js";
-import type { EmailRepository } from "./domain/ports/outbound/email.repository.js";
-import type { TracingRepository } from "./domain/ports/outbound/tracing.repository.js";
 
 interface JobsDependencies {
   emailRepository: EmailRepository;

@@ -13,6 +13,7 @@ import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { z } from "zod";
 
 import type { OpportunityDetail } from "../../../domain/entities/opportunity.js";
+import type { MaterializedViewRepository } from "../../../domain/ports/outbound/materialized-view.repository.js";
 import type { OpportunityRepository } from "../../../domain/ports/outbound/persistence/opportunity.repository.js";
 import type { ProfileRepository } from "../../../domain/ports/outbound/persistence/profile.repository.js";
 
@@ -20,7 +21,6 @@ import {
   buildOpportunityApprovedMessage,
   type MessagePayload,
 } from "../../../domain/entities/message-outbox.js";
-import type { MaterializedViewRepository } from "../../../domain/ports/outbound/materialized-view.repository.js";
 import { validateUseCaseInput } from "../utils/validate-use-case-input.js";
 
 const AdminApproveOpportunityInputSchema = z.object({

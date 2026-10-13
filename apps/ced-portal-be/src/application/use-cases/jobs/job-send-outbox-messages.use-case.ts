@@ -3,12 +3,12 @@ import type { GenericError } from "@pagopa/io-core-domain/errors";
 
 import { err, ok, type Result } from "neverthrow";
 
+import type { JobEnvironment } from "../../../domain/entities/job.js";
 import type { OutboxMessage } from "../../../domain/entities/message-outbox.js";
 import type { EmailRepository } from "../../../domain/ports/outbound/email.repository.js";
 import type { MessageOutboxRepository } from "../../../domain/ports/outbound/persistence/message-outbox.repository.js";
 import type { TracingRepository } from "../../../domain/ports/outbound/tracing.repository.js";
 
-import type { JobEnvironment } from "../../../domain/entities/job.js";
 import { MessagePayloadSchema } from "../../../domain/entities/message-outbox.js";
 
 export interface JobSendOutboxMessagesOptions {

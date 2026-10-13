@@ -3,10 +3,9 @@ import type { GenericError } from "@pagopa/io-core-domain/errors";
 
 import { err, ok, type Result } from "neverthrow";
 
+import type { JobEnvironment } from "../../../domain/entities/job.js";
 import type { OpportunityNotificationRepository } from "../../../domain/ports/outbound/persistence/opportunity-notification.repository.js";
 import type { TracingRepository } from "../../../domain/ports/outbound/tracing.repository.js";
-
-import type { JobEnvironment } from "../../../domain/entities/job.js";
 
 export type JobEnqueueOpportunityPublishedMessagesUseCase = UseCase<
   Record<string, never>,

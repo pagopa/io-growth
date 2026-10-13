@@ -9,6 +9,7 @@ import {
   ONE_TIME_SESSION_ID_TTL_SECONDS,
   SESSION_TTL_SECONDS,
 } from "../../../../domain/entities/session.js";
+import { createMockTracingRepository } from "../../__tests__/mocks.js";
 import { makeAcsUseCase } from "../acs.use-case.js";
 import { createMockSessionRepository } from "./mocks.js";
 
@@ -61,6 +62,7 @@ describe("makeAcsUseCase", () => {
       sessionRepository,
       operatorRepository,
       mockConfig,
+      createMockTracingRepository(),
     );
     const token = await makeToken(validPayload);
 
@@ -116,10 +118,12 @@ describe("makeAcsUseCase", () => {
   it("should create operator when not found, then create session", async () => {
     const sessionRepository = createMockSessionRepository();
     const operatorRepository = createMockOperatorRepository(undefined);
+    const tracingRepository = createMockTracingRepository();
     const useCase = makeAcsUseCase(
       sessionRepository,
       operatorRepository,
       mockConfig,
+      tracingRepository,
     );
     const token = await makeToken(validPayload);
 
@@ -127,6 +131,17 @@ describe("makeAcsUseCase", () => {
 
     expect(result).toEqual(
       ok(expect.objectContaining({ sessionId: expect.any(String) })),
+    );
+
+    expect(tracingRepository.emitEvent).toHaveBeenCalledWith(
+      "operator_created",
+      {
+        caller: "AcsUseCase",
+        data: {
+          operatorId: mockOperator.id,
+          operatorName: mockOperator.name,
+        },
+      },
     );
 
     expect(operatorRepository.getByExternalId).toHaveBeenCalledWith(
@@ -154,6 +169,7 @@ describe("makeAcsUseCase", () => {
       sessionRepository,
       operatorRepository,
       mockConfig,
+      createMockTracingRepository(),
     );
     const token = await makeToken({ name: "Mario" }); // missing required fields
 
@@ -178,6 +194,7 @@ describe("makeAcsUseCase — error propagation", () => {
       sessionRepository,
       operatorRepository,
       mockConfig,
+      createMockTracingRepository(),
     );
     const token = await makeToken(validPayload);
 
@@ -202,6 +219,7 @@ describe("makeAcsUseCase — error propagation", () => {
       sessionRepository,
       operatorRepository,
       mockConfig,
+      createMockTracingRepository(),
     );
     const token = await makeToken(validPayload);
 
@@ -226,6 +244,7 @@ describe("makeAcsUseCase — error propagation", () => {
       sessionRepository,
       operatorRepository,
       mockConfig,
+      createMockTracingRepository(),
     );
     const token = await makeToken(validPayload);
 
@@ -250,6 +269,7 @@ describe("makeAcsUseCase — error propagation", () => {
       sessionRepository,
       operatorRepository,
       mockConfig,
+      createMockTracingRepository(),
     );
     const token = await makeToken(validPayload);
 
@@ -278,6 +298,7 @@ describe("makeAcsUseCase — environment routing", () => {
       sessionRepository,
       operatorRepository,
       mockConfig,
+      createMockTracingRepository(),
     );
     const token = await makeToken(validPayload);
 
@@ -302,6 +323,7 @@ describe("makeAcsUseCase — environment routing", () => {
       sessionRepository,
       operatorRepository,
       mockConfig,
+      createMockTracingRepository(),
     );
     const token = await makeToken(validPayload);
 
@@ -317,6 +339,7 @@ describe("makeAcsUseCase — environment routing", () => {
       sessionRepository,
       operatorRepository,
       mockConfig,
+      createMockTracingRepository(),
     );
     const token = await makeToken(validPayload);
 
@@ -334,6 +357,7 @@ describe("makeAcsUseCase — session TTL", () => {
       sessionRepository,
       operatorRepository,
       mockConfig,
+      createMockTracingRepository(),
     );
     const token = await makeToken(validPayload);
 

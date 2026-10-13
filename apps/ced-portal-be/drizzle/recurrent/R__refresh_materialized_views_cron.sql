@@ -27,5 +27,13 @@ BEGIN
 END
 $$;
 
--- Jobs targeting ced_prod are scheduled via cron.schedule_in_database().
--- TODO: Schedule the job in ced_prod, and choose a suitable schedule
+-- CED_PROD ENVIRONMENT
+DO $$
+BEGIN
+  IF EXISTS (SELECT 1 FROM pg_database WHERE datname = 'ced_prod') THEN
+    -- refresh materialized views every 15 minutes
+    PERFORM cron.schedule_in_database('refresh-place-materialized-view-ced-prod', '*/15 * * * *', 'REFRESH MATERIALIZED VIEW CONCURRENTLY place_materialized_view;', 'ced_prod');
+    PERFORM cron.schedule_in_database('refresh-opportunity-materialized-view-ced-prod', '*/15 * * * *', 'REFRESH MATERIALIZED VIEW CONCURRENTLY opportunity_materialized_view;', 'ced_prod');
+  END IF;
+END
+$$;

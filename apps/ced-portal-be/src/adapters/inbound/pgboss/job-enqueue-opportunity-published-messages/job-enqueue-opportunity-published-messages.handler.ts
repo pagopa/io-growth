@@ -1,6 +1,6 @@
 import type { Scheduler } from "@pagopa/io-core-adapter-pgboss";
 
-import { JobEnqueueOpportunityPublishedMessagesUseCase } from "../../../../application/use-cases/jobs/job-enqueue-opportunity-published-messages.use-case.js";
+import type { JobEnqueueOpportunityPublishedMessagesUseCase } from "../../../../application/use-cases/jobs/job-enqueue-opportunity-published-messages.use-case.js";
 
 export const JOB_ENQUEUE_OPPORTUNITY_PUBLISHED_MESSAGES_NAME =
   "job-enqueue-opportunity-published-messages";

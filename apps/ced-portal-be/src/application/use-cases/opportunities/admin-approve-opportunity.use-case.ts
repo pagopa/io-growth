@@ -101,7 +101,9 @@ export const makeAdminApproveOpportunityUseCase =
             profileRepository,
             data.operatorId,
             getOpportunityName(data),
-            new Date(data.dateFrom).toLocaleDateString("it-IT"),
+            new Date(
+              validatedInput.dateFrom ?? data.dateFrom,
+            ).toLocaleDateString("it-IT"),
           )
             .andThen(
               (outboxMessages) =>

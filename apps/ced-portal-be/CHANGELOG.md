@@ -1,5 +1,11 @@
 # ced-portal-be
 
+## 0.8.2
+
+### Patch Changes
+
+- e9dc8e9: change logo image validation dimensions from vertical to horizontal
+
 ## 0.8.1
 
 ### Patch Changes

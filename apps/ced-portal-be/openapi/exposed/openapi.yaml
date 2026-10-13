@@ -130,7 +130,7 @@ paths:
                   type: string
                   format: binary
                   description: >-
-                    PNG or JPEG profile image, up to 300x600 pixels. The
+                    PNG or JPEG profile image, up to 600x300 pixels. The
                     filename extension must match the image format.
             encoding:
               profile:
@@ -203,7 +203,7 @@ paths:
                   type: string
                   format: binary
                   description: >-
-                    Optional PNG or JPEG profile image, up to 300x600 pixels.
+                    Optional PNG or JPEG profile image, up to 600x300 pixels.
                     Omit to keep the current image. The filename extension
                     must match the image format.
             encoding:

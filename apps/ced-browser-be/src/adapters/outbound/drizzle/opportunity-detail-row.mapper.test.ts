@@ -4,6 +4,8 @@ import { describe, expect, it } from "vitest";
 
 import type { OpportunityDetailRow } from "./opportunity-detail-row.mapper.js";
 
+import { OpportunityDetailSchema } from "../../../domain/entities/opportunity.js";
+import { GetOpportunityResponse } from "../../inbound/fastify/contracts/opportunities/opportunities.js";
 import { mapOpportunityDetailRow } from "./opportunity-detail-row.mapper.js";
 
 const baseRow: OpportunityDetailRow = {
@@ -192,7 +194,70 @@ describe("mapOpportunityDetailRow", () => {
       ),
     );
   });
+});
 
+describe("opportunities without associated places", () => {
+  it("maps a national opportunity without associated places", () => {
+    const result = mapOpportunityDetailRow(
+      {
+        ...baseRow,
+        id: "01JVMK3N8XQZP5T6G2WYHAB4CD",
+        localizedMetadata: [
+          { key: "name", language: "it", value: "Nome italiano" },
+          { key: "description", language: "it", value: "Descrizione italiana" },
+        ],
+        nationalTerritory: true,
+        opportunityPlaces: [],
+      },
+      "it",
+    );
+
+    expect(result).toEqual(
+      ok(
+        expect.objectContaining({
+          nationalTerritory: true,
+          places: [],
+        }),
+      ),
+    );
+
+    const validation = result.map((detail) => ({
+      domain: OpportunityDetailSchema.safeParse(detail).success,
+      nonNationalDomain: OpportunityDetailSchema.safeParse({
+        ...detail,
+        nationalTerritory: false,
+      }).success,
+      response: GetOpportunityResponse.safeParse(detail).success,
+    }));
+
+    expect(validation).toEqual(
+      ok({
+        domain: true,
+        nonNationalDomain: false,
+        response: true,
+      }),
+    );
+  });
+
+  it("returns a data integrity error for non-national opportunities without places", () => {
+    const result = mapOpportunityDetailRow(
+      {
+        ...baseRow,
+        localizedMetadata: [
+          { key: "name", language: "it", value: "Nome italiano" },
+          { key: "description", language: "it", value: "Descrizione italiana" },
+        ],
+        nationalTerritory: false,
+        opportunityPlaces: [],
+      },
+      "it",
+    );
+
+    expect(result).toEqual(err(expect.any(GenericError)));
+  });
+});
+
+describe("mapOpportunityDetailRow data integrity", () => {
   it("returns a data integrity error when the profile is missing", () => {
     const result = mapOpportunityDetailRow(
       {

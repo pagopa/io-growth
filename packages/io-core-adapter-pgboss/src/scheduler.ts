@@ -106,7 +106,7 @@ export const createScheduler = (config: SchedulerConfig): Scheduler => {
   // Defined only while this revision runs as the owner.
   let boss: PgBoss | undefined;
   let ownershipTimer: NodeJS.Timeout | undefined;
-  let reconciling = false;
+  let reconcileInFlight: Promise<void> | undefined;
   let stopped = false;
 
   const emitEvent = (
@@ -225,13 +225,14 @@ export const createScheduler = (config: SchedulerConfig): Scheduler => {
     }
   };
 
-  const reconcile = async (): Promise<void> => {
-    if (!isOwned || reconciling || stopped) {
-      return;
-    }
-    reconciling = true;
+  // Never rejects: failures are traced, so stop() can safely await it.
+  const runReconcile = async (check: () => Promise<boolean>): Promise<void> => {
     try {
-      const owner = await isOwned();
+      const owner = await check();
+      // stop() may have run while the check was pending.
+      if (stopped) {
+        return;
+      }
       if (owner && !boss) {
         await startAsOwner();
         emitEvent("scheduler.promoted");
@@ -240,13 +241,24 @@ export const createScheduler = (config: SchedulerConfig): Scheduler => {
       }
     } catch (error) {
       emitError(error);
-    } finally {
-      reconciling = false;
     }
+  };
+
+  const reconcile = async (): Promise<void> => {
+    if (!isOwned || reconcileInFlight || stopped) {
+      return;
+    }
+    reconcileInFlight = runReconcile(isOwned).finally(() => {
+      reconcileInFlight = undefined;
+    });
+    await reconcileInFlight;
   };
 
   const start = async (): Promise<void> => {
     const role = !isOwned || (await isOwned()) ? "owner" : "passive";
+    if (stopped) {
+      return;
+    }
     if (role === "owner") {
       await startAsOwner();
     }
@@ -267,6 +279,8 @@ export const createScheduler = (config: SchedulerConfig): Scheduler => {
     }
     stopped = true;
     clearInterval(ownershipTimer);
+    // Lets a promotion already underway finish, so its pg-boss gets stopped.
+    await reconcileInFlight;
     emitEvent("scheduler.stopped", { role: boss ? "owner" : "passive" });
     await stopBoss();
   };

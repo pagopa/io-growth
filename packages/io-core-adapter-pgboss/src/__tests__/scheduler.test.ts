@@ -416,6 +416,51 @@ describe("createScheduler stop", () => {
 
     expect(isOwned).not.toHaveBeenCalled();
   });
+
+  it("does not promote when stopped while the ownership check is pending", async () => {
+    vi.useFakeTimers();
+    owned = false;
+    const scheduler = makeScheduler({ ownershipCheckSeconds: 5 });
+    await scheduler.start();
+
+    let resolveCheck: (value: boolean) => void = () => undefined;
+    isOwned.mockReturnValueOnce(
+      new Promise<boolean>((resolve) => {
+        resolveCheck = resolve;
+      }),
+    );
+    await vi.advanceTimersByTimeAsync(5000);
+    const stopping = scheduler.stop();
+    resolveCheck(true);
+    await stopping;
+
+    expect(PgBoss).not.toHaveBeenCalled();
+    expect(mockBossInstance.start).not.toHaveBeenCalled();
+  });
+
+  it("waits for a promotion in progress and then stops pg-boss", async () => {
+    vi.useFakeTimers();
+    owned = false;
+    const scheduler = makeScheduler({ ownershipCheckSeconds: 5 });
+    await scheduler.start();
+
+    let finishStart: () => void = () => undefined;
+    mockBossInstance.start.mockReturnValueOnce(
+      new Promise<void>((resolve) => {
+        finishStart = resolve;
+      }),
+    );
+    owned = true;
+    await vi.advanceTimersByTimeAsync(5000);
+    const stopping = scheduler.stop();
+    await Promise.resolve();
+    expect(mockBossInstance.stop).not.toHaveBeenCalled();
+
+    finishStart();
+    await stopping;
+
+    expect(mockBossInstance.stop).toHaveBeenCalledOnce();
+  });
 });
 
 describe("createScheduler tracing", () => {

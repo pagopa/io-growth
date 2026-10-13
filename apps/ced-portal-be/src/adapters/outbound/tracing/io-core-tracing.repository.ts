@@ -4,7 +4,11 @@ import type { TracingRepository } from "../../../domain/ports/outbound/tracing.r
 
 export const createIoCoreTracingRepository = (): TracingRepository => {
   const emitEvent: TracingRepository["emitEvent"] = (name, payload) => {
-    emitCustomEvent(name, payload)(payload.caller);
+    try {
+      emitCustomEvent(name, payload)(payload.caller);
+    } catch {
+      // Telemetry is best-effort and must not affect business logic.
+    }
   };
 
   return {

@@ -37,6 +37,8 @@ const configSchema = z.object({
   AZURE_CLIENT_ID: z.string().optional(),
   CED_PORTAL_FE_BASE_URL: z.string().min(1),
   CED_PRODUCT_ID: z.string().min(1),
+  // Injected by Azure Container Apps; the latest revision owns the scheduled jobs
+  CONTAINER_APP_REVISION: z.string().min(1).default("local"),
   EMAIL_FROM_ADDRESS: z.email(),
   HOST: z.string().default("0.0.0.0"),
   ONE_MAIL_API_KEY: z.string().min(1),
@@ -69,6 +71,30 @@ const configSchema = z.object({
     .string()
     .optional()
     .transform((v) => v === "true"),
+  REVISION_TRACKER_SCHEMA: z
+    .string()
+    .regex(/^[A-Za-z_][A-Za-z0-9_]*$/)
+    .default("revision_tracker"),
+  REVISION_TRACKER_TABLE: z
+    .string()
+    .regex(/^[A-Za-z_][A-Za-z0-9_]*$/)
+    .default("revisions"),
+  SCHEDULER_OWNERSHIP_CHECK_SECONDS: z.coerce
+    .number()
+    .int()
+    .positive()
+    .default(15),
+  SCHEDULER_POLLING_INTERVAL_SECONDS: z.coerce
+    .number()
+    .int()
+    .positive()
+    .default(60),
+  // Must stay below the Container Apps termination grace period (30s by default)
+  SCHEDULER_STOP_TIMEOUT_SECONDS: z.coerce
+    .number()
+    .int()
+    .positive()
+    .default(25),
   // Trusted Selfcare identity issuers; the JWKS is read from <issuer>/.well-known/jwks.json
   SELFCARE_ISSUERS: z
     .string()

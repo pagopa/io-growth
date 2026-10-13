@@ -8,7 +8,7 @@ import type { EmailRepository } from "../../../domain/ports/outbound/email.repos
 import type { MessageOutboxRepository } from "../../../domain/ports/outbound/persistence/message-outbox.repository.js";
 import type { TracingRepository } from "../../../domain/ports/outbound/tracing.repository.js";
 
-import { JobEnvironment } from "../../../domain/entities/job.js";
+import type { JobEnvironment } from "../../../domain/entities/job.js";
 import { MessagePayloadSchema } from "../../../domain/entities/message-outbox.js";
 
 export interface JobSendOutboxMessagesOptions {

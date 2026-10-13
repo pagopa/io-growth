@@ -16,15 +16,15 @@ export const createFakeArTokenRepository = (): ArTokenRepository => ({
 export const makeAcsUseCaseWithFakeVerifier = (
   sessionRepository: SessionRepository,
   operatorRepository: Parameters<typeof makeAcsUseCase>[2],
-  config: Parameters<typeof makeAcsUseCase>[3],
-  tracingRepository: Parameters<typeof makeAcsUseCase>[4],
+  tracingRepository: Parameters<typeof makeAcsUseCase>[3],
+  config: Parameters<typeof makeAcsUseCase>[4],
 ) =>
   makeAcsUseCase(
     createFakeArTokenRepository(),
     sessionRepository,
     operatorRepository,
-    config,
     tracingRepository,
+    config,
   );
 
 export const createMockSessionRepository = (

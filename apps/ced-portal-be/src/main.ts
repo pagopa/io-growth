@@ -212,8 +212,8 @@ mountAcsHandler(
     arTokenRepository,
     sessionRepository,
     operatorRepository,
-    config,
     tracingRepository,
+    config,
   ),
 );
 mountAuthorizeHandler(app, makeAuthorizeUseCase(sessionRepository));

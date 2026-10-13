@@ -60,8 +60,8 @@ describe("makeAcsUseCase", () => {
     const useCase = makeAcsUseCase(
       sessionRepository,
       operatorRepository,
-      mockConfig,
       createMockTracingRepository(),
+      mockConfig,
     );
     const token = await makeToken(validPayload);
 
@@ -121,8 +121,8 @@ describe("makeAcsUseCase", () => {
     const useCase = makeAcsUseCase(
       sessionRepository,
       operatorRepository,
-      mockConfig,
       tracingRepository,
+      mockConfig,
     );
     const token = await makeToken(validPayload);
 
@@ -167,8 +167,8 @@ describe("makeAcsUseCase", () => {
     const useCase = makeAcsUseCase(
       sessionRepository,
       operatorRepository,
-      mockConfig,
       createMockTracingRepository(),
+      mockConfig,
     );
     const token = await makeToken({ name: "Mario" }); // missing required fields
 
@@ -192,8 +192,8 @@ describe("makeAcsUseCase — error propagation", () => {
     const useCase = makeAcsUseCase(
       sessionRepository,
       operatorRepository,
-      mockConfig,
       createMockTracingRepository(),
+      mockConfig,
     );
     const token = await makeToken(validPayload);
 
@@ -217,8 +217,8 @@ describe("makeAcsUseCase — error propagation", () => {
     const useCase = makeAcsUseCase(
       sessionRepository,
       operatorRepository,
-      mockConfig,
       createMockTracingRepository(),
+      mockConfig,
     );
     const token = await makeToken(validPayload);
 
@@ -242,8 +242,8 @@ describe("makeAcsUseCase — error propagation", () => {
     const useCase = makeAcsUseCase(
       sessionRepository,
       operatorRepository,
-      mockConfig,
       createMockTracingRepository(),
+      mockConfig,
     );
     const token = await makeToken(validPayload);
 
@@ -267,8 +267,8 @@ describe("makeAcsUseCase — error propagation", () => {
     const useCase = makeAcsUseCase(
       sessionRepository,
       operatorRepository,
-      mockConfig,
       createMockTracingRepository(),
+      mockConfig,
     );
     const token = await makeToken(validPayload);
 
@@ -296,8 +296,8 @@ describe("makeAcsUseCase — environment routing", () => {
     const useCase = makeAcsUseCase(
       sessionRepository,
       operatorRepository,
-      mockConfig,
       createMockTracingRepository(),
+      mockConfig,
     );
     const token = await makeToken(validPayload);
 
@@ -321,8 +321,8 @@ describe("makeAcsUseCase — environment routing", () => {
     const useCase = makeAcsUseCase(
       sessionRepository,
       operatorRepository,
-      mockConfig,
       createMockTracingRepository(),
+      mockConfig,
     );
     const token = await makeToken(validPayload);
 
@@ -337,8 +337,8 @@ describe("makeAcsUseCase — environment routing", () => {
     const useCase = makeAcsUseCase(
       sessionRepository,
       operatorRepository,
-      mockConfig,
       createMockTracingRepository(),
+      mockConfig,
     );
     const token = await makeToken(validPayload);
 
@@ -355,8 +355,8 @@ describe("makeAcsUseCase — session TTL", () => {
     const useCase = makeAcsUseCase(
       sessionRepository,
       operatorRepository,
-      mockConfig,
       createMockTracingRepository(),
+      mockConfig,
     );
     const token = await makeToken(validPayload);
 

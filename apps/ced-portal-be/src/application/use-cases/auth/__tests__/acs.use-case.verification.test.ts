@@ -8,6 +8,7 @@ import { describe, expect, it, vi } from "vitest";
 import type { ArTokenRepository } from "../../../../domain/ports/outbound/ar-token.repository.js";
 import type { OperatorRepository } from "../../../../domain/ports/outbound/persistence/operator.repository.js";
 
+import { createMockTracingRepository } from "../../__tests__/mocks.js";
 import { makeAcsUseCase } from "../acs.use-case.js";
 import { createMockSessionRepository } from "./mocks.js";
 
@@ -40,6 +41,7 @@ describe("makeAcsUseCase — token verification", () => {
         arTokenRepository,
         sessionRepository,
         operatorRepository,
+        createMockTracingRepository(),
         mockConfig,
       );
 

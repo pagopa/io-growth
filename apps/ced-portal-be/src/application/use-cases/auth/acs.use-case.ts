@@ -81,13 +81,13 @@ export const makeAcsUseCase =
     arTokenRepository: ArTokenRepository,
     sessionRepository: SessionRepository,
     operatorRepository: OperatorRepository,
+    tracingRepository: TracingRepository,
     config: Pick<
       AppConfig,
       | "ADMIN_FISCAL_CODES"
       | "ADMIN_FISCAL_CODES_TEST"
       | "OPERATORS_FISCAL_CODES_TEST"
     >,
-    tracingRepository: TracingRepository,
   ): UseCase<AcsInput, AcsOutput, BaseError> =>
   async (input) => {
     const verified = await arTokenRepository.verifyToken(input.token);

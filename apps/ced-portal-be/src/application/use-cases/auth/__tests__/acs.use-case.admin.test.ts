@@ -48,8 +48,8 @@ describe("makeAcsUseCase — admin path", () => {
     const useCase = makeAcsUseCase(
       sessionRepository,
       operatorRepository,
-      adminConfig,
       createMockTracingRepository(),
+      adminConfig,
     );
     const token = await makeToken(validPayload);
 
@@ -81,8 +81,8 @@ describe("makeAcsUseCase — admin path", () => {
     const useCase = makeAcsUseCase(
       sessionRepository,
       operatorRepository,
-      testAdminConfig,
       createMockTracingRepository(),
+      testAdminConfig,
     );
     const token = await makeToken(validPayload);
 
@@ -125,8 +125,8 @@ describe("makeAcsUseCase — admin path", () => {
     const useCase = makeAcsUseCase(
       sessionRepository,
       operatorRepository,
-      testOperatorConfig,
       createMockTracingRepository(),
+      testOperatorConfig,
     );
     const token = await makeToken(validPayload);
 

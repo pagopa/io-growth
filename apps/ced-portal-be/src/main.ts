@@ -181,8 +181,17 @@ const emailRepository = createOneMailEmailRepository(
 );
 const tracingRepository = createIoCoreTracingRepository();
 
+const infoReadinessUseCase = makeInfoReadinessUseCase({
+  persistenceHealthCheckRepository: dbHealthCheckRepository,
+  sessionStoreHealthCheckRepository: redisHealthCheckRepository,
+});
+
 // jobs scheduler
-const scheduler = jobsScheduler(config, { emailRepository, tracingRepository });
+const scheduler = jobsScheduler(config, {
+  emailRepository,
+  infoReadinessUseCase,
+  tracingRepository,
+});
 
 // web application instance
 const app = Fastify();
@@ -191,12 +200,6 @@ const app = Fastify();
 await app.register(tracingPlugin);
 
 await app.register(multipart);
-
-// Use cases
-const infoReadinessUseCase = makeInfoReadinessUseCase({
-  persistenceHealthCheckRepository: dbHealthCheckRepository,
-  sessionStoreHealthCheckRepository: redisHealthCheckRepository,
-});
 
 // Inbound adapters — public routes
 mountInfoStartupHandler(app, makeInfoStartupUseCase);
@@ -452,6 +455,6 @@ const shutdown = async (signal: string): Promise<void> => {
 process.once("SIGTERM", () => void shutdown("SIGTERM"));
 process.once("SIGINT", () => void shutdown("SIGINT"));
 
-// Claims job ownership only once this revision is serving, so a revision that
-// fails to boot never takes the jobs from the working one.
+// Takes job ownership only once this revision is serving and ready, so a
+// revision that fails to boot never takes the jobs from the working one.
 await scheduler.start();

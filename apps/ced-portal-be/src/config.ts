@@ -71,6 +71,14 @@ const configSchema = z.object({
     .string()
     .optional()
     .transform((v) => v === "true"),
+  REVISION_TRACKER_SCHEMA: z
+    .string()
+    .regex(/^[A-Za-z_][A-Za-z0-9_]*$/)
+    .default("revision_tracker"),
+  REVISION_TRACKER_TABLE: z
+    .string()
+    .regex(/^[A-Za-z_][A-Za-z0-9_]*$/)
+    .default("revisions"),
   SCHEDULER_OWNERSHIP_CHECK_SECONDS: z.coerce
     .number()
     .int()

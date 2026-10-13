@@ -14,30 +14,11 @@ const mockBossInstance = {
   work: vi.fn(),
 };
 
-const mockClient = {
-  query: vi.fn(),
-  release: vi.fn(),
-};
-
-// Revision that currently holds the highest generation in the registry.
-let latestRevision = "rev-1";
-
-const mockPool = {
-  connect: vi.fn(),
-  end: vi.fn(),
-  query: vi.fn(),
-};
-
 vi.mock("pg-boss", () => ({
   PgBoss: vi.fn(() => mockBossInstance),
 }));
 
-vi.mock("pg", () => ({
-  Pool: vi.fn(() => mockPool),
-}));
-
 const { PgBoss } = await import("pg-boss");
-const { Pool } = await import("pg");
 const { createScheduler } = await import("../scheduler.js");
 
 const connection = {
@@ -51,25 +32,29 @@ const connection = {
 
 const mockTracing = { emitEvent: vi.fn() };
 
+// Whether the scheduler currently owns the jobs, as answered by isOwned.
+let owned = true;
+const isOwned = vi.fn(() => Promise.resolve(owned));
+
 const makeScheduler = (
   overrides: Partial<Parameters<typeof createScheduler>[0]> = {},
 ) =>
   createScheduler({
     connection,
     environment: "prod",
-    revision: "rev-1",
+    isOwned,
     tracingRepository: mockTracing,
     ...overrides,
   });
 
 const traced = (
   name: string,
-  data: Record<string, unknown>,
+  data: Record<string, unknown> = {},
 ): [string, object] => [
   name,
   {
     caller: "JobsScheduler",
-    data: { environment: "prod", revision: "rev-1", ...data },
+    data: { environment: "prod", ...data },
   },
 ];
 
@@ -82,17 +67,7 @@ type WorkHandler = (
 
 beforeEach(() => {
   vi.clearAllMocks();
-  latestRevision = "rev-1";
-  mockPool.connect.mockResolvedValue(mockClient);
-  mockPool.end.mockResolvedValue(undefined);
-  mockPool.query.mockImplementation((sql: string) =>
-    Promise.resolve(
-      sql.startsWith("SELECT")
-        ? { rows: [{ revision: latestRevision }] }
-        : { rows: [] },
-    ),
-  );
-  mockClient.query.mockResolvedValue({ rows: [] });
+  owned = true;
   mockBossInstance.getSchedules.mockResolvedValue([]);
   mockBossInstance.start.mockResolvedValue(undefined);
   mockBossInstance.createQueue.mockResolvedValue(undefined);
@@ -108,41 +83,25 @@ afterEach(() => {
 });
 
 describe("createScheduler start as owner", () => {
-  it("creates the registry table and claims the revision", async () => {
-    const scheduler = makeScheduler();
-
-    await scheduler.start();
-
-    expect(Pool).toHaveBeenCalledWith(
-      expect.objectContaining({ database: "db", host: "localhost" }),
-    );
-    const ddl = mockClient.query.mock.calls.map(([sql]) => String(sql));
-    expect(ddl.some((sql) => sql.includes("pg_advisory_xact_lock"))).toBe(true);
-    expect(
-      ddl.some((sql) =>
-        sql.includes("CREATE TABLE IF NOT EXISTS io_core_scheduler"),
-      ),
-    ).toBe(true);
-    expect(ddl).toContain("COMMIT");
-    expect(mockPool.query).toHaveBeenCalledWith(
-      expect.stringContaining("ON CONFLICT (revision) DO NOTHING"),
-      ["rev-1"],
-    );
-    expect(mockClient.release).toHaveBeenCalledOnce();
-  });
-
-  it("constructs pg-boss with the connection config and the revision as instance name", async () => {
+  it("constructs pg-boss with the connection config", async () => {
     await makeScheduler().start();
 
     expect(PgBoss).toHaveBeenCalledWith({
       database: "db",
       host: "localhost",
-      instanceName: "rev-1",
       password: "pw",
       port: 5432,
       ssl: true,
       user: "user",
     });
+  });
+
+  it("passes the instance name through to pg-boss", async () => {
+    await makeScheduler({ instanceName: "rev-1" }).start();
+
+    expect(PgBoss).toHaveBeenCalledWith(
+      expect.objectContaining({ instanceName: "rev-1" }),
+    );
   });
 
   it("creates the queue, schedules the cron and starts a worker for every registered job", async () => {
@@ -285,9 +244,62 @@ describe("createScheduler start as owner", () => {
   });
 });
 
-describe("createScheduler start as a superseded revision", () => {
+describe("createScheduler start without isOwned", () => {
+  it("starts pg-boss right away and never checks ownership", async () => {
+    vi.useFakeTimers();
+    const scheduler = makeScheduler({
+      isOwned: undefined,
+      ownershipCheckSeconds: 5,
+    });
+    const handler = vi.fn().mockResolvedValue(undefined);
+    scheduler.schedule({ cron: "* * * * *", handler, name: "job-a" });
+
+    await scheduler.start();
+    await vi.advanceTimersByTimeAsync(20000);
+
+    expect(PgBoss).toHaveBeenCalledOnce();
+    expect(mockBossInstance.work).toHaveBeenCalledOnce();
+    expect(isOwned).not.toHaveBeenCalled();
+    expect(mockBossInstance.stop).not.toHaveBeenCalled();
+  });
+
+  it("runs jobs without any fence", async () => {
+    const scheduler = makeScheduler({ isOwned: undefined });
+    const handler = vi.fn().mockResolvedValue(undefined);
+    scheduler.schedule({ cron: "* * * * *", handler, name: "job-a" });
+    await scheduler.start();
+    const [, , workHandler] = mockBossInstance.work.mock.calls[0] as [
+      string,
+      object,
+      WorkHandler,
+    ];
+
+    await workHandler([{ data: {}, signal: new AbortController().signal }]);
+
+    expect(handler).toHaveBeenCalledOnce();
+  });
+
+  it("traces the started role as owner", async () => {
+    await makeScheduler({ isOwned: undefined }).start();
+
+    expect(mockTracing.emitEvent).toHaveBeenCalledWith(
+      ...traced("scheduler.started", { role: "owner" }),
+    );
+  });
+
+  it("stops pg-boss on stop", async () => {
+    const scheduler = makeScheduler({ isOwned: undefined });
+    await scheduler.start();
+
+    await scheduler.stop();
+
+    expect(mockBossInstance.stop).toHaveBeenCalledOnce();
+  });
+});
+
+describe("createScheduler start while not owning the jobs", () => {
   beforeEach(() => {
-    latestRevision = "rev-2";
+    owned = false;
   });
 
   it("stays passive: no pg-boss, no schedule changes", async () => {
@@ -308,7 +320,7 @@ describe("createScheduler start as a superseded revision", () => {
 });
 
 describe("createScheduler ownership changes at runtime", () => {
-  it("stops pg-boss gracefully when a newer revision takes over", async () => {
+  it("stops pg-boss gracefully when ownership is lost", async () => {
     vi.useFakeTimers();
     const scheduler = makeScheduler({
       ownershipCheckSeconds: 5,
@@ -316,7 +328,7 @@ describe("createScheduler ownership changes at runtime", () => {
     });
     await scheduler.start();
 
-    latestRevision = "rev-2";
+    owned = false;
     await vi.advanceTimersByTimeAsync(5000);
 
     expect(mockBossInstance.stop).toHaveBeenCalledWith({
@@ -325,21 +337,21 @@ describe("createScheduler ownership changes at runtime", () => {
     });
   });
 
-  it("starts as owner when a passive revision becomes the latest again", async () => {
+  it("starts as owner when a passive scheduler gains ownership", async () => {
     vi.useFakeTimers();
-    latestRevision = "rev-2";
+    owned = false;
     const scheduler = makeScheduler({ ownershipCheckSeconds: 5 });
     await scheduler.start();
     expect(PgBoss).not.toHaveBeenCalled();
 
-    latestRevision = "rev-1";
+    owned = true;
     await vi.advanceTimersByTimeAsync(5000);
 
     expect(PgBoss).toHaveBeenCalledOnce();
     expect(mockBossInstance.start).toHaveBeenCalledOnce();
   });
 
-  it("fences a job fetched after a newer revision took over", async () => {
+  it("fences a job fetched after ownership was lost", async () => {
     const scheduler = makeScheduler();
     const handler = vi.fn().mockResolvedValue(undefined);
     scheduler.schedule({ cron: "* * * * *", handler, name: "job-a" });
@@ -350,7 +362,7 @@ describe("createScheduler ownership changes at runtime", () => {
       WorkHandler,
     ];
 
-    latestRevision = "rev-2";
+    owned = false;
     await expect(
       workHandler([{ data: {}, signal: new AbortController().signal }]),
     ).rejects.toThrow("no longer owns scheduled jobs");
@@ -361,7 +373,7 @@ describe("createScheduler ownership changes at runtime", () => {
 });
 
 describe("createScheduler stop", () => {
-  it("stops pg-boss gracefully with the timeout and closes the registry pool", async () => {
+  it("stops pg-boss gracefully with the timeout", async () => {
     const scheduler = makeScheduler({ stopTimeoutSeconds: 7 });
     await scheduler.start();
 
@@ -371,7 +383,6 @@ describe("createScheduler stop", () => {
       graceful: true,
       timeout: 7000,
     });
-    expect(mockPool.end).toHaveBeenCalledOnce();
   });
 
   it("is safe to call twice", async () => {
@@ -382,18 +393,16 @@ describe("createScheduler stop", () => {
     await scheduler.stop();
 
     expect(mockBossInstance.stop).toHaveBeenCalledOnce();
-    expect(mockPool.end).toHaveBeenCalledOnce();
   });
 
-  it("only closes the pool when passive", async () => {
-    latestRevision = "rev-2";
+  it("does not touch pg-boss when passive", async () => {
+    owned = false;
     const scheduler = makeScheduler();
     await scheduler.start();
 
     await scheduler.stop();
 
     expect(mockBossInstance.stop).not.toHaveBeenCalled();
-    expect(mockPool.end).toHaveBeenCalledOnce();
   });
 
   it("stops the ownership timer", async () => {
@@ -401,33 +410,30 @@ describe("createScheduler stop", () => {
     const scheduler = makeScheduler({ ownershipCheckSeconds: 5 });
     await scheduler.start();
     await scheduler.stop();
-    mockPool.query.mockClear();
+    isOwned.mockClear();
 
     await vi.advanceTimersByTimeAsync(20000);
 
-    expect(mockPool.query).not.toHaveBeenCalled();
+    expect(isOwned).not.toHaveBeenCalled();
   });
 });
 
 describe("createScheduler tracing", () => {
-  it("traces a started owner with its role and the owner revision", async () => {
+  it("traces a started owner with its role", async () => {
     await makeScheduler().start();
 
     expect(mockTracing.emitEvent).toHaveBeenCalledWith(
-      ...traced("scheduler.started", { ownerRevision: "rev-1", role: "owner" }),
+      ...traced("scheduler.started", { role: "owner" }),
     );
   });
 
-  it("traces a superseded revision as passive with the revision that owns the jobs", async () => {
-    latestRevision = "rev-2";
+  it("traces a scheduler that does not own the jobs as passive", async () => {
+    owned = false;
 
     await makeScheduler().start();
 
     expect(mockTracing.emitEvent).toHaveBeenCalledWith(
-      ...traced("scheduler.started", {
-        ownerRevision: "rev-2",
-        role: "passive",
-      }),
+      ...traced("scheduler.started", { role: "passive" }),
     );
     expect(tracedEventNames()).not.toContain("scheduler.job_rejected");
   });
@@ -455,8 +461,8 @@ describe("createScheduler tracing", () => {
     const scheduler = makeScheduler({ ownershipCheckSeconds: 5 });
     await scheduler.start();
 
-    const failure = new Error("registry down");
-    mockPool.query.mockRejectedValue(failure);
+    const failure = new Error("tracker down");
+    isOwned.mockRejectedValueOnce(failure);
     await vi.advanceTimersByTimeAsync(5000);
 
     expect(mockTracing.emitEvent).toHaveBeenCalledWith(
@@ -465,16 +471,16 @@ describe("createScheduler tracing", () => {
     expect(mockBossInstance.stop).not.toHaveBeenCalled();
   });
 
-  it("traces a passive revision that becomes the owner", async () => {
+  it("traces a passive scheduler that gains ownership", async () => {
     vi.useFakeTimers();
-    latestRevision = "rev-2";
+    owned = false;
     await makeScheduler({ ownershipCheckSeconds: 5 }).start();
 
-    latestRevision = "rev-1";
+    owned = true;
     await vi.advanceTimersByTimeAsync(5000);
 
     expect(mockTracing.emitEvent).toHaveBeenCalledWith(
-      ...traced("scheduler.promoted", { ownerRevision: "rev-1" }),
+      ...traced("scheduler.promoted"),
     );
   });
 
@@ -482,14 +488,11 @@ describe("createScheduler tracing", () => {
     vi.useFakeTimers();
     await makeScheduler({ ownershipCheckSeconds: 5 }).start();
 
-    latestRevision = "rev-2";
+    owned = false;
     await vi.advanceTimersByTimeAsync(5000);
 
     expect(mockTracing.emitEvent).toHaveBeenCalledWith(
-      ...traced("scheduler.demoted", {
-        ownerRevision: "rev-2",
-        trigger: "ownership_check",
-      }),
+      ...traced("scheduler.demoted", { trigger: "ownership_check" }),
     );
   });
 
@@ -508,20 +511,14 @@ describe("createScheduler tracing", () => {
     ];
     const jobs = [{ data: {}, signal: new AbortController().signal }];
 
-    latestRevision = "rev-2";
+    owned = false;
     await Promise.allSettled([workHandler(jobs), workHandler(jobs)]);
 
     expect(mockTracing.emitEvent).toHaveBeenCalledWith(
-      ...traced("scheduler.job_rejected", {
-        job: "job-a",
-        ownerRevision: "rev-2",
-      }),
+      ...traced("scheduler.job_rejected", { job: "job-a" }),
     );
     expect(mockTracing.emitEvent).toHaveBeenCalledWith(
-      ...traced("scheduler.demoted", {
-        ownerRevision: "rev-2",
-        trigger: "job_fence",
-      }),
+      ...traced("scheduler.demoted", { trigger: "job_fence" }),
     );
     expect(
       tracedEventNames().filter((name) => name === "scheduler.job_rejected"),

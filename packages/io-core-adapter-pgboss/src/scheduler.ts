@@ -2,8 +2,6 @@ import type { Job } from "pg-boss";
 
 import { PgBoss } from "pg-boss";
 
-import { createRevisionRegistry } from "./revision-registry.js";
-
 const DEFAULT_OWNERSHIP_CHECK_SECONDS = 15;
 const DEFAULT_STOP_TIMEOUT_SECONDS = 25;
 // Gives the owner revision time to take over a job fenced off from an old one.
@@ -48,10 +46,10 @@ export interface Scheduler {
     job: ScheduledJobDefinition<TData>,
   ) => void;
   /**
-   * Registers this revision and, only if it is the latest one, starts pg-boss
-   * and the workers for every registered job after unscheduling the db
-   * schedules not registered here. Older revisions stay passive and never
-   * touch the schedules.
+   * Starts pg-boss and the workers for every registered job after unscheduling
+   * the db schedules not registered here. When `isOwned` is configured, this
+   * only happens while it resolves to true; otherwise the scheduler stays
+   * passive and never touches the schedules.
    */
   readonly start: () => Promise<void>;
   readonly stop: () => Promise<void>;
@@ -61,11 +59,16 @@ export interface SchedulerConfig {
   readonly connection: PgBossConnectionConfig;
   /** Included in every traced event to tell apart schedulers sharing a process. */
   readonly environment?: string;
-  /** How often a revision re-checks whether it still owns the jobs. */
+  /** Label for this pg-boss instance, passed through as is. */
+  readonly instanceName?: string;
+  /**
+   * Tells whether this scheduler currently owns the jobs. Without it, the
+   * scheduler always runs, as when each deploy stops the previous version.
+   */
+  readonly isOwned?: () => Promise<boolean>;
+  /** How often ownership is re-checked; only used with `isOwned`. */
   readonly ownershipCheckSeconds?: number;
   readonly pollingIntervalSeconds?: number;
-  /** Identifies the deployed revision; the latest one to register owns the jobs. */
-  readonly revision: string;
   /** Max time active jobs may take to finish on stop or demotion. */
   readonly stopTimeoutSeconds?: number;
   readonly tracingRepository?: SchedulerTracingRepository;
@@ -93,7 +96,7 @@ const unscheduleStaleJobs = async (
 };
 
 export const createScheduler = (config: SchedulerConfig): Scheduler => {
-  const registry = createRevisionRegistry(config.connection, config.revision);
+  const { isOwned } = config;
   const ownershipCheckMs =
     (config.ownershipCheckSeconds ?? DEFAULT_OWNERSHIP_CHECK_SECONDS) * 1000;
   const stopTimeoutMs =
@@ -114,7 +117,6 @@ export const createScheduler = (config: SchedulerConfig): Scheduler => {
       caller: TRACING_CALLER,
       data: {
         environment: config.environment,
-        revision: config.revision,
         ...data,
       },
     });
@@ -140,15 +142,12 @@ export const createScheduler = (config: SchedulerConfig): Scheduler => {
     await instance.stop({ graceful: true, timeout: stopTimeoutMs });
   };
 
-  const demote = async (
-    ownerRevision: string | undefined,
-    trigger: DemotionTrigger,
-  ): Promise<void> => {
+  const demote = async (trigger: DemotionTrigger): Promise<void> => {
     // Already stopped, e.g. by another worker's fence: report the demotion once.
     if (!boss) {
       return;
     }
-    emitEvent("scheduler.demoted", { ownerRevision, trigger });
+    emitEvent("scheduler.demoted", { trigger });
     await stopBoss();
   };
 
@@ -173,14 +172,11 @@ export const createScheduler = (config: SchedulerConfig): Scheduler => {
       job.name,
       { pollingIntervalSeconds: config.pollingIntervalSeconds },
       async (pgJobs: Job[]) => {
-        // Closes the gap before the next ownership check notices a newer revision.
-        const ownerRevision = await registry.getOwner();
-        if (ownerRevision !== config.revision) {
-          emitEvent("scheduler.job_rejected", { job: job.name, ownerRevision });
-          void demote(ownerRevision, "job_fence").catch(emitError);
-          throw new Error(
-            `Revision ${config.revision} no longer owns scheduled jobs`,
-          );
+        // Closes the gap before the next ownership check notices the loss.
+        if (isOwned && !(await isOwned())) {
+          emitEvent("scheduler.job_rejected", { job: job.name });
+          void demote("job_fence").catch(emitError);
+          throw new Error("Scheduler no longer owns scheduled jobs");
         }
         for (const pgJob of pgJobs) {
           try {
@@ -205,7 +201,9 @@ export const createScheduler = (config: SchedulerConfig): Scheduler => {
     const instance = new PgBoss({
       database: config.connection.database,
       host: config.connection.host,
-      instanceName: config.revision,
+      ...(config.instanceName === undefined
+        ? {}
+        : { instanceName: config.instanceName }),
       password: config.connection.password,
       port: config.connection.port,
       ssl: config.connection.ssl ? true : undefined,
@@ -228,18 +226,17 @@ export const createScheduler = (config: SchedulerConfig): Scheduler => {
   };
 
   const reconcile = async (): Promise<void> => {
-    if (reconciling || stopped) {
+    if (!isOwned || reconciling || stopped) {
       return;
     }
     reconciling = true;
     try {
-      const ownerRevision = await registry.getOwner();
-      const owner = ownerRevision === config.revision;
+      const owner = await isOwned();
       if (owner && !boss) {
         await startAsOwner();
-        emitEvent("scheduler.promoted", { ownerRevision });
+        emitEvent("scheduler.promoted");
       } else if (!owner && boss) {
-        await demote(ownerRevision, "ownership_check");
+        await demote("ownership_check");
       }
     } catch (error) {
       emitError(error);
@@ -249,15 +246,15 @@ export const createScheduler = (config: SchedulerConfig): Scheduler => {
   };
 
   const start = async (): Promise<void> => {
-    await registry.ensureTable();
-    await registry.claim();
-    const ownerRevision = await registry.getOwner();
-    const role = ownerRevision === config.revision ? "owner" : "passive";
+    const role = !isOwned || (await isOwned()) ? "owner" : "passive";
     if (role === "owner") {
       await startAsOwner();
     }
-    emitEvent("scheduler.started", { ownerRevision, role });
-    // Keeps ticking while passive too, so a manual registry reset needs no restart.
+    emitEvent("scheduler.started", { role });
+    if (!isOwned) {
+      return;
+    }
+    // Keeps ticking while passive too, so a later promotion needs no restart.
     ownershipTimer = setInterval(() => {
       void reconcile();
     }, ownershipCheckMs);
@@ -271,11 +268,7 @@ export const createScheduler = (config: SchedulerConfig): Scheduler => {
     stopped = true;
     clearInterval(ownershipTimer);
     emitEvent("scheduler.stopped", { role: boss ? "owner" : "passive" });
-    try {
-      await stopBoss();
-    } finally {
-      await registry.close();
-    }
+    await stopBoss();
   };
 
   return { schedule, start, stop };

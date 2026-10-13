@@ -35,6 +35,7 @@
     "@pagopa/io-core-adapter-one-mail": "workspace:^",
     "@pagopa/io-core-adapter-pgboss": "workspace:^",
     "@pagopa/io-core-adapter-redis": "workspace:^",
+    "@pagopa/io-core-adapter-revision-tracker": "workspace:^",
     "@pagopa/io-core-domain": "workspace:^",
     "@pagopa/io-core-environment-router": "workspace:^",
     "@standard-schema/spec": "^1.1.0",

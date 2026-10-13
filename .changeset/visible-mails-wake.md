@@ -1,6 +1,7 @@
 ---
 "ced-portal-be": minor
 "@pagopa/io-core-adapter-pgboss": minor
+"@pagopa/io-core-adapter-revision-tracker": minor
 ---
 Send approval and publishing emails through a message outbox.
 
@@ -10,4 +11,4 @@ Send the opportunity "published" email when the opportunity becomes visible, ins
 
 Decoupled tracing into a port.
 
-Only the latest Container Apps revision owns the scheduled jobs: revisions register in a Postgres registry, older ones stay passive and stop rejected jobs. The scheduler stops gracefully on SIGTERM and traces its ownership events through the injected tracing repository.
+Only the latest Container Apps revision owns the scheduled jobs: the new revision tracker package records revisions in a Postgres table, and the app registers its revision once it is ready. The scheduler knows nothing about revisions: it takes an optional `isOwned` closure and, without it, always runs. Older revisions stay passive and stop rejected jobs. The scheduler stops gracefully on SIGTERM and traces its ownership events through the injected tracing repository.

@@ -6,6 +6,9 @@ import type {
 
 import { createTypedDbClient } from "@pagopa/io-core-adapter-drizzle";
 import { createScheduler } from "@pagopa/io-core-adapter-pgboss";
+import { createTracker } from "@pagopa/io-core-adapter-revision-tracker";
+
+import type { InfoReadinessUseCase } from "./application/use-cases/health/info-readiness.use-case.js";
 
 import { mountJobEnqueueOpportunityPublishedMessagesHandler } from "./adapters/inbound/pgboss/job-enqueue-opportunity-published-messages/job-enqueue-opportunity-published-messages.handler.js";
 import { mountJobSendOutboxMessagesHandler } from "./adapters/inbound/pgboss/job-send-outbox-messages/job-send-outbox-messages.handler.js";
@@ -21,12 +24,14 @@ import { TracingRepository } from "./domain/ports/outbound/tracing.repository.js
 
 interface JobsDependencies {
   emailRepository: EmailRepository;
+  infoReadinessUseCase: InfoReadinessUseCase;
   tracingRepository: TracingRepository;
 }
 
 interface Scheduler {
   dbClient: TypedDbClient<typeof schema>;
   environment: JobEnvironment;
+  registerRevision: () => Promise<void>;
   schedule: <TData extends object = object>(
     job: ScheduledJobDefinition<TData>,
   ) => void;
@@ -56,12 +61,22 @@ export const jobsScheduler = (
     environment: JobEnvironment,
     pollingIntervalSeconds: number,
   ): Scheduler => {
+    const tracker = createTracker({
+      connection,
+      revision: config.CONTAINER_APP_REVISION,
+      table: {
+        name: config.REVISION_TRACKER_TABLE,
+        schema: config.REVISION_TRACKER_SCHEMA,
+      },
+    });
+
     const pgBossScheduler = createScheduler({
       connection,
       environment,
+      instanceName: config.CONTAINER_APP_REVISION,
+      isOwned: tracker.isLatest,
       ownershipCheckSeconds: config.SCHEDULER_OWNERSHIP_CHECK_SECONDS,
       pollingIntervalSeconds,
-      revision: config.CONTAINER_APP_REVISION,
       stopTimeoutSeconds: config.SCHEDULER_STOP_TIMEOUT_SECONDS,
       tracingRepository: dependencies.tracingRepository,
     });
@@ -71,10 +86,12 @@ export const jobsScheduler = (
     return {
       dbClient,
       environment,
+      registerRevision: tracker.register,
       schedule: pgBossScheduler.schedule,
       start: pgBossScheduler.start,
       stop: async () => {
         await pgBossScheduler.stop();
+        await tracker.close();
         await dbClient.closeConnection();
       },
     };
@@ -100,6 +117,15 @@ export const jobsScheduler = (
 
   return {
     start: async () => {
+      // Only a revision that is ready may register and so take over the jobs.
+      const readiness = await dependencies.infoReadinessUseCase({});
+      if (readiness.isErr()) {
+        throw readiness.error;
+      }
+      await Promise.all([
+        prodScheduler.registerRevision(),
+        testScheduler.registerRevision(),
+      ]);
       await Promise.all([prodScheduler.start(), testScheduler.start()]);
     },
 

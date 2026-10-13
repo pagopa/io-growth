@@ -148,6 +148,7 @@ export const OpportunitiesTable = ({
       const bVal = b[sortBy as keyof Opportunity] ?? '';
       const result = String(aVal).localeCompare(String(bVal), 'it', {
         sensitivity: 'base',
+        numeric: true,
       });
       return sortDirection === 'asc' ? result : -result;
     });

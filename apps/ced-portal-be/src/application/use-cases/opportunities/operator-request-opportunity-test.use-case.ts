@@ -52,10 +52,11 @@ export const makeOperatorRequestOpportunityTestUseCase =
         if (!data) {
           return errAsync(new NotFoundError("Opportunity", "not found"));
         }
-        if (data.status !== "draft") {
+        const currentStatus = data.status;
+        if (currentStatus !== "draft" && currentStatus !== "test_rejected") {
           return errAsync(
             new PreconditionFailedError(
-              "Opportunity must be in draft status to request testing",
+              "Opportunity must be in draft or test_rejected status to request testing",
             ),
           );
         }
@@ -78,7 +79,7 @@ export const makeOperatorRequestOpportunityTestUseCase =
           }
           return new ResultAsync(
             opportunityRepository.updateStatusByIdAndOperatorId({
-              expectedStatus: "draft",
+              expectedStatus: currentStatus,
               operatorId: validatedInput.operatorId,
               opportunityId: validatedInput.opportunityId,
               status: "test_pending",

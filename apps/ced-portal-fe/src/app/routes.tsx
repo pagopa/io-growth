@@ -17,6 +17,9 @@ import {
   EntitiesPage,
   EntityDetailPage,
   EntityOpportunityDetailPage,
+  LocationsPage,
+  LocationDetailPage,
+  CreateLocationPage,
 } from './routeConfig';
 
 export function AppRoutes() {
@@ -28,6 +31,15 @@ export function AppRoutes() {
           <Route
             path={APP_ROUTES.OVERVIEW_COMPLETE_DATA}
             element={<OverviewCompleteDataPage />}
+          />
+          <Route path={APP_ROUTES.LOCATIONS} element={<LocationsPage />} />
+          <Route
+            path={APP_ROUTES.CREATE_LOCATION}
+            element={<CreateLocationPage />}
+          />
+          <Route
+            path={APP_ROUTES.LOCATION_DETAIL}
+            element={<LocationDetailPage />}
           />
           <Route path={APP_ROUTES.HOME} element={<HomePage />} />
           <Route

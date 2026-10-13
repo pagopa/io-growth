@@ -1,0 +1,28 @@
+oa3_spec: apps/ced-portal-be/openapi/exposed/openapi.yaml
+name: portal-be
+location: italynorth
+resource_type: app-gateway
+resource_group: ced-p-itn-opex-rg-01
+data_source: /subscriptions/0f1c9857-d58b-47d2-874e-c905c5276dda/resourceGroups/ced-p-itn-common-rg-01/providers/Microsoft.Network/applicationGateways/ced-p-itn-agw-01
+action_groups:
+  - /subscriptions/0f1c9857-d58b-47d2-874e-c905c5276dda/resourceGroups/ced-p-itn-common-rg-01/providers/Microsoft.Insights/actionGroups/ced-p-itn-error-ag-01
+
+timespan: 5m
+availability_threshold: 0.99
+response_time_threshold: 1
+evaluation_frequency: 10
+evaluation_time_window: 20
+event_occurrences: 1
+
+overrides:
+  hosts:
+    - api.ced.pagopa.it
+
+terraform:
+  prefix: ced
+  env_short: p
+  backend:
+    resource_group_name: ced-p-itn-tfstate-rg-01
+    storage_account_name: cedpitntfstatest01
+    container_name: terraform-state
+    key: ced.opex.ced-portal-be.prod.tfstate

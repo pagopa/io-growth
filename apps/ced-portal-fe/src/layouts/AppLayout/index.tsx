@@ -15,7 +15,8 @@ export function AppLayout() {
     pathname === APP_ROUTES.HOME ||
     pathname === APP_ROUTES.OVERVIEW ||
     pathname === APP_ROUTES.OPPORTUNITIES ||
-    pathname === APP_ROUTES.ENTITIES;
+    pathname === APP_ROUTES.ENTITIES ||
+    pathname === APP_ROUTES.LOCATIONS;
 
   return (
     <Box

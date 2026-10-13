@@ -1,5 +1,17 @@
 # ced-portal-be
 
+## 0.8.2
+
+### Patch Changes
+
+- e9dc8e9: change logo image validation dimensions from vertical to horizontal
+
+## 0.8.1
+
+### Patch Changes
+
+- c019a0d: Change the target status of a change request from draft to test_rejected: an opportunity the department asks changes on now moves to test_rejected instead of draft
+
 ## 0.8.0
 
 ### Minor Changes

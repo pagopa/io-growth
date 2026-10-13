@@ -202,7 +202,7 @@ export const mapOpportunityDetailRow = (
   }
 
   const places = row.opportunityPlaces.map(mapPlaceRow);
-  if (places.length === 0) {
+  if (places.length === 0 && !row.nationalTerritory) {
     return err(
       new GenericError(
         `Data integrity error: opportunity ${row.id} has no associated places`,

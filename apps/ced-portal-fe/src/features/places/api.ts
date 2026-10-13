@@ -1,11 +1,32 @@
 import { baseApi } from '../../core/api/baseApi';
 import type { FetchBaseQueryError } from '@reduxjs/toolkit/query';
-import type { PlaceCreateRequest, PlaceResponse } from '../../generated/model';
+import type {
+  PlaceCreateRequest,
+  PlaceResponse,
+  PlaceListResponse,
+} from '../../generated/model';
+
+export type GetPlacesArgs = {
+  offset?: number;
+  limit?: number;
+  search?: string;
+  type?: string;
+};
 
 export const placesApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
-    getPlaces: builder.query<PlaceResponse[], void>({
-      query: () => '/operator/places',
+    getPlaces: builder.query<PlaceListResponse, GetPlacesArgs>({
+      query: (args = {}) => {
+        const params = new URLSearchParams();
+        if (args.search) params.append('search', args.search);
+        if (args.type && args.type !== 'both') params.append('type', args.type);
+        if (args.limit) params.append('limit', String(args.limit));
+        if (args.offset !== undefined)
+          params.append('offset', String(args.offset));
+
+        const q = params.toString();
+        return `/operator/places${q ? `?${q}` : ''}`;
+      },
       providesTags: ['Places'],
     }),
     getPlaceById: builder.query<PlaceResponse, string>({
@@ -47,12 +68,20 @@ export const placesApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: ['Places'],
     }),
+    deletePlace: builder.mutation<void, string>({
+      query: (placeId) => ({
+        url: `/operator/places/${placeId}`,
+        method: 'DELETE',
+      }),
+      invalidatesTags: ['Places'],
+    }),
   }),
 });
 
 export const {
   useGetPlacesQuery,
-
+  useGetPlaceByIdQuery,
   useGetPlacesByIdsQuery,
   useCreatePlaceMutation,
+  useDeletePlaceMutation,
 } = placesApi;

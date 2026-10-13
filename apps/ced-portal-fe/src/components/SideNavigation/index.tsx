@@ -1,6 +1,8 @@
 import BusinessOutlinedIcon from '@mui/icons-material/BusinessOutlined';
 import DashboardOutlinedIcon from '@mui/icons-material/DashboardOutlined';
 import LocalOfferOutlinedIcon from '@mui/icons-material/LocalOfferOutlined';
+import LocationOn from '@mui/icons-material/LocationOn';
+
 import MenuRoundedIcon from '@mui/icons-material/MenuRounded';
 import {
   Box,
@@ -73,6 +75,7 @@ export function SideNavigation() {
   const { pathname } = useLocation();
   const isOverviewActive = pathname === APP_ROUTES.OVERVIEW;
   const isBenefitsActive = pathname === APP_ROUTES.HOME;
+  const isLocationsActive = pathname === APP_ROUTES.LOCATIONS;
   const isOpportunitiesActive = pathname === APP_ROUTES.OPPORTUNITIES;
   const isEntitiesActive = pathname === APP_ROUTES.ENTITIES;
   const role = useAppSelector(selectUserType);
@@ -121,6 +124,12 @@ export function SideNavigation() {
               icon={<LocalOfferOutlinedIcon />}
               label="Opportunità"
               onClick={() => navigate(APP_ROUTES.HOME)}
+            />
+            <NavItem
+              active={isLocationsActive}
+              icon={<LocationOn />}
+              label="Punti di accesso"
+              onClick={() => navigate(APP_ROUTES.LOCATIONS)}
             />
           </>
         )}

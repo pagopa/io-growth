@@ -1,0 +1,30 @@
+name: OpEx Dashboards
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - ".opex/**"
+      - "apps/**/openapi/exposed/openapi.yaml"
+      - ".github/workflows/opex_dashboard.yaml"
+  push:
+    branches:
+      - main
+    paths:
+      - ".opex/**"
+      - "apps/**/openapi/exposed/openapi.yaml"
+      - ".github/workflows/opex_dashboard.yaml"
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  opex_dashboards:
+    name: Deploy OpEx Dashboards
+    if: >-
+      github.event_name != 'pull_request' ||
+      github.event.pull_request.head.repo.full_name == github.repository
+    uses: pagopa/dx/.github/workflows/opex-dashboard-deploy.yaml@d222553e8a95174681009459bc91def4c8fdfc5b # main
+    secrets: inherit

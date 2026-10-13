@@ -74,9 +74,16 @@ export const OpportunityDetailSchema = OperatorMetadataSchema.extend({
   language: z.enum(LANGUAGE_VALUES),
   name: z.string().min(1),
   nationalTerritory: z.boolean(),
-  places: z.array(OpportunityPlaceSchema).min(1),
+  places: z.array(OpportunityPlaceSchema),
   profile: OpportunityProfileSchema,
   url: z.url().nullable().optional(),
-});
+}).refine(
+  ({ nationalTerritory, places }) => nationalTerritory || places.length > 0,
+  {
+    message:
+      "Non-national opportunities must have at least one associated place",
+    path: ["places"],
+  },
+);
 
 export type OpportunityDetail = z.infer<typeof OpportunityDetailSchema>;

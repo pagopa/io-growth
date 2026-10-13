@@ -374,7 +374,7 @@ export const useCompleteDataForm = ({
       }
 
       try {
-        const exceedsLimit = await exceedsImageDimensions(file, 300, 600);
+        const exceedsLimit = await exceedsImageDimensions(file, 600, 300);
         if (validationRequest !== coverValidationRequest.current) return;
 
         if (exceedsLimit) {

@@ -11,8 +11,15 @@ const getImageAsset = (
   extension: 'png' | 'jpg' = 'png',
 ) => `/assets/${entityId}-${type}.${extension}`;
 
+export interface PartnerCardConfig {
+  entityId: string;
+  title: string;
+  imageUrl: string;
+  logoUrl: string;
+}
+
 // TODO: Refactor/replace this hardcoded PARTNERS_CARDS_CONFIG once partner data/images are provided by the real source of truth.
-export const PARTNERS_CARDS_CONFIG = [
+export const PARTNERS_CARDS_CONFIG: PartnerCardConfig[] = [
   {
     entityId: 'comune-di-alessandria',
     title: 'Comune di Alessandria',

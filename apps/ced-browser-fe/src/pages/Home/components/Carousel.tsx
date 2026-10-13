@@ -165,10 +165,20 @@ export const Carousel = ({ list }: CarouselProps) => {
     [list.length, scrollToExtendedIndex],
   );
 
+  const handleSlideFocus = useCallback(
+    (idx: number, isLoopDuplicate: boolean) => {
+      if (!isLoopDuplicate) {
+        scrollToExtendedIndex(idx, 'smooth');
+      }
+    },
+    [scrollToExtendedIndex],
+  );
+
   if (list.length === 1)
     return (
       <CarouselContainer
         role="region"
+        aria-roledescription="carousel"
         aria-label="Carosello partner in primo piano"
       >
         <PartnerCard {...list[0]} />
@@ -178,6 +188,7 @@ export const Carousel = ({ list }: CarouselProps) => {
   return (
     <CarouselContainer
       role="region"
+      aria-roledescription="carousel"
       aria-label="Carosello partner in primo piano"
     >
       <ScrollArea ref={containerRef} role="list" aria-label="Elenco partner">
@@ -195,6 +206,7 @@ export const Carousel = ({ list }: CarouselProps) => {
                   : `Elemento ${mapExtendedToRealIndex(idx) + 1} di ${list.length}: ${item.title}`
               }
               aria-hidden={isLoopDuplicate ? true : undefined}
+              onFocus={() => handleSlideFocus(idx, isLoopDuplicate)}
             >
               <PartnerCard {...item} isInert={isLoopDuplicate} />
             </SlideBox>
@@ -216,7 +228,13 @@ export const Carousel = ({ list }: CarouselProps) => {
           <ChevronLeftRounded />
         </Button>
 
-        <Stack direction="row" alignItems="center" spacing={0.5}>
+        <Stack
+          direction="row"
+          alignItems="center"
+          spacing={0.5}
+          role="group"
+          aria-label="Indicatori di pagina del carosello"
+        >
           {list.map((_, idx) => (
             <StyledDots
               key={idx}
@@ -224,7 +242,7 @@ export const Carousel = ({ list }: CarouselProps) => {
               onClick={() => onClickDots(idx)}
               className={activeIdx === idx ? 'active' : 'inactive'}
               aria-label={`Vai all'elemento ${idx + 1} di ${list.length}`}
-              aria-current={activeIdx === idx}
+              aria-current={activeIdx === idx ? 'true' : undefined}
             />
           ))}
         </Stack>

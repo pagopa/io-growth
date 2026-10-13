@@ -20,7 +20,7 @@ import {
   buildOpportunityApprovedMessage,
   type MessagePayload,
 } from "../../../domain/entities/message-outbox.js";
-import { MaterializedViewRepository } from "../../../domain/ports/outbound/materialized-view.repository.js";
+import type { MaterializedViewRepository } from "../../../domain/ports/outbound/materialized-view.repository.js";
 import { validateUseCaseInput } from "../utils/validate-use-case-input.js";
 
 const AdminApproveOpportunityInputSchema = z.object({

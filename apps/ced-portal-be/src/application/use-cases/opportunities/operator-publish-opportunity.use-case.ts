@@ -9,6 +9,7 @@ import {
   NotFoundError,
   PreconditionFailedError,
 } from "@pagopa/io-core-domain/errors";
+import { getApplicationDate } from "@pagopa/io-core-domain/utilities";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { z } from "zod";
 
@@ -71,7 +72,7 @@ export const makeOperatorPublishOpportunityUseCase =
                 ),
               );
 
-            const today = new Date().toISOString().slice(0, 10);
+            const today = getApplicationDate();
 
             return new ResultAsync(
               opportunityRepository.updateStatusByIdAndOperatorId({

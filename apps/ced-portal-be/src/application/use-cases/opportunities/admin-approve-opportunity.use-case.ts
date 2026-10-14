@@ -9,6 +9,7 @@ import {
   NotFoundError,
   PreconditionFailedError,
 } from "@pagopa/io-core-domain/errors";
+import { getApplicationDate } from "@pagopa/io-core-domain/utilities";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { z } from "zod";
 
@@ -95,7 +96,7 @@ export const makeAdminApproveOpportunityUseCase =
                 "Opportunity must be in test_pending or test_rejected status to be approved",
               ),
             );
-          const today = new Date().toISOString().slice(0, 10);
+          const today = getApplicationDate();
 
           return buildApprovalMessages(
             profileRepository,

@@ -8,11 +8,11 @@ DECLARE
 BEGIN
     -- Same predicate as opportunity_materialized_view.
     old_visible := OLD.status = 'published'
-        AND CURRENT_DATE >= OLD.date_from
-        AND CURRENT_DATE <= COALESCE(OLD.date_to, 'infinity'::date);
+        AND (CURRENT_TIMESTAMP AT TIME ZONE 'Europe/Rome')::date >= OLD.date_from
+        AND (CURRENT_TIMESTAMP AT TIME ZONE 'Europe/Rome')::date <= COALESCE(OLD.date_to, 'infinity'::date);
     new_visible := NEW.status = 'published'
-        AND CURRENT_DATE >= NEW.date_from
-        AND CURRENT_DATE <= COALESCE(NEW.date_to, 'infinity'::date);
+        AND (CURRENT_TIMESTAMP AT TIME ZONE 'Europe/Rome')::date >= NEW.date_from
+        AND (CURRENT_TIMESTAMP AT TIME ZONE 'Europe/Rome')::date <= COALESCE(NEW.date_to, 'infinity'::date);
 
     IF (new_visible AND NOT old_visible) OR NOT new_visible THEN
         NEW.publishing_notified_at := NULL;

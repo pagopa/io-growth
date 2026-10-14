@@ -1,5 +1,11 @@
 # ced-browser-be
 
+## 0.1.23
+
+### Patch Changes
+
+- 8b5e950: Return the profile ID as `entityId` for profile results from the places search API.
+
 ## 0.1.22
 
 ### Patch Changes

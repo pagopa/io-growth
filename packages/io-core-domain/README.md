@@ -22,6 +22,17 @@ src/
 import { NotFoundError, ValidationError } from "@pagopa/io-core-domain/errors";
 ```
 
+Use `getApplicationDate` for date-only publication rules that follow Italy's calendar,
+independently of the server timezone and including daylight-saving changes:
+
+```ts
+import { getApplicationDate } from "@pagopa/io-core-domain/utilities";
+
+getApplicationDate(new Date("2026-07-14T22:00:00Z")); // "2026-07-15"
+```
+
+Without an argument, it formats the current instant as `YYYY-MM-DD`.
+
 ## Scripts
 
 | Command              | Description                    |

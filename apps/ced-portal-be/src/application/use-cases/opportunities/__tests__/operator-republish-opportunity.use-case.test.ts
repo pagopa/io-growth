@@ -1,4 +1,5 @@
 import { GenericError } from "@pagopa/io-core-domain/errors";
+import { getApplicationDate } from "@pagopa/io-core-domain/utilities";
 import { err, ok } from "neverthrow";
 import { describe, expect, it, vi } from "vitest";
 
@@ -12,8 +13,8 @@ import {
 } from "./mocks.js";
 
 const MOCK_OPPORTUNITY_ID = "01JVMK3N8XQZP5T6G2WYHAB4CF";
-const YESTERDAY = new Date(Date.now() - 86_400_000).toISOString().slice(0, 10);
-const TODAY = new Date().toISOString().slice(0, 10);
+const YESTERDAY = getApplicationDate(new Date(Date.now() - 86_400_000));
+const TODAY = getApplicationDate();
 
 const mockOpportunity = (
   overrides: Partial<OpportunityDetail> = {},

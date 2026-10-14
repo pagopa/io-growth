@@ -27,8 +27,8 @@ LEFT JOIN opportunity_place opp_p ON opp_p.opportunity_id = o.id
 JOIN localized_metadata lm_name ON lm_name.opportunity_id = o.id AND lm_name.key = 'name'
 WHERE
   o.status = 'published' AND
-  CURRENT_DATE >= o.date_from AND
-  CURRENT_DATE <= coalesce(o.date_to, 'infinity'::date)
+  (CURRENT_TIMESTAMP AT TIME ZONE 'Europe/Rome')::date >= o.date_from AND
+  (CURRENT_TIMESTAMP AT TIME ZONE 'Europe/Rome')::date <= coalesce(o.date_to, 'infinity'::date)
 ;
 
 CREATE UNIQUE INDEX idx_opportunity_mv_id ON opportunity_materialized_view (id, place_id, language);

@@ -91,6 +91,33 @@ You can then call the health endpoint at `GET /api/info`:
 
 - From your local: `http://localhost:3000/api/info`
 
+### Opportunity publication dates
+
+Opportunity publication uses the **Europe/Rome calendar date**, not the UTC date
+or the database session timezone. An opportunity becomes eligible on `date_from`
+at Rome midnight (UTC+1 in winter, UTC+2 in summer). `date_to` remains inclusive
+through the end of that local day; a missing end date has no expiry.
+
+The opportunity and place materialized views refresh every 15 minutes, so
+scheduled opportunities appear after the first successful refresh at or after
+local midnight. Publication notifications, citizen detail access, and portal
+publication checks use the same local date.
+
+Deploy the backend changes and run the normal `ced-portal-be` migration command
+for each environment. The recurrent migrator detects the changed SQL checksums
+and recreates the views and notification trigger. No global PostgreSQL timezone
+change is needed.
+
+The PostgreSQL boundary regression tests require a disposable running PostgreSQL
+container with local `psql -U postgres` access. They create their fixtures in
+transactions that are rolled back:
+
+```bash
+POSTGRES_TEST_CONTAINER=<container-name> pnpm --filter=ced-portal-be test drizzle/recurrent/__tests__/opportunity-visibility.test.ts
+```
+
+These database tests are skipped when `POSTGRES_TEST_CONTAINER` is unset.
+
 ## Release management
 
 We use [changesets](https://github.com/changesets/changesets) to automate package versioning and releases.

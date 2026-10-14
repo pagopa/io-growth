@@ -1,5 +1,12 @@
 # @pagopa/io-core-adapter-redis
 
+## 0.0.10
+
+### Patch Changes
+
+- Updated dependencies [9cfb4ed]
+  - @pagopa/io-core-domain@0.0.6
+
 ## 0.0.9
 
 ### Patch Changes

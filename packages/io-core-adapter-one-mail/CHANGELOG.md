@@ -1,5 +1,12 @@
 # @pagopa/io-core-adapter-one-mail
 
+## 0.1.3
+
+### Patch Changes
+
+- Updated dependencies [9cfb4ed]
+  - @pagopa/io-core-domain@0.0.6
+
 ## 0.1.2
 
 ### Patch Changes

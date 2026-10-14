@@ -1,5 +1,12 @@
 # @pagopa/io-core-adapter-azure-blob-storage
 
+## 0.0.4
+
+### Patch Changes
+
+- Updated dependencies [9cfb4ed]
+  - @pagopa/io-core-domain@0.0.6
+
 ## 0.0.3
 
 ### Patch Changes

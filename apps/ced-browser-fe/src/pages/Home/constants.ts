@@ -11,16 +11,23 @@ const getImageAsset = (
   extension: 'png' | 'jpg' = 'png',
 ) => `/assets/${entityId}-${type}.${extension}`;
 
+export interface PartnerCardConfig {
+  entityId: string;
+  title: string;
+  imageUrl: string;
+  logoUrl: string;
+}
+
 // TODO: Refactor/replace this hardcoded PARTNERS_CARDS_CONFIG once partner data/images are provided by the real source of truth.
-export const PARTNERS_CARDS_CONFIG = [
+export const PARTNERS_CARDS_CONFIG: PartnerCardConfig[] = [
   {
-    entityId: 'comune-di-alessandria',
+    entityId: '01M4R4C9W86NBVEXYV6XB3319X',
     title: 'Comune di Alessandria',
     imageUrl: getImageAsset('comune-di-alessandria', 'cover'),
     logoUrl: getImageAsset('comune-di-alessandria', 'avatar'),
   },
   {
-    entityId: 'trenitalia',
+    entityId: '01M4R0FVH06EXW4ZZMDPCKTYH6',
     title: 'Trenitalia',
     imageUrl: getImageAsset('trenitalia', 'cover'),
     logoUrl: getImageAsset('trenitalia', 'avatar'),

@@ -21,13 +21,13 @@ export interface PartnerCardConfig {
 // TODO: Refactor/replace this hardcoded PARTNERS_CARDS_CONFIG once partner data/images are provided by the real source of truth.
 export const PARTNERS_CARDS_CONFIG: PartnerCardConfig[] = [
   {
-    entityId: '01M4R4C9W86NBVEXYV6XB3319X',
+    entityId: '01M4XC5SHD8D999NFYVK6Z0M4C',
     title: 'Comune di Alessandria',
     imageUrl: getImageAsset('comune-di-alessandria', 'cover'),
     logoUrl: getImageAsset('comune-di-alessandria', 'avatar'),
   },
   {
-    entityId: '01M4R0FVH06EXW4ZZMDPCKTYH6',
+    entityId: '01M4XBPMPD6CQQR6FDAGQYS495',
     title: 'Trenitalia',
     imageUrl: getImageAsset('trenitalia', 'cover'),
     logoUrl: getImageAsset('trenitalia', 'avatar'),

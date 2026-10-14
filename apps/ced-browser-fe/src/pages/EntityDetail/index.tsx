@@ -126,6 +126,12 @@ export default function EntityDetailPage() {
 
             <Stack spacing={2} sx={{ mt: 2, mb: 4 }}>
               <ItemsSection
+                variant="opportunity"
+                entityId={id ?? ''}
+                items={opportunities}
+                hideEyebrow
+              />
+              <ItemsSection
                 variant="access-point"
                 entityId={id ?? ''}
                 items={accessPoints}
@@ -133,12 +139,6 @@ export default function EntityDetailPage() {
               <ContactsSection
                 contacts={contacts}
                 trackExtraProperties={trackExtraProperties}
-              />
-              <ItemsSection
-                variant="opportunity"
-                entityId={id ?? ''}
-                items={opportunities}
-                hideEyebrow
               />
             </Stack>
           </Box>

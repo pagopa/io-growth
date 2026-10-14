@@ -34,7 +34,7 @@ export const createDrizzlePlaceRepository = (
       const rows = await db
         .selectDistinct({
           city: placeMaterializedView.city,
-          entityId: placeMaterializedView.operatorId,
+          entityId: sql<string>`COALESCE(${placeMaterializedView.profileId}, ${placeMaterializedView.operatorId})`,
           id: placeMaterializedView.id,
           name: sql<string>`COALESCE(${placeMaterializedView.profileDisplayName}, ${placeMaterializedView.name})`,
           operatorFiscalCode: placeMaterializedView.operatorFiscalCode,

@@ -4,8 +4,10 @@ import "./telemetry.js";
 
 import { DefaultAzureCredential } from "@azure/identity";
 import { BlobServiceClient } from "@azure/storage-blob";
-import { createTypedDbClient } from "@pagopa/io-core-adapter-drizzle";
-import { createAuthenticationPreHandler } from "@pagopa/io-core-adapter-fastify";
+import {
+  createAuthenticationPreHandler,
+  getSessionFromRequest,
+} from "@pagopa/io-core-adapter-fastify";
 import {
   buildFimsConfig,
   createBlobAuditLogger,
@@ -18,6 +20,7 @@ import { createResilientRedisClient } from "@pagopa/io-core-adapter-redis";
 import { tracingPlugin } from "@pagopa/io-core-adapter-tracing";
 import Fastify from "fastify";
 
+import { CitizenSessionSchema } from "./adapters/inbound/fastify/auth/session.js";
 import {
   mountGetOperatorProfileHandler,
   mountGetOpportunityHandler,
@@ -31,7 +34,6 @@ import { createDrizzleHealthCheckRepository } from "./adapters/outbound/drizzle/
 import { createDrizzleOpportunityRepository } from "./adapters/outbound/drizzle/drizzle-opportunity.repository.js";
 import { createDrizzlePlaceRepository } from "./adapters/outbound/drizzle/drizzle-place.repository.js";
 import { createDrizzleProfileRepository } from "./adapters/outbound/drizzle/drizzle-profile.repository.js";
-import * as schema from "./adapters/outbound/drizzle/schema/index.js";
 import { createRedisHealthCheckRepository } from "./adapters/outbound/redis/redis-health-check.repository.js";
 import { createRedisSessionRepository } from "./adapters/outbound/redis/redis-session.repository.js";
 import { makeGetInfoReadinessUseCase } from "./application/use-cases/health/info-readiness.use-case.js";
@@ -41,21 +43,16 @@ import { makeSearchOpportunitiesUseCase } from "./application/use-cases/opportun
 import { makeGetPlaceDetailUseCase } from "./application/use-cases/places/get-place-detail.use-case.js";
 import { makeSearchPlacesUseCase } from "./application/use-cases/places/search-places.use-case.js";
 import { makeGetOperatorProfileUseCase } from "./application/use-cases/profiles/get-operator-profile.use-case.js";
+import { createSessionContextPreHandler } from "./async-local-storage-session-context.js";
 import { parseConfig } from "./config.js";
+import { createDbRouter } from "./routed-clients.js";
 
 const config = parseConfig();
 
-const dbClient = createTypedDbClient(
-  {
-    database: config.POSTGRES_DB,
-    host: config.POSTGRES_HOST,
-    password: config.POSTGRES_PASSWORD,
-    port: config.POSTGRES_PORT,
-    ssl: config.POSTGRES_SSL,
-    user: config.POSTGRES_USER,
-  },
-  schema,
-);
+const { fimsFlowConfig, oidcConfig } = buildFimsConfig(config);
+
+const dbRouter = createDbRouter(config, fimsFlowConfig.testUsers);
+const dbClient = dbRouter.getInstance();
 
 const redisClient = await createResilientRedisClient({
   endpoint: config.REDIS_ENDPOINT,
@@ -85,8 +82,6 @@ const containerClient = blobServiceClient.getContainerClient(
   config.FIMS_AUDIT_CONTAINER,
 );
 const auditLogger = createBlobAuditLogger(containerClient);
-
-const { fimsFlowConfig, oidcConfig } = buildFimsConfig(config);
 const oidcClient = createOidcClient(oidcConfig);
 const lollipopVerifier = createLollipopVerifier();
 const fimsAuthFlow = createFimsAuthFlow(
@@ -119,6 +114,14 @@ const citizenAuthPreHandler = createAuthenticationPreHandler(
 );
 app.register(async (citizenApp) => {
   citizenApp.addHook("preHandler", citizenAuthPreHandler);
+
+  citizenApp.addHook(
+    "preHandler",
+    createSessionContextPreHandler((req) =>
+      getSessionFromRequest(req, CitizenSessionSchema),
+    ),
+  );
+
   mountSearchPlacesHandler(
     citizenApp,
     makeSearchPlacesUseCase(placeRepository),
@@ -143,7 +146,9 @@ app.register(async (citizenApp) => {
 
 app.addHook("onClose", async () => {
   await redisClient.closeConnection();
-  await dbClient.closeConnection();
+  await Promise.all(
+    dbRouter.instances.map((instance) => instance.closeConnection()),
+  );
 });
 
 await app.listen({ host: config.HOST, port: config.PORT });

@@ -77,4 +77,29 @@ describe("createSessionContextPreHandler", () => {
 
     expect(response.statusCode).toBe(401);
   });
+
+  it("exposes the session when it follows an async authentication hook", async () => {
+    const app = Fastify();
+    // Mirrors the citizen scope in main.ts: auth hook first, session context second.
+    app.addHook("preHandler", async (request) => {
+      await new Promise((resolve) => setTimeout(resolve, 5));
+      (request as unknown as Record<string, unknown>).resolvedSession = session;
+    });
+    app.addHook(
+      "preHandler",
+      createSessionContextPreHandler((request) =>
+        Promise.resolve(
+          ok(
+            (request as unknown as Record<string, unknown>)
+              .resolvedSession as CitizenSession,
+          ),
+        ),
+      ),
+    );
+    app.get("/", () => ({ session: getRequestSession() }));
+
+    const response = await app.inject({ method: "GET", url: "/" });
+
+    expect(response.json()).toEqual({ session });
+  });
 });

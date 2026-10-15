@@ -34,7 +34,7 @@ export const createDbRouter = (
   >({
     createProdInstance: (dbConfig) => createTypedDbClient(dbConfig, schema),
     createTestInstance: (dbConfig) => createTypedDbClient(dbConfig, schema),
-    // Reads the citizen from AsyncLocalStorage; no session (public routes) means prod.
+    // Session is undefined only on public routes; authenticated routes get 401 from the session pre-handler first.
     isTestRequest: () => {
       const session = getRequestSession();
       return session !== undefined && isTestUser(testUsers, session.fiscalCode);

@@ -82,4 +82,55 @@ describe("createDbRouter", () => {
   it("exposes both instances for lifecycle management", () => {
     expect(createDbRouter(config, []).instances).toHaveLength(2);
   });
+
+  it("keeps routing correctly across awaits, timers and parallel branches", async () => {
+    const router = createDbRouter(config, [hashFiscalCode(TEST_FISCAL_CODE)]);
+    const db = router.getInstance() as unknown as { database: string };
+
+    const app = Fastify();
+    app.addHook(
+      "preHandler",
+      createSessionContextPreHandler((req) =>
+        Promise.resolve(
+          ok({
+            familyName: "Rossi",
+            fiscalCode: String(req.headers["x-fc"]),
+            givenName: "Mario",
+          }),
+        ),
+      ),
+    );
+    app.get("/", async () => {
+      await new Promise((resolve) => setTimeout(resolve, 5));
+      const branches = await Promise.all([
+        Promise.resolve().then(() => db.database),
+        new Promise<string>((resolve) =>
+          setImmediate(() => {
+            resolve(db.database);
+          }),
+        ),
+      ]);
+      return { databases: [...branches, db.database] };
+    });
+
+    const [testResponse, prodResponse] = await Promise.all([
+      app.inject({
+        headers: { "x-fc": TEST_FISCAL_CODE },
+        method: "GET",
+        url: "/",
+      }),
+      app.inject({
+        headers: { "x-fc": "GLLGLL80A01H501V" },
+        method: "GET",
+        url: "/",
+      }),
+    ]);
+
+    expect(testResponse.json()).toEqual({
+      databases: ["test_db", "test_db", "test_db"],
+    });
+    expect(prodResponse.json()).toEqual({
+      databases: ["prod_db", "prod_db", "prod_db"],
+    });
+  });
 });

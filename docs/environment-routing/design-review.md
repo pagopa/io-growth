@@ -194,6 +194,12 @@ Each router emits its own custom event name on `onRoute` (`env-router.db.routed`
 
 ---
 
+### 5.4 ced-browser-be
+
+ced-browser-be routes only the database. The sole actor is the citizen, whose session is built by the FIMS flow and stored in Redis. `createSessionContextPreHandler` runs after the authentication pre-handler and copies the session already on the request into AsyncLocalStorage, so routing needs no extra Redis read. `createDbRouter(config, testUsers)` selects the test database (`POSTGRES_DB_TEST`, falling back to `POSTGRES_DB`) when `isTestUser(TEST_USERS, session.fiscalCode)` holds, and the prod database otherwise, including on public routes.
+
+---
+
 ## 6. Runtime View
 
 ### 6.1 Authenticated request (test operator)

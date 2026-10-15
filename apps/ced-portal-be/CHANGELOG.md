@@ -1,5 +1,21 @@
 # ced-portal-be
 
+## 0.9.1
+
+### Patch Changes
+
+- 9cfb4ed: Fix the UTC calendar-date assumption that delayed opportunity publication until
+  02:00 in Italy during daylight saving time. Use Europe/Rome dates consistently
+  in the opportunity and place materialized views, publication notifications,
+  citizen detail access, and portal publication checks.
+- Updated dependencies [9cfb4ed]
+  - @pagopa/io-core-domain@0.0.6
+  - @pagopa/io-core-adapter-ar@0.1.4
+  - @pagopa/io-core-adapter-azure-blob-storage@0.0.4
+  - @pagopa/io-core-adapter-fastify@0.0.11
+  - @pagopa/io-core-adapter-one-mail@0.1.3
+  - @pagopa/io-core-adapter-redis@0.0.10
+
 ## 0.9.0
 
 ### Minor Changes

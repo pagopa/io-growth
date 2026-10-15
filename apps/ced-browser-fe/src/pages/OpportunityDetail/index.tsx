@@ -273,24 +273,26 @@ export default function OpportunityDetailPage() {
               </Box>
             )}
 
-            <Box sx={{ mx: -3 }}>
-              <SectionTitle label="Valida presso" />
-              {resolvedData.places.map((place) => (
-                <DiscoveryListItem
-                  key={place.id}
-                  variant="simple"
-                  title={place.name}
-                  subtitle={formatPlacesAddress(place)}
-                  onClick={() =>
-                    handleLocationClick({
-                      ...place,
-                      profile: resolvedData.profile,
-                    })
-                  }
-                  sx={{ px: 0, bgcolor: 'background.paper' }}
-                />
-              ))}
-            </Box>
+            {resolvedData.places.length > 0 && (
+              <Box sx={{ mx: -3 }}>
+                <SectionTitle label="Valida presso" />
+                {resolvedData.places.map((place) => (
+                  <DiscoveryListItem
+                    key={place.id}
+                    variant="simple"
+                    title={place.name}
+                    subtitle={formatPlacesAddress(place)}
+                    onClick={() =>
+                      handleLocationClick({
+                        ...place,
+                        profile: resolvedData.profile,
+                      })
+                    }
+                    sx={{ px: 0, bgcolor: 'background.paper' }}
+                  />
+                ))}
+              </Box>
+            )}
 
             <Box sx={{ mx: -3, mt: 2 }}>
               <SectionTitle label="Gestita da" />

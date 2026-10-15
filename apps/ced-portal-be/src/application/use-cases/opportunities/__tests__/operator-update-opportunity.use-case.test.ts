@@ -1,4 +1,5 @@
 import { ConflictError, GenericError } from "@pagopa/io-core-domain/errors";
+import { getApplicationDate } from "@pagopa/io-core-domain/utilities";
 import { err, ok } from "neverthrow";
 import { describe, expect, it, vi } from "vitest";
 
@@ -270,7 +271,7 @@ describe("makeOperatorUpdateOpportunityUseCase - MV refresh", () => {
   });
 
   it("refreshes the MV when a scheduled opportunity's dateFrom is moved to a currently active date", async () => {
-    const today = new Date().toISOString().slice(0, 10);
+    const today = getApplicationDate();
     const deps = makeDeps({
       opportunityRepository: findReturning(
         mockOpportunity({ dateFrom: "2099-12-31", status: "scheduled" }),
@@ -338,7 +339,7 @@ describe("makeOperatorUpdateOpportunityUseCase - MV refresh", () => {
 
 describe("makeOperatorUpdateOpportunityUseCase - published dateTo", () => {
   it("returns 400 when a published opportunity is given a dateTo of today or earlier", async () => {
-    const today = new Date().toISOString().slice(0, 10);
+    const today = getApplicationDate();
     const deps = makeDeps({
       opportunityRepository: findReturning(
         mockOpportunity({ status: "published" }),
@@ -359,9 +360,9 @@ describe("makeOperatorUpdateOpportunityUseCase - published dateTo", () => {
   });
 
   it("accepts a published opportunity dateTo of tomorrow", async () => {
-    const tomorrowDate = new Date();
+    const tomorrowDate = new Date(`${getApplicationDate()}T12:00:00Z`);
     tomorrowDate.setUTCDate(tomorrowDate.getUTCDate() + 1);
-    const tomorrow = tomorrowDate.toISOString().slice(0, 10);
+    const tomorrow = getApplicationDate(tomorrowDate);
     const deps = makeDeps({
       opportunityRepository: findReturning(
         mockOpportunity({ status: "published" }),

@@ -1,6 +1,6 @@
 import { ConflictError, GenericError } from "@pagopa/io-core-domain/errors";
 import { err, ok } from "neverthrow";
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 import type { OpportunityDetail } from "../../../../domain/entities/opportunity.js";
 import type { MaterializedViewRepository } from "../../../../domain/ports/outbound/materialized-view.repository.js";
@@ -62,6 +62,42 @@ const validInput = {
 };
 
 describe("makeOperatorPublishOpportunityUseCase - dateFrom refresh logic", () => {
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  it.each([
+    ["2026-07-14T22:00:00Z", "2026-07-15"],
+    ["2026-01-14T23:00:00Z", "2026-01-15"],
+  ])(
+    "refreshes immediately at Rome midnight (%s)",
+    async (instant, dateFrom) => {
+      vi.useFakeTimers();
+      vi.setSystemTime(new Date(instant));
+      const deps = makeDeps({
+        materializedViewRepository: {
+          refreshAll: vi.fn().mockResolvedValue(ok(undefined)),
+        },
+        opportunityRepository: {
+          findByIdAndOperatorId: vi
+            .fn()
+            .mockResolvedValue(ok(mockOpportunity("test_passed", dateFrom))),
+          updateStatusByIdAndOperatorId: vi
+            .fn()
+            .mockResolvedValue(ok(undefined)),
+        },
+      });
+      const useCase = makeOperatorPublishOpportunityUseCase(
+        deps.opportunityRepository,
+        deps.materializedViewRepository,
+        deps.profileRepository,
+      );
+
+      await expect(useCase(validInput)).resolves.toEqual(ok(undefined));
+      expect(deps.materializedViewRepository.refreshAll).toHaveBeenCalledOnce();
+    },
+  );
+
   it("should publish and refresh views when dateFrom is in the past", async () => {
     const deps = makeDeps({
       materializedViewRepository: {

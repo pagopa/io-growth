@@ -1,5 +1,25 @@
 # ced-browser-be
 
+## 0.1.24
+
+### Patch Changes
+
+- 9cfb4ed: Fix the UTC calendar-date assumption that delayed opportunity publication until
+  02:00 in Italy during daylight saving time. Use Europe/Rome dates consistently
+  in the opportunity and place materialized views, publication notifications,
+  citizen detail access, and portal publication checks.
+- Updated dependencies [9cfb4ed]
+  - @pagopa/io-core-domain@0.0.6
+  - @pagopa/io-core-adapter-fastify@0.0.11
+  - @pagopa/io-core-adapter-fims@0.0.15
+  - @pagopa/io-core-adapter-redis@0.0.10
+
+## 0.1.23
+
+### Patch Changes
+
+- 8b5e950: Return the profile ID as `entityId` for profile results from the places search API.
+
 ## 0.1.22
 
 ### Patch Changes

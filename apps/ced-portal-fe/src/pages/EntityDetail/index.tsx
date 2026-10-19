@@ -213,9 +213,11 @@ export default function EntityDetailPage() {
           </Box>
           <DetailSection fields={geographicFields} />
         </SectionCard>
-        <SectionCard title="Dati del Legale Rappresentante">
-          <DetailSection fields={legalRepresentativeFields} />
-        </SectionCard>
+        {legalRepresentativeFields.length > 0 && (
+          <SectionCard title="Dati del Legale Rappresentante">
+            <DetailSection fields={legalRepresentativeFields} />
+          </SectionCard>
+        )}
         <SectionCard title="Convenzione">
           <Box sx={{ py: 2, px: 3 }}>
             <Stack

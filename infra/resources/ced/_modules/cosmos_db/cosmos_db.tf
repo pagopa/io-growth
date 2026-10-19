@@ -48,3 +48,15 @@ resource "azurerm_cosmosdb_sql_container" "card_requests" {
     max_throughput = 2000
   }
 }
+
+resource "azurerm_cosmosdb_sql_container" "card_requests_test" {
+  name                = "request-state-test"
+  resource_group_name = var.resource_group
+
+  account_name        = module.ced_cosmos_account.name
+  database_name       = azurerm_cosmosdb_sql_database.ced_cosmos_db.name
+  partition_key_paths = ["/id"]
+  autoscale_settings {
+    max_throughput = 2000
+  }
+}

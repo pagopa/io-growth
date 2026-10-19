@@ -15,6 +15,7 @@ const appConfigSchema = fimsConfigSchema
       AZURE_CLIENT_ID: z.string().optional(),
       AZURE_STORAGE_CONNECTION_STRING: z.string().optional(),
       COSMOS_CONTAINER_NAME: z.string().min(1),
+      COSMOS_CONTAINER_NAME_TEST: z.string().min(1),
       COSMOS_DATABASE_NAME: z.string().min(1),
       COSMOS_ENDPOINT: z.url(),
       /**
@@ -25,6 +26,13 @@ const appConfigSchema = fimsConfigSchema
        */
       COSMOS_KEY: z.string().optional(),
       HOST: z.string().default("0.0.0.0"),
+      // No fallback: test users must never reach the prod INPS environment.
+      INPS_CED_BASE_URL_TEST: z.url(),
+      // ModI settings that differ in the test INPS environment; the rest is shared.
+      MODI_ENVIRONMENT_TEST: z.enum(["collaudo", "produzione"]),
+      MODI_HTTPS_CLIENT_CERT_SECRET_NAME_TEST: z.string().min(1),
+      MODI_HTTPS_CLIENT_KEY_SECRET_NAME_TEST: z.string().min(1),
+      MODI_INPS_BASE_URL_TEST: z.url(),
       PORT: z.coerce.number().int().min(1).max(65535).default(8080),
       REDIS_ENDPOINT: z.string().min(1),
       REDIS_TLS: z
@@ -37,6 +45,8 @@ const appConfigSchema = fimsConfigSchema
 export type AppConfig = z.infer<typeof appConfigSchema> & {
   /** ModI interoperability profile config (discriminated on MODI_PROFILE). */
   readonly modi: ModiEnvConfig;
+  /** ModI config of the test INPS environment (prod config with the *_TEST overrides). */
+  readonly modiTest: ModiEnvConfig;
 };
 
 export const parseConfig = (): AppConfig => {
@@ -52,5 +62,18 @@ export const parseConfig = (): AppConfig => {
     throw new Error(`Invalid ModI configuration:\n${modiResult.error.message}`);
   }
 
-  return { ...result.data, modi: modiResult.data };
+  return {
+    ...result.data,
+    modi: modiResult.data,
+    // Cert and key are not inherited: test must never present the prod client certificate.
+    modiTest: {
+      ...modiResult.data,
+      MODI_ENVIRONMENT: result.data.MODI_ENVIRONMENT_TEST,
+      MODI_HTTPS_CLIENT_CERT_SECRET_NAME:
+        result.data.MODI_HTTPS_CLIENT_CERT_SECRET_NAME_TEST,
+      MODI_HTTPS_CLIENT_KEY_SECRET_NAME:
+        result.data.MODI_HTTPS_CLIENT_KEY_SECRET_NAME_TEST,
+      MODI_INPS_BASE_URL: result.data.MODI_INPS_BASE_URL_TEST,
+    },
+  };
 };

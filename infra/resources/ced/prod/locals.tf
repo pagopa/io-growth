@@ -153,9 +153,10 @@ locals {
       AZURE_CLIENT_ID = module.common_container_app_environment.user_assigned_identity.client_id
 
       # CosmosDB — accessed via RBAC (managed identity)
-      COSMOS_ENDPOINT       = module.cosmos_db.cosmos_db.endpoint
-      COSMOS_DATABASE_NAME  = module.cosmos_db.cosmos_db.database_name
-      COSMOS_CONTAINER_NAME = module.cosmos_db.cosmos_db.container_name
+      COSMOS_ENDPOINT            = module.cosmos_db.cosmos_db.endpoint
+      COSMOS_DATABASE_NAME       = module.cosmos_db.cosmos_db.database_name
+      COSMOS_CONTAINER_NAME      = module.cosmos_db.cosmos_db.container_name
+      COSMOS_CONTAINER_NAME_TEST = module.cosmos_db.cosmos_db.container_name_test
 
       # FIMS SSO settings
       BASE_URL             = "https://card.ced.pagopa.it"

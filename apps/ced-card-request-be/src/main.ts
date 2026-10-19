@@ -19,8 +19,7 @@ import {
 } from "@pagopa/io-core-adapter-fims";
 import {
   buildInpsCedConfig,
-  createGestioneDomandaCedClient,
-  initInpsCedClient,
+  type InpsCedConfig,
 } from "@pagopa/io-core-adapter-inps-ced";
 import {
   buildModiConfig,
@@ -57,13 +56,17 @@ import { makeGetInfoStartupUseCase } from "./application/use-cases/health/info-s
 import { makeUploadPhotoUseCase } from "./application/use-cases/image/upload-photo.use-case.js";
 import { makeCreateDraftUseCase } from "./application/use-cases/request/create-draft.use-case.js";
 import { makeCheckRequestUseCase } from "./application/use-cases/status/check-request.use-case.js";
+import { createSessionContextPreHandler } from "./async-local-storage-session-context.js";
+import { type AppConfig, parseConfig } from "./config.js";
 import {
-  createSessionContextPreHandler,
-  getRequestSession,
-} from "./async-local-storage-session-context.js";
-import { parseConfig } from "./config.js";
+  createDbRouter,
+  createInpsRouter,
+  type InpsEnvironment,
+} from "./routed-clients.js";
 
 const config = parseConfig();
+
+const { fimsFlowConfig, oidcConfig } = buildFimsConfig(config);
 
 // The Cosmos DB Emulator (local dev) only supports key-based auth and serves
 // a self-signed certificate; every real environment omits COSMOS_KEY and
@@ -102,11 +105,8 @@ const cosmosHealthCheckRepository =
   createCosmosHealthCheckRepository(cosmosClient);
 const sessionStore = createRedisSessionRepository(redisClient);
 
-const supportRecordContainer = cosmosClient
-  .database(config.COSMOS_DATABASE_NAME)
-  .container(config.COSMOS_CONTAINER_NAME);
 const supportRecordRepository = createCosmosSupportRecordRepository(
-  supportRecordContainer,
+  createDbRouter(config, cosmosClient, fimsFlowConfig.testUsers).getInstance(),
 );
 
 const containerClient = (
@@ -121,7 +121,6 @@ const containerClient = (
 ).getContainerClient(config.FIMS_AUDIT_CONTAINER);
 const auditLogger = createBlobAuditLogger(containerClient);
 
-const { fimsFlowConfig, oidcConfig } = buildFimsConfig(config);
 const oidcClient = createOidcClient(oidcConfig);
 const lollipopVerifier = createLollipopVerifier();
 const fimsAuthFlow = createFimsAuthFlow(
@@ -132,38 +131,41 @@ const fimsAuthFlow = createFimsAuthFlow(
   fimsFlowConfig,
 );
 
-// INPS CED integration over ModI (profile selected via MODI_PROFILE env).
-const modiConfig = buildModiConfig(config.modi);
-const inpsCedConfig = buildInpsCedConfig(config);
-const modiCredentialProvider =
-  await createKeyvaultCredentialProvider(modiConfig);
-const inpsSignedFetch = createSignedFetch({
-  audience: inpsCedConfig.audience,
-  config: modiConfig,
-  credentialProvider: modiCredentialProvider,
+// INPS CED integration over ModI, one environment per ModI profile.
+const createInpsEnvironment = async (
+  inpsCedConfig: InpsCedConfig,
+  modiEnvConfig: AppConfig["modi"],
+): Promise<InpsEnvironment> => {
+  const modiConfig = buildModiConfig(modiEnvConfig);
+  const credentialProvider = await createKeyvaultCredentialProvider(modiConfig);
+  return {
+    config: inpsCedConfig,
+    defaultCodiceUfficio: modiConfig.defaultCodiceUfficio,
+    signedFetch: createSignedFetch({
+      audience: inpsCedConfig.audience,
+      config: modiConfig,
+      credentialProvider,
+    }),
+  };
+};
+
+const inpsRouter = createInpsRouter({
+  prod: await createInpsEnvironment(buildInpsCedConfig(config), config.modi),
+  telemetry: getTelemetryClient(),
+  test: await createInpsEnvironment(
+    buildInpsCedConfig({
+      INPS_CED_AUDIENCE: config.INPS_CED_AUDIENCE,
+      INPS_CED_BASE_URL: config.INPS_CED_BASE_URL_TEST,
+    }),
+    config.modiTest,
+  ),
+  testUsers: fimsFlowConfig.testUsers,
 });
-// Per-request INPS identity is resolved from the session held in ALS. The
-// codiceUfficio falls back to the ModI default when the request has no session
-// (e.g. background calls), matching the signed-fetch fallback behaviour.
-initInpsCedClient(
-  inpsCedConfig,
-  inpsSignedFetch,
-  () => {
-    const session = getRequestSession();
-    return session
-      ? {
-          codiceUfficio: modiConfig.defaultCodiceUfficio,
-          userId: session.fiscalCode,
-        }
-      : undefined;
-  },
-  getTelemetryClient(),
-);
-// The INPS client is wrapped by the app-local outbound adapter, which is the
-// only place aware of the INPS payload shapes; the use cases depend on the
+// The INPS client proxy is wrapped by the app-local outbound adapter, which is
+// the only place aware of the INPS payload shapes; the use cases depend on the
 // CardApplicationRepository domain port instead.
 const cardApplicationRepository = createInpsCardApplicationRepository(
-  createGestioneDomandaCedClient(),
+  inpsRouter.getInstance(),
 );
 
 const app = Fastify({ logger: true });

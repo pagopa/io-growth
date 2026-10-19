@@ -34,6 +34,7 @@
     "@pagopa/io-core-adapter-redis": "workspace:^",
     "@pagopa/io-core-adapter-tracing": "workspace:^",
     "@pagopa/io-core-domain": "workspace:^",
+    "@pagopa/io-core-environment-router": "workspace:^",
     "fastify": "catalog:",
     "neverthrow": "catalog:",
     "zod": "catalog:"

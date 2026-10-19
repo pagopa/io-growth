@@ -165,6 +165,7 @@ export default function OpportunityDetailPage() {
           suspendFrom={detail.suspendFrom}
           suspensionMessage={detail.suspensionMessage}
           suspendedBy={detail.suspendedBy}
+          changeRequestMessage={detail.changeRequestMessage}
           republishMessage={detail.republishMessage}
           republishRejectionMessage={detail.republishRejectionMessage}
           onCancelSuccess={refetch}

@@ -14,6 +14,7 @@ type OpportunityAlertProps = {
   suspendFrom?: string | null;
   suspensionMessage?: string | null;
   suspendedBy?: OpportunitySummaryItemSuspendedBy;
+  changeRequestMessage?: string | null;
   republishMessage?: string | null;
   republishRejectionMessage?: string | null;
   onCancelSuccess?: () => void;
@@ -25,6 +26,7 @@ export const OpportunityAlert = ({
   suspendFrom,
   suspensionMessage,
   suspendedBy,
+  changeRequestMessage,
   republishMessage,
   republishRejectionMessage,
   onCancelSuccess,
@@ -160,6 +162,29 @@ export const OpportunityAlert = ({
         </Typography>
         <Typography sx={{ mt: 0.5, fontSize: 16 }}>
           {suspensionMessage?.trim() || '-'}
+        </Typography>
+      </MIAlert>
+    );
+  }
+
+  if (
+    (status === 'draft' || status === 'test_rejected') &&
+    changeRequestMessage?.trim()
+  ) {
+    return (
+      <MIAlert severity="warning">
+        <Typography sx={{ fontWeight: 700, fontSize: 18 }}>
+          Perché è richiesta una modifica
+        </Typography>
+        <Typography
+          sx={{
+            mt: 0.5,
+            fontSize: 16,
+            whiteSpace: 'pre-wrap',
+            overflowWrap: 'anywhere',
+          }}
+        >
+          {changeRequestMessage.trim()}
         </Typography>
       </MIAlert>
     );

@@ -25,6 +25,7 @@ import type {
   OpportunityUpdatePayload,
   OperatorRepublishOpportunityPayload,
   RejectOpportunityRepublishPayload,
+  RequestOpportunityChangesPayload,
   SuspendOpportunityPayload,
 } from './types';
 import { compactQueryParams } from '../../utils';
@@ -121,6 +122,20 @@ const opportunitiesApi = baseApi.injectEndpoints({
         url: getApproveOpportunityUrl(id),
         method: 'PATCH',
         ...(payload ? { body: payload } : {}),
+      }),
+      invalidatesTags: (_result, _error, { id }) => [
+        { type: 'Opportunities', id },
+        'Opportunities',
+      ],
+    }),
+    requestOpportunityChanges: builder.mutation<
+      void,
+      { id: string; payload: RequestOpportunityChangesPayload }
+    >({
+      query: ({ id, payload }) => ({
+        url: `/opportunities/${id}/request-changes`,
+        method: 'PATCH',
+        body: payload,
       }),
       invalidatesTags: (_result, _error, { id }) => [
         { type: 'Opportunities', id },
@@ -250,6 +265,7 @@ export const {
   useUpdateOpportunityMutation,
   useRequestApprovalMutation,
   useApproveOpportunityMutation,
+  useRequestOpportunityChangesMutation,
   useAdminSuspendOpportunityMutation,
   useAdminCancelScheduledSuspensionMutation,
   useAdminRepublishOpportunityMutation,

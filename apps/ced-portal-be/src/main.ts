@@ -65,6 +65,7 @@ import { createDrizzleOpportunityCategoryRepository } from "./adapters/outbound/
 import { createDrizzleOpportunityRepository } from "./adapters/outbound/drizzle/drizzle-opportunity.repository.js";
 import { createDrizzlePlaceRepository } from "./adapters/outbound/drizzle/drizzle-place.repository.js";
 import { createDrizzleProfileRepository } from "./adapters/outbound/drizzle/drizzle-profile.repository.js";
+import { createJoseArTokenRepository } from "./adapters/outbound/jose/jose-ar-token.repository.js";
 import { createOneMailEmailRepository } from "./adapters/outbound/one-mail/one-mail-email.repository.js";
 import { createRedisHealthCheckRepository } from "./adapters/outbound/redis/redis-health-check.repository.js";
 import { createRedisSessionRepository } from "./adapters/outbound/redis/redis-session.repository.js";
@@ -174,6 +175,7 @@ const profileAssetsRepository = createAzureProfileAssetsRepository({
     endpoint: config.ASSETS_STORAGE_BLOB_ENDPOINT,
   }),
 });
+const arTokenRepository = createJoseArTokenRepository(config.SELFCARE_ISSUERS);
 const arOnboardingRepository = createArOnboardingRepository(arClient);
 const emailRepository = createOneMailEmailRepository(
   oneMailClient.emailClient,
@@ -207,10 +209,11 @@ mountInfoReadinessHandler(app, infoReadinessUseCase);
 mountAcsHandler(
   app,
   makeAcsUseCase(
+    arTokenRepository,
     sessionRepository,
     operatorRepository,
-    config,
     tracingRepository,
+    config,
   ),
 );
 mountAuthorizeHandler(app, makeAuthorizeUseCase(sessionRepository));

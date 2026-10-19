@@ -1,5 +1,11 @@
 # ced-portal-be
 
+## 0.10.0
+
+### Minor Changes
+
+- acddd6a: Verify issuer, expiration and signature (via the issuer's JWKS) of the Area Riservata token received by ACS
+
 ## 0.9.1
 
 ### Patch Changes

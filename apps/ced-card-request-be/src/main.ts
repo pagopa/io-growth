@@ -17,15 +17,6 @@ import {
   createOidcClient,
   mountFimsHandlers,
 } from "@pagopa/io-core-adapter-fims";
-import {
-  buildInpsCedConfig,
-  type InpsCedConfig,
-} from "@pagopa/io-core-adapter-inps-ced";
-import {
-  buildModiConfig,
-  createKeyvaultCredentialProvider,
-  createSignedFetch,
-} from "@pagopa/io-core-adapter-modi";
 import { createResilientRedisClient } from "@pagopa/io-core-adapter-redis";
 import {
   emitCustomEvent,
@@ -57,12 +48,8 @@ import { makeUploadPhotoUseCase } from "./application/use-cases/image/upload-pho
 import { makeCreateDraftUseCase } from "./application/use-cases/request/create-draft.use-case.js";
 import { makeCheckRequestUseCase } from "./application/use-cases/status/check-request.use-case.js";
 import { createSessionContextPreHandler } from "./async-local-storage-session-context.js";
-import { type AppConfig, parseConfig } from "./config.js";
-import {
-  createDbRouter,
-  createInpsRouter,
-  type InpsEnvironment,
-} from "./routed-clients.js";
+import { parseConfig } from "./config.js";
+import { createDbRouter, createInpsRouter } from "./routed-clients.js";
 
 const config = parseConfig();
 
@@ -131,39 +118,12 @@ const fimsAuthFlow = createFimsAuthFlow(
   fimsFlowConfig,
 );
 
-// INPS CED integration over ModI, one environment per ModI profile.
-const createInpsEnvironment = async (
-  inpsCedConfig: InpsCedConfig,
-  modiEnvConfig: AppConfig["modi"],
-): Promise<InpsEnvironment> => {
-  const modiConfig = buildModiConfig(modiEnvConfig);
-  const credentialProvider = await createKeyvaultCredentialProvider(modiConfig);
-  return {
-    config: inpsCedConfig,
-    defaultCodiceUfficio: modiConfig.defaultCodiceUfficio,
-    signedFetch: createSignedFetch({
-      audience: inpsCedConfig.audience,
-      config: modiConfig,
-      credentialProvider,
-    }),
-  };
-};
+const inpsRouter = await createInpsRouter(
+  config,
+  fimsFlowConfig.testUsers,
+  getTelemetryClient(),
+);
 
-const inpsRouter = createInpsRouter({
-  prod: await createInpsEnvironment(buildInpsCedConfig(config), config.modi),
-  telemetry: getTelemetryClient(),
-  test: await createInpsEnvironment(
-    buildInpsCedConfig({
-      INPS_CED_AUDIENCE: config.INPS_CED_AUDIENCE,
-      INPS_CED_BASE_URL: config.INPS_CED_BASE_URL_TEST,
-    }),
-    config.modiTest,
-  ),
-  testUsers: fimsFlowConfig.testUsers,
-});
-// The INPS client proxy is wrapped by the app-local outbound adapter, which is
-// the only place aware of the INPS payload shapes; the use cases depend on the
-// CardApplicationRepository domain port instead.
 const cardApplicationRepository = createInpsCardApplicationRepository(
   inpsRouter.getInstance(),
 );

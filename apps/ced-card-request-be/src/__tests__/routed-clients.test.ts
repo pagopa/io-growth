@@ -10,7 +10,10 @@ import type { AppConfig } from "../config.js";
 import type { InpsEnvironment } from "../routed-clients.js";
 
 import { createSessionContextPreHandler } from "../async-local-storage-session-context.js";
-import { createDbRouter, createInpsRouter } from "../routed-clients.js";
+import {
+  createDbRouter,
+  createInpsEnvironmentRouter,
+} from "../routed-clients.js";
 
 vi.mock("@pagopa/io-core-adapter-tracing", () => ({
   emitCustomEvent: () => () => undefined,
@@ -91,7 +94,7 @@ describe("createDbRouter", () => {
   });
 });
 
-describe("createInpsRouter", () => {
+describe("createInpsEnvironmentRouter", () => {
   const environment = (name: string) => {
     const signedFetch = vi.fn(() =>
       Promise.resolve(ok(new Response("{}", { status: 200 }))),
@@ -108,7 +111,7 @@ describe("createInpsRouter", () => {
   const callCheckDomanda = async (fiscalCode: string | undefined) => {
     const prod = environment("prod");
     const test = environment("test");
-    const client = createInpsRouter({
+    const client = createInpsEnvironmentRouter({
       prod: prod.inpsEnvironment,
       test: test.inpsEnvironment,
       testUsers: TEST_USERS,

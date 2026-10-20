@@ -6,7 +6,15 @@ import type {
 } from "@pagopa/io-core-adapter-inps-ced";
 import type { SignedFetch } from "@pagopa/io-core-adapter-modi";
 
-import { createInpsCedClient } from "@pagopa/io-core-adapter-inps-ced";
+import {
+  buildInpsCedConfig,
+  createInpsCedClient,
+} from "@pagopa/io-core-adapter-inps-ced";
+import {
+  buildModiConfig,
+  createKeyvaultCredentialProvider,
+  createSignedFetch,
+} from "@pagopa/io-core-adapter-modi";
 import { emitCustomEvent } from "@pagopa/io-core-adapter-tracing";
 import { isTestUser } from "@pagopa/io-core-domain/utilities";
 import {
@@ -65,7 +73,7 @@ export const createDbRouter = (
   });
 };
 
-export const createInpsRouter = (params: {
+export const createInpsEnvironmentRouter = (params: {
   prod: InpsEnvironment;
   telemetry?: InpsCedTelemetry;
   test: InpsEnvironment;
@@ -104,3 +112,39 @@ export const createInpsRouter = (params: {
     testConfig: params.test,
   });
 };
+
+const createInpsEnvironment = async (
+  inpsCedConfig: InpsCedConfig,
+  modiEnvConfig: AppConfig["modi"],
+): Promise<InpsEnvironment> => {
+  const modiConfig = buildModiConfig(modiEnvConfig);
+  const credentialProvider = await createKeyvaultCredentialProvider(modiConfig);
+  return {
+    config: inpsCedConfig,
+    defaultCodiceUfficio: modiConfig.defaultCodiceUfficio,
+    signedFetch: createSignedFetch({
+      audience: inpsCedConfig.audience,
+      config: modiConfig,
+      credentialProvider,
+    }),
+  };
+};
+
+// The test environment shares the prod audience and differs only in base URL and ModI settings.
+export const createInpsRouter = async (
+  config: AppConfig,
+  testUsers: readonly string[],
+  telemetry?: InpsCedTelemetry,
+): Promise<EnvRouter<GestioneDomandaCedRepository>> =>
+  createInpsEnvironmentRouter({
+    prod: await createInpsEnvironment(buildInpsCedConfig(config), config.modi),
+    telemetry,
+    test: await createInpsEnvironment(
+      buildInpsCedConfig({
+        INPS_CED_AUDIENCE: config.INPS_CED_AUDIENCE,
+        INPS_CED_BASE_URL: config.INPS_CED_BASE_URL_TEST,
+      }),
+      config.modiTest,
+    ),
+    testUsers,
+  });

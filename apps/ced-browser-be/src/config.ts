@@ -9,6 +9,7 @@ const configSchema = fimsConfigSchema.merge(azureTracingConfigSchema).merge(
     HOST: z.string().default("0.0.0.0"),
     PORT: z.coerce.number().int().min(1).max(65535).default(8080),
     POSTGRES_DB: z.string().min(1),
+    POSTGRES_DB_TEST: z.string().min(1).optional(),
     POSTGRES_HOST: z.string().min(1),
     POSTGRES_PASSWORD: z.string().min(1),
     POSTGRES_PORT: z.coerce.number().int().min(1).max(65535).default(6432),

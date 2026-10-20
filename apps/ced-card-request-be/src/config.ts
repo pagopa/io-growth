@@ -29,7 +29,7 @@ const appConfigSchema = fimsConfigSchema
       // No fallback: test users must never reach the prod INPS environment.
       INPS_CED_BASE_URL_TEST: z.url(),
       // ModI settings that differ in the test INPS environment; the rest is shared.
-      MODI_ENVIRONMENT_TEST: z.enum(["collaudo", "produzione"]),
+      MODI_ENVIRONMENT_TEST: z.literal("collaudo"),
       MODI_HTTPS_CLIENT_CERT_SECRET_NAME_TEST: z.string().min(1),
       MODI_HTTPS_CLIENT_KEY_SECRET_NAME_TEST: z.string().min(1),
       MODI_INPS_BASE_URL_TEST: z.url(),

@@ -1,5 +1,17 @@
 # ced-card-request-be
 
+## 0.3.7
+
+### Patch Changes
+
+- Updated dependencies [d704bb8]
+  - @pagopa/io-core-domain@0.1.0
+  - @pagopa/io-core-adapter-fastify@0.0.12
+  - @pagopa/io-core-adapter-fims@0.0.16
+  - @pagopa/io-core-adapter-inps-ced@0.0.8
+  - @pagopa/io-core-adapter-modi@0.0.4
+  - @pagopa/io-core-adapter-redis@0.0.11
+
 ## 0.3.6
 
 ### Patch Changes

@@ -1,5 +1,17 @@
 # ced-portal-be
 
+## 0.10.1
+
+### Patch Changes
+
+- Updated dependencies [d704bb8]
+  - @pagopa/io-core-domain@0.1.0
+  - @pagopa/io-core-adapter-ar@0.1.5
+  - @pagopa/io-core-adapter-azure-blob-storage@0.0.5
+  - @pagopa/io-core-adapter-fastify@0.0.12
+  - @pagopa/io-core-adapter-one-mail@0.1.4
+  - @pagopa/io-core-adapter-redis@0.0.11
+
 ## 0.10.0
 
 ### Minor Changes

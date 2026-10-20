@@ -1,6 +1,6 @@
 {
   "name": "@pagopa/io-core-adapter-azure-blob-storage",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "type": "module",
   "exports": {
     ".": {

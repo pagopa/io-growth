@@ -1,5 +1,11 @@
 # @pagopa/io-core-domain
 
+## 0.1.0
+
+### Minor Changes
+
+- d704bb8: Route database access to the test or prod database per request, based on whether the citizen's fiscal code hash is in `TEST_USERS`, using an AsyncLocalStorage session context and the environment router.
+
 ## 0.0.6
 
 ### Patch Changes

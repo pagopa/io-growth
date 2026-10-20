@@ -1,6 +1,7 @@
 import type { BaseError } from "@pagopa/io-core-domain/errors";
 import type { Result } from "neverthrow";
 
+import { hashFiscalCode } from "@pagopa/io-core-domain";
 import { ForbiddenError } from "@pagopa/io-core-domain/errors";
 import { err, ok } from "neverthrow";
 import { describe, expect, it, vi } from "vitest";
@@ -13,7 +14,6 @@ import type { AuditLogger } from "../../../domain/ports/outbound/audit-logger.re
 import type { FimsSessionStore } from "../../../domain/ports/outbound/session.repository.js";
 
 import { createTestSession } from "../create-test-session.use-case.js";
-import { hashFiscalCode } from "../test-users.js";
 
 const TEST_FISCAL_CODE = "RSSMRA80A01H501U";
 

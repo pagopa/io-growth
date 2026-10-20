@@ -1,6 +1,5 @@
-import { z } from "zod";
-
 import { azureTracingConfigSchema } from "@pagopa/io-core-adapter-tracing";
+import { z } from "zod";
 
 const configSchema = azureTracingConfigSchema.merge(
   z.object({

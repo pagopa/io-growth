@@ -1,5 +1,19 @@
 # ced-browser-be
 
+## 0.2.0
+
+### Minor Changes
+
+- d704bb8: Route database access to the test or prod database per request, based on whether the citizen's fiscal code hash is in `TEST_USERS`, using an AsyncLocalStorage session context and the environment router.
+
+### Patch Changes
+
+- Updated dependencies [d704bb8]
+  - @pagopa/io-core-domain@0.1.0
+  - @pagopa/io-core-adapter-fastify@0.0.12
+  - @pagopa/io-core-adapter-fims@0.0.16
+  - @pagopa/io-core-adapter-redis@0.0.11
+
 ## 0.1.24
 
 ### Patch Changes

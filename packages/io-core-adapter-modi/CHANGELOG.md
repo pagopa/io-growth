@@ -1,5 +1,12 @@
 # @pagopa/io-core-adapter-modi
 
+## 0.0.4
+
+### Patch Changes
+
+- Updated dependencies [d704bb8]
+  - @pagopa/io-core-domain@0.1.0
+
 ## 0.0.3
 
 ### Patch Changes

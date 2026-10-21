@@ -33,6 +33,7 @@ resource "azurerm_storage_container" "logos" {
 
   name                  = "logos"
   storage_account_id    = module.portal_be_storage.id
+  #trivy:ignore:AVD-AZU-0007 Ignoring because this must be publicly accessible for Front Door Standard
   container_access_type = "blob"
 }
 
@@ -41,6 +42,7 @@ resource "azurerm_storage_container" "images" {
 
   name                  = "images"
   storage_account_id    = module.portal_be_storage.id
+  #trivy:ignore:AVD-AZU-0007 Ignoring because this must be publicly accessible for Front Door Standard
   container_access_type = "blob"
 }
 

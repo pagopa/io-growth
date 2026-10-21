@@ -3,12 +3,8 @@ import { useLocation, useParams } from 'react-router-dom';
 import { PageCover, PageHeader, QueryGuard } from '../../components';
 import { ContactsSection } from '../../components/ContactsSection';
 import { ItemsSection } from '../../components/ItemsSection/index';
-import type { PlaceDetailRelatedItem } from '../../generated/model/index.js';
 import { useGetEntityDetailQuery } from '../../features/entities/api';
-import type {
-  EntityContacts,
-  EntityOpportunity,
-} from '../../features/entities/types.js';
+import type { EntityContacts } from '../../features/entities/types.js';
 import { formatAddress } from '../../utils/formatAddress.js';
 import { formatBadgeLabel } from '../../utils/formatBadgeLabel.js';
 import { EntityPlaceholderIcon } from './components/EntityPlaceholderIcon';
@@ -19,11 +15,16 @@ import {
   useOperatorLogo,
 } from '../../hooks/useOperatorImages';
 import { useMemo } from 'react';
+import {
+  EntityOpportunityItems,
+  PlaceDetailItems,
+} from '../../components/ItemsSection/types.js';
 
 export default function EntityDetailPage() {
   const { id } = useParams<{ id: string }>();
   const location = useLocation();
-  const state = location.state as { source: string };
+  const source =
+    (location.state as { source?: string } | null)?.source ?? 'direct';
 
   const { data, isLoading, isError, error, refetch } = useGetEntityDetailQuery(
     id ?? '',
@@ -34,19 +35,19 @@ export default function EntityDetailPage() {
   useTrackLandedInPage(
     'CED_ORGANIZATION_DETAIL',
     {
-      organization_name: data?.displayName ?? '',
-      organization_fiscal_code: '',
+      organization_name: data?.operatorName ?? '',
+      organization_fiscal_code: data?.operatorFiscalCode ?? '',
       has_locations: !!data?.place.address ? 'yes' : 'no',
-      source: state?.source,
+      source,
     },
     !!data,
   );
 
   const trackExtraProperties = useMemo(
     () => ({
-      location_name: data?.place.name ?? '',
-      organization_name: data?.displayName ?? '',
-      organization_fiscal_code: '',
+      location_name: data?.place?.name ?? '',
+      organization_name: data?.operatorName ?? '',
+      organization_fiscal_code: data?.operatorFiscalCode ?? '',
     }),
     [data],
   );
@@ -64,15 +65,17 @@ export default function EntityDetailPage() {
       }}
     >
       {(resolvedData) => {
-        const opportunities: EntityOpportunity[] =
+        const opportunities: EntityOpportunityItems[] =
           resolvedData.recentOpportunities.map((opp) => ({
             id: opp.id,
             title: opp.name,
             badgeLabel: formatBadgeLabel(opp.beneficiaryBenefit),
+            organization_fiscal_code: resolvedData.operatorFiscalCode,
+            organization_name: resolvedData.operatorName,
           }));
 
-        const accessPoints: PlaceDetailRelatedItem[] =
-          resolvedData.recentPlaces.map((place) => {
+        const accessPoints: PlaceDetailItems[] = resolvedData.recentPlaces.map(
+          (place) => {
             const address =
               place.street && place.city
                 ? {
@@ -84,11 +87,15 @@ export default function EntityDetailPage() {
                 : undefined;
 
             return {
+              organization_fiscal_code: resolvedData.operatorFiscalCode,
+              organization_name: resolvedData.operatorName,
               id: place.id,
               title: place.name,
+              address,
               subtitle: formatAddress(address),
             };
-          });
+          },
+        );
         const contacts: EntityContacts = {
           phone: resolvedData.place.supportContacts.find(
             (c) => c.type === 'phone',

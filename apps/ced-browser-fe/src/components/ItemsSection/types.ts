@@ -14,7 +14,8 @@ type BaseItemsSectionProps<TVariant, TItems> = {
   sectionLabel?: string;
 };
 
-export type PlaceDetailItems = PlaceDetailRelatedItem & TrackingExtraProperties;
+export type PlaceDetailItems = PlaceDetailRelatedItem &
+  TrackingExtraProperties & { subtitle?: string };
 export type EntityOpportunityItems = EntityOpportunity &
   TrackingExtraProperties;
 
@@ -25,7 +26,4 @@ export type ItemsSectionProps =
     > & {
       hideEyebrow?: boolean;
     })
-  | BaseItemsSectionProps<
-      'access-point',
-      PlaceDetailRelatedItem & TrackingExtraProperties
-    >;
+  | BaseItemsSectionProps<'access-point', PlaceDetailItems>;

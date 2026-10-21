@@ -7,7 +7,7 @@ import {
   validateWebsiteUrl,
 } from './websiteSlice';
 import { useToast } from '../../contexts';
-import { isValidHttpsUrl } from '../../utils';
+import { getContactValidationError } from '../../utils/contactValidation.js';
 
 export function useWebsiteSubmit(
   onConfirm: (newWebsite?: PlaceResponse) => void,
@@ -28,12 +28,9 @@ export function useWebsiteSubmit(
 
     const supportContacts = contacts.filter((c) => c.value.trim());
 
-    const areSupportContactsValid = supportContacts.every(({ type, value }) => {
-      if (type === 'website') {
-        return value.trim() && isValidHttpsUrl(value.trim());
-      }
-      return value.trim();
-    });
+    const areSupportContactsValid = supportContacts.every(
+      (contact) => !getContactValidationError(contact),
+    );
 
     if (!areSupportContactsValid) return;
 

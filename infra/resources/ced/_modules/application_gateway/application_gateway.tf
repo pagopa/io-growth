@@ -84,7 +84,7 @@ resource "azurerm_web_application_firewall_policy" "this" {
         rule {
           id      = "932140"
           enabled = true
-          action = "Log"
+          action  = "Log"
         }
       }
 

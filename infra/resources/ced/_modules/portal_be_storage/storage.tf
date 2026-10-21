@@ -28,21 +28,21 @@ module "portal_be_storage" {
 }
 
 # Containers
+# trivy:ignore:AVD-AZU-0007
 resource "azurerm_storage_container" "logos" {
   depends_on = [module.portal_be_storage]
 
   name                  = "logos"
   storage_account_id    = module.portal_be_storage.id
-  #trivy:ignore:AVD-AZU-0007
   container_access_type = "blob"
 }
 
+# trivy:ignore:AVD-AZU-0007
 resource "azurerm_storage_container" "images" {
   depends_on = [module.portal_be_storage]
 
   name                  = "images"
   storage_account_id    = module.portal_be_storage.id
-  #trivy:ignore:AVD-AZU-0007
   container_access_type = "blob"
 }
 

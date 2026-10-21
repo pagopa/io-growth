@@ -7,22 +7,28 @@ import type {
 import { ResultAsync } from "neverthrow";
 import { z } from "zod";
 
-import type { Place } from "../../../domain/entities/place.js";
-import type { PlaceRepository } from "../../../domain/ports/outbound/persistence/place.repository.js";
+import type {
+  PaginatedPlaces,
+  PlaceRepository,
+} from "../../../domain/ports/outbound/persistence/place.repository.js";
 
 import { validateUseCaseInput } from "../utils/validate-use-case-input.js";
 
 const OperatorListPlacesInputSchema = z.object({
+  limit: z.number().int().min(1).max(100).default(20),
+  offset: z.number().int().min(0).default(0),
   operatorId: z.ulid(),
+  search: z.string().optional(),
+  type: z.enum(["online", "offline"]).optional(),
 });
 
-export type OperatorListPlacesInput = z.infer<
+export type OperatorListPlacesInput = z.input<
   typeof OperatorListPlacesInputSchema
 >;
 
 export type OperatorListPlacesUseCase = UseCase<
   OperatorListPlacesInput,
-  Place[],
+  PaginatedPlaces,
   GenericError | ValidationError
 >;
 
@@ -30,6 +36,6 @@ export const makeOperatorListPlacesUseCase =
   (placeRepository: PlaceRepository): OperatorListPlacesUseCase =>
   async (input) =>
     validateUseCaseInput(OperatorListPlacesInputSchema, input).andThen(
-      ({ operatorId }) =>
-        new ResultAsync(placeRepository.listByOperatorId(operatorId)),
+      (validatedInput) =>
+        new ResultAsync(placeRepository.listByOperatorId(validatedInput)),
     );

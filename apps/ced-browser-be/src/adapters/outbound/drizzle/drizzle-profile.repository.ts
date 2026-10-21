@@ -152,6 +152,7 @@ export const createDrizzleProfileRepository = (
       return ok({
         displayName: profileRow.displayName,
         operatorFiscalCode: profileRow.operator.fiscalCode,
+        operatorId: profileRow.operatorId,
         operatorName: profileRow.operator.name,
         place: {
           address: profileRow.place.address

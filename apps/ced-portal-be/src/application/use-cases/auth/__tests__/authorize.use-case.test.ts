@@ -3,16 +3,9 @@ import { err, ok } from "neverthrow";
 import { describe, expect, it, vi } from "vitest";
 
 import type { Session } from "../../../../domain/entities/session.js";
-import type { SessionRepository } from "../../../../domain/ports/outbound/persistence/session.repository.js";
 
 import { makeAuthorizeUseCase } from "../authorize.use-case.js";
-
-const createMockSessionRepository = (): SessionRepository => ({
-  createOneTimeSessionId: vi.fn(),
-  createSession: vi.fn(),
-  getSession: vi.fn(),
-  getSessionTokenByOneTimeId: vi.fn(),
-});
+import { createMockSessionRepository } from "./mocks.js";
 
 describe("makeAuthorizeUseCase", () => {
   it("should return session data for a valid sessionId", async () => {

@@ -37,6 +37,18 @@ variable "dns_zone" {
   description = "Existing public Azure DNS zone for the asset domains"
 }
 
+variable "cors_allowed_origins" {
+  type        = set(string)
+  description = "Frontend HTTPS origins allowed to read public assets through Front Door"
+
+  validation {
+    condition = length(var.cors_allowed_origins) > 0 && alltrue([
+      for origin in var.cors_allowed_origins : can(regex("^https://[^/?#*@[:space:]]+$", origin))
+    ])
+    error_message = "Provide at least one HTTPS origin without user information, a path, query string, fragment, or wildcard."
+  }
+}
+
 variable "tags" {
   type        = map(string)
   description = "Resource ownership and cost tags"

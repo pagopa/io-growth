@@ -1,4 +1,6 @@
-import ErrorScreen from '../../components/QueryGuard/ErrorScreen';
+import ErrorScreen, {
+  IN_APP_BROWSER_CLOSE_DEEPLINK,
+} from '../../components/QueryGuard/ErrorScreen';
 import { PageErrorType } from '../../components/QueryGuard/ErrorScreen/types';
 
 const Unauthorized = () => {
@@ -7,7 +9,7 @@ const Unauthorized = () => {
       errorType={PageErrorType.UNAUTHORIZED}
       firstAction={{
         label: 'Chiudi',
-        onClick: () => window.location.replace('iossoapi://cancel'),
+        onClick: () => window.location.replace(IN_APP_BROWSER_CLOSE_DEEPLINK),
       }}
     />
   );

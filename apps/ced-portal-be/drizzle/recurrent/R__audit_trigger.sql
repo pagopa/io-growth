@@ -55,7 +55,8 @@ DECLARE
         'opportunity',
         'beneficiary_benefit',
         'caregiver_benefit',
-        'localized_metadata'
+        'localized_metadata',
+        'operator'
     ];
     t TEXT;
 BEGIN

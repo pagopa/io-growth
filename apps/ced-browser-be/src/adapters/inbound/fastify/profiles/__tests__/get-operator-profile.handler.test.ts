@@ -12,7 +12,7 @@ import {
 import { mountGetOperatorProfileHandler } from "../get-operator-profile.handler.js";
 
 describe("mountGetOperatorProfileHandler", () => {
-  it("returns the operator privacy and terms URLs", async () => {
+  it("returns the operator ID, privacy and terms URLs", async () => {
     const app = Fastify();
     const useCase: GetOperatorProfileUseCase = vi
       .fn()
@@ -43,9 +43,12 @@ describe("mountGetOperatorProfileHandler", () => {
       profileId: MOCK_PROFILE_ID,
     });
     expect(response.json()).toMatchObject({
+      operatorId: mockOperatorProfileDetail.operatorId,
       privacyUrl: mockOperatorProfileDetail.privacyUrl,
       tosUrl: mockOperatorProfileDetail.tosUrl,
     });
+    expect(response.json().operatorId).not.toBe(MOCK_PROFILE_ID);
     expect(response.json()).not.toHaveProperty("termsUrl");
+    await app.close();
   });
 });

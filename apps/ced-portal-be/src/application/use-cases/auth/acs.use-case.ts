@@ -1,10 +1,11 @@
 import type { UseCase } from "@pagopa/io-core-domain";
 import type { BaseError } from "@pagopa/io-core-domain/errors";
 
-import { emitCustomEvent } from "@pagopa/io-core-adapter-tracing";
-import { ValidationError } from "@pagopa/io-core-domain/errors";
+import {
+  UnauthorizedError,
+  ValidationError,
+} from "@pagopa/io-core-domain/errors";
 import { hashUppercasedString } from "@pagopa/io-core-domain/utilities";
-import { decodeJwt } from "jose";
 import { err, okAsync, ResultAsync } from "neverthrow";
 import { randomBytes } from "node:crypto";
 import { ulid } from "ulid";
@@ -13,11 +14,17 @@ import { z } from "zod";
 import type { AppConfig } from "../../../config.js";
 import type { Operator } from "../../../domain/entities/operator.js";
 import type { UserType } from "../../../domain/entities/user-type.js";
+import type { ArTokenRepository } from "../../../domain/ports/outbound/ar-token.repository.js";
 import type { OperatorRepository } from "../../../domain/ports/outbound/persistence/operator.repository.js";
 import type { SessionRepository } from "../../../domain/ports/outbound/persistence/session.repository.js";
+import type { TracingRepository } from "../../../domain/ports/outbound/tracing.repository.js";
 
 import { createSessionContext } from "../../../async-local-storage-session-context.js";
-import { Session } from "../../../domain/entities/session.js";
+import {
+  ONE_TIME_SESSION_ID_TTL_SECONDS,
+  Session,
+  SESSION_TTL_SECONDS,
+} from "../../../domain/entities/session.js";
 import { OPERATOR_USER_TYPES } from "../../../domain/entities/user-type.js";
 
 const CALLER = "AcsUseCase";
@@ -71,8 +78,10 @@ export interface AcsOutput {
 
 export const makeAcsUseCase =
   (
+    arTokenRepository: ArTokenRepository,
     sessionRepository: SessionRepository,
     operatorRepository: OperatorRepository,
+    tracingRepository: TracingRepository,
     config: Pick<
       AppConfig,
       | "ADMIN_FISCAL_CODES"
@@ -81,13 +90,28 @@ export const makeAcsUseCase =
     >,
   ): UseCase<AcsInput, AcsOutput, BaseError> =>
   async (input) => {
-    const rawPayload = decodeJwt(input.token);
-    const parsed = TokenPayloadSchema.safeParse(rawPayload);
+    const verified = await arTokenRepository.verifyToken(input.token);
+    if (verified.isErr()) {
+      return err(verified.error);
+    }
+
+    const parsed = TokenPayloadSchema.safeParse(verified.value);
     if (!parsed.success) {
       return err(new ValidationError(parsed.error.message));
     }
 
     const { family_name, name, organization, uid } = parsed.data;
+
+    const revoked =
+      await sessionRepository.existsRevocationByOperatorExternalId(
+        organization.id,
+      );
+    if (revoked.isErr()) {
+      return err(revoked.error);
+    }
+    if (revoked.value) {
+      return err(new UnauthorizedError("Operator revoked"));
+    }
 
     const userType = resolveUserType(organization.fiscal_code, config);
     const isOperator = OPERATOR_USER_TYPES.includes(userType);
@@ -121,13 +145,13 @@ export const makeAcsUseCase =
                     status: "active",
                   }),
                 ).map((operator) => {
-                  emitCustomEvent("operator_created", {
+                  tracingRepository.emitEvent("operator_created", {
                     caller: CALLER,
                     data: {
                       operatorId: operator.id,
                       operatorName: operator.name,
                     },
-                  })(CALLER);
+                  });
                   return operator;
                 }),
           ),
@@ -143,7 +167,7 @@ export const makeAcsUseCase =
               ...sessionData,
               operatorId: operator?.id,
             },
-            28800,
+            SESSION_TTL_SECONDS,
           ),
         ).andThen(
           () =>
@@ -151,7 +175,7 @@ export const makeAcsUseCase =
               sessionRepository.createOneTimeSessionId(
                 sessionId,
                 sessionToken,
-                60,
+                ONE_TIME_SESSION_ID_TTL_SECONDS,
               ),
             ),
         ),

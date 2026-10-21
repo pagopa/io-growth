@@ -1,17 +1,21 @@
-import { SignJWT } from "jose";
 import { err, ok } from "neverthrow";
 import { describe, expect, it, vi } from "vitest";
 
 import type { OperatorRepository } from "../../../../domain/ports/outbound/persistence/operator.repository.js";
-import type { SessionRepository } from "../../../../domain/ports/outbound/persistence/session.repository.js";
 
 import { getRequestSession } from "../../../../async-local-storage-session-context.js";
-import { makeAcsUseCase } from "../acs.use-case.js";
+import {
+  ONE_TIME_SESSION_ID_TTL_SECONDS,
+  SESSION_TTL_SECONDS,
+} from "../../../../domain/entities/session.js";
+import { createMockTracingRepository } from "../../__tests__/mocks.js";
+import {
+  createMockSessionRepository,
+  makeAcsUseCaseWithFakeVerifier as makeAcsUseCase,
+} from "./mocks.js";
 
-const makeToken = async (payload: Record<string, unknown>) =>
-  new SignJWT(payload)
-    .setProtectedHeader({ alg: "HS256" })
-    .sign(new TextEncoder().encode("test-secret"));
+const makeToken = (payload: Record<string, unknown>) =>
+  Promise.resolve(JSON.stringify(payload));
 
 const validPayload = {
   family_name: "Rossi",
@@ -34,13 +38,6 @@ const mockOperator = {
   status: "active" as const,
 };
 
-const createMockSessionRepository = (): SessionRepository => ({
-  createOneTimeSessionId: vi.fn().mockResolvedValue(ok(undefined)),
-  createSession: vi.fn().mockResolvedValue(ok(undefined)),
-  getSession: vi.fn(),
-  getSessionTokenByOneTimeId: vi.fn(),
-});
-
 const mockConfig = {
   ADMIN_FISCAL_CODES: [] as string[],
   ADMIN_FISCAL_CODES_TEST: [] as string[],
@@ -53,6 +50,7 @@ const createMockOperatorRepository = (
   create: vi.fn().mockResolvedValue(ok(mockOperator)),
   getByExternalId: vi.fn().mockResolvedValue(ok(existing)),
   getById: vi.fn(),
+  revokeById: vi.fn(),
 });
 
 describe("makeAcsUseCase", () => {
@@ -62,6 +60,7 @@ describe("makeAcsUseCase", () => {
     const useCase = makeAcsUseCase(
       sessionRepository,
       operatorRepository,
+      createMockTracingRepository(),
       mockConfig,
     );
     const token = await makeToken(validPayload);
@@ -112,15 +111,17 @@ describe("makeAcsUseCase", () => {
     expect(sessionId).toHaveLength(64);
     expect(sessionId).toMatch(/^[a-f0-9]{64}$/);
     expect(boundToken).toBe(sessionToken);
-    expect(ttl).toBe(60);
+    expect(ttl).toBe(ONE_TIME_SESSION_ID_TTL_SECONDS);
   });
 
   it("should create operator when not found, then create session", async () => {
     const sessionRepository = createMockSessionRepository();
     const operatorRepository = createMockOperatorRepository(undefined);
+    const tracingRepository = createMockTracingRepository();
     const useCase = makeAcsUseCase(
       sessionRepository,
       operatorRepository,
+      tracingRepository,
       mockConfig,
     );
     const token = await makeToken(validPayload);
@@ -129,6 +130,17 @@ describe("makeAcsUseCase", () => {
 
     expect(result).toEqual(
       ok(expect.objectContaining({ sessionId: expect.any(String) })),
+    );
+
+    expect(tracingRepository.emitEvent).toHaveBeenCalledWith(
+      "operator_created",
+      {
+        caller: "AcsUseCase",
+        data: {
+          operatorId: mockOperator.id,
+          operatorName: mockOperator.name,
+        },
+      },
     );
 
     expect(operatorRepository.getByExternalId).toHaveBeenCalledWith(
@@ -155,6 +167,7 @@ describe("makeAcsUseCase", () => {
     const useCase = makeAcsUseCase(
       sessionRepository,
       operatorRepository,
+      createMockTracingRepository(),
       mockConfig,
     );
     const token = await makeToken({ name: "Mario" }); // missing required fields
@@ -179,6 +192,7 @@ describe("makeAcsUseCase — error propagation", () => {
     const useCase = makeAcsUseCase(
       sessionRepository,
       operatorRepository,
+      createMockTracingRepository(),
       mockConfig,
     );
     const token = await makeToken(validPayload);
@@ -203,6 +217,7 @@ describe("makeAcsUseCase — error propagation", () => {
     const useCase = makeAcsUseCase(
       sessionRepository,
       operatorRepository,
+      createMockTracingRepository(),
       mockConfig,
     );
     const token = await makeToken(validPayload);
@@ -227,6 +242,7 @@ describe("makeAcsUseCase — error propagation", () => {
     const useCase = makeAcsUseCase(
       sessionRepository,
       operatorRepository,
+      createMockTracingRepository(),
       mockConfig,
     );
     const token = await makeToken(validPayload);
@@ -251,6 +267,7 @@ describe("makeAcsUseCase — error propagation", () => {
     const useCase = makeAcsUseCase(
       sessionRepository,
       operatorRepository,
+      createMockTracingRepository(),
       mockConfig,
     );
     const token = await makeToken(validPayload);
@@ -274,10 +291,12 @@ describe("makeAcsUseCase — environment routing", () => {
         return Promise.resolve(ok(undefined));
       }),
       getById: vi.fn(),
+      revokeById: vi.fn(),
     };
     const useCase = makeAcsUseCase(
       sessionRepository,
       operatorRepository,
+      createMockTracingRepository(),
       mockConfig,
     );
     const token = await makeToken(validPayload);
@@ -297,10 +316,12 @@ describe("makeAcsUseCase — environment routing", () => {
       }),
       getByExternalId: vi.fn().mockResolvedValue(ok(undefined)),
       getById: vi.fn(),
+      revokeById: vi.fn(),
     };
     const useCase = makeAcsUseCase(
       sessionRepository,
       operatorRepository,
+      createMockTracingRepository(),
       mockConfig,
     );
     const token = await makeToken(validPayload);
@@ -316,6 +337,7 @@ describe("makeAcsUseCase — environment routing", () => {
     const useCase = makeAcsUseCase(
       sessionRepository,
       operatorRepository,
+      createMockTracingRepository(),
       mockConfig,
     );
     const token = await makeToken(validPayload);
@@ -323,5 +345,31 @@ describe("makeAcsUseCase — environment routing", () => {
     await useCase({ token });
 
     expect(getRequestSession()).toBeUndefined();
+  });
+});
+
+describe("makeAcsUseCase — session TTL", () => {
+  it("should create the session with the TTL the revocation tombstone is bound to", async () => {
+    const sessionRepository = createMockSessionRepository();
+    const operatorRepository = createMockOperatorRepository(mockOperator);
+    const useCase = makeAcsUseCase(
+      sessionRepository,
+      operatorRepository,
+      createMockTracingRepository(),
+      mockConfig,
+    );
+    const token = await makeToken(validPayload);
+
+    const result = await useCase({ token });
+
+    expect(result).toEqual(
+      ok({ sessionId: expect.stringMatching(/^[a-f0-9]{64}$/) }),
+    );
+
+    const [, , ttlSeconds] = (
+      sessionRepository.createSession as ReturnType<typeof vi.fn>
+    ).mock.calls[0] as [string, unknown, number];
+
+    expect(ttlSeconds).toBe(SESSION_TTL_SECONDS);
   });
 });

@@ -1,7 +1,18 @@
-import { Box, Button, Stack, TextField, Typography } from '@mui/material';
+import {
+  Box,
+  Button,
+  CircularProgress,
+  Stack,
+  TextField,
+  Typography,
+} from '@mui/material';
 import { useState } from 'react';
 import type { OperatorDeleteOpportunityBody } from '../../../generated/model';
-import type { SuspendOpportunityPayload } from '../../../features/opportunities/types';
+import type {
+  OperatorRepublishOpportunityPayload,
+  RejectOpportunityRepublishPayload,
+  SuspendOpportunityPayload,
+} from '../../../features/opportunities/types';
 import { AppDatePicker } from '../../../components';
 import { AppModal } from '../../../components/Modal';
 
@@ -10,22 +21,35 @@ type OpportunityActionModalPayload = {
   suspendDate?: string;
 };
 
-type OpportunityActionType = 'delete' | 'suspend';
+type OpportunityActionType =
+  | 'delete'
+  | 'suspend'
+  | 'republish'
+  | 'rejectRepublish';
 
 interface OpportunityActionModalProps {
   actionType: OpportunityActionType;
   open: boolean;
   onClose: () => void;
-  onConfirm: (payload: OpportunityActionModalPayload) => void;
+  onConfirm: (
+    payload: OpportunityActionModalPayload,
+  ) => void | boolean | Promise<void | boolean>;
+  isLoading?: boolean;
 }
 
-const MAX_REASON_LENGTH = 4096;
+const MAX_REASON_LENGTH = {
+  delete: 4096,
+  suspend: 4096,
+  republish: 4096,
+  rejectRepublish: 4096,
+} satisfies Record<OpportunityActionType, number>;
 
 function OpportunityActionModal({
   actionType,
   open,
   onClose,
   onConfirm,
+  isLoading = false,
 }: OpportunityActionModalProps) {
   const [message, setMessage] = useState('');
   const [suspendDate, setSuspendDate] = useState('');
@@ -33,6 +57,7 @@ function OpportunityActionModal({
   const [dateError, setDateError] = useState(false);
 
   const isSuspendAction = actionType === 'suspend';
+  const maxReasonLength = MAX_REASON_LENGTH[actionType];
 
   const handleClose = () => {
     setMessage('');
@@ -42,7 +67,7 @@ function OpportunityActionModal({
     onClose();
   };
 
-  const handleConfirm = () => {
+  const handleConfirm = async () => {
     const validMessage = message.trim().length > 0;
     const validDate = !isSuspendAction || suspendDate.trim().length > 0;
 
@@ -53,22 +78,45 @@ function OpportunityActionModal({
       return;
     }
 
-    onConfirm({
+    const shouldClose = await onConfirm({
       message: message.trim(),
       ...(isSuspendAction ? { suspendDate } : {}),
     });
-    handleClose();
+    if (shouldClose !== false) {
+      handleClose();
+    }
   };
 
-  const title = isSuspendAction
-    ? 'Sospendi opportunita'
-    : 'Elimina opportunita';
-  const description = isSuspendAction
-    ? "L'opportunità verrà sospesa a partire dalla data selezionata e invieremo comunicazione al Dipartimento."
-    : "L'opportunità sarà eliminata e invieremo comunicazione al Dipartimento.";
-  const questionLabel = isSuspendAction
-    ? "Perché vuoi sospendere l'opportunita?"
-    : "Perché vuoi eliminare l'opportunita?";
+  const copy = {
+    delete: {
+      title: 'Elimina opportunita',
+      description:
+        "L'opportunità sarà eliminata e invieremo comunicazione al Dipartimento.",
+      questionLabel: "Perché vuoi eliminare l'opportunita?",
+    },
+    suspend: {
+      title: 'Sospendi opportunita',
+      description:
+        "L'opportunità verrà sospesa a partire dalla data selezionata e invieremo comunicazione al Dipartimento.",
+      questionLabel: "Perché vuoi sospendere l'opportunita?",
+    },
+    republish: {
+      title: 'Pubblica di nuovo l’opportunità',
+      description:
+        'L’opportunità sarà inviata al Dipartimento per l’approvazione prima di essere pubblicata di nuovo su IO.',
+      questionLabel: 'Perché vuoi pubblicare di nuovo l’opportunità?',
+    },
+    rejectRepublish: {
+      title: 'Rifiuta la richiesta di ripubblicazione',
+      description:
+        'La richiesta sarà rifiutata e il motivo sarà comunicato all’ente.',
+      questionLabel: 'Perché vuoi rifiutare la richiesta di ripubblicazione?',
+    },
+  } satisfies Record<
+    OpportunityActionType,
+    { title: string; description: string; questionLabel: string }
+  >;
+  const { title, description, questionLabel } = copy[actionType];
   const placeholder = 'Spiega il motivo *';
 
   return (
@@ -91,12 +139,12 @@ function OpportunityActionModal({
             helperText={
               messageError
                 ? 'Inserisci un motivo'
-                : `Inserisci un testo di max ${MAX_REASON_LENGTH} caratteri`
+                : `Inserisci un testo di max ${maxReasonLength} caratteri`
             }
-            inputProps={{ maxLength: MAX_REASON_LENGTH }}
+            inputProps={{ maxLength: maxReasonLength }}
             placeholder={placeholder}
             onChange={(event) => {
-              setMessage(event.target.value.slice(0, MAX_REASON_LENGTH));
+              setMessage(event.target.value.slice(0, maxReasonLength));
               if (messageError) {
                 setMessageError(false);
               }
@@ -126,13 +174,19 @@ function OpportunityActionModal({
         ) : null}
 
         <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2 }}>
-          <Button variant="text" onClick={handleClose}>
+          <Button variant="text" onClick={handleClose} disabled={isLoading}>
             Annulla
           </Button>
           <Button
             variant="contained"
             color="primary"
             onClick={handleConfirm}
+            disabled={isLoading}
+            startIcon={
+              isLoading ? (
+                <CircularProgress size={18} color="inherit" />
+              ) : undefined
+            }
             sx={{ px: 4 }}
           >
             Conferma
@@ -168,6 +222,60 @@ interface SuspendOpportunityModalProps {
   open: boolean;
   onClose: () => void;
   onConfirm: (payload: SuspendOpportunityPayload) => void;
+}
+
+interface RepublishOpportunityActionModalProps {
+  open: boolean;
+  isLoading?: boolean;
+  onClose: () => void;
+  onConfirm: (
+    payload: OperatorRepublishOpportunityPayload,
+  ) => boolean | Promise<boolean>;
+}
+
+export function RepublishOpportunityActionModal({
+  open,
+  isLoading = false,
+  onClose,
+  onConfirm,
+}: RepublishOpportunityActionModalProps) {
+  return (
+    <OpportunityActionModal
+      actionType="republish"
+      open={open}
+      onClose={onClose}
+      onConfirm={(payload) => onConfirm({ republishMessage: payload.message })}
+      isLoading={isLoading}
+    />
+  );
+}
+
+interface RejectOpportunityRepublishModalProps {
+  open: boolean;
+  isLoading?: boolean;
+  onClose: () => void;
+  onConfirm: (
+    payload: RejectOpportunityRepublishPayload,
+  ) => boolean | Promise<boolean>;
+}
+
+export function RejectOpportunityRepublishModal({
+  open,
+  isLoading = false,
+  onClose,
+  onConfirm,
+}: RejectOpportunityRepublishModalProps) {
+  return (
+    <OpportunityActionModal
+      actionType="rejectRepublish"
+      open={open}
+      onClose={onClose}
+      onConfirm={(payload) =>
+        onConfirm({ republishRejectionMessage: payload.message })
+      }
+      isLoading={isLoading}
+    />
+  );
 }
 
 export function SuspendOpportunityModal({

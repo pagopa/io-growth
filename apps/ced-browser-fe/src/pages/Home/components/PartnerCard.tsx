@@ -95,8 +95,8 @@ export const PartnerCard = ({
 
   return (
     <Card
-      role="group"
-      aria-label={title}
+      role={onClick ? undefined : 'group'}
+      aria-label={onClick ? undefined : title}
       tabIndex={!onClick && !isInert ? 0 : undefined}
       sx={(theme) => ({
         width: 210,
@@ -108,15 +108,16 @@ export const PartnerCard = ({
         borderColor: theme.palette.common.cardBorder,
         '&:focus-visible': {
           outline: 'none',
-          boxShadow: `inset 0 0 0 1px ${theme.palette.common.focusRing}`,
+          boxShadow: `inset 0 0 0 2px ${theme.palette.common.focusRing}`,
         },
       })}
     >
       {onClick ? (
         <CardActionArea
-          onClick={onClick}
+          onClick={isInert ? undefined : onClick}
           aria-label={title}
           tabIndex={isInert ? -1 : undefined}
+          aria-hidden={isInert ? true : undefined}
           sx={(theme) => ({
             width: '100%',
             height: '100%',
@@ -126,7 +127,7 @@ export const PartnerCard = ({
             borderRadius: 4,
             '&.Mui-focusVisible': {
               outline: 'none',
-              boxShadow: `inset 0 0 0 1px ${theme.palette.common.focusRing}`,
+              boxShadow: `inset 0 0 0 2px ${theme.palette.common.focusRing}`,
             },
           })}
         >

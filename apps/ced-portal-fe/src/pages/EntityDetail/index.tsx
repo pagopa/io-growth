@@ -1,4 +1,5 @@
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import CancelIcon from '@mui/icons-material/Cancel';
 import FileDownloadOutlinedIcon from '@mui/icons-material/FileDownloadOutlined';
 import WarningAmberRoundedIcon from '@mui/icons-material/WarningAmberRounded';
 import {
@@ -22,6 +23,7 @@ import { DetailSection } from '../OpportunityDetail/components/DetailSection';
 import { PublishEntityModal } from './components/PublishEntityModal';
 import { RejectEntityModal } from './components/RejectEntityModal';
 import { SectionCard } from './components/SectionCard.js';
+import { TerminateEntityModal } from './components/TerminateEntityModal';
 import useEntityDetail from './hooks/useEntityDetail.js';
 
 export default function EntityDetailPage() {
@@ -35,6 +37,7 @@ export default function EntityDetailPage() {
       geographicFields,
       legalRepresentativeFields,
       isEditable,
+      isTerminable,
     },
     upload: {
       state: uploadState,
@@ -46,18 +49,21 @@ export default function EntityDetailPage() {
       downloadContract: handleDownloadContract,
       approve: handleApprove,
       publish: handlePublish,
+      terminate: handleTerminate,
       reject: handleReject,
       refetch,
     },
     modals: {
       publish: { open: openPublishModal, setOpen: setOpenPublishModal },
       reject: { open: openRejectModal, setOpen: setOpenRejectModal },
+      terminate: { open: openTerminateModal, setOpen: setOpenTerminateModal },
     },
     status: {
       isLoading,
       isError,
       isDownloadingContract,
       isCompletingOnboarding,
+      isTerminatingOnboarding,
       isRejectingOnboarding,
     },
   } = useEntityDetail();
@@ -169,7 +175,7 @@ export default function EntityDetailPage() {
           <MIAlert severity="error">
             <Typography
               sx={{
-                color: 'text.primary',
+                color: (theme) => theme.palette.common.toastError,
                 fontSize: 18,
                 fontWeight: 600,
                 lineHeight: 1.2,
@@ -179,7 +185,7 @@ export default function EntityDetailPage() {
             </Typography>
             <Typography
               sx={{
-                color: 'text.primary',
+                color: (theme) => theme.palette.common.toastError,
                 fontSize: 16,
                 fontStyle: 'italic',
                 lineHeight: 1.3,
@@ -207,9 +213,11 @@ export default function EntityDetailPage() {
           </Box>
           <DetailSection fields={geographicFields} />
         </SectionCard>
-        <SectionCard title="Dati del Legale Rappresentante">
-          <DetailSection fields={legalRepresentativeFields} />
-        </SectionCard>
+        {legalRepresentativeFields.length > 0 && (
+          <SectionCard title="Dati del Legale Rappresentante">
+            <DetailSection fields={legalRepresentativeFields} />
+          </SectionCard>
+        )}
         <SectionCard title="Convenzione">
           <Box sx={{ py: 2, px: 3 }}>
             <Stack
@@ -292,6 +300,16 @@ export default function EntityDetailPage() {
             </>
           )}
         </SectionCard>
+        {isTerminable && (
+          <Button
+            startIcon={<CancelIcon />}
+            color="error"
+            onClick={() => setOpenTerminateModal(true)}
+            sx={{ alignSelf: 'flex-start', fontWeight: 700 }}
+          >
+            Termina convenzione
+          </Button>
+        )}
         {isEditable && (
           <Stack
             direction="row"
@@ -331,6 +349,13 @@ export default function EntityDetailPage() {
             />
           </Stack>
         )}
+        <TerminateEntityModal
+          open={openTerminateModal}
+          onClose={() => setOpenTerminateModal(false)}
+          onConfirm={handleTerminate}
+          entityName={entityName}
+          isLoading={isTerminatingOnboarding}
+        />
       </Stack>
     </Box>
   );

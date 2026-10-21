@@ -2,6 +2,7 @@ import type { TypedDbClient } from "@pagopa/io-core-adapter-drizzle";
 import type { Result } from "neverthrow";
 
 import { ConflictError, GenericError } from "@pagopa/io-core-domain/errors";
+import { getApplicationDate } from "@pagopa/io-core-domain/utilities";
 import {
   and,
   count,
@@ -14,6 +15,7 @@ import {
   isNull,
   lte,
   ne,
+  notExists,
   or,
   sql,
 } from "drizzle-orm";
@@ -23,6 +25,7 @@ import type {
   CancelScheduledSuspensionByIdAndOperatorIdInput,
   CancelScheduledSuspensionByIdInput,
   DeleteOpportunityByIdAndOperatorIdInput,
+  ExistsWithSolePlaceByPlaceIdAndStatusesInput,
   FindByIdAndOperatorIdInput,
   FindByIdInput,
   ListOpportunitiesInput,
@@ -30,9 +33,11 @@ import type {
   OpportunitySearchField,
   OpportunityStatusFilter,
   PaginatedOpportunities,
+  RejectRepublishByIdInput,
   RepublishByIdAndOperatorIdInput,
   RepublishByIdInput,
   RequestChangesByIdInput,
+  RequestRepublishByIdAndOperatorIdInput,
   SuspendByIdAndOperatorIdInput,
   SuspendByIdInput,
   UpdateByIdAndOperatorIdInput,
@@ -47,6 +52,7 @@ import {
   OPPORTUNITY_STATUS,
   type OpportunityDetail,
 } from "../../../domain/entities/opportunity.js";
+import { enqueueMessagesInTransaction } from "./message-outbox.transaction.js";
 import {
   mapOpportunityDetailRow,
   mapOpportunitySummaryRow,
@@ -62,15 +68,13 @@ import {
   opportunityCategory,
   opportunityPlace,
 } from "./schema/tables.js";
+import { escapeIlikePattern } from "./utils/escape-ilike-pattern.js";
 
 type DbOrTxClient = TransactionClient | TypedDbClient<typeof schema>;
 
 type TransactionClient = Parameters<
   Parameters<TypedDbClient<typeof schema>["transaction"]>[0]
 >[0];
-
-const escapeIlikePattern = (value: string): string =>
-  value.replace(/\\/g, "\\\\").replace(/%/g, "\\%").replace(/_/g, "\\_");
 
 const searchColumns = {
   name: localizedMetadata.value,
@@ -122,11 +126,6 @@ export const buildStatusCondition = (
   return sql`${opportunity.status} = ${status}`;
 };
 
-// Server-owned reference date (YYYY-MM-DD) used to resolve the derived
-// "scheduled" / "published" statuses, both when filtering and when mapping
-// rows into entities.
-const today = (): string => new Date().toISOString().slice(0, 10);
-
 const findByIdAndOperatorId = async (
   db: DbOrTxClient,
   input: FindByIdAndOperatorIdInput,
@@ -142,6 +141,8 @@ const findByIdAndOperatorId = async (
         id: true,
         nationalTerritory: true,
         operatorId: true,
+        republishMessage: true,
+        republishRejectionMessage: true,
         status: true,
         suspendedBy: true,
         suspendFrom: true,
@@ -183,7 +184,7 @@ const findByIdAndOperatorId = async (
       return ok(undefined);
     }
 
-    return mapOpportunityDetailRow(row, today());
+    return mapOpportunityDetailRow(row, getApplicationDate());
   } catch (error) {
     return err(
       new GenericError(`Failed to get operator opportunity: ${String(error)}`),
@@ -207,6 +208,8 @@ const findById =
           id: true,
           nationalTerritory: true,
           operatorId: true,
+          republishMessage: true,
+          republishRejectionMessage: true,
           status: true,
           suspendedBy: true,
           suspendFrom: true,
@@ -241,7 +244,7 @@ const findById =
         },
       });
       if (!row) return ok(undefined);
-      return mapOpportunityDetailRow(row, today());
+      return mapOpportunityDetailRow(row, getApplicationDate());
     } catch (error) {
       return err(
         new GenericError(`Failed to get opportunity: ${String(error)}`),
@@ -255,20 +258,27 @@ const updateStatusById =
     input: UpdateOpportunityStatusByIdInput,
   ): Promise<Result<void, ConflictError | GenericError>> => {
     try {
-      const result = await db
-        .update(opportunity)
-        .set({
-          ...(input.dateFrom ? { dateFrom: input.dateFrom } : {}),
-          status: input.status,
-          updatedAt: new Date(),
-        })
-        .where(
-          and(
-            eq(opportunity.id, input.opportunityId),
-            inArray(opportunity.status, input.expectedStatuses),
-          ),
-        );
-      if (result.count === 0)
+      let updateCount = 0;
+      await db.transaction(async (tx) => {
+        const result = await tx
+          .update(opportunity)
+          .set({
+            ...(input.dateFrom ? { dateFrom: input.dateFrom } : {}),
+            status: input.status,
+            updatedAt: new Date(),
+          })
+          .where(
+            and(
+              eq(opportunity.id, input.opportunityId),
+              inArray(opportunity.status, input.expectedStatuses),
+            ),
+          );
+        updateCount = result.count;
+        if (updateCount > 0) {
+          await enqueueMessagesInTransaction(tx, input.outboxMessages);
+        }
+      });
+      if (updateCount === 0)
         return err(
           new ConflictError("Opportunity status was modified concurrently"),
         );
@@ -296,6 +306,8 @@ const deleteByIdAndOperatorId =
             ...(input.deletionMessage
               ? { deletionMessage: input.deletionMessage }
               : {}),
+            republishMessage: null,
+            republishRejectionMessage: null,
             status: OPPORTUNITY_STATUS.DELETED,
             updatedAt: new Date(),
           })
@@ -436,6 +448,47 @@ const cancelScheduledSuspensionById =
     }
   };
 
+const rejectRepublishById =
+  (db: TypedDbClient<typeof schema>) =>
+  async (
+    input: RejectRepublishByIdInput,
+  ): Promise<Result<void, ConflictError | GenericError>> => {
+    try {
+      await db.transaction(async (tx) => {
+        const result = await tx
+          .update(opportunity)
+          .set({
+            republishMessage: null,
+            republishRejectionMessage: input.republishRejectionMessage,
+            updatedAt: new Date(),
+          })
+          .where(
+            and(
+              eq(opportunity.id, input.opportunityId),
+              eq(opportunity.status, OPPORTUNITY_STATUS.SUSPENDED),
+              isNotNull(opportunity.republishMessage),
+            ),
+          );
+
+        if (result.count === 0) {
+          throw new ConflictError(
+            "Opportunity status was modified concurrently",
+          );
+        }
+      });
+      return ok(undefined);
+    } catch (error) {
+      if (error instanceof ConflictError) {
+        return err(error);
+      }
+      return err(
+        new GenericError(
+          `Failed to reject republish request: ${String(error)}`,
+        ),
+      );
+    }
+  };
+
 const republishById =
   (db: TypedDbClient<typeof schema>) =>
   async (
@@ -446,6 +499,8 @@ const republishById =
         const result = await tx
           .update(opportunity)
           .set({
+            republishMessage: null,
+            republishRejectionMessage: null,
             status: OPPORTUNITY_STATUS.PUBLISHED,
             suspendedBy: null,
             suspendFrom: null,
@@ -486,6 +541,8 @@ const republishByIdAndOperatorId =
         const result = await tx
           .update(opportunity)
           .set({
+            republishMessage: null,
+            republishRejectionMessage: null,
             status: OPPORTUNITY_STATUS.PUBLISHED,
             suspendedBy: null,
             suspendFrom: null,
@@ -528,7 +585,7 @@ const requestChangesById =
           .update(opportunity)
           .set({
             changeRequestMessage: input.changeRequestMessage,
-            status: OPPORTUNITY_STATUS.DRAFT,
+            status: OPPORTUNITY_STATUS.TEST_REJECTED,
             updatedAt: new Date(),
           })
           .where(
@@ -552,6 +609,49 @@ const requestChangesById =
       return err(
         new GenericError(
           `Failed to request opportunity changes: ${String(error)}`,
+        ),
+      );
+    }
+  };
+
+const requestRepublishByIdAndOperatorId =
+  (db: TypedDbClient<typeof schema>) =>
+  async (
+    input: RequestRepublishByIdAndOperatorIdInput,
+  ): Promise<Result<void, ConflictError | GenericError>> => {
+    try {
+      await db.transaction(async (tx) => {
+        const result = await tx
+          .update(opportunity)
+          .set({
+            republishMessage: input.republishMessage,
+            republishRejectionMessage: null,
+            updatedAt: new Date(),
+          })
+          .where(
+            and(
+              eq(opportunity.id, input.opportunityId),
+              eq(opportunity.operatorId, input.operatorId),
+              eq(opportunity.status, OPPORTUNITY_STATUS.SUSPENDED),
+              eq(opportunity.suspendedBy, ACTOR_TYPE.DEPARTMENT),
+              isNull(opportunity.republishMessage),
+            ),
+          );
+
+        if (result.count === 0) {
+          throw new ConflictError(
+            "Opportunity status was modified concurrently",
+          );
+        }
+      });
+      return ok(undefined);
+    } catch (error) {
+      if (error instanceof ConflictError) {
+        return err(error);
+      }
+      return err(
+        new GenericError(
+          `Failed to request opportunity republish: ${String(error)}`,
         ),
       );
     }
@@ -601,7 +701,7 @@ const countByExternalOperatorIds =
       return ok(new Map<string, number>());
     }
     try {
-      const today = new Date().toISOString().slice(0, 10);
+      const today = getApplicationDate();
       const rows = await db
         .select({
           externalOperatorIds: operator.externalId,
@@ -625,6 +725,51 @@ const countByExternalOperatorIds =
       return err(
         new GenericError(
           `Failed to count opportunities by operator ids: ${String(error)}`,
+        ),
+      );
+    }
+  };
+
+const existsWithSolePlaceByPlaceIdAndStatuses =
+  (db: TypedDbClient<typeof schema>) =>
+  async (
+    input: ExistsWithSolePlaceByPlaceIdAndStatusesInput,
+  ): Promise<Result<boolean, GenericError>> => {
+    if (input.statuses.length === 0) {
+      return ok(false);
+    }
+    try {
+      const rows = await db
+        .select({ opportunityId: opportunity.id })
+        .from(opportunityPlace)
+        .innerJoin(
+          opportunity,
+          eq(opportunity.id, opportunityPlace.opportunityId),
+        )
+        .where(
+          and(
+            eq(opportunityPlace.placeId, input.placeId),
+            eq(opportunity.nationalTerritory, false),
+            inArray(opportunity.status, input.statuses),
+            notExists(
+              db
+                .select({ placeId: opportunityPlace.placeId })
+                .from(opportunityPlace)
+                .where(
+                  and(
+                    eq(opportunityPlace.opportunityId, opportunity.id),
+                    ne(opportunityPlace.placeId, input.placeId),
+                  ),
+                ),
+            ),
+          ),
+        )
+        .limit(1);
+      return ok(rows.length > 0);
+    } catch (error) {
+      return err(
+        new GenericError(
+          `Failed to check opportunities with sole place: ${String(error)}`,
         ),
       );
     }
@@ -660,6 +805,9 @@ const updateByIdAndOperatorId =
             dateFrom: input.dateFrom,
             dateTo: input.dateTo ?? null,
             nationalTerritory: input.nationalTerritory,
+            ...(input.status === OPPORTUNITY_STATUS.SUSPENDED
+              ? {}
+              : { republishMessage: null, republishRejectionMessage: null }),
             status: input.status,
             updatedAt: new Date(),
             url: input.url ?? null,
@@ -782,6 +930,8 @@ export const createDrizzleOpportunityRepository = (
   },
 
   deleteByIdAndOperatorId: deleteByIdAndOperatorId(db),
+  existsWithSolePlaceByPlaceIdAndStatuses:
+    existsWithSolePlaceByPlaceIdAndStatuses(db),
 
   findAll: async (
     input: ListOpportunitiesInput,
@@ -802,7 +952,9 @@ export const createDrizzleOpportunityRepository = (
         conditions.push(gte(opportunity.dateFrom, input.dateFrom));
       if (input.dateTo) conditions.push(lte(opportunity.dateTo, input.dateTo));
       if (input.status) {
-        conditions.push(buildStatusCondition(input.status, today()));
+        conditions.push(
+          buildStatusCondition(input.status, getApplicationDate()),
+        );
       }
       if (input.excludeDeleted) {
         conditions.push(ne(opportunity.status, OPPORTUNITY_STATUS.DELETED));
@@ -859,7 +1011,7 @@ export const createDrizzleOpportunityRepository = (
       ]);
 
       const items = dataResult.map((row) =>
-        mapOpportunitySummaryRow(row, today()),
+        mapOpportunitySummaryRow(row, getApplicationDate()),
       );
       const total = countResult[0]?.total ?? 0;
 
@@ -876,9 +1028,11 @@ export const createDrizzleOpportunityRepository = (
   findByIdAndOperatorId: async (input: FindByIdAndOperatorIdInput) =>
     findByIdAndOperatorId(db, input),
 
+  rejectRepublishById: rejectRepublishById(db),
   republishById: republishById(db),
   republishByIdAndOperatorId: republishByIdAndOperatorId(db),
   requestChangesById: requestChangesById(db),
+  requestRepublishByIdAndOperatorId: requestRepublishByIdAndOperatorId(db),
   suspendById: suspendById(db),
 
   suspendByIdAndOperatorId: suspendByIdAndOperatorId(db),

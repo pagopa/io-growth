@@ -7,6 +7,7 @@ export const MODAL_CONTENT = {
     body: 'Carica il tuo logo per aiutare gli utenti a capire chi offre le opportunità e migliorare la riconoscibilità e la fiducia nei tuoi servizi.',
     details: [
       "Usa un'immagine quadrata (rapporto 1:1)",
+      'Usa un’immagine senza testi',
       'Preferisci uno sfondo bianco o trasparente',
       'Se disponibile, usa la versione compatta del logo (pittogramma)',
     ],

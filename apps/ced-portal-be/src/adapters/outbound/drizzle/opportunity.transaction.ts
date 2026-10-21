@@ -1,10 +1,13 @@
 import type { TypedDbClient } from "@pagopa/io-core-adapter-drizzle";
 
-import type {
-  Benefit,
-  Opportunity,
-} from "../../../domain/entities/opportunity.js";
+import { and, eq } from "drizzle-orm";
 
+import {
+  ACTOR_TYPE,
+  type Benefit,
+  type Opportunity,
+  OPPORTUNITY_STATUS,
+} from "../../../domain/entities/opportunity.js";
 import * as schema from "./schema/index.js";
 import {
   beneficiaryBenefit,
@@ -85,4 +88,34 @@ export const createOpportunityInTransaction = async (
       })),
     );
   }
+};
+
+/**
+ * Suspends every published opportunity of an operator inside an existing
+ * transaction, as the cascade of a contract revocation.
+ *
+ * Returns the number of affected rows. Zero is a legitimate outcome.
+ */
+export const suspendAllOpportunitiesByOperatorIdInTransaction = async (
+  tx: TransactionClient,
+  operatorId: string,
+  suspensionMessage: string,
+): Promise<number> => {
+  const result = await tx
+    .update(opportunity)
+    .set({
+      status: OPPORTUNITY_STATUS.SUSPENDED,
+      suspendedBy: ACTOR_TYPE.DEPARTMENT,
+      suspendFrom: null,
+      suspensionMessage,
+      updatedAt: new Date(),
+    })
+    .where(
+      and(
+        eq(opportunity.operatorId, operatorId),
+        eq(opportunity.status, OPPORTUNITY_STATUS.PUBLISHED),
+      ),
+    );
+
+  return result.count;
 };

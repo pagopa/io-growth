@@ -40,3 +40,5 @@ export const PlaceSchema = z.discriminatedUnion("type", [
 ]);
 
 export type Place = z.infer<typeof PlaceSchema>;
+
+export type PlaceListItem = Place & { associatedOpportunities: number };

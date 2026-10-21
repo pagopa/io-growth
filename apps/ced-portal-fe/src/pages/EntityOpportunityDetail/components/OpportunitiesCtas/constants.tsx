@@ -56,9 +56,9 @@ export const CTAS_BY_STATUS: Partial<
         actionId: 'MODIFY',
       },
       {
-        label: 'Pubblica',
+        label: 'Ripubblica',
         variant: 'contained',
-        actionId: 'PUBLISH',
+        actionId: 'REPUBLISH',
       },
     ],
   },

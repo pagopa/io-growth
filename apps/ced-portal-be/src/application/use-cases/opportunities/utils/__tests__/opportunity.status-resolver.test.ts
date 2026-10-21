@@ -198,6 +198,12 @@ describe("resolveOpportunityStatus - command transitions", () => {
       "test_pending",
     ],
     [
+      "test_rejected",
+      { type: OPPORTUNITY_TRANSITION.REQUEST_TEST },
+      "test_rejected",
+      "test_pending",
+    ],
+    [
       "test_pending",
       { type: OPPORTUNITY_TRANSITION.APPROVE },
       "test_pending",

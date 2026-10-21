@@ -64,6 +64,7 @@ const ProfileLegalUrlSchema = z
 
 export const OperatorProfileDetailSchema = OperatorMetadataSchema.extend({
   displayName: z.string().min(1),
+  operatorId: z.string().min(1),
   place: ProfilePlaceSchema,
   privacyUrl: ProfileLegalUrlSchema,
   recentOpportunities: z.array(ProfileRecentOpportunitySchema),

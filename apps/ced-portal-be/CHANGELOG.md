@@ -1,5 +1,91 @@
 # ced-portal-be
 
+## 0.10.1
+
+### Patch Changes
+
+- Updated dependencies [d704bb8]
+  - @pagopa/io-core-domain@0.1.0
+  - @pagopa/io-core-adapter-ar@0.1.5
+  - @pagopa/io-core-adapter-azure-blob-storage@0.0.5
+  - @pagopa/io-core-adapter-fastify@0.0.12
+  - @pagopa/io-core-adapter-one-mail@0.1.4
+  - @pagopa/io-core-adapter-redis@0.0.11
+
+## 0.10.0
+
+### Minor Changes
+
+- acddd6a: Verify issuer, expiration and signature (via the issuer's JWKS) of the Area Riservata token received by ACS
+
+## 0.9.1
+
+### Patch Changes
+
+- 9cfb4ed: Fix the UTC calendar-date assumption that delayed opportunity publication until
+  02:00 in Italy during daylight saving time. Use Europe/Rome dates consistently
+  in the opportunity and place materialized views, publication notifications,
+  citizen detail access, and portal publication checks.
+- Updated dependencies [9cfb4ed]
+  - @pagopa/io-core-domain@0.0.6
+  - @pagopa/io-core-adapter-ar@0.1.4
+  - @pagopa/io-core-adapter-azure-blob-storage@0.0.4
+  - @pagopa/io-core-adapter-fastify@0.0.11
+  - @pagopa/io-core-adapter-one-mail@0.1.3
+  - @pagopa/io-core-adapter-redis@0.0.10
+
+## 0.9.0
+
+### Minor Changes
+
+- a12393d: Send approval and publishing emails through a message outbox.
+
+  Send the opportunity "approved" email when the opportunity gets approved.
+
+  Send the opportunity "published" email when the opportunity becomes visible, instead of on republication: a scheduled job enqueues it once per entry into the materialized view, tracked by the new `publishing_notified_at` column and reset by a database trigger. Republication no longer sends an email.
+
+  Decoupled tracing into a port.
+
+  Only the latest Container Apps revision owns the scheduled jobs: the new revision tracker package records revisions in a Postgres table, and the app registers its revision once it is ready. The scheduler knows nothing about revisions: it takes an optional `isOwned` closure and, without it, always runs. Older revisions stay passive and stop rejected jobs. The scheduler stops gracefully on SIGTERM and traces its ownership events through the injected tracing repository.
+
+### Patch Changes
+
+- Updated dependencies [a12393d]
+  - @pagopa/io-core-adapter-pgboss@0.1.0
+  - @pagopa/io-core-adapter-revision-tracker@0.1.0
+
+## 0.8.2
+
+### Patch Changes
+
+- e9dc8e9: change logo image validation dimensions from vertical to horizontal
+
+## 0.8.1
+
+### Patch Changes
+
+- c019a0d: Change the target status of a change request from draft to test_rejected: an opportunity the department asks changes on now moves to test_rejected instead of draft
+
+## 0.8.0
+
+### Minor Changes
+
+- be15700: Return operator places as a paginated `{ items, total }` response with optional
+  offset, limit, case-insensitive name search, and online/offline type filters.
+  Each item includes `associatedOpportunities`, counting linked non-deleted
+  opportunities. Existing list consumers must adopt the new response shape and
+  request additional pages.
+- 10090fa: Add the operator place-deletion endpoint: DELETE /api/operator/places/{placeId}
+- 3ef5939: Add the department contract-revocation endpoint: PATCH /api/department/onboardings/{onboardingId}/revoke.
+  The operator moves to the revoked status and its published opportunities are suspended in the same transaction.
+  Its users' active sessions stop working, new logins are refused, and the onboarding is deleted on Area Riservata.
+- 25e4e98: Add the republish request flow: the operator can ask the department to republish an opportunity it suspended, giving a reason; the department approves through the existing republish endpoint, which now also notifies the operator by email, or rejects the request with PATCH /api/opportunities/{opportunityId}/republish/reject.
+
+### Patch Changes
+
+- Updated dependencies [3ef5939]
+  - @pagopa/io-core-adapter-ar@0.1.3
+
 ## 0.7.1
 
 ### Patch Changes

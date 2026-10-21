@@ -1,17 +1,17 @@
 import { hashUppercasedString } from "@pagopa/io-core-domain/utilities";
-import { SignJWT } from "jose";
 import { ok } from "neverthrow";
 import { describe, expect, it, vi } from "vitest";
 
 import type { OperatorRepository } from "../../../../domain/ports/outbound/persistence/operator.repository.js";
-import type { SessionRepository } from "../../../../domain/ports/outbound/persistence/session.repository.js";
 
-import { makeAcsUseCase } from "../acs.use-case.js";
+import { createMockTracingRepository } from "../../__tests__/mocks.js";
+import {
+  createMockSessionRepository,
+  makeAcsUseCaseWithFakeVerifier as makeAcsUseCase,
+} from "./mocks.js";
 
-const makeToken = async (payload: Record<string, unknown>) =>
-  new SignJWT(payload)
-    .setProtectedHeader({ alg: "HS256" })
-    .sign(new TextEncoder().encode("test-secret"));
+const makeToken = (payload: Record<string, unknown>) =>
+  Promise.resolve(JSON.stringify(payload));
 
 const validPayload = {
   family_name: "Rossi",
@@ -27,17 +27,11 @@ const validPayload = {
   uid: "uid_12345",
 };
 
-const createMockSessionRepository = (): SessionRepository => ({
-  createOneTimeSessionId: vi.fn().mockResolvedValue(ok(undefined)),
-  createSession: vi.fn().mockResolvedValue(ok(undefined)),
-  getSession: vi.fn(),
-  getSessionTokenByOneTimeId: vi.fn(),
-});
-
 const createMockOperatorRepository = (): OperatorRepository => ({
   create: vi.fn(),
   getByExternalId: vi.fn(),
   getById: vi.fn(),
+  revokeById: vi.fn(),
 });
 
 describe("makeAcsUseCase — admin path", () => {
@@ -54,6 +48,7 @@ describe("makeAcsUseCase — admin path", () => {
     const useCase = makeAcsUseCase(
       sessionRepository,
       operatorRepository,
+      createMockTracingRepository(),
       adminConfig,
     );
     const token = await makeToken(validPayload);
@@ -86,6 +81,7 @@ describe("makeAcsUseCase — admin path", () => {
     const useCase = makeAcsUseCase(
       sessionRepository,
       operatorRepository,
+      createMockTracingRepository(),
       testAdminConfig,
     );
     const token = await makeToken(validPayload);
@@ -117,6 +113,7 @@ describe("makeAcsUseCase — admin path", () => {
         }),
       ),
       getById: vi.fn(),
+      revokeById: vi.fn(),
     };
     const testOperatorConfig = {
       ADMIN_FISCAL_CODES: [] as string[],
@@ -128,6 +125,7 @@ describe("makeAcsUseCase — admin path", () => {
     const useCase = makeAcsUseCase(
       sessionRepository,
       operatorRepository,
+      createMockTracingRepository(),
       testOperatorConfig,
     );
     const token = await makeToken(validPayload);

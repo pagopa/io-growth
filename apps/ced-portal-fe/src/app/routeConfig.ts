@@ -7,6 +7,9 @@ const ENTITY_ROUTES = {
   OVERVIEW_COMPLETE_DATA: '/ente/panoramica/completa-dati',
   CREATE_BENEFIT: '/ente/opportunita/crea',
   ENTITY_OPPORTUNITY_DETAIL: '/ente/opportunita/:id',
+  LOCATIONS: '/punti-di-accesso',
+  CREATE_LOCATION: '/punti-di-accesso/crea',
+  LOCATION_DETAIL: '/punti-di-accesso/:id',
 } as const;
 
 const ADMIN_ROUTES = {
@@ -45,3 +48,6 @@ export const EntityOpportunityDetailPage = lazy(
 );
 export const EntitiesPage = lazy(() => import('../pages/Entities'));
 export const EntityDetailPage = lazy(() => import('../pages/EntityDetail'));
+export const LocationsPage = lazy(() => import('../pages/Locations'));
+export const LocationDetailPage = lazy(() => import('../pages/LocationDetail'));
+export const CreateLocationPage = lazy(() => import('../pages/CreateLocation'));

@@ -46,7 +46,7 @@ resource "azurerm_api_management_api" "ced_browser_be_v1" {
 
   import {
     content_format = "openapi-link"
-    content_value  = "https://raw.githubusercontent.com/pagopa/io-growth/82c17022f1a7c40af7d0a1c0d592198b609dd1ed/apps/ced-browser-be/openapi/exposed/openapi.yaml"
+    content_value  = "https://raw.githubusercontent.com/pagopa/io-growth/3797c3d23005d72cd6206b7306c05cff7a540237/apps/ced-browser-be/openapi/exposed/openapi.yaml"
   }
 }
 

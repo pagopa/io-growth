@@ -56,5 +56,27 @@ BEGIN
 END
 $$;
 
--- Jobs targeting ced_prod are scheduled via cron.schedule_in_database().
--- TODO: Schedule the job in ced_prod, and choose a suitable schedule
+-- CED_PROD ENVIRONMENT
+DO $$
+BEGIN
+  IF EXISTS (SELECT 1 FROM pg_database WHERE datname = 'ced_prod') THEN
+    PERFORM cron.schedule_in_database(
+      'apply-scheduled-suspensions-ced-prod',
+      '5 0 * * *',
+      $cmd$
+        SELECT set_config('app.operator_external_id', 'system', true),
+               set_config('app.referent_external_id', 'system', true),
+               set_config('app.referent_fullname', 'system', true);
+        UPDATE opportunity
+           SET status       = 'suspended',
+               suspend_from = NULL,
+               updated_at   = now()
+         WHERE status        = 'published'
+           AND suspend_from IS NOT NULL
+           AND suspend_from <= CURRENT_DATE;
+      $cmd$,
+      'ced_prod'
+    );
+  END IF;
+END
+$$;

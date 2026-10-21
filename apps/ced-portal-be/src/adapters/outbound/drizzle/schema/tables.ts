@@ -23,6 +23,8 @@ import {
   changeAuditEntityTypeEnum,
   localizedMetadataKeyEnum,
   localizedMetadataLanguageEnum,
+  messageOutboxStatusEnum,
+  messageOutboxTypeEnum,
   operatorStatusEnum,
   opportunityStatusEnum,
   placeTypeEnum,
@@ -39,6 +41,8 @@ export const operator = pgTable("operator", {
   fiscalCode: varchar("fiscal_code", { length: 32 }).notNull(),
   id: char({ length: 26 }).primaryKey(),
   name: varchar({ length: 512 }).notNull(),
+  revocationMessage: varchar("revocation_message", { length: 4096 }),
+  revokedAt: timestamp("revoked_at", { withTimezone: true }),
   status: operatorStatusEnum().notNull(),
   updatedAt: timestamp("updated_at", { withTimezone: true })
     .notNull()
@@ -162,7 +166,14 @@ export const opportunity = pgTable("opportunity", {
   operatorId: char("operator_id", { length: 26 })
     .notNull()
     .references(() => operator.id, { onDelete: "cascade" }),
+  publishingNotifiedAt: timestamp("publishing_notified_at", {
+    withTimezone: true,
+  }),
   rejectionMessage: varchar("rejection_message", { length: 4096 }),
+  republishMessage: varchar("republish_message", { length: 4096 }),
+  republishRejectionMessage: varchar("republish_rejection_message", {
+    length: 4096,
+  }),
   status: opportunityStatusEnum().notNull(),
   suspendedBy: actorTypeEnum("suspended_by"),
   suspendFrom: date("suspend_from"),
@@ -260,6 +271,25 @@ export const changeAudit = pgTable("change_audit", {
   }).notNull(),
   referentFullname: varchar("referent_fullname", { length: 512 }).notNull(),
   value: jsonb().notNull(),
+});
+
+export const messageOutbox = pgTable("message_outbox", {
+  attemptCount: integer("attempt_count").notNull().default(0),
+  claimedAt: timestamp("claimed_at", { withTimezone: true }),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+  id: char({ length: 26 })
+    .primaryKey()
+    .$defaultFn(() => ulid()),
+  lastError: text("last_error"),
+  payload: jsonb().notNull(),
+  sentAt: timestamp("sent_at", { withTimezone: true }),
+  status: messageOutboxStatusEnum().notNull().default("pending"),
+  type: messageOutboxTypeEnum().notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
 });
 
 export const placeMaterializedView = pgMaterializedView(

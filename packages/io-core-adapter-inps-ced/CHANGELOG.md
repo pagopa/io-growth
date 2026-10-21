@@ -1,5 +1,21 @@
 # @pagopa/io-core-adapter-inps-ced
 
+## 0.0.8
+
+### Patch Changes
+
+- Updated dependencies [d704bb8]
+  - @pagopa/io-core-domain@0.1.0
+  - @pagopa/io-core-adapter-modi@0.0.4
+
+## 0.0.7
+
+### Patch Changes
+
+- Updated dependencies [9cfb4ed]
+  - @pagopa/io-core-domain@0.0.6
+  - @pagopa/io-core-adapter-modi@0.0.3
+
 ## 0.0.6
 
 ### Patch Changes

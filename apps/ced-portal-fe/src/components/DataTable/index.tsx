@@ -34,6 +34,7 @@ export function DataTable<T>({
           ? left - right
           : String(left).localeCompare(String(right), 'it', {
               sensitivity: 'base',
+              numeric: true,
             });
       return sortDirection === 'asc' ? result : -result;
     });

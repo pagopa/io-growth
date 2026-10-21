@@ -102,7 +102,7 @@ export const STATE_COLORS: Record<OpportunityStatus, MIChipProps['color']> = {
   published: 'success',
   suspended: 'warning',
   deleted: 'error',
-  test_rejected: 'default',
+  test_rejected: 'warning',
 };
 
 export const ENTITY_STATE_OPTIONS = [
@@ -118,7 +118,7 @@ export const ENTITY_STATE_OPTIONS = [
   },
   { value: ListOnboardingsStatusesItem.COMPLETED, label: 'Attivo' },
   { value: ListOnboardingsStatusesItem.FAILED, label: 'Inattivo' },
-  { value: ListOnboardingsStatusesItem.REJECTED, label: 'Rifiutato' },
+  { value: ListOnboardingsStatusesItem.REJECTED, label: 'Rifiutata' },
   { value: ListOnboardingsStatusesItem.DELETED, label: 'Cessato' },
 ];
 
@@ -145,6 +145,6 @@ export const ENTITY_STATE_COLORS: Record<
   [ListOnboardingsStatusesItem.PENDING_IN_REVIEW]: 'warning',
   [ListOnboardingsStatusesItem.COMPLETED]: 'success',
   [ListOnboardingsStatusesItem.FAILED]: 'error',
-  [ListOnboardingsStatusesItem.REJECTED]: 'default',
+  [ListOnboardingsStatusesItem.REJECTED]: 'error',
   [ListOnboardingsStatusesItem.DELETED]: 'default',
 };

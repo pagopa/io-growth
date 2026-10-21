@@ -7,6 +7,7 @@ import {
   useCompleteOnboardingMutation,
   useGetContractSignedMutation,
   useGetDepartmentOnboardingQuery,
+  useTerminateOnboardingMutation,
   useRejectOnboardingMutation,
 } from '../../../features/entities/api';
 import {
@@ -33,6 +34,8 @@ function useEntityDetail() {
     useGetContractSignedMutation();
   const [completeOnboarding, { isLoading: isCompletingOnboarding }] =
     useCompleteOnboardingMutation();
+  const [terminateOnboarding, { isLoading: isTerminatingOnboarding }] =
+    useTerminateOnboardingMutation();
   const [rejectOnboarding, { isLoading: isRejectingOnboarding }] =
     useRejectOnboardingMutation();
 
@@ -40,6 +43,7 @@ function useEntityDetail() {
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const [openPublishModal, setOpenPublishModal] = useState(false);
   const [openRejectModal, setOpenRejectModal] = useState(false);
+  const [openTerminateModal, setOpenTerminateModal] = useState(false);
 
   const handleDownloadContract = async () => {
     if (!id) return;
@@ -84,6 +88,18 @@ function useEntityDetail() {
     setOpenPublishModal(true);
   };
 
+  const handleTerminate = async () => {
+    if (!id) return;
+    try {
+      await terminateOnboarding({ onboardingId: id }).unwrap();
+      setOpenTerminateModal(false);
+      showToast('Convenzione terminata con successo', 'success');
+      navigate(APP_ROUTES.ENTITIES);
+    } catch {
+      showToast('Errore durante la cessazione della convenzione', 'error');
+    }
+  };
+
   const handleReject = async (message: string) => {
     if (!id) return;
 
@@ -106,6 +122,7 @@ function useEntityDetail() {
   const legalRepresentativeFields = getLegalRepresentativeFields(onboarding);
 
   const isEditable = onboarding?.status === 'PENDING_IN_REVIEW';
+  const isTerminable = onboarding?.status === 'COMPLETED';
 
   return {
     entity: {
@@ -115,6 +132,7 @@ function useEntityDetail() {
       geographicFields,
       legalRepresentativeFields,
       isEditable,
+      isTerminable,
     },
     upload: {
       state: uploadState,
@@ -126,6 +144,7 @@ function useEntityDetail() {
       downloadContract: handleDownloadContract,
       approve: handleApprove,
       publish: handlePublish,
+      terminate: handleTerminate,
       reject: handleReject,
       refetch,
     },
@@ -138,12 +157,17 @@ function useEntityDetail() {
         open: openRejectModal,
         setOpen: setOpenRejectModal,
       },
+      terminate: {
+        open: openTerminateModal,
+        setOpen: setOpenTerminateModal,
+      },
     },
     status: {
       isLoading,
       isError,
       isDownloadingContract,
       isCompletingOnboarding,
+      isTerminatingOnboarding,
       isRejectingOnboarding,
     },
   };

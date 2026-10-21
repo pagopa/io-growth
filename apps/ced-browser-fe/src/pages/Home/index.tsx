@@ -1,9 +1,9 @@
 import { Box, Collapse, Stack } from '@mui/material';
 import { LabelCaption, Title, VSpacer } from '@pagopa/io-core-ui';
 import { Banner, IllusMIEarth } from '@pagopa/mui-italia';
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { APP_ROUTES } from '../../app/routeConfig';
+import { APP_ROUTES, toEntityDetailRoute } from '../../app/routeConfig';
 import { theme } from '../../core/theme';
 import { Carousel } from './components/Carousel';
 import DiscoverySection from './components/DiscoverySection';
@@ -24,6 +24,25 @@ export default function HomePage() {
     });
     navigate(APP_ROUTES.EUROPEAN_OPPORTUNITIES);
   }, [navigate]);
+
+  const partnersList = useMemo(
+    () =>
+      PARTNERS_CARDS_CONFIG.map((partner) => ({
+        ...partner,
+        onClick: partner.entityId
+          ? () => {
+              trackBrowserEvent('CED_ORGANIZATION_SELECTED', {
+                organization_name: partner.title,
+                organization_fiscal_code: '',
+              });
+              navigate(toEntityDetailRoute(partner.entityId), {
+                state: { source: 'home' },
+              });
+            }
+          : undefined,
+      })),
+    [navigate],
+  );
 
   return (
     <Stack
@@ -57,7 +76,7 @@ export default function HomePage() {
               <LabelCaption>IN PRIMO PIANO</LabelCaption>
             </Box>
             {/* TODO: after API implementation, attach banner and loading skeleton */}
-            <Carousel list={PARTNERS_CARDS_CONFIG} />
+            <Carousel list={partnersList} />
           </Stack>
           <DiscoverySection />
           <Box px={3} sx={{ flexShrink: 0 }}>

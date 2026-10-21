@@ -60,9 +60,22 @@ export const changeAuditEntityTypeEnum = pgEnum("change_audit_entity_type", [
   "beneficiary_benefit",
   "caregiver_benefit",
   "localized_metadata",
+  "operator",
 ]);
 
 export const changeAuditChangeTypeEnum = pgEnum("change_audit_change_type", [
   "create",
   "update",
+]);
+
+export const messageOutboxTypeEnum = pgEnum("message_outbox_type", [
+  "template",
+  "html",
+]);
+
+export const messageOutboxStatusEnum = pgEnum("message_outbox_status", [
+  "pending",
+  "sending",
+  "sent",
+  "failed",
 ]);

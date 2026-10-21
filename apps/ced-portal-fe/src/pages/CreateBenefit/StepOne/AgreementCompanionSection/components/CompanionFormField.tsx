@@ -42,6 +42,7 @@ export const CompanionFormField = ({
       helperText={errorHelperText || helperText}
       placeholder={placeholder}
       error={error}
+      required={required}
       {...restProps}
     />
   );

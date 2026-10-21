@@ -8,6 +8,7 @@ import { makeAdminRepublishOpportunityUseCase } from "../admin-republish-opportu
 import {
   createMockMaterializedViewRepository,
   createMockOpportunityRepository,
+  MOCK_OPERATOR_ID,
 } from "./mocks.js";
 
 const MOCK_OPPORTUNITY_ID = "01JVMK3N8XQZP5T6G2WYHAB4CF";
@@ -29,6 +30,7 @@ const mockOpportunity = (
   id: MOCK_OPPORTUNITY_ID,
   localizedMetadata: [{ key: "name", language: "it", value: "Discount 20%" }],
   nationalTerritory: false,
+  operatorId: MOCK_OPERATOR_ID,
   placeIds: ["01JVMK3N8XQZP5T6G2WYHAB4CD"],
   status,
   suspendedBy: "department",

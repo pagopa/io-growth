@@ -10,6 +10,8 @@ import { FiltersBar, PageTabs, ResultsPagination } from '../../components';
 import {
   useApproveOpportunityMutation,
   useAdminCancelScheduledSuspensionMutation,
+  useAdminRepublishOpportunityMutation,
+  useAdminRejectOpportunityRepublishMutation,
   useAdminSuspendOpportunityMutation,
 } from '../../features/opportunities/api';
 import { useOpportunitiesData } from '../../features/opportunities/hooks';
@@ -27,6 +29,8 @@ import {
   ADMIN_REQUEST_STATE_OPTIONS,
 } from '../../constants';
 import { SuspendOpportunityModal } from '../../components/SuspendOpportunityModal';
+import { RejectOpportunityRepublishModal } from '../Home/components/OpportunityActionModal';
+import type { RejectOpportunityRepublishPayload } from '../../features/opportunities/types';
 
 import { useMemorizedTabsAndFilters } from '../../hooks/useMemorizedTabsAndFilters';
 
@@ -50,6 +54,13 @@ export default function OpportunitiesPage() {
   const [suspendModalOpen, setSuspendModalOpen] = useState(false);
   const [opportunityToSuspend, setOpportunityToSuspend] =
     useState<Opportunity | null>(null);
+  const [republishModalOpen, setRepublishModalOpen] = useState(false);
+  const [opportunityToRepublish, setOpportunityToRepublish] =
+    useState<Opportunity | null>(null);
+  const [rejectRepublishModalOpen, setRejectRepublishModalOpen] =
+    useState(false);
+  const [opportunityToRejectRepublish, setOpportunityToRejectRepublish] =
+    useState<Opportunity | null>(null);
 
   const [approveOpportunity, { isLoading: isApproving }] =
     useApproveOpportunityMutation();
@@ -57,6 +68,10 @@ export default function OpportunitiesPage() {
     useAdminSuspendOpportunityMutation();
   const [cancelScheduledSuspension, { isLoading: isCancelingSuspension }] =
     useAdminCancelScheduledSuspensionMutation();
+  const [republishOpportunity, { isLoading: isRepublishing }] =
+    useAdminRepublishOpportunityMutation();
+  const [rejectOpportunityRepublish, { isLoading: isRejectingRepublish }] =
+    useAdminRejectOpportunityRepublishMutation();
 
   useEffect(() => {
     setSelected(new Set());
@@ -216,6 +231,77 @@ export default function OpportunitiesPage() {
     [cancelScheduledSuspension, isCancelingSuspension, showToast],
   );
 
+  const handleOpenRepublishModal = useCallback((item: Opportunity) => {
+    setOpportunityToRepublish(item);
+    setRepublishModalOpen(true);
+  }, []);
+
+  const handleRepublish = useCallback(async () => {
+    if (!opportunityToRepublish || isRepublishing) {
+      return;
+    }
+
+    try {
+      await republishOpportunity(opportunityToRepublish.id).unwrap();
+      setRepublishModalOpen(false);
+      setOpportunityToRepublish(null);
+      setSelected((prev) => {
+        const next = new Set(prev);
+        next.delete(opportunityToRepublish.id);
+        return next;
+      });
+      showToast(
+        opportunityToRepublish.republishMessage?.trim()
+          ? 'Richiesta di ripubblicazione approvata'
+          : 'Opportunità ripubblicata con successo',
+        'success',
+      );
+    } catch {
+      showToast("Errore durante la ripubblicazione dell'opportunità", 'error');
+    }
+  }, [isRepublishing, opportunityToRepublish, republishOpportunity, showToast]);
+
+  const handleOpenRejectRepublishModal = useCallback((item: Opportunity) => {
+    setOpportunityToRejectRepublish(item);
+    setRejectRepublishModalOpen(true);
+  }, []);
+
+  const handleRejectRepublish = useCallback(
+    async (payload: RejectOpportunityRepublishPayload) => {
+      if (!opportunityToRejectRepublish || isRejectingRepublish) {
+        return false;
+      }
+
+      try {
+        await rejectOpportunityRepublish({
+          id: opportunityToRejectRepublish.id,
+          payload,
+        }).unwrap();
+        setRejectRepublishModalOpen(false);
+        setOpportunityToRejectRepublish(null);
+        setSelected((prev) => {
+          const next = new Set(prev);
+          next.delete(opportunityToRejectRepublish.id);
+          return next;
+        });
+        showToast('Richiesta di ripubblicazione rifiutata', 'success');
+        return true;
+      } catch {
+        showToast(
+          'Errore durante il rifiuto della richiesta di ripubblicazione',
+          'error',
+        );
+        return false;
+      }
+    },
+    [
+      isRejectingRepublish,
+      opportunityToRejectRepublish,
+      rejectOpportunityRepublish,
+      showToast,
+    ],
+  );
+
   return (
     <Box
       sx={{
@@ -289,6 +375,8 @@ export default function OpportunitiesPage() {
               onSelectChange={setSelected}
               onSuspend={handleOpenSuspendModal}
               onCancelSuspension={handleCancelSuspension}
+              onRepublish={handleOpenRepublishModal}
+              onRejectRepublishRequest={handleOpenRejectRepublishModal}
               onPublish={(id) => {
                 setIdsToPublish([id]);
                 setPublishCount(1);
@@ -317,6 +405,42 @@ export default function OpportunitiesPage() {
           displayedItems.find((item) => idsToPublish.includes(item.id))
             ?.dateFrom
         }
+      />
+
+      <PublishModal
+        open={republishModalOpen}
+        onClose={() => {
+          setRepublishModalOpen(false);
+          setOpportunityToRepublish(null);
+        }}
+        onPublish={handleRepublish}
+        count={1}
+        title={
+          opportunityToRepublish?.republishMessage?.trim()
+            ? 'Approva la richiesta di ripubblicazione'
+            : 'Ripubblica su IO'
+        }
+        description={
+          opportunityToRepublish?.republishMessage?.trim()
+            ? 'Accettando la richiesta, l’opportunità sarà pubblicata di nuovo su IO e l’ente riceverà una comunicazione.'
+            : "Invieremo un'email all'ente per informarlo. L'opportunità sarà di nuovo disponibile su IO."
+        }
+        actionLabel={
+          opportunityToRepublish?.republishMessage?.trim()
+            ? 'Approva richiesta'
+            : 'Conferma'
+        }
+        isLoading={isRepublishing}
+      />
+
+      <RejectOpportunityRepublishModal
+        open={rejectRepublishModalOpen}
+        onClose={() => {
+          setRejectRepublishModalOpen(false);
+          setOpportunityToRejectRepublish(null);
+        }}
+        onConfirm={handleRejectRepublish}
+        isLoading={isRejectingRepublish}
       />
 
       <SuspendOpportunityModal

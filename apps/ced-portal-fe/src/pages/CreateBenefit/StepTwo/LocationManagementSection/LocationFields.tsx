@@ -1,5 +1,5 @@
 import { Box } from '@mui/material';
-import { AppTextField, FormField } from '../../../../components';
+import { AppTextField } from '../../../../components';
 import {
   selectLocationForm,
   setLocationAddress,
@@ -26,16 +26,14 @@ interface FieldConfig {
 
 function renderField(field: FieldConfig) {
   return (
-    <FormField
+    <AppTextField
       key={field.key}
       value={field.value}
       label={field.label}
       required
       onChange={(e) => field.onChange(e.target.value)}
       {...field.validation}
-    >
-      <AppTextField />
-    </FormField>
+    />
   );
 }
 

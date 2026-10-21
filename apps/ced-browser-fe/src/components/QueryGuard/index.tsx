@@ -1,5 +1,4 @@
-import { Box, CircularProgress, Typography } from '@mui/material';
-import { ErrorBody } from '@pagopa/io-core-ui';
+import { Box, CircularProgress } from '@mui/material';
 import { useEffect, useRef, type ReactNode } from 'react';
 import ErrorScreen from './ErrorScreen';
 import { PageErrorType } from './ErrorScreen/types';
@@ -31,8 +30,6 @@ export function QueryGuard<T>({
   isLoading,
   isError,
   data,
-  errorMessage = 'Impossibile caricare i dati.',
-  error,
   children,
   errorType,
   firstAction,
@@ -65,30 +62,12 @@ export function QueryGuard<T>({
   }
 
   if (isErrorState) {
-    if (errorType) {
-      return (
-        <ErrorScreen
-          errorType={errorType}
-          firstAction={firstAction}
-          secondAction={secondAction}
-        />
-      );
-    }
-
     return (
-      <Box sx={{ px: 2, pt: 4 }}>
-        <ErrorBody fontWeight="Semibold">{errorMessage}</ErrorBody>
-        {error !== undefined && (
-          <Typography
-            color="error"
-            variant="caption"
-            component="pre"
-            sx={{ mt: 1, whiteSpace: 'pre-wrap', wordBreak: 'break-all' }}
-          >
-            {JSON.stringify(error, null, 2)}
-          </Typography>
-        )}
-      </Box>
+      <ErrorScreen
+        errorType={errorType ?? PageErrorType.GENERIC_ERROR}
+        firstAction={firstAction}
+        secondAction={secondAction}
+      />
     );
   }
 

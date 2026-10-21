@@ -96,6 +96,7 @@ export const EntitiesTable = ({
           ? leftValue - rightValue
           : String(leftValue).localeCompare(String(rightValue), 'it', {
               sensitivity: 'base',
+              numeric: true,
             });
 
       return sortDirection === 'asc' ? result : -result;

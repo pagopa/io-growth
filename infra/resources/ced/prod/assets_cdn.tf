@@ -15,5 +15,10 @@ module "assets_cdn" {
   origin_health_paths = module.portal_be_storage.cdn_health_paths
   dns_zone            = module.dns.public_zone
 
+  cors_allowed_origins = [
+    "https://portal.${module.dns.public_zone.name}",
+    "https://browser.${module.dns.public_zone.name}",
+  ]
+
   tags = local.tags
 }

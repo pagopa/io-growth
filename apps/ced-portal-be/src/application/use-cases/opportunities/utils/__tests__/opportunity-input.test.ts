@@ -24,6 +24,7 @@ const operatorRepo = (o?: Partial<OperatorRepository>): OperatorRepository => ({
     .mockResolvedValue(
       ok({ externalId: "ext", id: OPERATOR_ID, name: "Op", status: "active" }),
     ),
+  revokeById: vi.fn(),
   ...o,
 });
 
@@ -39,6 +40,7 @@ const categoryRepo = (
 
 const placeRepo = (o?: Partial<PlaceRepository>): PlaceRepository => ({
   create: vi.fn(),
+  deleteByIdAndOperatorId: vi.fn(),
   getById: vi.fn(),
   getIdsByOperator: vi.fn().mockResolvedValue(ok([PLACE_ID])),
   listByOperatorId: vi.fn(),

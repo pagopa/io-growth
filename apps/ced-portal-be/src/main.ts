@@ -28,8 +28,10 @@ import {
   mountAdminListOpportunitiesHandler,
   mountAdminListPendingOnboardingsHandler,
   mountAdminRejectOnboardingHandler,
+  mountAdminRejectOpportunityRepublishHandler,
   mountAdminRepublishOpportunityHandler,
   mountAdminRequestOpportunityChangesHandler,
+  mountAdminRevokeOperatorHandler,
   mountAdminSuspendOpportunityHandler,
   mountAuthorizeHandler,
   mountInfoReadinessHandler,
@@ -39,6 +41,7 @@ import {
   mountOperatorCreatePlaceHandler,
   mountOperatorCreateProfileHandler,
   mountOperatorDeleteOpportunityHandler,
+  mountOperatorDeletePlaceHandler,
   mountOperatorGetOpportunityHandler,
   mountOperatorGetPlaceHandler,
   mountOperatorGetProfileHandler,
@@ -47,6 +50,7 @@ import {
   mountOperatorListPlacesHandler,
   mountOperatorPublishOpportunityHandler,
   mountOperatorRepublishOpportunityHandler,
+  mountOperatorRequestOpportunityRepublishHandler,
   mountOperatorRequestOpportunityTestHandler,
   mountOperatorSuspendOpportunityHandler,
   mountOperatorUpdateOpportunityHandler,
@@ -61,9 +65,11 @@ import { createDrizzleOpportunityCategoryRepository } from "./adapters/outbound/
 import { createDrizzleOpportunityRepository } from "./adapters/outbound/drizzle/drizzle-opportunity.repository.js";
 import { createDrizzlePlaceRepository } from "./adapters/outbound/drizzle/drizzle-place.repository.js";
 import { createDrizzleProfileRepository } from "./adapters/outbound/drizzle/drizzle-profile.repository.js";
+import { createJoseArTokenRepository } from "./adapters/outbound/jose/jose-ar-token.repository.js";
 import { createOneMailEmailRepository } from "./adapters/outbound/one-mail/one-mail-email.repository.js";
 import { createRedisHealthCheckRepository } from "./adapters/outbound/redis/redis-health-check.repository.js";
 import { createRedisSessionRepository } from "./adapters/outbound/redis/redis-session.repository.js";
+import { createIoCoreTracingRepository } from "./adapters/outbound/tracing/io-core-tracing.repository.js";
 import { makeAcsUseCase } from "./application/use-cases/auth/acs.use-case.js";
 import { makeAuthorizeUseCase } from "./application/use-cases/auth/authorize.use-case.js";
 import { makeAdminCompleteOnboardingUseCase } from "./application/use-cases/department/admin-complete-onboarding.use-case.js";
@@ -71,12 +77,14 @@ import { makeAdminGetContractSignedUseCase } from "./application/use-cases/depar
 import { makeAdminGetOnboardingUseCase } from "./application/use-cases/department/admin-get-onboarding.use-case.js";
 import { makeAdminListPendingOnboardingsUseCase } from "./application/use-cases/department/admin-list-pending-onboardings.use-case.js";
 import { makeAdminRejectOnboardingUseCase } from "./application/use-cases/department/admin-reject-onboarding.use-case.js";
+import { makeAdminRevokeOperatorUseCase } from "./application/use-cases/department/admin-revoke-operator.use-case.js";
 import { makeInfoReadinessUseCase } from "./application/use-cases/health/info-readiness.use-case.js";
 import { makeInfoStartupUseCase } from "./application/use-cases/health/info-startup.use-case.js";
 import { makeAdminApproveOpportunityUseCase } from "./application/use-cases/opportunities/admin-approve-opportunity.use-case.js";
 import { makeAdminCancelScheduledSuspensionUseCase } from "./application/use-cases/opportunities/admin-cancel-scheduled-suspension.use-case.js";
 import { makeAdminGetOpportunityUseCase } from "./application/use-cases/opportunities/admin-get-opportunity.use-case.js";
 import { makeAdminListOpportunitiesUseCase } from "./application/use-cases/opportunities/admin-list-opportunities.use-case.js";
+import { makeAdminRejectOpportunityRepublishUseCase } from "./application/use-cases/opportunities/admin-reject-opportunity-republish.use-case.js";
 import { makeAdminRepublishOpportunityUseCase } from "./application/use-cases/opportunities/admin-republish-opportunity.use-case.js";
 import { makeAdminRequestOpportunityChangesUseCase } from "./application/use-cases/opportunities/admin-request-opportunity-changes.use-case.js";
 import { makeAdminSuspendOpportunityUseCase } from "./application/use-cases/opportunities/admin-suspend-opportunity.use-case.js";
@@ -88,10 +96,12 @@ import { makeOperatorListOpportunitiesUseCase } from "./application/use-cases/op
 import { makeOperatorListOpportunityCategoriesUseCase } from "./application/use-cases/opportunities/operator-list-opportunity-categories.use-case.js";
 import { makeOperatorPublishOpportunityUseCase } from "./application/use-cases/opportunities/operator-publish-opportunity.use-case.js";
 import { makeOperatorRepublishOpportunityUseCase } from "./application/use-cases/opportunities/operator-republish-opportunity.use-case.js";
+import { makeOperatorRequestOpportunityRepublishUseCase } from "./application/use-cases/opportunities/operator-request-opportunity-republish.use-case.js";
 import { makeOperatorRequestOpportunityTestUseCase } from "./application/use-cases/opportunities/operator-request-opportunity-test.use-case.js";
 import { makeOperatorSuspendOpportunityUseCase } from "./application/use-cases/opportunities/operator-suspend-opportunity.use-case.js";
 import { makeOperatorUpdateOpportunityUseCase } from "./application/use-cases/opportunities/operator-update-opportunity.use-case.js";
 import { makeOperatorCreatePlaceUseCase } from "./application/use-cases/places/operator-create-place.use-case.js";
+import { makeOperatorDeletePlaceUseCase } from "./application/use-cases/places/operator-delete-place.use-case.js";
 import { makeOperatorGetPlaceUseCase } from "./application/use-cases/places/operator-get-place.use-case.js";
 import { makeOperatorListPlacesUseCase } from "./application/use-cases/places/operator-list-places.use-case.js";
 import { makeOperatorCreateProfileUseCase } from "./application/use-cases/profile/operator-create-profile.use-case.js";
@@ -99,6 +109,7 @@ import { makeOperatorGetProfileUseCase } from "./application/use-cases/profile/o
 import { makeOperatorUpdateProfileUseCase } from "./application/use-cases/profile/operator-update-profile.use-case.js";
 import { createSessionContextPreHandler } from "./async-local-storage-session-context.js";
 import { parseConfig } from "./config.js";
+import { jobsScheduler } from "./jobs-scheduler.js";
 import { createArRouter, createDbRouter } from "./routed-clients.js";
 
 const config = parseConfig();
@@ -164,12 +175,27 @@ const profileAssetsRepository = createAzureProfileAssetsRepository({
     endpoint: config.ASSETS_STORAGE_BLOB_ENDPOINT,
   }),
 });
+const arTokenRepository = createJoseArTokenRepository(config.SELFCARE_ISSUERS);
 const arOnboardingRepository = createArOnboardingRepository(arClient);
 const emailRepository = createOneMailEmailRepository(
   oneMailClient.emailClient,
   { fromAddress: config.EMAIL_FROM_ADDRESS },
 );
+const tracingRepository = createIoCoreTracingRepository();
 
+const infoReadinessUseCase = makeInfoReadinessUseCase({
+  persistenceHealthCheckRepository: dbHealthCheckRepository,
+  sessionStoreHealthCheckRepository: redisHealthCheckRepository,
+});
+
+// jobs scheduler
+const scheduler = jobsScheduler(config, {
+  emailRepository,
+  infoReadinessUseCase,
+  tracingRepository,
+});
+
+// web application instance
 const app = Fastify();
 
 // Register telemetry plugin to auto-track every endpoint result and exception.
@@ -177,18 +203,18 @@ await app.register(tracingPlugin);
 
 await app.register(multipart);
 
-// Use cases
-const infoReadinessUseCase = makeInfoReadinessUseCase({
-  persistenceHealthCheckRepository: dbHealthCheckRepository,
-  sessionStoreHealthCheckRepository: redisHealthCheckRepository,
-});
-
 // Inbound adapters — public routes
 mountInfoStartupHandler(app, makeInfoStartupUseCase);
 mountInfoReadinessHandler(app, infoReadinessUseCase);
 mountAcsHandler(
   app,
-  makeAcsUseCase(sessionRepository, operatorRepository, config),
+  makeAcsUseCase(
+    arTokenRepository,
+    sessionRepository,
+    operatorRepository,
+    tracingRepository,
+    config,
+  ),
 );
 mountAuthorizeHandler(app, makeAuthorizeUseCase(sessionRepository));
 
@@ -239,6 +265,14 @@ app.register(async (app) => {
   mountOperatorGetPlaceHandler(
     app,
     makeOperatorGetPlaceUseCase(placeRepository),
+  );
+  mountOperatorDeletePlaceHandler(
+    app,
+    makeOperatorDeletePlaceUseCase(
+      placeRepository,
+      materializedViewRepository,
+      opportunityRepository,
+    ),
   );
   mountOperatorCreateOpportunityHandler(
     app,
@@ -317,6 +351,15 @@ app.register(async (app) => {
     app,
     makeAdminCompleteOnboardingUseCase(arOnboardingRepository),
   );
+  mountAdminRevokeOperatorHandler(
+    app,
+    makeAdminRevokeOperatorUseCase({
+      arOnboardingRepository,
+      materializedViewRepository,
+      operatorRepository,
+      sessionRepository,
+    }),
+  );
   mountAdminGetContractSignedHandler(
     app,
     makeAdminGetContractSignedUseCase(arOnboardingRepository),
@@ -339,7 +382,6 @@ app.register(async (app) => {
       opportunityRepository,
       materializedViewRepository,
       profileRepository,
-      emailRepository,
     ),
   );
   mountAdminRequestOpportunityChangesHandler(
@@ -353,12 +395,20 @@ app.register(async (app) => {
       materializedViewRepository,
     ),
   );
+  mountAdminRejectOpportunityRepublishHandler(
+    app,
+    makeAdminRejectOpportunityRepublishUseCase(opportunityRepository),
+  );
   mountAdminRepublishOpportunityHandler(
     app,
     makeAdminRepublishOpportunityUseCase(
       opportunityRepository,
       materializedViewRepository,
     ),
+  );
+  mountOperatorRequestOpportunityRepublishHandler(
+    app,
+    makeOperatorRequestOpportunityRepublishUseCase(opportunityRepository),
   );
   mountOperatorRepublishOpportunityHandler(
     app,
@@ -374,6 +424,7 @@ app.register(async (app) => {
 });
 
 app.addHook("onClose", async () => {
+  await scheduler.stop();
   await redisClient.closeConnection();
   await Promise.all(
     dbRouter.instances.map((instance) => instance.closeConnection()),
@@ -383,3 +434,30 @@ app.addHook("onClose", async () => {
 await app.listen({ host: config.HOST, port: config.PORT });
 
 console.log(`Server listening on http://${config.HOST}:${config.PORT}`);
+
+let shuttingDown = false;
+const shutdown = async (signal: string): Promise<void> => {
+  if (shuttingDown) {
+    return;
+  }
+  shuttingDown = true;
+  console.log(`Received ${signal}, shutting down`);
+  // Stays under the Container Apps termination grace period.
+  setTimeout(
+    () => process.exit(1),
+    (config.SCHEDULER_STOP_TIMEOUT_SECONDS + 3) * 1000,
+  ).unref();
+  try {
+    await app.close();
+    process.exit(0);
+  } catch (error) {
+    console.error("Graceful shutdown failed", error);
+    process.exit(1);
+  }
+};
+process.once("SIGTERM", () => void shutdown("SIGTERM"));
+process.once("SIGINT", () => void shutdown("SIGINT"));
+
+// Takes job ownership only once this revision is serving and ready, so a
+// revision that fails to boot never takes the jobs from the working one.
+await scheduler.start();

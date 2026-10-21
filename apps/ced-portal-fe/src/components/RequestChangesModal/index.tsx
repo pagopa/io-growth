@@ -13,14 +13,16 @@ import { useState } from 'react';
 
 interface RequestChangesModalProps {
   open: boolean;
+  isLoading: boolean;
   onClose: () => void;
-  onConfirm: (message: string) => void;
+  onConfirm: (message: string) => Promise<boolean>;
 }
 
 const MAX_LENGTH = 300;
 
 export function RequestChangesModal({
   open,
+  isLoading,
   onClose,
   onConfirm,
 }: Readonly<RequestChangesModalProps>) {
@@ -33,14 +35,16 @@ export function RequestChangesModal({
     onClose();
   };
 
-  const handleConfirm = () => {
+  const handleConfirm = async () => {
     if (message.trim().length === 0) {
       setError(true);
       return;
     }
-    onConfirm(message);
-    setMessage('');
-    setError(false);
+
+    if (await onConfirm(message)) {
+      setMessage('');
+      setError(false);
+    }
   };
 
   return (
@@ -99,6 +103,7 @@ export function RequestChangesModal({
               color="primary"
               size="large"
               onClick={handleConfirm}
+              disabled={isLoading}
               sx={{ fontWeight: 700, borderRadius: 2, px: 4 }}
             >
               Conferma

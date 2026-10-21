@@ -54,6 +54,7 @@ export const useTableSort = <T>({
           ? left - right
           : String(left ?? '').localeCompare(String(right ?? ''), 'it', {
               sensitivity: 'base',
+              numeric: true,
             });
 
       return sortDirection === 'asc' ? compareResult : -compareResult;

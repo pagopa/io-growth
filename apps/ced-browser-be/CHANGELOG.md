@@ -1,5 +1,51 @@
 # ced-browser-be
 
+## 0.2.0
+
+### Minor Changes
+
+- d704bb8: Route database access to the test or prod database per request, based on whether the citizen's fiscal code hash is in `TEST_USERS`, using an AsyncLocalStorage session context and the environment router.
+
+### Patch Changes
+
+- Updated dependencies [d704bb8]
+  - @pagopa/io-core-domain@0.1.0
+  - @pagopa/io-core-adapter-fastify@0.0.12
+  - @pagopa/io-core-adapter-fims@0.0.16
+  - @pagopa/io-core-adapter-redis@0.0.11
+
+## 0.1.24
+
+### Patch Changes
+
+- 9cfb4ed: Fix the UTC calendar-date assumption that delayed opportunity publication until
+  02:00 in Italy during daylight saving time. Use Europe/Rome dates consistently
+  in the opportunity and place materialized views, publication notifications,
+  citizen detail access, and portal publication checks.
+- Updated dependencies [9cfb4ed]
+  - @pagopa/io-core-domain@0.0.6
+  - @pagopa/io-core-adapter-fastify@0.0.11
+  - @pagopa/io-core-adapter-fims@0.0.15
+  - @pagopa/io-core-adapter-redis@0.0.10
+
+## 0.1.23
+
+### Patch Changes
+
+- 8b5e950: Return the profile ID as `entityId` for profile results from the places search API.
+
+## 0.1.22
+
+### Patch Changes
+
+- 17849b8: Allow national-territory opportunities to have no associated places in their detail response.
+
+## 0.1.21
+
+### Patch Changes
+
+- e531c41: Expose the owning operator ID as `operatorId` in profile and place detail API responses.
+
 ## 0.1.20
 
 ### Patch Changes

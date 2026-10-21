@@ -1,6 +1,6 @@
 import { Box, Stack } from '@mui/material';
 import { useLocation, useParams } from 'react-router-dom';
-import { PageHeader, QueryGuard } from '../../components';
+import { PageCover, PageHeader, QueryGuard } from '../../components';
 import { ContactsSection } from '../../components/ContactsSection';
 import { ItemsSection } from '../../components/ItemsSection/index';
 import { useGetEntityDetailQuery } from '../../features/entities/api';
@@ -9,6 +9,10 @@ import { formatBadgeLabel } from '../../utils/formatBadgeLabel.js';
 import { EntityPlaceholderIcon } from './components/EntityPlaceholderIcon';
 import { PageErrorType } from '../../components/QueryGuard/ErrorScreen/types.js';
 import { useTrackLandedInPage } from '../../mixpanel/useTrackLandedInPage.js';
+import {
+  useOperatorCover,
+  useOperatorLogo,
+} from '../../hooks/useOperatorImages';
 import { useMemo } from 'react';
 import {
   EntityOpportunityItems,
@@ -24,6 +28,8 @@ export default function EntityDetailPage() {
   const { data, isLoading, isError, error, refetch } = useGetEntityDetailQuery(
     id ?? '',
   );
+  const coverUrl = useOperatorCover(data?.operatorId);
+  const logo = useOperatorLogo(data?.operatorId);
 
   useTrackLandedInPage(
     'CED_ORGANIZATION_DETAIL',
@@ -84,7 +90,6 @@ export default function EntityDetailPage() {
                 : undefined,
           }),
         );
-
         const contacts: EntityContacts = {
           phone: resolvedData.place.supportContacts.find(
             (c) => c.type === 'phone',
@@ -97,6 +102,8 @@ export default function EntityDetailPage() {
           address: resolvedData.place.address
             ? `${resolvedData.place.address.street}, ${resolvedData.place.address.city}`
             : undefined,
+          privacyUrl: resolvedData.privacyUrl,
+          termsUrl: resolvedData.tosUrl,
         };
 
         return (
@@ -108,9 +115,13 @@ export default function EntityDetailPage() {
             <PageHeader
               title={resolvedData.displayName}
               leadingContent={
-                resolvedData.recentPlaces.length === 0 ? (
-                  <EntityPlaceholderIcon />
-                ) : undefined
+                <PageCover
+                  coverUrl={coverUrl?.src}
+                  logoUrl={logo?.src}
+                  hasLogoError={!!logo?.error}
+                  coverPlaceholder="/assets/entity-cover-placeholder.png"
+                  logoPlaceholder={<EntityPlaceholderIcon />}
+                />
               }
             />
 
@@ -119,6 +130,7 @@ export default function EntityDetailPage() {
                 variant="opportunity"
                 entityId={id ?? ''}
                 items={opportunities}
+                hideEyebrow
               />
               <ItemsSection
                 variant="access-point"

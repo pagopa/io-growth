@@ -5,6 +5,7 @@ import { ContactsSection } from '../../components/ContactsSection';
 import { ItemsSection } from '../../components/ItemsSection/index';
 import { useGetEntityDetailQuery } from '../../features/entities/api';
 import type { EntityContacts } from '../../features/entities/types.js';
+import { formatAddress } from '../../utils/formatAddress.js';
 import { formatBadgeLabel } from '../../utils/formatBadgeLabel.js';
 import { EntityPlaceholderIcon } from './components/EntityPlaceholderIcon';
 import { PageErrorType } from '../../components/QueryGuard/ErrorScreen/types.js';
@@ -74,12 +75,8 @@ export default function EntityDetailPage() {
           }));
 
         const accessPoints: PlaceDetailItems[] = resolvedData.recentPlaces.map(
-          (place) => ({
-            organization_fiscal_code: resolvedData.operatorFiscalCode,
-            organization_name: resolvedData.operatorName,
-            id: place.id,
-            title: place.name,
-            address:
+          (place) => {
+            const address =
               place.street && place.city
                 ? {
                     street: place.street,
@@ -87,8 +84,17 @@ export default function EntityDetailPage() {
                     state: place.state ?? '',
                     postalCode: place.postalCode ?? '',
                   }
-                : undefined,
-          }),
+                : undefined;
+
+            return {
+              organization_fiscal_code: resolvedData.operatorFiscalCode,
+              organization_name: resolvedData.operatorName,
+              id: place.id,
+              title: place.name,
+              address,
+              subtitle: formatAddress(address),
+            };
+          },
         );
         const contacts: EntityContacts = {
           phone: resolvedData.place.supportContacts.find(

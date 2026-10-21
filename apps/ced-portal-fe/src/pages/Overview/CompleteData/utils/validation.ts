@@ -1,4 +1,5 @@
 import { isValidHttpsUrl } from '../../../../utils';
+import { getContactValidationError } from '../../../../utils/contactValidation.js';
 import type { CompleteDataFormData, ContactFormData } from '../types';
 
 export type FirstContactErrors = {
@@ -21,12 +22,7 @@ const validateFirstContact = (
 
   return {
     firstContactType: firstContact.type ? '' : 'Seleziona un tipo di contatto',
-    firstContactValue: !firstContact.value.trim()
-      ? 'Campo obbligatorio'
-      : firstContact.type === 'website' &&
-          !isValidHttpsUrl(firstContact.value.trim())
-        ? 'Inserisci un URL valido (es. https://...)'
-        : '',
+    firstContactValue: getContactValidationError(firstContact) ?? '',
   };
 };
 
@@ -100,21 +96,25 @@ export const validateCompleteDataForm = (
       ? ''
       : 'Inserisci un URL valido (es. https://...)';
   const firstContactErrors = validateFirstContact(contacts);
-  const isValid = [
-    nameError,
-    websiteUrlError,
-    streetError,
-    cityError,
-    postalCodeError,
-    provinceError,
-    logoError,
-    coverError,
-    internalEmailError,
-    privacyUrlError,
-    termsUrlError,
-    firstContactErrors.firstContactType,
-    firstContactErrors.firstContactValue,
-  ].every((error) => !error);
+  const isValid =
+    [
+      nameError,
+      websiteUrlError,
+      streetError,
+      cityError,
+      postalCodeError,
+      provinceError,
+      logoError,
+      coverError,
+      internalEmailError,
+      privacyUrlError,
+      termsUrlError,
+      firstContactErrors.firstContactType,
+      firstContactErrors.firstContactValue,
+    ].every((error) => !error) &&
+    contacts.every(
+      (contact) => !contact.value.trim() || !getContactValidationError(contact),
+    );
 
   return {
     logoError,

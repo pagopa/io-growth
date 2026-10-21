@@ -3,7 +3,7 @@ import type { PlaceResponse } from '../../generated/model';
 import { useAppDispatch, useAppSelector } from '../../hooks/store';
 import { resetLocationForm, selectLocationForm } from './locationSlice';
 import { useToast } from '../../contexts';
-import { isValidHttpsUrl } from '../../utils/urlValidator';
+import { getContactValidationError } from '../../utils/contactValidation.js';
 
 export function useLocationSubmit(
   onConfirm: (newLocation?: PlaceResponse) => void,
@@ -33,12 +33,9 @@ export function useLocationSubmit(
       return !!c.value.trim() && !!c.type;
     });
 
-    const areSupportContactsValid = supportContacts.every(({ type, value }) => {
-      if (type === 'website') {
-        return value.trim() && isValidHttpsUrl(value.trim());
-      }
-      return value.trim();
-    });
+    const areSupportContactsValid = supportContacts.every(
+      (contact) => !getContactValidationError(contact),
+    );
 
     if (!areSupportContactsValid) return;
 

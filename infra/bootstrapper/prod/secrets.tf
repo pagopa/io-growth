@@ -1,8 +1,8 @@
+#trivy:ignore:AVD-GIT-0002 Ignoring because this value is a placeholder
 resource "github_actions_environment_secret" "ced_postgres_host" {
   repository      = module.azure-PROD-CED_bootstrap.repository.name
   environment     = "app-prod-cd"
   secret_name     = "CED_POSTGRES_HOST"
-  #trivy:ignore:AVD-GIT-0002 Ignoring because this value is a placeholder
   plaintext_value = "placeholder"
 
   lifecycle {
@@ -10,11 +10,11 @@ resource "github_actions_environment_secret" "ced_postgres_host" {
   }
 }
 
+#trivy:ignore:AVD-GIT-0002 Ignoring because this value is a placeholder
 resource "github_actions_environment_secret" "ced_postgres_port" {
   repository      = module.azure-PROD-CED_bootstrap.repository.name
   environment     = "app-prod-cd"
   secret_name     = "CED_POSTGRES_PORT"
-  #trivy:ignore:AVD-GIT-0002 Ignoring because this value is a placeholder
   plaintext_value = "placeholder"
 
   lifecycle {
@@ -22,11 +22,11 @@ resource "github_actions_environment_secret" "ced_postgres_port" {
   }
 }
 
+#trivy:ignore:AVD-GIT-0002 Ignoring because this value is a placeholder
 resource "github_actions_environment_secret" "ced_postgres_user" {
   repository      = module.azure-PROD-CED_bootstrap.repository.name
   environment     = "app-prod-cd"
   secret_name     = "CED_POSTGRES_USER"
-  #trivy:ignore:AVD-GIT-0002 Ignoring because this value is a placeholder
   plaintext_value = "placeholder"
 
   lifecycle {
@@ -34,11 +34,11 @@ resource "github_actions_environment_secret" "ced_postgres_user" {
   }
 }
 
+#trivy:ignore:AVD-GIT-0002 Ignoring because this value is a placeholder
 resource "github_actions_environment_secret" "ced_postgres_password" {
   repository      = module.azure-PROD-CED_bootstrap.repository.name
   environment     = "app-prod-cd"
   secret_name     = "CED_POSTGRES_PASSWORD"
-  #trivy:ignore:AVD-GIT-0002 Ignoring because this value is a placeholder
   plaintext_value = "placeholder"
 
   lifecycle {
@@ -46,11 +46,11 @@ resource "github_actions_environment_secret" "ced_postgres_password" {
   }
 }
 
+#trivy:ignore:AVD-GIT-0002 Ignoring because this value is a placeholder
 resource "github_actions_environment_secret" "ced_postgres_db" {
   repository      = module.azure-PROD-CED_bootstrap.repository.name
   environment     = "app-prod-cd"
   secret_name     = "CED_POSTGRES_DB"
-  #trivy:ignore:AVD-GIT-0002 Ignoring because this value is a placeholder
   plaintext_value = "placeholder"
 
   lifecycle {
@@ -58,11 +58,11 @@ resource "github_actions_environment_secret" "ced_postgres_db" {
   }
 }
 
+#trivy:ignore:AVD-GIT-0002 Ignoring because this value is a placeholder
 resource "github_actions_environment_secret" "ced_postgres_db_test" {
   repository      = module.azure-PROD-CED_bootstrap.repository.name
   environment     = "app-prod-cd"
   secret_name     = "CED_POSTGRES_DB_TEST"
-  #trivy:ignore:AVD-GIT-0002 Ignoring because this value is a placeholder
   plaintext_value = "placeholder"
 
   lifecycle {

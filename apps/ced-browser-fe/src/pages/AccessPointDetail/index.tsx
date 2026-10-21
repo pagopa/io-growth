@@ -70,7 +70,7 @@ export default function AccessPointDetailPage() {
       data?.relatedPlaces.map(({ id, title, address }) => ({
         id,
         title,
-        subtitle: address ? `${address.street}, ${address.city}` : '',
+        subtitle: formatAddress(address),
         organization_name: data?.operatorName,
         organization_fiscal_code: data?.operatorFiscalCode,
         location_name: data?.title,

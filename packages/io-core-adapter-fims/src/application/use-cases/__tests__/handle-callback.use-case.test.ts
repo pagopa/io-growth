@@ -1,6 +1,7 @@
 import type { BaseError } from "@pagopa/io-core-domain/errors";
 import type { Result } from "neverthrow";
 
+import { hashFiscalCode } from "@pagopa/io-core-domain";
 import { UnauthorizedError } from "@pagopa/io-core-domain/errors";
 import { err, ok } from "neverthrow";
 import { describe, expect, it, vi } from "vitest";
@@ -16,7 +17,6 @@ import type { OidcClient } from "../../../domain/ports/outbound/oidc-client.repo
 import type { FimsSessionStore } from "../../../domain/ports/outbound/session.repository.js";
 
 import { createHandleCallback } from "../handle-callback.use-case.js";
-import { hashFiscalCode } from "../test-users.js";
 
 const TEST_FISCAL_CODE = "RSSMRA80A01H501U";
 

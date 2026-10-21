@@ -1,40 +1,28 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-// vi.mock is hoisted before imports — mock the generated endpoint module so
-// the adapter under test never makes real HTTP calls.
-vi.mock("../../../generated/endpoints/domanda/domanda.js", () => ({
-  checkDomanda: vi.fn(),
-  confermaDomanda: vi.fn(),
-  fornisciFoto: vi.fn(),
-  nuovaDomandaInBozza: vi.fn(),
-  recuperoDatiDomanda: vi.fn(),
-  richiediRicevuta: vi.fn(),
-  richiediRiepilogo: vi.fn(),
-  richiediStato: vi.fn(),
-}));
+import type { CustomFetch } from "../../../client.js";
 
-import {
-  checkDomanda as checkDomandaGen,
-  nuovaDomandaInBozza as nuovaDomandaInBozzaGen,
-  recuperoDatiDomanda as recuperoDatiDomandaGen,
-} from "../../../generated/endpoints/domanda/domanda.js";
 import { createGestioneDomandaCedClient } from "../gestione-domanda-ced.js";
+
+// The adapter receives its fetch by injection, so every operation goes through
+// this single mock (each test exercises one operation).
+const mockCustomFetch = vi.fn();
+const checkDomandaGen = mockCustomFetch;
+const nuovaDomandaInBozzaGen = mockCustomFetch;
+const recuperoDatiDomandaGen = mockCustomFetch;
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Fixtures
 // ─────────────────────────────────────────────────────────────────────────────
 
-// Loose response builder — cast bypasses the narrow discriminated-union type
-// so we can freely vary the status code in tests.
+// Loose response builder: lets tests freely vary the status code.
 function makeGenResponse(status: number, data: unknown) {
-  return { data, headers: new Headers(), status } as ReturnType<
-    typeof checkDomandaGen
-  > extends Promise<infer R>
-    ? R
-    : never;
+  return { data, headers: new Headers(), status };
 }
 
-const adapter = createGestioneDomandaCedClient();
+const adapter = createGestioneDomandaCedClient(
+  mockCustomFetch as unknown as CustomFetch,
+);
 
 beforeEach(() => {
   vi.clearAllMocks();

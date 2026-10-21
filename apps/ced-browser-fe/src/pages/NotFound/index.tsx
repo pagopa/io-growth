@@ -1,5 +1,8 @@
+import ErrorScreen from '../../components/QueryGuard/ErrorScreen';
+import { PageErrorType } from '../../components/QueryGuard/ErrorScreen/types';
+
 const PageNotFound = () => {
-  return <div>Page Not Found</div>;
+  return <ErrorScreen errorType={PageErrorType.GENERIC_ERROR} />;
 };
 
 export default PageNotFound;

@@ -38,8 +38,8 @@ export const createDrizzleOpportunityNotificationRepository = (
           JOIN profile p ON p.operator_id = o.operator_id
           WHERE o.publishing_notified_at IS NULL
             AND o.status = 'published'
-            AND CURRENT_DATE >= o.date_from
-            AND CURRENT_DATE <= COALESCE(o.date_to, 'infinity'::date)
+            AND (CURRENT_TIMESTAMP AT TIME ZONE 'Europe/Rome')::date >= o.date_from
+            AND (CURRENT_TIMESTAMP AT TIME ZONE 'Europe/Rome')::date <= COALESCE(o.date_to, 'infinity'::date)
             AND EXISTS (SELECT 1 FROM opportunity_materialized_view mv WHERE mv.id = o.id)
           ORDER BY o.created_at
           LIMIT ${limit}

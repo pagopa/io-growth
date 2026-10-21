@@ -100,6 +100,26 @@ module "card_request_be_container_app" {
     {
       name                = "INPS_CED_AUDIENCE"
       key_vault_secret_id = format(local.secrets_id_template, "ced-p-itn-card-request-be-inps-ced-audience")
+    },
+    {
+      name                = "MODI_ENVIRONMENT_TEST"
+      key_vault_secret_id = format(local.secrets_id_template, "ced-p-itn-card-request-be-modi-environment-test")
+    },
+    {
+      name                = "MODI_INPS_BASE_URL_TEST"
+      key_vault_secret_id = format(local.secrets_id_template, "ced-p-itn-card-request-be-modi-inps-base-url-test")
+    },
+    {
+      name                = "MODI_HTTPS_CLIENT_CERT_SECRET_NAME_TEST"
+      key_vault_secret_id = format(local.secrets_id_template, "ced-p-itn-card-request-be-modi-https-client-cert-secret-name-test")
+    },
+    {
+      name                = "MODI_HTTPS_CLIENT_KEY_SECRET_NAME_TEST"
+      key_vault_secret_id = format(local.secrets_id_template, "ced-p-itn-card-request-be-modi-https-client-key-secret-name-test")
+    },
+    {
+      name                = "INPS_CED_BASE_URL_TEST"
+      key_vault_secret_id = format(local.secrets_id_template, "ced-p-itn-card-request-be-inps-ced-base-url-test")
     }
   ]
 

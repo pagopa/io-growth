@@ -25,7 +25,8 @@ import { EntityPlaceholderIcon } from '../EntityDetail/components/EntityPlacehol
 export default function AccessPointDetailPage() {
   const location = useLocation();
 
-  const state = location.state as { source: string };
+  const source =
+    (location.state as { source?: string } | null)?.source ?? 'direct';
 
   const { accessPointId } = useParams<{
     accessPointId: string;
@@ -58,9 +59,8 @@ export default function AccessPointDetailPage() {
         id,
         title,
         badgeLabel: formatBadgeLabel(benefit),
-        organization_name: data?.entityName,
-        // The organization fiscal code is not exposed by the current API response.
-        organization_fiscal_code: '',
+        organization_name: data?.operatorName,
+        organization_fiscal_code: data?.operatorFiscalCode,
       })) ?? [],
     [data],
   );
@@ -71,8 +71,8 @@ export default function AccessPointDetailPage() {
         id,
         title,
         subtitle: formatAddress(address),
-        organization_name: data?.entityName,
-        organization_fiscal_code: '',
+        organization_name: data?.operatorName,
+        organization_fiscal_code: data?.operatorFiscalCode,
         location_name: data?.title,
       })) ?? [],
     [data],
@@ -81,9 +81,8 @@ export default function AccessPointDetailPage() {
   const trackExtraProperties = useMemo(
     () => ({
       location_name: data?.title ?? '',
-      organization_name: data?.entityName ?? '',
-      // The organization fiscal code is not exposed by the current API response.
-      organization_fiscal_code: '',
+      organization_name: data?.operatorName ?? '',
+      organization_fiscal_code: data?.operatorFiscalCode ?? '',
     }),
     [data],
   );
@@ -92,7 +91,7 @@ export default function AccessPointDetailPage() {
     'CED_LOCATION_DETAIL',
     {
       ...trackExtraProperties,
-      source: state?.source,
+      source,
     },
     !!data,
   );

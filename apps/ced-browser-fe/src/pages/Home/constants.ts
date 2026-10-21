@@ -11,16 +11,23 @@ const getImageAsset = (
   extension: 'png' | 'jpg' = 'png',
 ) => `/assets/${entityId}-${type}.${extension}`;
 
+export interface PartnerCardConfig {
+  entityId: string;
+  title: string;
+  imageUrl: string;
+  logoUrl: string;
+}
+
 // TODO: Refactor/replace this hardcoded PARTNERS_CARDS_CONFIG once partner data/images are provided by the real source of truth.
-export const PARTNERS_CARDS_CONFIG = [
+export const PARTNERS_CARDS_CONFIG: PartnerCardConfig[] = [
   {
-    entityId: 'comune-di-alessandria',
+    entityId: '01M4XC5SHD8D999NFYVK6Z0M4C',
     title: 'Comune di Alessandria',
     imageUrl: getImageAsset('comune-di-alessandria', 'cover'),
     logoUrl: getImageAsset('comune-di-alessandria', 'avatar'),
   },
   {
-    entityId: 'trenitalia',
+    entityId: '01M4XBPMPD6CQQR6FDAGQYS495',
     title: 'Trenitalia',
     imageUrl: getImageAsset('trenitalia', 'cover'),
     logoUrl: getImageAsset('trenitalia', 'avatar'),
@@ -65,11 +72,15 @@ export const generateDiscoveryItemsConfig: (
       beneficiaryBenefitValue,
       beneficiaryBenefitType,
       beneficiaryBenefitDiscountType,
+      operatorFiscalCode,
+      operatorName,
     }) => ({
       id,
       variant: 'opportunity',
       eyebrow: profileDisplayName,
       title: name,
+      operatorFiscalCode,
+      operatorName,
       badgeLabel: generateBadgeLabel(
         beneficiaryBenefitValue,
         beneficiaryBenefitDiscountType,

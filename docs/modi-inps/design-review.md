@@ -54,7 +54,7 @@ Two dedicated packages implement a clean separation of concerns:
 | `io-core-adapter-modi`     | Generic ModI primitives for all profiles: JWT signer, body-digest, optional mTLS dispatcher, optional response verifier, Key Vault credential provider. Profile selected via `config.profile` (`"P1"` \| `"P2"` \| `"P3"`). |
 | `io-core-adapter-inps-ced` | INPS CED-specific: orval-generated client, `customFetch` mutator, outbound adapter implementing the domain port                                                                                                             |
 
-Identity context is propagated per-request using Node.js `AsyncLocalStorage`, which lives **exclusively in the app layer** (`ced-card-request-be`). The adapter packages contain no `async_hooks` dependency. Instead, `initInpsCedClient` accepts a getter function `() => InpsIdentityContext | undefined`; the app supplies a closure that reads from its own ALS and maps the session to the shape required by INPS.
+Identity context is propagated per-request using Node.js `AsyncLocalStorage`, which lives **exclusively in the app layer** (`ced-card-request-be`). The adapter packages contain no `async_hooks` dependency. Instead, `createInpsCedClient` accepts a getter function `() => InpsIdentityContext | undefined`; the app supplies a closure that reads from its own ALS and maps the session to the shape required by INPS. The client is instance-based (no global state), so the app can create one per INPS environment and route between them.
 
 ---
 
@@ -205,7 +205,7 @@ The **app layer** (`ced-card-request-be`) owns `AsyncLocalStorage`. The adapter 
 | Layer                                    | Responsibility                                              | Mechanism                                             |
 | ---------------------------------------- | ----------------------------------------------------------- | ----------------------------------------------------- |
 | `ced-card-request-be`                    | Owns ALS, sets context per request in a Fastify pre-handler | `AsyncLocalStorage<RequestContext>`                   |
-| `ced-card-request-be` (composition root) | Passes a getter closure to the adapter at startup           | `initInpsCedClient(config, signedFetch, getIdentity)` |
+| `ced-card-request-be` (composition root) | Passes a getter closure to the adapter factory            | `createInpsCedClient({ config, signedFetch, getIdentity })` |
 | `getIdentity` closure                    | Reads app ALS, maps session fields to `InpsIdentityContext` | `() => InpsIdentityContext \| undefined`              |
 | `customFetch` mutator                    | Calls the injected getter to obtain identity headers        | No `async_hooks` import                               |
 
@@ -243,7 +243,7 @@ All 6 PEM secrets live in Azure Key Vault for P3. P1/P2 only require the 2 signi
 
 The consumed OpenAPI declares the ModI JWT in the `Authorization` header with format `'Bearer <jwt>'`, but the runtime implementation sends it as `Agid-JWT-Signature`. The spec contains a TODO comment acknowledging this ambiguity.
 
-**Explanation:** 
+**Explanation:**
 - **OpenAPI declaration (line 817-820):** The spec shows `Authorization: Bearer <jwt>` format
 - **Runtime implementation:** The code uses `Agid-JWT-Signature` header
 

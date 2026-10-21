@@ -3,6 +3,8 @@ import { Body, Title, VSpacer } from '@pagopa/io-core-ui';
 import { IllusMIError } from '@pagopa/mui-italia';
 import { PageErrorType } from './types';
 
+export const IN_APP_BROWSER_CLOSE_DEEPLINK = 'iossoapi://cancel';
+
 type ErrorContent = {
   icon: JSX.Element;
   title: string;
@@ -30,6 +32,11 @@ const errorContentMap: Record<PageErrorType, ErrorContent> = {
     title: 'Non siamo riusciti a caricare la pagina',
     description: 'Riprova più tardi.',
   },
+  [PageErrorType.GENERIC_ERROR]: {
+    icon: <IllusMIError />,
+    title: 'Qualcosa non ha funzionato',
+    description: 'Riprova più tardi.',
+  },
 };
 
 type ButtonProps = {
@@ -43,8 +50,30 @@ type Props = {
   secondAction?: ButtonProps;
 };
 
+const handleCloseInAppBrowser = () => {
+  window.location.replace(IN_APP_BROWSER_CLOSE_DEEPLINK);
+};
+
+const defaultCloseAction: ButtonProps = {
+  label: 'Chiudi',
+  onClick: handleCloseInAppBrowser,
+};
+
 const ErrorScreen = ({ errorType, firstAction, secondAction }: Props) => {
   const { icon, title, description } = errorContentMap[errorType];
+
+  let resolvedFirstAction = firstAction;
+  let resolvedSecondAction = secondAction;
+
+  if (!resolvedFirstAction && !resolvedSecondAction) {
+    resolvedFirstAction = defaultCloseAction;
+  } else if (
+    resolvedFirstAction &&
+    !resolvedSecondAction &&
+    resolvedFirstAction.label.toLowerCase() !== 'chiudi'
+  ) {
+    resolvedSecondAction = defaultCloseAction;
+  }
 
   return (
     <Box
@@ -65,25 +94,25 @@ const ErrorScreen = ({ errorType, firstAction, secondAction }: Props) => {
       <VSpacer size={16} />
       <Body>{description}</Body>
       <VSpacer size={16} />
-      {firstAction && (
+      {resolvedFirstAction && (
         <>
           <Button
             variant="contained"
-            onClick={firstAction.onClick}
+            onClick={resolvedFirstAction.onClick}
             sx={{ borderRadius: '10px' }}
           >
-            {firstAction.label}
+            {resolvedFirstAction.label}
           </Button>
           <VSpacer size={8} />
         </>
       )}
-      {secondAction && (
+      {resolvedSecondAction && (
         <Button
           variant="text"
-          onClick={secondAction.onClick}
+          onClick={resolvedSecondAction.onClick}
           sx={{ borderRadius: '10px' }}
         >
-          {secondAction.label}
+          {resolvedSecondAction.label}
         </Button>
       )}
     </Box>

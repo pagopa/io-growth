@@ -1,10 +1,21 @@
+import { createTypedDbClient } from "@pagopa/io-core-adapter-drizzle";
 import { PgDialect } from "drizzle-orm/pg-core";
-import { describe, expect, it } from "vitest";
+import { ok } from "neverthrow";
+import { afterEach, describe, expect, it, vi } from "vitest";
+
+import type { OpportunityDetailRow } from "../opportunity-row.mapper.js";
 
 import {
   buildSearchCondition,
   buildStatusCondition,
+  createDrizzleOpportunityRepository,
 } from "../drizzle-opportunity.repository.js";
+import * as schema from "../schema/index.js";
+
+afterEach(() => {
+  vi.restoreAllMocks();
+  vi.useRealTimers();
+});
 
 const render = (
   search: string,
@@ -111,5 +122,69 @@ describe("buildStatusCondition", () => {
 
     expect(sql).not.toContain("date_from");
     expect(params).toEqual(["published"]);
+  });
+});
+
+describe("opportunity display status at Rome midnight", () => {
+  it.each([
+    ["2026-07-14T21:59:59Z", "2026-07-15", "scheduled"],
+    ["2026-07-14T22:00:00Z", "2026-07-15", "published"],
+    ["2026-01-14T23:00:00Z", "2026-01-15", "published"],
+    ["2026-03-29T22:00:00Z", "2026-03-30", "published"],
+    ["2026-10-25T23:00:00Z", "2026-10-26", "published"],
+  ])("resolves publication at %s", async (instant, dateFrom, status) => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date(instant));
+    const db = createTypedDbClient(
+      { database: "unused", host: "localhost", port: 5432, user: "unused" },
+      schema,
+    );
+    const row: OpportunityDetailRow & typeof schema.opportunity.$inferSelect = {
+      beneficiaryBenefit: {
+        description: null,
+        discountType: null,
+        type: "free",
+        value: null,
+      },
+      caregiverBenefit: null,
+      category: { title: "Culture" },
+      categoryId: "category",
+      changeRequestMessage: null,
+      createdAt: new Date("2026-01-01T00:00:00Z"),
+      dateFrom,
+      dateTo: null,
+      deletionMessage: null,
+      id: "opportunity",
+      localizedMetadata: [],
+      nationalTerritory: true,
+      operatorId: "operator",
+      opportunityPlaces: [],
+      publishingNotifiedAt: null,
+      rejectionMessage: null,
+      republishMessage: null,
+      republishRejectionMessage: null,
+      status: "published",
+      suspendedBy: null,
+      suspendFrom: null,
+      suspensionMessage: null,
+      updatedAt: new Date("2026-01-01T00:00:00Z"),
+      url: null,
+    };
+    vi.spyOn(db.query.opportunity, "findFirst").mockResolvedValue(row);
+    const repository = createDrizzleOpportunityRepository(db);
+
+    try {
+      await expect(
+        repository.findById({ opportunityId: row.id }),
+      ).resolves.toEqual(ok(expect.objectContaining({ status })));
+      await expect(
+        repository.findByIdAndOperatorId({
+          operatorId: row.operatorId,
+          opportunityId: row.id,
+        }),
+      ).resolves.toEqual(ok(expect.objectContaining({ status })));
+    } finally {
+      await db.closeConnection();
+    }
   });
 });

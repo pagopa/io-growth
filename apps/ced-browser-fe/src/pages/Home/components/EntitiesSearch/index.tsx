@@ -9,7 +9,10 @@ import {
 } from '@mui/material';
 import { useRef, useState, useCallback, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { toEntityAccessPointDetailRoute } from '../../../../app/routeConfig';
+import {
+  toEntityAccessPointDetailRoute,
+  toEntityDetailRoute,
+} from '../../../../app/routeConfig';
 import { useSearchPlacesQuery } from '../../../../features/places/api';
 import { useDebounce } from '../../../../hooks/useDebounce';
 import { SearchEmptyState } from './SearchEmptyState';
@@ -89,9 +92,9 @@ export function EntitiesSearch({
 
   const handleItemPress = useCallback(
     (accessPointId: string) => {
-      const selectedItem = data?.items.find(
-        (item) => item.id === accessPointId,
-      );
+      const selectedItem =
+        data?.items.find((item) => item.id === accessPointId) ??
+        recentSearches.find((item) => item.id === accessPointId);
       if (selectedItem) {
         const updatedRecentSearches = [
           selectedItem,
@@ -110,9 +113,15 @@ export function EntitiesSearch({
         // The API currently returns the entity identifier rather than the display name.
         city_name: selectedItem?.address?.city,
       });
-      navigate(toEntityAccessPointDetailRoute(accessPointId), {
-        state: { source: 'search_result' },
-      });
+      if (selectedItem?.type === 'profile' && selectedItem.entityId) {
+        navigate(toEntityDetailRoute(selectedItem.entityId), {
+          state: { source: 'search_result' },
+        });
+      } else {
+        navigate(toEntityAccessPointDetailRoute(accessPointId), {
+          state: { source: 'search_result' },
+        });
+      }
     },
     [data?.items, navigate, recentSearches],
   );

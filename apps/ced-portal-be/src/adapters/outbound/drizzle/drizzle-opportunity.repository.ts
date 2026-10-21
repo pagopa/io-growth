@@ -2,6 +2,7 @@ import type { TypedDbClient } from "@pagopa/io-core-adapter-drizzle";
 import type { Result } from "neverthrow";
 
 import { ConflictError, GenericError } from "@pagopa/io-core-domain/errors";
+import { getApplicationDate } from "@pagopa/io-core-domain/utilities";
 import {
   and,
   count,
@@ -125,11 +126,6 @@ export const buildStatusCondition = (
   return sql`${opportunity.status} = ${status}`;
 };
 
-// Server-owned reference date (YYYY-MM-DD) used to resolve the derived
-// "scheduled" / "published" statuses, both when filtering and when mapping
-// rows into entities.
-const today = (): string => new Date().toISOString().slice(0, 10);
-
 const findByIdAndOperatorId = async (
   db: DbOrTxClient,
   input: FindByIdAndOperatorIdInput,
@@ -188,7 +184,7 @@ const findByIdAndOperatorId = async (
       return ok(undefined);
     }
 
-    return mapOpportunityDetailRow(row, today());
+    return mapOpportunityDetailRow(row, getApplicationDate());
   } catch (error) {
     return err(
       new GenericError(`Failed to get operator opportunity: ${String(error)}`),
@@ -248,7 +244,7 @@ const findById =
         },
       });
       if (!row) return ok(undefined);
-      return mapOpportunityDetailRow(row, today());
+      return mapOpportunityDetailRow(row, getApplicationDate());
     } catch (error) {
       return err(
         new GenericError(`Failed to get opportunity: ${String(error)}`),
@@ -705,7 +701,7 @@ const countByExternalOperatorIds =
       return ok(new Map<string, number>());
     }
     try {
-      const today = new Date().toISOString().slice(0, 10);
+      const today = getApplicationDate();
       const rows = await db
         .select({
           externalOperatorIds: operator.externalId,
@@ -956,7 +952,9 @@ export const createDrizzleOpportunityRepository = (
         conditions.push(gte(opportunity.dateFrom, input.dateFrom));
       if (input.dateTo) conditions.push(lte(opportunity.dateTo, input.dateTo));
       if (input.status) {
-        conditions.push(buildStatusCondition(input.status, today()));
+        conditions.push(
+          buildStatusCondition(input.status, getApplicationDate()),
+        );
       }
       if (input.excludeDeleted) {
         conditions.push(ne(opportunity.status, OPPORTUNITY_STATUS.DELETED));
@@ -1013,7 +1011,7 @@ export const createDrizzleOpportunityRepository = (
       ]);
 
       const items = dataResult.map((row) =>
-        mapOpportunitySummaryRow(row, today()),
+        mapOpportunitySummaryRow(row, getApplicationDate()),
       );
       const total = countResult[0]?.total ?? 0;
 

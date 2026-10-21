@@ -3,6 +3,7 @@ import type { BaseError } from "@pagopa/io-core-domain/errors";
 import type { Result } from "neverthrow";
 
 import { NotFoundError, ValidationError } from "@pagopa/io-core-domain/errors";
+import { getApplicationDate } from "@pagopa/io-core-domain/utilities";
 import { err, errAsync, ok, okAsync, ResultAsync } from "neverthrow";
 import { z } from "zod";
 
@@ -121,7 +122,7 @@ export const makeOperatorUpdateOpportunityUseCase =
           });
           if (statusResult.isErr()) return errAsync(statusResult.error);
 
-          const today = new Date().toISOString().slice(0, 10);
+          const today = getApplicationDate();
 
           const publishedDatesResult = validatePublishedOpportunityDates({
             currentDateFrom: data.dateFrom,

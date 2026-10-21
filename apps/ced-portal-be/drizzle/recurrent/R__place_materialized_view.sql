@@ -41,8 +41,8 @@ WHERE
     JOIN opportunity o ON o.id = opp_p.opportunity_id
     WHERE opp_p.place_id = p.id
       AND o.status = 'published'
-      AND CURRENT_DATE >= o.date_from
-      AND CURRENT_DATE <= coalesce(o.date_to, 'infinity'::date)
+      AND (CURRENT_TIMESTAMP AT TIME ZONE 'Europe/Rome')::date >= o.date_from
+      AND (CURRENT_TIMESTAMP AT TIME ZONE 'Europe/Rome')::date <= coalesce(o.date_to, 'infinity'::date)
   )
 ;
 

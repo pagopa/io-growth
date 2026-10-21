@@ -1,5 +1,19 @@
 # @pagopa/io-core-adapter-ar
 
+## 0.1.5
+
+### Patch Changes
+
+- Updated dependencies [d704bb8]
+  - @pagopa/io-core-domain@0.1.0
+
+## 0.1.4
+
+### Patch Changes
+
+- Updated dependencies [9cfb4ed]
+  - @pagopa/io-core-domain@0.0.6
+
 ## 0.1.3
 
 ### Patch Changes

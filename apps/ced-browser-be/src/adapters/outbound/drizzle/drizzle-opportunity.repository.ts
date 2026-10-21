@@ -2,6 +2,7 @@ import type { TypedDbClient } from "@pagopa/io-core-adapter-drizzle";
 import type { Result } from "neverthrow";
 
 import { GenericError } from "@pagopa/io-core-domain/errors";
+import { getApplicationDate } from "@pagopa/io-core-domain/utilities";
 import {
   and,
   asc,
@@ -45,7 +46,7 @@ export const createDrizzleOpportunityRepository = (
     opportunityId,
   }: FindPublishedOpportunityByIdInput) => {
     try {
-      const today = new Date().toISOString().slice(0, 10);
+      const today = getApplicationDate();
       const row = await db.query.opportunity.findFirst({
         columns: {
           dateFrom: true,

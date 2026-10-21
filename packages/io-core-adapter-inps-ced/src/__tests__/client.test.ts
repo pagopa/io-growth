@@ -1,12 +1,12 @@
 import type { SignedFetch } from "@pagopa/io-core-adapter-modi";
 
 import { ok } from "neverthrow";
-import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { InpsIdentityContext } from "../client.js";
 import type { InpsCedConfig } from "../config.js";
 
-import { customFetch, initInpsCedClient } from "../client.js";
+import { createCustomFetch, customFetch as stubFetch } from "../client.js";
 
 // Shape expected from customFetch — mirrors what the adapter reads back.
 interface FetchResult {
@@ -76,12 +76,11 @@ const mockSignedFetch = vi.fn();
 // Mutable getter — tests can swap the returned identity per-case.
 let mockGetIdentity: () => InpsIdentityContext | undefined = () => undefined;
 
-beforeAll(() => {
-  mockSignedFetch.mockResolvedValue(ok(makeResponse(200, {})));
-  // Pass a stable wrapper so tests can change `mockGetIdentity` between calls.
-  initInpsCedClient(CONFIG, mockSignedFetch as unknown as SignedFetch, () =>
-    mockGetIdentity(),
-  );
+// Stable wrapper so tests can change `mockGetIdentity` between calls.
+const customFetch = createCustomFetch({
+  config: CONFIG,
+  getIdentity: () => mockGetIdentity(),
+  signedFetch: mockSignedFetch as unknown as SignedFetch,
 });
 
 beforeEach(() => {
@@ -91,18 +90,32 @@ beforeEach(() => {
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Uninitialized state
+// Stub export
 // ─────────────────────────────────────────────────────────────────────────────
-describe("when client is not initialized", () => {
-  it("customFetch throws a descriptive error", async () => {
-    // Fresh module instance (uninitialized globals) via vi.resetModules().
-    // The static-import bindings above remain pointing to the original
-    // initialized instance, so subsequent tests are unaffected.
-    vi.resetModules();
-    const { customFetch: fresh } = await import("../client.js");
-    await expect(fresh("/path", { method: "GET" })).rejects.toThrow(
-      "not initialised",
+describe("customFetch stub", () => {
+  it("throws when called directly (must use createCustomFetch instead)", async () => {
+    await expect(stubFetch("/path", { method: "GET" })).rejects.toThrow(
+      "createCustomFetch",
     );
+  });
+
+  it("keeps instances independent", async () => {
+    const otherSignedFetch = vi
+      .fn()
+      .mockResolvedValue(ok(makeResponse(200, {})));
+    const other = createCustomFetch({
+      config: { ...CONFIG, baseUrl: "https://other.inps.it" },
+      getIdentity: () => undefined,
+      signedFetch: otherSignedFetch as unknown as SignedFetch,
+    });
+
+    await other<FetchResult>("/path", { method: "POST" });
+    await customFetch<FetchResult>("/path", { method: "POST" });
+
+    expect(otherSignedFetch.mock.calls[0]?.[0]).toBe(
+      "https://other.inps.it/path",
+    );
+    expect(mockSignedFetch.mock.calls[0]?.[0]).toBe(`${CONFIG.baseUrl}/path`);
   });
 });
 
@@ -269,14 +282,11 @@ describe("customFetch", () => {
 // ─────────────────────────────────────────────────────────────────────────────
 describe("customFetch telemetry", () => {
   const trackException = vi.fn();
-
-  beforeAll(() => {
-    initInpsCedClient(
-      CONFIG,
-      mockSignedFetch as unknown as SignedFetch,
-      () => mockGetIdentity(),
-      { trackException },
-    );
+  const customFetch = createCustomFetch({
+    config: CONFIG,
+    getIdentity: () => mockGetIdentity(),
+    signedFetch: mockSignedFetch as unknown as SignedFetch,
+    telemetry: { trackException },
   });
 
   beforeEach(() => {

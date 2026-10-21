@@ -1,6 +1,6 @@
-import type { UseCase } from "@pagopa/io-core-domain";
 import type { BaseError } from "@pagopa/io-core-domain/errors";
 
+import { isTestUser, type UseCase } from "@pagopa/io-core-domain";
 import { UnauthorizedError } from "@pagopa/io-core-domain/errors";
 import { err } from "neverthrow";
 
@@ -15,7 +15,6 @@ import type { OidcClient } from "../../domain/ports/outbound/oidc-client.reposit
 import type { FimsSessionStore } from "../../domain/ports/outbound/session.repository.js";
 
 import { buildSessionAndRedirect } from "./session.helpers.js";
-import { isTestUser } from "./test-users.js";
 
 const DEFAULT_SESSION_TTL = 1800;
 const DEFAULT_OTP_TTL = 60;

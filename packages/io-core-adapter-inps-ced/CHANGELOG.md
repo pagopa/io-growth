@@ -1,5 +1,11 @@
 # @pagopa/io-core-adapter-inps-ced
 
+## 0.1.0
+
+### Minor Changes
+
+- c18a6cc: Implemented env router
+
 ## 0.0.8
 
 ### Patch Changes

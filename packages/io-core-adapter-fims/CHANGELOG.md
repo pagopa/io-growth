@@ -1,5 +1,11 @@
 # @pagopa/io-core-adapter-fims
 
+## 0.0.17
+
+### Patch Changes
+
+- c18a6cc: Implemented env router
+
 ## 0.0.16
 
 ### Patch Changes

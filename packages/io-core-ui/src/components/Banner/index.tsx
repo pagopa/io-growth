@@ -1,7 +1,7 @@
-import { Box } from "@mui/material";
-import { MIButton } from "@pagopa/mui-italia";
-import { VSpacer } from "../Spacer";
-import { Body } from "../Typography";
+import { Box } from '@mui/material';
+import { MIButton } from '@pagopa/mui-italia';
+import { VSpacer } from '../Spacer';
+import { Body } from '../Typography';
 
 type Props = {
   title: string;
@@ -15,22 +15,16 @@ export const WarningBanner = ({ title, action }: Props) => (
   <Box
     sx={{
       mx: 3,
-      bgcolor: "#F4F5F8",
-      borderRadius: "8px",
-      display: "flex",
-      flexDirection: "column",
-      alignItems: "center",
-      textAlign: "center",
+      bgcolor: '#F4F5F8',
+      borderRadius: '8px',
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      textAlign: 'center',
     }}
   >
     <VSpacer size={16} />
-    <svg
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
       <path
         fillRule="evenodd"
         clipRule="evenodd"

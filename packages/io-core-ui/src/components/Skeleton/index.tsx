@@ -1,4 +1,4 @@
-import { Box, Divider, Skeleton } from "@mui/material";
+import { Box, Divider, Skeleton } from '@mui/material';
 
 type Props = {
   length?: number;
@@ -12,9 +12,9 @@ export const ListSkeleton = ({ length = 3, includeMargin = false }: Props) => (
         {i > 0 ? <Divider /> : null}
         <Box
           sx={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
             gap: 1,
             py: 3,
           }}
@@ -26,12 +26,7 @@ export const ListSkeleton = ({ length = 3, includeMargin = false }: Props) => (
               height={18}
               sx={{ borderRadius: 99, mb: 0.5 }}
             />
-            <Skeleton
-              variant="rounded"
-              width={200}
-              height={17}
-              sx={{ borderRadius: 99 }}
-            />
+            <Skeleton variant="rounded" width={200} height={17} sx={{ borderRadius: 99 }} />
           </Box>
           <Skeleton variant="circular" width={24} height={24} />
         </Box>

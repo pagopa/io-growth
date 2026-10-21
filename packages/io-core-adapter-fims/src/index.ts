@@ -10,11 +10,6 @@ export { createOidcClient } from "./adapters/outbound/oidc/oidc-client.js";
 export { createFimsAuthFlow } from "./application/use-cases/fims-auth-flow.js";
 export type { FimsAuthFlow } from "./application/use-cases/fims-auth-flow.js";
 
-// Utilities
-export {
-  hashFiscalCode,
-  isTestUser,
-} from "./application/use-cases/test-users.js";
 // Shared config schema and builder
 export { buildFimsConfig, fimsConfigSchema } from "./config.js";
 export type { FimsConfig, FimsEnvConfig } from "./config.js";

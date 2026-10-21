@@ -2,6 +2,28 @@ import type { SignedFetch } from "@pagopa/io-core-adapter-modi";
 
 import type { InpsCedConfig } from "./config.js";
 
+export type CustomFetch = <T>(url: string, options?: RequestInit) => Promise<T>;
+
+export interface InpsCedClientOptions {
+  readonly config: InpsCedConfig;
+  /**
+   * A getter function supplied by the **app layer** that resolves the
+   * `InpsIdentityContext` for the current request.  The app owns the
+   * `AsyncLocalStorage` (or any other mechanism) and maps its session data
+   * to this shape.  The adapter never touches `async_hooks` directly — it
+   * only calls this function at fetch time.
+   */
+  readonly getIdentity: () => InpsIdentityContext | undefined;
+  readonly signedFetch: SignedFetch;
+  /**
+   * Optional telemetry client injected by the app layer (e.g.
+   * `getTelemetryClient()` from `@pagopa/io-core-adapter-tracing`). When
+   * provided, upstream non-2xx responses are recorded as exceptions so they
+   * appear in Application Insights alongside the inbound request trace.
+   */
+  readonly telemetry?: InpsCedTelemetry;
+}
+
 /**
  * Minimal structural subset of `TelemetryClient.trackException` used by this
  * package. Defined locally so the package does not take a hard dependency on
@@ -21,56 +43,6 @@ export interface InpsIdentityContext {
   readonly codiceUfficio: string;
   readonly userId: string;
 }
-
-let globalConfig: InpsCedConfig | undefined;
-let globalSignedFetch: SignedFetch | undefined;
-let globalGetIdentity: (() => InpsIdentityContext | undefined) | undefined;
-let globalTelemetry: InpsCedTelemetry | undefined;
-
-export const initInpsCedClient = (
-  config: InpsCedConfig,
-  signedFetch: SignedFetch,
-  /**
-   * A getter function supplied by the **app layer** that resolves the
-   * `InpsIdentityContext` for the current request.  The app owns the
-   * `AsyncLocalStorage` (or any other mechanism) and maps its session data
-   * to this shape.  The adapter never touches `async_hooks` directly — it
-   * only calls this function at fetch time.
-   *
-   * Pattern mirrors how `ced-portal-be` injects `getRequestSession` into
-   * adapters that need session data.
-   */
-  getIdentity: () => InpsIdentityContext | undefined,
-  /**
-   * Optional telemetry client injected by the app layer (e.g.
-   * `getTelemetryClient()` from `@pagopa/io-core-adapter-tracing`). When
-   * provided, upstream non-2xx responses are recorded as exceptions so they
-   * appear in Application Insights alongside the inbound request trace.
-   */
-  telemetry?: InpsCedTelemetry,
-): void => {
-  globalConfig = config;
-  globalSignedFetch = signedFetch;
-  globalGetIdentity = getIdentity;
-  globalTelemetry = telemetry;
-};
-
-const getClient = (): {
-  config: InpsCedConfig;
-  getIdentity: () => InpsIdentityContext | undefined;
-  signedFetch: SignedFetch;
-} => {
-  if (!globalConfig || !globalSignedFetch || !globalGetIdentity) {
-    throw new Error(
-      "inps-ced client not initialised. Call initInpsCedClient() in your composition root.",
-    );
-  }
-  return {
-    config: globalConfig,
-    getIdentity: globalGetIdentity,
-    signedFetch: globalSignedFetch,
-  };
-};
 
 /**
  * Reads the full response body as text while tolerating an abrupt connection
@@ -118,92 +90,106 @@ const readBodyText = async (
 };
 
 /**
- * orval customFetch mutator.
+ * Creates a fetch function bound to the given INPS client options.
  *
- * Calls the identity getter injected at initialisation time to obtain
- * per-request INPS identity headers.  The getter is owned and implemented
- * by the app layer (`ced-card-request-be`), which maps its own
- * `AsyncLocalStorage`-backed session to the `InpsIdentityContext` shape.
- * This adapter package has no `async_hooks` dependency.
+ * Calls the injected identity getter to obtain per-request INPS identity
+ * headers; the getter is owned by the app layer, so this package has no
+ * `async_hooks` dependency and no global state.
  *
  * The base URL is resolved here from `InpsCedConfig`; orval generates paths only.
  */
-export const customFetch = async <T>(
-  url: string,
-  options: RequestInit,
-): Promise<T> => {
-  const { config, getIdentity, signedFetch } = getClient();
+export const createCustomFetch = ({
+  config,
+  getIdentity,
+  signedFetch,
+  telemetry,
+}: InpsCedClientOptions): CustomFetch =>
+  async function customFetch<T>(
+    url: string,
+    options: RequestInit = {},
+  ): Promise<T> {
+    const headers = new Headers(options.headers);
+    headers.set("Content-Type", "application/json");
+    headers.set("Accept", "application/json");
+    // Request an uncompressed response (like plain `curl`). undici otherwise
+    // auto-adds `Accept-Encoding: gzip, deflate`, so INPS gzips the body. When
+    // INPS closes the mTLS connection uncleanly (no TLS close_notify), a
+    // truncated gzip stream decompresses to ZERO bytes and the ProblemDetails
+    // payload is lost — surfacing as `rejected: undefined`. An identity-encoded
+    // body stays readable, so `readBodyText` can still recover the JSON.
+    headers.set("Accept-Encoding", "identity");
 
-  const headers = new Headers(options.headers);
-  headers.set("Content-Type", "application/json");
-  headers.set("Accept", "application/json");
-  // Request an uncompressed response (like plain `curl`). undici otherwise
-  // auto-adds `Accept-Encoding: gzip, deflate`, so INPS gzips the body. When
-  // INPS closes the mTLS connection uncleanly (no TLS close_notify), a
-  // truncated gzip stream decompresses to ZERO bytes and the ProblemDetails
-  // payload is lost — surfacing as `rejected: undefined`. An identity-encoded
-  // body stays readable, so `readBodyText` can still recover the JSON.
-  headers.set("Accept-Encoding", "identity");
-
-  const identity = getIdentity();
-  if (identity) {
-    headers.set("INPS-Identity-UserId", identity.userId);
-    headers.set("INPS-Identity-CodiceUfficio", identity.codiceUfficio);
-  }
-
-  const fetchResult = await signedFetch(`${config.baseUrl}${url}`, {
-    ...options,
-    headers: Object.fromEntries(headers.entries()),
-  });
-  if (fetchResult.isErr()) throw fetchResult.error;
-  const response = fetchResult.value;
-
-  const hasBody =
-    response.status !== 204 &&
-    response.status !== 205 &&
-    response.status !== 304 &&
-    response.body !== null &&
-    response.headers.get("content-length") !== "0";
-
-  let data: unknown;
-  if (hasBody) {
-    const { terminated, text: rawBody } = await readBodyText(response);
-
-    if (response.status < 200 || response.status >= 300) {
-      // Log ALL non-2xx responses unconditionally, including non-JSON or empty
-      // bodies. When the connection was terminated mid-read, surface the
-      // underlying cause alongside whatever payload we recovered so the trace
-      // shows the INPS ProblemDetails instead of an opaque "terminated".
-      const bodyPreview = rawBody || "(empty)";
-      globalTelemetry?.trackException({
-        error: new Error(
-          `HTTP ${String(response.status)} from upstream` +
-            ` content-type=${response.headers.get("content-type") ?? "unknown"}` +
-            ` body=${bodyPreview}` +
-            (terminated
-              ? ` (connection terminated: ${String(
-                  (terminated as { cause?: unknown }).cause ?? terminated,
-                )})`
-              : ""),
-        ),
-        method: options.method ?? "POST",
-        route: url,
-        url: `${config.baseUrl}${url}`,
-      });
-      // Don't throw on non-JSON error bodies -- let the adapter handle the
-      // status code. data=undefined is safe; adapters check response.status first.
-      try {
-        data = JSON.parse(rawBody);
-      } catch {
-        data = undefined;
-      }
-    } else {
-      // 2xx: the contract requires a valid, fully-received JSON body -- throw
-      // if the connection was terminated or the payload is malformed.
-      if (terminated) throw terminated;
-      data = JSON.parse(rawBody);
+    const identity = getIdentity();
+    if (identity) {
+      headers.set("INPS-Identity-UserId", identity.userId);
+      headers.set("INPS-Identity-CodiceUfficio", identity.codiceUfficio);
     }
-  }
 
-  return { data, headers: response.headers, status: response.status } as T;
-};
+    const fetchResult = await signedFetch(`${config.baseUrl}${url}`, {
+      ...options,
+      headers: Object.fromEntries(headers.entries()),
+    });
+    if (fetchResult.isErr()) throw fetchResult.error;
+    const response = fetchResult.value;
+
+    const hasBody =
+      response.status !== 204 &&
+      response.status !== 205 &&
+      response.status !== 304 &&
+      response.body !== null &&
+      response.headers.get("content-length") !== "0";
+
+    let data: unknown;
+    if (hasBody) {
+      const { terminated, text: rawBody } = await readBodyText(response);
+
+      if (response.status < 200 || response.status >= 300) {
+        // Log ALL non-2xx responses unconditionally, including non-JSON or empty
+        // bodies. When the connection was terminated mid-read, surface the
+        // underlying cause alongside whatever payload we recovered so the trace
+        // shows the INPS ProblemDetails instead of an opaque "terminated".
+        const bodyPreview = rawBody || "(empty)";
+        telemetry?.trackException({
+          error: new Error(
+            `HTTP ${String(response.status)} from upstream` +
+              ` content-type=${response.headers.get("content-type") ?? "unknown"}` +
+              ` body=${bodyPreview}` +
+              (terminated
+                ? ` (connection terminated: ${String(
+                    (terminated as { cause?: unknown }).cause ?? terminated,
+                  )})`
+                : ""),
+          ),
+          method: options.method ?? "POST",
+          route: url,
+          url: `${config.baseUrl}${url}`,
+        });
+        // Don't throw on non-JSON error bodies -- let the adapter handle the
+        // status code. data=undefined is safe; adapters check response.status first.
+        try {
+          data = JSON.parse(rawBody);
+        } catch {
+          data = undefined;
+        }
+      } else {
+        // 2xx: the contract requires a valid, fully-received JSON body -- throw
+        // if the connection was terminated or the payload is malformed.
+        if (terminated) throw terminated;
+        data = JSON.parse(rawBody);
+      }
+    }
+
+    return { data, headers: response.headers, status: response.status } as T;
+  };
+
+/**
+ * Stub kept so orval-generated endpoint files — which statically import this
+ * symbol — continue to compile. Adapters must never call it directly; use a
+ * bound instance obtained from {@link createCustomFetch}.
+ */
+export const customFetch: CustomFetch = () =>
+  Promise.reject(
+    new Error(
+      "customFetch must not be called directly. Use createCustomFetch() to obtain a bound instance.",
+    ),
+  );

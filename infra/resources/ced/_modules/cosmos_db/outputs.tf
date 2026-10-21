@@ -6,5 +6,6 @@ output "cosmos_db" {
     endpoint            = module.ced_cosmos_account.endpoint
     database_name       = azurerm_cosmosdb_sql_database.ced_cosmos_db.name
     container_name      = azurerm_cosmosdb_sql_container.card_requests.name
+    container_name_test = azurerm_cosmosdb_sql_container.card_requests_test.name
   }
 }

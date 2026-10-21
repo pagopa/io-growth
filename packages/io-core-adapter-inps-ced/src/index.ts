@@ -1,10 +1,16 @@
 // Adapter factories
-export { createGestioneDomandaCedClient } from "./adapters/outbound/gestione-domanda-ced.js";
-// Client initialisation
-export { initInpsCedClient } from "./client.js";
+export {
+  createGestioneDomandaCedClient,
+  createInpsCedClient,
+} from "./adapters/outbound/gestione-domanda-ced.js";
 
-// Types used by the app layer to type the values it passes to initInpsCedClient
-export type { InpsCedTelemetry, InpsIdentityContext } from "./client.js";
+// Types used by the app layer to build the client options
+export type {
+  CustomFetch,
+  InpsCedClientOptions,
+  InpsCedTelemetry,
+  InpsIdentityContext,
+} from "./client.js";
 
 // Config
 export { buildInpsCedConfig, inpsCedConfigSchema } from "./config.js";

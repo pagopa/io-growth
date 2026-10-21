@@ -1,4 +1,4 @@
-# trivy:ignore:GIT-0002
+# trivy:ignore:AVD-GIT-0002
 resource "github_actions_environment_secret" "ced_postgres_host" {
   repository      = module.azure-PROD-CED_bootstrap.repository.name
   environment     = "app-prod-cd"
@@ -10,7 +10,7 @@ resource "github_actions_environment_secret" "ced_postgres_host" {
   }
 }
 
-# trivy:ignore:GIT-0002
+# trivy:ignore:AVD-GIT-0002
 resource "github_actions_environment_secret" "ced_postgres_port" {
   repository      = module.azure-PROD-CED_bootstrap.repository.name
   environment     = "app-prod-cd"
@@ -22,7 +22,7 @@ resource "github_actions_environment_secret" "ced_postgres_port" {
   }
 }
 
-# trivy:ignore:GIT-0002
+# trivy:ignore:AVD-GIT-0002
 resource "github_actions_environment_secret" "ced_postgres_user" {
   repository      = module.azure-PROD-CED_bootstrap.repository.name
   environment     = "app-prod-cd"
@@ -34,7 +34,7 @@ resource "github_actions_environment_secret" "ced_postgres_user" {
   }
 }
 
-# trivy:ignore:GIT-0002
+# trivy:ignore:AVD-GIT-0002
 resource "github_actions_environment_secret" "ced_postgres_password" {
   repository      = module.azure-PROD-CED_bootstrap.repository.name
   environment     = "app-prod-cd"
@@ -46,7 +46,7 @@ resource "github_actions_environment_secret" "ced_postgres_password" {
   }
 }
 
-# trivy:ignore:GIT-0002
+# trivy:ignore:AVD-GIT-0002
 resource "github_actions_environment_secret" "ced_postgres_db" {
   repository      = module.azure-PROD-CED_bootstrap.repository.name
   environment     = "app-prod-cd"
@@ -58,7 +58,7 @@ resource "github_actions_environment_secret" "ced_postgres_db" {
   }
 }
 
-# trivy:ignore:GIT-0002
+# trivy:ignore:AVD-GIT-0002
 resource "github_actions_environment_secret" "ced_postgres_db_test" {
   repository      = module.azure-PROD-CED_bootstrap.repository.name
   environment     = "app-prod-cd"

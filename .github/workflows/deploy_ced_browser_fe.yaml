@@ -20,6 +20,13 @@ on:
 
 jobs:
     deploy_ced_browser_fe:
+        # packages: read is required by the GitHub Packages authentication that
+        # release-azure-staticapp-v1 runs before building (pagopa/dx#2390).
+        permissions:
+            contents: read
+            id-token: write
+            packages: read
+            pull-requests: write
         uses: pagopa/dx/.github/workflows/release-azure-staticapp-v1.yaml@abb37e552370c4b3e2e5b2601c76a307f421c074 # main
         name: Deploy CED Browser FE
         secrets: inherit

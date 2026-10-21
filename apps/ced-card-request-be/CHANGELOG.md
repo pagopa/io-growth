@@ -1,5 +1,17 @@
 # ced-card-request-be
 
+## 0.4.0
+
+### Minor Changes
+
+- c18a6cc: Implemented env router
+
+### Patch Changes
+
+- Updated dependencies [c18a6cc]
+  - @pagopa/io-core-adapter-inps-ced@0.1.0
+  - @pagopa/io-core-adapter-fims@0.0.17
+
 ## 0.3.7
 
 ### Patch Changes

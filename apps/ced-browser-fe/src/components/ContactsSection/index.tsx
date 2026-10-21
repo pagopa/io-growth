@@ -14,7 +14,7 @@ import { trackBrowserEvent } from '../../mixpanel/trackEvent';
 
 type ContactsSectionProps = {
   contacts: EntityContacts;
-  trackExtraProperties: Record<string, string>;
+  trackExtraProperties: Record<string, string | undefined>;
 };
 
 export function ContactsSection({

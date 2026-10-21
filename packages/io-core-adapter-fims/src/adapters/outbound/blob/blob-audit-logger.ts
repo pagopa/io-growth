@@ -2,6 +2,7 @@ import type { ContainerClient } from "@azure/storage-blob";
 import type { BaseError } from "@pagopa/io-core-domain/errors";
 import type { Result } from "neverthrow";
 
+import { hashFiscalCode } from "@pagopa/io-core-domain";
 import { GenericError } from "@pagopa/io-core-domain/errors";
 import { err, ok } from "neverthrow";
 import { randomBytes } from "node:crypto";
@@ -12,8 +13,6 @@ import type {
   TestSessionAudit,
 } from "../../../domain/entities.js";
 import type { AuditLogger } from "../../../domain/ports/outbound/audit-logger.repository.js";
-
-import { hashFiscalCode } from "../../../application/use-cases/test-users.js";
 
 const OPERATION_FIMS = "fims";
 const OPERATION_LOLLIPOP = "lollipop";

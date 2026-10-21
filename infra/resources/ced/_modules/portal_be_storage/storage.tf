@@ -28,7 +28,7 @@ module "portal_be_storage" {
 }
 
 # Containers
-# trivy:ignore:AVD-AZU-0007
+# trivy:ignore:AZU-0007
 resource "azurerm_storage_container" "logos" {
   depends_on = [module.portal_be_storage]
 
@@ -37,7 +37,7 @@ resource "azurerm_storage_container" "logos" {
   container_access_type = "blob"
 }
 
-# trivy:ignore:AVD-AZU-0007
+# trivy:ignore:AZU-0007
 resource "azurerm_storage_container" "images" {
   depends_on = [module.portal_be_storage]
 

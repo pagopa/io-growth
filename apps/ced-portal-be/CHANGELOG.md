@@ -1,5 +1,11 @@
 # ced-portal-be
 
+## 0.10.2
+
+### Patch Changes
+
+- c18a6cc: Implemented env router
+
 ## 0.10.1
 
 ### Patch Changes

@@ -33,7 +33,7 @@ resource "azurerm_storage_container" "logos" {
 
   name                  = "logos"
   storage_account_id    = module.portal_be_storage.id
-  #trivy:ignore:AZU-0007
+  #trivy:ignore:AVD-AZU-0007
   container_access_type = "blob"
 }
 
@@ -42,7 +42,7 @@ resource "azurerm_storage_container" "images" {
 
   name                  = "images"
   storage_account_id    = module.portal_be_storage.id
-  #trivy:ignore:AZU-0007
+  #trivy:ignore:AVD-AZU-0007
   container_access_type = "blob"
 }
 

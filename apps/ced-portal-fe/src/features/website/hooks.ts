@@ -26,9 +26,7 @@ export function useWebsiteSubmit(
 
     if (!name?.trim() || !url?.trim() || urlError) return;
 
-    const supportContacts = contacts.filter((c) => c.value.trim());
-
-    const areSupportContactsValid = supportContacts.every(({ type, value }) => {
+    const areSupportContactsValid = contacts.every(({ type, value }) => {
       if (type === 'website') {
         return value.trim() && isValidHttpsUrl(value.trim());
       }
@@ -41,7 +39,7 @@ export function useWebsiteSubmit(
       type: 'online',
       name: name.trim(),
       website: { url: url.trim() },
-      supportContacts,
+      supportContacts: contacts,
     });
 
     if ('error' in result)

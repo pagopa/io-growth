@@ -19,10 +19,12 @@ import { FormField } from '../../components/FormField';
 import { AppTextField } from '../../components/TextField';
 import { AppSelect } from '../../components/Select';
 import { getContactError } from '../../components/ContactRow/utils';
+import { getContactInputConfig } from '../Overview/CompleteData/components/constants';
 import type { PlaceCreateRequest } from '../../generated/model';
 import { isValidHttpsUrl } from '../../utils';
 import AddIcon from '@mui/icons-material/Add';
-import DeleteIcon from '@mui/icons-material/DeleteOutline';
+import DeleteIcon from '@mui/icons-material/Delete';
+import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import RoomOutlinedIcon from '@mui/icons-material/RoomOutlined';
 import LanguageOutlinedIcon from '@mui/icons-material/LanguageOutlined';
 
@@ -327,7 +329,7 @@ export default function CreateLocationPage() {
                     onClick={() => handleRemoveLocation(locIndex)}
                     color="default"
                   >
-                    <DeleteIcon />
+                    <DeleteOutlineIcon />
                   </IconButton>
                 )}
               </Stack>
@@ -470,6 +472,7 @@ export default function CreateLocationPage() {
                         fullWidth
                         sx={{ width: '100%' }}
                         label="Tipo di contatto"
+                        required
                         value={contact.type}
                         onChange={(e) =>
                           handleContactChange(
@@ -500,7 +503,9 @@ export default function CreateLocationPage() {
                             e.target.value,
                           )
                         }
-                        placeholder="Inserisci contatto"
+                        label={getContactInputConfig(contact.type).placeholder}
+                        type={getContactInputConfig(contact.type).type}
+                        required
                       />
                     </Box>
                     {contactIndex > 0 && (
@@ -515,7 +520,7 @@ export default function CreateLocationPage() {
                           onClick={() =>
                             handleRemoveContact(locIndex, contactIndex)
                           }
-                          color="default"
+                          sx={{ color: 'error.dark', p: 1 }}
                         >
                           <DeleteIcon />
                         </IconButton>

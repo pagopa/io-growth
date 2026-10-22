@@ -28,6 +28,7 @@ import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import RoomOutlinedIcon from '@mui/icons-material/RoomOutlined';
 import LanguageOutlinedIcon from '@mui/icons-material/LanguageOutlined';
 import { getContactValidationError } from '../../utils/contactValidation.js';
+import { getContactInputConfig } from '../Overview/CompleteData/components/constants/index.js';
 
 type ContactState = {
   type: 'email' | 'phone' | 'website';
@@ -90,6 +91,8 @@ export default function CreateLocationPage() {
     getContactError({
       contact,
       attempted,
+      required: true,
+      isUrl: contact.type === 'website',
     });
 
   const handleUpdateLocation = (
@@ -154,12 +157,7 @@ export default function CreateLocationPage() {
         return false;
     }
 
-    if (
-      loc.contacts.some(
-        (contact) =>
-          !!contact.value.trim() && !!getContactValidationError(contact),
-      )
-    )
+    if (loc.contacts.some((contact) => getContactValidationError(contact)))
       return false;
     return true;
   };
@@ -183,7 +181,6 @@ export default function CreateLocationPage() {
       const submittedLocations = locations;
       const results = await Promise.allSettled(
         submittedLocations.map((loc) => {
-          const supportContacts = loc.contacts.filter((c) => c.value.trim());
           let payload: PlaceCreateRequest;
 
           if (type === 'offline') {
@@ -197,7 +194,7 @@ export default function CreateLocationPage() {
                 postalCode: loc.postalCode,
                 country: 'IT',
               },
-              supportContacts,
+              supportContacts: loc.contacts,
             };
           } else {
             payload = {
@@ -206,7 +203,7 @@ export default function CreateLocationPage() {
               website: {
                 url: loc.websiteUrl,
               },
-              supportContacts,
+              supportContacts: loc.contacts,
             };
           }
 
@@ -471,6 +468,7 @@ export default function CreateLocationPage() {
                         fullWidth
                         sx={{ width: '100%' }}
                         label="Tipo di contatto"
+                        required
                         value={contact.type}
                         onChange={(e) =>
                           handleContactChange(
@@ -511,6 +509,7 @@ export default function CreateLocationPage() {
                             getContactInputConfig(contact.type).placeholder
                           }
                           type={getContactInputConfig(contact.type).type}
+                          required
                         />
                       </Box>
                       {contactIndex > 0 && (

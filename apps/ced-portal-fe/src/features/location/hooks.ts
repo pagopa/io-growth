@@ -29,11 +29,7 @@ export function useLocationSubmit(
     )
       return;
 
-    const supportContacts = contacts.filter((c) => {
-      return !!c.value.trim() && !!c.type;
-    });
-
-    const areSupportContactsValid = supportContacts.every(({ type, value }) => {
+    const areSupportContactsValid = contacts.every(({ type, value }) => {
       if (type === 'website') {
         return value.trim() && isValidHttpsUrl(value.trim());
       }
@@ -52,7 +48,7 @@ export function useLocationSubmit(
         postalCode: postalCode.trim(),
         country: 'IT',
       },
-      supportContacts,
+      supportContacts: contacts,
     });
 
     if ('error' in result)

@@ -18,7 +18,9 @@ import { AppRadioList } from '../../components/RadioList';
 import { FormField } from '../../components/FormField';
 import { AppTextField } from '../../components/TextField';
 import { AppSelect } from '../../components/Select';
+import { getContactError } from '../../components/ContactRow/utils';
 import type { PlaceCreateRequest } from '../../generated/model';
+import { isValidHttpsUrl } from '../../utils';
 import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/DeleteOutline';
 import RoomOutlinedIcon from '@mui/icons-material/RoomOutlined';
@@ -37,6 +39,7 @@ interface LocationState {
   state: string;
   postalCode: string;
   websiteUrl: string;
+  websiteUrlError: string | null;
   contacts: ContactState[];
 }
 
@@ -48,8 +51,12 @@ const createDefaultLocation = (): LocationState => ({
   state: '',
   postalCode: '',
   websiteUrl: '',
+  websiteUrlError: null,
   contacts: [{ type: 'phone', value: '' }],
 });
+
+const getWebsiteUrlError = (url: string) =>
+  isValidHttpsUrl(url) ? null : 'Inserisci un URL valido (es. https://...)';
 
 const requiredTitle = (label: string) => (
   <>
@@ -71,6 +78,18 @@ export default function CreateLocationPage() {
     createDefaultLocation(),
   ]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [attempted, setAttempted] = useState(false);
+
+  const getRequiredError = (value: string) =>
+    attempted && !value.trim() ? 'Campo obbligatorio' : undefined;
+
+  const getContactFieldError = (contact: ContactState) =>
+    getContactError({
+      contact,
+      attempted,
+      required: true,
+      isUrl: contact.type === 'website',
+    });
 
   const handleUpdateLocation = (
     index: number,
@@ -130,10 +149,18 @@ export default function CreateLocationPage() {
         return false;
       }
     } else {
-      if (!loc.websiteUrl.trim()) return false;
+      if (!loc.websiteUrl.trim() || !isValidHttpsUrl(loc.websiteUrl))
+        return false;
     }
 
-    if (loc.contacts.some((c) => !c.value.trim())) return false;
+    if (
+      loc.contacts.some(
+        (c) =>
+          !c.value.trim() ||
+          (c.type === 'website' && !isValidHttpsUrl(c.value)),
+      )
+    )
+      return false;
     return true;
   };
 
@@ -142,6 +169,15 @@ export default function CreateLocationPage() {
   };
 
   const handleSubmit = async () => {
+    setAttempted(true);
+    setLocations((prev) =>
+      prev.map((loc) => ({
+        ...loc,
+        websiteUrlError: getWebsiteUrlError(loc.websiteUrl),
+      })),
+    );
+    if (!isFormValid()) return;
+
     setIsSubmitting(true);
     try {
       const submittedLocations = locations;
@@ -301,12 +337,13 @@ export default function CreateLocationPage() {
                   title={requiredTitle('Nome')}
                   required
                   value={loc.name}
+                  error={!!getRequiredError(loc.name)}
                   onChange={(e) =>
                     handleUpdateLocation(locIndex, { name: e.target.value })
                   }
                   placeholder="Inserisci nome"
                 >
-                  <AppTextField />
+                  <AppTextField helperText={getRequiredError(loc.name)} />
                 </FormField>
 
                 {type === 'offline' ? (
@@ -315,6 +352,7 @@ export default function CreateLocationPage() {
                       title={requiredTitle('Indirizzo')}
                       required
                       value={loc.street}
+                      error={!!getRequiredError(loc.street)}
                       onChange={(e) =>
                         handleUpdateLocation(locIndex, {
                           street: e.target.value,
@@ -322,7 +360,7 @@ export default function CreateLocationPage() {
                       }
                       placeholder="Es. Via Roma, 1"
                     >
-                      <AppTextField />
+                      <AppTextField helperText={getRequiredError(loc.street)} />
                     </FormField>
                     <Stack direction={{ xs: 'column', md: 'row' }} spacing={2}>
                       <Box sx={{ flex: 1 }}>
@@ -330,6 +368,7 @@ export default function CreateLocationPage() {
                           title={requiredTitle('Città')}
                           required
                           value={loc.city}
+                          error={!!getRequiredError(loc.city)}
                           onChange={(e) =>
                             handleUpdateLocation(locIndex, {
                               city: e.target.value,
@@ -337,7 +376,9 @@ export default function CreateLocationPage() {
                           }
                           placeholder="Es. Roma"
                         >
-                          <AppTextField />
+                          <AppTextField
+                            helperText={getRequiredError(loc.city)}
+                          />
                         </FormField>
                       </Box>
                       <Box sx={{ flex: 1 }}>
@@ -345,6 +386,7 @@ export default function CreateLocationPage() {
                           title={requiredTitle('Provincia')}
                           required
                           value={loc.state}
+                          error={!!getRequiredError(loc.state)}
                           onChange={(e) =>
                             handleUpdateLocation(locIndex, {
                               state: e.target.value,
@@ -352,7 +394,9 @@ export default function CreateLocationPage() {
                           }
                           placeholder="Es. RM"
                         >
-                          <AppTextField />
+                          <AppTextField
+                            helperText={getRequiredError(loc.state)}
+                          />
                         </FormField>
                       </Box>
                       <Box sx={{ flex: 1 }}>
@@ -360,6 +404,7 @@ export default function CreateLocationPage() {
                           title={requiredTitle('CAP')}
                           required
                           value={loc.postalCode}
+                          error={!!getRequiredError(loc.postalCode)}
                           onChange={(e) =>
                             handleUpdateLocation(locIndex, {
                               postalCode: e.target.value,
@@ -367,7 +412,9 @@ export default function CreateLocationPage() {
                           }
                           placeholder="Es. 00100"
                         >
-                          <AppTextField />
+                          <AppTextField
+                            helperText={getRequiredError(loc.postalCode)}
+                          />
                         </FormField>
                       </Box>
                     </Stack>
@@ -377,14 +424,28 @@ export default function CreateLocationPage() {
                     title={requiredTitle('Sito web')}
                     required
                     value={loc.websiteUrl}
+                    error={
+                      !!getRequiredError(loc.websiteUrl) ||
+                      !!loc.websiteUrlError
+                    }
                     onChange={(e) =>
                       handleUpdateLocation(locIndex, {
                         websiteUrl: e.target.value,
+                        websiteUrlError: null,
                       })
                     }
                     placeholder="Es. https://www.example.com"
                   >
-                    <AppTextField />
+                    <AppTextField
+                      helperText={
+                        getRequiredError(loc.websiteUrl) ?? loc.websiteUrlError
+                      }
+                      onBlur={() =>
+                        handleUpdateLocation(locIndex, {
+                          websiteUrlError: getWebsiteUrlError(loc.websiteUrl),
+                        })
+                      }
+                    />
                   </FormField>
                 )}
               </Stack>
@@ -402,11 +463,12 @@ export default function CreateLocationPage() {
                     key={contactIndex}
                     direction={{ xs: 'column', md: 'row' }}
                     spacing={2}
-                    alignItems={{ xs: 'flex-start', md: 'center' }}
+                    alignItems="flex-start"
                   >
                     <Box sx={{ width: { xs: '100%', md: 240 } }}>
                       <AppSelect
                         fullWidth
+                        sx={{ width: '100%' }}
                         label="Tipo di contatto"
                         value={contact.type}
                         onChange={(e) =>
@@ -428,6 +490,8 @@ export default function CreateLocationPage() {
                       <AppTextField
                         fullWidth
                         value={contact.value}
+                        error={Boolean(getContactFieldError(contact))}
+                        helperText={getContactFieldError(contact)}
                         onChange={(e) =>
                           handleContactChange(
                             locIndex,
@@ -440,15 +504,22 @@ export default function CreateLocationPage() {
                       />
                     </Box>
                     {contactIndex > 0 && (
-                      <IconButton
-                        onClick={() =>
-                          handleRemoveContact(locIndex, contactIndex)
-                        }
-                        color="default"
-                        sx={{ mt: { xs: 0, md: 0.5 } }}
+                      <Box
+                        sx={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          height: { md: 56 },
+                        }}
                       >
-                        <DeleteIcon />
-                      </IconButton>
+                        <IconButton
+                          onClick={() =>
+                            handleRemoveContact(locIndex, contactIndex)
+                          }
+                          color="default"
+                        >
+                          <DeleteIcon />
+                        </IconButton>
+                      </Box>
                     )}
                   </Stack>
                 ))}
@@ -491,7 +562,7 @@ export default function CreateLocationPage() {
             variant="contained"
             color="primary"
             onClick={handleSubmit}
-            disabled={!isFormValid() || isSubmitting}
+            disabled={isSubmitting}
             sx={{ fontWeight: 600, px: 4 }}
           >
             {isSubmitting ? (

@@ -26,9 +26,7 @@ export function useWebsiteSubmit(
 
     if (!name?.trim() || !url?.trim() || urlError) return;
 
-    const supportContacts = contacts.filter((c) => c.value.trim());
-
-    const areSupportContactsValid = supportContacts.every(
+    const areSupportContactsValid = contacts.every(
       (contact) => !getContactValidationError(contact),
     );
 
@@ -38,7 +36,7 @@ export function useWebsiteSubmit(
       type: 'online',
       name: name.trim(),
       website: { url: url.trim() },
-      supportContacts,
+      supportContacts: contacts,
     });
 
     if ('error' in result)

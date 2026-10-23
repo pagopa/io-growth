@@ -1,5 +1,5 @@
-import { Box, CircularProgress, useTheme } from '@mui/material';
-import { Body } from '../Typography';
+import { Box, CircularProgress, useTheme } from "@mui/material";
+import { Body } from "../Typography";
 
 type Props = {
   title: string;
@@ -7,21 +7,25 @@ type Props = {
   fullscreen?: boolean;
 };
 
-export const MobileSpinnerLoader = ({ title, description, fullscreen }: Props) => {
+export const MobileSpinnerLoader = ({
+  title,
+  description,
+  fullscreen,
+}: Props) => {
   const theme = useTheme();
   return (
     <Box
       sx={{
-        minHeight: '100dvh',
+        minHeight: "100dvh",
         bgcolor: theme.palette.common.white,
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
         gap: 3,
-        position: fullscreen ? 'fixed' : 'relative',
-        inset: fullscreen ? 0 : 'auto',
-        zIndex: fullscreen ? 1300 : 'auto',
+        position: fullscreen ? "fixed" : "relative",
+        inset: fullscreen ? 0 : "auto",
+        zIndex: fullscreen ? 1300 : "auto",
       }}
     >
       <CircularProgress size={64} sx={{ color: theme.palette.primary.main }} />

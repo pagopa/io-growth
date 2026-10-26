@@ -23,6 +23,8 @@ import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/DeleteOutline';
 import RoomOutlinedIcon from '@mui/icons-material/RoomOutlined';
 import LanguageOutlinedIcon from '@mui/icons-material/LanguageOutlined';
+import { getContactValidationError } from '../../utils/contactValidation.js';
+import { getContactInputConfig } from '../Overview/CompleteData/components/constants/index.js';
 
 type ContactState = {
   type: 'email' | 'phone' | 'website';
@@ -133,7 +135,8 @@ export default function CreateLocationPage() {
       if (!loc.websiteUrl.trim()) return false;
     }
 
-    if (loc.contacts.some((c) => !c.value.trim())) return false;
+    if (loc.contacts.some((contact) => getContactValidationError(contact)))
+      return false;
     return true;
   };
 
@@ -142,6 +145,7 @@ export default function CreateLocationPage() {
   };
 
   const handleSubmit = async () => {
+    if (!isFormValid()) return;
     setIsSubmitting(true);
     try {
       const submittedLocations = locations;
@@ -427,6 +431,16 @@ export default function CreateLocationPage() {
                     <Box sx={{ flex: 1, width: '100%' }}>
                       <AppTextField
                         fullWidth
+                        type={getContactInputConfig(contact.type).type}
+                        error={
+                          !!contact.value &&
+                          !!getContactValidationError(contact)
+                        }
+                        helperText={
+                          contact.value
+                            ? getContactValidationError(contact)
+                            : undefined
+                        }
                         value={contact.value}
                         onChange={(e) =>
                           handleContactChange(

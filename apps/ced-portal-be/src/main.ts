@@ -189,7 +189,13 @@ const infoReadinessUseCase = makeInfoReadinessUseCase({
 });
 
 // jobs scheduler
+const emailLinks = {
+  runbookUrl: config.RUNBOOK_URL,
+  selfcareUrl: config.SELFCARE_URL,
+  supportUrl: config.SUPPORT_URL,
+};
 const scheduler = jobsScheduler(config, {
+  emailLinks,
   emailRepository,
   infoReadinessUseCase,
   tracingRepository,
@@ -223,6 +229,7 @@ const authPreHandler = createAuthenticationPreHandler(
   sessionRepository.getSession,
 );
 
+// eslint-disable-next-line max-lines-per-function
 app.register(async (app) => {
   app.addHook("preHandler", authPreHandler);
 
@@ -382,11 +389,16 @@ app.register(async (app) => {
       opportunityRepository,
       materializedViewRepository,
       profileRepository,
+      emailLinks,
     ),
   );
   mountAdminRequestOpportunityChangesHandler(
     app,
-    makeAdminRequestOpportunityChangesUseCase(opportunityRepository),
+    makeAdminRequestOpportunityChangesUseCase(
+      opportunityRepository,
+      profileRepository,
+      emailLinks,
+    ),
   );
   mountAdminSuspendOpportunityHandler(
     app,

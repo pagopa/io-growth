@@ -3,6 +3,8 @@ import { z } from "zod";
 
 const configSchema = azureTracingConfigSchema.merge(
   z.object({
+    ADMIN_EMAIL_ADDRESS: z.email(),
+    ADMIN_EMAIL_ADDRESS_TEST: z.email(),
     ADMIN_FISCAL_CODES: z
       .string()
       .optional()
@@ -81,6 +83,7 @@ const configSchema = azureTracingConfigSchema.merge(
       .string()
       .regex(/^[A-Za-z_][A-Za-z0-9_]*$/)
       .default("revisions"),
+    RUNBOOK_URL: z.url(),
     SCHEDULER_OWNERSHIP_CHECK_SECONDS: z.coerce
       .number()
       .int()
@@ -107,6 +110,8 @@ const configSchema = azureTracingConfigSchema.merge(
           .filter(Boolean),
       )
       .pipe(z.array(z.url()).min(1)),
+    SELFCARE_URL: z.url(),
+    SUPPORT_URL: z.url(),
   }),
 );
 

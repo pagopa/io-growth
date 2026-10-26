@@ -11,6 +11,7 @@ export const MESSAGE_OUTBOX_STATUS = {
 
 export const OPPORTUNITY_APPROVED_TEMPLATE_ID = "ced_opportunity-approved";
 export const OPPORTUNITY_PUBLISHED_TEMPLATE_ID = "ced_opportunity-published";
+export const OPPORTUNITY_REJECTED_TEMPLATE_ID = "ced_opportunity-rejected";
 
 export const HtmlMessagePayloadSchema = z.object({
   html: z.string().min(1),
@@ -32,6 +33,12 @@ export const MessagePayloadSchema = z.discriminatedUnion("type", [
   TemplateMessagePayloadSchema,
 ]);
 
+export interface EmailLinks {
+  readonly runbookUrl: string;
+  readonly selfcareUrl: string;
+  readonly supportUrl: string;
+}
+
 export type HtmlMessagePayload = z.infer<typeof HtmlMessagePayloadSchema>;
 
 export type MessageOutboxStatus =
@@ -52,12 +59,14 @@ export type TemplateMessagePayload = z.infer<
 
 export const buildOpportunityApprovedMessage = (input: {
   availabilityDate: string;
+  links: EmailLinks;
   opportunityName: string;
   to: string;
 }): TemplateMessagePayload => ({
   templateAttributes: {
     availabilityDate: input.availabilityDate,
     opportunityName: input.opportunityName,
+    ...input.links,
   },
   templateId: OPPORTUNITY_APPROVED_TEMPLATE_ID,
   to: input.to,
@@ -65,11 +74,31 @@ export const buildOpportunityApprovedMessage = (input: {
 });
 
 export const buildOpportunityPublishedMessage = (input: {
+  links: EmailLinks;
   opportunityName: string;
   to: string;
 }): TemplateMessagePayload => ({
-  templateAttributes: { opportunityName: input.opportunityName },
+  templateAttributes: {
+    opportunityName: input.opportunityName,
+    ...input.links,
+  },
   templateId: OPPORTUNITY_PUBLISHED_TEMPLATE_ID,
+  to: input.to,
+  type: "template",
+});
+
+export const buildOpportunityRejectedMessage = (input: {
+  links: EmailLinks;
+  opportunityName: string;
+  rejectionMessage: string;
+  to: string;
+}): TemplateMessagePayload => ({
+  templateAttributes: {
+    opportunityName: input.opportunityName,
+    rejectionMessage: input.rejectionMessage,
+    ...input.links,
+  },
+  templateId: OPPORTUNITY_REJECTED_TEMPLATE_ID,
   to: input.to,
   type: "template",
 });

@@ -13,16 +13,17 @@ import { getApplicationDate } from "@pagopa/io-core-domain/utilities";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { z } from "zod";
 
-import type { OpportunityDetail } from "../../../domain/entities/opportunity.js";
+import type { EmailLinks } from "../../../domain/entities/message-outbox.js";
 import type { MaterializedViewRepository } from "../../../domain/ports/outbound/materialized-view.repository.js";
 import type { OpportunityRepository } from "../../../domain/ports/outbound/persistence/opportunity.repository.js";
 import type { ProfileRepository } from "../../../domain/ports/outbound/persistence/profile.repository.js";
 
-import {
-  buildOpportunityApprovedMessage,
-  type MessagePayload,
-} from "../../../domain/entities/message-outbox.js";
+import { buildOpportunityApprovedMessage } from "../../../domain/entities/message-outbox.js";
 import { validateUseCaseInput } from "../utils/validate-use-case-input.js";
+import {
+  buildOperatorMessages,
+  getOpportunityName,
+} from "./utils/operator-notification.js";
 
 const AdminApproveOpportunityInputSchema = z.object({
   dateFrom: z.iso.date().optional(),
@@ -43,42 +44,12 @@ export type AdminApproveOpportunityUseCase = UseCase<
   | ValidationError
 >;
 
-// Falls back to the opportunity id when no Italian display name is set.
-const getOpportunityName = (data: OpportunityDetail): string =>
-  data.localizedMetadata.find(
-    (metadata) => metadata.key === "name" && metadata.language === "it",
-  )?.value ?? data.id;
-
-// Notifying the operator is best-effort: a failed lookup must not fail an
-// otherwise valid approval, the message is simply not enqueued.
-const buildApprovalMessages = (
-  profileRepository: ProfileRepository,
-  operatorId: string | undefined,
-  opportunityName: string,
-  availabilityDate: string,
-): ResultAsync<readonly MessagePayload[], never> =>
-  (operatorId
-    ? new ResultAsync(profileRepository.getByOperatorId(operatorId))
-    : okAsync(undefined)
-  )
-    .map((profile) =>
-      profile
-        ? [
-            buildOpportunityApprovedMessage({
-              availabilityDate,
-              opportunityName,
-              to: profile.contactEmail,
-            }),
-          ]
-        : [],
-    )
-    .orElse(() => okAsync([]));
-
 export const makeAdminApproveOpportunityUseCase =
   (
     opportunityRepository: OpportunityRepository,
     materializedViewRepository: MaterializedViewRepository,
     profileRepository: ProfileRepository,
+    emailLinks: EmailLinks,
   ): AdminApproveOpportunityUseCase =>
   async (input) =>
     validateUseCaseInput(AdminApproveOpportunityInputSchema, input).andThen(
@@ -98,13 +69,21 @@ export const makeAdminApproveOpportunityUseCase =
             );
           const today = getApplicationDate();
 
-          return buildApprovalMessages(
+          const opportunityName = getOpportunityName(data);
+          const availabilityDate = new Date(
+            validatedInput.dateFrom ?? data.dateFrom,
+          ).toLocaleDateString("it-IT");
+
+          return buildOperatorMessages(
             profileRepository,
             data.operatorId,
-            getOpportunityName(data),
-            new Date(
-              validatedInput.dateFrom ?? data.dateFrom,
-            ).toLocaleDateString("it-IT"),
+            (to) =>
+              buildOpportunityApprovedMessage({
+                availabilityDate,
+                links: emailLinks,
+                opportunityName,
+                to,
+              }),
           )
             .andThen(
               (outboxMessages) =>

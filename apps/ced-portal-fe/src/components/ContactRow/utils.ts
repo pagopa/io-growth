@@ -1,5 +1,5 @@
-import { SupportContactResponseType } from '../../generated/model';
-import { isValidHttpsUrl } from '../../utils';
+import type { SupportContactResponseType } from '../../generated/model';
+import { getContactValidationError } from '../../utils/contactValidation.js';
 
 const getRequiredError = (
   attempted: boolean,
@@ -17,7 +17,6 @@ type GetContactErrorParams = {
   contact: { type: SupportContactResponseType | ''; value: string };
   attempted: boolean;
   required?: boolean;
-  isUrl?: boolean;
 };
 
 export const getTypeError = ({
@@ -31,13 +30,13 @@ export const getContactError = ({
   attempted,
   contact,
   required,
-  isUrl,
 }: GetContactErrorParams): string | undefined => {
-  const requiredError = getRequiredError(attempted, required, contact.value);
+  const requiredError = getRequiredError(
+    attempted,
+    required,
+    contact.value.trim(),
+  );
   if (requiredError) return requiredError;
 
-  if (isUrl && contact.value && !isValidHttpsUrl(contact.value)) {
-    return 'Inserisci un URL valido (es. https://...)';
-  }
-  return undefined;
+  return contact.value.trim() ? getContactValidationError(contact) : undefined;
 };

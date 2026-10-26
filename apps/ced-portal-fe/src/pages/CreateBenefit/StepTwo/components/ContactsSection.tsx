@@ -46,7 +46,6 @@ export function ContactsSection({
           index={index}
           canRemove={index > 0}
           attempted={attempted}
-          required
           onRemove={onRemove}
           onChange={(i, field, value) =>
             onChange({

@@ -27,6 +27,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import RoomOutlinedIcon from '@mui/icons-material/RoomOutlined';
 import LanguageOutlinedIcon from '@mui/icons-material/LanguageOutlined';
+import { getContactValidationError } from '../../utils/contactValidation.js';
 
 type ContactState = {
   type: 'email' | 'phone' | 'website';
@@ -89,8 +90,6 @@ export default function CreateLocationPage() {
     getContactError({
       contact,
       attempted,
-      required: true,
-      isUrl: contact.type === 'website',
     });
 
   const handleUpdateLocation = (
@@ -157,9 +156,8 @@ export default function CreateLocationPage() {
 
     if (
       loc.contacts.some(
-        (c) =>
-          !c.value.trim() ||
-          (c.type === 'website' && !isValidHttpsUrl(c.value)),
+        (contact) =>
+          !!contact.value.trim() && !!getContactValidationError(contact),
       )
     )
       return false;
@@ -185,6 +183,7 @@ export default function CreateLocationPage() {
       const submittedLocations = locations;
       const results = await Promise.allSettled(
         submittedLocations.map((loc) => {
+          const supportContacts = loc.contacts.filter((c) => c.value.trim());
           let payload: PlaceCreateRequest;
 
           if (type === 'offline') {
@@ -198,7 +197,7 @@ export default function CreateLocationPage() {
                 postalCode: loc.postalCode,
                 country: 'IT',
               },
-              supportContacts: loc.contacts,
+              supportContacts,
             };
           } else {
             payload = {
@@ -207,7 +206,7 @@ export default function CreateLocationPage() {
               website: {
                 url: loc.websiteUrl,
               },
-              supportContacts: loc.contacts,
+              supportContacts,
             };
           }
 
@@ -472,7 +471,6 @@ export default function CreateLocationPage() {
                         fullWidth
                         sx={{ width: '100%' }}
                         label="Tipo di contatto"
-                        required
                         value={contact.type}
                         onChange={(e) =>
                           handleContactChange(
@@ -505,7 +503,6 @@ export default function CreateLocationPage() {
                         }
                         label={getContactInputConfig(contact.type).placeholder}
                         type={getContactInputConfig(contact.type).type}
-                        required
                       />
                     </Box>
                     {contactIndex > 0 && (

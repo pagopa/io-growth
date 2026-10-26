@@ -30,7 +30,8 @@
     "react-dom": "catalog:",
     "react-redux": "catalog:",
     "react-router-dom": "catalog:",
-    "redux-persist": "catalog:"
+    "redux-persist": "catalog:",
+    "zod": "catalog:"
   },
   "devDependencies": {
     "@eslint/compat": "catalog:",

@@ -1,6 +1,8 @@
 import { Box, Button, useTheme } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { APP_ROUTES } from '../../app/routeConfig';
+import { trackCardRequestEvent } from '../../mixpanel/trackEvent';
+import { useTrackLandedInPage } from '../../mixpanel/useTrackLandedInPage';
 import { MarkdownRenderer } from '../../components/Typography/MarkdownRender';
 import CED_hero from '../../../public/CED_hero.png';
 import CED_frame1 from '../../../public/CED_frame1.png';
@@ -16,7 +18,12 @@ export default function CardRequestInfoPage() {
   const navigate = useNavigate();
   const theme = useTheme();
 
-  const handleContinue = () => navigate(APP_ROUTES.CONSENT);
+  useTrackLandedInPage('CED_CARD_REQUEST_INFO');
+
+  const handleContinue = () => {
+    trackCardRequestEvent('CED_CARD_REQUEST_START', { event_type: 'tap' });
+    navigate(APP_ROUTES.CONSENT);
+  };
 
   const markdownContent = `
   \n![alt](${CED_hero})

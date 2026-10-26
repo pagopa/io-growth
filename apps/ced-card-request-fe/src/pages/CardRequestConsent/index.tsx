@@ -3,6 +3,8 @@ import { Box, Button, useTheme } from '@mui/material';
 import { Body, LabelCaption, Title, VSpacer } from '@pagopa/io-core-ui';
 import { useNavigate } from 'react-router-dom';
 import { APP_ROUTES } from '../../app/routeConfig';
+import { trackCardRequestEvent } from '../../mixpanel/trackEvent';
+import { useTrackLandedInPage } from '../../mixpanel/useTrackLandedInPage';
 import { MarkdownRenderer } from '../../components/Typography/MarkdownRender';
 
 const PRIVACY_URL = 'https://www.google.com/';
@@ -11,7 +13,12 @@ export default function CardRequestConsentPage() {
   const navigate = useNavigate();
   const theme = useTheme();
 
+  useTrackLandedInPage('CED_CARD_REQUEST_CONSENT');
+
   const handleContinue = () => {
+    trackCardRequestEvent('CED_CARD_REQUEST_CONSENT_ACCEPTED', {
+      event_type: 'tap',
+    });
     navigate(APP_ROUTES.LOADING);
   };
 

@@ -9,7 +9,7 @@ const selectSavedAt = ({ auth }: RootState) => auth?.savedAt;
 
 const selectRedirectToken = ({ auth }: RootState) => auth?.redirectToken;
 
-// const selectDeviceId = ({ auth }: RootState) => auth?.deviceId;
+export const selectDeviceId = ({ auth }: RootState) => auth?.deviceId;
 
 export const selectIsTokenValid = createSelector(
   selectToken,

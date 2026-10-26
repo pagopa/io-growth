@@ -494,6 +494,9 @@ importers:
       '@pagopa/io-core-ui':
         specifier: workspace:^
         version: link:../../packages/io-core-ui
+      '@pagopa/io-mixpanel':
+        specifier: workspace:^
+        version: link:../../packages/io-mixpanel
       '@pagopa/mui-italia':
         specifier: 'catalog:'
         version: 2.6.0(bbd81dfd0e0845267116ca73949a3af0)

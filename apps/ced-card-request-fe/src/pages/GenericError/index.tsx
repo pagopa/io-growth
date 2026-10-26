@@ -5,6 +5,7 @@ import { Body, Title, VSpacer } from '@pagopa/io-core-ui';
 import { useCallback, useMemo, type ReactNode } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { CopyToClipboardButton } from '../../components/CopyToClipboardButton';
+import { useTrackErrorEvent } from '../../mixpanel/useTrackErrorEvent';
 import { GENERIC_ERROR_CONFIG } from './constants';
 
 export interface GenericErrorConfig {
@@ -54,6 +55,10 @@ export default function GenericError({
           : [resolvedErrorCode],
     [resolvedErrorCode],
   );
+
+  useTrackErrorEvent('CED_CARD_REQUEST_ERROR', true, {
+    error_codes: resolvedErrorCodes.map(String).join(','),
+  });
 
   const configuredErrors = useMemo(
     () =>

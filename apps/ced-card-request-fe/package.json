@@ -26,6 +26,7 @@
     "@mui/system": "catalog:",
     "@mui/x-date-pickers": "catalog:",
     "@pagopa/io-core-ui": "workspace:^",
+    "@pagopa/io-mixpanel": "workspace:^",
     "@pagopa/mui-italia": "catalog:",
     "@reduxjs/toolkit": "catalog:",
     "browser-image-compression": "^2.0.2",

@@ -487,42 +487,47 @@ export default function CreateLocationPage() {
                         ]}
                       />
                     </Box>
-                    <Box sx={{ flex: 1, width: '100%' }}>
-                      <AppTextField
-                        fullWidth
-                        value={contact.value}
-                        error={Boolean(getContactFieldError(contact))}
-                        helperText={getContactFieldError(contact)}
-                        onChange={(e) =>
-                          handleContactChange(
-                            locIndex,
-                            contactIndex,
-                            'value',
-                            e.target.value,
-                          )
-                        }
-                        label={getContactInputConfig(contact.type).placeholder}
-                        type={getContactInputConfig(contact.type).type}
-                      />
-                    </Box>
-                    {contactIndex > 0 && (
-                      <Box
-                        sx={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          height: { md: 56 },
-                        }}
-                      >
+                    <Stack
+                      direction="row"
+                      spacing={2}
+                      alignItems="flex-start"
+                      sx={{ flex: 1, width: '100%' }}
+                    >
+                      <Box sx={{ flex: 1 }}>
+                        <AppTextField
+                          fullWidth
+                          value={contact.value}
+                          error={Boolean(getContactFieldError(contact))}
+                          helperText={getContactFieldError(contact)}
+                          onChange={(e) =>
+                            handleContactChange(
+                              locIndex,
+                              contactIndex,
+                              'value',
+                              e.target.value,
+                            )
+                          }
+                          label={
+                            getContactInputConfig(contact.type).placeholder
+                          }
+                          type={getContactInputConfig(contact.type).type}
+                        />
+                      </Box>
+                      {contactIndex > 0 && (
                         <IconButton
                           onClick={() =>
                             handleRemoveContact(locIndex, contactIndex)
                           }
-                          sx={{ color: 'error.dark', p: 1 }}
+                          sx={{
+                            color: 'error.dark',
+                            p: 1,
+                            alignSelf: 'center',
+                          }}
                         >
                           <DeleteIcon />
                         </IconButton>
-                      </Box>
-                    )}
+                      )}
+                    </Stack>
                   </Stack>
                 ))}
               </Stack>

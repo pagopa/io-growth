@@ -45,9 +45,8 @@ export const ContactRow = ({
         contact,
         attempted,
         required,
-        isUrl: inputType === 'url',
       }),
-    [contact, attempted, required, inputType],
+    [contact, attempted, required],
   );
   return (
     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.25, mb: 1 }}>

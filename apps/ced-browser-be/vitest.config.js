@@ -13,7 +13,6 @@ const coverageExclude = [
 export default defineConfig({
   test: {
     coverage: {
-      all: true,
       exclude: coverageExclude,
       include: ["src/**/*.ts"],
       provider: "v8",

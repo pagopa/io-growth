@@ -1,5 +1,17 @@
 # ced-portal-fe
 
+## 0.1.5
+
+### Patch Changes
+
+- 34319d0: Bump `image-size` to 2.0.3 and `react-router-dom` to 6.30.6.
+
+## 0.1.4
+
+### Patch Changes
+
+- 67269d8: Validate assistance email addresses, phone numbers and HTTPS websites before saving access points, with inline errors shared across contact forms.
+
 ## 0.1.3
 
 ### Patch Changes

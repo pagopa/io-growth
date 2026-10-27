@@ -10,7 +10,7 @@ import { createMockOpportunityRepository, MOCK_OPERATOR_ID } from "./mocks.js";
 const mockPaginatedResult: PaginatedOpportunities = {
   items: [
     {
-      categoryTitle: "Cultura e tempo libero",
+      categoryLabel: "culture_sport",
       dateFrom: "2026-01-01",
       dateTo: "2026-12-31",
       id: "01JVMK3N8XQZP5T6G2WYHAB4CF",

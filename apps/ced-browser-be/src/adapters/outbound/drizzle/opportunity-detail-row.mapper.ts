@@ -12,7 +12,7 @@ import type {
 export interface OpportunityDetailRow {
   beneficiaryBenefit: BenefitRow | null;
   caregiverBenefit: BenefitRow | null;
-  category: null | { title: string };
+  category: null | { label: string };
   dateFrom: string;
   dateTo: null | string;
   id: string;
@@ -240,7 +240,7 @@ export const mapOpportunityDetailRow = (
     caregiverBenefit: row.caregiverBenefit
       ? mapBenefitRow(row.caregiverBenefit)
       : null,
-    category: row.category.title,
+    category: row.category.label,
     ...(localizedFields.condition
       ? { condition: localizedFields.condition }
       : {}),

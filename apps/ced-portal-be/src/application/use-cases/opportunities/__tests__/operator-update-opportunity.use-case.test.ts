@@ -43,9 +43,7 @@ const createMockOpportunityCategoryRepository = (
 ): OpportunityCategoryRepository => ({
   getById: vi
     .fn()
-    .mockResolvedValue(
-      ok({ description: "desc", id: CATEGORY_ID, title: "title" }),
-    ),
+    .mockResolvedValue(ok({ id: CATEGORY_ID, label: "culture_sport" })),
   list: vi.fn(),
   ...overrides,
 });
@@ -71,7 +69,7 @@ const mockOpportunity = (
   },
   caregiverBenefit: { type: "free" },
   categoryId: CATEGORY_ID,
-  categoryTitle: "Cultura",
+  categoryLabel: "culture_sport",
   createdAt: "2026-01-01T00:00:00.000Z",
   dateFrom: "2026-01-01",
   dateTo: "2026-12-31",
@@ -582,6 +580,7 @@ describe("makeOperatorUpdateOpportunityUseCase - input validation", () => {
     const deps = makeDeps();
     const result = await makeOperatorUpdateOpportunityUseCase(deps)({
       ...baseInput,
+      // @ts-expect-error: categoryId is required
       categoryId: undefined,
     });
 
@@ -597,6 +596,7 @@ describe("makeOperatorUpdateOpportunityUseCase - input validation", () => {
     const deps = makeDeps();
     const result = await makeOperatorUpdateOpportunityUseCase(deps)({
       ...baseInput,
+      // @ts-expect-error: dateTo cannot be null
       dateTo: null,
     });
 

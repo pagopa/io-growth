@@ -15,7 +15,7 @@ const baseRow: OpportunityDetailRow = {
     value: 20,
   },
   caregiverBenefit: null,
-  category: { title: "Culture" },
+  category: { label: "culture_sport" },
   dateFrom: "2026-01-01",
   dateTo: null,
   id: "opportunity-id",

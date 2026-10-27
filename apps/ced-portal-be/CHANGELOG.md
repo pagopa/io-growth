@@ -1,5 +1,17 @@
 # ced-portal-be
 
+## 0.11.0
+
+### Minor Changes
+
+- dd9a761: Replace opportunity category title and description with a label (`id` + `label` only); portal responses expose `categoryLabel` instead of `categoryTitle`, browser `category` now carries the label.
+
+## 0.10.3
+
+### Patch Changes
+
+- 34319d0: Bump `image-size` to 2.0.3 and `react-router-dom` to 6.30.6.
+
 ## 0.10.2
 
 ### Patch Changes

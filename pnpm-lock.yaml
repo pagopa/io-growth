@@ -123,6 +123,9 @@ catalogs:
     react-redux:
       specifier: ^9.1.2
       version: 9.2.0
+    react-router-dom:
+      specifier: ^6.30.6
+      version: 6.30.6
     redux-persist:
       specifier: ^6.0.0
       version: 6.0.0
@@ -652,8 +655,8 @@ importers:
         specifier: 'catalog:'
         version: 5.12.5
       image-size:
-        specifier: ^2.0.2
-        version: 2.0.2
+        specifier: ^2.0.3
+        version: 2.0.3
       jose:
         specifier: ^6.2.2
         version: 6.2.2
@@ -5648,9 +5651,9 @@ packages:
     resolution: {integrity: sha512-Hs59xBNfUIunMFgWAbGX5cq6893IbWg4KnrjbYwX3tx0ztorVgTDA6B2sxf8ejHJ4wz8BqGUMYlnzNBer5NvGg==}
     engines: {node: '>= 4'}
 
-  image-size@2.0.2:
-    resolution: {integrity: sha512-IRqXKlaXwgSMAMtpNzZa1ZAe8m+Sa1770Dhk8VkSsP9LS+iHD62Zd8FQKs8fbPiagBE7BzoFX23cxFnwshpV6w==}
-    engines: {node: '>=16.x'}
+  image-size@2.0.3:
+    resolution: {integrity: sha512-9BJAtVCBth+76NwqnEfWr3PiRnYhbquk6K/USuQ1GQajz5NgLzO7tNsnoNjHfO7LuftgkBf+CCH6j28hjMbIYQ==}
+    engines: {node: '>=18'}
     hasBin: true
 
   immer@11.1.4:
@@ -12195,7 +12198,7 @@ snapshots:
 
   ignore@7.0.5: {}
 
-  image-size@2.0.2: {}
+  image-size@2.0.3: {}
 
   immer@11.1.4: {}
 

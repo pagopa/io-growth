@@ -41,7 +41,7 @@
     "@standard-schema/spec": "^1.1.0",
     "drizzle-orm": "^0.45.0",
     "fastify": "catalog:",
-    "image-size": "^2.0.2",
+    "image-size": "^2.0.3",
     "jose": "^6.2.2",
     "neverthrow": "catalog:",
     "ulid": "^3.0.2",

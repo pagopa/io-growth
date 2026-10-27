@@ -272,9 +272,12 @@ export default function LocationDetailPage() {
           >
             Elimina
           </Button>
+          {/* Riattivare quando sarà completato il supporto alla modifica lato backend. */}
+          {/*
           <Button variant="contained" color="primary" sx={{ fontWeight: 600 }}>
             Modifica
           </Button>
+          */}
         </Stack>
       </Box>
 

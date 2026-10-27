@@ -8,6 +8,7 @@ import { err, ok } from "neverthrow";
 import type { OpportunityCategory } from "../../../domain/entities/opportunity-category.js";
 import type { OpportunityCategoryRepository } from "../../../domain/ports/outbound/persistence/opportunity-category.repository.js";
 
+import { OpportunityCategorySchema } from "../../../domain/entities/opportunity-category.js";
 import * as schema from "./schema/index.js";
 import { opportunityCategory } from "./schema/tables.js";
 
@@ -24,15 +25,7 @@ export const createDrizzleOpportunityCategoryRepository = (
         .where(eq(opportunityCategory.id, id))
         .limit(1);
 
-      return ok(
-        row[0]
-          ? {
-              description: row[0].description,
-              id: row[0].id,
-              title: row[0].title,
-            }
-          : undefined,
-      );
+      return ok(row[0] ? OpportunityCategorySchema.parse(row[0]) : undefined);
     } catch (error) {
       return err(
         new GenericError(
@@ -45,13 +38,7 @@ export const createDrizzleOpportunityCategoryRepository = (
     try {
       const rows = await db.select().from(opportunityCategory);
 
-      return ok(
-        rows.map((row) => ({
-          description: row.description,
-          id: row.id,
-          title: row.title,
-        })),
-      );
+      return ok(rows.map((row) => OpportunityCategorySchema.parse(row)));
     } catch (error) {
       return err(
         new GenericError(

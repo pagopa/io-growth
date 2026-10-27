@@ -37,9 +37,8 @@ const createMockOpportunityCategoryRepository = (
 ): OpportunityCategoryRepository => ({
   getById: vi.fn().mockResolvedValue(
     ok({
-      description: "desc",
       id: mockCreateOpportunityInput.categoryId,
-      title: "title",
+      label: "culture_sport",
     }),
   ),
   list: vi.fn(),

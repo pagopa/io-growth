@@ -19,7 +19,7 @@ const baseRow = {
     type: "free" as const,
     value: null,
   },
-  category: { title: "Culture" },
+  category: { label: "culture_sport" },
   categoryId: "01KRJXEYD44B58700GT982CCYY",
   createdAt: new Date("2026-01-01T00:00:00.000Z"),
   dateFrom: "2026-01-01",
@@ -84,7 +84,7 @@ describe("mapOpportunityDetailRow", () => {
         type: "free",
       },
       categoryId: "01KRJXEYD44B58700GT982CCYY",
-      categoryTitle: "Culture",
+      categoryLabel: "culture_sport",
       changeRequestMessage: null,
       createdAt: "2026-01-01T00:00:00.000Z",
       dateFrom: "2026-01-01",
@@ -212,7 +212,7 @@ describe("mapOpportunityDetailRow", () => {
 
 describe("mapOpportunitySummaryRow", () => {
   const baseSummaryRow = {
-    categoryTitle: "Culture",
+    categoryLabel: "culture_sport",
     dateFrom: "2026-01-01",
     dateTo: "2026-12-31" as null | string,
     id: "01KRJXEYD44B58700GT982CCZZ",

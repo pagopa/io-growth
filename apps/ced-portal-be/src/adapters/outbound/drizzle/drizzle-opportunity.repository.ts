@@ -172,7 +172,7 @@ const findByIdAndOperatorId = async (
             value: true,
           },
         },
-        category: { columns: { title: true } },
+        category: { columns: { label: true } },
         localizedMetadata: {
           columns: { key: true, language: true, value: true },
         },
@@ -235,7 +235,7 @@ const findById =
               value: true,
             },
           },
-          category: { columns: { title: true } },
+          category: { columns: { label: true } },
           localizedMetadata: {
             columns: { key: true, language: true, value: true },
           },
@@ -973,7 +973,7 @@ export const createDrizzleOpportunityRepository = (
       const [dataResult, countResult] = await Promise.all([
         db
           .select({
-            categoryTitle: opportunityCategory.title,
+            categoryLabel: opportunityCategory.label,
             dateFrom: opportunity.dateFrom,
             dateTo: opportunity.dateTo,
             deletionMessage: opportunity.deletionMessage,

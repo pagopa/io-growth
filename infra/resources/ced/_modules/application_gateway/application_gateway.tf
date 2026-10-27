@@ -65,7 +65,8 @@ resource "azurerm_web_application_firewall_policy" "this" {
         rule_group_name = "REQUEST-920-PROTOCOL-ENFORCEMENT"
         rule {
           id      = "920300"
-          enabled = false
+          enabled = true
+          action  = "Log"
         }
       }
 
@@ -73,7 +74,8 @@ resource "azurerm_web_application_firewall_policy" "this" {
         rule_group_name = "REQUEST-931-APPLICATION-ATTACK-RFI"
         rule {
           id      = "931130"
-          enabled = false
+          enabled = true
+          action  = "Log"
         }
       }
 
@@ -81,7 +83,8 @@ resource "azurerm_web_application_firewall_policy" "this" {
         rule_group_name = "REQUEST-932-APPLICATION-ATTACK-RCE"
         rule {
           id      = "932140"
-          enabled = false
+          enabled = true
+          action  = "Log"
         }
       }
 
@@ -89,11 +92,13 @@ resource "azurerm_web_application_firewall_policy" "this" {
         rule_group_name = "REQUEST-941-APPLICATION-ATTACK-XSS"
         rule {
           id      = "941130"
-          enabled = false
+          enabled = true
+          action  = "Log"
         }
         rule {
           id      = "941170"
-          enabled = false
+          enabled = true
+          action  = "Log"
         }
       }
 
@@ -101,11 +106,18 @@ resource "azurerm_web_application_firewall_policy" "this" {
         rule_group_name = "REQUEST-942-APPLICATION-ATTACK-SQLI"
         rule {
           id      = "942340"
-          enabled = false
+          enabled = true
+          action  = "Log"
         }
         rule {
           id      = "942450"
-          enabled = false
+          enabled = true
+          action  = "Log"
+        }
+        rule {
+          id      = "942200"
+          enabled = true
+          action  = "Log"
         }
       }
     }

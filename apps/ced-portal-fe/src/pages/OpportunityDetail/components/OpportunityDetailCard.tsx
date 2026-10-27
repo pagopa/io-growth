@@ -14,6 +14,7 @@ import {
   getBenefitsDetailData,
   getLocalizedMetadataDetailsMultipleKeys,
 } from '../../../utils';
+import { getOpportunityCategory } from '../../../constants';
 import { useAppSelector } from '../../../hooks';
 import { selectActiveFormLanguage } from '../../../features/opportunityCreation/selectors';
 
@@ -47,7 +48,10 @@ export const OpportunityDetailCard = ({
       label: 'Descrizione',
       value: description,
     },
-    { label: 'Categoria', value: detail.categoryTitle },
+    {
+      label: 'Categoria',
+      value: getOpportunityCategory(detail.categoryLabel, activeLanguage).title,
+    },
     {
       label: 'Inizio validità',
       value: new Date(detail.dateFrom).toLocaleDateString('it-IT'),

@@ -88,10 +88,14 @@ jobs:
       contents: read
     outputs:
       bundle_name: ${{ env.BUNDLE_NAME }}
+    environment: ${{ inputs.environment }}-cd
     env:
       VITE_ANALYTICS_TOKEN: ${{ secrets.VITE_ANALYTICS_TOKEN }}
 
     steps:
+      - name: Test env
+        run: test -n "$VITE_ANALYTICS_TOKEN" || { echo "VITE_ANALYTICS_TOKEN vuoto"; exit 1; }
+        
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 

@@ -1,5 +1,11 @@
 # ced-browser-be
 
+## 0.3.0
+
+### Minor Changes
+
+- dd9a761: Replace opportunity category title and description with a label (`id` + `label` only); portal responses expose `categoryLabel` instead of `categoryTitle`, browser `category` now carries the label.
+
 ## 0.2.1
 
 ### Patch Changes

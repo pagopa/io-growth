@@ -27,7 +27,7 @@ export interface BenefitRow {
 export interface OpportunityDetailRow {
   readonly beneficiaryBenefit: BenefitRow | null;
   readonly caregiverBenefit: BenefitRow | null;
-  readonly category: null | { readonly title: string };
+  readonly category: null | { readonly label: string };
   readonly categoryId: string;
   readonly changeRequestMessage?: null | string;
   readonly createdAt: Date;
@@ -55,7 +55,7 @@ export interface OpportunityDetailRow {
 }
 
 export interface OpportunitySummaryRow {
-  readonly categoryTitle: string;
+  readonly categoryLabel: string;
   readonly dateFrom: string;
   readonly dateTo: null | string;
   readonly deletionMessage?: null | string;
@@ -137,7 +137,7 @@ export const mapOpportunityDetailRow = (
     beneficiaryBenefit,
     caregiverBenefit,
     categoryId: row.categoryId,
-    categoryTitle: row.category.title,
+    categoryLabel: row.category.label,
     changeRequestMessage: row.changeRequestMessage ?? null,
     createdAt: row.createdAt.toISOString(),
     dateFrom: row.dateFrom,
@@ -173,7 +173,7 @@ export const mapOpportunitySummaryRow = (
   row: OpportunitySummaryRow,
   referenceDate?: string,
 ): OpportunitySummary => ({
-  categoryTitle: row.categoryTitle,
+  categoryLabel: row.categoryLabel,
   dateFrom: row.dateFrom,
   dateTo: row.dateTo,
   deletionMessage: row.deletionMessage ?? null,

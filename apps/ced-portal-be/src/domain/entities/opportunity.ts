@@ -133,7 +133,7 @@ export const BenefitSummarySchema = z.discriminatedUnion("type", [
 export type BenefitSummary = z.infer<typeof BenefitSummarySchema>;
 
 export const OpportunitySummarySchema = z.object({
-  categoryTitle: z.string(),
+  categoryLabel: z.string(),
   dateFrom: z.string(),
   dateTo: z.string().nullable(),
   deletionMessage: z.string().max(4096).nullish(),
@@ -177,7 +177,7 @@ export const OpportunityDetailSchema = z.object({
   beneficiaryBenefit: BenefitSummarySchema,
   caregiverBenefit: BenefitSummarySchema.nullable(),
   categoryId: z.ulid(),
-  categoryTitle: z.string(),
+  categoryLabel: z.string(),
   changeRequestMessage: z.string().max(4096).nullish(),
   createdAt: z.string(),
   dateFrom: z.string(),

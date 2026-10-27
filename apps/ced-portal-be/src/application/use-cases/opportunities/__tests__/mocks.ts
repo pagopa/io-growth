@@ -49,7 +49,7 @@ export const mockOpportunityDetail = {
     type: "free" as const,
   },
   categoryId: mockCreateOpportunityInput.categoryId,
-  categoryTitle: "title",
+  categoryLabel: "culture_sport",
   createdAt: "2026-01-01T00:00:00.000Z",
   dateFrom: mockCreateOpportunityInput.dateFrom,
   dateTo: mockCreateOpportunityInput.dateTo,

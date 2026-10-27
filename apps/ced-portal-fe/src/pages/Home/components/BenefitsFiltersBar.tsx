@@ -2,6 +2,7 @@ import FilterAltOutlined from '@mui/icons-material/FilterAltOutlined';
 import { Button, SelectChangeEvent, Stack } from '@mui/material';
 import { useCallback } from 'react';
 import { AppSelect, AppTextField } from '../../../components';
+import { getOpportunityCategory } from '../../../constants';
 import type { ListOperatorOpportunitiesStatus } from '../../../generated/model';
 import type { OpportunityCategoryItem } from '../../../generated/model/opportunityCategoryItem';
 
@@ -77,7 +78,7 @@ export const BenefitsFiltersBar = ({
         placeholder="Categoria"
         options={categoryOptions.map((cat) => ({
           value: cat.id,
-          label: cat.title,
+          label: getOpportunityCategory(cat.label).title,
         }))}
         onChange={handleCategoryChange}
       />

@@ -33,7 +33,7 @@ const categoryRepo = (
 ): OpportunityCategoryRepository => ({
   getById: vi
     .fn()
-    .mockResolvedValue(ok({ description: "d", id: CATEGORY_ID, title: "t" })),
+    .mockResolvedValue(ok({ id: CATEGORY_ID, label: "culture_sport" })),
   list: vi.fn(),
   ...o,
 });

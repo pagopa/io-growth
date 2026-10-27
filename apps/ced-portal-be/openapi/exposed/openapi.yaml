@@ -3248,7 +3248,7 @@ components:
         - id
         - status
         - name
-        - categoryTitle
+        - categoryLabel
         - dateFrom
       properties:
         id:
@@ -3268,7 +3268,7 @@ components:
             - deleted
         name:
           type: string
-        categoryTitle:
+        categoryLabel:
           type: string
         dateFrom:
           type: string
@@ -3316,7 +3316,7 @@ components:
         - id
         - status
         - name
-        - categoryTitle
+        - categoryLabel
         - dateFrom
         - operatorName
       properties:
@@ -3337,7 +3337,7 @@ components:
             - deleted
         name:
           type: string
-        categoryTitle:
+        categoryLabel:
           type: string
         dateFrom:
           type: string
@@ -3396,7 +3396,7 @@ components:
         - status
         - dateFrom
         - categoryId
-        - categoryTitle
+        - categoryLabel
         - nationalTerritory
         - beneficiaryBenefit
         - localizedMetadata
@@ -3436,7 +3436,7 @@ components:
         categoryId:
           type: string
           pattern: "^[0-9A-HJKMNP-TV-Z]{26}$"
-        categoryTitle:
+        categoryLabel:
           type: string
         beneficiaryBenefit:
           $ref: "#/components/schemas/BenefitRequest"
@@ -3513,7 +3513,7 @@ components:
         - status
         - dateFrom
         - categoryId
-        - categoryTitle
+        - categoryLabel
         - beneficiaryBenefit
         - localizedMetadata
         - placeIds
@@ -3549,7 +3549,7 @@ components:
         categoryId:
           type: string
           pattern: "^[0-9A-HJKMNP-TV-Z]{26}$"
-        categoryTitle:
+        categoryLabel:
           type: string
         beneficiaryBenefit:
           $ref: "#/components/schemas/BenefitRequest"
@@ -3644,16 +3644,22 @@ components:
       additionalProperties: false
       required:
         - id
-        - title
-        - description
+        - label
       properties:
         id:
           type: string
           pattern: "^[0-9A-HJKMNP-TV-Z]{26}$"
-        title:
+        label:
           type: string
-        description:
-          type: string
+          enum:
+            - culture_sport
+            - education_employment
+            - health_wellbeing
+            - financial_services
+            - travel_tourism
+            - mobility_transport
+            - citizen_services
+            - municipal_services
     AuthorizeResponse:
       type: object
       additionalProperties: false

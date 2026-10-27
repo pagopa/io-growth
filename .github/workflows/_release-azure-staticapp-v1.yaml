@@ -88,6 +88,7 @@ jobs:
       contents: read
     outputs:
       bundle_name: ${{ env.BUNDLE_NAME }}
+    environment: ${{ inputs.environment }}-cd
     env:
       VITE_ANALYTICS_TOKEN: ${{ secrets.VITE_ANALYTICS_TOKEN }}
 

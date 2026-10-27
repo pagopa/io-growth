@@ -71,13 +71,6 @@ export const initAnalytics = (
 export const trackEventBuilder =
   (ANALYTICS_ENABLE: boolean) =>
   (event_name: string, properties?: EventProperties, callback?: () => void): void => {
-    //TODO: for test only, remove console.log before release
-    console.log(
-      'invoked trackEventBuilder with event_name:',
-      event_name,
-      'and properties:',
-      properties,
-    );
     if (ANALYTICS_ENABLE && (window as WindowMPValues).initMixPanel) {
       trackEventThroughAnalyticTool(event_name, properties, callback);
     } else {

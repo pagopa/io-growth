@@ -12,10 +12,14 @@ import {
 import { errAsync, ResultAsync } from "neverthrow";
 import { z } from "zod";
 
+import type { MailingConfig } from "../../../domain/entities/message-outbox.js";
 import type { OpportunityRepository } from "../../../domain/ports/outbound/persistence/opportunity.repository.js";
 import type { ProfileRepository } from "../../../domain/ports/outbound/persistence/profile.repository.js";
 
+import { buildAdminNewOpportunityMessage } from "../../../domain/entities/message-outbox.js";
 import { validateUseCaseInput } from "../utils/validate-use-case-input.js";
+import { buildAdminMessages } from "./utils/admin-notification.js";
+import { getOpportunityName } from "./utils/operator-notification.js";
 
 const OperatorRequestOpportunityTestInputSchema = z.object({
   operatorId: z.ulid(),
@@ -40,6 +44,7 @@ export const makeOperatorRequestOpportunityTestUseCase =
   (
     opportunityRepository: OpportunityRepository,
     profileRepository: ProfileRepository,
+    mailingConfig: MailingConfig,
   ): OperatorRequestOpportunityTestUseCase =>
   async (input) =>
     validateUseCaseInput(
@@ -82,6 +87,16 @@ export const makeOperatorRequestOpportunityTestUseCase =
               expectedStatus: currentStatus,
               operatorId: validatedInput.operatorId,
               opportunityId: validatedInput.opportunityId,
+              outboxMessages: buildAdminMessages(
+                mailingConfig.adminContacts,
+                (to) =>
+                  buildAdminNewOpportunityMessage({
+                    links: mailingConfig.emailLinks,
+                    operatorName: profile.displayName,
+                    opportunityName: getOpportunityName(data),
+                    to,
+                  }),
+              ),
               status: "test_pending",
             }),
           );

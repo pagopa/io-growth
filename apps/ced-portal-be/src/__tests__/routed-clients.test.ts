@@ -5,7 +5,11 @@ import type { Session } from "../domain/entities/session.js";
 import type { UserType } from "../domain/entities/user-type.js";
 
 import { createSessionContext } from "../async-local-storage-session-context.js";
-import { createArRouter, createDbRouter } from "../routed-clients.js";
+import {
+  createAdminContactsRouter,
+  createArRouter,
+  createDbRouter,
+} from "../routed-clients.js";
 
 vi.mock("@pagopa/io-core-adapter-drizzle", () => ({
   createTypedDbClient: (config: { database: string }) => ({
@@ -24,6 +28,8 @@ vi.mock("@pagopa/io-core-adapter-tracing", () => ({
 }));
 
 const config = {
+  ADMIN_EMAIL_ADDRESS: "admin@prod.example",
+  ADMIN_EMAIL_ADDRESS_TEST: "admin@test.example",
   AR_API_KEY: "prod-key",
   AR_API_KEY_TEST: "test-key",
   AR_ENDPOINT: "https://ar.prod.example",
@@ -119,5 +125,32 @@ describe("createArRouter", () => {
 
   it("routes requests without a session to the prod AR endpoint", () => {
     expect(ar().baseUrl).toBe("https://ar.prod.example");
+  });
+});
+
+describe("createAdminContactsRouter", () => {
+  const adminEmail = () =>
+    createAdminContactsRouter(config).getInstance().emailAddress;
+
+  it.each<UserType>(["test_admin", "test_operator"])(
+    "routes %s to the test admin address",
+    (userType) => {
+      expect(createSessionContext(sessionOf(userType), adminEmail)).toBe(
+        "admin@test.example",
+      );
+    },
+  );
+
+  it.each<UserType>(["admin", "operator"])(
+    "routes %s to the prod admin address",
+    (userType) => {
+      expect(createSessionContext(sessionOf(userType), adminEmail)).toBe(
+        "admin@prod.example",
+      );
+    },
+  );
+
+  it("routes requests without a session to the prod admin address", () => {
+    expect(adminEmail()).toBe("admin@prod.example");
   });
 });

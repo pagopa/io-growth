@@ -1,5 +1,11 @@
 # ced-portal-fe
 
+## 0.1.6
+
+### Patch Changes
+
+- 6010a65: change categories behaviour
+
 ## 0.1.5
 
 ### Patch Changes

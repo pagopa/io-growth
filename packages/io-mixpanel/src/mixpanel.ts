@@ -39,19 +39,18 @@ export const initAnalytics = (
     ANALYTICS_TOKEN,
   }: CONFIG,
 ): void => {
-  if (!ANALYTICS_ENABLE || !shouldInitialize) {
+  if (!ANALYTICS_ENABLE || !shouldInitialize || !ANALYTICS_TOKEN) {
     return;
   }
 
   if (!(window as WindowMPValues).initMixPanel) {
     mixpanel.init(ANALYTICS_TOKEN, {
       api_host: ANALYTICS_API_HOST,
-      cookie_domain: '.ioapp.it', // change this value with your dev domain
       cookie_expiration: 0,
       debug: isEnvConfigEnabled(ANALYTICS_DEBUG),
       ip: isEnvConfigEnabled(ANALYTICS_LOG_IP),
       persistence: ANALYTICS_PERSISTENCE as Persistence,
-      secure_cookie: true, // change this value as false if you run in local .env
+      secure_cookie: true,
     });
 
     (window as WindowMPValues).initMixPanel = true;

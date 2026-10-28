@@ -1,5 +1,11 @@
 # ced-portal-be
 
+## 0.12.1
+
+### Patch Changes
+
+- 67578cc: added version to templates
+
 ## 0.12.0
 
 ### Minor Changes

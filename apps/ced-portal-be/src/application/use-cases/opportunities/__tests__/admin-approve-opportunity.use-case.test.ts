@@ -10,6 +10,7 @@ import {
   createMockMaterializedViewRepository,
   createMockOpportunityRepository,
   createMockProfileRepository,
+  MOCK_EMAIL_LINKS,
   MOCK_OPERATOR_ID,
   mockProfile,
 } from "./mocks.js";
@@ -76,6 +77,7 @@ describe("makeAdminApproveOpportunityUseCase", () => {
       deps.opportunityRepository,
       deps.materializedViewRepository,
       deps.profileRepository,
+      MOCK_EMAIL_LINKS,
     );
 
     const result = await useCase(validInput);
@@ -103,6 +105,7 @@ describe("makeAdminApproveOpportunityUseCase", () => {
       deps.opportunityRepository,
       deps.materializedViewRepository,
       deps.profileRepository,
+      MOCK_EMAIL_LINKS,
     );
 
     const result = await useCase(validInput);
@@ -118,6 +121,7 @@ describe("makeAdminApproveOpportunityUseCase", () => {
             templateAttributes: {
               availabilityDate: "01/01/2026",
               opportunityName: "Discount 20%",
+              ...MOCK_EMAIL_LINKS,
             },
             templateId: "ced_opportunity-approved",
             to: mockProfile.contactEmail,
@@ -141,6 +145,7 @@ describe("makeAdminApproveOpportunityUseCase", () => {
       deps.opportunityRepository,
       deps.materializedViewRepository,
       deps.profileRepository,
+      MOCK_EMAIL_LINKS,
     );
 
     const result = await useCase(validInput);
@@ -164,6 +169,7 @@ describe("makeAdminApproveOpportunityUseCase", () => {
       deps.opportunityRepository,
       deps.materializedViewRepository,
       deps.profileRepository,
+      MOCK_EMAIL_LINKS,
     );
 
     await useCase({ ...validInput, dateFrom: "2026-09-01" });
@@ -189,6 +195,7 @@ describe("makeAdminApproveOpportunityUseCase", () => {
       deps.opportunityRepository,
       deps.materializedViewRepository,
       deps.profileRepository,
+      MOCK_EMAIL_LINKS,
     );
 
     const result = await useCase(validInput);
@@ -211,6 +218,7 @@ describe("makeAdminApproveOpportunityUseCase", () => {
       deps.opportunityRepository,
       deps.materializedViewRepository,
       deps.profileRepository,
+      MOCK_EMAIL_LINKS,
     );
 
     const result = await useCase(validInput);
@@ -237,6 +245,7 @@ describe("makeAdminApproveOpportunityUseCase", () => {
       deps.opportunityRepository,
       deps.materializedViewRepository,
       deps.profileRepository,
+      MOCK_EMAIL_LINKS,
     );
 
     const result = await useCase(validInput);
@@ -255,6 +264,7 @@ describe("makeAdminApproveOpportunityUseCase", () => {
       deps.opportunityRepository,
       deps.materializedViewRepository,
       deps.profileRepository,
+      MOCK_EMAIL_LINKS,
     );
 
     const result = await useCase(validInput);
@@ -283,6 +293,7 @@ describe("makeAdminApproveOpportunityUseCase", () => {
         deps.opportunityRepository,
         deps.materializedViewRepository,
         deps.profileRepository,
+        MOCK_EMAIL_LINKS,
       );
 
       const result = await useCase(validInput);
@@ -310,6 +321,7 @@ describe("makeAdminApproveOpportunityUseCase", () => {
       deps.opportunityRepository,
       deps.materializedViewRepository,
       deps.profileRepository,
+      MOCK_EMAIL_LINKS,
     );
 
     const result = await useCase(validInput);
@@ -328,6 +340,7 @@ describe("makeAdminApproveOpportunityUseCase", () => {
       deps.opportunityRepository,
       deps.materializedViewRepository,
       deps.profileRepository,
+      MOCK_EMAIL_LINKS,
     );
 
     const result = await useCase(validInput);
@@ -350,6 +363,7 @@ describe("makeAdminApproveOpportunityUseCase", () => {
       deps.opportunityRepository,
       deps.materializedViewRepository,
       deps.profileRepository,
+      MOCK_EMAIL_LINKS,
     );
 
     const result = await useCase(validInput);
@@ -373,6 +387,7 @@ describe("makeAdminApproveOpportunityUseCase", () => {
       deps.opportunityRepository,
       deps.materializedViewRepository,
       deps.profileRepository,
+      MOCK_EMAIL_LINKS,
     );
 
     const result = await useCase(validInput);
@@ -389,6 +404,7 @@ describe("makeAdminApproveOpportunityUseCase", () => {
       deps.opportunityRepository,
       deps.materializedViewRepository,
       deps.profileRepository,
+      MOCK_EMAIL_LINKS,
     );
 
     const result = await useCase({
@@ -408,6 +424,7 @@ describe("makeAdminApproveOpportunityUseCase", () => {
       deps.opportunityRepository,
       deps.materializedViewRepository,
       deps.profileRepository,
+      MOCK_EMAIL_LINKS,
     );
 
     const result = await useCase({ ...validInput, dateFrom: "not-a-date" });

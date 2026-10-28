@@ -1,0 +1,27 @@
+<mj-text
+  css-class="text"
+  font-size="16px"
+  line-height="24px"
+  font-weight="regular"
+  align="left"
+  color="#17324D"
+  padding-top="0px"
+  padding-left="0px"
+  padding-right="0px"
+>
+  <!-- First paragraph's top margin is zeroed: the preceding mj-text block already provides it -->
+  <p style="margin-top: 0">
+    Se hai bisogno di supporto con le opportunità, consulta il
+    <a href="{{runbookUrl}}">manuale operativo</a>.
+  </p>
+
+  <p>
+    Per problemi tecnici nell&rsquo;uso della piattaforma
+    <a href="{{supportUrl}}">vai nel portale</a>
+    e apri una richiesta.
+  </p>
+
+  <p>A presto,</p>
+
+  <p>Il Dipartimento per le politiche in favore delle persone con disabilità.</p>
+</mj-text>

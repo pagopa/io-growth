@@ -5,7 +5,13 @@ import { describe, expect, it, vi } from "vitest";
 import type { OpportunityDetail } from "../../../../domain/entities/opportunity.js";
 
 import { makeAdminRequestOpportunityChangesUseCase } from "../admin-request-opportunity-changes.use-case.js";
-import { createMockOpportunityRepository } from "./mocks.js";
+import {
+  createMockOpportunityRepository,
+  createMockProfileRepository,
+  MOCK_EMAIL_LINKS,
+  MOCK_OPERATOR_ID,
+  mockProfile,
+} from "./mocks.js";
 
 const MOCK_OPPORTUNITY_ID = "01JVMK3N8XQZP5T6G2WYHAB4CF";
 
@@ -26,6 +32,7 @@ const mockOpportunity = (
   id: MOCK_OPPORTUNITY_ID,
   localizedMetadata: [{ key: "name", language: "it", value: "Discount 20%" }],
   nationalTerritory: false,
+  operatorId: MOCK_OPERATOR_ID,
   placeIds: ["01JVMK3N8XQZP5T6G2WYHAB4CD"],
   status,
   suspendedBy: null,
@@ -36,12 +43,14 @@ const mockOpportunity = (
 
 const makeDeps = (
   overrides?: Partial<Parameters<typeof createMockOpportunityRepository>[0]>,
+  profileRepository = createMockProfileRepository(),
 ) => ({
   opportunityRepository: createMockOpportunityRepository({
     findById: vi.fn().mockResolvedValue(ok(mockOpportunity())),
     requestChangesById: vi.fn().mockResolvedValue(ok(undefined)),
     ...overrides,
   }),
+  profileRepository,
 });
 
 const validInput = {
@@ -54,6 +63,8 @@ describe("makeAdminRequestOpportunityChangesUseCase - happy path", () => {
     const deps = makeDeps();
     const useCase = makeAdminRequestOpportunityChangesUseCase(
       deps.opportunityRepository,
+      deps.profileRepository,
+      MOCK_EMAIL_LINKS,
     );
 
     const result = await useCase(validInput);
@@ -62,13 +73,71 @@ describe("makeAdminRequestOpportunityChangesUseCase - happy path", () => {
     expect(deps.opportunityRepository.requestChangesById).toHaveBeenCalledWith({
       changeRequestMessage: validInput.changeRequestMessage,
       opportunityId: MOCK_OPPORTUNITY_ID,
+      outboxMessages: [expect.objectContaining({ type: "template" })],
     });
+  });
+
+  it("should enqueue a rejection message for the operator's contact email", async () => {
+    const deps = makeDeps();
+    const useCase = makeAdminRequestOpportunityChangesUseCase(
+      deps.opportunityRepository,
+      deps.profileRepository,
+      MOCK_EMAIL_LINKS,
+    );
+
+    const result = await useCase(validInput);
+
+    expect(result).toEqual(ok(undefined));
+    expect(deps.profileRepository.getByOperatorId).toHaveBeenCalledWith(
+      MOCK_OPERATOR_ID,
+    );
+    expect(deps.opportunityRepository.requestChangesById).toHaveBeenCalledWith(
+      expect.objectContaining({
+        outboxMessages: [
+          {
+            templateAttributes: {
+              opportunityName: "Discount 20%",
+              rejectionMessage: validInput.changeRequestMessage,
+              ...MOCK_EMAIL_LINKS,
+            },
+            templateId: "ced_opportunity-rejected",
+            to: mockProfile.contactEmail,
+            type: "template",
+          },
+        ],
+      }),
+    );
+  });
+
+  it("should still request changes without enqueuing a message when the profile lookup fails", async () => {
+    const deps = makeDeps(
+      undefined,
+      createMockProfileRepository({
+        getByOperatorId: vi
+          .fn()
+          .mockResolvedValue(err(new GenericError("DB connection failed"))),
+      }),
+    );
+    const useCase = makeAdminRequestOpportunityChangesUseCase(
+      deps.opportunityRepository,
+      deps.profileRepository,
+      MOCK_EMAIL_LINKS,
+    );
+
+    const result = await useCase(validInput);
+
+    expect(result).toEqual(ok(undefined));
+    expect(deps.opportunityRepository.requestChangesById).toHaveBeenCalledWith(
+      expect.objectContaining({ outboxMessages: [] }),
+    );
   });
 
   it("should trim the message before persisting it", async () => {
     const deps = makeDeps();
     const useCase = makeAdminRequestOpportunityChangesUseCase(
       deps.opportunityRepository,
+      deps.profileRepository,
+      MOCK_EMAIL_LINKS,
     );
 
     const result = await useCase({
@@ -80,6 +149,7 @@ describe("makeAdminRequestOpportunityChangesUseCase - happy path", () => {
     expect(deps.opportunityRepository.requestChangesById).toHaveBeenCalledWith({
       changeRequestMessage: "Correggere il titolo",
       opportunityId: MOCK_OPPORTUNITY_ID,
+      outboxMessages: [expect.objectContaining({ type: "template" })],
     });
   });
 });
@@ -91,6 +161,8 @@ describe("makeAdminRequestOpportunityChangesUseCase - guard", () => {
     });
     const useCase = makeAdminRequestOpportunityChangesUseCase(
       deps.opportunityRepository,
+      deps.profileRepository,
+      MOCK_EMAIL_LINKS,
     );
 
     const result = await useCase(validInput);
@@ -120,6 +192,8 @@ describe("makeAdminRequestOpportunityChangesUseCase - guard", () => {
       });
       const useCase = makeAdminRequestOpportunityChangesUseCase(
         deps.opportunityRepository,
+        deps.profileRepository,
+        MOCK_EMAIL_LINKS,
       );
 
       const result = await useCase(validInput);
@@ -153,6 +227,8 @@ describe("makeAdminRequestOpportunityChangesUseCase - error propagation", () => 
     });
     const useCase = makeAdminRequestOpportunityChangesUseCase(
       deps.opportunityRepository,
+      deps.profileRepository,
+      MOCK_EMAIL_LINKS,
     );
 
     const result = await useCase(validInput);
@@ -169,6 +245,8 @@ describe("makeAdminRequestOpportunityChangesUseCase - error propagation", () => 
     });
     const useCase = makeAdminRequestOpportunityChangesUseCase(
       deps.opportunityRepository,
+      deps.profileRepository,
+      MOCK_EMAIL_LINKS,
     );
 
     const result = await useCase(validInput);
@@ -185,6 +263,8 @@ describe("makeAdminRequestOpportunityChangesUseCase - input validation", () => {
     const deps = makeDeps();
     const useCase = makeAdminRequestOpportunityChangesUseCase(
       deps.opportunityRepository,
+      deps.profileRepository,
+      MOCK_EMAIL_LINKS,
     );
 
     const result = await useCase({
@@ -207,6 +287,8 @@ describe("makeAdminRequestOpportunityChangesUseCase - input validation", () => {
       const deps = makeDeps();
       const useCase = makeAdminRequestOpportunityChangesUseCase(
         deps.opportunityRepository,
+        deps.profileRepository,
+        MOCK_EMAIL_LINKS,
       );
 
       const result = await useCase({ ...validInput, changeRequestMessage });
@@ -222,6 +304,8 @@ describe("makeAdminRequestOpportunityChangesUseCase - input validation", () => {
     const deps = makeDeps();
     const useCase = makeAdminRequestOpportunityChangesUseCase(
       deps.opportunityRepository,
+      deps.profileRepository,
+      MOCK_EMAIL_LINKS,
     );
 
     const result = await useCase({
@@ -239,6 +323,8 @@ describe("makeAdminRequestOpportunityChangesUseCase - input validation", () => {
     const deps = makeDeps();
     const useCase = makeAdminRequestOpportunityChangesUseCase(
       deps.opportunityRepository,
+      deps.profileRepository,
+      MOCK_EMAIL_LINKS,
     );
 
     const result = await useCase({

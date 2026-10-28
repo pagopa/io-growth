@@ -45,39 +45,26 @@
             align="left"
             color="#17324D"
             padding-top="4px"
+            padding-bottom="0px"
             padding-left="0px"
             padding-right="0px"
           >
             <!-- Body 1 Desktop (from MUI Italia)-->
             <p>Ciao,</p>
 
-          <p>
-            abbiamo <strong>pubblicato</strong> l&rsquo;opportunità <strong>{{opportunityName}}</strong>.
-          </p>
+            <p>
+              abbiamo <strong>pubblicato</strong> l&rsquo;opportunità <strong>{{opportunityName}}</strong>.
+            </p>
 
-          <p>L&rsquo;opportunità è ora disponibile su IO e sul sito del Dipartimento.</p>
+            <p>L&rsquo;opportunità è ora disponibile su IO e sul sito del Dipartimento.</p>
 
-          <p>
-            Per consultare o gestire le tue opportunità, accedi ad
-            <a href="#">Area Riservata</a>
-            e seleziona il prodotto Carta Europea della Disabilità.
-          </p>
-
-          <p>
-            Se hai bisogno di supporto con le opportunità, consulta il
-            <a href="#">manuale operativo</a>.
-          </p>
-
-          <p>
-            Per problemi tecnici nell&rsquo;uso della piattaforma
-            <a href="#">vai nel portale</a>
-            e apri una richiesta.
-          </p>
-
-          <p>A presto,</p>
-
-          <p>Il Dipartimento per le politiche in favore delle persone con disabilità.</p>
+            <p>
+              Per consultare o gestire le tue opportunità, accedi ad
+              <a href="{{selfcareUrl}}">Area Riservata</a>
+              e seleziona il prodotto Carta Europea della Disabilità.
+            </p>
           </mj-text>
+          <mj-include path="../partials/message-ending.mjml" />
         </mj-column>
       </mj-section>
       <!-- Divider -->

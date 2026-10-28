@@ -1,5 +1,15 @@
 # ced-portal-be
 
+## 0.12.0
+
+### Minor Changes
+
+- 23b4d5c: Prefix operator templates and the shared ending partial with `operator-` (`operator-opportunity-approved`, `operator-opportunity-published`, `operator-opportunity-rejected`, `operator-message-ending`) and add the `admin-new-opportunity` template.
+
+  Rename operator email template IDs with the `operator-` prefix and email the admin (`admin-new-opportunity`) when an operator requests an opportunity test; the recipient is routed to `ADMIN_EMAIL_ADDRESS_TEST` for test users.
+
+- 724f258: Enqueue an `opportunity-rejected` email to the operator when an admin requests changes on an opportunity.
+
 ## 0.11.0
 
 ### Minor Changes

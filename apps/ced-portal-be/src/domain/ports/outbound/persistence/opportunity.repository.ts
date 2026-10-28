@@ -202,6 +202,7 @@ export interface UpdateOpportunityStatusByIdAndOperatorIdInput {
   expectedStatus?: Opportunity["status"];
   operatorId: string;
   opportunityId: string;
+  outboxMessages?: readonly MessagePayload[];
   status: Opportunity["status"];
 }
 

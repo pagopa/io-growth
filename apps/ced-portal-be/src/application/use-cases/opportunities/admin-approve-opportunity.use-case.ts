@@ -18,7 +18,7 @@ import type { MaterializedViewRepository } from "../../../domain/ports/outbound/
 import type { OpportunityRepository } from "../../../domain/ports/outbound/persistence/opportunity.repository.js";
 import type { ProfileRepository } from "../../../domain/ports/outbound/persistence/profile.repository.js";
 
-import { buildOpportunityApprovedMessage } from "../../../domain/entities/message-outbox.js";
+import { buildOperatorOpportunityApprovedMessage } from "../../../domain/entities/message-outbox.js";
 import { validateUseCaseInput } from "../utils/validate-use-case-input.js";
 import {
   buildOperatorMessages,
@@ -78,7 +78,7 @@ export const makeAdminApproveOpportunityUseCase =
             profileRepository,
             data.operatorId,
             (to) =>
-              buildOpportunityApprovedMessage({
+              buildOperatorOpportunityApprovedMessage({
                 availabilityDate,
                 links: emailLinks,
                 opportunityName,

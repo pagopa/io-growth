@@ -1,6 +1,6 @@
 <mjml lang="it">
   <mj-head>
-    <mj-title>Opportunità approvata</mj-title>
+    <mj-title>Nuova opportunità</mj-title>
     <mj-font
       name="Titillium Web"
       href="https://selfcare.pagopa.it/assets/font/selfhostedfonts.css"
@@ -34,7 +34,7 @@
           >
             <!-- H4 Desktop (from MUI Italia)-->
             <h1 style="font-size: 32px; line-height: 40px; margin: 0">
-              Opportunità approvata
+              Nuova opportunità
             </h1>
           </mj-text>
           <mj-text
@@ -53,20 +53,16 @@
             <p>Ciao,</p>
 
             <p>
-              abbiamo <strong>approvato</strong> l&rsquo;opportunità <strong>{{opportunityName}}</strong>.
+              l&rsquo;ente <strong>{{operatorName}}</strong> ha <strong>proposto una nuova opportunità</strong> per Carta Europea della Disabilità: <strong>{{opportunityName}}</strong>
             </p>
 
             <p>
-              L&rsquo;opportunità sarà disponibile su IO dal <span class="semibold">{{availabilityDate}}</span>.
-            </p>
-
-            <p>
-              Per consultare o gestire le tue opportunità, accedi ad
+              Per approvarla o richiedere modifiche, accedi ad
               <a href="{{selfcareUrl}}">Area Riservata</a>
               e seleziona il prodotto Carta Europea della Disabilità.
             </p>
           </mj-text>
-          <mj-include path="../partials/message-ending.mjml" />
+          <mj-include path="../partials/admin-message-ending.mjml" />
         </mj-column>
       </mj-section>
       <!-- Divider -->

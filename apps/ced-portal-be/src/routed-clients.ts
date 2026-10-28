@@ -13,6 +13,7 @@ import {
 } from "@pagopa/io-core-environment-router";
 
 import type { AppConfig } from "./config.js";
+import type { AdminContacts } from "./domain/entities/message-outbox.js";
 
 import { injectDbAuditContext } from "./adapters/outbound/drizzle/drizzle-audit-context.js";
 import * as schema from "./adapters/outbound/drizzle/schema/index.js";
@@ -70,6 +71,17 @@ export const createDbRouter = (
 
   return router;
 };
+
+export const createAdminContactsRouter = (
+  config: AppConfig,
+): EnvRouter<AdminContacts> =>
+  createEnvRouter<AdminContacts, AdminContacts>({
+    createProdInstance: (contacts) => contacts,
+    createTestInstance: (contacts) => contacts,
+    isTestRequest,
+    prodConfig: { emailAddress: config.ADMIN_EMAIL_ADDRESS },
+    testConfig: { emailAddress: config.ADMIN_EMAIL_ADDRESS_TEST },
+  });
 
 export const createArRouter = (config: AppConfig): EnvRouter<ArClient> => {
   const prodConfig: ArClientConfig = {

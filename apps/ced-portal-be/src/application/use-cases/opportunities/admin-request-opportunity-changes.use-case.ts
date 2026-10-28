@@ -16,7 +16,7 @@ import type { EmailLinks } from "../../../domain/entities/message-outbox.js";
 import type { OpportunityRepository } from "../../../domain/ports/outbound/persistence/opportunity.repository.js";
 import type { ProfileRepository } from "../../../domain/ports/outbound/persistence/profile.repository.js";
 
-import { buildOpportunityRejectedMessage } from "../../../domain/entities/message-outbox.js";
+import { buildOperatorOpportunityRejectedMessage } from "../../../domain/entities/message-outbox.js";
 import { OPPORTUNITY_STATUS } from "../../../domain/entities/opportunity.js";
 import { validateUseCaseInput } from "../utils/validate-use-case-input.js";
 import {
@@ -72,7 +72,7 @@ export const makeAdminRequestOpportunityChangesUseCase =
         const opportunityName = getOpportunityName(data);
 
         return buildOperatorMessages(profileRepository, data.operatorId, (to) =>
-          buildOpportunityRejectedMessage({
+          buildOperatorOpportunityRejectedMessage({
             links: emailLinks,
             opportunityName,
             rejectionMessage: validatedInput.changeRequestMessage,

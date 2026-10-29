@@ -4,6 +4,7 @@ import { LANGUAGE_VALUES } from "./language.js";
 import { OperatorMetadataSchema } from "./operator.js";
 
 export const OpportunityBenefitSchema = z.object({
+  description: z.string().nullable().optional(),
   discountType: z.enum(["percentage", "fixed_amount"]).nullable(),
   type: z.enum([
     "free",

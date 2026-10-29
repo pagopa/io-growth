@@ -16,6 +16,8 @@ export const OPERATOR_OPPORTUNITY_PUBLISHED_TEMPLATE_ID =
   "ced_operator-opportunity-published_v1";
 export const OPERATOR_OPPORTUNITY_REJECTED_TEMPLATE_ID =
   "ced_operator-opportunity-rejected_v1";
+export const OPERATOR_OPPORTUNITY_REPUBLISHED_TEMPLATE_ID =
+  "ced_operator-opportunity-republished_v1";
 
 export const HtmlMessagePayloadSchema = z.object({
   html: z.string().min(1),
@@ -129,6 +131,20 @@ export const buildOperatorOpportunityRejectedMessage = (input: {
     ...input.links,
   },
   templateId: OPERATOR_OPPORTUNITY_REJECTED_TEMPLATE_ID,
+  to: input.to,
+  type: "template",
+});
+
+export const buildOperatorOpportunityRepublishedMessage = (input: {
+  links: EmailLinks;
+  opportunityName: string;
+  to: string;
+}): TemplateMessagePayload => ({
+  templateAttributes: {
+    opportunityName: input.opportunityName,
+    ...input.links,
+  },
+  templateId: OPERATOR_OPPORTUNITY_REPUBLISHED_TEMPLATE_ID,
   to: input.to,
   type: "template",
 });

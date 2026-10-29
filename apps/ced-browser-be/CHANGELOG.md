@@ -1,5 +1,11 @@
 # ced-browser-be
 
+## 0.3.1
+
+### Patch Changes
+
+- b989a92: Return the benefit `description` for `other` benefit types in the opportunity detail response
+
 ## 0.3.0
 
 ### Minor Changes

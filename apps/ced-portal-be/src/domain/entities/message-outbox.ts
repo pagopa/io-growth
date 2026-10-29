@@ -10,6 +10,8 @@ export const MESSAGE_OUTBOX_STATUS = {
 } as const;
 
 export const ADMIN_NEW_OPPORTUNITY_TEMPLATE_ID = "ced_admin-new-opportunity_v1";
+export const ADMIN_REVISE_OPPORTUNITY_TEMPLATE_ID =
+  "ced_admin-revise-opportunity_v1";
 export const OPERATOR_OPPORTUNITY_APPROVED_TEMPLATE_ID =
   "ced_operator-opportunity-approved_v1";
 export const OPERATOR_OPPORTUNITY_PUBLISHED_TEMPLATE_ID =
@@ -85,6 +87,22 @@ export const buildAdminNewOpportunityMessage = (input: {
     ...input.links,
   },
   templateId: ADMIN_NEW_OPPORTUNITY_TEMPLATE_ID,
+  to: input.to,
+  type: "template",
+});
+
+export const buildAdminReviseOpportunityMessage = (input: {
+  links: EmailLinks;
+  operatorName: string;
+  opportunityName: string;
+  to: string;
+}): TemplateMessagePayload => ({
+  templateAttributes: {
+    operatorName: input.operatorName,
+    opportunityName: input.opportunityName,
+    ...input.links,
+  },
+  templateId: ADMIN_REVISE_OPPORTUNITY_TEMPLATE_ID,
   to: input.to,
   type: "template",
 });

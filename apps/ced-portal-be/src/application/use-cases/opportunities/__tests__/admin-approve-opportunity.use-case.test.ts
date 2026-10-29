@@ -84,6 +84,7 @@ describe("makeAdminApproveOpportunityUseCase", () => {
 
     expect(result).toEqual(ok(undefined));
     expect(deps.opportunityRepository.updateStatusById).toHaveBeenCalledWith({
+      changeRequestMessage: null,
       dateFrom: undefined,
       expectedStatuses: ["test_pending", "test_rejected"],
       opportunityId: MOCK_OPPORTUNITY_ID,

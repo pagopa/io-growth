@@ -425,6 +425,8 @@ app.register(async (app) => {
     makeAdminRepublishOpportunityUseCase(
       opportunityRepository,
       materializedViewRepository,
+      profileRepository,
+      emailLinks,
     ),
   );
   mountOperatorRequestOpportunityRepublishHandler(

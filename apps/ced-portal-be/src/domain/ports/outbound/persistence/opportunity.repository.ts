@@ -150,6 +150,7 @@ export interface RepublishByIdAndOperatorIdInput {
 
 export interface RepublishByIdInput {
   opportunityId: string;
+  outboxMessages?: readonly MessagePayload[];
 }
 
 export interface RequestChangesByIdInput {

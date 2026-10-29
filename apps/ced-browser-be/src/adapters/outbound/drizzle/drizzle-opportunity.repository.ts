@@ -64,6 +64,7 @@ export const createDrizzleOpportunityRepository = (
         with: {
           beneficiaryBenefit: {
             columns: {
+              description: true,
               discountType: true,
               type: true,
               value: true,
@@ -71,6 +72,7 @@ export const createDrizzleOpportunityRepository = (
           },
           caregiverBenefit: {
             columns: {
+              description: true,
               discountType: true,
               type: true,
               value: true,

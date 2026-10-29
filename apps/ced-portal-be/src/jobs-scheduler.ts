@@ -11,6 +11,7 @@ import { createTracker } from "@pagopa/io-core-adapter-revision-tracker";
 import type { InfoReadinessUseCase } from "./application/use-cases/health/info-readiness.use-case.js";
 import type { AppConfig } from "./config.js";
 import type { JobEnvironment } from "./domain/entities/job.js";
+import type { EmailLinks } from "./domain/entities/message-outbox.js";
 import type { EmailRepository } from "./domain/ports/outbound/email.repository.js";
 import type { TracingRepository } from "./domain/ports/outbound/tracing.repository.js";
 
@@ -23,6 +24,7 @@ import { makeJobEnqueueOpportunityPublishedMessagesUseCase } from "./application
 import { makeJobSendOutboxMessagesUseCase } from "./application/use-cases/jobs/job-send-outbox-messages.use-case.js";
 
 interface JobsDependencies {
+  emailLinks: EmailLinks;
   emailRepository: EmailRepository;
   infoReadinessUseCase: InfoReadinessUseCase;
   tracingRepository: TracingRepository;
@@ -138,11 +140,14 @@ export const jobsScheduler = (
 // Define Jobs with their dependencies and mount them to the scheduler
 const makeJobEnqueueOpportunityPublishedMessages = (
   scheduler: Scheduler,
-  { tracingRepository }: JobsDependencies,
+  { emailLinks, tracingRepository }: JobsDependencies,
 ): void => {
   const useCase = makeJobEnqueueOpportunityPublishedMessagesUseCase(
     scheduler.environment,
-    createDrizzleOpportunityNotificationRepository(scheduler.dbClient),
+    createDrizzleOpportunityNotificationRepository(
+      scheduler.dbClient,
+      emailLinks,
+    ),
     tracingRepository,
   );
 

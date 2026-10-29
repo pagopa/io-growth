@@ -155,6 +155,7 @@ export interface RepublishByIdInput {
 export interface RequestChangesByIdInput {
   changeRequestMessage: string;
   opportunityId: string;
+  outboxMessages?: readonly MessagePayload[];
 }
 
 export interface RequestRepublishByIdAndOperatorIdInput {
@@ -201,6 +202,7 @@ export interface UpdateOpportunityStatusByIdAndOperatorIdInput {
   expectedStatus?: Opportunity["status"];
   operatorId: string;
   opportunityId: string;
+  outboxMessages?: readonly MessagePayload[];
   status: Opportunity["status"];
 }
 

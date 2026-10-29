@@ -600,6 +600,8 @@ const requestChangesById =
             "Opportunity status was modified concurrently",
           );
         }
+
+        await enqueueMessagesInTransaction(tx, input.outboxMessages);
       });
       return ok(undefined);
     } catch (error) {
@@ -1064,6 +1066,9 @@ export const createDrizzleOpportunityRepository = (
           })
           .where(and(...conditions));
         updateCount = result.count;
+        if (updateCount > 0) {
+          await enqueueMessagesInTransaction(tx, input.outboxMessages);
+        }
       });
 
       if (updateCount === 0) {

@@ -27,6 +27,7 @@ import { PublishModal } from '../../components/PublishModal';
 import { RequestChangesModal } from '../../components/RequestChangesModal';
 import { OpportunityDetailCard } from './components/OpportunityDetailCard';
 import { STATE_COLORS, STATE_OPTIONS } from '../../constants/opportunityState';
+import { getOpportunityCategory } from '../../constants';
 import { SuspendOpportunityModal } from '../../components/SuspendOpportunityModal';
 import { RejectOpportunityRepublishModal } from '../Home/components/OpportunityActionModal';
 import type {
@@ -228,7 +229,7 @@ export default function OpportunityDetailPage() {
               variant="h4"
               sx={{ fontWeight: 700, fontSize: { xs: 28, md: 36 } }}
             >
-              {detail.categoryTitle}
+              {getOpportunityCategory(detail.categoryLabel).title}
             </Typography>
             <Typography sx={{ mt: 0.5, color: 'text.secondary', fontSize: 16 }}>
               Ecco i dettagli dell&apos;opportunità

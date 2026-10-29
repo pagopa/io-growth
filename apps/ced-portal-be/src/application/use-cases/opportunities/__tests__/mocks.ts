@@ -1,6 +1,10 @@
 import { ok } from "neverthrow";
 import { vi } from "vitest";
 
+import type {
+  EmailLinks,
+  MailingConfig,
+} from "../../../../domain/entities/message-outbox.js";
 import type { Profile } from "../../../../domain/entities/profile.js";
 import type { MaterializedViewRepository } from "../../../../domain/ports/outbound/materialized-view.repository.js";
 import type { OpportunityRepository } from "../../../../domain/ports/outbound/persistence/opportunity.repository.js";
@@ -8,6 +12,19 @@ import type { ProfileRepository } from "../../../../domain/ports/outbound/persis
 
 export const MOCK_OPERATOR_ID = "01JVMK3N8XQZP5T6G2WYHAB4CD";
 export const MOCK_PLACE_ID = "01JVMK3N8XQZP5T6G2WYHAB4CE";
+
+export const MOCK_EMAIL_LINKS: EmailLinks = {
+  runbookUrl: "https://example.org/runbook",
+  selfcareUrl: "https://example.org/selfcare",
+  supportUrl: "https://example.org/support",
+};
+
+export const MOCK_ADMIN_EMAIL = "admin@example.org";
+
+export const MOCK_MAILING_CONFIG: MailingConfig = {
+  adminContacts: { emailAddress: MOCK_ADMIN_EMAIL },
+  emailLinks: MOCK_EMAIL_LINKS,
+};
 
 export const mockCreateOpportunityInput = {
   beneficiaryBenefit: {

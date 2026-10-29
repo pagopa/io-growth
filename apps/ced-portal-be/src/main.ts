@@ -110,7 +110,11 @@ import { makeOperatorUpdateProfileUseCase } from "./application/use-cases/profil
 import { createSessionContextPreHandler } from "./async-local-storage-session-context.js";
 import { parseConfig } from "./config.js";
 import { jobsScheduler } from "./jobs-scheduler.js";
-import { createArRouter, createDbRouter } from "./routed-clients.js";
+import {
+  createAdminContactsRouter,
+  createArRouter,
+  createDbRouter,
+} from "./routed-clients.js";
 
 const config = parseConfig();
 
@@ -189,7 +193,17 @@ const infoReadinessUseCase = makeInfoReadinessUseCase({
 });
 
 // jobs scheduler
+const emailLinks = {
+  runbookUrl: config.RUNBOOK_URL,
+  selfcareUrl: config.SELFCARE_URL,
+  supportUrl: config.SUPPORT_URL,
+};
+const mailingConfig = {
+  adminContacts: createAdminContactsRouter(config).getInstance(),
+  emailLinks,
+};
 const scheduler = jobsScheduler(config, {
+  emailLinks,
   emailRepository,
   infoReadinessUseCase,
   tracingRepository,
@@ -223,6 +237,7 @@ const authPreHandler = createAuthenticationPreHandler(
   sessionRepository.getSession,
 );
 
+// eslint-disable-next-line max-lines-per-function
 app.register(async (app) => {
   app.addHook("preHandler", authPreHandler);
 
@@ -314,6 +329,7 @@ app.register(async (app) => {
     makeOperatorRequestOpportunityTestUseCase(
       opportunityRepository,
       profileRepository,
+      mailingConfig,
     ),
   );
   mountOperatorPublishOpportunityHandler(
@@ -382,11 +398,16 @@ app.register(async (app) => {
       opportunityRepository,
       materializedViewRepository,
       profileRepository,
+      emailLinks,
     ),
   );
   mountAdminRequestOpportunityChangesHandler(
     app,
-    makeAdminRequestOpportunityChangesUseCase(opportunityRepository),
+    makeAdminRequestOpportunityChangesUseCase(
+      opportunityRepository,
+      profileRepository,
+      emailLinks,
+    ),
   );
   mountAdminSuspendOpportunityHandler(
     app,

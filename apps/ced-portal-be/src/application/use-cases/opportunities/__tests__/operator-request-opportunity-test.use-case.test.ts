@@ -158,6 +158,18 @@ describe("makeOperatorRequestOpportunityTestUseCase", () => {
     ).toHaveBeenCalledWith(
       expect.objectContaining({
         expectedStatus: "test_rejected",
+        outboxMessages: [
+          {
+            templateAttributes: {
+              operatorName: mockProfile.displayName,
+              opportunityName: "Discount 20%",
+              ...MOCK_EMAIL_LINKS,
+            },
+            templateId: "ced_admin-revise-opportunity_v1",
+            to: MOCK_ADMIN_EMAIL,
+            type: "template",
+          },
+        ],
         status: "test_pending",
       }),
     );

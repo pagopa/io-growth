@@ -24,7 +24,7 @@ export function AgreementLinkSection() {
       dispatch(
         setField({
           field: 'url',
-          value: event.target.value,
+          value: event.target.value.trim() ?? undefined,
         }),
       );
     },

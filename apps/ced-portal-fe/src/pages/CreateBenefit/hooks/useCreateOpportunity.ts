@@ -2,6 +2,7 @@ import { useAppSelector } from '../../../hooks';
 import { selectOpportunityForm } from '../../../features/opportunityCreation/selectors';
 import { OpportunityCreationForm } from '../../../features/opportunityCreation/opportunityCreationSlice';
 import { OpportunityCreateRequest } from '../../../generated/model';
+import type { OpportunityUpdatePayload } from '../../../features/opportunities/types';
 import {
   useCreateOpportunityMutation,
   useUpdateOpportunityMutation,
@@ -114,8 +115,11 @@ export const useCreateOpportunity = () => {
         [],
       );
 
+      const normalizedUrl = opportunity.url?.trim() || undefined;
+
       const payload: OpportunityCreateRequest = {
         ...opportunity,
+        url: normalizedUrl,
         placeIds: [...locationsIds, ...websiteIds],
         localizedMetadata,
       };
@@ -139,14 +143,17 @@ export const useCreateOpportunity = () => {
           return undefined;
         }
 
+        const updatePayload: OpportunityUpdatePayload = {
+          ...payload,
+          url: normalizedUrl,
+          nationalTerritory: opportunity.nationalTerritory ?? false,
+          placeIds: [...locationsIds, ...websiteIds],
+          updatedAt: sourceOpportunityUpdatedAt,
+        };
+
         await updateOpportunity({
           id: sourceOpportunityId,
-          payload: {
-            ...payload,
-            nationalTerritory: opportunity.nationalTerritory ?? false,
-            placeIds: [...locationsIds, ...websiteIds],
-            updatedAt: sourceOpportunityUpdatedAt,
-          },
+          payload: updatePayload,
         }).unwrap();
 
         if (showSuccessToast) {

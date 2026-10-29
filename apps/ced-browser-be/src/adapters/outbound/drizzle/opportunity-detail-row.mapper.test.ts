@@ -10,6 +10,7 @@ import { mapOpportunityDetailRow } from "./opportunity-detail-row.mapper.js";
 
 const baseRow: OpportunityDetailRow = {
   beneficiaryBenefit: {
+    description: null,
     discountType: "percentage",
     type: "discount",
     value: 20,
@@ -193,6 +194,92 @@ describe("mapOpportunityDetailRow", () => {
         }),
       ),
     );
+  });
+});
+
+describe("benefit description", () => {
+  const localizedMetadata: OpportunityDetailRow["localizedMetadata"] = [
+    { key: "name", language: "it", value: "Nome italiano" },
+    { key: "description", language: "it", value: "Descrizione italiana" },
+  ];
+
+  it("returns the description for beneficiary and caregiver benefits of type other", () => {
+    const result = mapOpportunityDetailRow(
+      {
+        ...baseRow,
+        beneficiaryBenefit: {
+          description: "Ingresso con guida dedicata",
+          discountType: null,
+          type: "other",
+          value: null,
+        },
+        caregiverBenefit: {
+          description: "Ingresso gratuito per l'accompagnatore",
+          discountType: null,
+          type: "other",
+          value: null,
+        },
+        id: "01JVMK3N8XQZP5T6G2WYHAB4CD",
+        localizedMetadata,
+        nationalTerritory: true,
+        opportunityPlaces: [],
+      },
+      "it",
+    );
+
+    expect(result).toEqual(
+      ok(
+        expect.objectContaining({
+          beneficiaryBenefit: {
+            description: "Ingresso con guida dedicata",
+            discountType: null,
+            type: "other",
+            value: null,
+          },
+          caregiverBenefit: {
+            description: "Ingresso gratuito per l'accompagnatore",
+            discountType: null,
+            type: "other",
+            value: null,
+          },
+        }),
+      ),
+    );
+
+    const parsed = result.map(
+      (detail) => GetOpportunityResponse.safeParse(detail).data,
+    );
+    expect(parsed).toEqual(
+      ok(
+        expect.objectContaining({
+          caregiverBenefit: expect.objectContaining({
+            description: "Ingresso gratuito per l'accompagnatore",
+          }),
+        }),
+      ),
+    );
+  });
+
+  it("omits the description for benefits that are not of type other", () => {
+    const result = mapOpportunityDetailRow(
+      {
+        ...baseRow,
+        caregiverBenefit: {
+          description: "Ignored",
+          discountType: null,
+          type: "free",
+          value: null,
+        },
+        localizedMetadata,
+      },
+      "it",
+    );
+
+    expect(result.isOk() && result.value.caregiverBenefit).toEqual({
+      discountType: null,
+      type: "free",
+      value: null,
+    });
   });
 });
 

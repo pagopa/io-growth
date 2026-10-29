@@ -28,6 +28,7 @@ export interface OpportunityDetailRow {
 }
 
 interface BenefitRow {
+  description: null | string;
   discountType: "fixed_amount" | "percentage" | null;
   type: "discount" | "free" | "other" | "priority" | "reduced_fixed_price";
   value: null | number;
@@ -81,6 +82,7 @@ interface ProfileRow {
 type ProfileWithPlace = ProfileRow & { place: ProfilePlaceRow };
 
 const mapBenefitRow = (row: BenefitRow): OpportunityBenefit => ({
+  ...(row.type === "other" ? { description: row.description } : {}),
   discountType: row.discountType,
   type: row.type,
   value: row.value,

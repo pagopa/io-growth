@@ -263,6 +263,9 @@ const updateStatusById =
         const result = await tx
           .update(opportunity)
           .set({
+            ...(input.changeRequestMessage === null
+              ? { changeRequestMessage: null }
+              : {}),
             ...(input.dateFrom ? { dateFrom: input.dateFrom } : {}),
             status: input.status,
             updatedAt: new Date(),

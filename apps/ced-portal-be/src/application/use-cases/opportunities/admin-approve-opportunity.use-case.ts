@@ -89,6 +89,7 @@ export const makeAdminApproveOpportunityUseCase =
               (outboxMessages) =>
                 new ResultAsync(
                   opportunityRepository.updateStatusById({
+                    changeRequestMessage: null,
                     dateFrom: validatedInput.dateFrom,
                     expectedStatuses: ["test_pending", "test_rejected"],
                     opportunityId: validatedInput.opportunityId,

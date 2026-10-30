@@ -3489,7 +3489,8 @@ components:
           nullable: true
           description: >-
             Changes the department asked the operator to make on the last review
-            cycle (raw text). null when no change was ever requested.
+            cycle (raw text). Kept while the operator resubmits and cleared when
+            the opportunity is approved; null when none is pending.
         republishMessage:
           type: string
           maxLength: 4096
@@ -3612,7 +3613,8 @@ components:
           nullable: true
           description: >-
             Changes the department asked the operator to make on the last review
-            cycle (raw text). null when no change was ever requested.
+            cycle (raw text). Kept while the operator resubmits and cleared when
+            the opportunity is approved; null when none is pending.
         republishMessage:
           type: string
           maxLength: 4096

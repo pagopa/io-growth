@@ -88,4 +88,29 @@ describe("makeOperatorCreatePlaceUseCase", () => {
     );
     expect(placeRepository.create).not.toHaveBeenCalled();
   });
+
+  it.each([
+    { type: "email", value: "invalid-email" },
+    { type: "phone", value: "02 abc 123" },
+    { type: "website", value: "http://example.org" },
+  ] as const)(
+    "should reject invalid $type support contacts",
+    async (contact) => {
+      const placeRepository = createMockPlaceRepository();
+      const useCase = makeOperatorCreatePlaceUseCase(placeRepository);
+
+      const result = await useCase({
+        ...mockCreatePlaceInput,
+        place: {
+          ...mockCreatePlaceInput.place,
+          supportContacts: [contact],
+        },
+      });
+
+      expect(result).toEqual(
+        err(expect.objectContaining({ kind: "ValidationError" })),
+      );
+      expect(placeRepository.create).not.toHaveBeenCalled();
+    },
+  );
 });

@@ -222,6 +222,34 @@ describe("makeOperatorUpdateProfileUseCase", () => {
   });
 });
 
+describe("operator profile support-contact input validation", () => {
+  it.each([
+    { type: "email", value: "invalid-email" },
+    { type: "phone", value: "02 abc 123" },
+    { type: "website", value: "http://example.org" },
+  ] as const)("rejects an invalid $type support contact", async (contact) => {
+    const profileRepository = createMockProfileRepository();
+    const useCase = makeOperatorUpdateProfileUseCase(
+      profileRepository,
+      createMockProfileAssetsRepository(),
+      createMaterializedViewRepository(),
+    );
+
+    const result = await useCase({
+      ...updateInput,
+      place: {
+        ...updateInput.place,
+        supportContacts: [contact],
+      },
+    });
+
+    expect(result).toEqual(
+      err(expect.objectContaining({ kind: "ValidationError" })),
+    );
+    expect(profileRepository.getByOperatorId).not.toHaveBeenCalled();
+  });
+});
+
 describe("makeOperatorUpdateProfileUseCase error handling", () => {
   it("rejects an invalid supplied asset without updating storage or profile", async () => {
     const profileRepository = createMockProfileRepository({

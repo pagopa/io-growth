@@ -1,13 +1,7 @@
 import { z } from "zod";
 
 import { ProfileLegalUrlSchema } from "../../../../domain/entities/profile.js";
-
-const OperatorProfileSupportContactSchema = z
-  .object({
-    type: z.enum(["email", "phone", "website"]),
-    value: z.string().min(1).max(2048),
-  })
-  .strict();
+import { StrictSupportContactInputSchema } from "../../utils/support-contact-input.schema.js";
 
 const OperatorProfileAddressSchema = z
   .object({
@@ -30,14 +24,14 @@ export const OperatorProfilePlaceInputSchema = z.discriminatedUnion("type", [
     .object({
       address: OperatorProfileAddressSchema,
       name: z.string().min(1).max(512),
-      supportContacts: z.array(OperatorProfileSupportContactSchema),
+      supportContacts: z.array(StrictSupportContactInputSchema),
       type: z.literal("offline"),
     })
     .strict(),
   z
     .object({
       name: z.string().min(1).max(512),
-      supportContacts: z.array(OperatorProfileSupportContactSchema),
+      supportContacts: z.array(StrictSupportContactInputSchema),
       type: z.literal("online"),
       website: OperatorProfileWebsiteSchema,
     })

@@ -663,6 +663,8 @@ const requestRepublishByIdAndOperatorId =
             "Opportunity status was modified concurrently",
           );
         }
+
+        await enqueueMessagesInTransaction(tx, input.outboxMessages);
       });
       return ok(undefined);
     } catch (error) {

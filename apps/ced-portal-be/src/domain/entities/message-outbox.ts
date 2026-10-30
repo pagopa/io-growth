@@ -12,6 +12,8 @@ export const MESSAGE_OUTBOX_STATUS = {
 export const ADMIN_NEW_OPPORTUNITY_TEMPLATE_ID = "ced_admin-new-opportunity_v1";
 export const ADMIN_OPPORTUNITY_DELETED_TEMPLATE_ID =
   "ced_admin-opportunity-deleted_v1";
+export const ADMIN_OPPORTUNITY_REPUBLISH_REQUEST_TEMPLATE_ID =
+  "ced_admin-opportunity-republish-request_v1";
 export const ADMIN_OPPORTUNITY_REPUBLISHED_TEMPLATE_ID =
   "ced_admin-opportunity-republished_v1";
 export const ADMIN_OPPORTUNITY_SUSPENSION_CANCELLED_TEMPLATE_ID =
@@ -131,6 +133,24 @@ export const buildAdminOpportunityRepublishedMessage = (input: {
     ...input.links,
   },
   templateId: ADMIN_OPPORTUNITY_REPUBLISHED_TEMPLATE_ID,
+  to: input.to,
+  type: "template",
+});
+
+export const buildAdminOpportunityRepublishRequestMessage = (input: {
+  links: EmailLinks;
+  operatorName: string;
+  opportunityName: string;
+  republishMessage: string;
+  to: string;
+}): TemplateMessagePayload => ({
+  templateAttributes: {
+    operatorName: input.operatorName,
+    opportunityName: input.opportunityName,
+    republishMessage: input.republishMessage,
+    ...input.links,
+  },
+  templateId: ADMIN_OPPORTUNITY_REPUBLISH_REQUEST_TEMPLATE_ID,
   to: input.to,
   type: "template",
 });

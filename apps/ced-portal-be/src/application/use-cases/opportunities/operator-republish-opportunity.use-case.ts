@@ -13,14 +13,19 @@ import { getApplicationDate } from "@pagopa/io-core-domain/utilities";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { z } from "zod";
 
+import type { MailingConfig } from "../../../domain/entities/message-outbox.js";
 import type { MaterializedViewRepository } from "../../../domain/ports/outbound/materialized-view.repository.js";
 import type { OpportunityRepository } from "../../../domain/ports/outbound/persistence/opportunity.repository.js";
+import type { ProfileRepository } from "../../../domain/ports/outbound/persistence/profile.repository.js";
 
+import { buildAdminOpportunityRepublishedMessage } from "../../../domain/entities/message-outbox.js";
 import {
   ACTOR_TYPE,
   OPPORTUNITY_STATUS,
 } from "../../../domain/entities/opportunity.js";
 import { validateUseCaseInput } from "../utils/validate-use-case-input.js";
+import { buildAdminMessages } from "./utils/admin-notification.js";
+import { getOpportunityName } from "./utils/operator-notification.js";
 
 const OperatorRepublishOpportunityInputSchema = z.object({
   operatorId: z.ulid(),
@@ -45,6 +50,8 @@ export const makeOperatorRepublishOpportunityUseCase =
   (
     opportunityRepository: OpportunityRepository,
     materializedViewRepository: MaterializedViewRepository,
+    profileRepository: ProfileRepository,
+    mailingConfig: MailingConfig,
   ): OperatorRepublishOpportunityUseCase =>
   async (input) =>
     validateUseCaseInput(
@@ -82,15 +89,35 @@ export const makeOperatorRepublishOpportunityUseCase =
             ),
           );
 
+        // Notifying the department is best-effort: a failed or missing profile
+        // lookup must not fail an otherwise valid republish.
         return new ResultAsync(
-          opportunityRepository.republishByIdAndOperatorId({
-            operatorId: validatedInput.operatorId,
-            opportunityId: validatedInput.opportunityId,
-          }),
-        ).andThen(() =>
-          new ResultAsync(materializedViewRepository.refreshAll()).orElse(() =>
-            okAsync(undefined),
-          ),
-        );
+          profileRepository.getByOperatorId(validatedInput.operatorId),
+        )
+          .orElse(() => okAsync(undefined))
+          .andThen(
+            (profile) =>
+              new ResultAsync(
+                opportunityRepository.republishByIdAndOperatorId({
+                  operatorId: validatedInput.operatorId,
+                  opportunityId: validatedInput.opportunityId,
+                  outboxMessages: profile
+                    ? buildAdminMessages(mailingConfig.adminContacts, (to) =>
+                        buildAdminOpportunityRepublishedMessage({
+                          links: mailingConfig.emailLinks,
+                          operatorName: profile.displayName,
+                          opportunityName: getOpportunityName(data),
+                          to,
+                        }),
+                      )
+                    : [],
+                }),
+              ),
+          )
+          .andThen(() =>
+            new ResultAsync(materializedViewRepository.refreshAll()).orElse(
+              () => okAsync(undefined),
+            ),
+          );
       }),
     );

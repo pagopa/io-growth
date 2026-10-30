@@ -9,7 +9,12 @@ import { makeOperatorRepublishOpportunityUseCase } from "../operator-republish-o
 import {
   createMockMaterializedViewRepository,
   createMockOpportunityRepository,
+  createMockProfileRepository,
+  MOCK_ADMIN_EMAIL,
+  MOCK_EMAIL_LINKS,
+  MOCK_MAILING_CONFIG,
   MOCK_OPERATOR_ID,
+  mockProfile,
 } from "./mocks.js";
 
 const MOCK_OPPORTUNITY_ID = "01JVMK3N8XQZP5T6G2WYHAB4CF";
@@ -44,6 +49,8 @@ const mockOpportunity = (
 
 const makeDeps = (overrides?: {
   found?: OpportunityDetail | undefined;
+  profile?: typeof mockProfile | undefined;
+  profileLookupFails?: boolean;
   refreshFails?: boolean;
 }) => ({
   materializedViewRepository: createMockMaterializedViewRepository({
@@ -61,12 +68,25 @@ const makeDeps = (overrides?: {
       ),
     republishByIdAndOperatorId: vi.fn().mockResolvedValue(ok(undefined)),
   }),
+  profileRepository: createMockProfileRepository({
+    getByOperatorId: vi
+      .fn()
+      .mockResolvedValue(
+        overrides?.profileLookupFails
+          ? err(new GenericError("profile down"))
+          : ok(
+              "profile" in (overrides ?? {}) ? overrides?.profile : mockProfile,
+            ),
+      ),
+  }),
 });
 
 const makeUseCase = (deps: ReturnType<typeof makeDeps>) =>
   makeOperatorRepublishOpportunityUseCase(
     deps.opportunityRepository,
     deps.materializedViewRepository,
+    deps.profileRepository,
+    MOCK_MAILING_CONFIG,
   );
 
 const validInput = {
@@ -83,9 +103,43 @@ describe("makeOperatorRepublishOpportunityUseCase", () => {
     expect(result).toEqual(ok(undefined));
     expect(
       deps.opportunityRepository.republishByIdAndOperatorId,
-    ).toHaveBeenCalledWith(validInput);
+    ).toHaveBeenCalledWith({
+      ...validInput,
+      outboxMessages: [
+        {
+          templateAttributes: {
+            operatorName: mockProfile.displayName,
+            opportunityName: "Discount 20%",
+            ...MOCK_EMAIL_LINKS,
+          },
+          templateId: "ced_admin-opportunity-republished_v1",
+          to: MOCK_ADMIN_EMAIL,
+          type: "template",
+        },
+      ],
+    });
+    expect(deps.profileRepository.getByOperatorId).toHaveBeenCalledWith(
+      MOCK_OPERATOR_ID,
+    );
     expect(deps.materializedViewRepository.refreshAll).toHaveBeenCalledWith();
   });
+
+  it.each([
+    ["the operator profile lookup fails", { profileLookupFails: true }],
+    ["the operator has no profile", { profile: undefined }],
+  ])(
+    "should republish without notifying the department when %s",
+    async (_, overrides) => {
+      const deps = makeDeps(overrides);
+
+      const result = await makeUseCase(deps)(validInput);
+
+      expect(result).toEqual(ok(undefined));
+      expect(
+        deps.opportunityRepository.republishByIdAndOperatorId,
+      ).toHaveBeenCalledWith({ ...validInput, outboxMessages: [] });
+    },
+  );
 
   it("should read the opportunity scoped to the operator in session", async () => {
     const deps = makeDeps();

@@ -172,6 +172,7 @@ export interface RequestRepublishByIdAndOperatorIdInput {
 export interface SuspendByIdAndOperatorIdInput {
   operatorId: string;
   opportunityId: string;
+  outboxMessages?: readonly MessagePayload[];
   // When provided (a future calendar date), the suspension is deferred: the
   // opportunity stays "published" and "suspend_from" is set. When absent, the
   // suspension is applied immediately (status -> "suspended").

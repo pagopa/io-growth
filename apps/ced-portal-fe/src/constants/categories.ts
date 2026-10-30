@@ -32,13 +32,13 @@ export const OPPORTUNITY_CATEGORIES_IT: Record<
   },
   financial_services: {
     key: 'financial_services',
-    title: 'Servizi finanziari',
+    title: 'Servizi finanziari e finanziari',
     description: 'Banche, mutui, app di investimenti o di risparmio, ecc...',
   },
   travel_tourism: {
     key: 'travel_tourism',
     title: 'Viaggi e turismo',
-    description: 'Agenzie di viaggio, hotel , tour operator, ecc...',
+    description: 'Agenzie di viaggio, hotel, tour operator, ecc...',
   },
   mobility_transport: {
     key: 'mobility_transport',
@@ -48,8 +48,9 @@ export const OPPORTUNITY_CATEGORIES_IT: Record<
   },
   citizen_services: {
     key: 'citizen_services',
-    title: 'Spesa e servizi al cittadino',
-    description: 'Consegna gratuita sulla spesa online, shopping, ecc...',
+    title: 'Acquisti e servizi commerciali',
+    description:
+      'Consegna gratuita sulla spesa online, ristorazione, shopping, ecc...',
   },
   municipal_services: {
     key: 'municipal_services',

@@ -322,6 +322,9 @@ const deleteByIdAndOperatorId =
             ),
           );
         updateCount = result.count;
+        if (updateCount > 0) {
+          await enqueueMessagesInTransaction(tx, input.outboxMessages);
+        }
       });
 
       if (updateCount === 0) {

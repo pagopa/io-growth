@@ -1,0 +1,13 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "vulnerabilityAlerts": {
+    "rangeStrategy": "bump"
+  },
+  "packageRules": [
+    {
+      "matchManagers": ["github-actions"],
+      "matchPackageNames": ["pagopa/dx"],
+      "pinDigests": false
+    }
+  ]
+}

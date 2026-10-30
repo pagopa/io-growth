@@ -165,6 +165,7 @@ export interface RequestChangesByIdInput {
 export interface RequestRepublishByIdAndOperatorIdInput {
   operatorId: string;
   opportunityId: string;
+  outboxMessages?: readonly MessagePayload[];
   republishMessage: string;
 }
 

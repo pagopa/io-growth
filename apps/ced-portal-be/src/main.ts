@@ -357,7 +357,11 @@ app.register(async (app) => {
   );
   mountOperatorCancelScheduledSuspensionHandler(
     app,
-    makeOperatorCancelScheduledSuspensionUseCase(opportunityRepository),
+    makeOperatorCancelScheduledSuspensionUseCase(
+      opportunityRepository,
+      profileRepository,
+      mailingConfig,
+    ),
   );
   mountAdminListPendingOnboardingsHandler(
     app,

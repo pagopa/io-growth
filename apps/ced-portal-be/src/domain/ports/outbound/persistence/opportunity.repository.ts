@@ -15,6 +15,7 @@ import type {
 export interface CancelScheduledSuspensionByIdAndOperatorIdInput {
   operatorId: string;
   opportunityId: string;
+  outboxMessages?: readonly MessagePayload[];
 }
 
 export interface CancelScheduledSuspensionByIdInput {

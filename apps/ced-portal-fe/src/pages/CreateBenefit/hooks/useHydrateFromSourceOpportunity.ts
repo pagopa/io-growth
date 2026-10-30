@@ -74,7 +74,12 @@ export const useHydrateFromSourceOpportunity = (
     dispatch(resetForm());
     dispatch(setField({ field: 'dateFrom', value: dateFrom }));
     dispatch(setField({ field: 'dateTo', value: dateTo ?? undefined }));
-    dispatch(setField({ field: 'url', value: url ?? undefined }));
+    dispatch(
+      setField({
+        field: 'url',
+        value: url?.trim() ?? undefined,
+      }),
+    );
     dispatch(setField({ field: 'categoryId', value: categoryId }));
     dispatch(setField({ field: 'placeIds', value: placeIds }));
     dispatch(

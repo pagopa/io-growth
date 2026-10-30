@@ -147,6 +147,7 @@ export interface RejectRepublishByIdInput {
 export interface RepublishByIdAndOperatorIdInput {
   operatorId: string;
   opportunityId: string;
+  outboxMessages?: readonly MessagePayload[];
 }
 
 export interface RepublishByIdInput {

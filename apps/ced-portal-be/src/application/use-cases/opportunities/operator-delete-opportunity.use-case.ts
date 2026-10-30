@@ -9,16 +9,25 @@ import {
   PreconditionFailedError,
   ValidationError,
 } from "@pagopa/io-core-domain/errors";
-import { errAsync, ResultAsync } from "neverthrow";
+import { getApplicationDate } from "@pagopa/io-core-domain/utilities";
+import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { z } from "zod";
 
+import type { MailingConfig } from "../../../domain/entities/message-outbox.js";
 import type {
   Opportunity,
   OpportunityDetail,
 } from "../../../domain/entities/opportunity.js";
 import type { OpportunityRepository } from "../../../domain/ports/outbound/persistence/opportunity.repository.js";
+import type { ProfileRepository } from "../../../domain/ports/outbound/persistence/profile.repository.js";
 
+import {
+  buildAdminOpportunityDeletedMessage,
+  buildOperatorOpportunityDeletedMessage,
+} from "../../../domain/entities/message-outbox.js";
 import { validateUseCaseInput } from "../utils/validate-use-case-input.js";
+import { buildAdminMessages } from "./utils/admin-notification.js";
+import { getOpportunityName } from "./utils/operator-notification.js";
 
 const OperatorDeleteOpportunityInputSchema = z.object({
   deletionMessage: z.string().trim().min(1).max(4096).optional(),
@@ -86,6 +95,8 @@ const blockedDeletionMessage = (
 export const makeOperatorDeleteOpportunityUseCase =
   (
     opportunityRepository: OpportunityRepository,
+    profileRepository: ProfileRepository,
+    mailingConfig: MailingConfig,
   ): OperatorDeleteOpportunityUseCase =>
   async (input) =>
     validateUseCaseInput(OperatorDeleteOpportunityInputSchema, input).andThen(
@@ -111,13 +122,57 @@ export const makeOperatorDeleteOpportunityUseCase =
               ),
             );
 
+          const opportunityName = getOpportunityName(data);
+          const deletionDate = new Date(
+            getApplicationDate(),
+          ).toLocaleDateString("it-IT");
+          const { deletionMessage } = validatedInput;
+
+          // Notifying is best-effort: a failed profile lookup must not fail an
+          // otherwise valid deletion. The profile is read once and feeds both
+          // messages, so `buildOperatorMessages` cannot be reused here: it
+          // encapsulates the lookup and does not return the profile.
           return new ResultAsync(
-            opportunityRepository.deleteByIdAndOperatorId({
-              deletionMessage: validatedInput.deletionMessage,
-              expectedStatuses: deletablePersistedStatuses,
-              operatorId: validatedInput.operatorId,
-              opportunityId: validatedInput.opportunityId,
-            }),
-          );
+            profileRepository.getByOperatorId(validatedInput.operatorId),
+          )
+            .orElse(() => okAsync(undefined))
+            .andThen((profile) => {
+              const operatorMessages = profile
+                ? [
+                    buildOperatorOpportunityDeletedMessage({
+                      links: mailingConfig.emailLinks,
+                      opportunityName,
+                      to: profile.contactEmail,
+                    }),
+                  ]
+                : [];
+
+              // The department is not notified of draft deletions: it has never
+              // seen the draft, and the reason is optional there while the message
+              // requires it.
+              const adminMessages =
+                profile && deletionMessage && data.status !== "draft"
+                  ? buildAdminMessages(mailingConfig.adminContacts, (to) =>
+                      buildAdminOpportunityDeletedMessage({
+                        deletionDate,
+                        deletionMessage,
+                        links: mailingConfig.emailLinks,
+                        operatorName: profile.displayName,
+                        opportunityName,
+                        to,
+                      }),
+                    )
+                  : [];
+
+              return new ResultAsync(
+                opportunityRepository.deleteByIdAndOperatorId({
+                  deletionMessage,
+                  expectedStatuses: deletablePersistedStatuses,
+                  operatorId: validatedInput.operatorId,
+                  opportunityId: validatedInput.opportunityId,
+                  outboxMessages: [...operatorMessages, ...adminMessages],
+                }),
+              );
+            });
         }),
     );

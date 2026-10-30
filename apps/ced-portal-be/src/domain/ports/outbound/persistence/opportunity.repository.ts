@@ -31,6 +31,7 @@ export interface DeleteOpportunityByIdAndOperatorIdInput {
   expectedStatuses: Opportunity["status"][];
   operatorId: string;
   opportunityId: string;
+  outboxMessages?: readonly MessagePayload[];
 }
 
 export interface ExistsWithSolePlaceByPlaceIdAndStatusesInput {

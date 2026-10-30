@@ -384,32 +384,40 @@ const cancelScheduledSuspensionByIdAndOperatorId =
     input: CancelScheduledSuspensionByIdAndOperatorIdInput,
   ): Promise<Result<void, ConflictError | GenericError>> => {
     try {
-      const result = await db
-        .update(opportunity)
-        .set({
-          suspendedBy: null,
-          suspendFrom: null,
-          suspensionMessage: null,
-          updatedAt: new Date(),
-        })
-        .where(
-          and(
-            eq(opportunity.id, input.opportunityId),
-            eq(opportunity.operatorId, input.operatorId),
-            eq(opportunity.status, OPPORTUNITY_STATUS.PUBLISHED),
-            isNotNull(opportunity.suspendFrom),
-            // Operators can only cancel their own schedule: a
-            // department-scheduled suspension is out of their reach.
-            eq(opportunity.suspendedBy, ACTOR_TYPE.OPERATOR),
-          ),
-        );
-      if (result.count === 0) {
-        return err(
-          new ConflictError("Opportunity status was modified concurrently"),
-        );
-      }
+      await db.transaction(async (tx) => {
+        const result = await tx
+          .update(opportunity)
+          .set({
+            suspendedBy: null,
+            suspendFrom: null,
+            suspensionMessage: null,
+            updatedAt: new Date(),
+          })
+          .where(
+            and(
+              eq(opportunity.id, input.opportunityId),
+              eq(opportunity.operatorId, input.operatorId),
+              eq(opportunity.status, OPPORTUNITY_STATUS.PUBLISHED),
+              isNotNull(opportunity.suspendFrom),
+              // Operators can only cancel their own schedule: a
+              // department-scheduled suspension is out of their reach.
+              eq(opportunity.suspendedBy, ACTOR_TYPE.OPERATOR),
+            ),
+          );
+
+        if (result.count === 0) {
+          throw new ConflictError(
+            "Opportunity status was modified concurrently",
+          );
+        }
+
+        await enqueueMessagesInTransaction(tx, input.outboxMessages);
+      });
       return ok(undefined);
     } catch (error) {
+      if (error instanceof ConflictError) {
+        return err(error);
+      }
       return err(
         new GenericError(
           `Failed to cancel scheduled suspension: ${String(error)}`,

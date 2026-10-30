@@ -12,10 +12,15 @@ import {
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { z } from "zod";
 
+import type { MailingConfig } from "../../../domain/entities/message-outbox.js";
 import type { MaterializedViewRepository } from "../../../domain/ports/outbound/materialized-view.repository.js";
 import type { OpportunityRepository } from "../../../domain/ports/outbound/persistence/opportunity.repository.js";
+import type { ProfileRepository } from "../../../domain/ports/outbound/persistence/profile.repository.js";
 
+import { buildAdminOpportunitySuspendedMessage } from "../../../domain/entities/message-outbox.js";
 import { validateUseCaseInput } from "../utils/validate-use-case-input.js";
+import { buildAdminMessages } from "./utils/admin-notification.js";
+import { getOpportunityName } from "./utils/operator-notification.js";
 
 const OperatorSuspendOpportunityInputSchema = z.object({
   operatorId: z.ulid(),
@@ -44,6 +49,8 @@ export const makeOperatorSuspendOpportunityUseCase =
   (
     opportunityRepository: OpportunityRepository,
     materializedViewRepository: MaterializedViewRepository,
+    profileRepository: ProfileRepository,
+    mailingConfig: MailingConfig,
   ): OperatorSuspendOpportunityUseCase =>
   async (input) =>
     validateUseCaseInput(OperatorSuspendOpportunityInputSchema, input).andThen(
@@ -89,23 +96,53 @@ export const makeOperatorSuspendOpportunityUseCase =
           // it immediately (the requested date is not persisted in that case).
           const today = new Date().toISOString().slice(0, 10);
           const isScheduled = validatedInput.suspendFrom > today;
+          const suspensionDate = new Date(
+            isScheduled ? validatedInput.suspendFrom : today,
+          ).toLocaleDateString("it-IT", {
+            day: "2-digit",
+            month: "2-digit",
+            timeZone: "UTC",
+            year: "numeric",
+          });
 
           return new ResultAsync(
-            opportunityRepository.suspendByIdAndOperatorId({
-              operatorId: validatedInput.operatorId,
-              opportunityId: validatedInput.opportunityId,
-              suspendFrom: isScheduled ? validatedInput.suspendFrom : undefined,
-              suspensionMessage: validatedInput.suspensionMessage,
-            }),
-          ).andThen(() =>
-            // Only an immediate suspension changes visibility: refresh the
-            // materialized view (best-effort). A scheduled suspension leaves
-            // the opportunity published until the cron applies it.
-            isScheduled
-              ? okAsync(undefined)
-              : new ResultAsync(materializedViewRepository.refreshAll()).orElse(
-                  () => okAsync(undefined),
+            profileRepository.getByOperatorId(validatedInput.operatorId),
+          )
+            .orElse(() => okAsync(undefined))
+            .andThen(
+              (profile) =>
+                new ResultAsync(
+                  opportunityRepository.suspendByIdAndOperatorId({
+                    operatorId: validatedInput.operatorId,
+                    opportunityId: validatedInput.opportunityId,
+                    outboxMessages: profile
+                      ? buildAdminMessages(mailingConfig.adminContacts, (to) =>
+                          buildAdminOpportunitySuspendedMessage({
+                            links: mailingConfig.emailLinks,
+                            operatorName: profile.displayName,
+                            opportunityName: getOpportunityName(data),
+                            suspensionDate,
+                            suspensionMessage: validatedInput.suspensionMessage,
+                            to,
+                          }),
+                        )
+                      : [],
+                    suspendFrom: isScheduled
+                      ? validatedInput.suspendFrom
+                      : undefined,
+                    suspensionMessage: validatedInput.suspensionMessage,
+                  }),
                 ),
-          );
+            )
+            .andThen(() =>
+              // Only an immediate suspension changes visibility: refresh the
+              // materialized view (best-effort). A scheduled suspension leaves
+              // the opportunity published until the cron applies it.
+              isScheduled
+                ? okAsync(undefined)
+                : new ResultAsync(
+                    materializedViewRepository.refreshAll(),
+                  ).orElse(() => okAsync(undefined)),
+            );
         }),
     );

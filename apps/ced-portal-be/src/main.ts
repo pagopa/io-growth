@@ -353,6 +353,8 @@ app.register(async (app) => {
     makeOperatorSuspendOpportunityUseCase(
       opportunityRepository,
       materializedViewRepository,
+      profileRepository,
+      mailingConfig,
     ),
   );
   mountOperatorCancelScheduledSuspensionHandler(

@@ -2,6 +2,7 @@ import { PriorityHigh } from '@mui/icons-material';
 import { Box, Button, useTheme } from '@mui/material';
 import { Body, Title, VSpacer } from '@pagopa/io-core-ui';
 import { useCallback } from 'react';
+import { useTrackErrorEvent } from '../../mixpanel/useTrackErrorEvent';
 
 interface Props {
   onRetry?: () => void;
@@ -10,6 +11,7 @@ interface Props {
 
 export default function SubmissionError({ onRetry, onClose }: Props) {
   const theme = useTheme();
+  useTrackErrorEvent('CED_CARD_REQUEST_SUBMISSION_ERROR');
 
   const handleRetry = useCallback(() => {
     if (onRetry) return onRetry();

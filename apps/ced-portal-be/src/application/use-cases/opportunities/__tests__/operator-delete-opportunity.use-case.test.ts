@@ -1,13 +1,24 @@
 import { ConflictError, GenericError } from "@pagopa/io-core-domain/errors";
 import { err, ok } from "neverthrow";
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { OpportunityDetail } from "../../../../domain/entities/opportunity.js";
 
 import { makeOperatorDeleteOpportunityUseCase } from "../operator-delete-opportunity.use-case.js";
-import { createMockOpportunityRepository, MOCK_OPERATOR_ID } from "./mocks.js";
+import {
+  createMockOpportunityRepository,
+  createMockProfileRepository,
+  MOCK_ADMIN_EMAIL,
+  MOCK_EMAIL_LINKS,
+  MOCK_MAILING_CONFIG,
+  MOCK_OPERATOR_ID,
+  mockProfile,
+} from "./mocks.js";
 
 const MOCK_OPPORTUNITY_ID = "01JVMK3N8XQZP5T6G2WYHAB4CF";
+
+const TODAY = "2026-06-15";
+const DELETION_DATE = "15/06/2026";
 
 const mockOpportunity = (
   status: OpportunityDetail["status"],
@@ -26,6 +37,7 @@ const mockOpportunity = (
   id: MOCK_OPPORTUNITY_ID,
   localizedMetadata: [{ key: "name", language: "it", value: "Discount 20%" }],
   nationalTerritory: false,
+  operatorId: MOCK_OPERATOR_ID,
   placeIds: ["01JVMK3N8XQZP5T6G2WYHAB4CD"],
   status,
   updatedAt: "2026-01-01T00:00:00.000Z",
@@ -36,11 +48,22 @@ const makeDeps = (overrides?: {
   opportunityRepository?: Partial<
     Parameters<typeof createMockOpportunityRepository>[0]
   >;
+  profileRepository?: Partial<
+    Parameters<typeof createMockProfileRepository>[0]
+  >;
 }) => ({
   opportunityRepository: createMockOpportunityRepository(
     overrides?.opportunityRepository,
   ),
+  profileRepository: createMockProfileRepository(overrides?.profileRepository),
 });
+
+const makeUseCase = (deps: ReturnType<typeof makeDeps>) =>
+  makeOperatorDeleteOpportunityUseCase(
+    deps.opportunityRepository,
+    deps.profileRepository,
+    MOCK_MAILING_CONFIG,
+  );
 
 const validInput = {
   operatorId: MOCK_OPERATOR_ID,
@@ -54,6 +77,25 @@ const deletableExpectedStatuses = [
   "test_rejected",
 ];
 
+const operatorMessage = expect.objectContaining({
+  templateId: "ced_operator-opportunity-deleted_v1",
+  to: mockProfile.contactEmail,
+});
+
+const adminMessage = expect.objectContaining({
+  templateId: "ced_admin-opportunity-deleted_v1",
+  to: MOCK_ADMIN_EMAIL,
+});
+
+beforeEach(() => {
+  vi.useFakeTimers();
+  vi.setSystemTime(new Date(`${TODAY}T10:00:00.000Z`));
+});
+
+afterEach(() => {
+  vi.useRealTimers();
+});
+
 describe("makeOperatorDeleteOpportunityUseCase - deletable statuses", () => {
   it("should delete a draft opportunity without a reason", async () => {
     const deps = makeDeps({
@@ -64,9 +106,7 @@ describe("makeOperatorDeleteOpportunityUseCase - deletable statuses", () => {
           .mockResolvedValue(ok(mockOpportunity("draft"))),
       },
     });
-    const useCase = makeOperatorDeleteOpportunityUseCase(
-      deps.opportunityRepository,
-    );
+    const useCase = makeUseCase(deps);
 
     const result = await useCase(validInput);
 
@@ -78,6 +118,7 @@ describe("makeOperatorDeleteOpportunityUseCase - deletable statuses", () => {
       expectedStatuses: deletableExpectedStatuses,
       operatorId: MOCK_OPERATOR_ID,
       opportunityId: MOCK_OPPORTUNITY_ID,
+      outboxMessages: [operatorMessage],
     });
   });
 
@@ -92,9 +133,7 @@ describe("makeOperatorDeleteOpportunityUseCase - deletable statuses", () => {
             .mockResolvedValue(ok(mockOpportunity(status))),
         },
       });
-      const useCase = makeOperatorDeleteOpportunityUseCase(
-        deps.opportunityRepository,
-      );
+      const useCase = makeUseCase(deps);
 
       const result = await useCase({
         ...validInput,
@@ -109,9 +148,112 @@ describe("makeOperatorDeleteOpportunityUseCase - deletable statuses", () => {
         expectedStatuses: deletableExpectedStatuses,
         operatorId: MOCK_OPERATOR_ID,
         opportunityId: MOCK_OPPORTUNITY_ID,
+        outboxMessages: [operatorMessage, adminMessage],
       });
     },
   );
+});
+
+describe("makeOperatorDeleteOpportunityUseCase - notifications", () => {
+  it("should enqueue both messages with the expected attributes", async () => {
+    const deps = makeDeps({
+      opportunityRepository: {
+        deleteByIdAndOperatorId: vi.fn().mockResolvedValue(ok(undefined)),
+        findByIdAndOperatorId: vi
+          .fn()
+          .mockResolvedValue(ok(mockOpportunity("scheduled"))),
+      },
+    });
+    const useCase = makeUseCase(deps);
+
+    const result = await useCase({
+      ...validInput,
+      deletionMessage: "Iniziativa conclusa",
+    });
+
+    expect(result).toEqual(ok(undefined));
+    expect(deps.profileRepository.getByOperatorId).toHaveBeenCalledWith(
+      MOCK_OPERATOR_ID,
+    );
+    expect(
+      deps.opportunityRepository.deleteByIdAndOperatorId,
+    ).toHaveBeenCalledWith(
+      expect.objectContaining({
+        outboxMessages: [
+          {
+            templateAttributes: {
+              opportunityName: "Discount 20%",
+              ...MOCK_EMAIL_LINKS,
+            },
+            templateId: "ced_operator-opportunity-deleted_v1",
+            to: mockProfile.contactEmail,
+            type: "template",
+          },
+          {
+            templateAttributes: {
+              deletionDate: DELETION_DATE,
+              deletionMessage: "Iniziativa conclusa",
+              operatorName: mockProfile.displayName,
+              opportunityName: "Discount 20%",
+              ...MOCK_EMAIL_LINKS,
+            },
+            templateId: "ced_admin-opportunity-deleted_v1",
+            to: MOCK_ADMIN_EMAIL,
+            type: "template",
+          },
+        ],
+      }),
+    );
+  });
+
+  it("should enqueue nothing when the operator has no profile", async () => {
+    const deps = makeDeps({
+      opportunityRepository: {
+        deleteByIdAndOperatorId: vi.fn().mockResolvedValue(ok(undefined)),
+        findByIdAndOperatorId: vi
+          .fn()
+          .mockResolvedValue(ok(mockOpportunity("draft"))),
+      },
+      profileRepository: {
+        getByOperatorId: vi.fn().mockResolvedValue(ok(undefined)),
+      },
+    });
+    const useCase = makeUseCase(deps);
+
+    const result = await useCase(validInput);
+
+    expect(result).toEqual(ok(undefined));
+    expect(
+      deps.opportunityRepository.deleteByIdAndOperatorId,
+    ).toHaveBeenCalledWith(expect.objectContaining({ outboxMessages: [] }));
+  });
+
+  it("should not fail the deletion when the profile lookup fails", async () => {
+    const deps = makeDeps({
+      opportunityRepository: {
+        deleteByIdAndOperatorId: vi.fn().mockResolvedValue(ok(undefined)),
+        findByIdAndOperatorId: vi
+          .fn()
+          .mockResolvedValue(ok(mockOpportunity("suspended"))),
+      },
+      profileRepository: {
+        getByOperatorId: vi
+          .fn()
+          .mockResolvedValue(err(new GenericError("DB connection failed"))),
+      },
+    });
+    const useCase = makeUseCase(deps);
+
+    const result = await useCase({
+      ...validInput,
+      deletionMessage: "Iniziativa conclusa",
+    });
+
+    expect(result).toEqual(ok(undefined));
+    expect(
+      deps.opportunityRepository.deleteByIdAndOperatorId,
+    ).toHaveBeenCalledWith(expect.objectContaining({ outboxMessages: [] }));
+  });
 });
 
 describe("makeOperatorDeleteOpportunityUseCase - reason requirement", () => {
@@ -125,9 +267,7 @@ describe("makeOperatorDeleteOpportunityUseCase - reason requirement", () => {
             .mockResolvedValue(ok(mockOpportunity(status))),
         },
       });
-      const useCase = makeOperatorDeleteOpportunityUseCase(
-        deps.opportunityRepository,
-      );
+      const useCase = makeUseCase(deps);
 
       const result = await useCase(validInput);
 
@@ -148,9 +288,7 @@ describe("makeOperatorDeleteOpportunityUseCase - reason requirement", () => {
           .mockResolvedValue(ok(mockOpportunity("suspended"))),
       },
     });
-    const useCase = makeOperatorDeleteOpportunityUseCase(
-      deps.opportunityRepository,
-    );
+    const useCase = makeUseCase(deps);
 
     const result = await useCase({ ...validInput, deletionMessage: "   " });
 
@@ -171,9 +309,7 @@ describe("makeOperatorDeleteOpportunityUseCase - reason requirement", () => {
           .mockResolvedValue(ok(mockOpportunity("suspended"))),
       },
     });
-    const useCase = makeOperatorDeleteOpportunityUseCase(
-      deps.opportunityRepository,
-    );
+    const useCase = makeUseCase(deps);
 
     await useCase({ ...validInput, deletionMessage: "  Iniziativa chiusa  " });
 
@@ -192,9 +328,7 @@ describe("makeOperatorDeleteOpportunityUseCase - status guard", () => {
         findByIdAndOperatorId: vi.fn().mockResolvedValue(ok(undefined)),
       },
     });
-    const useCase = makeOperatorDeleteOpportunityUseCase(
-      deps.opportunityRepository,
-    );
+    const useCase = makeUseCase(deps);
 
     const result = await useCase(validInput);
 
@@ -214,9 +348,7 @@ describe("makeOperatorDeleteOpportunityUseCase - status guard", () => {
           .mockResolvedValue(ok(mockOpportunity("published"))),
       },
     });
-    const useCase = makeOperatorDeleteOpportunityUseCase(
-      deps.opportunityRepository,
-    );
+    const useCase = makeUseCase(deps);
 
     const result = await useCase(validInput);
 
@@ -232,6 +364,7 @@ describe("makeOperatorDeleteOpportunityUseCase - status guard", () => {
     expect(
       deps.opportunityRepository.deleteByIdAndOperatorId,
     ).not.toHaveBeenCalled();
+    expect(deps.profileRepository.getByOperatorId).not.toHaveBeenCalled();
   });
 
   it("should return PreconditionFailedError when deleting an opportunity under review", async () => {
@@ -242,9 +375,7 @@ describe("makeOperatorDeleteOpportunityUseCase - status guard", () => {
           .mockResolvedValue(ok(mockOpportunity("test_pending"))),
       },
     });
-    const useCase = makeOperatorDeleteOpportunityUseCase(
-      deps.opportunityRepository,
-    );
+    const useCase = makeUseCase(deps);
 
     const result = await useCase(validInput);
 
@@ -279,9 +410,7 @@ describe("makeOperatorDeleteOpportunityUseCase - error propagation", () => {
           .mockResolvedValue(ok(mockOpportunity("draft"))),
       },
     });
-    const useCase = makeOperatorDeleteOpportunityUseCase(
-      deps.opportunityRepository,
-    );
+    const useCase = makeUseCase(deps);
 
     const result = await useCase(validInput);
 
@@ -297,9 +426,7 @@ describe("makeOperatorDeleteOpportunityUseCase - error propagation", () => {
         findByIdAndOperatorId: vi.fn().mockResolvedValue(err(repoError)),
       },
     });
-    const useCase = makeOperatorDeleteOpportunityUseCase(
-      deps.opportunityRepository,
-    );
+    const useCase = makeUseCase(deps);
 
     const result = await useCase(validInput);
 
@@ -319,9 +446,7 @@ describe("makeOperatorDeleteOpportunityUseCase - error propagation", () => {
           .mockResolvedValue(ok(mockOpportunity("draft"))),
       },
     });
-    const useCase = makeOperatorDeleteOpportunityUseCase(
-      deps.opportunityRepository,
-    );
+    const useCase = makeUseCase(deps);
 
     const result = await useCase(validInput);
 
@@ -332,9 +457,7 @@ describe("makeOperatorDeleteOpportunityUseCase - error propagation", () => {
 describe("makeOperatorDeleteOpportunityUseCase - input validation", () => {
   it("should return ValidationError when operatorId is invalid", async () => {
     const deps = makeDeps();
-    const useCase = makeOperatorDeleteOpportunityUseCase(
-      deps.opportunityRepository,
-    );
+    const useCase = makeUseCase(deps);
 
     const result = await useCase({
       operatorId: "invalid",
@@ -351,9 +474,7 @@ describe("makeOperatorDeleteOpportunityUseCase - input validation", () => {
 
   it("should return ValidationError when opportunityId is invalid", async () => {
     const deps = makeDeps();
-    const useCase = makeOperatorDeleteOpportunityUseCase(
-      deps.opportunityRepository,
-    );
+    const useCase = makeUseCase(deps);
 
     const result = await useCase({
       operatorId: MOCK_OPERATOR_ID,
@@ -370,9 +491,7 @@ describe("makeOperatorDeleteOpportunityUseCase - input validation", () => {
 
   it("should return ValidationError when deletionMessage exceeds the max length", async () => {
     const deps = makeDeps();
-    const useCase = makeOperatorDeleteOpportunityUseCase(
-      deps.opportunityRepository,
-    );
+    const useCase = makeUseCase(deps);
 
     const result = await useCase({
       ...validInput,

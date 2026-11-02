@@ -151,7 +151,7 @@ jobs:
       - name: Prepare Close Directory
         # The Azure action still requires app_location for `action: close`.
         if: github.event_name == 'pull_request' && github.event.action == 'closed'
-        run: mkdir -p "./${{ env.OUTPUT_DIR }}"
+        run: mkdir -p "./$OUTPUT_DIR"
 
       - name: Cloud Login
         uses: pagopa/dx/actions/csp-login@main

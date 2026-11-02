@@ -19,7 +19,6 @@ import { FormField } from '../../components/FormField';
 import { AppTextField } from '../../components/TextField';
 import { AppSelect } from '../../components/Select';
 import { getContactError } from '../../components/ContactRow/utils';
-import { getContactInputConfig } from '../Overview/CompleteData/components/constants';
 import type { PlaceCreateRequest } from '../../generated/model';
 import { isValidHttpsUrl } from '../../utils';
 import AddIcon from '@mui/icons-material/Add';
@@ -182,28 +181,32 @@ export default function CreateLocationPage() {
       const results = await Promise.allSettled(
         submittedLocations.map((loc) => {
           let payload: PlaceCreateRequest;
+          const supportContacts = loc.contacts.map((contact) => ({
+            ...contact,
+            value: contact.value.trim(),
+          }));
 
           if (type === 'offline') {
             payload = {
               type: 'offline',
-              name: loc.name,
+              name: loc.name.trim(),
               address: {
-                street: loc.street,
-                city: loc.city,
-                state: loc.state,
-                postalCode: loc.postalCode,
+                street: loc.street.trim(),
+                city: loc.city.trim(),
+                state: loc.state.trim(),
+                postalCode: loc.postalCode.trim(),
                 country: 'IT',
               },
-              supportContacts: loc.contacts,
+              supportContacts,
             };
           } else {
             payload = {
               type: 'online',
-              name: loc.name,
+              name: loc.name.trim(),
               website: {
-                url: loc.websiteUrl,
+                url: loc.websiteUrl.trim(),
               },
-              supportContacts: loc.contacts,
+              supportContacts,
             };
           }
 

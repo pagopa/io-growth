@@ -64,6 +64,16 @@ on:
         type: string
         required: false
         default: ""
+      analytics_token:
+        description: Analytics token exposed to the build as VITE_ANALYTICS_TOKEN.
+        type: string
+        required: false
+        default: ""
+      analytics_token_required:
+        description: Fail the build when analytics_token is empty.
+        type: boolean
+        required: false
+        default: false
     outputs:
       bundle_name:
         description: The name of the bundle used for artifact storage
@@ -88,14 +98,14 @@ jobs:
       contents: read
     outputs:
       bundle_name: ${{ env.BUNDLE_NAME }}
-    environment: ${{ inputs.environment }}-cd
     env:
-      VITE_ANALYTICS_TOKEN: ${{ secrets.VITE_ANALYTICS_TOKEN }}
+      VITE_ANALYTICS_TOKEN: ${{ inputs.analytics_token }}
 
     steps:
-      - name: Test env
-        run: test -n "$VITE_ANALYTICS_TOKEN" || { echo "VITE_ANALYTICS_TOKEN vuoto"; exit 1; }
-        
+      - name: Check Analytics Token
+        if: ${{ inputs.analytics_token_required }}
+        run: test -n "$VITE_ANALYTICS_TOKEN" || { echo "::error::analytics_token is required but empty"; exit 1; }
+
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
@@ -151,7 +161,7 @@ jobs:
       - name: Prepare Close Directory
         # The Azure action still requires app_location for `action: close`.
         if: github.event_name == 'pull_request' && github.event.action == 'closed'
-        run: mkdir -p "./${{ env.OUTPUT_DIR }}"
+        run: mkdir -p "./$OUTPUT_DIR"
 
       - name: Cloud Login
         uses: pagopa/dx/actions/csp-login@main

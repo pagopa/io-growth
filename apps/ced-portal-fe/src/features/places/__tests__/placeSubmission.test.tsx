@@ -67,14 +67,22 @@ describe.each([
     },
   );
 
-  it('saves valid contacts and ignores optional empty contacts', async () => {
+  it('does not send an API request for an empty required contact', async () => {
+    await submit([
+      { type: 'email', value: 'assistenza@example.it' },
+      { type: 'email', value: '   ' },
+    ]);
+    expect(createPlace).not.toHaveBeenCalled();
+  });
+
+  it('saves valid contacts', async () => {
     const contacts = [
       { type: 'email', value: 'assistenza@example.it' },
       { type: 'phone', value: '+39 02 12345678' },
       { type: 'website', value: 'https://example.it' },
     ] as const;
     createPlace.mockResolvedValue({ data: { id: 'new-place' } });
-    await submit([...contacts, { type: 'email', value: '   ' }]);
+    await submit([...contacts]);
     expect(createPlace).toHaveBeenCalledExactlyOnceWith(
       expect.objectContaining({ type, supportContacts: contacts }),
     );

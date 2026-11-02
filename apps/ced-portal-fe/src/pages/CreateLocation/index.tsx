@@ -19,7 +19,6 @@ import { FormField } from '../../components/FormField';
 import { AppTextField } from '../../components/TextField';
 import { AppSelect } from '../../components/Select';
 import { getContactError } from '../../components/ContactRow/utils';
-import { getContactInputConfig } from '../Overview/CompleteData/components/constants';
 import type { PlaceCreateRequest } from '../../generated/model';
 import { isValidHttpsUrl } from '../../utils';
 import AddIcon from '@mui/icons-material/Add';
@@ -92,7 +91,6 @@ export default function CreateLocationPage() {
       contact,
       attempted,
       required: true,
-      isUrl: contact.type === 'website',
     });
 
   const handleUpdateLocation = (

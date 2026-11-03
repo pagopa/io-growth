@@ -56,7 +56,7 @@ export function ContactsSection({
             })
           }
           removeIcon={<DeleteIcon />}
-          removeIconSx={{ color: 'error.dark', p: 2 }}
+          removeIconSx={{ color: 'error.dark', p: 2, alignSelf: 'flex-start' }}
         />
       ))}
 

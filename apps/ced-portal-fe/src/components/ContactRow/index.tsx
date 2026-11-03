@@ -66,8 +66,7 @@ export const ContactRow = ({
           width: '100%',
           gridTemplateColumns: {
             xs: '1fr',
-            sm: '220px minmax(0, 1fr)',
-            md: '260px minmax(0, 1fr)',
+            sm: '180px minmax(0, 1fr)',
           },
         }}
       >
@@ -79,7 +78,6 @@ export const ContactRow = ({
           error={Boolean(typeError)}
           helperText={typeError}
           onChange={(e) => onChange(index, 'type', e.target.value as string)}
-          sx={{ '& .MuiOutlinedInput-root': { borderRadius: '8px' } }}
         />
 
         <AppTextField
@@ -90,7 +88,6 @@ export const ContactRow = ({
           helperText={contactError}
           value={contact.value}
           onChange={(e) => onChange(index, 'value', e.target.value)}
-          sx={{ '& .MuiOutlinedInput-root': { borderRadius: '8px' } }}
         />
       </Box>
     </Box>

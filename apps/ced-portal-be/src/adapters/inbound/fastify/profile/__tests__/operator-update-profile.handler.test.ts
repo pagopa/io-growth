@@ -286,7 +286,7 @@ describe("mountOperatorUpdateProfileHandler place validation", () => {
 
     const response = await app.inject({
       headers: {
-        authorization: "******",
+        authorization: "Bearer test-token",
         "content-type": `multipart/form-data; boundary=${form.boundary}`,
       },
       method: "PUT",

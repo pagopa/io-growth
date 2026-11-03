@@ -61,7 +61,9 @@ const createDefaultLocation = (): LocationState => ({
 });
 
 const getWebsiteUrlError = (url: string) =>
-  isValidHttpsUrl(url) ? null : 'Inserisci un URL valido (es. https://...)';
+  !url.trim() || isValidHttpsUrl(url)
+    ? null
+    : 'Inserisci un URL valido (es. https://...)';
 
 export default function CreateLocationPage() {
   const theme = useTheme();

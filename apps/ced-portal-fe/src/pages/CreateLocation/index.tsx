@@ -286,7 +286,13 @@ export default function CreateLocationPage() {
 
             <AppRadioList
               value={type}
-              onChange={(val) => setType(val as 'offline' | 'online')}
+              onChange={(val) => {
+                setType(val as 'offline' | 'online');
+                setAttempted(false);
+                setLocations((prev) =>
+                  prev.map((loc) => ({ ...loc, websiteUrlError: null })),
+                );
+              }}
               sx={{ gap: 4 }}
               options={[
                 { value: 'offline', label: 'Sede fisica' },

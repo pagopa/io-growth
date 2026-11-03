@@ -13,6 +13,5 @@ export interface LocationState {
   state: string;
   postalCode: string;
   websiteUrl: string;
-  websiteUrlError: string | null;
   contacts: ContactState[];
 }

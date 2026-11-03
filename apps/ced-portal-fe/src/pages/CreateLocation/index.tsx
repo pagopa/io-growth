@@ -40,7 +40,6 @@ const createDefaultLocation = (): LocationState => ({
   state: '',
   postalCode: '',
   websiteUrl: '',
-  websiteUrlError: null,
   contacts: [{ type: 'phone', value: '' }],
 });
 
@@ -56,9 +55,18 @@ export default function CreateLocationPage() {
   ]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [attempted, setAttempted] = useState(false);
+  const [showUrlErrorIds, setShowUrlErrorIds] = useState<Set<string>>(
+    new Set(),
+  );
 
   const getRequiredError = (value: string) =>
     getRequiredFieldError(value, attempted);
+
+  const getUrlError = (loc: LocationState) =>
+    showUrlErrorIds.has(loc.id) ? getWebsiteUrlError(loc.websiteUrl) : null;
+
+  const showUrlError = (id: string) =>
+    setShowUrlErrorIds((prev) => new Set(prev).add(id));
 
   const getContactFieldError = (contact: ContactState) =>
     getContactError({
@@ -121,12 +129,7 @@ export default function CreateLocationPage() {
 
   const handleSubmit = async () => {
     setAttempted(true);
-    setLocations((prev) =>
-      prev.map((loc) => ({
-        ...loc,
-        websiteUrlError: getWebsiteUrlError(loc.websiteUrl),
-      })),
-    );
+    setShowUrlErrorIds(new Set(locations.map((loc) => loc.id)));
     if (!isFormValid()) return;
 
     setIsSubmitting(true);
@@ -196,9 +199,7 @@ export default function CreateLocationPage() {
               onChange={(val) => {
                 setType(val as 'offline' | 'online');
                 setAttempted(false);
-                setLocations((prev) =>
-                  prev.map((loc) => ({ ...loc, websiteUrlError: null })),
-                );
+                setShowUrlErrorIds(new Set());
               }}
               sx={{ gap: 4 }}
               options={[
@@ -328,23 +329,17 @@ export default function CreateLocationPage() {
                     placeholder="Es. https://www.example.com"
                     value={loc.websiteUrl}
                     error={
-                      !!getRequiredError(loc.websiteUrl) ||
-                      !!loc.websiteUrlError
+                      !!getRequiredError(loc.websiteUrl) || !!getUrlError(loc)
                     }
                     helperText={
-                      getRequiredError(loc.websiteUrl) ?? loc.websiteUrlError
+                      getRequiredError(loc.websiteUrl) ?? getUrlError(loc)
                     }
                     onChange={(e) =>
                       handleUpdateLocation(locIndex, {
                         websiteUrl: e.target.value,
-                        websiteUrlError: null,
                       })
                     }
-                    onBlur={() =>
-                      handleUpdateLocation(locIndex, {
-                        websiteUrlError: getWebsiteUrlError(loc.websiteUrl),
-                      })
-                    }
+                    onBlur={() => showUrlError(loc.id)}
                   />
                 )}
               </Stack>

@@ -11,7 +11,6 @@ const createLocation = (id: string, name: string): LocationState => ({
   state: 'RM',
   postalCode: '00100',
   websiteUrl: '',
-  websiteUrlError: null,
   contacts: [{ type: 'phone', value: '+39 02 12345678' }],
 });
 

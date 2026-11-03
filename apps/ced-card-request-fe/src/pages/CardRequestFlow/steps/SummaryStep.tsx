@@ -27,7 +27,7 @@ interface SummaryProps {
 }
 
 const SummaryStep = forwardRef<StepRef, SummaryProps>(function SummaryStep(
-  { onEditPhoto, onEditAddress, onEditJudgment, photoPreview },
+  { onEditApplicant, onEditPhoto, onEditAddress, onEditJudgment, photoPreview },
   ref,
 ) {
   const theme = useTheme();
@@ -113,6 +113,20 @@ const SummaryStep = forwardRef<StepRef, SummaryProps>(function SummaryStep(
                   showDivider={i < personalData.length - 1}
                 />
               ))}
+
+              <Box sx={{ ml: -2.5, mt: -2 }}>
+                <Button
+                  size="small"
+                  sx={{
+                    fontWeight: 600,
+                    fontSize: 17,
+                    color: theme.palette.common.primaryButton,
+                  }}
+                  onClick={() => onEditApplicant?.()}
+                >
+                  Modifica dati
+                </Button>
+              </Box>
             </Box>
           </AccordionDetails>
         </Accordion>

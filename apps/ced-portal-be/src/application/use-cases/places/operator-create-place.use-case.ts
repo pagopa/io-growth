@@ -11,6 +11,7 @@ import { z } from "zod";
 import type { Place } from "../../../domain/entities/place.js";
 import type { PlaceRepository } from "../../../domain/ports/outbound/persistence/place.repository.js";
 
+import { HttpsUrlSchema } from "../../../domain/value-objects/https-url.js";
 import { SupportContactInputSchema } from "../utils/support-contact-input.schema.js";
 import { validateUseCaseInput } from "../utils/validate-use-case-input.js";
 
@@ -23,7 +24,7 @@ const OperatorCreatePlaceAddressSchema = z.object({
 });
 
 const OperatorCreatePlaceWebsiteSchema = z.object({
-  url: z.url().max(2048),
+  url: HttpsUrlSchema.max(2048),
 });
 
 const OperatorCreatePlacePlaceSchema = z.discriminatedUnion("type", [

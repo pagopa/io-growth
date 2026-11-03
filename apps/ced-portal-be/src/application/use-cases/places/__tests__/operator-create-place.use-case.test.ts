@@ -89,6 +89,24 @@ describe("makeOperatorCreatePlaceUseCase", () => {
     expect(placeRepository.create).not.toHaveBeenCalled();
   });
 
+  it("should return ValidationError when online place website is not HTTPS", async () => {
+    const placeRepository = createMockPlaceRepository();
+    const useCase = makeOperatorCreatePlaceUseCase(placeRepository);
+
+    const result = await useCase({
+      ...mockCreatePlaceInput,
+      place: {
+        ...mockCreatePlaceInput.place,
+        website: { url: "http://example.org" },
+      },
+    });
+
+    expect(result).toEqual(
+      err(expect.objectContaining({ kind: "ValidationError" })),
+    );
+    expect(placeRepository.create).not.toHaveBeenCalled();
+  });
+
   it.each([
     { type: "email", value: "invalid-email" },
     { type: "phone", value: "02 abc 123" },

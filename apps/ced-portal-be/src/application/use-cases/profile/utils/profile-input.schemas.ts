@@ -1,6 +1,7 @@
 import { z } from "zod";
 
 import { ProfileLegalUrlSchema } from "../../../../domain/entities/profile.js";
+import { HttpsUrlSchema } from "../../../../domain/value-objects/https-url.js";
 import { StrictSupportContactInputSchema } from "../../utils/support-contact-input.schema.js";
 
 const OperatorProfileAddressSchema = z
@@ -15,7 +16,7 @@ const OperatorProfileAddressSchema = z
 
 const OperatorProfileWebsiteSchema = z
   .object({
-    url: z.url().max(2048),
+    url: HttpsUrlSchema.max(2048),
   })
   .strict();
 
@@ -61,11 +62,3 @@ export const OperatorUpdateProfileInputSchema =
     logo: z.instanceof(Blob).optional(),
     operatorId: z.ulid(),
   });
-
-export const OperatorUpdateProfileMultipartBodySchema = z
-  .object({
-    image: z.instanceof(Blob).optional(),
-    logo: z.instanceof(Blob).optional(),
-    profile: OperatorProfileInputSchema,
-  })
-  .strict();

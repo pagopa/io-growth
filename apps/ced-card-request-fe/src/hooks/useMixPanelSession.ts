@@ -3,16 +3,15 @@ import { initAnalytics } from '@pagopa/io-mixpanel';
 import { useLocation } from 'react-router-dom';
 import { useAppSelector } from './store';
 import { selectDeviceId } from '../core/auth/authSelectors';
+import { getMixpanelId } from '../mixpanel/getMixpanelId';
 
 export const useMixPanelSession = () => {
   const { search } = useLocation();
-  const params = new URLSearchParams(search);
-
   const isEmptySearch = !search || search === '';
 
   const cachedDeviceId = useAppSelector(selectDeviceId);
 
-  const deviceIdQuery = params.get('mixpanelId');
+  const deviceIdQuery = getMixpanelId(search);
 
   const deviceId = useMemo(
     () => (isEmptySearch ? cachedDeviceId : deviceIdQuery),

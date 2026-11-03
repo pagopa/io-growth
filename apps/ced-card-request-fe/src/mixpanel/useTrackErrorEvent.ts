@@ -1,6 +1,5 @@
 import { useEffect, useRef } from 'react';
-import type { EventProperties } from '@pagopa/io-mixpanel/dist/mixpanel';
-import { trackCardRequestEvent } from './trackEvent';
+import { trackCardRequestEvent, type EventProperties } from './trackEvent';
 
 export const useTrackErrorEvent = (
   event_name: string,

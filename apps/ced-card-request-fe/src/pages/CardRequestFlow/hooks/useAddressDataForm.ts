@@ -37,9 +37,9 @@ const ADDRESS_DATA_FORM_CONFIG: AddressDataFormType[] = [
     type: 'text',
     rules: {
       required: true,
-      maxLength: 2,
-      pattern: /^[A-Za-z]{2}$/,
-      patternMessage: 'Inserisci la sigla di 2 lettere (es. RM)',
+      maxLength: 3,
+      pattern: /^[A-Za-z]{2,3}$/,
+      patternMessage: 'Inserisci la sigla di 2 o 3 lettere (es. RM)',
     },
   },
   {

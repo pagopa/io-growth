@@ -21,6 +21,7 @@ import { useAppSelector } from '../../hooks';
 import { selectConfirmationForm } from '../../features/confirmation/reducer';
 import UploadDocumentsStep from './steps/UploadDocumentsStep';
 import { selectPhotoPreview } from '../../features/photo-upload/reducer';
+import { trackCardRequestEvent } from '../../mixpanel/trackEvent';
 
 const steps = [
   {
@@ -57,6 +58,20 @@ const steps = [
 ];
 
 const TOTAL_STEPS = steps.length;
+
+const STEP_EVENT_NAMES = [
+  'CED_CARD_REQUEST_APPLICANT_DATA',
+  'CED_CARD_REQUEST_ADDRESS',
+  'CED_CARD_REQUEST_PHOTO',
+  'CED_CARD_REQUEST_DOCUMENT_TYPE',
+  'CED_CARD_REQUEST_DOCUMENT_UPLOAD',
+  'CED_CARD_REQUEST_SUMMARY',
+];
+
+const stepProperties = (step: number) => ({
+  step: step + 1,
+  total_steps: TOTAL_STEPS,
+});
 
 export default function CardRequestFlowPage() {
   const location = useLocation();
@@ -103,6 +118,10 @@ export default function CardRequestFlowPage() {
   } = useSaveDataByStep(goNextStep);
 
   const handleBack = () => {
+    trackCardRequestEvent('CED_CARD_REQUEST_BACK', {
+      event_type: 'tap',
+      ...stepProperties(currentStep),
+    });
     if (isLastStep) {
       setCurrentStep(getPreviousStepBeforeSummary(confirmationForm));
       return;
@@ -114,6 +133,13 @@ export default function CardRequestFlowPage() {
 
     navigate(-1);
   };
+
+  useEffect(() => {
+    trackCardRequestEvent(STEP_EVENT_NAMES[currentStep], {
+      event_type: 'screen_view',
+      ...stepProperties(currentStep),
+    });
+  }, [currentStep]);
 
   useEffect(() => {
     requestAnimationFrame(() => {
@@ -173,6 +199,10 @@ export default function CardRequestFlowPage() {
     if (stepRef.current) {
       const isValid = await stepRef.current.validate();
       if (!isValid) return;
+      trackCardRequestEvent('CED_CARD_REQUEST_STEP_COMPLETED', {
+        event_type: 'tap',
+        ...stepProperties(currentStep),
+      });
       if (currentStep === 1) {
         saveFirstDraftData();
         return;
@@ -193,6 +223,10 @@ export default function CardRequestFlowPage() {
   };
 
   const handleSubmit = async () => {
+    trackCardRequestEvent('CED_CARD_REQUEST_SUBMIT', {
+      event_type: 'tap',
+      ...stepProperties(currentStep),
+    });
     // show loading overlay and simulate submit
     setIsSubmitting(true);
     try {
@@ -265,7 +299,13 @@ export default function CardRequestFlowPage() {
             disabled={isSubmitting}
             onClick={
               cancelLabel === 'Riprendi più tardi'
-                ? () => setDraftSaved(true)
+                ? () => {
+                    trackCardRequestEvent('CED_CARD_REQUEST_RESUME_LATER', {
+                      event_type: 'tap',
+                      ...stepProperties(currentStep),
+                    });
+                    setDraftSaved(true);
+                  }
                 : handleBack
             }
             sx={{

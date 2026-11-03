@@ -1,11 +1,9 @@
 import { z } from "zod";
 
+import { HttpsUrlSchema } from "../value-objects/https-url.js";
 import { PlaceSchema } from "./place.js";
 
-export const ProfileLegalUrlSchema = z
-  .url({ protocol: /^https$/ })
-  .max(2048)
-  .regex(/^https:\/\//i);
+export const ProfileLegalUrlSchema = HttpsUrlSchema.max(2048);
 
 export const ProfileSchema = z.object({
   contactEmail: z.email().max(512),

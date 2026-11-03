@@ -1,5 +1,7 @@
 import { z } from "zod";
 
+import { HttpsUrlSchema } from "../../../domain/value-objects/https-url.js";
+
 const supportContactValueSchema = z.string().max(2048).trim().min(1);
 
 export const SupportContactEmailValueSchema = supportContactValueSchema
@@ -16,9 +18,8 @@ export const SupportContactPhoneValueSchema = supportContactValueSchema.refine(
   (value) => /^\+?\d+(?:[ .-]\d+)*$/.test(value.replace(/\((\d+)\)/g, "$1")),
 );
 
-export const SupportContactWebsiteValueSchema = supportContactValueSchema.pipe(
-  z.url({ protocol: /^https$/ }).regex(/^https:\/\//i),
-);
+export const SupportContactWebsiteValueSchema =
+  supportContactValueSchema.pipe(HttpsUrlSchema);
 
 export const SupportContactEmailInputSchema = z.object({
   type: z.literal("email"),

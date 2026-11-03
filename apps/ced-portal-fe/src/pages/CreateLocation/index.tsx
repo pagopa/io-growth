@@ -15,7 +15,6 @@ import { APP_ROUTES } from '../../app/routeConfig';
 import { useToast } from '../../contexts';
 import { useCreatePlaceMutation } from '../../features/places/api';
 import { AppRadioList } from '../../components/RadioList';
-import { FormField } from '../../components/FormField';
 import { AppTextField } from '../../components/TextField';
 import { AppSelect } from '../../components/Select';
 import { getContactError } from '../../components/ContactRow/utils';
@@ -63,15 +62,6 @@ const createDefaultLocation = (): LocationState => ({
 
 const getWebsiteUrlError = (url: string) =>
   isValidHttpsUrl(url) ? null : 'Inserisci un URL valido (es. https://...)';
-
-const requiredTitle = (label: string) => (
-  <>
-    {label}{' '}
-    <Box component="span" sx={{ color: 'common.requiredField' }}>
-      *
-    </Box>
-  </>
-);
 
 export default function CreateLocationPage() {
   const theme = useTheme();
@@ -339,100 +329,93 @@ export default function CreateLocationPage() {
               </Stack>
 
               <Stack spacing={3}>
-                <FormField
-                  title={requiredTitle('Nome')}
+                <AppTextField
                   required
+                  label="Nome"
+                  placeholder="Inserisci nome"
                   value={loc.name}
                   error={!!getRequiredError(loc.name)}
+                  helperText={getRequiredError(loc.name)}
                   onChange={(e) =>
                     handleUpdateLocation(locIndex, { name: e.target.value })
                   }
-                  placeholder="Inserisci nome"
-                >
-                  <AppTextField helperText={getRequiredError(loc.name)} />
-                </FormField>
+                />
 
                 {type === 'offline' ? (
                   <>
-                    <FormField
-                      title={requiredTitle('Indirizzo')}
+                    <AppTextField
                       required
+                      label="Indirizzo"
+                      placeholder="Es. Via Roma, 1"
                       value={loc.street}
                       error={!!getRequiredError(loc.street)}
+                      helperText={getRequiredError(loc.street)}
                       onChange={(e) =>
                         handleUpdateLocation(locIndex, {
                           street: e.target.value,
                         })
                       }
-                      placeholder="Es. Via Roma, 1"
-                    >
-                      <AppTextField helperText={getRequiredError(loc.street)} />
-                    </FormField>
+                    />
                     <Stack direction={{ xs: 'column', md: 'row' }} spacing={2}>
                       <Box sx={{ flex: 1 }}>
-                        <FormField
-                          title={requiredTitle('Città')}
+                        <AppTextField
                           required
+                          label="Città"
+                          placeholder="Es. Roma"
                           value={loc.city}
                           error={!!getRequiredError(loc.city)}
+                          helperText={getRequiredError(loc.city)}
                           onChange={(e) =>
                             handleUpdateLocation(locIndex, {
                               city: e.target.value,
                             })
                           }
-                          placeholder="Es. Roma"
-                        >
-                          <AppTextField
-                            helperText={getRequiredError(loc.city)}
-                          />
-                        </FormField>
+                        />
                       </Box>
                       <Box sx={{ flex: 1 }}>
-                        <FormField
-                          title={requiredTitle('Provincia')}
+                        <AppTextField
                           required
+                          label="Provincia"
+                          placeholder="Es. RM"
                           value={loc.state}
                           error={!!getRequiredError(loc.state)}
+                          helperText={getRequiredError(loc.state)}
                           onChange={(e) =>
                             handleUpdateLocation(locIndex, {
                               state: e.target.value,
                             })
                           }
-                          placeholder="Es. RM"
-                        >
-                          <AppTextField
-                            helperText={getRequiredError(loc.state)}
-                          />
-                        </FormField>
+                        />
                       </Box>
                       <Box sx={{ flex: 1 }}>
-                        <FormField
-                          title={requiredTitle('CAP')}
+                        <AppTextField
                           required
+                          label="CAP"
+                          placeholder="Es. 00100"
                           value={loc.postalCode}
                           error={!!getRequiredError(loc.postalCode)}
+                          helperText={getRequiredError(loc.postalCode)}
                           onChange={(e) =>
                             handleUpdateLocation(locIndex, {
                               postalCode: e.target.value,
                             })
                           }
-                          placeholder="Es. 00100"
-                        >
-                          <AppTextField
-                            helperText={getRequiredError(loc.postalCode)}
-                          />
-                        </FormField>
+                        />
                       </Box>
                     </Stack>
                   </>
                 ) : (
-                  <FormField
-                    title={requiredTitle('Sito web')}
+                  <AppTextField
                     required
+                    label="Sito web"
+                    placeholder="Es. https://www.example.com"
                     value={loc.websiteUrl}
                     error={
                       !!getRequiredError(loc.websiteUrl) ||
                       !!loc.websiteUrlError
+                    }
+                    helperText={
+                      getRequiredError(loc.websiteUrl) ?? loc.websiteUrlError
                     }
                     onChange={(e) =>
                       handleUpdateLocation(locIndex, {
@@ -440,19 +423,12 @@ export default function CreateLocationPage() {
                         websiteUrlError: null,
                       })
                     }
-                    placeholder="Es. https://www.example.com"
-                  >
-                    <AppTextField
-                      helperText={
-                        getRequiredError(loc.websiteUrl) ?? loc.websiteUrlError
-                      }
-                      onBlur={() =>
-                        handleUpdateLocation(locIndex, {
-                          websiteUrlError: getWebsiteUrlError(loc.websiteUrl),
-                        })
-                      }
-                    />
-                  </FormField>
+                    onBlur={() =>
+                      handleUpdateLocation(locIndex, {
+                        websiteUrlError: getWebsiteUrlError(loc.websiteUrl),
+                      })
+                    }
+                  />
                 )}
               </Stack>
 
@@ -465,39 +441,42 @@ export default function CreateLocationPage() {
 
               <Stack spacing={2}>
                 {loc.contacts.map((contact, contactIndex) => (
-                  <Stack
+                  <Box
                     key={contactIndex}
-                    direction={{ xs: 'column', md: 'row' }}
-                    spacing={2}
-                    alignItems="flex-start"
+                    sx={{
+                      display: 'grid',
+                      gap: 2,
+                      gridTemplateColumns: {
+                        xs: '1fr',
+                        md: 'repeat(3, minmax(0, 1fr))',
+                      },
+                    }}
                   >
-                    <Box sx={{ width: { xs: '100%', md: 240 } }}>
-                      <AppSelect
-                        fullWidth
-                        sx={{ width: '100%' }}
-                        label="Tipo di contatto"
-                        required
-                        value={contact.type}
-                        onChange={(e) =>
-                          handleContactChange(
-                            locIndex,
-                            contactIndex,
-                            'type',
-                            e.target.value as string,
-                          )
-                        }
-                        options={[
-                          { value: 'email', label: 'Email' },
-                          { value: 'phone', label: 'Telefono' },
-                          { value: 'website', label: 'Sito web' },
-                        ]}
-                      />
-                    </Box>
+                    <AppSelect
+                      fullWidth
+                      sx={{ width: '100%' }}
+                      label="Tipo di contatto"
+                      required
+                      value={contact.type}
+                      onChange={(e) =>
+                        handleContactChange(
+                          locIndex,
+                          contactIndex,
+                          'type',
+                          e.target.value as string,
+                        )
+                      }
+                      options={[
+                        { value: 'email', label: 'Email' },
+                        { value: 'phone', label: 'Telefono' },
+                        { value: 'website', label: 'Sito web' },
+                      ]}
+                    />
                     <Stack
                       direction="row"
-                      spacing={2}
+                      spacing={1}
                       alignItems="flex-start"
-                      sx={{ flex: 1, width: '100%' }}
+                      sx={{ gridColumn: { md: 'span 2' } }}
                     >
                       <Box sx={{ flex: 1 }}>
                         <AppTextField
@@ -527,15 +506,15 @@ export default function CreateLocationPage() {
                           }
                           sx={{
                             color: 'error.dark',
-                            p: 1,
-                            alignSelf: 'center',
+                            p: 2,
+                            alignSelf: 'flex-start',
                           }}
                         >
                           <DeleteIcon />
                         </IconButton>
                       )}
                     </Stack>
-                  </Stack>
+                  </Box>
                 ))}
               </Stack>
 

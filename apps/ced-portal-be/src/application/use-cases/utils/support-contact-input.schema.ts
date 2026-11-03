@@ -2,24 +2,24 @@ import { z } from "zod";
 
 import { HttpsUrlSchema } from "../../../domain/value-objects/https-url.js";
 
-const supportContactValueSchema = z.string().max(2048).trim().min(1);
+const SupportContactValueSchema = z.string().max(2048).trim().min(1);
 
-export const SupportContactEmailValueSchema = supportContactValueSchema
-  .pipe(z.email())
-  .refine(
-    (value) =>
-      !value
-        .slice(value.lastIndexOf("@") + 1)
-        .split(".")
-        .some((label) => label.endsWith("-")),
-  );
+export const SupportContactEmailValueSchema = SupportContactValueSchema.pipe(
+  z.email(),
+).refine(
+  (value) =>
+    !value
+      .slice(value.lastIndexOf("@") + 1)
+      .split(".")
+      .some((label) => label.endsWith("-")),
+);
 
-export const SupportContactPhoneValueSchema = supportContactValueSchema.refine(
+export const SupportContactPhoneValueSchema = SupportContactValueSchema.refine(
   (value) => /^\+?\d+(?:[ .-]\d+)*$/.test(value.replace(/\((\d+)\)/g, "$1")),
 );
 
 export const SupportContactWebsiteValueSchema =
-  supportContactValueSchema.pipe(HttpsUrlSchema);
+  SupportContactValueSchema.pipe(HttpsUrlSchema);
 
 export const SupportContactEmailInputSchema = z.object({
   type: z.literal("email"),

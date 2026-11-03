@@ -18,4 +18,12 @@ describe("HttpsUrlSchema", () => {
   ])("rejects %s", (url) => {
     expect(HttpsUrlSchema.safeParse(url).success).toBe(false);
   });
+
+  it("reports a single readable issue for a non-HTTPS URL", () => {
+    const result = HttpsUrlSchema.safeParse("http://example.org");
+
+    expect(result.error?.issues.map(({ message }) => message)).toEqual([
+      "Must be a valid HTTPS URL",
+    ]);
+  });
 });

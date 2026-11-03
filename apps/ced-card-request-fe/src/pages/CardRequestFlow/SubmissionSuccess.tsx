@@ -5,9 +5,11 @@ import { MarkdownRenderer } from '../../components/Typography/MarkdownRender';
 import { CopyToClipboardButton } from '../../components';
 import { useAppSelector } from '../../hooks';
 import { selectNumDomus } from '../../features/status/selectors';
+import { useTrackLandedInPage } from '../../mixpanel/useTrackLandedInPage';
 
 export default function SubmissionSuccess() {
   const theme = useTheme();
+  useTrackLandedInPage('CED_CARD_REQUEST_SUCCESS');
 
   const onClose = () => window.location.replace('iossoapi://cancel');
 

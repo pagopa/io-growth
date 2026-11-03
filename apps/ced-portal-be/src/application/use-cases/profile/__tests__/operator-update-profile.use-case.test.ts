@@ -222,7 +222,7 @@ describe("makeOperatorUpdateProfileUseCase", () => {
   });
 });
 
-describe("operator profile support-contact input validation", () => {
+describe("operator profile place input validation", () => {
   it.each([
     { type: "email", value: "invalid-email" },
     { type: "phone", value: "02 abc 123" },
@@ -240,6 +240,30 @@ describe("operator profile support-contact input validation", () => {
       place: {
         ...updateInput.place,
         supportContacts: [contact],
+      },
+    });
+
+    expect(result).toEqual(
+      err(expect.objectContaining({ kind: "ValidationError" })),
+    );
+    expect(profileRepository.getByOperatorId).not.toHaveBeenCalled();
+  });
+
+  it("rejects a non-HTTPS online place website", async () => {
+    const profileRepository = createMockProfileRepository();
+    const useCase = makeOperatorUpdateProfileUseCase(
+      profileRepository,
+      createMockProfileAssetsRepository(),
+      createMaterializedViewRepository(),
+    );
+
+    const result = await useCase({
+      ...updateInput,
+      place: {
+        name: "Sportello remoto",
+        supportContacts: [],
+        type: "online" as const,
+        website: { url: "http://example.org" },
       },
     });
 

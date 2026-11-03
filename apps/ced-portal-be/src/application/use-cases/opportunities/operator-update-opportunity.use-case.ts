@@ -18,6 +18,7 @@ import {
   OPPORTUNITY_STATUS,
   type OpportunityDetail,
 } from "../../../domain/entities/opportunity.js";
+import { HttpsUrlSchema } from "../../../domain/value-objects/https-url.js";
 import { validateUseCaseInput } from "../utils/validate-use-case-input.js";
 import {
   BenefitInputSchema,
@@ -43,7 +44,7 @@ const OperatorUpdateOpportunityInputSchema = z.object({
   operatorId: z.ulid(),
   opportunityId: z.ulid(),
   placeIds: PlaceIdsInputSchema,
-  url: z.url().max(2048).optional(),
+  url: HttpsUrlSchema.max(2048).optional(),
 });
 
 export type OperatorUpdateOpportunityInput = z.input<

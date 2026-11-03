@@ -14,6 +14,7 @@ import type { OpportunityCategoryRepository } from "../../../domain/ports/outbou
 import type { OpportunityRepository } from "../../../domain/ports/outbound/persistence/opportunity.repository.js";
 import type { PlaceRepository } from "../../../domain/ports/outbound/persistence/place.repository.js";
 
+import { HttpsUrlSchema } from "../../../domain/value-objects/https-url.js";
 import { validateUseCaseInput } from "../utils/validate-use-case-input.js";
 import {
   BenefitInputSchema,
@@ -32,7 +33,7 @@ const OperatorCreateOpportunityInputSchema = z.object({
   nationalTerritory: z.boolean().default(false),
   operatorId: z.ulid(),
   placeIds: PlaceIdsInputSchema.default([]),
-  url: z.url().max(2048).optional(),
+  url: HttpsUrlSchema.max(2048).optional(),
 });
 
 export type OperatorCreateOpportunityInput = z.input<

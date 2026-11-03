@@ -372,3 +372,28 @@ describe("profile asset orchestration", () => {
     expect(profileRepository.create).not.toHaveBeenCalled();
   });
 });
+
+describe("profile online place website validation", () => {
+  it("rejects a non-HTTPS online place website", async () => {
+    const profileRepository = createMockProfileRepository();
+    const profileAssetsRepository = createMockProfileAssetsRepository();
+    const useCase = makeOperatorCreateProfileUseCase(
+      profileRepository,
+      profileAssetsRepository,
+    );
+
+    const result = await useCase({
+      ...mockCreateProfileInput,
+      place: {
+        ...mockCreateProfileInput.place,
+        website: { url: "http://example.org" },
+      },
+    });
+
+    expect(result).toEqual(
+      err(expect.objectContaining({ kind: "ValidationError" })),
+    );
+    expect(profileRepository.getByOperatorId).not.toHaveBeenCalled();
+    expect(profileAssetsRepository.storeProfileAssets).not.toHaveBeenCalled();
+  });
+});

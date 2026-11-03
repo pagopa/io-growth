@@ -264,3 +264,42 @@ describe("mountOperatorUpdateProfileHandler", () => {
     expect(useCase).not.toHaveBeenCalled();
   });
 });
+
+describe("mountOperatorUpdateProfileHandler place validation", () => {
+  it("delegates online place website protocol validation to the use case", async () => {
+    const useCase: OperatorUpdateProfileUseCase = vi
+      .fn()
+      .mockResolvedValue(ok(mockProfile));
+    const app = buildApp(session);
+    mountOperatorUpdateProfileHandler(app, useCase);
+    const input = {
+      ...profile,
+      place: { ...profile.place, website: { url: "http://example.org" } },
+    };
+    const form = multipartPayload([
+      {
+        content: JSON.stringify(input),
+        contentType: "application/json",
+        name: "profile",
+      },
+    ]);
+
+    const response = await app.inject({
+      headers: {
+        authorization: "******",
+        "content-type": `multipart/form-data; boundary=${form.boundary}`,
+      },
+      method: "PUT",
+      payload: form.payload,
+      url: "/api/operator/profile",
+    });
+
+    expect(response.statusCode).toBe(200);
+    expect(useCase).toHaveBeenCalledWith({
+      ...input,
+      image: undefined,
+      logo: undefined,
+      operatorId: MOCK_OPERATOR_ID,
+    });
+  });
+});

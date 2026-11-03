@@ -31,3 +31,5 @@ jobs:
             environment: app-prod
             use_private_agent: true
             use_labels: false
+            analytics_token: ${{ vars.CED_BROWSER_FE_ANALYTICS_TOKEN }}
+            analytics_token_required: true

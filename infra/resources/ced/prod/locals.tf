@@ -69,7 +69,7 @@ locals {
       # Production admin fiscal codes (comma-separated list of fiscal codes hashes)
       # These define the fiscal codes that can access the admin endpoints of the portal BE application
       # Prod operators does not need census
-      ADMIN_FISCAL_CODES = ""
+      ADMIN_FISCAL_CODES = "d77c973e17c0c8e2e720145df769d8e59c17179b1e42a96ad362b120a56f734c"
 
       # Test actor fiscal codes (comma-separated list of fiscal codes hashes)
       # These define the fiscal codes that can the portal BE application as test actors

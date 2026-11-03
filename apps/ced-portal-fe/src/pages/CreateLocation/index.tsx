@@ -18,35 +18,19 @@ import { AppRadioList } from '../../components/RadioList';
 import { AppTextField } from '../../components/TextField';
 import { AppSelect } from '../../components/Select';
 import { getContactError } from '../../components/ContactRow/utils';
-import type { PlaceCreateRequest } from '../../generated/model';
-import { isValidHttpsUrl } from '../../utils';
 import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import RoomOutlinedIcon from '@mui/icons-material/RoomOutlined';
 import LanguageOutlinedIcon from '@mui/icons-material/LanguageOutlined';
-import {
-  getContactValidationError,
-  trimSupportContacts,
-} from '../../utils/contactValidation.js';
 import { getContactInputConfig } from '../Overview/CompleteData/components/constants/index.js';
-
-type ContactState = {
-  type: 'email' | 'phone' | 'website';
-  value: string;
-};
-
-interface LocationState {
-  id: string;
-  name: string;
-  street: string;
-  city: string;
-  state: string;
-  postalCode: string;
-  websiteUrl: string;
-  websiteUrlError: string | null;
-  contacts: ContactState[];
-}
+import type { ContactState, LocationState } from './types';
+import {
+  getRequiredFieldError,
+  getWebsiteUrlError,
+  isLocValid,
+} from './utils/validation';
+import { submitLocations } from './utils/submitLocations';
 
 const createDefaultLocation = (): LocationState => ({
   id: crypto.randomUUID(),
@@ -59,11 +43,6 @@ const createDefaultLocation = (): LocationState => ({
   websiteUrlError: null,
   contacts: [{ type: 'phone', value: '' }],
 });
-
-const getWebsiteUrlError = (url: string) =>
-  !url.trim() || isValidHttpsUrl(url)
-    ? null
-    : 'Inserisci un URL valido (es. https://...)';
 
 export default function CreateLocationPage() {
   const theme = useTheme();
@@ -79,7 +58,7 @@ export default function CreateLocationPage() {
   const [attempted, setAttempted] = useState(false);
 
   const getRequiredError = (value: string) =>
-    attempted && !value.trim() ? 'Campo obbligatorio' : undefined;
+    getRequiredFieldError(value, attempted);
 
   const getContactFieldError = (contact: ContactState) =>
     getContactError({
@@ -134,29 +113,10 @@ export default function CreateLocationPage() {
     handleUpdateLocation(locIndex, { contacts: newContacts });
   };
 
-  const isLocValid = (loc: LocationState) => {
-    if (!loc.name.trim()) return false;
-    if (type === 'offline') {
-      if (
-        !loc.street.trim() ||
-        !loc.city.trim() ||
-        !loc.state.trim() ||
-        !loc.postalCode.trim()
-      ) {
-        return false;
-      }
-    } else {
-      if (!loc.websiteUrl.trim() || !isValidHttpsUrl(loc.websiteUrl))
-        return false;
-    }
-
-    if (loc.contacts.some((contact) => getContactValidationError(contact)))
-      return false;
-    return true;
-  };
-
   const isFormValid = () => {
-    return locations.length > 0 && locations.every(isLocValid);
+    return (
+      locations.length > 0 && locations.every((loc) => isLocValid(loc, type))
+    );
   };
 
   const handleSubmit = async () => {
@@ -171,62 +131,17 @@ export default function CreateLocationPage() {
 
     setIsSubmitting(true);
     try {
-      const submittedLocations = locations;
-      const results = await Promise.allSettled(
-        submittedLocations.map((loc) => {
-          let payload: PlaceCreateRequest;
-          const supportContacts = trimSupportContacts(loc.contacts);
-
-          if (type === 'offline') {
-            payload = {
-              type: 'offline',
-              name: loc.name.trim(),
-              address: {
-                street: loc.street.trim(),
-                city: loc.city.trim(),
-                state: loc.state.trim(),
-                postalCode: loc.postalCode.trim(),
-                country: 'IT',
-              },
-              supportContacts,
-            };
-          } else {
-            payload = {
-              type: 'online',
-              name: loc.name.trim(),
-              website: {
-                url: loc.websiteUrl.trim(),
-              },
-              supportContacts,
-            };
-          }
-
-          return createPlace(payload).unwrap();
-        }),
-      );
-
-      const failedIds = new Set(
-        results.flatMap((result, index) =>
-          result.status === 'rejected' ? [submittedLocations[index].id] : [],
-        ),
-      );
-      const createdCount = results.length - failedIds.size;
-
-      if (failedIds.size > 0) {
-        setLocations((current) =>
-          current.filter((location) => failedIds.has(location.id)),
-        );
-        showToast(
-          createdCount > 0
-            ? `Creati ${createdCount} punti di accesso; ${failedIds.size} non creati. Puoi riprovare.`
-            : 'Errore durante la creazione dei punti di accesso',
-          'error',
-        );
-        return;
-      }
-
-      showToast('Punti di accesso creati con successo', 'success');
-      navigate(APP_ROUTES.LOCATIONS);
+      await submitLocations({
+        locations,
+        type,
+        createPlace: (payload) => createPlace(payload).unwrap(),
+        keepFailedLocations: (failedIds) =>
+          setLocations((current) =>
+            current.filter((location) => failedIds.has(location.id)),
+          ),
+        navigate,
+        showToast,
+      });
     } finally {
       setIsSubmitting(false);
     }

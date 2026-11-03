@@ -26,7 +26,10 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import RoomOutlinedIcon from '@mui/icons-material/RoomOutlined';
 import LanguageOutlinedIcon from '@mui/icons-material/LanguageOutlined';
-import { getContactValidationError } from '../../utils/contactValidation.js';
+import {
+  getContactValidationError,
+  trimSupportContacts,
+} from '../../utils/contactValidation.js';
 import { getContactInputConfig } from '../Overview/CompleteData/components/constants/index.js';
 
 type ContactState = {
@@ -180,10 +183,7 @@ export default function CreateLocationPage() {
       const results = await Promise.allSettled(
         submittedLocations.map((loc) => {
           let payload: PlaceCreateRequest;
-          const supportContacts = loc.contacts.map((contact) => ({
-            ...contact,
-            value: contact.value.trim(),
-          }));
+          const supportContacts = trimSupportContacts(loc.contacts);
 
           if (type === 'offline') {
             payload = {

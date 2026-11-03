@@ -10,6 +10,11 @@ const emailSchema = z.email().refine(
       .some((label) => label.endsWith('-')),
 );
 
+export const trimSupportContacts = <T extends { value: string }>(
+  contacts: T[],
+): T[] =>
+  contacts.map((contact) => ({ ...contact, value: contact.value.trim() }));
+
 export const getContactValidationError = ({
   type,
   value,

@@ -33,6 +33,7 @@ describe.each([
 
   const submit = async (
     contacts: { type: 'email' | 'phone' | 'website'; value: string }[],
+    formOverrides: Record<string, unknown> = {},
   ) => {
     vi.mocked(useAppSelector).mockReturnValue({
       name: 'Punto di accesso',
@@ -43,6 +44,7 @@ describe.each([
       url: 'https://example.it',
       urlError: null,
       contacts,
+      ...formOverrides,
     });
     const setAttempted = vi.fn();
     let handleConfirm: (() => Promise<void>) | undefined;
@@ -87,4 +89,34 @@ describe.each([
       expect.objectContaining({ type, supportContacts: contacts }),
     );
   });
+
+  it('trims support contact values before saving', async () => {
+    createPlace.mockResolvedValue({ data: { id: 'new-place' } });
+    await submit([
+      { type: 'email', value: '  assistenza@example.it ' },
+      { type: 'phone', value: ' +39 02 12345678  ' },
+      { type: 'website', value: ' https://example.it' },
+    ]);
+    expect(createPlace).toHaveBeenCalledExactlyOnceWith(
+      expect.objectContaining({
+        type,
+        supportContacts: [
+          { type: 'email', value: 'assistenza@example.it' },
+          { type: 'phone', value: '+39 02 12345678' },
+          { type: 'website', value: 'https://example.it' },
+        ],
+      }),
+    );
+  });
+
+  it.runIf(type === 'online')(
+    'does not send an API request for a non-https URL even if urlError is stale',
+    async () => {
+      await submit([{ type: 'email', value: 'assistenza@example.it' }], {
+        url: 'http://example.it',
+        urlError: null,
+      });
+      expect(createPlace).not.toHaveBeenCalled();
+    },
+  );
 });

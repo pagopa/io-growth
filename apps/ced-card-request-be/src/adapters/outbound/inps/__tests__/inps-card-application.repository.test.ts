@@ -132,6 +132,67 @@ describe("createInpsCardApplicationRepository", () => {
       expect(result).toEqual(ok({ idLavorazione: null }));
     });
 
+    describe("accent normalization", () => {
+      const accentedDraft: ApplicationDraft = {
+        ...applicationDraft,
+        cognome: "Rossì",
+        comuneNascita: "Città",
+        descrizioneComuneRec: "Sant'Antìoco Perù",
+        nome: "Niccolò Andrèa",
+        pressoCognome: "Bianchì",
+        pressoDenominazione: null,
+        pressoNome: "Àlvaro",
+      };
+
+      beforeEach(() => {
+        vi.mocked(
+          gestioneDomandaCedRepository.nuovaDomandaInBozza,
+        ).mockResolvedValue(ok({ idLavorazione: "NEW-11111" }));
+      });
+
+      it("rewrites the trailing accent of every word of the name-like fields when enabled", async () => {
+        await createInpsCardApplicationRepository(
+          gestioneDomandaCedRepository,
+          { normalizeAccents: true },
+        ).createApplicationDraft(accentedDraft, IDEMPOTENCY);
+
+        expect(
+          gestioneDomandaCedRepository.nuovaDomandaInBozza,
+        ).toHaveBeenCalledWith(
+          expect.objectContaining({
+            anagrafica: expect.objectContaining({
+              cognome: "Rossi'",
+              comuneNascita: "Citta'",
+              nome: "Niccolo' Andrèa",
+            }),
+            recapito: expect.objectContaining({
+              descrizioneComune: "Sant'Antìoco Peru'",
+              pressoCognome: "Bianchi'",
+              pressoDenominazione: null,
+              pressoNome: "Àlvaro",
+            }),
+          }),
+          IDEMPOTENCY,
+        );
+      });
+
+      it("sends the values untouched by default", async () => {
+        await repository().createApplicationDraft(accentedDraft, IDEMPOTENCY);
+
+        expect(
+          gestioneDomandaCedRepository.nuovaDomandaInBozza,
+        ).toHaveBeenCalledWith(
+          expect.objectContaining({
+            anagrafica: expect.objectContaining({
+              cognome: "Rossì",
+              nome: "Niccolò Andrèa",
+            }),
+          }),
+          IDEMPOTENCY,
+        );
+      });
+    });
+
     it("forwards a ValidationError untouched so the use case can mark the step FAILED", async () => {
       const validationError = new ValidationError("INPS rejected the draft");
       vi.mocked(

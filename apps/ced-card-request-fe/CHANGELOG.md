@@ -1,5 +1,11 @@
 # ced-card-request-fe
 
+## 0.3.0
+
+### Minor Changes
+
+- 64db1a0: Add Mixpanel tracking to the card request flow (screen views, step completion, back, resume later, submit, success and error events)
+
 ## 0.2.1
 
 ### Patch Changes

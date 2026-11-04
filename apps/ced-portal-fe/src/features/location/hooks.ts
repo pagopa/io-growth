@@ -3,7 +3,10 @@ import type { PlaceResponse } from '../../generated/model';
 import { useAppDispatch, useAppSelector } from '../../hooks/store';
 import { resetLocationForm, selectLocationForm } from './locationSlice';
 import { useToast } from '../../contexts';
-import { getContactValidationError } from '../../utils/contactValidation.js';
+import {
+  getContactValidationError,
+  trimSupportContacts,
+} from '../../utils/contactValidation.js';
 
 export function useLocationSubmit(
   onConfirm: (newLocation?: PlaceResponse) => void,
@@ -29,11 +32,7 @@ export function useLocationSubmit(
     )
       return;
 
-    const supportContacts = contacts.filter((c) => {
-      return !!c.value.trim() && !!c.type;
-    });
-
-    const areSupportContactsValid = supportContacts.every(
+    const areSupportContactsValid = contacts.every(
       (contact) => !getContactValidationError(contact),
     );
 
@@ -49,7 +48,7 @@ export function useLocationSubmit(
         postalCode: postalCode.trim(),
         country: 'IT',
       },
-      supportContacts,
+      supportContacts: trimSupportContacts(contacts),
     });
 
     if ('error' in result)

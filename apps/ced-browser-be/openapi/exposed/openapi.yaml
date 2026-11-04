@@ -8,7 +8,7 @@ info:
     Only `published` opportunities within their valid date range (`date_from` ≤ today ≤ `date_to` or no expiry) are returned.
   version: 1.0.0
 servers:
-  - url: https://api.io.pagopa.it/ced-browser/v1/api
+  - url: https://api.ced.pagopa.it/api/ced-browser/v1
     description: Production endpoint
 
 tags:

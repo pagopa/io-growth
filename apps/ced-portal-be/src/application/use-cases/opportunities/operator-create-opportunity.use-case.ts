@@ -1,6 +1,7 @@
 import type { UseCase } from "@pagopa/io-core-domain";
 import type { BaseError } from "@pagopa/io-core-domain/errors";
 
+import { HttpsUrlSchema } from "@pagopa/io-core-domain/value-objects";
 import { ResultAsync } from "neverthrow";
 import { ulid } from "ulid";
 import { z } from "zod";
@@ -14,7 +15,6 @@ import type { OpportunityCategoryRepository } from "../../../domain/ports/outbou
 import type { OpportunityRepository } from "../../../domain/ports/outbound/persistence/opportunity.repository.js";
 import type { PlaceRepository } from "../../../domain/ports/outbound/persistence/place.repository.js";
 
-import { HttpsUrlSchema } from "../../../domain/value-objects/https-url.js";
 import { validateUseCaseInput } from "../utils/validate-use-case-input.js";
 import {
   BenefitInputSchema,

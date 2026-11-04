@@ -4,6 +4,7 @@ import type { Result } from "neverthrow";
 
 import { NotFoundError, ValidationError } from "@pagopa/io-core-domain/errors";
 import { getApplicationDate } from "@pagopa/io-core-domain/utilities";
+import { HttpsUrlSchema } from "@pagopa/io-core-domain/value-objects";
 import { err, errAsync, ok, okAsync, ResultAsync } from "neverthrow";
 import { z } from "zod";
 
@@ -18,7 +19,6 @@ import {
   OPPORTUNITY_STATUS,
   type OpportunityDetail,
 } from "../../../domain/entities/opportunity.js";
-import { HttpsUrlSchema } from "../../../domain/value-objects/https-url.js";
 import { validateUseCaseInput } from "../utils/validate-use-case-input.js";
 import {
   BenefitInputSchema,

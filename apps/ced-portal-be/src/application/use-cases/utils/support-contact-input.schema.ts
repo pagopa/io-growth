@@ -1,6 +1,5 @@
+import { HttpsUrlSchema } from "@pagopa/io-core-domain/value-objects";
 import { z } from "zod";
-
-import { HttpsUrlSchema } from "../../../domain/value-objects/https-url.js";
 
 const SupportContactValueSchema = z.string().max(2048).trim().min(1);
 

@@ -4,6 +4,7 @@ import type {
   ValidationError,
 } from "@pagopa/io-core-domain/errors";
 
+import { HttpsUrlSchema } from "@pagopa/io-core-domain/value-objects";
 import { ResultAsync } from "neverthrow";
 import { ulid } from "ulid";
 import { z } from "zod";
@@ -11,7 +12,6 @@ import { z } from "zod";
 import type { Place } from "../../../domain/entities/place.js";
 import type { PlaceRepository } from "../../../domain/ports/outbound/persistence/place.repository.js";
 
-import { HttpsUrlSchema } from "../../../domain/value-objects/https-url.js";
 import { SupportContactInputSchema } from "../utils/support-contact-input.schema.js";
 import { validateUseCaseInput } from "../utils/validate-use-case-input.js";
 

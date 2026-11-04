@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { HttpsUrlSchema } from "../https-url.js";
+import { HttpsUrlSchema } from "../https-url.value-object.js";
 
 describe("HttpsUrlSchema", () => {
   it.each(["https://example.org", "https://www.example.org/path?q=1"])(

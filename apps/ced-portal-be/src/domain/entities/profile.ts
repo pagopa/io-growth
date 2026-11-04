@@ -1,6 +1,6 @@
+import { HttpsUrlSchema } from "@pagopa/io-core-domain/value-objects";
 import { z } from "zod";
 
-import { HttpsUrlSchema } from "../value-objects/https-url.js";
 import { PlaceSchema } from "./place.js";
 
 export const ProfileLegalUrlSchema = HttpsUrlSchema.max(2048);

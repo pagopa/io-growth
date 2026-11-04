@@ -1,7 +1,7 @@
+import { HttpsUrlSchema } from "@pagopa/io-core-domain/value-objects";
 import { z } from "zod";
 
 import { ProfileLegalUrlSchema } from "../../../../domain/entities/profile.js";
-import { HttpsUrlSchema } from "../../../../domain/value-objects/https-url.js";
 import { StrictSupportContactInputSchema } from "../../utils/support-contact-input.schema.js";
 
 const OperatorProfileAddressSchema = z

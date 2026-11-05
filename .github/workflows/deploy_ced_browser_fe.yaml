@@ -20,7 +20,7 @@ on:
 
 jobs:
     deploy_ced_browser_fe:
-        uses: ./.github/workflows/_release-azure-staticapp-v1.yaml
+        uses: pagopa/dx/.github/workflows/release-azure-staticapp-v1.yaml@main
         name: Deploy CED Browser FE
         secrets: inherit
         with:
@@ -31,5 +31,3 @@ jobs:
             environment: app-prod
             use_private_agent: true
             use_labels: false
-            analytics_token: ${{ vars.CED_BROWSER_FE_ANALYTICS_TOKEN }}
-            analytics_token_required: true

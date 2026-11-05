@@ -20,7 +20,7 @@ on:
 
 jobs:
     deploy_ced_card_request_fe:
-        uses: ./.github/workflows/_release-azure-staticapp-v1.yaml
+        uses: pagopa/dx/.github/workflows/release-azure-staticapp-v1.yaml@main
         name: Deploy CED Card Request FE
         secrets: inherit
         with:

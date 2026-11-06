@@ -126,6 +126,7 @@ const inpsRouter = await createInpsRouter(
 
 const cardApplicationRepository = createInpsCardApplicationRepository(
   inpsRouter.getInstance(),
+  { normalizeAccents: config.ACCENT_NORMALIZATION_ENABLED },
 );
 
 const app = Fastify({ logger: true });

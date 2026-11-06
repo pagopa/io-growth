@@ -442,6 +442,8 @@ app.register(async (app) => {
     makeOperatorRepublishOpportunityUseCase(
       opportunityRepository,
       materializedViewRepository,
+      profileRepository,
+      mailingConfig,
     ),
   );
   mountAdminCancelScheduledSuspensionHandler(

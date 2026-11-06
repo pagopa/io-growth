@@ -5,7 +5,13 @@ import { describe, expect, it, vi } from "vitest";
 import type { OpportunityDetail } from "../../../../domain/entities/opportunity.js";
 
 import { makeAdminRejectOpportunityRepublishUseCase } from "../admin-reject-opportunity-republish.use-case.js";
-import { createMockOpportunityRepository, MOCK_OPERATOR_ID } from "./mocks.js";
+import {
+  createMockOpportunityRepository,
+  createMockProfileRepository,
+  MOCK_EMAIL_LINKS,
+  MOCK_OPERATOR_ID,
+  mockProfile,
+} from "./mocks.js";
 
 const MOCK_OPPORTUNITY_ID = "01JVMK3N8XQZP5T6G2WYHAB4CF";
 
@@ -53,17 +59,30 @@ const validInput = {
   republishRejectionMessage: "Le condizioni non sono ancora conformi",
 };
 
+const expectedRejectionMessage = {
+  templateAttributes: {
+    opportunityName: "Discount 20%",
+    ...MOCK_EMAIL_LINKS,
+  },
+  templateId: "ced_operator-opportunity-republish-rejected_v1",
+  to: mockProfile.contactEmail,
+  type: "template",
+};
+
 describe("makeAdminRejectOpportunityRepublishUseCase - happy path", () => {
   it("should reject a pending request", async () => {
     const deps = makeDeps();
     const useCase = makeAdminRejectOpportunityRepublishUseCase(
       deps.opportunityRepository,
+      createMockProfileRepository(),
+      MOCK_EMAIL_LINKS,
     );
 
     await expect(useCase(validInput)).resolves.toEqual(ok(undefined));
     expect(deps.opportunityRepository.rejectRepublishById).toHaveBeenCalledWith(
       {
         opportunityId: MOCK_OPPORTUNITY_ID,
+        outboxMessages: [expectedRejectionMessage],
         republishRejectionMessage: validInput.republishRejectionMessage,
       },
     );
@@ -73,6 +92,8 @@ describe("makeAdminRejectOpportunityRepublishUseCase - happy path", () => {
     const deps = makeDeps();
     const useCase = makeAdminRejectOpportunityRepublishUseCase(
       deps.opportunityRepository,
+      createMockProfileRepository(),
+      MOCK_EMAIL_LINKS,
     );
 
     await expect(
@@ -84,6 +105,7 @@ describe("makeAdminRejectOpportunityRepublishUseCase - happy path", () => {
     expect(deps.opportunityRepository.rejectRepublishById).toHaveBeenCalledWith(
       {
         opportunityId: MOCK_OPPORTUNITY_ID,
+        outboxMessages: [expectedRejectionMessage],
         republishRejectionMessage: "Non conformi",
       },
     );
@@ -97,6 +119,8 @@ describe("makeAdminRejectOpportunityRepublishUseCase - guard", () => {
     });
     const useCase = makeAdminRejectOpportunityRepublishUseCase(
       deps.opportunityRepository,
+      createMockProfileRepository(),
+      MOCK_EMAIL_LINKS,
     );
 
     await expect(useCase(validInput)).resolves.toEqual(
@@ -122,6 +146,8 @@ describe("makeAdminRejectOpportunityRepublishUseCase - guard", () => {
       });
       const useCase = makeAdminRejectOpportunityRepublishUseCase(
         deps.opportunityRepository,
+        createMockProfileRepository(),
+        MOCK_EMAIL_LINKS,
       );
 
       await expect(useCase(validInput)).resolves.toEqual(
@@ -144,6 +170,8 @@ describe("makeAdminRejectOpportunityRepublishUseCase - guard", () => {
     });
     const useCase = makeAdminRejectOpportunityRepublishUseCase(
       deps.opportunityRepository,
+      createMockProfileRepository(),
+      MOCK_EMAIL_LINKS,
     );
 
     await expect(useCase(validInput)).resolves.toEqual(
@@ -174,6 +202,8 @@ describe("makeAdminRejectOpportunityRepublishUseCase - error propagation", () =>
     });
     const useCase = makeAdminRejectOpportunityRepublishUseCase(
       deps.opportunityRepository,
+      createMockProfileRepository(),
+      MOCK_EMAIL_LINKS,
     );
 
     await expect(useCase(validInput)).resolves.toEqual(
@@ -188,6 +218,8 @@ describe("makeAdminRejectOpportunityRepublishUseCase - error propagation", () =>
     });
     const useCase = makeAdminRejectOpportunityRepublishUseCase(
       deps.opportunityRepository,
+      createMockProfileRepository(),
+      MOCK_EMAIL_LINKS,
     );
 
     await expect(useCase(validInput)).resolves.toEqual(err(repoError));
@@ -204,6 +236,8 @@ describe("makeAdminRejectOpportunityRepublishUseCase - input validation", () => 
     const deps = makeDeps();
     const useCase = makeAdminRejectOpportunityRepublishUseCase(
       deps.opportunityRepository,
+      createMockProfileRepository(),
+      MOCK_EMAIL_LINKS,
     );
 
     await expect(useCase({ ...validInput, ...override })).resolves.toEqual(

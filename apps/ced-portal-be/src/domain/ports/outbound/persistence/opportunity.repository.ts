@@ -19,7 +19,9 @@ export interface CancelScheduledSuspensionByIdAndOperatorIdInput {
 }
 
 export interface CancelScheduledSuspensionByIdInput {
+  expectedSuspendFrom: string;
   opportunityId: string;
+  outboxMessages?: readonly MessagePayload[];
 }
 
 export interface CreateOpportunityInput {
@@ -142,6 +144,7 @@ export interface PaginatedOpportunities {
 
 export interface RejectRepublishByIdInput {
   opportunityId: string;
+  outboxMessages?: readonly MessagePayload[];
   republishRejectionMessage: string;
 }
 
@@ -182,6 +185,7 @@ export interface SuspendByIdAndOperatorIdInput {
 
 export interface SuspendByIdInput {
   opportunityId: string;
+  outboxMessages?: readonly MessagePayload[];
   suspendFrom?: string;
   suspensionMessage: string;
 }

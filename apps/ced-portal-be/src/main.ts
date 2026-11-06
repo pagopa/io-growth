@@ -424,11 +424,17 @@ app.register(async (app) => {
     makeAdminSuspendOpportunityUseCase(
       opportunityRepository,
       materializedViewRepository,
+      profileRepository,
+      emailLinks,
     ),
   );
   mountAdminRejectOpportunityRepublishHandler(
     app,
-    makeAdminRejectOpportunityRepublishUseCase(opportunityRepository),
+    makeAdminRejectOpportunityRepublishUseCase(
+      opportunityRepository,
+      profileRepository,
+      emailLinks,
+    ),
   );
   mountAdminRepublishOpportunityHandler(
     app,
@@ -458,7 +464,11 @@ app.register(async (app) => {
   );
   mountAdminCancelScheduledSuspensionHandler(
     app,
-    makeAdminCancelScheduledSuspensionUseCase(opportunityRepository),
+    makeAdminCancelScheduledSuspensionUseCase(
+      opportunityRepository,
+      profileRepository,
+      emailLinks,
+    ),
   );
 });
 

@@ -282,6 +282,33 @@ describe("profile input validation", () => {
     );
   });
 
+  it.each([
+    { type: "email", value: "invalid-email" },
+    { type: "phone", value: "02 abc 123" },
+    { type: "website", value: "http://example.org" },
+  ] as const)("rejects an invalid $type support contact", async (contact) => {
+    const profileRepository = createMockProfileRepository();
+    const profileAssetsRepository = createMockProfileAssetsRepository();
+    const useCase = makeOperatorCreateProfileUseCase(
+      profileRepository,
+      profileAssetsRepository,
+    );
+
+    const result = await useCase({
+      ...mockCreateProfileInput,
+      place: {
+        ...mockCreateProfileInput.place,
+        supportContacts: [contact],
+      },
+    });
+
+    expect(result).toEqual(
+      err(expect.objectContaining({ kind: "ValidationError" })),
+    );
+    expect(profileRepository.getByOperatorId).not.toHaveBeenCalled();
+    expect(profileAssetsRepository.storeProfileAssets).not.toHaveBeenCalled();
+  });
+
   it("should return ValidationError when place has invalid type", async () => {
     const profileRepository = createMockProfileRepository();
     const profileAssetsRepository = createMockProfileAssetsRepository();
@@ -343,5 +370,30 @@ describe("profile asset orchestration", () => {
 
     expect(result).toEqual(err(assetError));
     expect(profileRepository.create).not.toHaveBeenCalled();
+  });
+});
+
+describe("profile online place website validation", () => {
+  it("rejects a non-HTTPS online place website", async () => {
+    const profileRepository = createMockProfileRepository();
+    const profileAssetsRepository = createMockProfileAssetsRepository();
+    const useCase = makeOperatorCreateProfileUseCase(
+      profileRepository,
+      profileAssetsRepository,
+    );
+
+    const result = await useCase({
+      ...mockCreateProfileInput,
+      place: {
+        ...mockCreateProfileInput.place,
+        website: { url: "http://example.org" },
+      },
+    });
+
+    expect(result).toEqual(
+      err(expect.objectContaining({ kind: "ValidationError" })),
+    );
+    expect(profileRepository.getByOperatorId).not.toHaveBeenCalled();
+    expect(profileAssetsRepository.storeProfileAssets).not.toHaveBeenCalled();
   });
 });

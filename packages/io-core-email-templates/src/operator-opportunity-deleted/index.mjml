@@ -53,10 +53,9 @@
             <p>Ciao,</p>
 
             <p>
-              Abbiamo eliminato l&rsquo;opportunità <strong>{{opportunityName}}</strong>.
+              l&rsquo;opportunità
+              <strong>{{opportunityName}} è stata eliminata.</strong>
             </p>
-
-            <p>L&rsquo;opportunità non è più disponibile su IO.</p>
 
             <p>
               Per consultare o gestire le tue opportunità, accedi ad

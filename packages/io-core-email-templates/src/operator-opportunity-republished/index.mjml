@@ -53,10 +53,11 @@
             <p>Ciao,</p>
 
             <p>
-              abbiamo <strong>ripubblicato</strong> l&rsquo;opportunità <strong>{{opportunityName}}</strong>.
+              abbiamo <strong>pubblicato di nuovo</strong> l&rsquo;opportunità
+              <strong>{{opportunityName}}</strong>.
             </p>
 
-            <p>L&rsquo;opportunità è ora di nuovo disponibile su IO.</p>
+            <p>L&rsquo;opportunità sarà di nuovo disponibile su IO.</p>
 
             <p>
               Per consultare o gestire le tue opportunità, accedi ad

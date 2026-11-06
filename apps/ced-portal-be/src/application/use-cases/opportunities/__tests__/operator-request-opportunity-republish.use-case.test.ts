@@ -5,7 +5,15 @@ import { describe, expect, it, vi } from "vitest";
 import type { OpportunityDetail } from "../../../../domain/entities/opportunity.js";
 
 import { makeOperatorRequestOpportunityRepublishUseCase } from "../operator-request-opportunity-republish.use-case.js";
-import { createMockOpportunityRepository, MOCK_OPERATOR_ID } from "./mocks.js";
+import {
+  createMockOpportunityRepository,
+  createMockProfileRepository,
+  MOCK_ADMIN_EMAIL,
+  MOCK_EMAIL_LINKS,
+  MOCK_MAILING_CONFIG,
+  MOCK_OPERATOR_ID,
+  mockProfile,
+} from "./mocks.js";
 
 const MOCK_OPPORTUNITY_ID = "01JVMK3N8XQZP5T6G2WYHAB4CF";
 
@@ -40,12 +48,48 @@ const mockOpportunity = (
 
 const makeDeps = (
   overrides?: Partial<Parameters<typeof createMockOpportunityRepository>[0]>,
+  profileOverrides?: {
+    profile?: typeof mockProfile | undefined;
+    profileLookupFails?: boolean;
+  },
 ) => ({
   opportunityRepository: createMockOpportunityRepository({
     findByIdAndOperatorId: vi.fn().mockResolvedValue(ok(mockOpportunity())),
     requestRepublishByIdAndOperatorId: vi.fn().mockResolvedValue(ok(undefined)),
     ...overrides,
   }),
+  profileRepository: createMockProfileRepository({
+    getByOperatorId: vi
+      .fn()
+      .mockResolvedValue(
+        profileOverrides?.profileLookupFails
+          ? err(new GenericError("profile down"))
+          : ok(
+              "profile" in (profileOverrides ?? {})
+                ? profileOverrides?.profile
+                : mockProfile,
+            ),
+      ),
+  }),
+});
+
+const makeUseCase = (deps: ReturnType<typeof makeDeps>) =>
+  makeOperatorRequestOpportunityRepublishUseCase(
+    deps.opportunityRepository,
+    deps.profileRepository,
+    MOCK_MAILING_CONFIG,
+  );
+
+const expectedAdminMessage = (republishMessage: string) => ({
+  templateAttributes: {
+    operatorName: mockProfile.displayName,
+    opportunityName: "Discount 20%",
+    republishMessage,
+    ...MOCK_EMAIL_LINKS,
+  },
+  templateId: "ced_admin-opportunity-republish-request_v1",
+  to: MOCK_ADMIN_EMAIL,
+  type: "template",
 });
 
 const validInput = {
@@ -57,9 +101,7 @@ const validInput = {
 describe("makeOperatorRequestOpportunityRepublishUseCase - happy path", () => {
   it("should register the request on a department-suspended opportunity", async () => {
     const deps = makeDeps();
-    const useCase = makeOperatorRequestOpportunityRepublishUseCase(
-      deps.opportunityRepository,
-    );
+    const useCase = makeUseCase(deps);
 
     const result = await useCase(validInput);
 
@@ -69,15 +111,17 @@ describe("makeOperatorRequestOpportunityRepublishUseCase - happy path", () => {
     ).toHaveBeenCalledWith({
       operatorId: MOCK_OPERATOR_ID,
       opportunityId: MOCK_OPPORTUNITY_ID,
+      outboxMessages: [expectedAdminMessage(validInput.republishMessage)],
       republishMessage: validInput.republishMessage,
     });
+    expect(deps.profileRepository.getByOperatorId).toHaveBeenCalledWith(
+      MOCK_OPERATOR_ID,
+    );
   });
 
   it("should trim the message before persisting it", async () => {
     const deps = makeDeps();
-    const useCase = makeOperatorRequestOpportunityRepublishUseCase(
-      deps.opportunityRepository,
-    );
+    const useCase = makeUseCase(deps);
 
     const result = await useCase({
       ...validInput,
@@ -90,9 +134,27 @@ describe("makeOperatorRequestOpportunityRepublishUseCase - happy path", () => {
     ).toHaveBeenCalledWith({
       operatorId: MOCK_OPERATOR_ID,
       opportunityId: MOCK_OPPORTUNITY_ID,
+      outboxMessages: [expectedAdminMessage("Condizioni corrette")],
       republishMessage: "Condizioni corrette",
     });
   });
+
+  it.each([
+    ["the operator profile lookup fails", { profileLookupFails: true }],
+    ["the operator has no profile", { profile: undefined }],
+  ])(
+    "should register the request without notifying the department when %s",
+    async (_, profileOverrides) => {
+      const deps = makeDeps(undefined, profileOverrides);
+
+      const result = await makeUseCase(deps)(validInput);
+
+      expect(result).toEqual(ok(undefined));
+      expect(
+        deps.opportunityRepository.requestRepublishByIdAndOperatorId,
+      ).toHaveBeenCalledWith({ ...validInput, outboxMessages: [] });
+    },
+  );
 
   it("should allow a new request after a previous rejection", async () => {
     const deps = makeDeps({
@@ -104,9 +166,7 @@ describe("makeOperatorRequestOpportunityRepublishUseCase - happy path", () => {
         ),
       ),
     });
-    const useCase = makeOperatorRequestOpportunityRepublishUseCase(
-      deps.opportunityRepository,
-    );
+    const useCase = makeUseCase(deps);
 
     await expect(useCase(validInput)).resolves.toEqual(ok(undefined));
   });
@@ -117,9 +177,7 @@ describe("makeOperatorRequestOpportunityRepublishUseCase - guard", () => {
     const deps = makeDeps({
       findByIdAndOperatorId: vi.fn().mockResolvedValue(ok(undefined)),
     });
-    const useCase = makeOperatorRequestOpportunityRepublishUseCase(
-      deps.opportunityRepository,
-    );
+    const useCase = makeUseCase(deps);
 
     await expect(useCase(validInput)).resolves.toEqual(
       err(expect.objectContaining({ kind: "NotFoundError" })),
@@ -144,9 +202,7 @@ describe("makeOperatorRequestOpportunityRepublishUseCase - guard", () => {
           .fn()
           .mockResolvedValue(ok(mockOpportunity({ status }))),
       });
-      const useCase = makeOperatorRequestOpportunityRepublishUseCase(
-        deps.opportunityRepository,
-      );
+      const useCase = makeUseCase(deps);
 
       await expect(useCase(validInput)).resolves.toEqual(
         err(
@@ -166,9 +222,7 @@ describe("makeOperatorRequestOpportunityRepublishUseCase - guard", () => {
         .fn()
         .mockResolvedValue(ok(mockOpportunity({ suspendedBy: "operator" }))),
     });
-    const useCase = makeOperatorRequestOpportunityRepublishUseCase(
-      deps.opportunityRepository,
-    );
+    const useCase = makeUseCase(deps);
 
     await expect(useCase(validInput)).resolves.toEqual(
       err(
@@ -194,9 +248,7 @@ describe("makeOperatorRequestOpportunityRepublishUseCase - guard", () => {
         ),
       ),
     });
-    const useCase = makeOperatorRequestOpportunityRepublishUseCase(
-      deps.opportunityRepository,
-    );
+    const useCase = makeUseCase(deps);
 
     await expect(useCase(validInput)).resolves.toEqual(
       err(
@@ -224,9 +276,7 @@ describe("makeOperatorRequestOpportunityRepublishUseCase - error propagation", (
           ),
         ),
     });
-    const useCase = makeOperatorRequestOpportunityRepublishUseCase(
-      deps.opportunityRepository,
-    );
+    const useCase = makeUseCase(deps);
 
     await expect(useCase(validInput)).resolves.toEqual(
       err(expect.objectContaining({ kind: "ConflictError" })),
@@ -238,9 +288,7 @@ describe("makeOperatorRequestOpportunityRepublishUseCase - error propagation", (
     const deps = makeDeps({
       findByIdAndOperatorId: vi.fn().mockResolvedValue(err(repoError)),
     });
-    const useCase = makeOperatorRequestOpportunityRepublishUseCase(
-      deps.opportunityRepository,
-    );
+    const useCase = makeUseCase(deps);
 
     await expect(useCase(validInput)).resolves.toEqual(err(repoError));
   });
@@ -255,9 +303,7 @@ describe("makeOperatorRequestOpportunityRepublishUseCase - input validation", ()
     ["message too long", { republishMessage: "x".repeat(4097) }],
   ])("should return ValidationError on %s", async (_label, override) => {
     const deps = makeDeps();
-    const useCase = makeOperatorRequestOpportunityRepublishUseCase(
-      deps.opportunityRepository,
-    );
+    const useCase = makeUseCase(deps);
 
     await expect(useCase({ ...validInput, ...override })).resolves.toEqual(
       err(expect.objectContaining({ kind: "ValidationError" })),
@@ -269,9 +315,7 @@ describe("makeOperatorRequestOpportunityRepublishUseCase - input validation", ()
 
   it("should accept a message of exactly 4096 characters", async () => {
     const deps = makeDeps();
-    const useCase = makeOperatorRequestOpportunityRepublishUseCase(
-      deps.opportunityRepository,
-    );
+    const useCase = makeUseCase(deps);
 
     await expect(
       useCase({ ...validInput, republishMessage: "x".repeat(4096) }),

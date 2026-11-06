@@ -18,7 +18,10 @@ import type { MaterializedViewRepository } from "../../../domain/ports/outbound/
 import type { OpportunityRepository } from "../../../domain/ports/outbound/persistence/opportunity.repository.js";
 import type { ProfileRepository } from "../../../domain/ports/outbound/persistence/profile.repository.js";
 
-import { buildAdminOpportunityRepublishedMessage } from "../../../domain/entities/message-outbox.js";
+import {
+  buildAdminOpportunityRepublishedMessage,
+  buildOperatorOpportunitySelfRepublishedMessage,
+} from "../../../domain/entities/message-outbox.js";
 import {
   ACTOR_TYPE,
   OPPORTUNITY_STATUS,
@@ -89,8 +92,8 @@ export const makeOperatorRepublishOpportunityUseCase =
             ),
           );
 
-        // Notifying the department is best-effort: a failed or missing profile
-        // lookup must not fail an otherwise valid republish.
+        // Notifying is best-effort: a failed or missing profile lookup must
+        // not fail an otherwise valid republish.
         return new ResultAsync(
           profileRepository.getByOperatorId(validatedInput.operatorId),
         )
@@ -102,14 +105,23 @@ export const makeOperatorRepublishOpportunityUseCase =
                   operatorId: validatedInput.operatorId,
                   opportunityId: validatedInput.opportunityId,
                   outboxMessages: profile
-                    ? buildAdminMessages(mailingConfig.adminContacts, (to) =>
-                        buildAdminOpportunityRepublishedMessage({
+                    ? [
+                        buildOperatorOpportunitySelfRepublishedMessage({
                           links: mailingConfig.emailLinks,
-                          operatorName: profile.displayName,
                           opportunityName: getOpportunityName(data),
-                          to,
+                          to: profile.contactEmail,
                         }),
-                      )
+                        ...buildAdminMessages(
+                          mailingConfig.adminContacts,
+                          (to) =>
+                            buildAdminOpportunityRepublishedMessage({
+                              links: mailingConfig.emailLinks,
+                              operatorName: profile.displayName,
+                              opportunityName: getOpportunityName(data),
+                              to,
+                            }),
+                        ),
+                      ]
                     : [],
                 }),
               ),

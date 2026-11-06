@@ -53,10 +53,12 @@
             <p>Ciao,</p>
 
             <p>
-              l&rsquo;ente <strong>{{operatorName}}</strong> ha <strong>eliminato</strong> l&rsquo;opportunità <strong>{{opportunityName}}</strong> a partire dal <strong>{{deletionDate}}</strong> per questo motivo:
+              l&rsquo;ente <strong>{{operatorName}}</strong> ha
+              <strong>eliminato</strong> l&rsquo;opportunità
+              <strong>{{opportunityName}}</strong> per questo motivo:
             </p>
 
-            <p>{{deletionMessage}}</p>
+            <p><strong>{{deletionMessage}}</strong></p>
           </mj-text>
           <mj-include path="../partials/admin-message-ending.mjml" />
         </mj-column>

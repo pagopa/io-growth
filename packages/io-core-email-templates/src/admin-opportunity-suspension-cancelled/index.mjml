@@ -53,8 +53,12 @@
             <p>Ciao,</p>
 
             <p>
-              l&rsquo;ente <strong>{{operatorName}}</strong> ha <strong>annullato la sospensione</strong> dell&rsquo;opportunità <strong>{{opportunityName}}</strong>.
+              l&rsquo;ente <strong>{{operatorName}}</strong> ha
+              <strong>annullato la sospensione</strong> dell&rsquo;opportunità
+              <strong>{{opportunityName}}</strong>.
             </p>
+
+            <p>L&rsquo;opportunità sarà di nuovo disponibile su IO.</p>
           </mj-text>
           <mj-include path="../partials/admin-message-ending.mjml" />
         </mj-column>

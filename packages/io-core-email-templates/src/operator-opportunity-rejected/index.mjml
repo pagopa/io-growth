@@ -53,10 +53,10 @@
             <p>Ciao,</p>
 
             <p>
-              Abbiamo revisionato l'opportunità <strong>{{opportunityName}}</strong> e ti chiediamo di <strong>effettuare le seguenti modifiche</strong>:
+              abbiamo revisionato l'opportunità <strong>{{opportunityName}}</strong> e ti chiediamo di <strong>fare le seguenti modifiche</strong>:
             </p>
 
-            <p>{{rejectionMessage}}</p>
+            <p><strong>{{rejectionMessage}}</strong></p>
 
             <p>
               Per modificare i dettagli dell'opportunità, accedi ad <a href="{{selfcareUrl}}">Area Riservata</a> e seleziona il prodotto Carta Europea della Disabilità. Una volta modificata e inviata, revisioneremo di nuovo l'opportunità.

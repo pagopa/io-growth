@@ -342,7 +342,11 @@ app.register(async (app) => {
   );
   mountOperatorDeleteOpportunityHandler(
     app,
-    makeOperatorDeleteOpportunityUseCase(opportunityRepository),
+    makeOperatorDeleteOpportunityUseCase(
+      opportunityRepository,
+      profileRepository,
+      mailingConfig,
+    ),
   );
   mountOperatorSuspendOpportunityHandler(
     app,

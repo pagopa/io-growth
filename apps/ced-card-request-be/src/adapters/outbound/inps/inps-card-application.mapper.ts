@@ -26,7 +26,7 @@ import type {
 } from "../../../domain/entities/card-application.js";
 
 import { RecoveredApplicationDraftSchema } from "../../../domain/entities/card-application.js";
-import { normalizeTrailingAccents } from "../../../domain/services/normalize-trailing-accents.js";
+import { normalizeTrailingAccents } from "../../../domain/utils/normalize-trailing-accents.js";
 
 /**
  * Maps the INPS `esitoCheck` milestone returned by CheckDomanda to the BFF

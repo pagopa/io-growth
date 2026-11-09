@@ -17,7 +17,7 @@ import type { SupportRecordRepository } from "../../../domain/ports/outbound/per
 
 import { FiscalCodeSchema } from "../../../domain/entities/card-application.js";
 import { createEmptySupportRecord } from "../../../domain/entities/support-record.js";
-import { normalizeTrailingAccents } from "../../../domain/services/normalize-trailing-accents.js";
+import { normalizeTrailingAccents } from "../../../domain/utils/normalize-trailing-accents.js";
 import { validateUseCaseInput } from "../utils/validate-use-case-input.js";
 
 export const CheckRequestInputSchema = z.object({

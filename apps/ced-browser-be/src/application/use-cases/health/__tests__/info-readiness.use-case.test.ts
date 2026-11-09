@@ -1,4 +1,4 @@
-import { GenericError } from "@pagopa/io-core-domain";
+import { GenericError, ServiceUnavailableError } from "@pagopa/io-core-domain";
 import { err, ok } from "neverthrow";
 import { readFileSync } from "node:fs";
 import { describe, expect } from "vitest";
@@ -61,9 +61,15 @@ describe("makeInfoReadinessUseCase", () => {
 
     const result = await useCase({});
 
-    expect(result).toEqual(err(new GenericError("Connection Refused")));
     expect(result).toEqual(
-      err(expect.objectContaining({ kind: "GenericError" })),
+      err(
+        new ServiceUnavailableError(
+          new GenericError("Connection Refused").message,
+        ),
+      ),
+    );
+    expect(result).toEqual(
+      err(expect.objectContaining({ kind: "ServiceUnavailableError" })),
     );
     expect(
       persistenceHealthCheckRepository.checkConnection,
@@ -87,9 +93,15 @@ describe("makeInfoReadinessUseCase", () => {
 
     const result = await useCase({});
 
-    expect(result).toEqual(err(new GenericError("Redis PING failed")));
     expect(result).toEqual(
-      err(expect.objectContaining({ kind: "GenericError" })),
+      err(
+        new ServiceUnavailableError(
+          new GenericError("Redis PING failed").message,
+        ),
+      ),
+    );
+    expect(result).toEqual(
+      err(expect.objectContaining({ kind: "ServiceUnavailableError" })),
     );
     expect(
       persistenceHealthCheckRepository.checkConnection,

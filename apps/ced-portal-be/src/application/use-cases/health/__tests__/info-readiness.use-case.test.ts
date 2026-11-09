@@ -62,7 +62,7 @@ describe("makeInfoReadinessUseCase", () => {
     const result = await useCase({});
 
     expect(result).toEqual(
-      err(expect.objectContaining({ kind: "GenericError" })),
+      err(expect.objectContaining({ kind: "ServiceUnavailableError" })),
     );
     expect(
       persistenceHealthCheckRepository.checkConnection,
@@ -87,7 +87,7 @@ describe("makeInfoReadinessUseCase", () => {
     const result = await useCase({});
 
     expect(result).toEqual(
-      err(expect.objectContaining({ kind: "GenericError" })),
+      err(expect.objectContaining({ kind: "ServiceUnavailableError" })),
     );
     expect(
       persistenceHealthCheckRepository.checkConnection,

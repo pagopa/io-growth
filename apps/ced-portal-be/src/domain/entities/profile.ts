@@ -1,11 +1,9 @@
+import { HttpsUrlSchema } from "@pagopa/io-core-domain/value-objects";
 import { z } from "zod";
 
 import { PlaceSchema } from "./place.js";
 
-export const ProfileLegalUrlSchema = z
-  .url({ protocol: /^https$/ })
-  .max(2048)
-  .regex(/^https:\/\//i);
+export const ProfileLegalUrlSchema = HttpsUrlSchema.max(2048);
 
 export const ProfileSchema = z.object({
   contactEmail: z.email().max(512),

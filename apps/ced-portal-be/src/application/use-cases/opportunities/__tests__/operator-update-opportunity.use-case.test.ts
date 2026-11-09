@@ -636,4 +636,19 @@ describe("makeOperatorUpdateOpportunityUseCase - input validation", () => {
       err(expect.objectContaining({ kind: "ValidationError" })),
     );
   });
+
+  it("returns ValidationError when url is not HTTPS", async () => {
+    const deps = makeDeps();
+    const result = await makeOperatorUpdateOpportunityUseCase(deps)({
+      ...baseInput,
+      url: "http://example.org/new",
+    });
+
+    expect(result).toEqual(
+      err(expect.objectContaining({ kind: "ValidationError" })),
+    );
+    expect(
+      deps.opportunityRepository.findByIdAndOperatorId,
+    ).not.toHaveBeenCalled();
+  });
 });

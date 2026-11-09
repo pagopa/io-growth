@@ -432,6 +432,23 @@ describe("makeOperatorCreateOpportunityUseCase - validation", () => {
   });
 });
 
+describe("makeOperatorCreateOpportunityUseCase - url validation", () => {
+  it("should return ValidationError when url is not HTTPS", async () => {
+    const deps = makeDeps();
+    const useCase = makeOperatorCreateOpportunityUseCase(deps);
+
+    const result = await useCase({
+      ...mockCreateOpportunityInput,
+      url: "http://example.org/promo",
+    });
+
+    expect(result).toEqual(
+      err(expect.objectContaining({ kind: "ValidationError" })),
+    );
+    expect(deps.opportunityRepository.create).not.toHaveBeenCalled();
+  });
+});
+
 describe("makeOperatorCreateOpportunityUseCase - existence validation", () => {
   it("should return ValidationError when operator does not exist", async () => {
     const deps = makeDeps({

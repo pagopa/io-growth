@@ -175,11 +175,7 @@ export const toNuovaDomandaInBozzaRequest = (
     ...rawDraft,
     cognome: normalize(rawDraft.cognome),
     comuneNascita: normalizeNullable(rawDraft.comuneNascita),
-    descrizioneComuneRec: normalize(rawDraft.descrizioneComuneRec),
     nome: normalize(rawDraft.nome),
-    pressoCognome: normalizeNullable(rawDraft.pressoCognome),
-    pressoDenominazione: normalizeNullable(rawDraft.pressoDenominazione),
-    pressoNome: normalizeNullable(rawDraft.pressoNome),
   };
 
   return {

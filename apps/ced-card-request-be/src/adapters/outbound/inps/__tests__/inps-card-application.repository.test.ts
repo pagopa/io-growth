@@ -140,8 +140,8 @@ describe("createInpsCardApplicationRepository", () => {
         descrizioneComuneRec: "Sant'Antìoco Perù",
         nome: "Niccolò Andrèa",
         pressoCognome: "Bianchì",
-        pressoDenominazione: null,
-        pressoNome: "Àlvaro",
+        pressoDenominazione: "Società",
+        pressoNome: "Niccolò",
       };
 
       beforeEach(() => {
@@ -150,7 +150,7 @@ describe("createInpsCardApplicationRepository", () => {
         ).mockResolvedValue(ok({ idLavorazione: "NEW-11111" }));
       });
 
-      it("rewrites the trailing accent of every word of the name-like fields when enabled", async () => {
+      it("normalizes only nome, cognome and comuneNascita when enabled", async () => {
         await createInpsCardApplicationRepository(
           gestioneDomandaCedRepository,
           { normalizeAccents: true },
@@ -166,10 +166,10 @@ describe("createInpsCardApplicationRepository", () => {
               nome: "Niccolo' Andrèa",
             }),
             recapito: expect.objectContaining({
-              descrizioneComune: "Sant'Antìoco Peru'",
-              pressoCognome: "Bianchi'",
-              pressoDenominazione: null,
-              pressoNome: "Àlvaro",
+              descrizioneComune: "Sant'Antìoco Perù",
+              pressoCognome: "Bianchì",
+              pressoDenominazione: "Società",
+              pressoNome: "Niccolò",
             }),
           }),
           IDEMPOTENCY,

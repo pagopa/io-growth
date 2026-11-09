@@ -12,17 +12,32 @@ import {
   useTheme,
 } from '@mui/material';
 import { MIChip } from '@pagopa/mui-italia';
-import { useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { APP_ROUTES } from '../../app/routeConfig';
-import { useGetOpportunityDetailQuery } from '../../features/opportunities/api';
+import { useToast } from '../../contexts';
+import {
+  useGetOpportunityDetailQuery,
+  useUpdateOpportunityMutation,
+} from '../../features/opportunities/api';
+import type { OpportunityDetail } from '../../features/opportunities/types';
 import { useGetPlacesByIdsQuery } from '../../features/places/api';
+import { getApiErrorMessage } from '../CreateBenefit/hooks/useCreateOpportunity';
 import { getDetailChipConfig } from '../Home/components/utils';
 import { getOpportunityCategory } from '../../constants';
 import { OpportunitiesCtas } from './components/OpportunitiesCtas/OpportunitiesCtas';
 import { OpportunityAlert } from './components/OpportunityAlert/OpportunityAlert';
 import { OpportunityDetailCard } from './components/OpportunityDetailCard';
 import { OpportunityDetailListSection } from './components/OpportunityDetailListSection';
+
+const EDITABLE_STATUSES: OpportunityDetail['status'][] = [
+  'draft',
+  'test_rejected',
+  'test_passed',
+  'scheduled',
+  'published',
+  'suspended',
+];
 
 export default function OpportunityDetailPage() {
   const theme = useTheme();
@@ -31,9 +46,13 @@ export default function OpportunityDetailPage() {
   const {
     data: detail,
     isLoading,
+    isFetching,
     isError,
     refetch,
   } = useGetOpportunityDetailQuery(id ?? '');
+  const [updateOpportunity, { isLoading: isRemovingPlace }] =
+    useUpdateOpportunityMutation();
+  const { showToast } = useToast();
   const { data: places } = useGetPlacesByIdsQuery(detail?.placeIds ?? [], {
     skip: !detail?.placeIds || detail.placeIds.length === 0,
   });
@@ -52,6 +71,49 @@ export default function OpportunityDetailPage() {
         ({ id, type }) => type === 'online' && detail?.placeIds.includes(id),
       ) ?? [],
     [detail?.placeIds, places],
+  );
+
+  const canEdit = !!detail && EDITABLE_STATUSES.includes(detail.status);
+  const hasLocation = !!detail?.nationalTerritory || locationIds.length > 0;
+  const isOnlyLocation = locationIds.length === 1 && websiteIds.length === 0;
+  const isOnlyWebsite = websiteIds.length === 1 && !hasLocation;
+  const isRemoving = isRemovingPlace || isFetching;
+
+  const hideLocationDelete = !canEdit || isOnlyLocation;
+  const hideWebsiteDelete = !canEdit || isOnlyWebsite;
+
+  const handleRemovePlace = useCallback(
+    async (placeId: string) => {
+      if (!detail) {
+        return;
+      }
+
+      try {
+        await updateOpportunity({
+          id: detail.id,
+          payload: {
+            updatedAt: detail.updatedAt,
+            dateFrom: detail.dateFrom,
+            dateTo: detail.dateTo ?? undefined,
+            url: detail.url ?? undefined,
+            categoryId: detail.categoryId,
+            nationalTerritory: detail.nationalTerritory,
+            placeIds: detail.placeIds.filter((id) => id !== placeId),
+            beneficiaryBenefit: detail.beneficiaryBenefit,
+            caregiverBenefit: detail.caregiverBenefit ?? undefined,
+            localizedMetadata: detail.localizedMetadata,
+          },
+        }).unwrap();
+        showToast('Punto di accesso rimosso con successo', 'success');
+      } catch (error) {
+        showToast(
+          getApiErrorMessage(error) ??
+            'Errore durante la rimozione del punto di accesso',
+          'error',
+        );
+      }
+    },
+    [detail, showToast, updateOpportunity],
   );
 
   if (isLoading) {
@@ -98,10 +160,7 @@ export default function OpportunityDetailPage() {
           >
             Errore durante il caricamento
           </Typography>
-          <Button
-            variant="text"
-            onClick={() => navigate(APP_ROUTES.OPPORTUNITIES)}
-          >
+          <Button variant="text" onClick={() => navigate(APP_ROUTES.HOME)}>
             Torna alla lista
           </Button>
         </Stack>
@@ -178,12 +237,19 @@ export default function OpportunityDetailPage() {
           title="Sedi"
           icon={<Place sx={{ color: 'text.secondary', fontSize: 20 }} />}
           places={locationIds}
+          nationalTerritory={detail.nationalTerritory}
+          hideDelete={hideLocationDelete}
+          onRemove={handleRemovePlace}
+          isRemoving={isRemoving}
         />
 
         <OpportunityDetailListSection
           title="Siti web"
           icon={<WebOutlined sx={{ color: 'text.secondary', fontSize: 20 }} />}
           places={websiteIds}
+          hideDelete={hideWebsiteDelete}
+          onRemove={handleRemovePlace}
+          isRemoving={isRemoving}
         />
 
         <Stack

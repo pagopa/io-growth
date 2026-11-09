@@ -2985,6 +2985,12 @@ components:
         value:
           type: string
           maxLength: 2048
+          description: >-
+            Support contact value, trimmed before validation. Its format depends
+            on `type`: `email` requires a valid email address; `phone` requires
+            digits optionally prefixed by `+` and separated by single spaces,
+            dots, or hyphens (digit groups may be wrapped in parentheses);
+            `website` requires an HTTPS URL.
     SupportContactResponse:
       type: object
       additionalProperties: false
@@ -3015,6 +3021,10 @@ components:
           type: string
           format: uri
           maxLength: 2048
+          description: >-
+            URL of the online place. Place creation and profile creation or
+            updates require HTTPS. Responses may contain previously stored URLs
+            using other protocols.
     OpportunityCreateRequest:
       type: object
       additionalProperties: false
@@ -3034,6 +3044,7 @@ components:
           type: string
           format: uri
           maxLength: 2048
+          description: HTTPS link to the opportunity details.
         categoryId:
           type: string
           pattern: "^[0-9A-HJKMNP-TV-Z]{26}$"
@@ -3088,6 +3099,7 @@ components:
           type: string
           format: uri
           maxLength: 2048
+          description: HTTPS link to the opportunity details.
         categoryId:
           type: string
           pattern: "^[0-9A-HJKMNP-TV-Z]{26}$"

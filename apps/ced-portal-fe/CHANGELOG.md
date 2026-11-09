@@ -1,5 +1,11 @@
 # ced-portal-fe
 
+## 0.1.7
+
+### Patch Changes
+
+- 76f1048: Show validation errors on confirm click in the create access point page, requiring HTTPS website URLs, and align the contact rows with the access point modals.
+
 ## 0.1.6
 
 ### Patch Changes

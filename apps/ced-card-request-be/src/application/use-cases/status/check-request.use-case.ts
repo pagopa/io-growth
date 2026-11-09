@@ -17,10 +17,13 @@ import type { SupportRecordRepository } from "../../../domain/ports/outbound/per
 
 import { FiscalCodeSchema } from "../../../domain/entities/card-application.js";
 import { createEmptySupportRecord } from "../../../domain/entities/support-record.js";
+import { normalizeTrailingAccents } from "../../../domain/services/normalize-trailing-accents.js";
 import { validateUseCaseInput } from "../utils/validate-use-case-input.js";
 
 export const CheckRequestInputSchema = z.object({
+  familyName: z.string(),
   fiscalCode: FiscalCodeSchema,
+  givenName: z.string(),
 });
 
 export type CheckRequestInput = z.infer<typeof CheckRequestInputSchema>;
@@ -32,6 +35,12 @@ export interface CheckRequestOutput {
   readonly numDomus?: string;
   /** Current stable application state, mapped from the upstream milestone. */
   readonly state: ApplicationState;
+  /** Identity of the requesting user, echoed from the session. */
+  readonly user: {
+    readonly familyName: string;
+    readonly fiscalCode: string;
+    readonly givenName: string;
+  };
 }
 
 export type CheckRequestUseCase = UseCase<
@@ -195,12 +204,20 @@ const buildReconciledRecord = (
   );
 };
 
+export interface CheckRequestOptions {
+  /** Rewrites trailing accented letters in the returned user names (ò -> o'). */
+  readonly normalizeAccents: boolean;
+}
+
 export const makeCheckRequestUseCase =
   (
     cardApplicationRepository: CardApplicationRepository,
     supportRecordRepository: SupportRecordRepository,
+    { normalizeAccents }: CheckRequestOptions = { normalizeAccents: false },
   ): CheckRequestUseCase =>
   async (input) => {
+    const normalize = (value: string): string =>
+      normalizeAccents ? normalizeTrailingAccents(value) : value;
     const validated = await validateUseCaseInput(
       CheckRequestInputSchema,
       input,
@@ -238,6 +255,11 @@ export const makeCheckRequestUseCase =
     const output: CheckRequestOutput = {
       idLavorazione,
       state,
+      user: {
+        familyName: normalize(validated.value.familyName),
+        fiscalCode: validated.value.fiscalCode,
+        givenName: normalize(validated.value.givenName),
+      },
       ...(state === "ACQUIRED" && reconciled?.numDomus
         ? { numDomus: reconciled.numDomus }
         : {}),

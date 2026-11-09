@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { normalizeTrailingAccents } from "../inps-card-application.mapper.js";
+import { normalizeTrailingAccents } from "../normalize-trailing-accents.js";
 
 describe("normalizeTrailingAccents", () => {
   it.each([

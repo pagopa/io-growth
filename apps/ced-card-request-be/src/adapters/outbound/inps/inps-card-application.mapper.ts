@@ -26,6 +26,7 @@ import type {
 } from "../../../domain/entities/card-application.js";
 
 import { RecoveredApplicationDraftSchema } from "../../../domain/entities/card-application.js";
+import { normalizeTrailingAccents } from "../../../domain/utils/normalize-trailing-accents.js";
 
 /**
  * Maps the INPS `esitoCheck` milestone returned by CheckDomanda to the BFF
@@ -154,13 +155,6 @@ export const toApplicationDraftCreated = (
 export interface NuovaDomandaInBozzaOptions {
   readonly normalizeAccents: boolean;
 }
-
-/** INPS rejects accented letters: a trailing one is sent as plain vowel + apostrophe (ò -> o'). */
-export const normalizeTrailingAccents = (value: string): string =>
-  value
-    .normalize("NFD")
-    .replace(/([aeiou])[\u0300-\u036f]+(?=\s|$)/gi, "$1'")
-    .normalize("NFC");
 
 /** Flattens the domain draft into the nested INPS anagrafica/recapito shape. */
 export const toNuovaDomandaInBozzaRequest = (

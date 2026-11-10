@@ -167,7 +167,24 @@ paths:
             application/json:
               schema:
                 type: object
+                required:
+                  - user
+                  - state
                 properties:
+                  user:
+                    type: object
+                    description: Identity of the authenticated user, taken from the session.
+                    required:
+                      - givenName
+                      - familyName
+                      - fiscalCode
+                    properties:
+                      givenName:
+                        type: string
+                      familyName:
+                        type: string
+                      fiscalCode:
+                        type: string
                   state:
                     $ref: "#/components/schemas/ApplicationState"
                     description: Current or final application state.

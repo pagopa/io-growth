@@ -1,5 +1,11 @@
 # @pagopa/io-core-adapter-modi
 
+## 0.0.5
+
+### Patch Changes
+
+- 2f3b6f5: updated keyvault dep
+
 ## 0.0.4
 
 ### Patch Changes

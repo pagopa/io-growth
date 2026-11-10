@@ -1,5 +1,11 @@
 # @pagopa/io-core-adapter-inps-ced
 
+## 0.1.2
+
+### Patch Changes
+
+- e71e9b1: Map INPS `CheckDomanda` 400 responses to `ValidationError` so `GET /status` returns 400 instead of 500.
+
 ## 0.1.1
 
 ### Patch Changes

@@ -1,6 +1,6 @@
 <mjml lang="it">
   <mj-head>
-    <mj-title>Opportunità da modificare</mj-title>
+    <mj-title>Nuova opportunità</mj-title>
     <mj-font
       name="Titillium Web"
       href="https://selfcare.pagopa.it/assets/font/selfhostedfonts.css"
@@ -34,7 +34,7 @@
           >
             <!-- H4 Desktop (from MUI Italia)-->
             <h1 style="font-size: 32px; line-height: 40px; margin: 0">
-              Opportunità da modificare
+              Nuova opportunità
             </h1>
           </mj-text>
           <mj-text
@@ -45,38 +45,24 @@
             align="left"
             color="#17324D"
             padding-top="4px"
+            padding-bottom="0px"
             padding-left="0px"
             padding-right="0px"
           >
             <!-- Body 1 Desktop (from MUI Italia)-->
             <p>Ciao,</p>
 
-          <p>
-            Abbiamo revisionato l'opportunità <strong>{{opportunityName}}</strong> e ti chiediamo di <strong>effettuare le seguenti modifiche</strong>:
-          </p>
+            <p>
+              l&rsquo;ente <strong>{{operatorName}}</strong> ha <strong>proposto una nuova opportunità</strong> per Carta Europea della Disabilità: <strong>{{opportunityName}}</strong>
+            </p>
 
-          <p>{{rejectionMessage}}</p>
-
-          <p>
-            Per modificare i dettagli dell'opportunità, accedi ad <a href="#">Area Riservata</a> e seleziona il prodotto Carta Europea della Disabilità. Una volta modificata e inviata, revisioneremo di nuovo l'opportunità.
-          </p>
-
-          <p>
-            Se hai bisogno di supporto con le opportunità, consulta il <a href="#">manuale operativo</a>.
-          </p>
-
-          <p>
-            Per problemi tecnici nell'uso della piattaforma <a href="#">vai nel portale</a> e apri una richiesta.
-          </p>
-
-          <p>
-            A presto,
-          </p>
-
-          <p>
-            Il Dipartimento per le politiche in favore delle persone con disabilità.
-          </p>
+            <p>
+              Per approvarla o richiedere modifiche, accedi ad
+              <a href="{{selfcareUrl}}">Area Riservata</a>
+              e seleziona il prodotto Carta Europea della Disabilità.
+            </p>
           </mj-text>
+          <mj-include path="../partials/admin-message-ending.mjml" />
         </mj-column>
       </mj-section>
       <!-- Divider -->

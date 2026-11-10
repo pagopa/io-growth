@@ -126,6 +126,7 @@ const inpsRouter = await createInpsRouter(
 
 const cardApplicationRepository = createInpsCardApplicationRepository(
   inpsRouter.getInstance(),
+  { normalizeAccents: config.ACCENT_NORMALIZATION_ENABLED },
 );
 
 const app = Fastify({ logger: true });
@@ -161,7 +162,13 @@ app.register(async (authenticatedApp) => {
 
   mountGetApplicationStatusHandler(
     authenticatedApp,
-    makeCheckRequestUseCase(cardApplicationRepository, supportRecordRepository),
+    makeCheckRequestUseCase(
+      cardApplicationRepository,
+      supportRecordRepository,
+      {
+        normalizeAccents: config.ACCENT_NORMALIZATION_ENABLED,
+      },
+    ),
   );
 
   mountGetDraftDataHandler(

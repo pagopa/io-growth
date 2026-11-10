@@ -147,7 +147,7 @@ describe("opportunity display status at Rome midnight", () => {
         value: null,
       },
       caregiverBenefit: null,
-      category: { title: "Culture" },
+      category: { label: "culture_sport" },
       categoryId: "category",
       changeRequestMessage: null,
       createdAt: new Date("2026-01-01T00:00:00Z"),

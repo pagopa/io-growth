@@ -14,7 +14,7 @@ const templateMessage = (id: string): OutboxMessage => ({
   id,
   payload: {
     templateAttributes: { opportunityName: "Sconto" },
-    templateId: "ced_opportunity-published",
+    templateId: "ced_operator-opportunity-published_v1",
     to: "operatore@example.org",
     type: "template",
   },
@@ -98,7 +98,9 @@ describe("makeJobSendOutboxMessagesUseCase", () => {
 
     expect(result).toEqual(ok(undefined));
     expect(deps.emailRepository.sendTemplateEmail).toHaveBeenCalledWith(
-      expect.objectContaining({ templateId: "ced_opportunity-published" }),
+      expect.objectContaining({
+        templateId: "ced_operator-opportunity-published_v1",
+      }),
     );
     expect(deps.emailRepository.sendHtmlEmail).toHaveBeenCalledWith(
       expect.objectContaining({ subject: "Oggetto" }),

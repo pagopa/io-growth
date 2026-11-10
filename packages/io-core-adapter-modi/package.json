@@ -1,6 +1,6 @@
 {
   "name": "@pagopa/io-core-adapter-modi",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "type": "module",
   "exports": {
     ".": {
@@ -22,11 +22,11 @@
   },
   "dependencies": {
     "@azure/identity": "^4.13.1",
-    "@azure/keyvault-secrets": "^4.11.2",
+    "@azure/keyvault-secrets": "^4.12.0",
     "@pagopa/io-core-domain": "workspace:^",
     "jose": "^6.2.2",
     "neverthrow": "catalog:",
-    "undici": "^8.5.0",
+    "undici": "^8.10.2",
     "zod": "catalog:"
   },
   "devDependencies": {

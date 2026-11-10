@@ -18,7 +18,7 @@ const mockOpportunityDetail: OpportunityDetail = {
     type: "free",
     value: null,
   },
-  category: "Cultura e tempo libero",
+  category: "culture_sport",
   condition: "Riservato ai titolari della Carta Europea della Disabilità.",
   dateFrom: "2026-01-01",
   dateTo: "2026-12-31",

@@ -1,13 +1,8 @@
+import { HttpsUrlSchema } from "@pagopa/io-core-domain/value-objects";
 import { z } from "zod";
 
 import { ProfileLegalUrlSchema } from "../../../../domain/entities/profile.js";
-
-const OperatorProfileSupportContactSchema = z
-  .object({
-    type: z.enum(["email", "phone", "website"]),
-    value: z.string().min(1).max(2048),
-  })
-  .strict();
+import { StrictSupportContactInputSchema } from "../../utils/support-contact-input.schema.js";
 
 const OperatorProfileAddressSchema = z
   .object({
@@ -21,7 +16,7 @@ const OperatorProfileAddressSchema = z
 
 const OperatorProfileWebsiteSchema = z
   .object({
-    url: z.url().max(2048),
+    url: HttpsUrlSchema.max(2048),
   })
   .strict();
 
@@ -30,14 +25,14 @@ export const OperatorProfilePlaceInputSchema = z.discriminatedUnion("type", [
     .object({
       address: OperatorProfileAddressSchema,
       name: z.string().min(1).max(512),
-      supportContacts: z.array(OperatorProfileSupportContactSchema),
+      supportContacts: z.array(StrictSupportContactInputSchema),
       type: z.literal("offline"),
     })
     .strict(),
   z
     .object({
       name: z.string().min(1).max(512),
-      supportContacts: z.array(OperatorProfileSupportContactSchema),
+      supportContacts: z.array(StrictSupportContactInputSchema),
       type: z.literal("online"),
       website: OperatorProfileWebsiteSchema,
     })
@@ -67,11 +62,3 @@ export const OperatorUpdateProfileInputSchema =
     logo: z.instanceof(Blob).optional(),
     operatorId: z.ulid(),
   });
-
-export const OperatorUpdateProfileMultipartBodySchema = z
-  .object({
-    image: z.instanceof(Blob).optional(),
-    logo: z.instanceof(Blob).optional(),
-    profile: OperatorProfileInputSchema,
-  })
-  .strict();

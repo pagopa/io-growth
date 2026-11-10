@@ -17,7 +17,11 @@ import { AgreementDetailHeading } from './components/AgreementDetailHeading';
 import { AppSelect, AppTextField } from '../../../../components';
 import { DiscountBenefitFields } from './components/DiscountBenefitFields';
 import { DetailFormField } from './components/DetailFormField';
-import { getLocalizedOptions, getAgreementCopy } from '../../../../constants';
+import {
+  getLocalizedOptions,
+  getAgreementCopy,
+  getOpportunityCategory,
+} from '../../../../constants';
 import {
   BenefitDiscountDiscountType,
   BenefitOtherType,
@@ -46,11 +50,11 @@ export function AgreementDetailsSection({
 
   const categoriesOptions = useMemo(
     () =>
-      categories.map(({ id, title }) => ({
+      categories.map(({ id, label }) => ({
         value: id,
-        label: title,
+        label: getOpportunityCategory(label, activeLanguage).title,
       })),
-    [categories],
+    [categories, activeLanguage],
   );
 
   const benefitTypeOptions = useMemo(
@@ -251,7 +255,12 @@ export function AgreementDetailsSection({
                     color="text.secondary"
                     component="span"
                   >
-                    {categories[index].description}
+                    {
+                      getOpportunityCategory(
+                        categories[index]?.label,
+                        activeLanguage,
+                      ).description
+                    }
                   </Typography>
                   {!lastElement && <Divider sx={{ width: '100%' }} />}
                 </Stack>

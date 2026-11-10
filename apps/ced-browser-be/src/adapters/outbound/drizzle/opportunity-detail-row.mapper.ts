@@ -12,7 +12,7 @@ import type {
 export interface OpportunityDetailRow {
   beneficiaryBenefit: BenefitRow | null;
   caregiverBenefit: BenefitRow | null;
-  category: null | { title: string };
+  category: null | { label: string };
   dateFrom: string;
   dateTo: null | string;
   id: string;
@@ -28,6 +28,7 @@ export interface OpportunityDetailRow {
 }
 
 interface BenefitRow {
+  description: null | string;
   discountType: "fixed_amount" | "percentage" | null;
   type: "discount" | "free" | "other" | "priority" | "reduced_fixed_price";
   value: null | number;
@@ -81,6 +82,7 @@ interface ProfileRow {
 type ProfileWithPlace = ProfileRow & { place: ProfilePlaceRow };
 
 const mapBenefitRow = (row: BenefitRow): OpportunityBenefit => ({
+  ...(row.type === "other" ? { description: row.description } : {}),
   discountType: row.discountType,
   type: row.type,
   value: row.value,
@@ -240,7 +242,7 @@ export const mapOpportunityDetailRow = (
     caregiverBenefit: row.caregiverBenefit
       ? mapBenefitRow(row.caregiverBenefit)
       : null,
-    category: row.category.title,
+    category: row.category.label,
     ...(localizedFields.condition
       ? { condition: localizedFields.condition }
       : {}),

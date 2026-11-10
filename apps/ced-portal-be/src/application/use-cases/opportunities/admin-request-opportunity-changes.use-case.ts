@@ -12,10 +12,17 @@ import {
 import { errAsync, ResultAsync } from "neverthrow";
 import { z } from "zod";
 
+import type { EmailLinks } from "../../../domain/entities/message-outbox.js";
 import type { OpportunityRepository } from "../../../domain/ports/outbound/persistence/opportunity.repository.js";
+import type { ProfileRepository } from "../../../domain/ports/outbound/persistence/profile.repository.js";
 
+import { buildOperatorOpportunityRejectedMessage } from "../../../domain/entities/message-outbox.js";
 import { OPPORTUNITY_STATUS } from "../../../domain/entities/opportunity.js";
 import { validateUseCaseInput } from "../utils/validate-use-case-input.js";
+import {
+  buildOperatorMessages,
+  getOpportunityName,
+} from "./utils/operator-notification.js";
 
 const AdminRequestOpportunityChangesInputSchema = z.object({
   changeRequestMessage: z.string().trim().min(1).max(4096),
@@ -39,6 +46,8 @@ export type AdminRequestOpportunityChangesUseCase = UseCase<
 export const makeAdminRequestOpportunityChangesUseCase =
   (
     opportunityRepository: OpportunityRepository,
+    profileRepository: ProfileRepository,
+    emailLinks: EmailLinks,
   ): AdminRequestOpportunityChangesUseCase =>
   async (input) =>
     validateUseCaseInput(
@@ -60,11 +69,24 @@ export const makeAdminRequestOpportunityChangesUseCase =
             ),
           );
 
-        return new ResultAsync(
-          opportunityRepository.requestChangesById({
-            changeRequestMessage: validatedInput.changeRequestMessage,
-            opportunityId: validatedInput.opportunityId,
+        const opportunityName = getOpportunityName(data);
+
+        return buildOperatorMessages(profileRepository, data.operatorId, (to) =>
+          buildOperatorOpportunityRejectedMessage({
+            links: emailLinks,
+            opportunityName,
+            rejectionMessage: validatedInput.changeRequestMessage,
+            to,
           }),
+        ).andThen(
+          (outboxMessages) =>
+            new ResultAsync(
+              opportunityRepository.requestChangesById({
+                changeRequestMessage: validatedInput.changeRequestMessage,
+                opportunityId: validatedInput.opportunityId,
+                outboxMessages,
+              }),
+            ),
         );
       }),
     );

@@ -12,6 +12,7 @@ import type {
 } from '../../../generated/model';
 import type { Opportunity } from '../../../features/opportunities/types';
 import { publicationStatusLabels } from '../../../features/benefitsFilters/types';
+import { getOpportunityCategory } from '../../../constants';
 import { getChipConfig } from './utils';
 
 export interface BenefitsTableColumn {
@@ -57,11 +58,11 @@ export const benefitsTableColumns: BenefitsTableColumn[] = [
     ),
   },
   {
-    id: 'categoryTitle',
+    id: 'categoryLabel',
     label: 'Categoria',
     sortable: true,
-    sortAccessor: (item) => item.categoryTitle,
-    renderCell: (item) => item.categoryTitle,
+    sortAccessor: (item) => getOpportunityCategory(item.categoryLabel).title,
+    renderCell: (item) => getOpportunityCategory(item.categoryLabel).title,
   },
   {
     id: 'dateFrom',

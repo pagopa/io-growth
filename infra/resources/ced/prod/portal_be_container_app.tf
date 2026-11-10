@@ -50,6 +50,14 @@ module "portal_be_container_app" {
       key_vault_secret_id = format(local.secrets_id_template, "ced-p-itn-portal-be-ar-client-endpoint-test")
     },
     {
+      name                = "ADMIN_EMAIL_ADDRESS"
+      key_vault_secret_id = format(local.secrets_id_template, "ced-p-itn-portal-be-admin-email-address")
+    },
+    {
+      name                = "ADMIN_EMAIL_ADDRESS_TEST"
+      key_vault_secret_id = format(local.secrets_id_template, "ced-p-itn-portal-be-admin-email-address-test")
+    },
+    {
       name                = "APPINSIGHTS_INSTRUMENTATION_KEY"
       key_vault_secret_id = module.azure_core_values.application_insights.instrumentation_key_kv_secret_id
     },
@@ -64,6 +72,18 @@ module "portal_be_container_app" {
     {
       name                = "ONE_MAIL_BASE_URL"
       key_vault_secret_id = format(local.secrets_id_template, "ced-one-mail-base-url")
+    },
+    {
+      name                = "SELFCARE_URL"
+      key_vault_secret_id = format(local.secrets_id_template, "ced-p-itn-portal-be-selfcare-url")
+    },
+    {
+      name                = "RUNBOOK_URL"
+      key_vault_secret_id = format(local.secrets_id_template, "ced-p-itn-portal-be-runbook-url")
+    },
+    {
+      name                = "SUPPORT_URL"
+      key_vault_secret_id = format(local.secrets_id_template, "ced-p-itn-portal-be-support-url")
     }
   ]
 

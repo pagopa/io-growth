@@ -4,6 +4,7 @@ import type { Result } from "neverthrow";
 
 import { NotFoundError, ValidationError } from "@pagopa/io-core-domain/errors";
 import { getApplicationDate } from "@pagopa/io-core-domain/utilities";
+import { HttpsUrlSchema } from "@pagopa/io-core-domain/value-objects";
 import { err, errAsync, ok, okAsync, ResultAsync } from "neverthrow";
 import { z } from "zod";
 
@@ -43,7 +44,7 @@ const OperatorUpdateOpportunityInputSchema = z.object({
   operatorId: z.ulid(),
   opportunityId: z.ulid(),
   placeIds: PlaceIdsInputSchema,
-  url: z.url().max(2048).optional(),
+  url: HttpsUrlSchema.max(2048).optional(),
 });
 
 export type OperatorUpdateOpportunityInput = z.input<

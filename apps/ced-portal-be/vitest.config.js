@@ -14,7 +14,6 @@ const coverageExclude = [
 export default defineConfig({
   test: {
     coverage: {
-      all: true,
       exclude: coverageExclude,
       include: ["src/**/*.ts"],
       reporter: ["text", "html"],

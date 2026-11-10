@@ -9,6 +9,7 @@ import {
 } from '../core/auth/authSelectors';
 import { isFetchBaseQueryError } from '../utils';
 import { authActions } from '../core/auth/authSlice';
+import { getMixpanelId } from '../mixpanel/getMixpanelId';
 
 const redirectTokenError = { data: 'Session ID not provided', status: 401 };
 
@@ -21,10 +22,7 @@ export const useGetSession = () => {
     () => new URLSearchParams(search).get('id'),
     [search],
   );
-  const deviceId = useMemo(
-    () => new URLSearchParams(search).get('mixpanelId'),
-    [search],
-  );
+  const deviceId = useMemo(() => getMixpanelId(search), [search]);
 
   const [getSession] = useLazyGetSessionQuery();
 

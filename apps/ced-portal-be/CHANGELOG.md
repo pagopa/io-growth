@@ -1,5 +1,49 @@
 # ced-portal-be
 
+## 0.12.3
+
+### Patch Changes
+
+- bb4972f: Fix the Redis client staying blocked forever after a connection loss. The client now keeps a single cluster connection instead of reconnecting on every command, bounds connection (20s) and command (2s) time, replaces a broken connection with `destroy()` instead of waiting on `quit()`, rebuilds it after repeated connection failures (Redis error replies no longer count) and reports node connection errors. node-redis now also closes and reopens node connections that stop answering (idle socket timeout with a periodic PING, reconnecting without ever giving up) and drops queued commands once they time out. The readiness endpoint now answers 503 when the database or Redis is unreachable, and `ced-browser-be` now tracks Redis connection errors too.
+- Updated dependencies [bb4972f]
+  - @pagopa/io-core-adapter-redis@0.0.12
+
+## 0.12.2
+
+### Patch Changes
+
+- b7402fd: Validate support contact email addresses, phone numbers, and HTTPS websites before creating places or saving operator profiles, and require HTTPS for online place websites and opportunity URLs. Use case validation errors now use the same readable `[path]: message` format as request validation errors. The shared domain package now exports the HTTPS URL value object for reuse.
+- Updated dependencies [b7402fd]
+  - @pagopa/io-core-domain@0.1.1
+
+## 0.12.1
+
+### Patch Changes
+
+- 67578cc: added version to templates
+
+## 0.12.0
+
+### Minor Changes
+
+- 23b4d5c: Prefix operator templates and the shared ending partial with `operator-` (`operator-opportunity-approved`, `operator-opportunity-published`, `operator-opportunity-rejected`, `operator-message-ending`) and add the `admin-new-opportunity` template.
+
+  Rename operator email template IDs with the `operator-` prefix and email the admin (`admin-new-opportunity`) when an operator requests an opportunity test; the recipient is routed to `ADMIN_EMAIL_ADDRESS_TEST` for test users.
+
+- 724f258: Enqueue an `opportunity-rejected` email to the operator when an admin requests changes on an opportunity.
+
+## 0.11.0
+
+### Minor Changes
+
+- dd9a761: Replace opportunity category title and description with a label (`id` + `label` only); portal responses expose `categoryLabel` instead of `categoryTitle`, browser `category` now carries the label.
+
+## 0.10.3
+
+### Patch Changes
+
+- 34319d0: Bump `image-size` to 2.0.3 and `react-router-dom` to 6.30.6.
+
 ## 0.10.2
 
 ### Patch Changes

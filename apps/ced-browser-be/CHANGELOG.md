@@ -1,5 +1,25 @@
 # ced-browser-be
 
+## 0.3.2
+
+### Patch Changes
+
+- bb4972f: Fix the Redis client staying blocked forever after a connection loss. The client now keeps a single cluster connection instead of reconnecting on every command, bounds connection (20s) and command (2s) time, replaces a broken connection with `destroy()` instead of waiting on `quit()`, rebuilds it after repeated connection failures (Redis error replies no longer count) and reports node connection errors. node-redis now also closes and reopens node connections that stop answering (idle socket timeout with a periodic PING, reconnecting without ever giving up) and drops queued commands once they time out. The readiness endpoint now answers 503 when the database or Redis is unreachable, and `ced-browser-be` now tracks Redis connection errors too.
+- Updated dependencies [bb4972f]
+  - @pagopa/io-core-adapter-redis@0.0.12
+
+## 0.3.1
+
+### Patch Changes
+
+- b989a92: Return the benefit `description` for `other` benefit types in the opportunity detail response
+
+## 0.3.0
+
+### Minor Changes
+
+- dd9a761: Replace opportunity category title and description with a label (`id` + `label` only); portal responses expose `categoryLabel` instead of `categoryTitle`, browser `category` now carries the label.
+
 ## 0.2.1
 
 ### Patch Changes

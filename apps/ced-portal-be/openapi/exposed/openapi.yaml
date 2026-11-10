@@ -2985,6 +2985,12 @@ components:
         value:
           type: string
           maxLength: 2048
+          description: >-
+            Support contact value, trimmed before validation. Its format depends
+            on `type`: `email` requires a valid email address; `phone` requires
+            digits optionally prefixed by `+` and separated by single spaces,
+            dots, or hyphens (digit groups may be wrapped in parentheses);
+            `website` requires an HTTPS URL.
     SupportContactResponse:
       type: object
       additionalProperties: false
@@ -3015,6 +3021,10 @@ components:
           type: string
           format: uri
           maxLength: 2048
+          description: >-
+            URL of the online place. Place creation and profile creation or
+            updates require HTTPS. Responses may contain previously stored URLs
+            using other protocols.
     OpportunityCreateRequest:
       type: object
       additionalProperties: false
@@ -3034,6 +3044,7 @@ components:
           type: string
           format: uri
           maxLength: 2048
+          description: HTTPS link to the opportunity details.
         categoryId:
           type: string
           pattern: "^[0-9A-HJKMNP-TV-Z]{26}$"
@@ -3088,6 +3099,7 @@ components:
           type: string
           format: uri
           maxLength: 2048
+          description: HTTPS link to the opportunity details.
         categoryId:
           type: string
           pattern: "^[0-9A-HJKMNP-TV-Z]{26}$"
@@ -3248,7 +3260,7 @@ components:
         - id
         - status
         - name
-        - categoryTitle
+        - categoryLabel
         - dateFrom
       properties:
         id:
@@ -3268,7 +3280,7 @@ components:
             - deleted
         name:
           type: string
-        categoryTitle:
+        categoryLabel:
           type: string
         dateFrom:
           type: string
@@ -3316,7 +3328,7 @@ components:
         - id
         - status
         - name
-        - categoryTitle
+        - categoryLabel
         - dateFrom
         - operatorName
       properties:
@@ -3337,7 +3349,7 @@ components:
             - deleted
         name:
           type: string
-        categoryTitle:
+        categoryLabel:
           type: string
         dateFrom:
           type: string
@@ -3396,7 +3408,7 @@ components:
         - status
         - dateFrom
         - categoryId
-        - categoryTitle
+        - categoryLabel
         - nationalTerritory
         - beneficiaryBenefit
         - localizedMetadata
@@ -3436,7 +3448,7 @@ components:
         categoryId:
           type: string
           pattern: "^[0-9A-HJKMNP-TV-Z]{26}$"
-        categoryTitle:
+        categoryLabel:
           type: string
         beneficiaryBenefit:
           $ref: "#/components/schemas/BenefitRequest"
@@ -3513,7 +3525,7 @@ components:
         - status
         - dateFrom
         - categoryId
-        - categoryTitle
+        - categoryLabel
         - beneficiaryBenefit
         - localizedMetadata
         - placeIds
@@ -3549,7 +3561,7 @@ components:
         categoryId:
           type: string
           pattern: "^[0-9A-HJKMNP-TV-Z]{26}$"
-        categoryTitle:
+        categoryLabel:
           type: string
         beneficiaryBenefit:
           $ref: "#/components/schemas/BenefitRequest"
@@ -3644,16 +3656,22 @@ components:
       additionalProperties: false
       required:
         - id
-        - title
-        - description
+        - label
       properties:
         id:
           type: string
           pattern: "^[0-9A-HJKMNP-TV-Z]{26}$"
-        title:
+        label:
           type: string
-        description:
-          type: string
+          enum:
+            - culture_sport
+            - education_employment
+            - health_wellbeing
+            - financial_services
+            - travel_tourism
+            - mobility_transport
+            - citizen_services
+            - municipal_services
     AuthorizeResponse:
       type: object
       additionalProperties: false

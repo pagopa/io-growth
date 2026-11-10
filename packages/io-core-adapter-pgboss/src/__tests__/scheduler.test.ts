@@ -15,7 +15,9 @@ const mockBossInstance = {
 };
 
 vi.mock("pg-boss", () => ({
-  PgBoss: vi.fn(() => mockBossInstance),
+  PgBoss: vi.fn(function () {
+    return mockBossInstance;
+  }),
 }));
 
 const { PgBoss } = await import("pg-boss");

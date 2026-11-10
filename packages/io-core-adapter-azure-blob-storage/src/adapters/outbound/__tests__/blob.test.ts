@@ -22,9 +22,9 @@ describe("createBlobRepository", () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    vi.mocked(BlobServiceClient).mockImplementation(
-      () => ({ getContainerClient }) as never,
-    );
+    vi.mocked(BlobServiceClient).mockImplementation(function () {
+      return { getContainerClient } as never;
+    });
     vi.mocked(BlobServiceClient.fromConnectionString).mockReturnValue({
       getContainerClient,
     } as never);

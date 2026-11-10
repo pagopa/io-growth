@@ -172,7 +172,7 @@ const findByIdAndOperatorId = async (
             value: true,
           },
         },
-        category: { columns: { title: true } },
+        category: { columns: { label: true } },
         localizedMetadata: {
           columns: { key: true, language: true, value: true },
         },
@@ -235,7 +235,7 @@ const findById =
               value: true,
             },
           },
-          category: { columns: { title: true } },
+          category: { columns: { label: true } },
           localizedMetadata: {
             columns: { key: true, language: true, value: true },
           },
@@ -600,6 +600,8 @@ const requestChangesById =
             "Opportunity status was modified concurrently",
           );
         }
+
+        await enqueueMessagesInTransaction(tx, input.outboxMessages);
       });
       return ok(undefined);
     } catch (error) {
@@ -973,7 +975,7 @@ export const createDrizzleOpportunityRepository = (
       const [dataResult, countResult] = await Promise.all([
         db
           .select({
-            categoryTitle: opportunityCategory.title,
+            categoryLabel: opportunityCategory.label,
             dateFrom: opportunity.dateFrom,
             dateTo: opportunity.dateTo,
             deletionMessage: opportunity.deletionMessage,
@@ -1064,6 +1066,9 @@ export const createDrizzleOpportunityRepository = (
           })
           .where(and(...conditions));
         updateCount = result.count;
+        if (updateCount > 0) {
+          await enqueueMessagesInTransaction(tx, input.outboxMessages);
+        }
       });
 
       if (updateCount === 0) {

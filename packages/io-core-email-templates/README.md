@@ -16,10 +16,10 @@ Each template lives in its own folder directly under `src/` (alongside the
 shared `style.css`, `partials/`, and `assets/` folders):
 
 ```
-src/opportunity-approved/
-├── index.mjml                    # MJML source for the Html part (edit this)
-├── meta.json                     # Subject / Text parts, as `{{placeholder}}` strings (edit this)
-└── opportunity-approved.json     # Generated — commit this, do not hand-edit
+src/operator-opportunity-approved/
+├── index.mjml                             # MJML source for the Html part (edit this)
+├── meta.json                              # Subject / Text parts, as `{{placeholder}}` strings (edit this)
+└── operator-opportunity-approved.json     # Generated — commit this, do not hand-edit
 ```
 
 Running `pnpm --filter=@pagopa/io-core-email-templates generate`:
@@ -37,7 +37,7 @@ Running `pnpm --filter=@pagopa/io-core-email-templates generate`:
    ```json
    {
      "TemplateContent": { "Html": "...", "Subject": "...", "Text": "..." },
-     "TemplateName": "opportunity-approved"
+     "TemplateName": "operator-opportunity-approved"
    }
    ```
 

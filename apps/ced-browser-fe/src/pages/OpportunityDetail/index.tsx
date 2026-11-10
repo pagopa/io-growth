@@ -17,6 +17,7 @@ import { PageErrorType } from '../../components/QueryGuard/ErrorScreen/types.js'
 import { useGetOpportunityDetailQuery } from '../../features/opportunities/api.js';
 import { formatAddress } from '../../utils/formatAddress.js';
 import { formatBadgeLabel } from '../../utils/formatBadgeLabel.js';
+import { formatCaregiverBenefit } from '../../utils/formatCaregiverBenefit.js';
 import { useTrackLandedInPage } from '../../mixpanel/useTrackLandedInPage.js';
 import { useCallback } from 'react';
 import { trackBrowserEvent } from '../../mixpanel/trackEvent.js';
@@ -200,14 +201,17 @@ export default function OpportunityDetailPage() {
               </>
             )}
 
-            {resolvedData.caregiverBenefit?.value && (
+            {resolvedData.caregiverBenefit && (
               <>
                 <Box sx={{ py: 2 }}>
                   <Body fontWeight="Light" fontSize="14px">
                     Accompagnatore
                   </Body>
                   <Body fontWeight="Semibold">
-                    Stesse condizioni del titolare
+                    {formatCaregiverBenefit(
+                      resolvedData.caregiverBenefit,
+                      resolvedData.beneficiaryBenefit,
+                    )}
                   </Body>
                 </Box>
                 <Divider aria-hidden />

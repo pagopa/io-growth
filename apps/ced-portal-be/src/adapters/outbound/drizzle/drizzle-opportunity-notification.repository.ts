@@ -4,9 +4,10 @@ import { GenericError } from "@pagopa/io-core-domain/errors";
 import { inArray, sql } from "drizzle-orm";
 import { err, ok } from "neverthrow";
 
+import type { EmailLinks } from "../../../domain/entities/message-outbox.js";
 import type { OpportunityNotificationRepository } from "../../../domain/ports/outbound/persistence/opportunity-notification.repository.js";
 
-import { buildOpportunityPublishedMessage } from "../../../domain/entities/message-outbox.js";
+import { buildOperatorOpportunityPublishedMessage } from "../../../domain/entities/message-outbox.js";
 import { enqueueMessagesInTransaction } from "./message-outbox.transaction.js";
 import * as schema from "./schema/index.js";
 import { opportunity } from "./schema/tables.js";
@@ -19,6 +20,7 @@ interface VisibleOpportunityRow extends Record<string, unknown> {
 
 export const createDrizzleOpportunityNotificationRepository = (
   db: TypedDbClient<typeof schema>,
+  emailLinks: EmailLinks,
 ): OpportunityNotificationRepository => ({
   enqueuePublishedMessages: async (limit) => {
     try {
@@ -51,7 +53,8 @@ export const createDrizzleOpportunityNotificationRepository = (
         await enqueueMessagesInTransaction(
           tx,
           rows.map((row) =>
-            buildOpportunityPublishedMessage({
+            buildOperatorOpportunityPublishedMessage({
+              links: emailLinks,
               opportunityName: row.name,
               to: row.email,
             }),

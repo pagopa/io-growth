@@ -1,5 +1,36 @@
 # ced-card-request-be
 
+## 0.5.3
+
+### Patch Changes
+
+- bb4972f: Fix the Redis client staying blocked forever after a connection loss. The client now keeps a single cluster connection instead of reconnecting on every command, bounds connection (20s) and command (2s) time, replaces a broken connection with `destroy()` instead of waiting on `quit()`, rebuilds it after repeated connection failures (Redis error replies no longer count) and reports node connection errors. node-redis now also closes and reopens node connections that stop answering (idle socket timeout with a periodic PING, reconnecting without ever giving up) and drops queued commands once they time out. The readiness endpoint now answers 503 when the database or Redis is unreachable, and `ced-browser-be` now tracks Redis connection errors too.
+- Updated dependencies [bb4972f]
+  - @pagopa/io-core-adapter-redis@0.0.12
+
+## 0.5.2
+
+### Patch Changes
+
+- e71e9b1: Map INPS `CheckDomanda` 400 responses to `ValidationError` so `GET /status` returns 400 instead of 500.
+- Updated dependencies [e71e9b1]
+  - @pagopa/io-core-adapter-inps-ced@0.1.2
+
+## 0.5.1
+
+### Patch Changes
+
+- Updated dependencies [2f3b6f5]
+  - @pagopa/io-core-adapter-modi@0.0.5
+  - @pagopa/io-core-adapter-inps-ced@0.1.1
+
+## 0.5.0
+
+### Minor Changes
+
+- a146f0d: Add the `ACCENT_NORMALIZATION_ENABLED` flag to rewrite trailing accented vowels as plain vowel plus apostrophe in the name fields sent to INPS when creating a draft.
+- 299687c: Return the authenticated user's `givenName`, `familyName` and `fiscalCode` in a `user` object from `GET /status`, alongside the application state. When `ACCENT_NORMALIZATION_ENABLED` is `true`, trailing accented vowels in the names are rewritten as plain vowel plus apostrophe, as done for the INPS draft.
+
 ## 0.4.0
 
 ### Minor Changes

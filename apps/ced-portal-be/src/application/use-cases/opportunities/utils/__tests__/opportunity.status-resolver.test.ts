@@ -35,7 +35,7 @@ const currentOpportunity = (
   beneficiaryBenefit: sameBenefit,
   caregiverBenefit: { type: "free" },
   categoryId: CATEGORY_ID,
-  categoryTitle: "Cultura",
+  categoryLabel: "culture_sport",
   createdAt: "2026-01-01T00:00:00.000Z",
   dateFrom: "2026-01-01",
   dateTo: "2026-12-31",

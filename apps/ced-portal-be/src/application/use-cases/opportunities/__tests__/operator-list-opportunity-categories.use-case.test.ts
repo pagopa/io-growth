@@ -8,16 +8,8 @@ import type { OpportunityCategoryRepository } from "../../../../domain/ports/out
 import { makeOperatorListOpportunityCategoriesUseCase } from "../operator-list-opportunity-categories.use-case.js";
 
 const mockCategories: OpportunityCategory[] = [
-  {
-    description: "Libri, teatro, cinema, concerti",
-    id: "01KRJXEYD44B58700GT982CCYY",
-    title: "Cultura e tempo libero",
-  },
-  {
-    description: "Scuole, Università, Corsi di formazione",
-    id: "01KRJXEYD64E7NX00R5VT185AT",
-    title: "Istruzione e formazione",
-  },
+  { id: "01KRJXEYD44B58700GT982CCYY", label: "culture_sport" },
+  { id: "01KRJXEYD64E7NX00R5VT185AT", label: "education_employment" },
 ];
 
 const createMockOpportunityCategoryRepository = (

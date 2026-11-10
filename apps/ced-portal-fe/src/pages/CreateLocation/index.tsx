@@ -15,32 +15,22 @@ import { APP_ROUTES } from '../../app/routeConfig';
 import { useToast } from '../../contexts';
 import { useCreatePlaceMutation } from '../../features/places/api';
 import { AppRadioList } from '../../components/RadioList';
-import { FormField } from '../../components/FormField';
 import { AppTextField } from '../../components/TextField';
 import { AppSelect } from '../../components/Select';
-import type { PlaceCreateRequest } from '../../generated/model';
+import { getContactError } from '../../components/ContactRow/utils';
 import AddIcon from '@mui/icons-material/Add';
-import DeleteIcon from '@mui/icons-material/DeleteOutline';
+import DeleteIcon from '@mui/icons-material/Delete';
+import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import RoomOutlinedIcon from '@mui/icons-material/RoomOutlined';
 import LanguageOutlinedIcon from '@mui/icons-material/LanguageOutlined';
-import { getContactValidationError } from '../../utils/contactValidation.js';
 import { getContactInputConfig } from '../Overview/CompleteData/components/constants/index.js';
-
-type ContactState = {
-  type: 'email' | 'phone' | 'website';
-  value: string;
-};
-
-interface LocationState {
-  id: string;
-  name: string;
-  street: string;
-  city: string;
-  state: string;
-  postalCode: string;
-  websiteUrl: string;
-  contacts: ContactState[];
-}
+import type { ContactState, LocationState } from './types';
+import {
+  getRequiredFieldError,
+  getWebsiteUrlError,
+  isLocValid,
+} from './utils/validation';
+import { submitLocations } from './utils/submitLocations';
 
 const createDefaultLocation = (): LocationState => ({
   id: crypto.randomUUID(),
@@ -53,15 +43,6 @@ const createDefaultLocation = (): LocationState => ({
   contacts: [{ type: 'phone', value: '' }],
 });
 
-const requiredTitle = (label: string) => (
-  <>
-    {label}{' '}
-    <Box component="span" sx={{ color: 'common.requiredField' }}>
-      *
-    </Box>
-  </>
-);
-
 export default function CreateLocationPage() {
   const theme = useTheme();
   const navigate = useNavigate();
@@ -73,6 +54,26 @@ export default function CreateLocationPage() {
     createDefaultLocation(),
   ]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [attempted, setAttempted] = useState(false);
+  const [showUrlErrorIds, setShowUrlErrorIds] = useState<Set<string>>(
+    new Set(),
+  );
+
+  const getRequiredError = (value: string) =>
+    getRequiredFieldError(value, attempted);
+
+  const getUrlError = (loc: LocationState) =>
+    showUrlErrorIds.has(loc.id) ? getWebsiteUrlError(loc.websiteUrl) : null;
+
+  const showUrlError = (id: string) =>
+    setShowUrlErrorIds((prev) => new Set(prev).add(id));
+
+  const getContactFieldError = (contact: ContactState) =>
+    getContactError({
+      contact,
+      attempted,
+      required: true,
+    });
 
   const handleUpdateLocation = (
     index: number,
@@ -120,89 +121,30 @@ export default function CreateLocationPage() {
     handleUpdateLocation(locIndex, { contacts: newContacts });
   };
 
-  const isLocValid = (loc: LocationState) => {
-    if (!loc.name.trim()) return false;
-    if (type === 'offline') {
-      if (
-        !loc.street.trim() ||
-        !loc.city.trim() ||
-        !loc.state.trim() ||
-        !loc.postalCode.trim()
-      ) {
-        return false;
-      }
-    } else {
-      if (!loc.websiteUrl.trim()) return false;
-    }
-
-    if (loc.contacts.some((contact) => getContactValidationError(contact)))
-      return false;
-    return true;
-  };
-
   const isFormValid = () => {
-    return locations.length > 0 && locations.every(isLocValid);
+    return (
+      locations.length > 0 && locations.every((loc) => isLocValid(loc, type))
+    );
   };
 
   const handleSubmit = async () => {
+    setAttempted(true);
+    setShowUrlErrorIds(new Set(locations.map((loc) => loc.id)));
     if (!isFormValid()) return;
+
     setIsSubmitting(true);
     try {
-      const submittedLocations = locations;
-      const results = await Promise.allSettled(
-        submittedLocations.map((loc) => {
-          let payload: PlaceCreateRequest;
-
-          if (type === 'offline') {
-            payload = {
-              type: 'offline',
-              name: loc.name,
-              address: {
-                street: loc.street,
-                city: loc.city,
-                state: loc.state,
-                postalCode: loc.postalCode,
-                country: 'IT',
-              },
-              supportContacts: loc.contacts,
-            };
-          } else {
-            payload = {
-              type: 'online',
-              name: loc.name,
-              website: {
-                url: loc.websiteUrl,
-              },
-              supportContacts: loc.contacts,
-            };
-          }
-
-          return createPlace(payload).unwrap();
-        }),
-      );
-
-      const failedIds = new Set(
-        results.flatMap((result, index) =>
-          result.status === 'rejected' ? [submittedLocations[index].id] : [],
-        ),
-      );
-      const createdCount = results.length - failedIds.size;
-
-      if (failedIds.size > 0) {
-        setLocations((current) =>
-          current.filter((location) => failedIds.has(location.id)),
-        );
-        showToast(
-          createdCount > 0
-            ? `Creati ${createdCount} punti di accesso; ${failedIds.size} non creati. Puoi riprovare.`
-            : 'Errore durante la creazione dei punti di accesso',
-          'error',
-        );
-        return;
-      }
-
-      showToast('Punti di accesso creati con successo', 'success');
-      navigate(APP_ROUTES.LOCATIONS);
+      await submitLocations({
+        locations,
+        type,
+        createPlace: (payload) => createPlace(payload).unwrap(),
+        keepFailedLocations: (failedIds) =>
+          setLocations((current) =>
+            current.filter((location) => failedIds.has(location.id)),
+          ),
+        navigate,
+        showToast,
+      });
     } finally {
       setIsSubmitting(false);
     }
@@ -254,7 +196,11 @@ export default function CreateLocationPage() {
 
             <AppRadioList
               value={type}
-              onChange={(val) => setType(val as 'offline' | 'online')}
+              onChange={(val) => {
+                setType(val as 'offline' | 'online');
+                setAttempted(false);
+                setShowUrlErrorIds(new Set());
+              }}
               sx={{ gap: 4 }}
               options={[
                 { value: 'offline', label: 'Sede fisica' },
@@ -295,101 +241,106 @@ export default function CreateLocationPage() {
                     onClick={() => handleRemoveLocation(locIndex)}
                     color="default"
                   >
-                    <DeleteIcon />
+                    <DeleteOutlineIcon />
                   </IconButton>
                 )}
               </Stack>
 
               <Stack spacing={3}>
-                <FormField
-                  title={requiredTitle('Nome')}
+                <AppTextField
                   required
+                  label="Nome"
+                  placeholder="Inserisci nome"
                   value={loc.name}
+                  error={!!getRequiredError(loc.name)}
+                  helperText={getRequiredError(loc.name)}
                   onChange={(e) =>
                     handleUpdateLocation(locIndex, { name: e.target.value })
                   }
-                  placeholder="Inserisci nome"
-                >
-                  <AppTextField />
-                </FormField>
+                />
 
                 {type === 'offline' ? (
                   <>
-                    <FormField
-                      title={requiredTitle('Indirizzo')}
+                    <AppTextField
                       required
+                      label="Indirizzo"
+                      placeholder="Es. Via Roma, 1"
                       value={loc.street}
+                      error={!!getRequiredError(loc.street)}
+                      helperText={getRequiredError(loc.street)}
                       onChange={(e) =>
                         handleUpdateLocation(locIndex, {
                           street: e.target.value,
                         })
                       }
-                      placeholder="Es. Via Roma, 1"
-                    >
-                      <AppTextField />
-                    </FormField>
+                    />
                     <Stack direction={{ xs: 'column', md: 'row' }} spacing={2}>
                       <Box sx={{ flex: 1 }}>
-                        <FormField
-                          title={requiredTitle('Città')}
+                        <AppTextField
                           required
+                          label="Città"
+                          placeholder="Es. Roma"
                           value={loc.city}
+                          error={!!getRequiredError(loc.city)}
+                          helperText={getRequiredError(loc.city)}
                           onChange={(e) =>
                             handleUpdateLocation(locIndex, {
                               city: e.target.value,
                             })
                           }
-                          placeholder="Es. Roma"
-                        >
-                          <AppTextField />
-                        </FormField>
+                        />
                       </Box>
                       <Box sx={{ flex: 1 }}>
-                        <FormField
-                          title={requiredTitle('Provincia')}
+                        <AppTextField
                           required
+                          label="Provincia"
+                          placeholder="Es. RM"
                           value={loc.state}
+                          error={!!getRequiredError(loc.state)}
+                          helperText={getRequiredError(loc.state)}
                           onChange={(e) =>
                             handleUpdateLocation(locIndex, {
                               state: e.target.value,
                             })
                           }
-                          placeholder="Es. RM"
-                        >
-                          <AppTextField />
-                        </FormField>
+                        />
                       </Box>
                       <Box sx={{ flex: 1 }}>
-                        <FormField
-                          title={requiredTitle('CAP')}
+                        <AppTextField
                           required
+                          label="CAP"
+                          placeholder="Es. 00100"
                           value={loc.postalCode}
+                          error={!!getRequiredError(loc.postalCode)}
+                          helperText={getRequiredError(loc.postalCode)}
                           onChange={(e) =>
                             handleUpdateLocation(locIndex, {
                               postalCode: e.target.value,
                             })
                           }
-                          placeholder="Es. 00100"
-                        >
-                          <AppTextField />
-                        </FormField>
+                        />
                       </Box>
                     </Stack>
                   </>
                 ) : (
-                  <FormField
-                    title={requiredTitle('Sito web')}
+                  <AppTextField
                     required
+                    label="Sito web"
+                    placeholder="Es. https://www.example.com"
                     value={loc.websiteUrl}
+                    error={
+                      !!getRequiredError(loc.websiteUrl) || !!getUrlError(loc)
+                    }
+                    helperText={
+                      getRequiredError(loc.websiteUrl) ?? getUrlError(loc)
+                    }
                     onChange={(e) =>
                       handleUpdateLocation(locIndex, {
                         websiteUrl: e.target.value,
                       })
                     }
-                    placeholder="Es. https://www.example.com"
-                  >
-                    <AppTextField />
-                  </FormField>
+                    onBlur={() => showUrlError(loc.id)}
+                  />
                 )}
               </Stack>
 
@@ -402,69 +353,80 @@ export default function CreateLocationPage() {
 
               <Stack spacing={2}>
                 {loc.contacts.map((contact, contactIndex) => (
-                  <Stack
+                  <Box
                     key={contactIndex}
-                    direction={{ xs: 'column', md: 'row' }}
-                    spacing={2}
-                    alignItems={{ xs: 'flex-start', md: 'center' }}
+                    sx={{
+                      display: 'grid',
+                      gap: 2,
+                      gridTemplateColumns: {
+                        xs: '1fr',
+                        md: 'repeat(3, minmax(0, 1fr))',
+                      },
+                    }}
                   >
-                    <Box sx={{ width: { xs: '100%', md: 240 } }}>
-                      <AppSelect
-                        fullWidth
-                        label="Tipo di contatto"
-                        value={contact.type}
-                        onChange={(e) =>
-                          handleContactChange(
-                            locIndex,
-                            contactIndex,
-                            'type',
-                            e.target.value as string,
-                          )
-                        }
-                        options={[
-                          { value: 'email', label: 'Email' },
-                          { value: 'phone', label: 'Telefono' },
-                          { value: 'website', label: 'Sito web' },
-                        ]}
-                      />
-                    </Box>
-                    <Box sx={{ flex: 1, width: '100%' }}>
-                      <AppTextField
-                        fullWidth
-                        type={getContactInputConfig(contact.type).type}
-                        error={
-                          !!contact.value &&
-                          !!getContactValidationError(contact)
-                        }
-                        helperText={
-                          contact.value
-                            ? getContactValidationError(contact)
-                            : undefined
-                        }
-                        value={contact.value}
-                        onChange={(e) =>
-                          handleContactChange(
-                            locIndex,
-                            contactIndex,
-                            'value',
-                            e.target.value,
-                          )
-                        }
-                        placeholder="Inserisci contatto"
-                      />
-                    </Box>
-                    {contactIndex > 0 && (
-                      <IconButton
-                        onClick={() =>
-                          handleRemoveContact(locIndex, contactIndex)
-                        }
-                        color="default"
-                        sx={{ mt: { xs: 0, md: 0.5 } }}
-                      >
-                        <DeleteIcon />
-                      </IconButton>
-                    )}
-                  </Stack>
+                    <AppSelect
+                      fullWidth
+                      sx={{ width: '100%' }}
+                      label="Tipo di contatto"
+                      required
+                      value={contact.type}
+                      onChange={(e) =>
+                        handleContactChange(
+                          locIndex,
+                          contactIndex,
+                          'type',
+                          e.target.value as string,
+                        )
+                      }
+                      options={[
+                        { value: 'email', label: 'Email' },
+                        { value: 'phone', label: 'Telefono' },
+                        { value: 'website', label: 'Sito web' },
+                      ]}
+                    />
+                    <Stack
+                      direction="row"
+                      spacing={1}
+                      alignItems="flex-start"
+                      sx={{ gridColumn: { md: 'span 2' } }}
+                    >
+                      <Box sx={{ flex: 1 }}>
+                        <AppTextField
+                          fullWidth
+                          value={contact.value}
+                          error={Boolean(getContactFieldError(contact))}
+                          helperText={getContactFieldError(contact)}
+                          onChange={(e) =>
+                            handleContactChange(
+                              locIndex,
+                              contactIndex,
+                              'value',
+                              e.target.value,
+                            )
+                          }
+                          label={
+                            getContactInputConfig(contact.type).placeholder
+                          }
+                          type={getContactInputConfig(contact.type).type}
+                          required
+                        />
+                      </Box>
+                      {contactIndex > 0 && (
+                        <IconButton
+                          onClick={() =>
+                            handleRemoveContact(locIndex, contactIndex)
+                          }
+                          sx={{
+                            color: 'error.dark',
+                            p: 2,
+                            alignSelf: 'flex-start',
+                          }}
+                        >
+                          <DeleteIcon />
+                        </IconButton>
+                      )}
+                    </Stack>
+                  </Box>
                 ))}
               </Stack>
 
@@ -505,7 +467,7 @@ export default function CreateLocationPage() {
             variant="contained"
             color="primary"
             onClick={handleSubmit}
-            disabled={!isFormValid() || isSubmitting}
+            disabled={isSubmitting}
             sx={{ fontWeight: 600, px: 4 }}
           >
             {isSubmitting ? (

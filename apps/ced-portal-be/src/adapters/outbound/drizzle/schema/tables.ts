@@ -141,11 +141,10 @@ export const supportContact = pgTable("support_contact", {
 });
 
 export const opportunityCategory = pgTable("opportunity_category", {
-  description: varchar({ length: 512 }).notNull(),
   id: char({ length: 26 })
     .primaryKey()
     .$defaultFn(() => ulid()),
-  title: varchar({ length: 64 }).notNull(),
+  label: varchar({ length: 64 }).notNull().unique(),
 });
 
 export const opportunity = pgTable("opportunity", {

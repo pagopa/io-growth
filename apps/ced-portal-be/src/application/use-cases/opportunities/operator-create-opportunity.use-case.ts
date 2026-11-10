@@ -1,6 +1,7 @@
 import type { UseCase } from "@pagopa/io-core-domain";
 import type { BaseError } from "@pagopa/io-core-domain/errors";
 
+import { HttpsUrlSchema } from "@pagopa/io-core-domain/value-objects";
 import { ResultAsync } from "neverthrow";
 import { ulid } from "ulid";
 import { z } from "zod";
@@ -32,7 +33,7 @@ const OperatorCreateOpportunityInputSchema = z.object({
   nationalTerritory: z.boolean().default(false),
   operatorId: z.ulid(),
   placeIds: PlaceIdsInputSchema.default([]),
-  url: z.url().max(2048).optional(),
+  url: HttpsUrlSchema.max(2048).optional(),
 });
 
 export type OperatorCreateOpportunityInput = z.input<

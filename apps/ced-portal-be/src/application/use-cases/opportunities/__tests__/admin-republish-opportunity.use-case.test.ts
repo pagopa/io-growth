@@ -23,7 +23,7 @@ const mockOpportunity = (
   },
   caregiverBenefit: { type: "free" },
   categoryId: "01KRJXEYD44B58700GT982CCYY",
-  categoryTitle: "Cultura e tempo libero",
+  categoryLabel: "culture_sport",
   createdAt: "2026-01-01T00:00:00.000Z",
   dateFrom: "2026-01-01",
   dateTo: "2099-12-31",

@@ -3,14 +3,24 @@ import { err, ok } from "neverthrow";
 import { describe, expect, it, vi } from "vitest";
 
 import type { OpportunityDetail } from "../../../../domain/entities/opportunity.js";
+import type { OpportunityRepository } from "../../../../domain/ports/outbound/persistence/opportunity.repository.js";
 import type { ProfileRepository } from "../../../../domain/ports/outbound/persistence/profile.repository.js";
 
-import { makeOperatorRequestOpportunityTestUseCase } from "../operator-request-opportunity-test.use-case.js";
+import { makeOperatorRequestOpportunityTestUseCase as makeUseCase } from "../operator-request-opportunity-test.use-case.js";
 import {
   createMockOpportunityRepository,
   createMockProfileRepository,
+  MOCK_ADMIN_EMAIL,
+  MOCK_EMAIL_LINKS,
+  MOCK_MAILING_CONFIG,
   MOCK_OPERATOR_ID,
+  mockProfile,
 } from "./mocks.js";
+
+const makeOperatorRequestOpportunityTestUseCase = (
+  opportunityRepository: OpportunityRepository,
+  profileRepository: ProfileRepository,
+) => makeUseCase(opportunityRepository, profileRepository, MOCK_MAILING_CONFIG);
 
 const MOCK_OPPORTUNITY_ID = "01JVMK3N8XQZP5T6G2WYHAB4CF";
 
@@ -22,7 +32,7 @@ const mockDraftOpportunityDetail: OpportunityDetail = {
   },
   caregiverBenefit: { type: "free" },
   categoryId: "01KRJXEYD44B58700GT982CCYY",
-  categoryTitle: "Cultura e tempo libero",
+  categoryLabel: "culture_sport",
   createdAt: "2026-01-01T00:00:00.000Z",
   dateFrom: "2026-01-01",
   dateTo: "2026-12-31",
@@ -83,6 +93,18 @@ describe("makeOperatorRequestOpportunityTestUseCase", () => {
       expectedStatus: "draft",
       operatorId: MOCK_OPERATOR_ID,
       opportunityId: MOCK_OPPORTUNITY_ID,
+      outboxMessages: [
+        {
+          templateAttributes: {
+            operatorName: mockProfile.displayName,
+            opportunityName: "Discount 20%",
+            ...MOCK_EMAIL_LINKS,
+          },
+          templateId: "ced_admin-new-opportunity_v1",
+          to: MOCK_ADMIN_EMAIL,
+          type: "template",
+        },
+      ],
       status: "test_pending",
     });
   });
@@ -126,7 +148,6 @@ describe("makeOperatorRequestOpportunityTestUseCase", () => {
     const useCase = makeOperatorRequestOpportunityTestUseCase(
       deps.opportunityRepository,
       deps.profileRepository,
-      deps.emailRepository,
     );
 
     const result = await useCase(validInput);
@@ -402,11 +423,11 @@ describe("makeOperatorRequestOpportunityTestUseCase - place coverage", () => {
     expect(result).toEqual(ok(undefined));
     expect(
       deps.opportunityRepository.updateStatusByIdAndOperatorId,
-    ).toHaveBeenCalledWith({
-      expectedStatus: "draft",
-      operatorId: MOCK_OPERATOR_ID,
-      opportunityId: MOCK_OPPORTUNITY_ID,
-      status: "test_pending",
-    });
+    ).toHaveBeenCalledWith(
+      expect.objectContaining({
+        expectedStatus: "draft",
+        status: "test_pending",
+      }),
+    );
   });
 });

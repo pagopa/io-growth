@@ -4,6 +4,7 @@ import type {
   ValidationError,
 } from "@pagopa/io-core-domain/errors";
 
+import { HttpsUrlSchema } from "@pagopa/io-core-domain/value-objects";
 import { ResultAsync } from "neverthrow";
 import { ulid } from "ulid";
 import { z } from "zod";
@@ -11,12 +12,8 @@ import { z } from "zod";
 import type { Place } from "../../../domain/entities/place.js";
 import type { PlaceRepository } from "../../../domain/ports/outbound/persistence/place.repository.js";
 
+import { SupportContactInputSchema } from "../utils/support-contact-input.schema.js";
 import { validateUseCaseInput } from "../utils/validate-use-case-input.js";
-
-const OperatorCreatePlaceSupportContactSchema = z.object({
-  type: z.enum(["email", "phone", "website"]),
-  value: z.string().min(1).max(2048),
-});
 
 const OperatorCreatePlaceAddressSchema = z.object({
   city: z.string().min(1).max(64),
@@ -27,19 +24,19 @@ const OperatorCreatePlaceAddressSchema = z.object({
 });
 
 const OperatorCreatePlaceWebsiteSchema = z.object({
-  url: z.url().max(2048),
+  url: HttpsUrlSchema.max(2048),
 });
 
 const OperatorCreatePlacePlaceSchema = z.discriminatedUnion("type", [
   z.object({
     address: OperatorCreatePlaceAddressSchema,
     name: z.string().min(1).max(512),
-    supportContacts: z.array(OperatorCreatePlaceSupportContactSchema),
+    supportContacts: z.array(SupportContactInputSchema),
     type: z.literal("offline"),
   }),
   z.object({
     name: z.string().min(1).max(512),
-    supportContacts: z.array(OperatorCreatePlaceSupportContactSchema),
+    supportContacts: z.array(SupportContactInputSchema),
     type: z.literal("online"),
     website: OperatorCreatePlaceWebsiteSchema,
   }),

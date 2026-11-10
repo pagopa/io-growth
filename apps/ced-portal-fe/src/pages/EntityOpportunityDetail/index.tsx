@@ -18,6 +18,7 @@ import { APP_ROUTES } from '../../app/routeConfig';
 import { useGetOpportunityDetailQuery } from '../../features/opportunities/api';
 import { useGetPlacesByIdsQuery } from '../../features/places/api';
 import { getDetailChipConfig } from '../Home/components/utils';
+import { getOpportunityCategory } from '../../constants';
 import { OpportunitiesCtas } from './components/OpportunitiesCtas/OpportunitiesCtas';
 import { OpportunityAlert } from './components/OpportunityAlert/OpportunityAlert';
 import { OpportunityDetailCard } from './components/OpportunityDetailCard';
@@ -141,7 +142,7 @@ export default function OpportunityDetailPage() {
                 variant="h4"
                 sx={{ fontWeight: 700, fontSize: { xs: 28, md: 36 } }}
               >
-                {detail.categoryTitle}
+                {getOpportunityCategory(detail.categoryLabel).title}
               </Typography>
               <MIChip
                 {...getDetailChipConfig(detail)}

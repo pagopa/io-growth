@@ -1,6 +1,6 @@
 import type { UseCase } from "@pagopa/io-core-domain";
-import type { GenericError } from "@pagopa/io-core-domain/errors";
 
+import { ServiceUnavailableError } from "@pagopa/io-core-domain/errors";
 import { err, ok } from "neverthrow";
 import { readFile } from "node:fs/promises";
 
@@ -19,7 +19,7 @@ const packageInfo = JSON.parse(
 export type GetInfoReadinessUseCase = UseCase<
   Record<string, never>,
   InfoReadinessOutput,
-  GenericError
+  ServiceUnavailableError
 >;
 
 interface Dependencies {
@@ -33,13 +33,13 @@ export const makeGetInfoReadinessUseCase =
     const persistenceResult =
       await deps.persistenceHealthCheckRepository.checkConnection();
     if (persistenceResult.isErr()) {
-      return err(persistenceResult.error);
+      return err(new ServiceUnavailableError(persistenceResult.error.message));
     }
 
     const sessionStoreResult =
       await deps.sessionStoreHealthCheckRepository.checkConnection();
     if (sessionStoreResult.isErr()) {
-      return err(sessionStoreResult.error);
+      return err(new ServiceUnavailableError(sessionStoreResult.error.message));
     }
 
     return ok({

@@ -1,4 +1,4 @@
-import { createCluster } from "@redis/client";
+import { createCluster, ErrorReply, SocketTimeoutError } from "@redis/client";
 import { EventEmitter } from "node:events";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -13,7 +13,10 @@ vi.mock("@redis/entraid", () => ({
   },
   REDIS_SCOPE_DEFAULT: "scope",
 }));
-vi.mock("@redis/client", () => ({ createCluster: vi.fn() }));
+vi.mock("@redis/client", async (importOriginal) => ({
+  ...(await importOriginal<object>()),
+  createCluster: vi.fn(),
+}));
 
 const never = <T>() => new Promise<T>(() => undefined);
 
@@ -72,6 +75,34 @@ afterEach(() => {
 });
 
 describe("createRedisClient", () => {
+  it("should let node-redis drop timed-out queued commands and replace silent connections", async () => {
+    await createRedisClient(config);
+
+    const options = vi.mocked(createCluster).mock.calls[0]?.[0];
+    expect(options?.commandOptions).toEqual({ timeout: 2_000 });
+    expect(options?.defaults?.socket).toMatchObject({
+      connectTimeout: 5_000,
+      socketTimeout: 15_000,
+    });
+    // Pings must keep healthy idle connections below the socket timeout.
+    expect(options?.defaults?.pingInterval).toBe(5_000);
+  });
+
+  it("should never stop reconnecting a node, even after a socket timeout", async () => {
+    await createRedisClient(config);
+
+    const { defaults } = vi.mocked(createCluster).mock.calls[0]?.[0] ?? {};
+    const strategy = defaults?.socket?.reconnectStrategy;
+    if (typeof strategy !== "function") {
+      throw new Error("Expected a reconnect strategy function");
+    }
+
+    const timeout = new SocketTimeoutError(15_000);
+    expect(strategy(0, timeout)).toBeGreaterThanOrEqual(50);
+    expect(strategy(1_000, timeout)).toBeGreaterThanOrEqual(2_000);
+    expect(strategy(1_000, timeout)).toBeLessThan(2_200);
+  });
+
   it("should reject and destroy the cluster when connecting exceeds connectTimeoutMs", async () => {
     nextClusterSetup.push((cluster) =>
       cluster.connect.mockReturnValue(never()),
@@ -174,6 +205,27 @@ describe("createResilientRedisClient", () => {
       await client.get("key").catch(() => undefined);
     }
     await client.get("key");
+
+    expect(createCluster).toHaveBeenCalledOnce();
+  });
+
+  it("should not count Redis error replies as connection failures", async () => {
+    const client = await createResilientRedisClient(config);
+    const socketClosed = new Error("socket closed");
+    const errorReply = new ErrorReply("OOM command not allowed");
+    clusters[0]?.get
+      .mockRejectedValueOnce(socketClosed)
+      .mockRejectedValueOnce(socketClosed)
+      .mockRejectedValueOnce(errorReply)
+      .mockRejectedValueOnce(errorReply)
+      .mockRejectedValueOnce(errorReply)
+      .mockRejectedValueOnce(socketClosed)
+      .mockRejectedValueOnce(socketClosed);
+
+    for (let i = 0; i < 7; i++) {
+      await client.get("key").catch(() => undefined);
+    }
+    await expect(client.get("key")).resolves.toBe("value");
 
     expect(createCluster).toHaveBeenCalledOnce();
   });

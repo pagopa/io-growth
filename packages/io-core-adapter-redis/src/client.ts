@@ -1,7 +1,7 @@
 import type { RedisClusterType } from "@redis/client";
 
 import { DefaultAzureCredential } from "@azure/identity";
-import { createCluster } from "@redis/client";
+import { createCluster, ErrorReply } from "@redis/client";
 import {
   EntraIdCredentialsProviderFactory,
   REDIS_SCOPE_DEFAULT,
@@ -42,6 +42,15 @@ const DEFAULT_CONNECT_TIMEOUT_MS = 20_000;
 // Timeout of a single socket attempt: node-redis retries failed attempts on
 // its own, so the overall bound is DEFAULT_CONNECT_TIMEOUT_MS.
 const SOCKET_CONNECT_TIMEOUT_MS = 5_000;
+// node-redis closes and reopens a node connection after this long without any
+// traffic, which frees connections that stay open but stop answering. It must
+// be longer than PING_INTERVAL_MS and than a cold Entra ID token fetch, which
+// happens while this timer is already running.
+const SOCKET_IDLE_TIMEOUT_MS = 15_000;
+// Keeps healthy idle connections busy, so SOCKET_IDLE_TIMEOUT_MS only closes
+// the ones that stopped answering.
+const PING_INTERVAL_MS = 5_000;
+const MAX_RECONNECT_DELAY_MS = 2_000;
 // After this many failed commands in a row the cluster client is discarded
 // and rebuilt, in case node-redis is stuck on dead connections.
 const MAX_CONSECUTIVE_FAILURES = 3;
@@ -68,6 +77,12 @@ const withDeadline = <T>(
     clearTimeout(timer),
   );
 };
+
+// Same backoff as the node-redis default, which instead stops for good after a
+// socket timeout: a cluster never replaces a node client that gave up.
+const reconnectStrategy = (retries: number): number =>
+  Math.min(50 * 2 ** retries, MAX_RECONNECT_DELAY_MS) +
+  Math.floor(Math.random() * 200);
 
 const buildEntraIdCredentialsProvider = () =>
   EntraIdCredentialsProviderFactory.createForDefaultAzureCredential({
@@ -100,12 +115,19 @@ export const createRedisClient = async (
   const onError = config.onError ?? (() => undefined);
 
   const client = createCluster({
+    // Drops commands still waiting for a connection once they time out, so
+    // they do not run after the caller gave up. Commands already sent are not
+    // covered: withDeadline bounds those.
+    commandOptions: { timeout: commandTimeoutMs },
     defaults: {
       credentialsProvider: config.entraId
         ? buildEntraIdCredentialsProvider()
         : undefined,
+      pingInterval: PING_INTERVAL_MS,
       socket: {
         connectTimeout: SOCKET_CONNECT_TIMEOUT_MS,
+        reconnectStrategy,
+        socketTimeout: SOCKET_IDLE_TIMEOUT_MS,
         ...(useTls ? { tls: true } : {}),
       },
     },
@@ -117,6 +139,7 @@ export const createRedisClient = async (
   client.on("error", onError).on("node-error", onError);
 
   try {
+    // node-redis retries an unreachable node forever, even while connecting.
     await withDeadline(
       config.connectTimeoutMs ?? DEFAULT_CONNECT_TIMEOUT_MS,
       "connect",
@@ -195,6 +218,9 @@ export const createResilientRedisClient = async (
     return reconnect();
   };
 
+  // The node-redis command timeout stops once a command is sent, and the idle
+  // socket timeout never fires while other commands keep the connection busy:
+  // this deadline is the only bound for a command sent on a dead connection.
   const run = <T>(command: (c: RedisClient) => Promise<T>): Promise<T> =>
     withDeadline(commandTimeoutMs, "command", async (signal) => {
       const c = await getClient();
@@ -207,7 +233,9 @@ export const createResilientRedisClient = async (
         return result;
       },
       (error: unknown) => {
-        consecutiveFailures += 1;
+        // An error reply (e.g. OOM) proves the connection works.
+        consecutiveFailures =
+          error instanceof ErrorReply ? 0 : consecutiveFailures + 1;
         throw error;
       },
     );

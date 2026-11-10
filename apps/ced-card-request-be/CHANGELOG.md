@@ -1,5 +1,13 @@
 # ced-card-request-be
 
+## 0.5.2
+
+### Patch Changes
+
+- e71e9b1: Map INPS `CheckDomanda` 400 responses to `ValidationError` so `GET /status` returns 400 instead of 500.
+- Updated dependencies [e71e9b1]
+  - @pagopa/io-core-adapter-inps-ced@0.1.2
+
 ## 0.5.1
 
 ### Patch Changes

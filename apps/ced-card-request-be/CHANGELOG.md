@@ -1,5 +1,12 @@
 # ced-card-request-be
 
+## 0.5.0
+
+### Minor Changes
+
+- a146f0d: Add the `ACCENT_NORMALIZATION_ENABLED` flag to rewrite trailing accented vowels as plain vowel plus apostrophe in the name fields sent to INPS when creating a draft.
+- 299687c: Return the authenticated user's `givenName`, `familyName` and `fiscalCode` in a `user` object from `GET /status`, alongside the application state. When `ACCENT_NORMALIZATION_ENABLED` is `true`, trailing accented vowels in the names are rewritten as plain vowel plus apostrophe, as done for the INPS draft.
+
 ## 0.4.0
 
 ### Minor Changes

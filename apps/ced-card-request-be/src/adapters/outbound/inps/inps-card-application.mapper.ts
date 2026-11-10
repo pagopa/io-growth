@@ -26,6 +26,7 @@ import type {
 } from "../../../domain/entities/card-application.js";
 
 import { RecoveredApplicationDraftSchema } from "../../../domain/entities/card-application.js";
+import { normalizeTrailingAccents } from "../../../domain/utils/normalize-trailing-accents.js";
 
 /**
  * Maps the INPS `esitoCheck` milestone returned by CheckDomanda to the BFF
@@ -151,35 +152,53 @@ export const toApplicationDraftCreated = (
   idLavorazione: response.idLavorazione ?? null,
 });
 
+export interface NuovaDomandaInBozzaOptions {
+  readonly normalizeAccents: boolean;
+}
+
 /** Flattens the domain draft into the nested INPS anagrafica/recapito shape. */
 export const toNuovaDomandaInBozzaRequest = (
-  draft: ApplicationDraft,
-): NuovaDomandaInBozzaRequest => ({
-  anagrafica: {
-    codiceFiscale: draft.codiceFiscale,
-    cognome: draft.cognome,
-    comuneNascita: draft.comuneNascita,
-    dataNascita: draft.dataNascita,
-    dataScadenzaPermessoSoggiorno: draft.dataScadenzaPermessoSoggiorno,
-    idCittadinanza: draft.idCittadinanza,
-    nome: draft.nome,
-    sesso: draft.sesso,
-    siglaProvinciaNascita: draft.siglaProvinciaNascita,
-    statoNascita: draft.statoNascita,
-  },
-  informativaPrivacy: draft.informativaPrivacy,
-  recapito: {
-    cap: draft.capRec,
-    civico: draft.civicoRec,
-    datiAggiuntivi: draft.datiAggiuntiviRec,
-    descrizioneComune: draft.descrizioneComuneRec,
-    indirizzo: draft.indirizzoRec,
-    pressoCognome: draft.pressoCognome,
-    pressoDenominazione: draft.pressoDenominazione,
-    pressoNome: draft.pressoNome,
-    siglaProvincia: draft.siglaProvinciaRec,
-  },
-});
+  rawDraft: ApplicationDraft,
+  { normalizeAccents }: NuovaDomandaInBozzaOptions,
+): NuovaDomandaInBozzaRequest => {
+  const normalize = (value: string): string =>
+    normalizeAccents ? normalizeTrailingAccents(value) : value;
+  const normalizeNullable = (value: null | string): null | string =>
+    value === null ? null : normalize(value);
+  const draft: ApplicationDraft = {
+    ...rawDraft,
+    cognome: normalize(rawDraft.cognome),
+    comuneNascita: normalizeNullable(rawDraft.comuneNascita),
+    nome: normalize(rawDraft.nome),
+  };
+
+  return {
+    anagrafica: {
+      codiceFiscale: draft.codiceFiscale,
+      cognome: draft.cognome,
+      comuneNascita: draft.comuneNascita,
+      dataNascita: draft.dataNascita,
+      dataScadenzaPermessoSoggiorno: draft.dataScadenzaPermessoSoggiorno,
+      idCittadinanza: draft.idCittadinanza,
+      nome: draft.nome,
+      sesso: draft.sesso,
+      siglaProvinciaNascita: draft.siglaProvinciaNascita,
+      statoNascita: draft.statoNascita,
+    },
+    informativaPrivacy: draft.informativaPrivacy,
+    recapito: {
+      cap: draft.capRec,
+      civico: draft.civicoRec,
+      datiAggiuntivi: draft.datiAggiuntiviRec,
+      descrizioneComune: draft.descrizioneComuneRec,
+      indirizzo: draft.indirizzoRec,
+      pressoCognome: draft.pressoCognome,
+      pressoDenominazione: draft.pressoDenominazione,
+      pressoNome: draft.pressoNome,
+      siglaProvincia: draft.siglaProvinciaRec,
+    },
+  };
+};
 
 export const toFornisciFotoRequest = (
   photo: ApplicationPhoto,

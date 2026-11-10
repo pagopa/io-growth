@@ -91,6 +91,12 @@ const createSubmissionOperations = (
             `INPS returned 401 | ${JSON.stringify(response.data)}`,
           ),
         );
+      if (response.status === 400)
+        return err(
+          new ValidationError(
+            `checkDomanda rejected: ${JSON.stringify(response.data)}`,
+          ),
+        );
       if (response.status === 404)
         return err(new NotFoundError("domanda", JSON.stringify(response.data)));
       return err(

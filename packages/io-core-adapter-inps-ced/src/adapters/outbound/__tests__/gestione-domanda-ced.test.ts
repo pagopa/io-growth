@@ -44,6 +44,18 @@ describe("checkDomanda", () => {
     expect(result._unsafeUnwrap()).toEqual(data);
   });
 
+  it("returns err(ValidationError) with the INPS body on 400", async () => {
+    const problem = { detail: "Esiste già una Carta attiva", status: 700 };
+    vi.mocked(checkDomandaGen).mockResolvedValue(makeGenResponse(400, problem));
+
+    const result = await adapter.checkDomanda({ codiceFiscale: null });
+
+    expect(result.isErr()).toBe(true);
+    const error = result._unsafeUnwrapErr();
+    expect(error.kind).toBe("ValidationError");
+    expect(error.message).toContain(JSON.stringify(problem));
+  });
+
   it("returns err(NotFoundError) on 404", async () => {
     vi.mocked(checkDomandaGen).mockResolvedValue(
       makeGenResponse(404, { detail: "not found" }),

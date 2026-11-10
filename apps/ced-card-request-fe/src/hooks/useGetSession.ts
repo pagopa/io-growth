@@ -56,16 +56,23 @@ export const useGetSession = () => {
       data,
     } = await getSession(redirectToken);
 
-    if (sessionError && isFetchBaseQueryError(sessionErrorMsg)) {
+    if (sessionError) {
       if (isCachedSessionValid && cachedSession) {
         return navigate(APP_ROUTES.HOME);
       }
       dispatch(authActions.clearToken());
-      navigate(APP_ROUTES.UNAUTHORIZED, {
-        state: {
-          status: sessionErrorMsg.status,
-        },
-      });
+      if (
+        isFetchBaseQueryError(sessionErrorMsg) &&
+        sessionErrorMsg.status === 401
+      ) {
+        navigate(APP_ROUTES.UNAUTHORIZED, {
+          state: { status: 401 },
+        });
+      } else {
+        navigate(APP_ROUTES.GENERIC_ERROR, {
+          state: { retry: true, retryTo: `${APP_ROUTES.AUTHORIZE}${search}` },
+        });
+      }
       return;
     }
     if (data?.token) {
@@ -88,6 +95,7 @@ export const useGetSession = () => {
     isCachedSessionValid,
     dispatch,
     deviceId,
+    search,
   ]);
 
   useEffect(() => {

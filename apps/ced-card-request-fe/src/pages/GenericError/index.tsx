@@ -5,8 +5,12 @@ import { Body, Title, VSpacer } from '@pagopa/io-core-ui';
 import { useCallback, useMemo, type ReactNode } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { CopyToClipboardButton } from '../../components/CopyToClipboardButton';
+import { NoticeIcon, NoticeLayout } from '../../components/FlowNotice';
+import maintenanceIcon from '../../components/FlowNotice/maintenance.svg';
 import { useTrackErrorEvent } from '../../mixpanel/useTrackErrorEvent';
 import { GENERIC_ERROR_CONFIG } from './constants';
+import { APP_ROUTES } from '../../app/routeConfig';
+import { closeError } from './closeError';
 
 export interface GenericErrorConfig {
   errorCode?: string | number | Array<string | number>;
@@ -14,8 +18,14 @@ export interface GenericErrorConfig {
   description: ReactNode;
   additionalDescription?: ReactNode;
   cAcLink: string;
-  icon?: SvgIconComponent;
+  icon?: SvgIconComponent | string;
   multiTitle?: string;
+  multiDescription?: string;
+  showErrorCode?: boolean;
+  showMoreInfo?: boolean;
+  moreInfoLabel?: string;
+  closeLabel?: string;
+  showSecondaryClose?: boolean;
 }
 
 interface Props extends Partial<GenericErrorConfig> {
@@ -23,6 +33,8 @@ interface Props extends Partial<GenericErrorConfig> {
   onClose?: () => void;
   onRetry?: () => void;
   onBack?: () => void;
+  technical?: boolean;
+  network?: boolean;
 }
 
 export default function GenericError({
@@ -35,14 +47,23 @@ export default function GenericError({
   onBack,
   onRetry,
   multiTitle,
+  closeLabel,
+  moreInfoLabel,
+  technical = false,
+  network = false,
 }: Props) {
   const theme = useTheme();
   const location = useLocation();
   const navigate = useNavigate();
 
-  const locationErrorCode = (
-    location.state as { errorCode?: GenericErrorConfig['errorCode'] } | null
-  )?.errorCode;
+  const errorState = location.state as {
+    errorCode?: GenericErrorConfig['errorCode'];
+    recovering?: boolean;
+    retry?: boolean;
+    retryTo?: string;
+    network?: boolean;
+  } | null;
+  const locationErrorCode = errorState?.errorCode;
 
   const resolvedErrorCode = errorCode ?? locationErrorCode;
 
@@ -70,26 +91,37 @@ export default function GenericError({
 
   const content = useMemo(() => {
     if (config) return config;
-    if (configuredErrors.length === 0) {
+    if (
+      technical ||
+      configuredErrors.length !== resolvedErrorCodes.length ||
+      configuredErrors.length === 0
+    ) {
       return {
         errorCode: resolvedErrorCode,
-        title,
-        description,
+        title: errorState?.recovering
+          ? 'Non è stato possibile recuperare la richiesta'
+          : title,
+        description:
+          network || errorState?.network
+            ? 'Si è verificato un errore di connessione. Controlla la rete e riprova.'
+            : errorState?.recovering
+              ? "Stiamo riscontrando dei problemi a recuperare i dati dall'ente. Riprova più tardi."
+              : description,
         additionalDescription,
-        cAcLink: 'https://test.it',
+        icon: errorState?.recovering ? maintenanceIcon : PriorityHigh,
+        cAcLink: 'https://www.inps.it/',
+        showMoreInfo: false,
       };
     }
 
-    const isMulti = configuredErrors.length > 1;
     const firstError = configuredErrors[0];
 
     const uniqueErrors = configuredErrors.reduce<typeof configuredErrors>(
       (acc, curr) =>
-        acc.some(({ description }) => description === curr.description)
-          ? acc
-          : [...acc, curr],
+        acc.some(({ title }) => title === curr.title) ? acc : [...acc, curr],
       [],
     );
+    const isMulti = uniqueErrors.length > 1;
 
     return {
       ...firstError,
@@ -99,7 +131,7 @@ export default function GenericError({
         <Box component="ul" sx={{ m: 0, pl: 3, textAlign: 'left' }}>
           {uniqueErrors.map((error) => (
             <Box component="li" key={String(error.errorCode)}>
-              <Body>{error.description}</Body>
+              <Body>{error.multiDescription ?? error.title}</Body>
             </Box>
           ))}
         </Box>
@@ -115,6 +147,11 @@ export default function GenericError({
     description,
     additionalDescription,
     multiTitle,
+    errorState?.recovering,
+    errorState?.network,
+    technical,
+    network,
+    resolvedErrorCodes.length,
   ]);
 
   const ErrorIcon = content.icon ?? PriorityHigh;
@@ -123,24 +160,42 @@ export default function GenericError({
     : String(content.errorCode);
 
   const handleClose = useCallback(() => {
-    if (onClose) {
-      onClose();
-      return;
-    }
+    closeError({
+      onClose,
+      retry: Boolean(errorState?.retry),
+      localBrowser:
+        import.meta.env.DEV &&
+        import.meta.env.VITE_LOCAL_BROWSER_CLOSE_TO_HOME === 'true',
+      goHome: () => navigate(APP_ROUTES.HOME, { replace: true }),
+      goBack: () => navigate(-1),
+      closeWebview: () => window.location.replace('iossoapi://cancel'),
+    });
+  }, [navigate, onClose, errorState?.retry]);
 
-    navigate(-1);
-  }, [navigate, onClose]);
+  const handleRetry =
+    onRetry ??
+    (errorState?.retry
+      ? () =>
+          navigate(errorState.retryTo ?? APP_ROUTES.LOADING, { replace: true })
+      : undefined);
 
+  const isTechnical =
+    technical ||
+    configuredErrors.length !== resolvedErrorCodes.length ||
+    resolvedErrorCodes.length === 0;
   const closeButtonProps = useMemo(
     () =>
-      resolvedErrorCode
-        ? { variant: 'contained' as const, label: 'Ho capito' }
-        : { variant: 'text' as const, label: 'Chiudi' },
-    [resolvedErrorCode],
+      !isTechnical && resolvedErrorCode
+        ? {
+            variant: 'contained' as const,
+            label: closeLabel ?? content.closeLabel ?? 'Ho capito',
+          }
+        : { variant: 'text' as const, label: closeLabel ?? 'Chiudi' },
+    [resolvedErrorCode, closeLabel, content.closeLabel, isTechnical],
   );
 
   return (
-    <Box sx={{ px: 3, pt: 3, pb: 2 }}>
+    <Box>
       {onBack && (
         <ButtonBase
           onClick={onBack}
@@ -159,108 +214,100 @@ export default function GenericError({
         </ButtonBase>
       )}
 
-      <Box
-        sx={{
-          inset: 0,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          backgroundColor: theme.palette.common.neutralGray,
-          p: 2,
-          mx: 2,
-        }}
-      >
-        <Box sx={{ p: { xs: 2.5, sm: 3 }, textAlign: 'center' }}>
-          <Box
-            sx={{
-              width: 72,
-              height: 72,
-              borderRadius: '50%',
-              bgcolor: theme.palette.common.decorativeBlue,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              mb: 3,
-              mx: 'auto',
-            }}
-          >
-            <ErrorIcon
-              sx={{ color: theme.palette.primary.main, fontSize: 32 }}
-            />
-          </Box>
+      <NoticeLayout>
+        <NoticeIcon icon={ErrorIcon} />
 
-          <Title variant="MD" text={content.title} />
-          <VSpacer size={8} />
+        <Title variant="MD" text={content.title} />
+        <VSpacer size={8} />
+        {typeof content.description === 'string' ? (
           <Body>{content.description}</Body>
+        ) : (
+          content.description
+        )}
 
-          {content.additionalDescription && (
-            <>
-              <VSpacer size={16} />
-              <Body>{content.additionalDescription}</Body>
-            </>
-          )}
+        {content.additionalDescription && (
+          <>
+            <VSpacer size={16} />
+            <Body>{content.additionalDescription}</Body>
+          </>
+        )}
 
-          {content.errorCode !== undefined && (
-            <>
-              <VSpacer size={16} />
-              <CopyToClipboardButton
-                textToCopy={errorCodeLabel}
-                label={`Errore ${errorCodeLabel}`}
-                variant="outlined"
-                iconColor="primary"
-                sx={{
-                  width: '100%',
-                  justifyContent: 'space-between',
-                  '&.MuiButton-outlined': {
-                    borderColor: theme.palette.common.neutralGray,
-                    color: theme.palette.text.primary,
-                    bgcolor: 'common.white',
-                  },
-                }}
-              />
-            </>
-          )}
+        {content.errorCode !== undefined && content.showErrorCode !== false && (
+          <>
+            <VSpacer size={16} />
+            <CopyToClipboardButton
+              textToCopy={errorCodeLabel}
+              label={`Errore ${errorCodeLabel}`}
+              variant="outlined"
+              iconColor="primary"
+              sx={{
+                width: '100%',
+                justifyContent: 'space-between',
+                fontFamily: '"DM Mono", monospace',
+                fontWeight: 400,
+                '&.MuiButton-outlined': {
+                  borderColor: theme.palette.common.neutralGray,
+                  color: theme.palette.text.primary,
+                  bgcolor: 'common.white',
+                },
+              }}
+            />
+          </>
+        )}
 
-          <VSpacer size={32} />
+        <VSpacer size={32} />
 
-          <Box
-            sx={{
-              display: 'flex',
-              flexDirection: 'column',
-              gap: 2,
-              alignItems: 'center',
-            }}
-          >
-            {!errorCode && onRetry && (
-              <Button
-                variant="text"
-                onClick={onRetry}
-                sx={{ color: theme.palette.common.primaryButton, fontSize: 16 }}
-              >
-                Riprova
-              </Button>
-            )}
-
+        <Box
+          sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 2,
+            alignItems: 'center',
+          }}
+        >
+          {isTechnical && handleRetry && (
             <Button
-              variant={closeButtonProps.variant}
-              onClick={handleClose}
-              sx={{ fontSize: 16 }}
+              variant="contained"
+              onClick={handleRetry}
+              sx={{
+                fontSize: 16,
+              }}
             >
-              {closeButtonProps.label}
+              Riprova
             </Button>
+          )}
 
-            {resolvedErrorCode && (
-              <Button
-                variant="text"
-                onClick={() => window.location.replace(content.cAcLink)}
-                sx={{ color: theme.palette.common.primaryButton, fontSize: 16 }}
-              >
-                Cosa puoi fare
-              </Button>
-            )}
-          </Box>
+          <Button
+            variant={closeButtonProps.variant}
+            onClick={handleClose}
+            sx={{ fontSize: 16 }}
+          >
+            {closeButtonProps.label}
+          </Button>
+
+          {resolvedErrorCodes.includes(500) && !isTechnical && handleRetry && (
+            <Button variant="text" onClick={handleRetry}>
+              Riprova
+            </Button>
+          )}
+
+          {content.showSecondaryClose && (
+            <Button variant="text" onClick={handleClose}>
+              Chiudi
+            </Button>
+          )}
+
+          {resolvedErrorCode && content.showMoreInfo !== false && (
+            <Button
+              variant="text"
+              onClick={() => window.location.replace(content.cAcLink)}
+              sx={{ color: theme.palette.common.primaryButton, fontSize: 16 }}
+            >
+              {moreInfoLabel ?? content.moreInfoLabel ?? 'Cosa puoi fare'}
+            </Button>
+          )}
         </Box>
-      </Box>
+      </NoticeLayout>
     </Box>
   );
 }

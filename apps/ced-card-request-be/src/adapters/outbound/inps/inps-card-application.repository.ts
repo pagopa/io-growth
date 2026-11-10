@@ -1,6 +1,7 @@
 import type { GestioneDomandaCedRepository } from "@pagopa/io-core-adapter-inps-ced";
 
 import type { CardApplicationRepository } from "../../../domain/ports/outbound/card-application.repository.js";
+import type { NuovaDomandaInBozzaOptions } from "./inps-card-application.mapper.js";
 
 import {
   toApplicationConfirmed,
@@ -14,6 +15,7 @@ import {
 
 export const createInpsCardApplicationRepository = (
   gestioneDomandaCedRepository: GestioneDomandaCedRepository,
+  draftOptions: NuovaDomandaInBozzaOptions = { normalizeAccents: false },
 ): CardApplicationRepository => ({
   checkApplicationState: async (codiceFiscale) => {
     const result = await gestioneDomandaCedRepository.checkDomanda({
@@ -34,7 +36,7 @@ export const createInpsCardApplicationRepository = (
 
   createApplicationDraft: async (draft, opts) => {
     const result = await gestioneDomandaCedRepository.nuovaDomandaInBozza(
-      toNuovaDomandaInBozzaRequest(draft),
+      toNuovaDomandaInBozzaRequest(draft, draftOptions),
       opts,
     );
 

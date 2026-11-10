@@ -285,6 +285,19 @@ describe("makeCheckRequestUseCase", () => {
     expect(result).toEqual(err(expect.any(GenericError)));
   });
 
+  it("propagates an INPS ValidationError without touching the support record", async () => {
+    const rejection = new ValidationError("checkDomanda rejected: {}");
+    vi.mocked(
+      cardApplicationRepository.checkApplicationState,
+    ).mockResolvedValue(err(rejection));
+
+    const result = await useCase(USER);
+
+    expect(result).toEqual(err(rejection));
+    expect(supportRecordRepository.getByCodiceFiscale).not.toHaveBeenCalled();
+    expect(supportRecordRepository.save).not.toHaveBeenCalled();
+  });
+
   it("rejects an active state without idLavorazione", async () => {
     vi.mocked(
       cardApplicationRepository.checkApplicationState,

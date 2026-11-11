@@ -22,7 +22,6 @@ export const TopUtilityBar = () => {
           name: user?.first_name,
           surname: user?.last_name,
         }}
-        enableAssistanceButton={!isAdmin}
         onAssistanceClick={() => setIsAssistanceOpen(true)}
         onDocumentationClick={() => undefined}
         onLogout={() => undefined}
@@ -47,6 +46,7 @@ export const TopUtilityBar = () => {
       />
       <AssistanceModal
         open={isAssistanceOpen}
+        isAdmin={isAdmin}
         onClose={() => setIsAssistanceOpen(false)}
       />
     </>

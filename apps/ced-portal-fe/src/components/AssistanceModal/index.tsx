@@ -1,14 +1,6 @@
-import CloseIcon from '@mui/icons-material/Close';
-import {
-  Box,
-  Dialog,
-  DialogContent,
-  IconButton,
-  Link,
-  Stack,
-  Typography,
-} from '@mui/material';
-import { useEffect, useId, useRef, useState } from 'react';
+import { Dialog, DialogContent, Link, Stack } from '@mui/material';
+import { useId, useState } from 'react';
+import { AssistanceHeader } from './components/AssistanceHeader';
 import { ContactsStep } from './components/ContactsStep';
 import { TopicStep } from './components/TopicStep';
 import {
@@ -16,7 +8,14 @@ import {
   ASSISTANCE_MODAL_COPY,
   type AssistanceTopic,
   OPERATIONAL_MANUAL_URL,
+  TECHNICAL_SUPPORT_CONTACT,
 } from './constants';
+
+interface AssistanceModalProps {
+  open: boolean;
+  isAdmin: boolean;
+  onClose: () => void;
+}
 
 interface AssistanceContentProps {
   titleId: string;
@@ -24,52 +23,22 @@ interface AssistanceContentProps {
   onClose: () => void;
 }
 
-function AssistanceContent({
+function OperatorAssistanceContent({
   titleId,
   descriptionId,
   onClose,
 }: Readonly<AssistanceContentProps>) {
-  const titleRef = useRef<HTMLHeadingElement>(null);
   const [step, setStep] = useState<'topic' | 'contacts'>('topic');
   const [topic, setTopic] = useState<AssistanceTopic | null>(null);
 
-  useEffect(() => {
-    titleRef.current?.focus();
-  }, [step]);
-
   return (
-    <DialogContent sx={{ p: 3 }}>
-      <Stack spacing={3}>
-        <Stack spacing={1}>
-          <Box
-            sx={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              gap: 2,
-            }}
-          >
-            <Typography
-              ref={titleRef}
-              id={titleId}
-              tabIndex={-1}
-              component="h2"
-              variant="h5"
-              fontWeight={700}
-              sx={{ outline: 'none' }}
-            >
-              {ASSISTANCE_MODAL_COPY[step].title}
-            </Typography>
-            <IconButton
-              aria-label={ASSISTANCE_MODAL_COPY.closeAriaLabel}
-              onClick={onClose}
-              size="small"
-              sx={{ color: 'common.neutralBlack' }}
-            >
-              <CloseIcon />
-            </IconButton>
-          </Box>
-          <Typography id={descriptionId} variant="body2" color="text.secondary">
+    <>
+      <AssistanceHeader
+        titleId={titleId}
+        descriptionId={descriptionId}
+        title={ASSISTANCE_MODAL_COPY[step].title}
+        subtitle={
+          <>
             {step === 'topic' && (
               <>
                 {ASSISTANCE_MODAL_COPY.topic.subtitle}
@@ -77,7 +46,7 @@ function AssistanceContent({
                   href={OPERATIONAL_MANUAL_URL}
                   target="_blank"
                   rel="noopener noreferrer"
-                  aria-label={ASSISTANCE_MODAL_COPY.topic.manualLinkAriaLabel}
+                  aria-label="manuale operativo (si apre in una nuova scheda)"
                   fontWeight={700}
                 >
                   {ASSISTANCE_MODAL_COPY.topic.manualLinkLabel}
@@ -86,37 +55,59 @@ function AssistanceContent({
               </>
             )}
             {step === 'contacts' && ASSISTANCE_MODAL_COPY.contacts.subtitle}
-          </Typography>
-        </Stack>
+          </>
+        }
+        onClose={onClose}
+      />
 
-        {step === 'topic' && (
-          <TopicStep
-            labelledBy={titleId}
-            topic={topic}
-            onTopicChange={setTopic}
-            onCancel={onClose}
-            onContinue={() => setStep('contacts')}
-          />
-        )}
-        {step === 'contacts' && topic && (
-          <ContactsStep
-            contact={ASSISTANCE_CONTACT_BY_TOPIC[topic]}
-            onBack={() => setStep('topic')}
-            onConfirm={onClose}
-          />
-        )}
-      </Stack>
-    </DialogContent>
+      {step === 'topic' && (
+        <TopicStep
+          labelledBy={titleId}
+          topic={topic}
+          onTopicChange={setTopic}
+          onCancel={onClose}
+          onContinue={() => setStep('contacts')}
+        />
+      )}
+      {step === 'contacts' && topic && (
+        <ContactsStep
+          contact={ASSISTANCE_CONTACT_BY_TOPIC[topic]}
+          backLabel={ASSISTANCE_MODAL_COPY.contacts.back}
+          onBack={() => setStep('topic')}
+          onConfirm={onClose}
+        />
+      )}
+    </>
   );
 }
 
-interface AssistanceModalProps {
-  open: boolean;
-  onClose: () => void;
+function AdminAssistanceContent({
+  titleId,
+  descriptionId,
+  onClose,
+}: Readonly<AssistanceContentProps>) {
+  return (
+    <>
+      <AssistanceHeader
+        titleId={titleId}
+        descriptionId={descriptionId}
+        title={ASSISTANCE_MODAL_COPY.admin.title}
+        subtitle={ASSISTANCE_MODAL_COPY.contacts.subtitle}
+        onClose={onClose}
+      />
+      <ContactsStep
+        contact={TECHNICAL_SUPPORT_CONTACT}
+        backLabel={ASSISTANCE_MODAL_COPY.admin.cancel}
+        onBack={onClose}
+        onConfirm={onClose}
+      />
+    </>
+  );
 }
 
 export function AssistanceModal({
   open,
+  isAdmin,
   onClose,
 }: Readonly<AssistanceModalProps>) {
   const titleId = useId();
@@ -136,11 +127,23 @@ export function AssistanceModal({
       aria-describedby={descriptionId}
       PaperProps={{ sx: { borderRadius: 3 } }}
     >
-      <AssistanceContent
-        titleId={titleId}
-        descriptionId={descriptionId}
-        onClose={onClose}
-      />
+      <DialogContent sx={{ p: 3 }}>
+        <Stack spacing={3}>
+          {isAdmin ? (
+            <AdminAssistanceContent
+              titleId={titleId}
+              descriptionId={descriptionId}
+              onClose={onClose}
+            />
+          ) : (
+            <OperatorAssistanceContent
+              titleId={titleId}
+              descriptionId={descriptionId}
+              onClose={onClose}
+            />
+          )}
+        </Stack>
+      </DialogContent>
     </Dialog>
   );
 }

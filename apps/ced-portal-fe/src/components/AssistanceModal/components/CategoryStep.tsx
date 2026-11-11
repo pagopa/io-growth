@@ -3,37 +3,37 @@ import { type ChangeEvent, useId, useState } from 'react';
 import { AppRadioGroup } from '../../RadioGroup';
 import {
   ASSISTANCE_MODAL_COPY,
-  ASSISTANCE_TOPIC_OPTIONS,
-  ASSISTANCE_TOPICS,
-  type AssistanceTopic,
+  ASSISTANCE_CATEGORY_OPTIONS,
+  ASSISTANCE_CATEGORIES,
+  type AssistanceCategory,
 } from '../constants';
 
-interface TopicStepProps {
+interface CategoryStepProps {
   labelledBy: string;
-  topic: AssistanceTopic | null;
-  onTopicChange: (topic: AssistanceTopic) => void;
+  category: AssistanceCategory | null;
+  onCategoryChange: (category: AssistanceCategory) => void;
   onCancel: () => void;
-  onContinue: (topic: AssistanceTopic) => void;
+  onContinue: (category: AssistanceCategory) => void;
 }
 
-export function TopicStep({
+export function CategoryStep({
   labelledBy,
-  topic,
-  onTopicChange,
+  category,
+  onCategoryChange,
   onCancel,
   onContinue,
-}: Readonly<TopicStepProps>) {
+}: Readonly<CategoryStepProps>) {
   const errorId = useId();
   const [showError, setShowError] = useState(false);
 
   const onChange = (event: ChangeEvent<HTMLInputElement>) => {
     const { value } = event.target;
-    const isValidTopic = (ASSISTANCE_TOPICS as readonly string[]).includes(
-      value,
-    );
+    const isValidCategory = (
+      ASSISTANCE_CATEGORIES as readonly string[]
+    ).includes(value);
 
-    if (isValidTopic) {
-      onTopicChange(value as AssistanceTopic);
+    if (isValidCategory) {
+      onCategoryChange(value as AssistanceCategory);
       setShowError(false);
     }
   };
@@ -43,13 +43,13 @@ export function TopicStep({
       <FormControl error={showError}>
         <AppRadioGroup
           row={false}
-          name="assistance-topic"
+          name="assistance-category"
           aria-labelledby={labelledBy}
           aria-invalid={showError}
           aria-describedby={showError ? errorId : undefined}
-          value={topic ?? ''}
+          value={category ?? ''}
           onChange={onChange}
-          options={ASSISTANCE_TOPIC_OPTIONS}
+          options={ASSISTANCE_CATEGORY_OPTIONS}
           sx={{
             gap: 3,
             flexWrap: 'nowrap',
@@ -59,22 +59,22 @@ export function TopicStep({
         />
         {showError && (
           <FormHelperText id={errorId} role="alert" sx={{ mx: 0, mt: 2 }}>
-            {ASSISTANCE_MODAL_COPY.topic.selectionError}
+            {ASSISTANCE_MODAL_COPY.category.selectionError}
           </FormHelperText>
         )}
       </FormControl>
 
       <Stack direction="row" spacing={2} justifyContent="flex-end">
         <Button variant="text" onClick={onCancel}>
-          {ASSISTANCE_MODAL_COPY.topic.cancel}
+          {ASSISTANCE_MODAL_COPY.category.cancel}
         </Button>
         <Button
           variant="contained"
           onClick={() =>
-            topic === null ? setShowError(true) : onContinue(topic)
+            category === null ? setShowError(true) : onContinue(category)
           }
         >
-          {ASSISTANCE_MODAL_COPY.topic.continue}
+          {ASSISTANCE_MODAL_COPY.category.continue}
         </Button>
       </Stack>
     </>

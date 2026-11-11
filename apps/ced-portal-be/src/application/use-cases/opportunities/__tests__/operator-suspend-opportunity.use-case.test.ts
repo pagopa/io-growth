@@ -161,6 +161,47 @@ describe("makeOperatorSuspendOpportunityUseCase - immediate vs scheduled", () =>
     expect(deps.materializedViewRepository.refreshAll).not.toHaveBeenCalled();
   });
 
+  it.each([
+    ["2026-07-14T21:59:59Z", "2026-07-15", true, "15/07/2026"],
+    ["2026-07-14T22:00:00Z", "2026-07-15", false, "15/07/2026"],
+    ["2026-07-14T22:00:00Z", "2026-07-14", false, "15/07/2026"],
+    ["2026-07-14T22:00:00Z", "2026-07-16", true, "16/07/2026"],
+    ["2026-01-14T22:59:59Z", "2026-01-15", true, "15/01/2026"],
+    ["2026-01-14T23:00:00Z", "2026-01-15", false, "15/01/2026"],
+  ])(
+    "uses the Rome date at %s for a suspension from %s",
+    async (instant, suspendFrom, isScheduled, expectedDate) => {
+      vi.setSystemTime(new Date(instant));
+      const deps = makeDeps({
+        materializedViewRepository: {
+          refreshAll: vi.fn().mockResolvedValue(ok(undefined)),
+        },
+        opportunityRepository: {
+          findByIdAndOperatorId: vi
+            .fn()
+            .mockResolvedValue(ok(mockOpportunity("published"))),
+          suspendByIdAndOperatorId: vi.fn().mockResolvedValue(ok(undefined)),
+        },
+      });
+
+      const result = await makeUseCase(deps)({ ...validInput, suspendFrom });
+
+      expect(result).toEqual(ok(undefined));
+      expect(
+        deps.opportunityRepository.suspendByIdAndOperatorId,
+      ).toHaveBeenCalledWith({
+        operatorId: MOCK_OPERATOR_ID,
+        opportunityId: MOCK_OPPORTUNITY_ID,
+        outboxMessages: [expectedMessage(expectedDate)],
+        suspendFrom: isScheduled ? suspendFrom : undefined,
+        suspensionMessage: validInput.suspensionMessage,
+      });
+      expect(deps.materializedViewRepository.refreshAll).toHaveBeenCalledTimes(
+        isScheduled ? 0 : 1,
+      );
+    },
+  );
+
   it("should trim surrounding whitespace from the suspension message", async () => {
     const deps = makeDeps({
       opportunityRepository: {

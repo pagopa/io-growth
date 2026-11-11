@@ -9,6 +9,7 @@ import {
   NotFoundError,
   PreconditionFailedError,
 } from "@pagopa/io-core-domain/errors";
+import { getApplicationDate } from "@pagopa/io-core-domain/utilities";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { z } from "zod";
 
@@ -94,7 +95,7 @@ export const makeOperatorSuspendOpportunityUseCase =
 
           // A future date schedules the suspension; today or the past applies
           // it immediately (the requested date is not persisted in that case).
-          const today = new Date().toISOString().slice(0, 10);
+          const today = getApplicationDate();
           const isScheduled = validatedInput.suspendFrom > today;
           const suspensionDate = new Date(
             isScheduled ? validatedInput.suspendFrom : today,

@@ -104,6 +104,37 @@ in the compiled output, so generated templates always ship with a public URL.
 If an asset is renamed/added, make sure it's committed — the URL only resolves
 once the file exists on `main`.
 
+## Sync to onemail-template
+
+`scripts/sync-to-onemail-templates.sh` copies each generated
+`<name>/<name>.json` into the
+[onemail-template](https://github.com/pagopa/onemail-template) repo as
+`templates/ced/<name>/v<N>/template.json` (requires `jq`):
+
+- Template folder missing → creates `v1`.
+- Template folder present → compares the SHA-256 of the new file with the
+  `template.json` of the latest version: identical → nothing happens; different →
+  writes `v<N+1>/template.json`.
+
+`TemplateName` is rewritten to `ced_<name>_v<N>`, as required by the
+onemail-template validation, and the comparison is done on that rewritten
+content. Run it after `generate`; pass `--dry-run` to preview without writing.
+
+The two root paths are variables at the top of the script, set from the
+environment:
+
+| Variable     | Default                      | Description                                                      |
+| ------------ | ---------------------------- | ---------------------------------------------------------------- |
+| `SOURCE_DIR` | this package's `src/` folder | Folder containing the generated `<name>/<name>.json` files       |
+| `TARGET_DIR` | none (required)              | Client folder of the onemail-template repo (`.../templates/ced`) |
+
+The script exits with an error if `TARGET_DIR` is not set:
+
+```sh
+TARGET_DIR=~/work/onemail-template/templates/ced \
+  bash packages/io-core-email-templates/scripts/sync-to-onemail-templates.sh [--dry-run]
+```
+
 ## Scripts
 
 | Script                | Description                                                         |

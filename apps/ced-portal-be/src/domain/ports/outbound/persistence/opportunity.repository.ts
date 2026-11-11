@@ -208,6 +208,7 @@ export interface UpdateOpportunityStatusByIdAndOperatorIdInput {
 }
 
 export interface UpdateOpportunityStatusByIdInput {
+  changeRequestMessage?: null;
   dateFrom?: string;
   expectedStatuses: Opportunity["status"][];
   opportunityId: string;

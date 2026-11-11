@@ -100,7 +100,7 @@ describe("makeAdminRequestOpportunityChangesUseCase - happy path", () => {
               rejectionMessage: validInput.changeRequestMessage,
               ...MOCK_EMAIL_LINKS,
             },
-            templateId: "ced_operator-opportunity-rejected_v1",
+            templateId: "ced_operator-opportunity-rejected_v2",
             to: mockProfile.contactEmail,
             type: "template",
           },

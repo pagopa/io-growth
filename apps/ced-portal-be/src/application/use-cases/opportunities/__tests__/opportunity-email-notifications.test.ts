@@ -79,7 +79,7 @@ interface Scenario {
   notifications: {
     attributes?: Record<string, string>;
     recipient: "admin" | "operator";
-    template: string;
+    templateId: string;
   }[];
   opportunity: Partial<OpportunityDetail>;
   requiresProfile?: boolean;
@@ -92,7 +92,10 @@ const scenarios: Scenario[] = [
     method: "republishById",
     name: "department republication",
     notifications: [
-      { recipient: "operator", template: "operator-opportunity-republished" },
+      {
+        recipient: "operator",
+        templateId: "ced_operator-opportunity-republished_v1",
+      },
     ],
     opportunity: { suspendedBy: "department" },
     run: (d) =>
@@ -109,7 +112,7 @@ const scenarios: Scenario[] = [
     notifications: [
       {
         recipient: "operator",
-        template: "operator-opportunity-republish-rejected",
+        templateId: "ced_operator-opportunity-republish-rejected_v1",
       },
     ],
     opportunity: { republishMessage: reason, suspendedBy: "department" },
@@ -131,7 +134,7 @@ const scenarios: Scenario[] = [
             suspensionMessage: reason,
           },
           recipient: "operator",
-          template: "operator-opportunity-suspended",
+          templateId: "ced_operator-opportunity-suspended_v1",
         },
       ],
       opportunity: { status: "published" },
@@ -151,7 +154,7 @@ const scenarios: Scenario[] = [
       {
         attributes: { suspensionDate: "01/08/2026" },
         recipient: "operator",
-        template: "operator-opportunity-suspension-cancelled",
+        templateId: "ced_operator-opportunity-suspension-cancelled_v1",
       },
     ],
     opportunity: {
@@ -171,7 +174,10 @@ const scenarios: Scenario[] = [
       method: "deleteByIdAndOperatorId",
       name: `operator deletion ${status}`,
       notifications: [
-        { recipient: "operator", template: "operator-opportunity-deleted" },
+        {
+          recipient: "operator",
+          templateId: "ced_operator-opportunity-deleted_v1",
+        },
         ...(status === "draft"
           ? []
           : [
@@ -184,7 +190,7 @@ const scenarios: Scenario[] = [
                   deletionMessage: reason,
                 },
                 recipient: "admin" as const,
-                template: "admin-opportunity-deleted",
+                templateId: "ced_admin-opportunity-deleted_v1",
               },
             ]),
       ],
@@ -203,12 +209,12 @@ const scenarios: Scenario[] = [
     notifications: [
       {
         recipient: "operator",
-        template: "operator-opportunity-self-republished",
+        templateId: "ced_operator-opportunity-self-republished_v1",
       },
       {
         attributes: adminAttributes,
         recipient: "admin",
-        template: "admin-opportunity-republished",
+        templateId: "ced_admin-opportunity-republished_v1",
       },
     ],
     opportunity: { suspendedBy: "operator" },
@@ -232,7 +238,7 @@ const scenarios: Scenario[] = [
             suspensionMessage: reason,
           },
           recipient: "admin",
-          template: "admin-opportunity-suspended",
+          templateId: "ced_admin-opportunity-suspended_v1",
         },
       ],
       opportunity: { status: "published" },
@@ -252,7 +258,7 @@ const scenarios: Scenario[] = [
       {
         attributes: adminAttributes,
         recipient: "admin",
-        template: "admin-opportunity-suspension-cancelled",
+        templateId: "ced_admin-opportunity-suspension-cancelled_v1",
       },
     ],
     opportunity: {
@@ -274,7 +280,7 @@ const scenarios: Scenario[] = [
       {
         attributes: { ...adminAttributes, republishMessage: reason },
         recipient: "admin",
-        template: "admin-opportunity-republish-request",
+        templateId: "ced_admin-opportunity-republish-request_v1",
       },
     ],
     opportunity: { suspendedBy: "department" },
@@ -293,10 +299,10 @@ const scenarios: Scenario[] = [
         {
           attributes: adminAttributes,
           recipient: "admin",
-          template:
+          templateId:
             status === "draft"
-              ? "admin-new-opportunity"
-              : "admin-revise-opportunity",
+              ? "ced_admin-new-opportunity_v2"
+              : "ced_admin-revise-opportunity_v1",
         },
       ],
       opportunity: { status: status === "draft" ? "draft" : "test_rejected" },
@@ -329,7 +335,7 @@ describe.each(scenarios)("$name notification", (scenario) => {
             opportunityName,
             ...notification.attributes,
           },
-          templateId: `ced_${notification.template}_v1`,
+          templateId: notification.templateId,
           to:
             notification.recipient === "operator"
               ? mockProfile.contactEmail

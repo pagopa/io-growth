@@ -264,7 +264,7 @@ describe("published opportunity notifications", () => {
             availabilityDate: "31/12/2025",
             opportunityName: "Sconto",
           },
-          templateId: "ced_operator-opportunity-published_v1",
+          templateId: "ced_operator-opportunity-published_v2",
           to: "operator@example.org",
           type: "template",
         },

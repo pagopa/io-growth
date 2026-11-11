@@ -9,12 +9,15 @@ import type { MessageOutboxRepository } from "../../../../domain/ports/outbound/
 import { createMockTracingRepository } from "../../__tests__/mocks.js";
 import { makeJobSendOutboxMessagesUseCase } from "../job-send-outbox-messages.use-case.js";
 
-const templateMessage = (id: string): OutboxMessage => ({
+const templateMessage = (
+  id: string,
+  templateId = "ced_operator-opportunity-published_v1",
+): OutboxMessage => ({
   attemptCount: 1,
   id,
   payload: {
     templateAttributes: { opportunityName: "Sconto" },
-    templateId: "ced_operator-opportunity-published_v1",
+    templateId,
     to: "operatore@example.org",
     type: "template",
   },
@@ -91,23 +94,30 @@ describe("makeJobSendOutboxMessagesUseCase", () => {
     );
   });
 
-  it("should send template and html messages and mark them as sent", async () => {
-    const deps = makeDeps([templateMessage("1"), htmlMessage("2")]);
+  it.each([
+    "ced_operator-opportunity-published_v1",
+    "ced_operator-opportunity-published_v2",
+  ])(
+    "should send %s and html messages and mark them as sent",
+    async (templateId) => {
+      const deps = makeDeps([
+        templateMessage("1", templateId),
+        htmlMessage("2"),
+      ]);
 
-    const result = await makeUseCase(deps)({});
+      const result = await makeUseCase(deps)({});
 
-    expect(result).toEqual(ok(undefined));
-    expect(deps.emailRepository.sendTemplateEmail).toHaveBeenCalledWith(
-      expect.objectContaining({
-        templateId: "ced_operator-opportunity-published_v1",
-      }),
-    );
-    expect(deps.emailRepository.sendHtmlEmail).toHaveBeenCalledWith(
-      expect.objectContaining({ subject: "Oggetto" }),
-    );
-    expect(deps.messageOutboxRepository.markSent).toHaveBeenCalledWith("1");
-    expect(deps.messageOutboxRepository.markSent).toHaveBeenCalledWith("2");
-  });
+      expect(result).toEqual(ok(undefined));
+      expect(deps.emailRepository.sendTemplateEmail).toHaveBeenCalledWith(
+        expect.objectContaining({ templateId }),
+      );
+      expect(deps.emailRepository.sendHtmlEmail).toHaveBeenCalledWith(
+        expect.objectContaining({ subject: "Oggetto" }),
+      );
+      expect(deps.messageOutboxRepository.markSent).toHaveBeenCalledWith("1");
+      expect(deps.messageOutboxRepository.markSent).toHaveBeenCalledWith("2");
+    },
+  );
 
   it("should wait one second after each send", async () => {
     const deps = makeDeps([templateMessage("1"), templateMessage("2")]);

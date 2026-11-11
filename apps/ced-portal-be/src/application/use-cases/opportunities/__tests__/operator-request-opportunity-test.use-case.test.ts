@@ -100,7 +100,7 @@ describe("makeOperatorRequestOpportunityTestUseCase", () => {
             opportunityName: "Discount 20%",
             ...MOCK_EMAIL_LINKS,
           },
-          templateId: "ced_admin-new-opportunity_v1",
+          templateId: "ced_admin-new-opportunity_v2",
           to: MOCK_ADMIN_EMAIL,
           type: "template",
         },

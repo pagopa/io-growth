@@ -439,7 +439,11 @@ app.register(async (app) => {
   );
   mountOperatorRequestOpportunityRepublishHandler(
     app,
-    makeOperatorRequestOpportunityRepublishUseCase(opportunityRepository),
+    makeOperatorRequestOpportunityRepublishUseCase(
+      opportunityRepository,
+      profileRepository,
+      mailingConfig,
+    ),
   );
   mountOperatorRepublishOpportunityHandler(
     app,

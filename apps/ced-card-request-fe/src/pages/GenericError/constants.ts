@@ -1,4 +1,9 @@
 import { Check, PriorityHigh } from '@mui/icons-material';
+import {
+  OPEN_REQUEST_HELP_URL,
+  PERSONAL_DATA_HELP_URL,
+  PHOTO_HELP_URL,
+} from '../../externalLinks';
 import pendingIcon from '../../components/FlowNotice/pending.svg';
 import maintenanceIcon from '../../components/FlowNotice/maintenance.svg';
 import type { GenericErrorConfig } from './index';
@@ -19,7 +24,7 @@ export const GENERIC_ERROR_CONFIG: Record<number, GenericErrorConfig> = {
     title: "La tua residenza è all'estero",
     description: "Non puoi richiedere la Carta se risiedi all'estero.",
     icon: PriorityHigh,
-    cAcLink: 'https://www.inps.it/',
+    cAcLink: PERSONAL_DATA_HELP_URL,
     additionalDescription:
       "Se hai cambiato residenza, aggiorna l'indirizzo sul portale MyINPS. In caso di problemi, contatta l'INPS.",
   },
@@ -29,7 +34,7 @@ export const GENERIC_ERROR_CONFIG: Record<number, GenericErrorConfig> = {
     description:
       "Inserisci un indirizzo valido sul portale MyINPS per continuare. In caso di problemi, contatta l'INPS.",
     icon: PriorityHigh,
-    cAcLink: 'https://www.inps.it/',
+    cAcLink: PERSONAL_DATA_HELP_URL,
   },
   214: {
     errorCode: 214,
@@ -37,7 +42,7 @@ export const GENERIC_ERROR_CONFIG: Record<number, GenericErrorConfig> = {
     description:
       "Inserisci un indirizzo valido sul portale MyINPS per continuare. In caso di problemi, contatta l'INPS.",
     icon: PriorityHigh,
-    cAcLink: 'https://www.inps.it/',
+    cAcLink: PERSONAL_DATA_HELP_URL,
   },
   500: {
     errorCode: 500,
@@ -76,7 +81,7 @@ export const GENERIC_ERROR_CONFIG: Record<number, GenericErrorConfig> = {
     description:
       'Vai sul sito dell’INPS per completare la richiesta della carta.',
     icon: maintenanceIcon,
-    cAcLink: 'https://www.inps.it/',
+    cAcLink: OPEN_REQUEST_HELP_URL,
     showErrorCode: false,
     moreInfoLabel: 'Leggi come fare',
   },
@@ -89,7 +94,7 @@ export const GENERIC_ERROR_CONFIG: Record<number, GenericErrorConfig> = {
     description:
       'Verifica che le informazioni presenti sul portale dell’Anagrafe Nazionale e sul tuo profilo INPS siano aggiornate e corrispondano.',
     icon: PriorityHigh,
-    cAcLink: 'https://www.inps.it/',
+    cAcLink: PERSONAL_DATA_HELP_URL,
   },
   201: {
     errorCode: 201,
@@ -97,7 +102,7 @@ export const GENERIC_ERROR_CONFIG: Record<number, GenericErrorConfig> = {
     description:
       'Verifica che le informazioni presenti sul portale dell’Anagrafe Nazionale e sul tuo profilo INPS siano aggiornate e corrispondano.',
     icon: PriorityHigh,
-    cAcLink: 'https://www.inps.it/',
+    cAcLink: PERSONAL_DATA_HELP_URL,
   },
   203: {
     errorCode: 203,
@@ -105,7 +110,7 @@ export const GENERIC_ERROR_CONFIG: Record<number, GenericErrorConfig> = {
     description:
       'Verifica che le informazioni presenti sul portale dell’Anagrafe Nazionale e sul tuo profilo INPS siano aggiornate e corrispondano.',
     icon: PriorityHigh,
-    cAcLink: 'https://www.inps.it/',
+    cAcLink: PERSONAL_DATA_HELP_URL,
   },
   204: {
     errorCode: 204,
@@ -113,7 +118,7 @@ export const GENERIC_ERROR_CONFIG: Record<number, GenericErrorConfig> = {
     description:
       'Verifica che le informazioni presenti sul portale dell’Anagrafe Nazionale e sul tuo profilo INPS siano aggiornate e corrispondano.',
     icon: PriorityHigh,
-    cAcLink: 'https://www.inps.it/',
+    cAcLink: PERSONAL_DATA_HELP_URL,
   },
   205: {
     errorCode: 205,
@@ -121,7 +126,7 @@ export const GENERIC_ERROR_CONFIG: Record<number, GenericErrorConfig> = {
     description:
       'Verifica che le informazioni presenti sul portale dell’Anagrafe Nazionale e sul tuo profilo INPS siano aggiornate e corrispondano.',
     icon: PriorityHigh,
-    cAcLink: 'https://www.inps.it/',
+    cAcLink: PERSONAL_DATA_HELP_URL,
   },
   206: {
     errorCode: 206,
@@ -129,7 +134,7 @@ export const GENERIC_ERROR_CONFIG: Record<number, GenericErrorConfig> = {
     description:
       'Verifica che le informazioni presenti sul portale dell’Anagrafe Nazionale e sul tuo profilo INPS siano aggiornate e corrispondano.',
     icon: PriorityHigh,
-    cAcLink: 'https://www.inps.it/',
+    cAcLink: PERSONAL_DATA_HELP_URL,
   },
   207: {
     errorCode: 207,
@@ -137,7 +142,7 @@ export const GENERIC_ERROR_CONFIG: Record<number, GenericErrorConfig> = {
     description:
       'Verifica che le informazioni presenti sul portale dell’Anagrafe Nazionale e sul tuo profilo INPS siano aggiornate e corrispondano.',
     icon: PriorityHigh,
-    cAcLink: 'https://www.inps.it/',
+    cAcLink: PERSONAL_DATA_HELP_URL,
   },
   209: {
     errorCode: 209,
@@ -145,7 +150,7 @@ export const GENERIC_ERROR_CONFIG: Record<number, GenericErrorConfig> = {
     description:
       'Rinnova il permesso di soggiorno prima di procedere con la richiesta della Carta.',
     icon: PriorityHigh,
-    cAcLink: 'https://www.inps.it/',
+    cAcLink: PERSONAL_DATA_HELP_URL,
   },
   // #endregion Errors by /request
 
@@ -158,7 +163,7 @@ export const GENERIC_ERROR_CONFIG: Record<number, GenericErrorConfig> = {
     multiDescription:
       'La foto non è adatta per la stampa. Prova con una foto diversa.',
     icon: PriorityHigh,
-    cAcLink: 'https://www.inps.it/',
+    cAcLink: PHOTO_HELP_URL,
   },
   905: {
     errorCode: 905,
@@ -168,7 +173,7 @@ export const GENERIC_ERROR_CONFIG: Record<number, GenericErrorConfig> = {
     multiDescription:
       'La foto non è adatta per la stampa. Prova con una foto diversa.',
     icon: PriorityHigh,
-    cAcLink: 'https://www.inps.it/',
+    cAcLink: PHOTO_HELP_URL,
   },
   906: {
     errorCode: 906,
@@ -178,7 +183,7 @@ export const GENERIC_ERROR_CONFIG: Record<number, GenericErrorConfig> = {
     multiDescription:
       'Non riusciamo a verificare la tua foto. Prova con una foto diversa.',
     icon: PriorityHigh,
-    cAcLink: 'https://www.inps.it/',
+    cAcLink: PHOTO_HELP_URL,
   },
   907: {
     errorCode: 907,
@@ -187,7 +192,7 @@ export const GENERIC_ERROR_CONFIG: Record<number, GenericErrorConfig> = {
     multiDescription:
       "L'inquadratura del tuo viso è un po' troppo ravvicinata. Tieni il telefono più lontano e riprova.",
     icon: PriorityHigh,
-    cAcLink: 'https://www.inps.it/',
+    cAcLink: PHOTO_HELP_URL,
   },
   908: {
     errorCode: 908,
@@ -197,7 +202,7 @@ export const GENERIC_ERROR_CONFIG: Record<number, GenericErrorConfig> = {
     multiDescription:
       "Pulisci l'obiettivo e appoggia il telefono su una superficie stabile prima di scattare la foto.",
     icon: PriorityHigh,
-    cAcLink: 'https://www.inps.it/',
+    cAcLink: PHOTO_HELP_URL,
   },
   909: {
     errorCode: 909,
@@ -207,7 +212,7 @@ export const GENERIC_ERROR_CONFIG: Record<number, GenericErrorConfig> = {
     multiDescription:
       "Pulisci l'obiettivo e appoggia il telefono su una superficie stabile prima di scattare la foto.",
     icon: PriorityHigh,
-    cAcLink: 'https://www.inps.it/',
+    cAcLink: PHOTO_HELP_URL,
   },
   910: {
     errorCode: 910,
@@ -217,7 +222,7 @@ export const GENERIC_ERROR_CONFIG: Record<number, GenericErrorConfig> = {
     multiDescription:
       'Accendi la luce o spostati vicino a una finestra per illuminare bene il viso mentre scatti la foto.',
     icon: PriorityHigh,
-    cAcLink: 'https://www.inps.it/',
+    cAcLink: PHOTO_HELP_URL,
   },
   911: {
     errorCode: 911,
@@ -227,7 +232,7 @@ export const GENERIC_ERROR_CONFIG: Record<number, GenericErrorConfig> = {
     multiDescription:
       "Inquadra bene il tuo viso e assicurati di essere l'unica persona in foto.",
     icon: PriorityHigh,
-    cAcLink: 'https://www.inps.it/',
+    cAcLink: PHOTO_HELP_URL,
   },
   // #endregion Errors by /photo
 };

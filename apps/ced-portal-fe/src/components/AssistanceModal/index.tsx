@@ -11,12 +11,12 @@ import {
 import { useEffect, useId, useRef, useState } from 'react';
 import { ContactsStep } from './components/ContactsStep';
 import { TopicStep } from './components/TopicStep';
-import { ASSISTANCE_MODAL_COPY, OPERATIONAL_MANUAL_URL } from './constants';
 import {
-  type AssistanceStep,
+  ASSISTANCE_CONTACT_BY_TOPIC,
+  ASSISTANCE_MODAL_COPY,
   type AssistanceTopic,
-  getNextStep,
-} from './utils/assistanceTopic';
+  OPERATIONAL_MANUAL_URL,
+} from './constants';
 
 interface AssistanceContentProps {
   titleId: string;
@@ -30,7 +30,7 @@ function AssistanceContent({
   onClose,
 }: Readonly<AssistanceContentProps>) {
   const titleRef = useRef<HTMLHeadingElement>(null);
-  const [step, setStep] = useState<AssistanceStep>('topic');
+  const [step, setStep] = useState<'topic' | 'contacts'>('topic');
   const [topic, setTopic] = useState<AssistanceTopic | null>(null);
 
   useEffect(() => {
@@ -70,7 +70,7 @@ function AssistanceContent({
             </IconButton>
           </Box>
           <Typography id={descriptionId} variant="body2" color="text.secondary">
-            {step === 'topic' ? (
+            {step === 'topic' && (
               <>
                 {ASSISTANCE_MODAL_COPY.topic.subtitle}
                 <Link
@@ -84,27 +84,26 @@ function AssistanceContent({
                 </Link>
                 .
               </>
-            ) : (
-              ASSISTANCE_MODAL_COPY.contacts.subtitle
             )}
+            {step === 'contacts' && ASSISTANCE_MODAL_COPY.contacts.subtitle}
           </Typography>
         </Stack>
 
-        {step === 'topic' ? (
+        {step === 'topic' && (
           <TopicStep
             labelledBy={titleId}
             topic={topic}
             onTopicChange={setTopic}
             onCancel={onClose}
-            onContinue={(selectedTopic) => {
-              const nextStep = getNextStep(selectedTopic);
-              if (nextStep) {
-                setStep(nextStep);
-              }
-            }}
+            onContinue={() => setStep('contacts')}
           />
-        ) : (
-          <ContactsStep onBack={() => setStep('topic')} onConfirm={onClose} />
+        )}
+        {step === 'contacts' && topic && (
+          <ContactsStep
+            contact={ASSISTANCE_CONTACT_BY_TOPIC[topic]}
+            onBack={() => setStep('topic')}
+            onConfirm={onClose}
+          />
         )}
       </Stack>
     </DialogContent>

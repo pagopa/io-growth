@@ -1,11 +1,12 @@
 import { Button, FormControl, FormHelperText, Stack } from '@mui/material';
-import { useId, useState } from 'react';
+import { type ChangeEvent, useId, useState } from 'react';
 import { AppRadioGroup } from '../../RadioGroup';
-import { ASSISTANCE_MODAL_COPY, ASSISTANCE_TOPIC_OPTIONS } from '../constants';
 import {
+  ASSISTANCE_MODAL_COPY,
+  ASSISTANCE_TOPIC_OPTIONS,
+  ASSISTANCE_TOPICS,
   type AssistanceTopic,
-  isAssistanceTopic,
-} from '../utils/assistanceTopic';
+} from '../constants';
 
 interface TopicStepProps {
   labelledBy: string;
@@ -25,6 +26,18 @@ export function TopicStep({
   const errorId = useId();
   const [showError, setShowError] = useState(false);
 
+  const onChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const { value } = event.target;
+    const isValidTopic = (ASSISTANCE_TOPICS as readonly string[]).includes(
+      value,
+    );
+
+    if (isValidTopic) {
+      onTopicChange(value as AssistanceTopic);
+      setShowError(false);
+    }
+  };
+
   return (
     <>
       <FormControl error={showError}>
@@ -35,13 +48,7 @@ export function TopicStep({
           aria-invalid={showError}
           aria-describedby={showError ? errorId : undefined}
           value={topic ?? ''}
-          onChange={(event) => {
-            const { value } = event.target;
-            if (isAssistanceTopic(value)) {
-              onTopicChange(value);
-              setShowError(false);
-            }
-          }}
+          onChange={onChange}
           options={ASSISTANCE_TOPIC_OPTIONS}
           sx={{
             gap: 3,

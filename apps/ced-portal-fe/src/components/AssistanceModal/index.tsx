@@ -2,11 +2,11 @@ import { Dialog, DialogContent, Link, Stack } from '@mui/material';
 import { useId, useState } from 'react';
 import { AssistanceHeader } from './components/AssistanceHeader';
 import { ContactsStep } from './components/ContactsStep';
-import { TopicStep } from './components/TopicStep';
+import { CategoryStep } from './components/CategoryStep';
 import {
-  ASSISTANCE_CONTACT_BY_TOPIC,
+  ASSISTANCE_CONTACT_BY_CATEGORY,
   ASSISTANCE_MODAL_COPY,
-  type AssistanceTopic,
+  type AssistanceCategory,
   OPERATIONAL_MANUAL_URL,
   TECHNICAL_SUPPORT_CONTACT,
 } from './constants';
@@ -28,8 +28,8 @@ function OperatorAssistanceContent({
   descriptionId,
   onClose,
 }: Readonly<AssistanceContentProps>) {
-  const [step, setStep] = useState<'topic' | 'contacts'>('topic');
-  const [topic, setTopic] = useState<AssistanceTopic | null>(null);
+  const [step, setStep] = useState<'category' | 'contacts'>('category');
+  const [category, setCategory] = useState<AssistanceCategory | null>(null);
 
   return (
     <>
@@ -39,9 +39,9 @@ function OperatorAssistanceContent({
         title={ASSISTANCE_MODAL_COPY[step].title}
         subtitle={
           <>
-            {step === 'topic' && (
+            {step === 'category' && (
               <>
-                {ASSISTANCE_MODAL_COPY.topic.subtitle}
+                {ASSISTANCE_MODAL_COPY.category.subtitle}
                 <Link
                   href={OPERATIONAL_MANUAL_URL}
                   target="_blank"
@@ -49,7 +49,7 @@ function OperatorAssistanceContent({
                   aria-label="manuale operativo (si apre in una nuova scheda)"
                   fontWeight={700}
                 >
-                  {ASSISTANCE_MODAL_COPY.topic.manualLinkLabel}
+                  {ASSISTANCE_MODAL_COPY.category.manualLinkLabel}
                 </Link>
                 .
               </>
@@ -60,20 +60,20 @@ function OperatorAssistanceContent({
         onClose={onClose}
       />
 
-      {step === 'topic' && (
-        <TopicStep
+      {step === 'category' && (
+        <CategoryStep
           labelledBy={titleId}
-          topic={topic}
-          onTopicChange={setTopic}
+          category={category}
+          onCategoryChange={setCategory}
           onCancel={onClose}
           onContinue={() => setStep('contacts')}
         />
       )}
-      {step === 'contacts' && topic && (
+      {step === 'contacts' && category && (
         <ContactsStep
-          contact={ASSISTANCE_CONTACT_BY_TOPIC[topic]}
+          contact={ASSISTANCE_CONTACT_BY_CATEGORY[category]}
           backLabel={ASSISTANCE_MODAL_COPY.contacts.back}
-          onBack={() => setStep('topic')}
+          onBack={() => setStep('category')}
           onConfirm={onClose}
         />
       )}

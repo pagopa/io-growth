@@ -1,10 +1,10 @@
-export const ASSISTANCE_TOPICS = [
+export const ASSISTANCE_CATEGORIES = [
   'technical_issue',
   'program_info',
   'agreement_support',
 ] as const;
 
-export type AssistanceTopic = (typeof ASSISTANCE_TOPICS)[number];
+export type AssistanceCategory = (typeof ASSISTANCE_CATEGORIES)[number];
 
 // TODO: URL definitivo manuale operativo
 export const OPERATIONAL_MANUAL_URL = '#';
@@ -25,8 +25,8 @@ const DISABILITY_DEPARTMENT_CONTACT: AssistanceContact = {
   email: 'convenzioni.disabilitycard@governo.it',
 };
 
-export const ASSISTANCE_CONTACT_BY_TOPIC: Record<
-  AssistanceTopic,
+export const ASSISTANCE_CONTACT_BY_CATEGORY: Record<
+  AssistanceCategory,
   AssistanceContact
 > = {
   technical_issue: TECHNICAL_SUPPORT_CONTACT,
@@ -35,7 +35,7 @@ export const ASSISTANCE_CONTACT_BY_TOPIC: Record<
 };
 
 export const ASSISTANCE_MODAL_COPY = {
-  topic: {
+  category: {
     title: 'Come possiamo aiutarti?',
     subtitle: 'Se hai bisogno di supporto con le opportunità, consulta il ',
     manualLinkLabel: 'manuale operativo',
@@ -55,8 +55,8 @@ export const ASSISTANCE_MODAL_COPY = {
   },
 };
 
-export const ASSISTANCE_TOPIC_OPTIONS: {
-  value: AssistanceTopic;
+export const ASSISTANCE_CATEGORY_OPTIONS: {
+  value: AssistanceCategory;
   label: string;
 }[] = [
   {

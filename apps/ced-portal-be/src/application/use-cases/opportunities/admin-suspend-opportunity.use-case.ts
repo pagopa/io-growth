@@ -7,6 +7,7 @@ import {
   PreconditionFailedError,
   ValidationError,
 } from "@pagopa/io-core-domain/errors";
+import { getApplicationDate } from "@pagopa/io-core-domain/utilities";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { z } from "zod";
 
@@ -79,7 +80,7 @@ export const makeAdminSuspendOpportunityUseCase =
               ),
             );
 
-          const today = new Date().toISOString().slice(0, 10);
+          const today = getApplicationDate();
           const isScheduled = validatedInput.suspendFrom > today;
 
           return buildOperatorMessages(

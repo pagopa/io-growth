@@ -12,9 +12,17 @@ import {
 import { errAsync, ResultAsync } from "neverthrow";
 import { z } from "zod";
 
+import type { EmailLinks } from "../../../domain/entities/message-outbox.js";
 import type { OpportunityRepository } from "../../../domain/ports/outbound/persistence/opportunity.repository.js";
+import type { ProfileRepository } from "../../../domain/ports/outbound/persistence/profile.repository.js";
 
+import { buildOperatorOpportunitySuspensionCancelledMessage } from "../../../domain/entities/message-outbox.js";
 import { validateUseCaseInput } from "../utils/validate-use-case-input.js";
+import {
+  buildOperatorMessages,
+  formatOpportunityDate,
+  getOpportunityName,
+} from "./utils/operator-notification.js";
 
 const AdminCancelScheduledSuspensionInputSchema = z.object({
   opportunityId: z.ulid(),
@@ -37,6 +45,8 @@ export type AdminCancelScheduledSuspensionUseCase = UseCase<
 export const makeAdminCancelScheduledSuspensionUseCase =
   (
     opportunityRepository: OpportunityRepository,
+    profileRepository: ProfileRepository,
+    emailLinks: EmailLinks,
   ): AdminCancelScheduledSuspensionUseCase =>
   async (input) =>
     validateUseCaseInput(
@@ -58,10 +68,23 @@ export const makeAdminCancelScheduledSuspensionUseCase =
             ),
           );
 
-        return new ResultAsync(
-          opportunityRepository.cancelScheduledSuspensionById({
-            opportunityId: validatedInput.opportunityId,
+        const scheduledDate = data.suspendFrom;
+        return buildOperatorMessages(profileRepository, data.operatorId, (to) =>
+          buildOperatorOpportunitySuspensionCancelledMessage({
+            links: emailLinks,
+            opportunityName: getOpportunityName(data),
+            suspensionDate: formatOpportunityDate(scheduledDate),
+            to,
           }),
+        ).andThen(
+          (outboxMessages) =>
+            new ResultAsync(
+              opportunityRepository.cancelScheduledSuspensionById({
+                expectedSuspendFrom: scheduledDate,
+                opportunityId: validatedInput.opportunityId,
+                outboxMessages,
+              }),
+            ),
         );
       }),
     );

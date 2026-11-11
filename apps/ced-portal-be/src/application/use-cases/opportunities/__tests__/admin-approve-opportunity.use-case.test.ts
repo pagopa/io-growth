@@ -124,7 +124,7 @@ describe("makeAdminApproveOpportunityUseCase", () => {
               opportunityName: "Discount 20%",
               ...MOCK_EMAIL_LINKS,
             },
-            templateId: "ced_operator-opportunity-approved_v1",
+            templateId: "ced_operator-opportunity-approved_v2",
             to: mockProfile.contactEmail,
             type: "template",
           },

@@ -9,6 +9,10 @@ import { makeAdminSuspendOpportunityUseCase } from "../admin-suspend-opportunity
 import {
   createMockMaterializedViewRepository,
   createMockOpportunityRepository,
+  createMockProfileRepository,
+  MOCK_EMAIL_LINKS,
+  MOCK_OPERATOR_ID,
+  mockProfile,
 } from "./mocks.js";
 
 const MOCK_OPPORTUNITY_ID = "01JVMK3N8XQZP5T6G2WYHAB4CF";
@@ -36,6 +40,7 @@ const mockOpportunity = (
   id: MOCK_OPPORTUNITY_ID,
   localizedMetadata: [{ key: "name", language: "it", value: "Discount 20%" }],
   nationalTerritory: false,
+  operatorId: MOCK_OPERATOR_ID,
   placeIds: ["01JVMK3N8XQZP5T6G2WYHAB4CD"],
   status,
   suspendedBy,
@@ -64,6 +69,18 @@ const validInput = {
   suspensionMessage: "Sospesa per verifica amministrativa",
 };
 
+const expectedSuspensionMessage = {
+  templateAttributes: {
+    opportunityName: "Discount 20%",
+    suspensionDate: "15/07/2026",
+    suspensionMessage: validInput.suspensionMessage,
+    ...MOCK_EMAIL_LINKS,
+  },
+  templateId: "ced_operator-opportunity-suspended_v1",
+  to: mockProfile.contactEmail,
+  type: "template",
+};
+
 beforeEach(() => {
   vi.useFakeTimers();
   vi.setSystemTime(new Date(`${TODAY}T10:00:00.000Z`));
@@ -89,6 +106,8 @@ describe("makeAdminSuspendOpportunityUseCase - immediate vs scheduled", () => {
       const useCase = makeAdminSuspendOpportunityUseCase(
         deps.opportunityRepository,
         deps.materializedViewRepository,
+        createMockProfileRepository(),
+        MOCK_EMAIL_LINKS,
       );
 
       const result = await useCase({ ...validInput, suspendFrom });
@@ -97,6 +116,7 @@ describe("makeAdminSuspendOpportunityUseCase - immediate vs scheduled", () => {
       // The requested date is not persisted for an immediate suspension.
       expect(deps.opportunityRepository.suspendById).toHaveBeenCalledWith({
         opportunityId: MOCK_OPPORTUNITY_ID,
+        outboxMessages: [expectedSuspensionMessage],
         suspendFrom: undefined,
         suspensionMessage: "Sospesa per verifica amministrativa",
       });
@@ -115,6 +135,8 @@ describe("makeAdminSuspendOpportunityUseCase - immediate vs scheduled", () => {
     const useCase = makeAdminSuspendOpportunityUseCase(
       deps.opportunityRepository,
       deps.materializedViewRepository,
+      createMockProfileRepository(),
+      MOCK_EMAIL_LINKS,
     );
 
     const result = await useCase({ ...validInput, suspendFrom: "2026-07-16" });
@@ -122,6 +144,15 @@ describe("makeAdminSuspendOpportunityUseCase - immediate vs scheduled", () => {
     expect(result).toEqual(ok(undefined));
     expect(deps.opportunityRepository.suspendById).toHaveBeenCalledWith({
       opportunityId: MOCK_OPPORTUNITY_ID,
+      outboxMessages: [
+        {
+          ...expectedSuspensionMessage,
+          templateAttributes: {
+            ...expectedSuspensionMessage.templateAttributes,
+            suspensionDate: "16/07/2026",
+          },
+        },
+      ],
       suspendFrom: "2026-07-16",
       suspensionMessage: "Sospesa per verifica amministrativa",
     });
@@ -139,6 +170,8 @@ describe("makeAdminSuspendOpportunityUseCase - immediate vs scheduled", () => {
     const useCase = makeAdminSuspendOpportunityUseCase(
       deps.opportunityRepository,
       deps.materializedViewRepository,
+      createMockProfileRepository(),
+      MOCK_EMAIL_LINKS,
     );
 
     await useCase({ ...validInput, suspensionMessage: "  Verifica  " });
@@ -169,6 +202,8 @@ describe("makeAdminSuspendOpportunityUseCase - override of a pending schedule", 
     const useCase = makeAdminSuspendOpportunityUseCase(
       deps.opportunityRepository,
       deps.materializedViewRepository,
+      createMockProfileRepository(),
+      MOCK_EMAIL_LINKS,
     );
 
     const result = await useCase(validInput);
@@ -176,6 +211,7 @@ describe("makeAdminSuspendOpportunityUseCase - override of a pending schedule", 
     expect(result).toEqual(ok(undefined));
     expect(deps.opportunityRepository.suspendById).toHaveBeenCalledWith({
       opportunityId: MOCK_OPPORTUNITY_ID,
+      outboxMessages: [expectedSuspensionMessage],
       suspendFrom: undefined,
       suspensionMessage: "Sospesa per verifica amministrativa",
     });
@@ -197,6 +233,8 @@ describe("makeAdminSuspendOpportunityUseCase - override of a pending schedule", 
     const useCase = makeAdminSuspendOpportunityUseCase(
       deps.opportunityRepository,
       deps.materializedViewRepository,
+      createMockProfileRepository(),
+      MOCK_EMAIL_LINKS,
     );
 
     const result = await useCase({ ...validInput, suspendFrom: "2026-09-01" });
@@ -219,6 +257,8 @@ describe("makeAdminSuspendOpportunityUseCase - status guard", () => {
     const useCase = makeAdminSuspendOpportunityUseCase(
       deps.opportunityRepository,
       deps.materializedViewRepository,
+      createMockProfileRepository(),
+      MOCK_EMAIL_LINKS,
     );
 
     const result = await useCase(validInput);
@@ -238,6 +278,8 @@ describe("makeAdminSuspendOpportunityUseCase - status guard", () => {
     const useCase = makeAdminSuspendOpportunityUseCase(
       deps.opportunityRepository,
       deps.materializedViewRepository,
+      createMockProfileRepository(),
+      MOCK_EMAIL_LINKS,
     );
 
     const result = await useCase(validInput);
@@ -265,6 +307,8 @@ describe("makeAdminSuspendOpportunityUseCase - status guard", () => {
       const useCase = makeAdminSuspendOpportunityUseCase(
         deps.opportunityRepository,
         deps.materializedViewRepository,
+        createMockProfileRepository(),
+        MOCK_EMAIL_LINKS,
       );
 
       const result = await useCase(validInput);
@@ -300,6 +344,8 @@ describe("makeAdminSuspendOpportunityUseCase - error propagation", () => {
     const useCase = makeAdminSuspendOpportunityUseCase(
       deps.opportunityRepository,
       deps.materializedViewRepository,
+      createMockProfileRepository(),
+      MOCK_EMAIL_LINKS,
     );
 
     const result = await useCase(validInput);
@@ -324,6 +370,8 @@ describe("makeAdminSuspendOpportunityUseCase - error propagation", () => {
     const useCase = makeAdminSuspendOpportunityUseCase(
       deps.opportunityRepository,
       deps.materializedViewRepository,
+      createMockProfileRepository(),
+      MOCK_EMAIL_LINKS,
     );
 
     const result = await useCase(validInput);
@@ -341,6 +389,8 @@ describe("makeAdminSuspendOpportunityUseCase - error propagation", () => {
     const useCase = makeAdminSuspendOpportunityUseCase(
       deps.opportunityRepository,
       deps.materializedViewRepository,
+      createMockProfileRepository(),
+      MOCK_EMAIL_LINKS,
     );
 
     const result = await useCase(validInput);
@@ -358,6 +408,8 @@ describe("makeAdminSuspendOpportunityUseCase - input validation", () => {
       const useCase = makeAdminSuspendOpportunityUseCase(
         deps.opportunityRepository,
         deps.materializedViewRepository,
+        createMockProfileRepository(),
+        MOCK_EMAIL_LINKS,
       );
 
       const result = await useCase({ ...validInput, suspensionMessage });
@@ -374,6 +426,8 @@ describe("makeAdminSuspendOpportunityUseCase - input validation", () => {
     const useCase = makeAdminSuspendOpportunityUseCase(
       deps.opportunityRepository,
       deps.materializedViewRepository,
+      createMockProfileRepository(),
+      MOCK_EMAIL_LINKS,
     );
 
     const result = await useCase({
@@ -394,6 +448,8 @@ describe("makeAdminSuspendOpportunityUseCase - input validation", () => {
       const useCase = makeAdminSuspendOpportunityUseCase(
         deps.opportunityRepository,
         deps.materializedViewRepository,
+        createMockProfileRepository(),
+        MOCK_EMAIL_LINKS,
       );
 
       const result = await useCase({
@@ -413,6 +469,8 @@ describe("makeAdminSuspendOpportunityUseCase - input validation", () => {
     const useCase = makeAdminSuspendOpportunityUseCase(
       deps.opportunityRepository,
       deps.materializedViewRepository,
+      createMockProfileRepository(),
+      MOCK_EMAIL_LINKS,
     );
 
     const result = await useCase({ ...validInput, opportunityId: "invalid" });

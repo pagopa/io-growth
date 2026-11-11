@@ -14,7 +14,7 @@ export interface AssistanceContact {
   email: string;
 }
 
-const PAGOPA_CONTACT: AssistanceContact = {
+export const TECHNICAL_SUPPORT_CONTACT: AssistanceContact = {
   label: 'PagoPA',
   email: 'io+ced-partner@assistenza.pagopa.it',
 };
@@ -29,18 +29,16 @@ export const ASSISTANCE_CONTACT_BY_TOPIC: Record<
   AssistanceTopic,
   AssistanceContact
 > = {
-  technical_issue: PAGOPA_CONTACT,
+  technical_issue: TECHNICAL_SUPPORT_CONTACT,
   program_info: DISABILITY_DEPARTMENT_CONTACT,
   agreement_support: DISABILITY_DEPARTMENT_CONTACT,
 };
 
 export const ASSISTANCE_MODAL_COPY = {
-  closeAriaLabel: 'Chiudi',
   topic: {
     title: 'Come possiamo aiutarti?',
     subtitle: 'Se hai bisogno di supporto con le opportunità, consulta il ',
     manualLinkLabel: 'manuale operativo',
-    manualLinkAriaLabel: 'manuale operativo (si apre in una nuova scheda)',
     cancel: 'Annulla',
     continue: 'Continua',
     selectionError: "Seleziona un'opzione",
@@ -48,10 +46,12 @@ export const ASSISTANCE_MODAL_COPY = {
   contacts: {
     title: 'Ecco chi puoi contattare',
     subtitle: 'Puoi inviare un’email con il motivo della tua richiesta a:',
-    copyAriaLabel: 'Copia indirizzo email',
-    copiedToast: 'Copiato!',
     back: 'Indietro',
     confirm: 'Ho capito',
+  },
+  admin: {
+    title: 'Problemi tecnici con il portale?',
+    cancel: 'Annulla',
   },
 };
 

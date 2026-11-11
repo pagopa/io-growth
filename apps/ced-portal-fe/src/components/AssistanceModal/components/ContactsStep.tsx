@@ -6,12 +6,14 @@ import { ASSISTANCE_MODAL_COPY, type AssistanceContact } from '../constants';
 
 interface ContactsStepProps {
   contact: AssistanceContact;
+  backLabel: string;
   onBack: () => void;
   onConfirm: () => void;
 }
 
 export function ContactsStep({
   contact,
+  backLabel,
   onBack,
   onConfirm,
 }: Readonly<ContactsStepProps>) {
@@ -31,17 +33,15 @@ export function ContactsStep({
         </Box>
         <CopyToClipboardButton
           value={contact.email}
-          aria-label={ASSISTANCE_MODAL_COPY.contacts.copyAriaLabel}
-          onClickCapture={() =>
-            showToast(ASSISTANCE_MODAL_COPY.contacts.copiedToast, 'success')
-          }
+          aria-label="Copia indirizzo email"
+          onClickCapture={() => showToast('Copiato!', 'success')}
           sx={{ mx: 0, '& .MuiSvgIcon-root': { fontSize: 24 } }}
         />
       </Stack>
 
       <Stack direction="row" spacing={2} justifyContent="flex-end">
         <Button variant="text" onClick={onBack}>
-          {ASSISTANCE_MODAL_COPY.contacts.back}
+          {backLabel}
         </Button>
         <Button variant="contained" onClick={onConfirm}>
           {ASSISTANCE_MODAL_COPY.contacts.confirm}

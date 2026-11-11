@@ -10,10 +10,14 @@ export const MESSAGE_OUTBOX_STATUS = {
 } as const;
 
 export const ADMIN_NEW_OPPORTUNITY_TEMPLATE_ID = "ced_admin-new-opportunity_v1";
+export const ADMIN_OPPORTUNITY_DELETED_TEMPLATE_ID =
+  "ced_admin-opportunity-deleted_v1";
 export const ADMIN_REVISE_OPPORTUNITY_TEMPLATE_ID =
   "ced_admin-revise-opportunity_v1";
 export const OPERATOR_OPPORTUNITY_APPROVED_TEMPLATE_ID =
   "ced_operator-opportunity-approved_v1";
+export const OPERATOR_OPPORTUNITY_DELETED_TEMPLATE_ID =
+  "ced_operator-opportunity-deleted_v1";
 export const OPERATOR_OPPORTUNITY_PUBLISHED_TEMPLATE_ID =
   "ced_operator-opportunity-published_v1";
 export const OPERATOR_OPPORTUNITY_REJECTED_TEMPLATE_ID =
@@ -91,6 +95,26 @@ export const buildAdminNewOpportunityMessage = (input: {
   type: "template",
 });
 
+export const buildAdminOpportunityDeletedMessage = (input: {
+  deletionDate: string;
+  deletionMessage: string;
+  links: EmailLinks;
+  operatorName: string;
+  opportunityName: string;
+  to: string;
+}): TemplateMessagePayload => ({
+  templateAttributes: {
+    deletionDate: input.deletionDate,
+    deletionMessage: input.deletionMessage,
+    operatorName: input.operatorName,
+    opportunityName: input.opportunityName,
+    ...input.links,
+  },
+  templateId: ADMIN_OPPORTUNITY_DELETED_TEMPLATE_ID,
+  to: input.to,
+  type: "template",
+});
+
 export const buildAdminReviseOpportunityMessage = (input: {
   links: EmailLinks;
   operatorName: string;
@@ -119,6 +143,20 @@ export const buildOperatorOpportunityApprovedMessage = (input: {
     ...input.links,
   },
   templateId: OPERATOR_OPPORTUNITY_APPROVED_TEMPLATE_ID,
+  to: input.to,
+  type: "template",
+});
+
+export const buildOperatorOpportunityDeletedMessage = (input: {
+  links: EmailLinks;
+  opportunityName: string;
+  to: string;
+}): TemplateMessagePayload => ({
+  templateAttributes: {
+    opportunityName: input.opportunityName,
+    ...input.links,
+  },
+  templateId: OPERATOR_OPPORTUNITY_DELETED_TEMPLATE_ID,
   to: input.to,
   type: "template",
 });

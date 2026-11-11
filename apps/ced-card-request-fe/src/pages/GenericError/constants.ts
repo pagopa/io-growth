@@ -8,7 +8,6 @@ import pendingIcon from '../../components/FlowNotice/pending.svg';
 import maintenanceIcon from '../../components/FlowNotice/maintenance.svg';
 import type { GenericErrorConfig } from './index';
 
-// TODO must insert the real link to the content of the error code
 export const GENERIC_ERROR_CONFIG: Record<number, GenericErrorConfig> = {
   // #region Errors by /status
   107: {
@@ -16,7 +15,6 @@ export const GENERIC_ERROR_CONFIG: Record<number, GenericErrorConfig> = {
     title: 'Non puoi procedere con la richiesta',
     description: 'La persona indicata non risulta più in vita.',
     icon: PriorityHigh,
-    cAcLink: 'https://www.inps.it/',
     showMoreInfo: false,
   },
   212: {
@@ -50,7 +48,6 @@ export const GENERIC_ERROR_CONFIG: Record<number, GenericErrorConfig> = {
     description:
       'I servizi dell’INPS sono temporaneamente fuori servizio. Se il problema persiste, riprova più tardi.',
     icon: PriorityHigh,
-    cAcLink: 'https://www.inps.it/',
     closeLabel: 'Chiudi',
     showMoreInfo: false,
   },
@@ -60,7 +57,6 @@ export const GENERIC_ERROR_CONFIG: Record<number, GenericErrorConfig> = {
     description:
       'Se non l’hai ancora fatto, puoi aggiungere la versione digitale della tua Carta Europea della Disabilità al Portafoglio di IO.',
     icon: Check,
-    cAcLink: 'https://www.inps.it/',
     showErrorCode: false,
     showMoreInfo: false,
   },
@@ -70,7 +66,6 @@ export const GENERIC_ERROR_CONFIG: Record<number, GenericErrorConfig> = {
     description:
       'Riceverai aggiornamenti dall’INPS sull’esito della tua richiesta.',
     icon: pendingIcon,
-    cAcLink: 'https://www.inps.it/',
     showErrorCode: false,
     showMoreInfo: false,
     showSecondaryClose: true,

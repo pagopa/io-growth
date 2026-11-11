@@ -17,7 +17,7 @@ export interface GenericErrorConfig {
   title: string;
   description: ReactNode;
   additionalDescription?: ReactNode;
-  cAcLink: string;
+  cAcLink?: string;
   icon?: SvgIconComponent | string;
   multiTitle?: string;
   multiDescription?: string;
@@ -89,7 +89,7 @@ export default function GenericError({
     [resolvedErrorCodes],
   );
 
-  const content = useMemo(() => {
+  const content = useMemo<GenericErrorConfig>(() => {
     if (config) return config;
     if (
       technical ||
@@ -109,7 +109,6 @@ export default function GenericError({
               : description,
         additionalDescription,
         icon: errorState?.recovering ? maintenanceIcon : PriorityHigh,
-        cAcLink: 'https://www.inps.it/',
         showMoreInfo: false,
       };
     }
@@ -155,6 +154,7 @@ export default function GenericError({
   ]);
 
   const ErrorIcon = content.icon ?? PriorityHigh;
+  const moreInfoLink = content.cAcLink;
   const errorCodeLabel = Array.isArray(content.errorCode)
     ? content.errorCode.join(', ')
     : String(content.errorCode);
@@ -297,15 +297,17 @@ export default function GenericError({
             </Button>
           )}
 
-          {resolvedErrorCode && content.showMoreInfo !== false && (
-            <Button
-              variant="text"
-              onClick={() => window.location.replace(content.cAcLink)}
-              sx={{ color: theme.palette.common.primaryButton, fontSize: 16 }}
-            >
-              {moreInfoLabel ?? content.moreInfoLabel ?? 'Cosa puoi fare'}
-            </Button>
-          )}
+          {resolvedErrorCode &&
+            moreInfoLink &&
+            content.showMoreInfo !== false && (
+              <Button
+                variant="text"
+                onClick={() => window.location.replace(moreInfoLink)}
+                sx={{ color: theme.palette.common.primaryButton, fontSize: 16 }}
+              >
+                {moreInfoLabel ?? content.moreInfoLabel ?? 'Cosa puoi fare'}
+              </Button>
+            )}
         </Box>
       </NoticeLayout>
     </Box>

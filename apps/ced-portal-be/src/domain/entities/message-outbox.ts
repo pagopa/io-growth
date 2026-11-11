@@ -9,7 +9,7 @@ export const MESSAGE_OUTBOX_STATUS = {
   SENT: "sent",
 } as const;
 
-export const ADMIN_NEW_OPPORTUNITY_TEMPLATE_ID = "ced_admin-new-opportunity_v1";
+export const ADMIN_NEW_OPPORTUNITY_TEMPLATE_ID = "ced_admin-new-opportunity_v2";
 export const ADMIN_OPPORTUNITY_DELETED_TEMPLATE_ID =
   "ced_admin-opportunity-deleted_v1";
 export const ADMIN_OPPORTUNITY_REPUBLISH_REQUEST_TEMPLATE_ID =
@@ -23,13 +23,13 @@ export const ADMIN_OPPORTUNITY_SUSPENSION_CANCELLED_TEMPLATE_ID =
 export const ADMIN_REVISE_OPPORTUNITY_TEMPLATE_ID =
   "ced_admin-revise-opportunity_v1";
 export const OPERATOR_OPPORTUNITY_APPROVED_TEMPLATE_ID =
-  "ced_operator-opportunity-approved_v1";
+  "ced_operator-opportunity-approved_v2";
 export const OPERATOR_OPPORTUNITY_DELETED_TEMPLATE_ID =
   "ced_operator-opportunity-deleted_v1";
 export const OPERATOR_OPPORTUNITY_PUBLISHED_TEMPLATE_ID =
-  "ced_operator-opportunity-published_v1";
+  "ced_operator-opportunity-published_v2";
 export const OPERATOR_OPPORTUNITY_REJECTED_TEMPLATE_ID =
-  "ced_operator-opportunity-rejected_v1";
+  "ced_operator-opportunity-rejected_v2";
 export const OPERATOR_OPPORTUNITY_REPUBLISHED_TEMPLATE_ID =
   "ced_operator-opportunity-republished_v1";
 export const OPERATOR_OPPORTUNITY_REPUBLISH_REJECTED_TEMPLATE_ID =

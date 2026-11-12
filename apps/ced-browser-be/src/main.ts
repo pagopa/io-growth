@@ -17,7 +17,10 @@ import {
   mountFimsHandlers,
 } from "@pagopa/io-core-adapter-fims";
 import { createResilientRedisClient } from "@pagopa/io-core-adapter-redis";
-import { tracingPlugin } from "@pagopa/io-core-adapter-tracing";
+import {
+  emitCustomEvent,
+  tracingPlugin,
+} from "@pagopa/io-core-adapter-tracing";
 import Fastify from "fastify";
 
 import { CitizenSessionSchema } from "./adapters/inbound/fastify/auth/session.js";
@@ -59,6 +62,12 @@ const redisClient = await createResilientRedisClient({
   entraId: config.AZURE_CLIENT_ID
     ? { clientId: config.AZURE_CLIENT_ID }
     : undefined,
+  onError: (error) => {
+    emitCustomEvent("redis.connection.error", {
+      caller: "RedisClient",
+      data: { message: error instanceof Error ? error.message : String(error) },
+    })("RedisClient");
+  },
   tls: config.REDIS_TLS,
 });
 

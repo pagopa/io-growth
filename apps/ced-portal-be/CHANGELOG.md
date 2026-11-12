@@ -1,5 +1,38 @@
 # ced-portal-be
 
+## 0.13.1
+
+### Patch Changes
+
+- db925f7: Use the Rome calendar date when determining whether opportunity suspensions take effect immediately.
+
+## 0.13.0
+
+### Minor Changes
+
+- 8a7b3c7: Add the `admin-opportunity-republish-request` email template and notify the department (`ced_admin-opportunity-republish-request_v1`) when an operator requests the republication of a department-suspended opportunity.
+- 6926858: Add the `admin-opportunity-republished` email template and notify the department (`ced_admin-opportunity-republished_v1`) when an operator republishes an opportunity it had suspended.
+- 5be4f1a: Add the `admin-revise-opportunity` email template and send it (`ced_admin-revise-opportunity_v1`) instead of `admin-new-opportunity` when an operator re-requests testing after a rejection. The stored change request message is now cleared when the admin approves the opportunity.
+- 315f7eb: Add the `admin-opportunity-suspended` email template and notify the department (`ced_admin-opportunity-suspended_v1`) when an operator suspends or schedules the suspension of an opportunity, including the effective date and reason.
+- 1de7147: Add the `admin-opportunity-suspension-cancelled` email template and notify the department (`ced_admin-opportunity-suspension-cancelled_v1`) when an operator cancels a scheduled suspension of its opportunity.
+- 0648304: Add the `operator-opportunity-deleted` and `admin-opportunity-deleted` email templates and send them (`ced_operator-opportunity-deleted_v1`, `ced_admin-opportunity-deleted_v1`) when an operator deletes an opportunity. The operator is always notified; the department is notified for every deletable status except `draft`.
+- a9b0135: Add the `operator-opportunity-republished` email template and notify the operator (`ced_operator-opportunity-republished_v1`) when the department republishes a suspended opportunity.
+
+### Patch Changes
+
+- aae522a: Align opportunity email subjects, HTML and plain-text content with the approved
+  screenshots. Add operator suspension, cancellation, republication refusal and
+  self-republication confirmations, and supply their transactional notifications
+  and publication availability dates.
+
+## 0.12.3
+
+### Patch Changes
+
+- bb4972f: Fix the Redis client staying blocked forever after a connection loss. The client now keeps a single cluster connection instead of reconnecting on every command, bounds connection (20s) and command (2s) time, replaces a broken connection with `destroy()` instead of waiting on `quit()`, rebuilds it after repeated connection failures (Redis error replies no longer count) and reports node connection errors. node-redis now also closes and reopens node connections that stop answering (idle socket timeout with a periodic PING, reconnecting without ever giving up) and drops queued commands once they time out. The readiness endpoint now answers 503 when the database or Redis is unreachable, and `ced-browser-be` now tracks Redis connection errors too.
+- Updated dependencies [bb4972f]
+  - @pagopa/io-core-adapter-redis@0.0.12
+
 ## 0.12.2
 
 ### Patch Changes

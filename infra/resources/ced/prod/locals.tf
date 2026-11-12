@@ -149,6 +149,8 @@ locals {
 
       PORT = "8080"
 
+      ACCENT_NORMALIZATION_ENABLED = "false"
+
       REDIS_ENDPOINT  = module.redis_dx.endpoint
       REDIS_TLS       = "true"
       AZURE_CLIENT_ID = module.common_container_app_environment.user_assigned_identity.client_id

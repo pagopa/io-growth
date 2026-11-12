@@ -12,6 +12,10 @@ const appConfigSchema = fimsConfigSchema
   .merge(inpsCedConfigSchema)
   .merge(
     z.object({
+      ACCENT_NORMALIZATION_ENABLED: z
+        .string()
+        .optional()
+        .transform((v) => v === "true"),
       AZURE_CLIENT_ID: z.string().optional(),
       AZURE_STORAGE_CONNECTION_STRING: z.string().optional(),
       COSMOS_CONTAINER_NAME: z.string().min(1),

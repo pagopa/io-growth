@@ -7,12 +7,22 @@ import {
   PreconditionFailedError,
   ValidationError,
 } from "@pagopa/io-core-domain/errors";
+import { getApplicationDate } from "@pagopa/io-core-domain/utilities";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { z } from "zod";
 
-import { MaterializedViewRepository } from "../../../domain/ports/outbound/materialized-view.repository.js";
-import { OpportunityRepository } from "../../../domain/ports/outbound/persistence/opportunity.repository.js";
+import type { EmailLinks } from "../../../domain/entities/message-outbox.js";
+import type { MaterializedViewRepository } from "../../../domain/ports/outbound/materialized-view.repository.js";
+import type { OpportunityRepository } from "../../../domain/ports/outbound/persistence/opportunity.repository.js";
+import type { ProfileRepository } from "../../../domain/ports/outbound/persistence/profile.repository.js";
+
+import { buildOperatorOpportunitySuspendedMessage } from "../../../domain/entities/message-outbox.js";
 import { validateUseCaseInput } from "../utils/validate-use-case-input.js";
+import {
+  buildOperatorMessages,
+  formatOpportunityDate,
+  getOpportunityName,
+} from "./utils/operator-notification.js";
 
 const AdminSuspendOpportunityInputSchema = z.object({
   opportunityId: z.ulid(),
@@ -38,6 +48,8 @@ export const makeAdminSuspendOpportunityUseCase =
   (
     opportunityRepository: OpportunityRepository,
     materializedViewRepository: MaterializedViewRepository,
+    profileRepository: ProfileRepository,
+    emailLinks: EmailLinks,
   ): AdminSuspendOpportunityUseCase =>
   async (input) =>
     validateUseCaseInput(AdminSuspendOpportunityInputSchema, input).andThen(
@@ -68,21 +80,42 @@ export const makeAdminSuspendOpportunityUseCase =
               ),
             );
 
-          const today = new Date().toISOString().slice(0, 10);
+          const today = getApplicationDate();
           const isScheduled = validatedInput.suspendFrom > today;
 
-          return new ResultAsync(
-            opportunityRepository.suspendById({
-              opportunityId: validatedInput.opportunityId,
-              suspendFrom: isScheduled ? validatedInput.suspendFrom : undefined,
-              suspensionMessage: validatedInput.suspensionMessage,
-            }),
-          ).andThen(() =>
-            isScheduled
-              ? okAsync(undefined)
-              : new ResultAsync(materializedViewRepository.refreshAll()).orElse(
-                  () => okAsync(undefined),
+          return buildOperatorMessages(
+            profileRepository,
+            data.operatorId,
+            (to) =>
+              buildOperatorOpportunitySuspendedMessage({
+                links: emailLinks,
+                opportunityName: getOpportunityName(data),
+                suspensionDate: formatOpportunityDate(
+                  isScheduled ? validatedInput.suspendFrom : today,
                 ),
-          );
+                suspensionMessage: validatedInput.suspensionMessage,
+                to,
+              }),
+          )
+            .andThen(
+              (outboxMessages) =>
+                new ResultAsync(
+                  opportunityRepository.suspendById({
+                    opportunityId: validatedInput.opportunityId,
+                    outboxMessages,
+                    suspendFrom: isScheduled
+                      ? validatedInput.suspendFrom
+                      : undefined,
+                    suspensionMessage: validatedInput.suspensionMessage,
+                  }),
+                ),
+            )
+            .andThen(() =>
+              isScheduled
+                ? okAsync(undefined)
+                : new ResultAsync(
+                    materializedViewRepository.refreshAll(),
+                  ).orElse(() => okAsync(undefined)),
+            );
         }),
     );

@@ -16,6 +16,11 @@ import { makeCheckRequestUseCase } from "../check-request.use-case.js";
 import { createMockSupportRecordRepository } from "./mocks.js";
 
 const FISCAL_CODE = "RSSMRA80A01H501U";
+const USER = {
+  familyName: "Rossi",
+  fiscalCode: FISCAL_CODE,
+  givenName: "Mario",
+};
 const MOCK_ID_LAVORAZIONE = "12345678901234567890";
 
 const pendingStep = (clientRequestId: string): StepInfo => ({
@@ -73,10 +78,10 @@ describe("makeCheckRequestUseCase", () => {
       }),
     );
 
-    const result = await useCase({ fiscalCode: FISCAL_CODE });
+    const result = await useCase(USER);
 
     expect(result).toEqual(
-      ok({ idLavorazione: null, state: "READY_FOR_NEW_DRAFT" }),
+      ok({ idLavorazione: null, state: "READY_FOR_NEW_DRAFT", user: USER }),
     );
     expect(supportRecordRepository.save).not.toHaveBeenCalled();
   });
@@ -92,12 +97,13 @@ describe("makeCheckRequestUseCase", () => {
       }),
     );
 
-    const result = await useCase({ fiscalCode: FISCAL_CODE });
+    const result = await useCase(USER);
 
     expect(result).toEqual(
       ok({
         idLavorazione: MOCK_ID_LAVORAZIONE,
         state: "READY_FOR_PHOTO_UPLOAD",
+        user: USER,
       }),
     );
     expect(supportRecordRepository.save).toHaveBeenCalledWith(
@@ -133,12 +139,13 @@ describe("makeCheckRequestUseCase", () => {
       ),
     );
 
-    const result = await useCase({ fiscalCode: FISCAL_CODE });
+    const result = await useCase(USER);
 
     expect(result).toEqual(
       ok({
         idLavorazione: MOCK_ID_LAVORAZIONE,
         state: "READY_FOR_DOCUMENTS_UPLOAD",
+        user: USER,
       }),
     );
     expect(supportRecordRepository.save).toHaveBeenCalledWith(
@@ -178,7 +185,7 @@ describe("makeCheckRequestUseCase", () => {
       ),
     );
 
-    await useCase({ fiscalCode: FISCAL_CODE });
+    await useCase(USER);
 
     expect(supportRecordRepository.save).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -212,12 +219,13 @@ describe("makeCheckRequestUseCase", () => {
       ),
     );
 
-    const result = await useCase({ fiscalCode: FISCAL_CODE });
+    const result = await useCase(USER);
 
     expect(result).toEqual(
       ok({
         idLavorazione: MOCK_ID_LAVORAZIONE,
         state: "READY_FOR_NEW_DRAFT",
+        user: USER,
       }),
     );
     expect(supportRecordRepository.save).toHaveBeenCalledWith(
@@ -246,19 +254,20 @@ describe("makeCheckRequestUseCase", () => {
       ok(baseRecord({ numDomus: "DOMUS-001" })),
     );
 
-    const result = await useCase({ fiscalCode: FISCAL_CODE });
+    const result = await useCase(USER);
 
     expect(result).toEqual(
       ok({
         idLavorazione: MOCK_ID_LAVORAZIONE,
         numDomus: "DOMUS-001",
         state: "ACQUIRED",
+        user: USER,
       }),
     );
   });
 
   it("returns a ValidationError for an invalid fiscal code", async () => {
-    const result = await useCase({ fiscalCode: "short" });
+    const result = await useCase({ ...USER, fiscalCode: "short" });
 
     expect(
       cardApplicationRepository.checkApplicationState,
@@ -271,9 +280,22 @@ describe("makeCheckRequestUseCase", () => {
       cardApplicationRepository.checkApplicationState,
     ).mockResolvedValue(err(new GenericError("INPS unavailable")));
 
-    const result = await useCase({ fiscalCode: FISCAL_CODE });
+    const result = await useCase(USER);
 
     expect(result).toEqual(err(expect.any(GenericError)));
+  });
+
+  it("propagates an INPS ValidationError without touching the support record", async () => {
+    const rejection = new ValidationError("checkDomanda rejected: {}");
+    vi.mocked(
+      cardApplicationRepository.checkApplicationState,
+    ).mockResolvedValue(err(rejection));
+
+    const result = await useCase(USER);
+
+    expect(result).toEqual(err(rejection));
+    expect(supportRecordRepository.getByCodiceFiscale).not.toHaveBeenCalled();
+    expect(supportRecordRepository.save).not.toHaveBeenCalled();
   });
 
   it("rejects an active state without idLavorazione", async () => {
@@ -287,7 +309,7 @@ describe("makeCheckRequestUseCase", () => {
       }),
     );
 
-    const result = await useCase({ fiscalCode: FISCAL_CODE });
+    const result = await useCase(USER);
 
     expect(result).toEqual(err(expect.any(GenericError)));
     expect(supportRecordRepository.save).not.toHaveBeenCalled();
@@ -307,7 +329,7 @@ describe("makeCheckRequestUseCase", () => {
       err(new ServiceUnavailableError("Cosmos read failed")),
     );
 
-    const result = await useCase({ fiscalCode: FISCAL_CODE });
+    const result = await useCase(USER);
 
     expect(result).toEqual(err(expect.any(ServiceUnavailableError)));
   });
@@ -326,8 +348,58 @@ describe("makeCheckRequestUseCase", () => {
       err(new ServiceUnavailableError("Cosmos write failed")),
     );
 
-    const result = await useCase({ fiscalCode: FISCAL_CODE });
+    const result = await useCase(USER);
 
     expect(result).toEqual(err(expect.any(ServiceUnavailableError)));
+  });
+
+  describe("user name accent normalization", () => {
+    const ACCENTED_USER = {
+      familyName: "Perù",
+      fiscalCode: FISCAL_CODE,
+      givenName: "Niccolò",
+    };
+
+    beforeEach(() => {
+      vi.mocked(
+        cardApplicationRepository.checkApplicationState,
+      ).mockResolvedValue(
+        ok({
+          idLavorazione: null,
+          state: "READY_FOR_NEW_DRAFT",
+          status: "NO_APPLICATION",
+        }),
+      );
+    });
+
+    it("rewrites trailing accents in the user names when enabled", async () => {
+      const normalizingUseCase = makeCheckRequestUseCase(
+        cardApplicationRepository,
+        supportRecordRepository,
+        { normalizeAccents: true },
+      );
+
+      const result = await normalizingUseCase(ACCENTED_USER);
+
+      expect(result).toEqual(
+        ok(
+          expect.objectContaining({
+            user: {
+              familyName: "Peru'",
+              fiscalCode: FISCAL_CODE,
+              givenName: "Niccolo'",
+            },
+          }),
+        ),
+      );
+    });
+
+    it("leaves the user names untouched when disabled", async () => {
+      const result = await useCase(ACCENTED_USER);
+
+      expect(result).toEqual(
+        ok(expect.objectContaining({ user: ACCENTED_USER })),
+      );
+    });
   });
 });

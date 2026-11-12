@@ -15,10 +15,13 @@ import type {
 export interface CancelScheduledSuspensionByIdAndOperatorIdInput {
   operatorId: string;
   opportunityId: string;
+  outboxMessages?: readonly MessagePayload[];
 }
 
 export interface CancelScheduledSuspensionByIdInput {
+  expectedSuspendFrom: string;
   opportunityId: string;
+  outboxMessages?: readonly MessagePayload[];
 }
 
 export interface CreateOpportunityInput {
@@ -31,6 +34,7 @@ export interface DeleteOpportunityByIdAndOperatorIdInput {
   expectedStatuses: Opportunity["status"][];
   operatorId: string;
   opportunityId: string;
+  outboxMessages?: readonly MessagePayload[];
 }
 
 export interface ExistsWithSolePlaceByPlaceIdAndStatusesInput {
@@ -140,16 +144,19 @@ export interface PaginatedOpportunities {
 
 export interface RejectRepublishByIdInput {
   opportunityId: string;
+  outboxMessages?: readonly MessagePayload[];
   republishRejectionMessage: string;
 }
 
 export interface RepublishByIdAndOperatorIdInput {
   operatorId: string;
   opportunityId: string;
+  outboxMessages?: readonly MessagePayload[];
 }
 
 export interface RepublishByIdInput {
   opportunityId: string;
+  outboxMessages?: readonly MessagePayload[];
 }
 
 export interface RequestChangesByIdInput {
@@ -161,12 +168,14 @@ export interface RequestChangesByIdInput {
 export interface RequestRepublishByIdAndOperatorIdInput {
   operatorId: string;
   opportunityId: string;
+  outboxMessages?: readonly MessagePayload[];
   republishMessage: string;
 }
 
 export interface SuspendByIdAndOperatorIdInput {
   operatorId: string;
   opportunityId: string;
+  outboxMessages?: readonly MessagePayload[];
   // When provided (a future calendar date), the suspension is deferred: the
   // opportunity stays "published" and "suspend_from" is set. When absent, the
   // suspension is applied immediately (status -> "suspended").
@@ -176,6 +185,7 @@ export interface SuspendByIdAndOperatorIdInput {
 
 export interface SuspendByIdInput {
   opportunityId: string;
+  outboxMessages?: readonly MessagePayload[];
   suspendFrom?: string;
   suspensionMessage: string;
 }
@@ -207,6 +217,7 @@ export interface UpdateOpportunityStatusByIdAndOperatorIdInput {
 }
 
 export interface UpdateOpportunityStatusByIdInput {
+  changeRequestMessage?: null;
   dateFrom?: string;
   expectedStatuses: Opportunity["status"][];
   opportunityId: string;

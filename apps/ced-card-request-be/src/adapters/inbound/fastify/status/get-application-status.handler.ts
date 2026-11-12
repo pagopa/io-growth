@@ -13,7 +13,11 @@ import { CardRequestSessionSchema } from "../auth/session.js";
 const getApplicationStatusValidator = withSession(
   CardRequestSessionSchema,
   emptyValidator,
-  (session) => ({ fiscalCode: session.fiscalCode }),
+  (session) => ({
+    familyName: session.familyName,
+    fiscalCode: session.fiscalCode,
+    givenName: session.givenName,
+  }),
 );
 
 export const mountGetApplicationStatusHandler = (

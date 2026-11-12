@@ -54,7 +54,7 @@ pnpm release
 
 | Layer              | Technology                               |
 | ------------------ | ---------------------------------------- |
-| Runtime            | Node.js 22, ESM (`"type": "module"`)     |
+| Runtime            | Node.js 24, ESM (`"type": "module"`)     |
 | Package manager    | pnpm 10 with catalog dependencies        |
 | Build orchestrator | Turborepo                                |
 | Backend framework  | Fastify 5                                |

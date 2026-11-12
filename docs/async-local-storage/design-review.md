@@ -25,7 +25,7 @@ The naive alternatives all fail:
 
 ## 2. Architecture Constraints
 
-- Node.js 22, single-threaded event loop — "concurrency" is async interleaving, not parallel threads.
+- Node.js 24, single-threaded event loop — "concurrency" is async interleaving, not parallel threads.
 - ESM-only (`"type": "module"`). The ALS module is a Node.js built-in (`node:async_hooks`), requiring no external dependency.
 - Hexagonal architecture: the domain and application layers must not import Fastify types or HTTP primitives.
 

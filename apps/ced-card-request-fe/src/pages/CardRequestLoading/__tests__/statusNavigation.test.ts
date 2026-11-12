@@ -54,7 +54,7 @@ describe('runStatusNavigation', () => {
     ['READY_FOR_PHOTO_UPLOAD', 2],
     ['READY_FOR_DOCUMENTS_UPLOAD', 3],
   ] as const)(
-    'recovers the draft before navigating for %s',
+    'recovers the draft and prompts to resume it for %s',
     async (state, step) => {
       const { dependencies, getStatus, navigate, recoverDraft, resetDraft } =
         setup({
@@ -74,7 +74,7 @@ describe('runStatusNavigation', () => {
       );
       expect(navigate).toHaveBeenCalledWith(APP_ROUTES.APPLICATION, {
         replace: true,
-        state: { step },
+        state: { step, chooseDraft: true },
       });
     },
   );

@@ -7,7 +7,6 @@ import {
   ASSISTANCE_CONTACT_BY_CATEGORY,
   ASSISTANCE_MODAL_COPY,
   type AssistanceCategory,
-  OPERATIONAL_MANUAL_URL,
   TECHNICAL_SUPPORT_CONTACT,
 } from './constants';
 
@@ -43,7 +42,7 @@ function OperatorAssistanceContent({
               <>
                 {ASSISTANCE_MODAL_COPY.category.subtitle}
                 <Link
-                  href={OPERATIONAL_MANUAL_URL}
+                  // TODO: add href
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label="manuale operativo (si apre in una nuova scheda)"

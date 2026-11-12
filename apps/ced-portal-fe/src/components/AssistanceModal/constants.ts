@@ -6,7 +6,7 @@ export const ASSISTANCE_CATEGORIES = [
 
 export type AssistanceCategory = (typeof ASSISTANCE_CATEGORIES)[number];
 
-// TODO: URL definitivo manuale operativo
+// TODO: set operational manual URL
 export const OPERATIONAL_MANUAL_URL = '#';
 
 export interface AssistanceContact {

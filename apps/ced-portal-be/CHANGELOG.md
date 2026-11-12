@@ -1,5 +1,11 @@
 # ced-portal-be
 
+## 0.13.1
+
+### Patch Changes
+
+- db925f7: Use the Rome calendar date when determining whether opportunity suspensions take effect immediately.
+
 ## 0.13.0
 
 ### Minor Changes

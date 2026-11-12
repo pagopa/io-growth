@@ -9,12 +9,17 @@ import {
   NotFoundError,
   PreconditionFailedError,
 } from "@pagopa/io-core-domain/errors";
-import { errAsync, ResultAsync } from "neverthrow";
+import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { z } from "zod";
 
+import type { MailingConfig } from "../../../domain/entities/message-outbox.js";
 import type { OpportunityRepository } from "../../../domain/ports/outbound/persistence/opportunity.repository.js";
+import type { ProfileRepository } from "../../../domain/ports/outbound/persistence/profile.repository.js";
 
+import { buildAdminOpportunitySuspensionCancelledMessage } from "../../../domain/entities/message-outbox.js";
 import { validateUseCaseInput } from "../utils/validate-use-case-input.js";
+import { buildAdminMessages } from "./utils/admin-notification.js";
+import { getOpportunityName } from "./utils/operator-notification.js";
 
 const OperatorCancelScheduledSuspensionInputSchema = z.object({
   operatorId: z.ulid(),
@@ -38,6 +43,8 @@ export type OperatorCancelScheduledSuspensionUseCase = UseCase<
 export const makeOperatorCancelScheduledSuspensionUseCase =
   (
     opportunityRepository: OpportunityRepository,
+    profileRepository: ProfileRepository,
+    mailingConfig: MailingConfig,
   ): OperatorCancelScheduledSuspensionUseCase =>
   async (input) =>
     validateUseCaseInput(
@@ -67,11 +74,32 @@ export const makeOperatorCancelScheduledSuspensionUseCase =
             ),
           );
 
+        // Notifying the department is best-effort: a failed or missing profile
+        // lookup must not fail an otherwise valid cancellation.
         return new ResultAsync(
-          opportunityRepository.cancelScheduledSuspensionByIdAndOperatorId({
-            operatorId: validatedInput.operatorId,
-            opportunityId: validatedInput.opportunityId,
-          }),
-        );
+          profileRepository.getByOperatorId(validatedInput.operatorId),
+        )
+          .orElse(() => okAsync(undefined))
+          .andThen(
+            (profile) =>
+              new ResultAsync(
+                opportunityRepository.cancelScheduledSuspensionByIdAndOperatorId(
+                  {
+                    operatorId: validatedInput.operatorId,
+                    opportunityId: validatedInput.opportunityId,
+                    outboxMessages: profile
+                      ? buildAdminMessages(mailingConfig.adminContacts, (to) =>
+                          buildAdminOpportunitySuspensionCancelledMessage({
+                            links: mailingConfig.emailLinks,
+                            operatorName: profile.displayName,
+                            opportunityName: getOpportunityName(data),
+                            to,
+                          }),
+                        )
+                      : [],
+                  },
+                ),
+              ),
+          );
       }),
     );

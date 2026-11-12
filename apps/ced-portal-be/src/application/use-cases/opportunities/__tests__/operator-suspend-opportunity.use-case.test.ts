@@ -9,7 +9,12 @@ import { makeOperatorSuspendOpportunityUseCase } from "../operator-suspend-oppor
 import {
   createMockMaterializedViewRepository,
   createMockOpportunityRepository,
+  createMockProfileRepository,
+  MOCK_ADMIN_EMAIL,
+  MOCK_EMAIL_LINKS,
+  MOCK_MAILING_CONFIG,
   MOCK_OPERATOR_ID,
+  mockProfile,
 } from "./mocks.js";
 
 const MOCK_OPPORTUNITY_ID = "01JVMK3N8XQZP5T6G2WYHAB4CF";
@@ -46,6 +51,7 @@ const makeDeps = (overrides?: {
   opportunityRepository?: Partial<
     Parameters<typeof createMockOpportunityRepository>[0]
   >;
+  profileRepository?: Parameters<typeof createMockProfileRepository>[0];
 }) => ({
   materializedViewRepository: createMockMaterializedViewRepository(
     overrides?.materializedViewRepository,
@@ -53,6 +59,28 @@ const makeDeps = (overrides?: {
   opportunityRepository: createMockOpportunityRepository(
     overrides?.opportunityRepository,
   ),
+  profileRepository: createMockProfileRepository(overrides?.profileRepository),
+});
+
+const makeUseCase = (deps: ReturnType<typeof makeDeps>) =>
+  makeOperatorSuspendOpportunityUseCase(
+    deps.opportunityRepository,
+    deps.materializedViewRepository,
+    deps.profileRepository,
+    MOCK_MAILING_CONFIG,
+  );
+
+const expectedMessage = (suspensionDate: string) => ({
+  templateAttributes: {
+    operatorName: mockProfile.displayName,
+    opportunityName: "Discount 20%",
+    suspensionDate,
+    suspensionMessage: "Chiuso per manutenzione",
+    ...MOCK_EMAIL_LINKS,
+  },
+  templateId: "ced_admin-opportunity-suspended_v1",
+  to: MOCK_ADMIN_EMAIL,
+  type: "template",
 });
 
 const validInput = {
@@ -86,10 +114,7 @@ describe("makeOperatorSuspendOpportunityUseCase - immediate vs scheduled", () =>
           suspendByIdAndOperatorId: vi.fn().mockResolvedValue(ok(undefined)),
         },
       });
-      const useCase = makeOperatorSuspendOpportunityUseCase(
-        deps.opportunityRepository,
-        deps.materializedViewRepository,
-      );
+      const useCase = makeUseCase(deps);
 
       const result = await useCase({ ...validInput, suspendFrom });
 
@@ -100,6 +125,7 @@ describe("makeOperatorSuspendOpportunityUseCase - immediate vs scheduled", () =>
       ).toHaveBeenCalledWith({
         operatorId: MOCK_OPERATOR_ID,
         opportunityId: MOCK_OPPORTUNITY_ID,
+        outboxMessages: [expectedMessage("15/07/2026")],
         suspendFrom: undefined,
         suspensionMessage: "Chiuso per manutenzione",
       });
@@ -117,10 +143,7 @@ describe("makeOperatorSuspendOpportunityUseCase - immediate vs scheduled", () =>
         suspendByIdAndOperatorId: vi.fn().mockResolvedValue(ok(undefined)),
       },
     });
-    const useCase = makeOperatorSuspendOpportunityUseCase(
-      deps.opportunityRepository,
-      deps.materializedViewRepository,
-    );
+    const useCase = makeUseCase(deps);
 
     const result = await useCase({ ...validInput, suspendFrom: "2026-07-16" });
 
@@ -130,12 +153,54 @@ describe("makeOperatorSuspendOpportunityUseCase - immediate vs scheduled", () =>
     ).toHaveBeenCalledWith({
       operatorId: MOCK_OPERATOR_ID,
       opportunityId: MOCK_OPPORTUNITY_ID,
+      outboxMessages: [expectedMessage("16/07/2026")],
       suspendFrom: "2026-07-16",
       suspensionMessage: "Chiuso per manutenzione",
     });
     // A scheduled suspension does not change visibility yet.
     expect(deps.materializedViewRepository.refreshAll).not.toHaveBeenCalled();
   });
+
+  it.each([
+    ["2026-07-14T21:59:59Z", "2026-07-15", true, "15/07/2026"],
+    ["2026-07-14T22:00:00Z", "2026-07-15", false, "15/07/2026"],
+    ["2026-07-14T22:00:00Z", "2026-07-14", false, "15/07/2026"],
+    ["2026-07-14T22:00:00Z", "2026-07-16", true, "16/07/2026"],
+    ["2026-01-14T22:59:59Z", "2026-01-15", true, "15/01/2026"],
+    ["2026-01-14T23:00:00Z", "2026-01-15", false, "15/01/2026"],
+  ])(
+    "uses the Rome date at %s for a suspension from %s",
+    async (instant, suspendFrom, isScheduled, expectedDate) => {
+      vi.setSystemTime(new Date(instant));
+      const deps = makeDeps({
+        materializedViewRepository: {
+          refreshAll: vi.fn().mockResolvedValue(ok(undefined)),
+        },
+        opportunityRepository: {
+          findByIdAndOperatorId: vi
+            .fn()
+            .mockResolvedValue(ok(mockOpportunity("published"))),
+          suspendByIdAndOperatorId: vi.fn().mockResolvedValue(ok(undefined)),
+        },
+      });
+
+      const result = await makeUseCase(deps)({ ...validInput, suspendFrom });
+
+      expect(result).toEqual(ok(undefined));
+      expect(
+        deps.opportunityRepository.suspendByIdAndOperatorId,
+      ).toHaveBeenCalledWith({
+        operatorId: MOCK_OPERATOR_ID,
+        opportunityId: MOCK_OPPORTUNITY_ID,
+        outboxMessages: [expectedMessage(expectedDate)],
+        suspendFrom: isScheduled ? suspendFrom : undefined,
+        suspensionMessage: validInput.suspensionMessage,
+      });
+      expect(deps.materializedViewRepository.refreshAll).toHaveBeenCalledTimes(
+        isScheduled ? 0 : 1,
+      );
+    },
+  );
 
   it("should trim surrounding whitespace from the suspension message", async () => {
     const deps = makeDeps({
@@ -146,17 +211,48 @@ describe("makeOperatorSuspendOpportunityUseCase - immediate vs scheduled", () =>
         suspendByIdAndOperatorId: vi.fn().mockResolvedValue(ok(undefined)),
       },
     });
-    const useCase = makeOperatorSuspendOpportunityUseCase(
-      deps.opportunityRepository,
-      deps.materializedViewRepository,
-    );
+    const useCase = makeUseCase(deps);
 
     await useCase({ ...validInput, suspensionMessage: "  Manutenzione  " });
 
     expect(
       deps.opportunityRepository.suspendByIdAndOperatorId,
     ).toHaveBeenCalledWith(
-      expect.objectContaining({ suspensionMessage: "Manutenzione" }),
+      expect.objectContaining({
+        outboxMessages: [
+          expect.objectContaining({
+            templateAttributes: expect.objectContaining({
+              suspensionMessage: "Manutenzione",
+            }),
+          }),
+        ],
+        suspensionMessage: "Manutenzione",
+      }),
+    );
+  });
+
+  it("should format the effective date as dd/mm/yyyy in the admin email", async () => {
+    const deps = makeDeps({
+      opportunityRepository: {
+        findByIdAndOperatorId: vi
+          .fn()
+          .mockResolvedValue(ok(mockOpportunity("published"))),
+        suspendByIdAndOperatorId: vi.fn().mockResolvedValue(ok(undefined)),
+      },
+    });
+
+    const result = await makeUseCase(deps)({
+      ...validInput,
+      suspendFrom: "2027-01-02",
+    });
+
+    expect(result).toEqual(ok(undefined));
+    expect(
+      deps.opportunityRepository.suspendByIdAndOperatorId,
+    ).toHaveBeenCalledWith(
+      expect.objectContaining({
+        outboxMessages: [expectedMessage("02/01/2027")],
+      }),
     );
   });
 });
@@ -168,10 +264,7 @@ describe("makeOperatorSuspendOpportunityUseCase - status guard", () => {
         findByIdAndOperatorId: vi.fn().mockResolvedValue(ok(undefined)),
       },
     });
-    const useCase = makeOperatorSuspendOpportunityUseCase(
-      deps.opportunityRepository,
-      deps.materializedViewRepository,
-    );
+    const useCase = makeUseCase(deps);
 
     const result = await useCase(validInput);
 
@@ -191,10 +284,7 @@ describe("makeOperatorSuspendOpportunityUseCase - status guard", () => {
           .mockResolvedValue(ok(mockOpportunity("scheduled"))),
       },
     });
-    const useCase = makeOperatorSuspendOpportunityUseCase(
-      deps.opportunityRepository,
-      deps.materializedViewRepository,
-    );
+    const useCase = makeUseCase(deps);
 
     const result = await useCase(validInput);
 
@@ -222,10 +312,7 @@ describe("makeOperatorSuspendOpportunityUseCase - status guard", () => {
             .mockResolvedValue(ok(mockOpportunity(status))),
         },
       });
-      const useCase = makeOperatorSuspendOpportunityUseCase(
-        deps.opportunityRepository,
-        deps.materializedViewRepository,
-      );
+      const useCase = makeUseCase(deps);
 
       const result = await useCase(validInput);
 
@@ -252,10 +339,7 @@ describe("makeOperatorSuspendOpportunityUseCase - status guard", () => {
           .mockResolvedValue(ok(mockOpportunity("published", "2026-08-01"))),
       },
     });
-    const useCase = makeOperatorSuspendOpportunityUseCase(
-      deps.opportunityRepository,
-      deps.materializedViewRepository,
-    );
+    const useCase = makeUseCase(deps);
 
     const result = await useCase(validInput);
 
@@ -286,10 +370,7 @@ describe("makeOperatorSuspendOpportunityUseCase - status guard", () => {
           ),
       },
     });
-    const useCase = makeOperatorSuspendOpportunityUseCase(
-      deps.opportunityRepository,
-      deps.materializedViewRepository,
-    );
+    const useCase = makeUseCase(deps);
 
     const result = await useCase(validInput);
 
@@ -315,10 +396,7 @@ describe("makeOperatorSuspendOpportunityUseCase - status guard", () => {
           .mockResolvedValue(ok(mockOpportunity("published", "2026-08-01"))),
       },
     });
-    const useCase = makeOperatorSuspendOpportunityUseCase(
-      deps.opportunityRepository,
-      deps.materializedViewRepository,
-    );
+    const useCase = makeUseCase(deps);
 
     const result = await useCase({ ...validInput, suspendFrom: TODAY });
 
@@ -332,6 +410,58 @@ describe("makeOperatorSuspendOpportunityUseCase - status guard", () => {
 });
 
 describe("makeOperatorSuspendOpportunityUseCase - error propagation", () => {
+  it.each([
+    ["profile lookup fails", err(new GenericError("Profile unavailable"))],
+    ["profile is missing", ok(undefined)],
+  ])(
+    "should suspend without notifying the admin when %s",
+    async (_, profileResult) => {
+      const deps = makeDeps({
+        opportunityRepository: {
+          findByIdAndOperatorId: vi
+            .fn()
+            .mockResolvedValue(ok(mockOpportunity("published"))),
+          suspendByIdAndOperatorId: vi.fn().mockResolvedValue(ok(undefined)),
+        },
+        profileRepository: {
+          getByOperatorId: vi.fn().mockResolvedValue(profileResult),
+        },
+      });
+
+      const result = await makeUseCase(deps)(validInput);
+
+      expect(result).toEqual(ok(undefined));
+      expect(deps.profileRepository.getByOperatorId).toHaveBeenCalledWith(
+        MOCK_OPERATOR_ID,
+      );
+      expect(
+        deps.opportunityRepository.suspendByIdAndOperatorId,
+      ).toHaveBeenCalledWith({
+        ...validInput,
+        outboxMessages: [],
+        suspendFrom: undefined,
+      });
+      expect(deps.materializedViewRepository.refreshAll).toHaveBeenCalledOnce();
+    },
+  );
+
+  it("should propagate an outbox persistence failure without refreshing views", async () => {
+    const outboxError = new GenericError("Failed to enqueue suspension email");
+    const deps = makeDeps({
+      opportunityRepository: {
+        findByIdAndOperatorId: vi
+          .fn()
+          .mockResolvedValue(ok(mockOpportunity("published"))),
+        suspendByIdAndOperatorId: vi.fn().mockResolvedValue(err(outboxError)),
+      },
+    });
+
+    const result = await makeUseCase(deps)(validInput);
+
+    expect(result).toEqual(err(outboxError));
+    expect(deps.materializedViewRepository.refreshAll).not.toHaveBeenCalled();
+  });
+
   it("should return ConflictError on concurrent modification", async () => {
     const deps = makeDeps({
       opportunityRepository: {
@@ -347,10 +477,7 @@ describe("makeOperatorSuspendOpportunityUseCase - error propagation", () => {
           ),
       },
     });
-    const useCase = makeOperatorSuspendOpportunityUseCase(
-      deps.opportunityRepository,
-      deps.materializedViewRepository,
-    );
+    const useCase = makeUseCase(deps);
 
     const result = await useCase(validInput);
 
@@ -376,10 +503,7 @@ describe("makeOperatorSuspendOpportunityUseCase - error propagation", () => {
         suspendByIdAndOperatorId: vi.fn().mockResolvedValue(ok(undefined)),
       },
     });
-    const useCase = makeOperatorSuspendOpportunityUseCase(
-      deps.opportunityRepository,
-      deps.materializedViewRepository,
-    );
+    const useCase = makeUseCase(deps);
 
     const result = await useCase(validInput);
 
@@ -394,10 +518,7 @@ describe("makeOperatorSuspendOpportunityUseCase - error propagation", () => {
         findByIdAndOperatorId: vi.fn().mockResolvedValue(err(repoError)),
       },
     });
-    const useCase = makeOperatorSuspendOpportunityUseCase(
-      deps.opportunityRepository,
-      deps.materializedViewRepository,
-    );
+    const useCase = makeUseCase(deps);
 
     const result = await useCase(validInput);
 
@@ -411,10 +532,7 @@ describe("makeOperatorSuspendOpportunityUseCase - error propagation", () => {
 describe("makeOperatorSuspendOpportunityUseCase - input validation", () => {
   it("should return ValidationError when suspensionMessage is whitespace-only", async () => {
     const deps = makeDeps();
-    const useCase = makeOperatorSuspendOpportunityUseCase(
-      deps.opportunityRepository,
-      deps.materializedViewRepository,
-    );
+    const useCase = makeUseCase(deps);
 
     const result = await useCase({ ...validInput, suspensionMessage: "   " });
 
@@ -428,10 +546,7 @@ describe("makeOperatorSuspendOpportunityUseCase - input validation", () => {
 
   it("should return ValidationError when suspensionMessage exceeds the max length", async () => {
     const deps = makeDeps();
-    const useCase = makeOperatorSuspendOpportunityUseCase(
-      deps.opportunityRepository,
-      deps.materializedViewRepository,
-    );
+    const useCase = makeUseCase(deps);
 
     const result = await useCase({
       ...validInput,
@@ -450,10 +565,7 @@ describe("makeOperatorSuspendOpportunityUseCase - input validation", () => {
     "should return ValidationError when suspendFrom (%s) is missing or not an ISO date",
     async (suspendFrom) => {
       const deps = makeDeps();
-      const useCase = makeOperatorSuspendOpportunityUseCase(
-        deps.opportunityRepository,
-        deps.materializedViewRepository,
-      );
+      const useCase = makeUseCase(deps);
 
       const result = await useCase({ ...validInput, suspendFrom });
 
@@ -468,10 +580,7 @@ describe("makeOperatorSuspendOpportunityUseCase - input validation", () => {
 
   it("should return ValidationError when operatorId is not a ULID", async () => {
     const deps = makeDeps();
-    const useCase = makeOperatorSuspendOpportunityUseCase(
-      deps.opportunityRepository,
-      deps.materializedViewRepository,
-    );
+    const useCase = makeUseCase(deps);
 
     const result = await useCase({ ...validInput, operatorId: "invalid" });
 

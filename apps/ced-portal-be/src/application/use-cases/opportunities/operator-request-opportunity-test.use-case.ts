@@ -16,7 +16,10 @@ import type { MailingConfig } from "../../../domain/entities/message-outbox.js";
 import type { OpportunityRepository } from "../../../domain/ports/outbound/persistence/opportunity.repository.js";
 import type { ProfileRepository } from "../../../domain/ports/outbound/persistence/profile.repository.js";
 
-import { buildAdminNewOpportunityMessage } from "../../../domain/entities/message-outbox.js";
+import {
+  buildAdminNewOpportunityMessage,
+  buildAdminReviseOpportunityMessage,
+} from "../../../domain/entities/message-outbox.js";
 import { validateUseCaseInput } from "../utils/validate-use-case-input.js";
 import { buildAdminMessages } from "./utils/admin-notification.js";
 import { getOpportunityName } from "./utils/operator-notification.js";
@@ -82,6 +85,10 @@ export const makeOperatorRequestOpportunityTestUseCase =
               ),
             );
           }
+          const buildAdminMessage =
+            currentStatus === "test_rejected"
+              ? buildAdminReviseOpportunityMessage
+              : buildAdminNewOpportunityMessage;
           return new ResultAsync(
             opportunityRepository.updateStatusByIdAndOperatorId({
               expectedStatus: currentStatus,
@@ -90,7 +97,7 @@ export const makeOperatorRequestOpportunityTestUseCase =
               outboxMessages: buildAdminMessages(
                 mailingConfig.adminContacts,
                 (to) =>
-                  buildAdminNewOpportunityMessage({
+                  buildAdminMessage({
                     links: mailingConfig.emailLinks,
                     operatorName: profile.displayName,
                     opportunityName: getOpportunityName(data),

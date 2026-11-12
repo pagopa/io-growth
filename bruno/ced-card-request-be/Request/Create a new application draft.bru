@@ -5,7 +5,7 @@ meta {
 }
 
 post {
-  url: {{baseUrl}}/api/request
+  url: {{baseUrl}}/request
   body: json
   auth: inherit
 }
@@ -17,8 +17,8 @@ headers {
 body:json {
   {
     "informativaPrivacy": true,
-    "nome": "Mario",
-    "cognome": "Rossi",
+    "nome": "{{name}}",
+    "cognome": "{{surname}}",
     "sesso": "M",
     "statoNascita": "ITALIA",
     "comuneNascita": "Roma",

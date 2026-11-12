@@ -1,8 +1,9 @@
 import { MobileSpinnerLoader } from '@pagopa/io-core-ui';
 import { Suspense } from 'react';
-import { Navigate, Route, Routes } from 'react-router-dom';
+import { Navigate, Route, Routes, useLocation } from 'react-router-dom';
 import { ProtectedRoute } from '../core/auth/ProtectedRoute';
 import { AppLayout } from '../layouts/AppLayout';
+import { useAppSelector } from '../hooks';
 import {
   APP_ROUTES,
   ApplicationPage,
@@ -13,11 +14,23 @@ import {
   LoadingPage,
   NotFoundPage,
   RequestErrorPage,
+  RequestPendingPage,
   RequestSuccessPage,
   UnauthorizedPage,
 } from './routeConfig';
 
 export function AppRoutes() {
+  const sessionExpired = useAppSelector((state) => state.auth.sessionExpired);
+  const location = useLocation();
+
+  if (
+    sessionExpired &&
+    location.pathname !== APP_ROUTES.UNAUTHORIZED &&
+    location.pathname !== APP_ROUTES.AUTHORIZE
+  ) {
+    return <Navigate replace to={APP_ROUTES.UNAUTHORIZED} />;
+  }
+
   return (
     <Suspense
       fallback={
@@ -34,6 +47,10 @@ export function AppRoutes() {
           <Route
             path={APP_ROUTES.REQUEST_SUCCESS}
             element={<RequestSuccessPage />}
+          />
+          <Route
+            path={APP_ROUTES.REQUEST_PENDING}
+            element={<RequestPendingPage />}
           />
           <Route
             path={APP_ROUTES.REQUEST_ERROR}

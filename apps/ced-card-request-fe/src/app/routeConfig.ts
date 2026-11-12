@@ -7,6 +7,7 @@ export const APP_ROUTES = {
   LOADING: '/loading',
   APPLICATION: '/application',
   REQUEST_SUCCESS: '/application/success',
+  REQUEST_PENDING: '/application/pending',
   REQUEST_ERROR: '/application/error',
   NOT_FOUND: '/not-found',
   UNAUTHORIZED: '/unauthorized',
@@ -24,6 +25,9 @@ export const RequestSuccessPage = lazy(
 );
 export const RequestErrorPage = lazy(
   () => import('../pages/CardRequestFlow/SubmissionError'),
+);
+export const RequestPendingPage = lazy(
+  () => import('../pages/CardRequestFlow/RequestPending'),
 );
 export const UnauthorizedPage = lazy(() => import('../pages/Unauthorized'));
 export const NotFoundPage = lazy(() => import('../pages/NotFound'));

@@ -8,6 +8,7 @@ import {
   Box,
   IconButton,
   Paper,
+  Stack,
   Table,
   TableBody,
   TableCell,
@@ -35,6 +36,9 @@ interface OpportunityDetailListSectionProps {
   icon: ReactNode;
   places: PlaceResponse[];
   hideDelete?: boolean;
+  onRemove?: (placeId: string) => void;
+  isRemoving?: boolean;
+  nationalTerritory?: boolean;
 }
 
 export const OpportunityDetailListSection = ({
@@ -42,6 +46,9 @@ export const OpportunityDetailListSection = ({
   icon,
   places,
   hideDelete,
+  onRemove,
+  isRemoving,
+  nationalTerritory,
 }: Readonly<OpportunityDetailListSectionProps>) => {
   const rows = useMemo<PlaceRow[]>(
     () =>
@@ -57,7 +64,7 @@ export const OpportunityDetailListSection = ({
     [places],
   );
 
-  if (rows.length === 0) {
+  if (rows.length === 0 && !nationalTerritory) {
     return null;
   }
 
@@ -72,60 +79,76 @@ export const OpportunityDetailListSection = ({
         </Box>
       </AccordionSummary>
       <AccordionDetails sx={{ px: 3, py: 2 }}>
-        <Box
-          sx={{
-            backgroundColor: theme.palette.divider,
-            borderRadius: 2,
-            px: 1.5,
-            pb: 1.5,
-          }}
-        >
-          <TableContainer
-            component={Paper}
-            elevation={0}
-            sx={{ borderRadius: 1 }}
+        {nationalTerritory ? (
+          <Stack spacing={0.5}>
+            <Typography sx={{ fontSize: 16, fontWeight: 600 }}>
+              Ovunque
+            </Typography>
+            <Typography
+              variant="body2"
+              color="text.secondary"
+              sx={{ fontSize: 14 }}
+            >
+              Su tutto il territorio nazionale
+            </Typography>
+          </Stack>
+        ) : (
+          <Box
+            sx={{
+              backgroundColor: theme.palette.divider,
+              borderRadius: 2,
+              px: 1.5,
+              pb: 1.5,
+            }}
           >
-            <Table>
-              <TableHead>
-                <TableRow>
-                  <TableCell sx={{ width: '30%' }}>Nome</TableCell>
-                  <TableCell sx={{ width: '50%' }}>Indirizzo</TableCell>
-                  {!hideDelete && (
-                    <TableCell sx={{ width: '20%', textAlign: 'right' }} />
-                  )}
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {rows.map(({ id, name, address }) => (
-                  <TableRow key={id} hover>
-                    <TableCell>{name}</TableCell>
-                    <TableCell>{address}</TableCell>
+            <TableContainer
+              component={Paper}
+              elevation={0}
+              sx={{ borderRadius: 1 }}
+            >
+              <Table>
+                <TableHead>
+                  <TableRow>
+                    <TableCell sx={{ width: '30%' }}>Nome</TableCell>
+                    <TableCell sx={{ width: '50%' }}>Indirizzo</TableCell>
                     {!hideDelete && (
-                      <TableCell sx={{ textAlign: 'right' }}>
-                        <IconButton
-                          size="small"
-                          sx={{
-                            color: theme.palette.error.dark,
-                            borderRadius: 0,
-                          }}
-                          onClick={() => console.info('remove button clicked')}
-                        >
-                          <Typography
-                            variant="button"
-                            sx={{ color: 'inherit' }}
-                          >
-                            Rimuovi
-                          </Typography>
-                          <CancelRounded />
-                        </IconButton>
-                      </TableCell>
+                      <TableCell sx={{ width: '20%', textAlign: 'right' }} />
                     )}
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
-        </Box>
+                </TableHead>
+                <TableBody>
+                  {rows.map(({ id, name, address }) => (
+                    <TableRow key={id} hover>
+                      <TableCell>{name}</TableCell>
+                      <TableCell>{address}</TableCell>
+                      {!hideDelete && (
+                        <TableCell sx={{ textAlign: 'right' }}>
+                          <IconButton
+                            size="small"
+                            sx={{
+                              color: theme.palette.error.dark,
+                              borderRadius: 0,
+                            }}
+                            disabled={isRemoving}
+                            onClick={() => onRemove?.(id)}
+                          >
+                            <Typography
+                              variant="button"
+                              sx={{ color: 'inherit' }}
+                            >
+                              Rimuovi
+                            </Typography>
+                            <CancelRounded />
+                          </IconButton>
+                        </TableCell>
+                      )}
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </Box>
+        )}
       </AccordionDetails>
     </Accordion>
   );

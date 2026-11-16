@@ -5,6 +5,7 @@ interface AuthState {
   token?: string;
   deviceId?: string;
   savedAt?: number;
+  sessionExpired?: boolean;
 }
 
 const initialState: AuthState = {};
@@ -25,12 +26,21 @@ const authSlice = createSlice({
       state.token = action.payload.token;
       state.deviceId = action.payload.deviceId;
       state.savedAt = Date.now();
+      state.sessionExpired = false;
     },
     clearToken: (state) => {
       state.token = undefined;
       state.savedAt = undefined;
       state.deviceId = undefined;
       state.redirectToken = undefined;
+      state.sessionExpired = false;
+    },
+    expireSession: (state) => {
+      state.token = undefined;
+      state.savedAt = undefined;
+      state.deviceId = undefined;
+      state.redirectToken = undefined;
+      state.sessionExpired = true;
     },
   },
 });

@@ -17,11 +17,19 @@ import {
   getPreviousStepBeforeSummary,
 } from './utils/documentTypeFlow';
 import GenericError from '../GenericError';
-import { useAppSelector } from '../../hooks';
+import { useAppDispatch, useAppSelector } from '../../hooks';
 import { selectConfirmationForm } from '../../features/confirmation/reducer';
 import UploadDocumentsStep from './steps/UploadDocumentsStep';
-import { selectPhotoPreview } from '../../features/photo-upload/reducer';
+import {
+  resetPhoto as clearPhoto,
+  selectPhotoPreview,
+} from '../../features/photo-upload/reducer';
 import { trackCardRequestEvent } from '../../mixpanel/trackEvent';
+import { resetForm as resetRequestForm } from '../../features/request-form/reducer';
+import { resetForm as resetConfirmationForm } from '../../features/confirmation/reducer';
+import { isNetworkError } from '../../utils/apiError';
+import { DraftChoice } from './DraftChoice';
+import { UpdatePersonalData } from './UpdatePersonalData';
 
 const steps = [
   {
@@ -75,17 +83,22 @@ const stepProperties = (step: number) => ({
 
 export default function CardRequestFlowPage() {
   const location = useLocation();
-  const state = location.state as { step: number };
+  const state = location.state as {
+    step?: number;
+    chooseDraft?: boolean;
+  } | null;
   const navigate = useNavigate();
+  const dispatch = useAppDispatch();
   const theme = useTheme();
   const [currentStep, setCurrentStep] = useState(state?.step ?? 0);
   const [draftSaved, setDraftSaved] = useState(false);
+  const [chooseDraft, setChooseDraft] = useState(state?.chooseDraft ?? false);
+  const [showPersonalDataHelp, setShowPersonalDataHelp] = useState(false);
   const stepRef = useRef<StepRef | null>(null);
   const recoveredPhotoPreview = useAppSelector(selectPhotoPreview);
   const [photoPreview, setPhotoPreview] = useState<string>(
     recoveredPhotoPreview ?? '',
   );
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const confirmationForm = useAppSelector(selectConfirmationForm);
 
   const goNextStep = () => setCurrentStep((s) => s + 1);
@@ -111,6 +124,9 @@ export default function CardRequestFlowPage() {
     draftErrorCode,
     photoErrorCode,
     confirmErrorCode,
+    draftError,
+    photoError,
+    confirmError,
     isLoading,
     resetDraft,
     resetPhoto,
@@ -158,20 +174,37 @@ export default function CardRequestFlowPage() {
     return (
       <GenericError
         errorCode={draftErrorCode}
+        title="Non è stato possibile salvare i dati"
+        description="Se il problema persiste, riprova in un secondo momento."
+        network={isNetworkError(draftError)}
         multiTitle="Ci sono alcuni errori nei tuoi dati anagrafici"
+        moreInfoLabel="Scopri di più"
         onRetry={saveFirstDraftData}
         onClose={resetDraft}
-        onBack={resetDraft}
       />
     );
   }
   if (isPhotoError) {
+    const isPhotoValidationError =
+      photoErrorCode?.length &&
+      photoErrorCode.every((code) => code >= 904 && code <= 911);
     return (
       <GenericError
         errorCode={photoErrorCode}
+        title="Non è stato possibile salvare la foto"
+        description="Se il problema persiste, riprova in un secondo momento."
+        network={isNetworkError(photoError)}
+        multiTitle="La foto non è idonea"
+        closeLabel={isPhotoValidationError ? 'Cambia foto' : undefined}
+        moreInfoLabel="Scopri di più"
         onRetry={savePhoto}
-        onClose={resetPhoto}
-        onBack={resetPhoto}
+        onClose={() => {
+          if (isPhotoValidationError) {
+            dispatch(clearPhoto());
+            setPhotoPreview('');
+          }
+          resetPhoto();
+        }}
       />
     );
   }
@@ -179,10 +212,34 @@ export default function CardRequestFlowPage() {
     return (
       <GenericError
         errorCode={confirmErrorCode}
+        title="Non è stato possibile salvare i dati"
+        description="Se il problema persiste, riprova in un secondo momento."
+        network={isNetworkError(confirmError)}
         onRetry={confirmRequest}
         onClose={resetConfirm}
-        onBack={resetConfirm}
       />
+    );
+  }
+
+  if (chooseDraft) {
+    return (
+      <DraftChoice
+        onResume={() => setChooseDraft(false)}
+        onNew={() => {
+          dispatch(resetRequestForm());
+          dispatch(resetConfirmationForm());
+          dispatch(clearPhoto());
+          setPhotoPreview('');
+          setCurrentStep(0);
+          setChooseDraft(false);
+        }}
+      />
+    );
+  }
+
+  if (showPersonalDataHelp) {
+    return (
+      <UpdatePersonalData onResume={() => setShowPersonalDataHelp(false)} />
     );
   }
 
@@ -227,13 +284,7 @@ export default function CardRequestFlowPage() {
       event_type: 'tap',
       ...stepProperties(currentStep),
     });
-    // show loading overlay and simulate submit
-    setIsSubmitting(true);
-    try {
-      await confirmRequest();
-    } catch {
-      setIsSubmitting(false);
-    }
+    await confirmRequest();
   };
 
   return (
@@ -262,12 +313,10 @@ export default function CardRequestFlowPage() {
           onPhotoPreviewChange={(url: string) => setPhotoPreview(url)}
           photoPreview={photoPreview}
         />
-        {isSubmitting && (
-          <MobileSpinnerLoader
-            fullscreen
-            title="Stiamo elaborando la tua richiesta"
-            description="Attendi qualche secondo"
-          />
+        {currentStep === 0 && (
+          <Button onClick={() => setShowPersonalDataHelp(true)}>
+            C’è un errore nei dati
+          </Button>
         )}
       </Box>
 
@@ -281,7 +330,7 @@ export default function CardRequestFlowPage() {
         <Button
           fullWidth
           variant="contained"
-          disabled={isSubmitting}
+          disabled={isLoading}
           onClick={isLastStep ? handleSubmit : handleNext}
           sx={{
             height: 52,
@@ -296,7 +345,7 @@ export default function CardRequestFlowPage() {
           <Button
             fullWidth
             variant="text"
-            disabled={isSubmitting}
+            disabled={isLoading}
             onClick={
               cancelLabel === 'Riprendi più tardi'
                 ? () => {

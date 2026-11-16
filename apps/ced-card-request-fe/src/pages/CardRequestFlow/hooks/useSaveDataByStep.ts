@@ -1,6 +1,5 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useToast } from '../../../contexts';
 import { useCreateDraftRequestMutation } from '../../../features/request-form/api';
 import { selectRequestForm } from '../../../features/request-form/selectors';
 import { setStatus, setStatusField } from '../../../features/status/reducer';
@@ -13,6 +12,7 @@ import { useConfirmMutation } from '../../../features/confirmation/api';
 import { selectConfirmationPayload } from '../../../features/confirmation/reducer';
 import { toApiDateTime } from '../../../features/request-form/date';
 import { getErrorCodes } from '../../../utils';
+import { createIdempotencyKeys } from '../utils/idempotency';
 
 const sanitizeObject = <T extends Record<string, unknown>>(data: T): T =>
   Object.fromEntries(
@@ -27,7 +27,6 @@ const sanitizeObject = <T extends Record<string, unknown>>(data: T): T =>
 export const useSaveDataByStep = (next: () => void) => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
-  const { showToast } = useToast();
   const [
     saveFirstDraft,
     {
@@ -57,6 +56,14 @@ export const useSaveDataByStep = (next: () => void) => {
   ] = useConfirmMutation();
 
   const [isActionLoading, setIsActionLoading] = useState(false);
+  const keys = useRef(
+    createIdempotencyKeys(() => {
+      if (!globalThis.crypto?.randomUUID) {
+        throw new Error('Unable to generate an idempotency key');
+      }
+      return globalThis.crypto.randomUUID();
+    }),
+  );
 
   const firstDraftForm = useAppSelector(selectRequestForm);
   const sanitizedFirstDataForm = sanitizeObject(firstDraftForm);
@@ -74,22 +81,15 @@ export const useSaveDataByStep = (next: () => void) => {
   const isLoading =
     isDraftLoading || isPhotoLoading || isConfirmLoading || isActionLoading;
 
-  const getIdempotencyKey = () => {
-    const idempotencyKey = globalThis.crypto?.randomUUID?.();
-    if (!idempotencyKey) {
-      navigate(APP_ROUTES.GENERIC_ERROR, { replace: true });
-      return '';
-    }
-    return idempotencyKey;
-  };
   const saveFirstDraftData = async () => {
     setIsActionLoading(true);
     try {
-      const idempotencyKey = getIdempotencyKey();
+      const idempotencyKey = keys.current.get('draft', sanitizedFirstDataForm);
       const response = await saveFirstDraft({
         body: sanitizedFirstDataForm,
         idempotency_key: idempotencyKey,
       }).unwrap();
+      keys.current.clear('draft');
 
       if (response?.idLavorazione) {
         dispatch(
@@ -101,12 +101,10 @@ export const useSaveDataByStep = (next: () => void) => {
       }
       next();
     } catch (error) {
-      //TODO debug only
-      localStorage.setItem('log-error', JSON.stringify(error));
-      showToast(
-        'Si è verificato un problema nel salvataggio dei dati. Riprova',
-        'error',
-      );
+      if (error instanceof Error) {
+        console.error('Unable to save draft', error);
+        navigate(APP_ROUTES.GENERIC_ERROR, { replace: true });
+      }
     } finally {
       setIsActionLoading(false);
     }
@@ -116,23 +114,19 @@ export const useSaveDataByStep = (next: () => void) => {
     if (!photo) return;
     setIsActionLoading(true);
     try {
-      const idempotencyKey = getIdempotencyKey();
+      const body = { fotoCED: photo, idLavorazione, informativaFoto: true };
+      const idempotencyKey = keys.current.get('photo', body);
       await uploadPhoto({
-        body: {
-          fotoCED: photo,
-          idLavorazione,
-          informativaFoto: true,
-        },
+        body,
         idempotency_key: idempotencyKey,
       }).unwrap();
+      keys.current.clear('photo');
       next();
     } catch (error) {
-      //TODO debug only
-      localStorage.setItem('log-error', JSON.stringify(error));
-      showToast(
-        'Si è verificato un problema nel salvataggio dei dati. Riprova',
-        'error',
-      );
+      if (error instanceof Error) {
+        console.error('Unable to upload photo', error);
+        navigate(APP_ROUTES.GENERIC_ERROR, { replace: true });
+      }
     } finally {
       setIsActionLoading(false);
     }
@@ -141,34 +135,27 @@ export const useSaveDataByStep = (next: () => void) => {
   const confirmRequest = async () => {
     setIsActionLoading(true);
     try {
-      const idempotencyKey = getIdempotencyKey();
+      const body = { ...confirmationPayload, idLavorazione };
+      const idempotencyKey = keys.current.get('confirm', body);
       const responseUnwrapped = await confirm({
-        body: {
-          ...confirmationPayload,
-          idLavorazione,
-        },
+        body,
         idempotency_key: idempotencyKey,
       }).unwrap();
+      keys.current.clear('confirm');
 
-      const numDomus = responseUnwrapped?.numDomus ?? undefined;
-
-      if (numDomus) {
-        dispatch(
-          setStatusField({
-            field: 'numDomus',
-            value: numDomus ?? undefined,
-          }),
-        );
-      }
+      dispatch(
+        setStatusField({
+          field: 'numDomus',
+          value: responseUnwrapped.numDomus ?? undefined,
+        }),
+      );
 
       navigate(APP_ROUTES.REQUEST_SUCCESS);
     } catch (error) {
-      //TODO debug only
-      localStorage.setItem('log-error', JSON.stringify(error));
-      showToast(
-        'Si è verificato un problema nel salvataggio dei dati. Riprova',
-        'error',
-      );
+      if (error instanceof Error) {
+        console.error('Unable to confirm request', error);
+        navigate(APP_ROUTES.GENERIC_ERROR, { replace: true });
+      }
     } finally {
       setIsActionLoading(false);
     }
@@ -185,6 +172,9 @@ export const useSaveDataByStep = (next: () => void) => {
     draftErrorCode: getErrorCodes(draftError),
     photoErrorCode: getErrorCodes(photoError),
     confirmErrorCode: getErrorCodes(confirmError),
+    draftError,
+    photoError,
+    confirmError,
     resetDraft,
     resetPhoto,
     resetConfirm,

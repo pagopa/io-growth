@@ -21,9 +21,12 @@ export default function SubmissionSuccess() {
     }
   };
 
-  const markdownContent = `Riceverai un messaggio su IO con gli aggiornamenti sulla tua richiesta.
+  const markdownContent = numDomus
+    ? `Riceverai un messaggio su IO con gli aggiornamenti sulla tua richiesta.
 Per identificare la tua richiesta in caso di problemi, salva questo codice:
-Numero Domus: **${numDomus}**.`;
+Numero Domus: **${numDomus}**.`
+    : `Riceverai un messaggio su IO con gli aggiornamenti sulla tua richiesta.
+Il numero identificativo della pratica non è disponibile al momento.`;
 
   return (
     <Box
@@ -74,18 +77,20 @@ Numero Domus: **${numDomus}**.`;
             gap: 2,
           }}
         >
-          <CopyToClipboardButton
-            textToCopy={numDomus}
-            size="medium"
-            variant="contained"
-            sx={{
-              bgcolor: theme.palette.common.primaryButton,
-              textTransform: 'none',
-              borderRadius: 2,
-              '& .MuiButton-startIcon': { color: 'inherit' },
-            }}
-            aria-label="Copia numero domus"
-          />
+          {numDomus && (
+            <CopyToClipboardButton
+              textToCopy={numDomus}
+              size="medium"
+              variant="contained"
+              sx={{
+                bgcolor: theme.palette.common.primaryButton,
+                textTransform: 'none',
+                borderRadius: 2,
+                '& .MuiButton-startIcon': { color: 'inherit' },
+              }}
+              aria-label="Copia numero domus"
+            />
+          )}
           <Button
             variant="text"
             onClick={handleClose}

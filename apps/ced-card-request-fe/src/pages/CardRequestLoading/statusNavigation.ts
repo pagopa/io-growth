@@ -30,20 +30,23 @@ export const runStatusNavigation = async ({
       await recoverDraft();
       navigate(APP_ROUTES.APPLICATION, {
         replace: true,
-        state: { step: 2 },
+        state: { step: 2, chooseDraft: true },
       });
       return;
     case 'READY_FOR_DOCUMENTS_UPLOAD':
       await recoverDraft();
       navigate(APP_ROUTES.APPLICATION, {
         replace: true,
-        state: { step: 3 },
+        state: { step: 3, chooseDraft: true },
       });
       return;
     case 'ACQUIRED':
-      navigate(APP_ROUTES.REQUEST_SUCCESS, { replace: true });
+      navigate(APP_ROUTES.REQUEST_PENDING, { replace: true });
       return;
     default:
-      navigate(APP_ROUTES.GENERIC_ERROR, { replace: true });
+      navigate(APP_ROUTES.GENERIC_ERROR, {
+        replace: true,
+        state: { retry: true },
+      });
   }
 };

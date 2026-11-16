@@ -7,9 +7,9 @@ import {
   selectCachedSession,
   selectIsTokenValid,
 } from '../core/auth/authSelectors';
-import { isFetchBaseQueryError } from '../utils';
 import { authActions } from '../core/auth/authSlice';
 import { getMixpanelId } from '../mixpanel/getMixpanelId';
+import { getHttpStatus } from '../utils/apiError';
 
 const redirectTokenError = { data: 'Session ID not provided', status: 401 };
 
@@ -56,16 +56,20 @@ export const useGetSession = () => {
       data,
     } = await getSession(redirectToken);
 
-    if (sessionError && isFetchBaseQueryError(sessionErrorMsg)) {
+    if (sessionError) {
       if (isCachedSessionValid && cachedSession) {
         return navigate(APP_ROUTES.HOME);
       }
       dispatch(authActions.clearToken());
-      navigate(APP_ROUTES.UNAUTHORIZED, {
-        state: {
-          status: sessionErrorMsg.status,
-        },
-      });
+      if (getHttpStatus(sessionErrorMsg) === 401) {
+        navigate(APP_ROUTES.UNAUTHORIZED, {
+          state: { status: 401 },
+        });
+      } else {
+        navigate(APP_ROUTES.GENERIC_ERROR, {
+          state: { retry: true, retryTo: `${APP_ROUTES.AUTHORIZE}${search}` },
+        });
+      }
       return;
     }
     if (data?.token) {
@@ -88,6 +92,7 @@ export const useGetSession = () => {
     isCachedSessionValid,
     dispatch,
     deviceId,
+    search,
   ]);
 
   useEffect(() => {

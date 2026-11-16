@@ -1,10 +1,8 @@
 import { Box } from '@mui/material';
-import {
-  MIButton,
-  MIButtonProps,
-  CopyToClipboardButton as MIIconCopyButton,
-} from '@pagopa/mui-italia';
-import { useState, type ReactNode } from 'react';
+import ContentCopyOutlined from '@mui/icons-material/ContentCopyOutlined';
+import { MIButton, MIButtonProps } from '@pagopa/mui-italia';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
+import { useToast } from '../../contexts';
 
 type MISolidButtonProps = Exclude<MIButtonProps, { variant: 'text' }>;
 
@@ -14,6 +12,7 @@ export interface CopyToClipboardButtonProps extends Omit<
 > {
   textToCopy?: string;
   label?: ReactNode;
+  iconPosition?: 'start' | 'end';
   iconColor?:
     | 'inherit'
     | 'primary'
@@ -29,43 +28,50 @@ export const CopyToClipboardButton = ({
   label,
   sx,
   iconColor,
+  iconPosition = 'end',
   ...buttonProps
 }: CopyToClipboardButtonProps) => {
   const [copied, setCopied] = useState(false);
+  const timer = useRef<ReturnType<typeof setTimeout>>();
+  const { showToast } = useToast();
+
+  useEffect(() => () => clearTimeout(timer.current), []);
+
+  const handleCopy = async () => {
+    if (!textToCopy) return;
+    try {
+      await navigator.clipboard.writeText(textToCopy);
+      setCopied(true);
+      clearTimeout(timer.current);
+      timer.current = setTimeout(() => setCopied(false), 2000);
+    } catch (error) {
+      console.error('Unable to copy to clipboard', error);
+      showToast('Non è stato possibile copiare. Riprova.', 'error');
+    }
+  };
 
   return (
     <MIButton
       {...buttonProps}
+      aria-disabled={!textToCopy}
+      onClick={handleCopy}
       sx={{
-        position: 'relative',
-        p: 0,
+        display: 'inline-flex',
+        gap: 1,
+        px: 2,
+        py: 1,
         ...sx,
       }}
     >
-      <Box
-        component="span"
-        onClick={() => {
-          setCopied(true);
-          window.setTimeout(() => setCopied(false), 2000);
-        }}
-        sx={{ position: 'absolute', inset: 0 }}
-      >
-        <MIIconCopyButton
-          value={textToCopy ?? ''}
-          sx={{
-            width: '100%',
-            height: '100%',
-            m: 0,
-            borderRadius: 'inherit',
-            color: iconColor ?? 'inherit',
-            justifyContent: 'flex-end',
-            pr: 2,
-          }}
-        />
-      </Box>
-      <Box component="span" sx={{ pointerEvents: 'none', pl: 2, pr: 6, py: 1 }}>
+      {iconPosition === 'start' && (
+        <ContentCopyOutlined fontSize="small" color={iconColor ?? 'inherit'} />
+      )}
+      <Box component="span">
         {copied ? 'Copiato' : (label ?? 'Copia numero')}
       </Box>
+      {iconPosition === 'end' && (
+        <ContentCopyOutlined fontSize="small" color={iconColor ?? 'inherit'} />
+      )}
     </MIButton>
   );
 };

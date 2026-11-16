@@ -147,6 +147,14 @@ export const GENERIC_ERROR_CONFIG: Record<number, GenericErrorConfig> = {
     icon: PriorityHigh,
     cAcLink: PERSONAL_DATA_HELP_URL,
   },
+  301: {
+    errorCode: 301,
+    title: 'Il tuo CAP non corrisponde',
+    description:
+      'Verifica che le informazioni presenti sul portale dell’Anagrafe Nazionale e sul tuo profilo INPS siano aggiornate e corrispondano.',
+    icon: PriorityHigh,
+    cAcLink: PERSONAL_DATA_HELP_URL,
+  },
   // #endregion Errors by /request
 
   // #region Errors by /photo

@@ -10,13 +10,11 @@ const Unauthorized = () => (
     description={
       <>
         <Body>
-          Gli ultimi dati inseriti potrebbero non essere stati salvati.
+          I dati inseriti nell&apos;ultimo passaggio potrebbero non essere stati
+          salvati.
         </Body>
         <VSpacer size={16} />
-        <Body>
-          Chiudi l’app e accedi di nuovo per continuare la richiesta. Se avevi
-          una bozza salvata, potrai recuperarla.
-        </Body>
+        <Body>Chiudi l’app e accedi di nuovo per continuare la richiesta.</Body>
       </>
     }
   >

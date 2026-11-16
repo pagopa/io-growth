@@ -1,5 +1,11 @@
 # ced-portal-fe
 
+## 0.1.8
+
+### Patch Changes
+
+- 3287d3c: Add an assistance modal to the top bar, with contacts by category and an admin variant for technical support.
+
 ## 0.1.7
 
 ### Patch Changes

@@ -4,13 +4,12 @@ import { APP_ROUTES } from '../../app/routeConfig';
 import { trackCardRequestEvent } from '../../mixpanel/trackEvent';
 import { useTrackLandedInPage } from '../../mixpanel/useTrackLandedInPage';
 import { MarkdownRenderer } from '../../components/Typography/MarkdownRender';
+import { CED_INFORMATION_URL, ELIGIBILITY_HELP_URL } from '../../externalLinks';
 import CED_hero from '../../../public/CED_hero.png';
 import CED_frame1 from '../../../public/CED_frame1.png';
 import CED_frame2 from '../../../public/CED_frame2.png';
 
 const REQUEST_CARD_URL = 'https://www.google.com/';
-const CATEGORIES_URL = REQUEST_CARD_URL;
-const INFO_URL = REQUEST_CARD_URL;
 const PRIVACY_URL = REQUEST_CARD_URL;
 const TERMS_URL = REQUEST_CARD_URL;
 
@@ -33,7 +32,7 @@ export default function CardRequestInfoPage() {
   \n![alt](${CED_frame2})
   ##### Chi può richiederla?
   Le **persone con disabilità** in possesso di un documento ufficiale che attesti la propria condizione.
-  \n[Consulta le categorie di aventi diritto](${CATEGORIES_URL}).
+  \n[Consulta le categorie di aventi diritto](${ELIGIBILITY_HELP_URL}).
   \n
   ##### Cosa serve
   Ti basta premere su "Richiedi la Carta" e in pochi passaggi puoi inviare la richiesta all'INPS.
@@ -43,7 +42,7 @@ export default function CardRequestInfoPage() {
   ![alt](${CED_frame1})
   ##### Come si usa
   **Nei punti di accesso fisici e online** dei partner, mostra la tua carta per usufruire delle opportunità su trasporti, spettacoli, attività culturali e molto altro.
-  \nPer saperne di più, [vai al sito della Carta Europea della Disabilità](${INFO_URL}).\n
+  \nPer saperne di più, [vai al sito della Carta Europea della Disabilità](${CED_INFORMATION_URL}).\n
   ^^Continuando dichiari di aver letto e compreso [l’Informativa sul trattamento dei dati personali](${PRIVACY_URL}) e i [Termini e condizioni](${TERMS_URL}) del servizio.^^
   `;
 

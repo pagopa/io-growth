@@ -124,6 +124,9 @@ export const UploadDisabilityDocument = forwardRef<StepRef>(
         setUploadState('preview');
       } catch (error) {
         console.error('Errore durante la conversione del file:', error);
+        setValidationError(
+          'Non è stato possibile caricare il documento. Riprova.',
+        );
         e.target.value = '';
       }
     };

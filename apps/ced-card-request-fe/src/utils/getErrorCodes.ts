@@ -1,3 +1,5 @@
+import { getHttpStatus } from './apiError';
+
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === 'object' && value !== null;
 
@@ -59,4 +61,11 @@ export const getErrorCodes = (error: unknown): number[] | undefined => {
   if (!isRecord(error) || !isRecord(error.data)) return undefined;
 
   return extractErrorCode(error.data);
+};
+
+export const getStatusErrorCodes = (error: unknown): number[] | undefined => {
+  const errorCodes = getErrorCodes(error);
+  if (errorCodes) return errorCodes;
+
+  return getHttpStatus(error) === 500 ? [500] : undefined;
 };

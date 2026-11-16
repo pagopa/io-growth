@@ -22,7 +22,7 @@ import {
 import { resetForm as resetConfirmationForm } from '../../features/confirmation/reducer';
 import { buildRecoveredDraftState } from '../../features/read-only-apis/draftRecovery';
 import { runStatusNavigation } from './statusNavigation';
-import { getErrorCodes } from '../../utils';
+import { getStatusErrorCodes } from '../../utils';
 import { isNetworkError } from '../../utils/apiError';
 
 export const useGetStatusAndNavigate = () => {
@@ -82,7 +82,7 @@ export const useGetStatusAndNavigate = () => {
         });
       } catch (error: unknown) {
         if (error && typeof error === 'object' && 'data' in error) {
-          const errorCode = getErrorCodes(error);
+          const errorCode = getStatusErrorCodes(error);
           if (errorCode?.length === 1 && errorCode[0] === 912) {
             dispatch(resetStatus());
             return navigate(APP_ROUTES.REQUEST_PENDING, { replace: true });

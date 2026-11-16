@@ -2,6 +2,7 @@ import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import { selectToken } from '../auth/authSelectors';
 import { authActions } from '../auth/authSlice';
 import type { RootState } from '../store';
+import { getHttpStatus } from '../../utils/apiError';
 
 const MOCKOON_API_BASE_URL = 'http://localhost:3001/api';
 
@@ -24,7 +25,7 @@ export const baseApi = createApi({
     const requestToken = selectToken(api.getState() as RootState);
     const result = await rawBaseQuery(args, api, extraOptions);
     if (
-      result.error?.status === 401 &&
+      getHttpStatus(result.error) === 401 &&
       api.endpoint !== 'getSession' &&
       requestToken === selectToken(api.getState() as RootState)
     ) {

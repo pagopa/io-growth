@@ -7,9 +7,9 @@ import {
   selectCachedSession,
   selectIsTokenValid,
 } from '../core/auth/authSelectors';
-import { isFetchBaseQueryError } from '../utils';
 import { authActions } from '../core/auth/authSlice';
 import { getMixpanelId } from '../mixpanel/getMixpanelId';
+import { getHttpStatus } from '../utils/apiError';
 
 const redirectTokenError = { data: 'Session ID not provided', status: 401 };
 
@@ -61,10 +61,7 @@ export const useGetSession = () => {
         return navigate(APP_ROUTES.HOME);
       }
       dispatch(authActions.clearToken());
-      if (
-        isFetchBaseQueryError(sessionErrorMsg) &&
-        sessionErrorMsg.status === 401
-      ) {
+      if (getHttpStatus(sessionErrorMsg) === 401) {
         navigate(APP_ROUTES.UNAUTHORIZED, {
           state: { status: 401 },
         });

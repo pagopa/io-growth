@@ -1,6 +1,6 @@
 module "api_management" {
   source  = "pagopa-dx/azure-api-management/azurerm"
-  version = "~> 2.0"
+  version = "~> 4.0"
 
   environment         = var.environment
   resource_group_name = var.resource_group_name

@@ -30,7 +30,7 @@ locals {
 # The module retains its built-in origin group for the default-domain route.
 module "frontdoor" {
   source  = "pagopa-dx/azure-cdn/azurerm"
-  version = "~> 2.1"
+  version = "~> 3.0"
 
   environment         = var.environment
   resource_group_name = var.resource_group_name

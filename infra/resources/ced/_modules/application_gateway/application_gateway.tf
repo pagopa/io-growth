@@ -25,7 +25,7 @@ resource "azurerm_subnet" "app_gw" {
 
 module "agw_identity_roles" {
   source  = "pagopa-dx/azure-role-assignments/azurerm"
-  version = "~> 1.0"
+  version = "~> 5.0"
 
   principal_id    = azurerm_user_assigned_identity.app_gw_identity.principal_id
   subscription_id = var.azure_subscription_id

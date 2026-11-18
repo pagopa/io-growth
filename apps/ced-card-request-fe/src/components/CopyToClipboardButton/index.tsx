@@ -12,6 +12,8 @@ export interface CopyToClipboardButtonProps extends Omit<
 > {
   textToCopy?: string;
   label?: ReactNode;
+  /** Message announced to screen readers after a successful copy. */
+  a11yMessage?: string;
   iconPosition?: 'start' | 'end';
   iconColor?:
     | 'inherit'
@@ -23,9 +25,19 @@ export interface CopyToClipboardButtonProps extends Omit<
     | 'warning';
 }
 
+const visuallyHidden = {
+  position: 'absolute',
+  width: '1px',
+  height: '1px',
+  overflow: 'hidden',
+  clip: 'rect(0 0 0 0)',
+  whiteSpace: 'nowrap',
+} as const;
+
 export const CopyToClipboardButton = ({
   textToCopy,
   label,
+  a11yMessage = 'Copiato',
   sx,
   iconColor,
   iconPosition = 'end',
@@ -51,27 +63,44 @@ export const CopyToClipboardButton = ({
   };
 
   return (
-    <MIButton
-      {...buttonProps}
-      aria-disabled={!textToCopy}
-      onClick={handleCopy}
-      sx={{
-        display: 'inline-flex',
-        gap: 1,
-        px: 2,
-        py: 1,
-        ...sx,
-      }}
-    >
-      {iconPosition === 'start' && (
-        <ContentCopyOutlined fontSize="small" color={iconColor ?? 'inherit'} />
-      )}
-      <Box component="span">
-        {copied ? 'Copiato' : (label ?? 'Copia numero')}
+    <>
+      <MIButton
+        {...buttonProps}
+        aria-disabled={!textToCopy}
+        onClick={handleCopy}
+        sx={{
+          display: 'inline-flex',
+          gap: 1,
+          px: 2,
+          py: 1,
+          ...sx,
+        }}
+      >
+        {iconPosition === 'start' && (
+          <ContentCopyOutlined
+            fontSize="small"
+            color={iconColor ?? 'inherit'}
+          />
+        )}
+        <Box component="span">
+          {copied ? 'Copiato' : (label ?? 'Copia numero')}
+        </Box>
+        {iconPosition === 'end' && (
+          <ContentCopyOutlined
+            fontSize="small"
+            color={iconColor ?? 'inherit'}
+          />
+        )}
+      </MIButton>
+      {/* Invisible text read by VoiceOver after the copy. It sits outside the button because iOS ignores it inside. */}
+      <Box
+        component="span"
+        role="status"
+        aria-live="polite"
+        sx={visuallyHidden}
+      >
+        {copied ? a11yMessage : ''}
       </Box>
-      {iconPosition === 'end' && (
-        <ContentCopyOutlined fontSize="small" color={iconColor ?? 'inherit'} />
-      )}
-    </MIButton>
+    </>
   );
 };

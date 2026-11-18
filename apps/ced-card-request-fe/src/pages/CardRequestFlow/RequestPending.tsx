@@ -42,7 +42,7 @@ export default function RequestPending() {
           textToCopy={numDomus}
           label="Copia numero"
           variant="contained"
-          a11yMessage="Numero copiato"
+          a11yMessage="Numero Domus copiato"
           iconPosition="start"
         />
       ) : null}

@@ -230,10 +230,9 @@ export const PhotoUploadStep = forwardRef<StepRef, PhotoUploadProps>(
             }}
           >
             Aggiungi
-            {/* "application/image" is intentionally not a real MIME type: Android opens the system photo picker (no camera) when every accepted type is image/*, so a non-image type is needed to get the "Camera / Files" chooser, and since no file has this type the Files picker still lists only JPEG/PNG. Real types like application/octet-stream or application/* would also list PDFs and other files. */}
             <input
               type="file"
-              accept="image/jpeg, image/jpg, image/png, application/image"
+              accept="image/jpeg, image/jpg, image/png"
               hidden
               onChange={handleFileChange}
             />

@@ -3,6 +3,7 @@ import {
   useLazyGetDraftQuery,
   useLazyGetStatusQuery,
 } from '../../features/read-only-apis/api';
+import type { StatusResponse } from '../../features/read-only-apis/api';
 import { APP_ROUTES } from '../../app/routeConfig';
 import { useCallback, useEffect } from 'react';
 import { useAppDispatch } from '../../hooks';
@@ -32,13 +33,26 @@ export const useGetStatusAndNavigate = () => {
   const saveFieldFromStatus = useCallback(
     (data: Awaited<ReturnType<typeof getStatus>>['data']) => {
       if (!data) return;
+      if (
+        !data.user ||
+        typeof data.user.givenName !== 'string' ||
+        !data.user.givenName.trim() ||
+        typeof data.user.familyName !== 'string' ||
+        !data.user.familyName.trim() ||
+        typeof data.user.fiscalCode !== 'string' ||
+        !data.user.fiscalCode.trim()
+      ) {
+        throw new Error('Status response is missing the authenticated user');
+      }
 
       dispatch(resetStatus());
+      dispatch(resetRequestForm());
       dispatch(
         setStatus({
           idLavorazione: data.idLavorazione ?? '',
           numDomus: data.numDomus,
           state: data.state,
+          user: data.user,
         }),
       );
     },
@@ -48,11 +62,15 @@ export const useGetStatusAndNavigate = () => {
   const [getStatus] = useLazyGetStatusQuery();
   const [getDraft] = useLazyGetDraftQuery();
 
-  const resetDraft = useCallback(() => {
-    dispatch(resetRequestForm());
-    dispatch(resetPhoto());
-    dispatch(resetConfirmationForm());
-  }, [dispatch]);
+  const resetDraft = useCallback(
+    (user: StatusResponse['user']) => {
+      dispatch(resetRequestForm());
+      dispatch(setForm({ nome: user.givenName, cognome: user.familyName }));
+      dispatch(resetPhoto());
+      dispatch(resetConfirmationForm());
+    },
+    [dispatch],
+  );
 
   const recoverDraft = useCallback(async () => {
     const draft = await getDraft().unwrap();
@@ -85,6 +103,7 @@ export const useGetStatusAndNavigate = () => {
           const errorCode = getStatusErrorCodes(error);
           if (errorCode?.length === 1 && errorCode[0] === 912) {
             dispatch(resetStatus());
+            dispatch(resetRequestForm());
             return navigate(APP_ROUTES.REQUEST_PENDING, { replace: true });
           }
           return navigate(APP_ROUTES.GENERIC_ERROR, {

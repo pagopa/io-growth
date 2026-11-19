@@ -1,5 +1,11 @@
 # ced-portal-fe
 
+## 0.1.9
+
+### Patch Changes
+
+- 968f5e8: Allow removing access points from the opportunity detail page and send only the access points matching the selected option.
+
 ## 0.1.8
 
 ### Patch Changes

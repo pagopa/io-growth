@@ -122,20 +122,15 @@ resource "azurerm_web_application_firewall_policy" "this" {
 
       rule_group_override {
         rule_group_name = "REQUEST-942-APPLICATION-ATTACK-SQLI"
-        rule {
-          id      = "942340"
-          enabled = true
-          action  = "Log"
-        }
-        rule {
-          id      = "942450"
-          enabled = true
-          action  = "Log"
-        }
-        rule {
-          id      = "942200"
-          enabled = true
-          action  = "Log"
+
+        dynamic "rule" {
+          for_each = local.waf_sqli_rule_ids
+
+          content {
+            id      = rule.value
+            enabled = true
+            action  = "Log"
+          }
         }
       }
     }

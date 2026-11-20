@@ -1,7 +1,7 @@
 import { Box, useTheme } from '@mui/material';
 import type { SvgIconComponent } from '@mui/icons-material';
 import { Body, Title, VSpacer } from '@pagopa/io-core-ui';
-import type { ReactNode } from 'react';
+import { useEffect, useRef, type ReactNode } from 'react';
 
 interface Props {
   icon: SvgIconComponent | string;
@@ -64,6 +64,31 @@ export function NoticeIcon({ icon }: { icon: SvgIconComponent | string }) {
           sx={{ color: theme.palette.primary.main, fontSize: 24 }}
         />
       )}
+    </Box>
+  );
+}
+
+export function FocusedNoticeTitle({ text }: { text: string }) {
+  const headingRef = useRef<HTMLHeadingElement>(null);
+
+  useEffect(() => {
+    headingRef.current?.focus();
+  }, []);
+
+  return (
+    <Box
+      component="h2"
+      ref={headingRef}
+      tabIndex={-1}
+      sx={{
+        m: 0,
+        fontSize: '24px',
+        lineHeight: '36px',
+        fontWeight: 600,
+        color: 'common.neutralBlack',
+      }}
+    >
+      {text}
     </Box>
   );
 }

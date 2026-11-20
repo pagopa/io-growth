@@ -232,7 +232,7 @@ export const PhotoUploadStep = forwardRef<StepRef, PhotoUploadProps>(
             Aggiungi
             <input
               type="file"
-              accept="image/jpeg, image/jpg, image/png"
+              accept="image/jpeg, image/jpg, image/png, application/image"
               hidden
               onChange={handleFileChange}
             />

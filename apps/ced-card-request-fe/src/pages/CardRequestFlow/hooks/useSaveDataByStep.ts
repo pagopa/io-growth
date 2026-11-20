@@ -1,7 +1,10 @@
 import { useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCreateDraftRequestMutation } from '../../../features/request-form/api';
-import { selectRequestForm } from '../../../features/request-form/selectors';
+import {
+  selectRequestForm,
+  withMockBirthData,
+} from '../../../features/request-form/selectors';
 import { setStatus, setStatusField } from '../../../features/status/reducer';
 import { useAppDispatch, useAppSelector } from '../../../hooks';
 import { APP_ROUTES } from '../../../app/routeConfig';
@@ -66,7 +69,9 @@ export const useSaveDataByStep = (next: () => void) => {
   );
 
   const firstDraftForm = useAppSelector(selectRequestForm);
-  const sanitizedFirstDataForm = sanitizeObject(firstDraftForm);
+  const sanitizedFirstDataForm = sanitizeObject({
+    ...withMockBirthData(firstDraftForm),
+  });
   const confirmationForm = useAppSelector(selectConfirmationPayload);
   const confirmationPayload = sanitizeObject({
     ...confirmationForm,

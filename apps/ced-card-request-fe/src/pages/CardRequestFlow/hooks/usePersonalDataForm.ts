@@ -6,16 +6,12 @@ import type { ValidationRules } from './useStepValidation';
 
 type PersonalDataFormType = {
   label: string;
-  type: 'text' | 'select' | 'date';
+  type: 'text' | 'select';
   field: keyof NuovaDomandaInBozzaRequest;
   options?: Array<{ value: string; label: string }>;
   rules?: ValidationRules;
 };
 
-const sessoOptions = [
-  { label: 'F', value: 'F' },
-  { label: 'M', value: 'M' },
-];
 const cittadinanzaOptions = [
   { label: 'Italiana', value: '0' },
   { label: 'Paesi comunitari', value: '2' },
@@ -34,42 +30,6 @@ const PERSONAL_DATA_FORM_CONFIG: PersonalDataFormType[] = [
     field: 'cognome',
     type: 'text',
     rules: { required: true, maxLength: 50 },
-  },
-  {
-    label: 'Sesso',
-    field: 'sesso',
-    type: 'select',
-    options: sessoOptions,
-    rules: { required: true },
-  },
-  {
-    label: 'Data di nascita',
-    field: 'dataNascita',
-    type: 'date',
-    rules: { required: true },
-  },
-  {
-    label: 'Comune di nascita',
-    field: 'comuneNascita',
-    type: 'text',
-    rules: { required: true, maxLength: 60 },
-  },
-  {
-    label: 'Provincia di nascita',
-    field: 'siglaProvinciaNascita',
-    type: 'text',
-    rules: {
-      required: true,
-      maxLength: 3,
-      pattern: /^[A-Za-z]{2,3}$/,
-      patternMessage: 'Inserisci la sigla di 2 o 3 lettere (es. RM)',
-    },
-  },
-  {
-    label: 'Stato di nascita',
-    field: 'statoNascita',
-    type: 'text',
-    rules: { required: true, maxLength: 60 },
   },
   {
     label: 'Cittadinanza',

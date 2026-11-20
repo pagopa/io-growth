@@ -1,5 +1,5 @@
-import { format } from 'date-fns';
 import { selectRequestForm } from '../../../features/request-form/selectors';
+import { selectStatusUser } from '../../../features/status/selectors';
 import { useAppSelector } from '../../../hooks';
 import { selectConfirmationForm } from '../../../features/confirmation/reducer';
 
@@ -31,19 +31,16 @@ export const useGetSummaryValue = () => {
   const {
     capRec,
     cognome,
-    dataNascita,
     descrizioneComuneRec,
     idCittadinanza,
     indirizzoRec,
     nome,
-    sesso,
     siglaProvinciaRec,
     civicoRec,
-    comuneNascita,
     datiAggiuntiviRec,
-    siglaProvinciaNascita,
   } = useAppSelector(selectRequestForm);
 
+  const user = useAppSelector(selectStatusUser);
   const confirmationForm = useAppSelector(selectConfirmationForm);
 
   const confirmationData = getKeysByDocType(
@@ -56,11 +53,7 @@ export const useGetSummaryValue = () => {
   const personalData = [
     { label: 'Nome', value: nome },
     { label: 'Cognome', value: cognome },
-    { label: 'Sesso', value: sesso },
-    { label: 'Data di nascita', value: format(dataNascita, 'dd/MM/yyyy') },
-    { label: 'Comune di nascita', value: comuneNascita ?? '' },
-    { label: 'Provincia di nascita', value: siglaProvinciaNascita ?? '' },
-    { label: 'Codice Fiscale', value: 'XXXXXXXXXXXX' },
+    { label: 'Codice Fiscale', value: user?.fiscalCode ?? '' },
     { label: 'Cittadinanza', value: Cittadinanza[idCittadinanza] ?? '' },
   ];
 

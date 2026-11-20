@@ -4,9 +4,17 @@ import {
   GetApplicationStatus200,
 } from '../../generated/model';
 
+export type StatusResponse = GetApplicationStatus200 & {
+  user: {
+    givenName: string;
+    familyName: string;
+    fiscalCode: string;
+  };
+};
+
 const readOnlyApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
-    getStatus: builder.query<GetApplicationStatus200, void>({
+    getStatus: builder.query<StatusResponse, void>({
       query: () => '/status',
     }),
     getDraft: builder.query<DraftDataResponse, void>({

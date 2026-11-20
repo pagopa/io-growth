@@ -1,7 +1,7 @@
 import { Box, Button, useTheme } from '@mui/material';
 import { Body, MobileSpinnerLoader, VSpacer } from '@pagopa/io-core-ui';
 import { useEffect, useRef, useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { APP_ROUTES } from '../../app/routeConfig';
 import { PageHeader, Stepper } from '../../components';
 import { SavedDraftDialog } from './SavedDraftDialog';
@@ -13,6 +13,7 @@ import SummaryStep from './steps/SummaryStep';
 import type { StepRef } from './types';
 import { useSaveDataByStep } from './hooks/useSaveDataByStep';
 import {
+  DOCUMENT_UPLOAD_STEP_INDEX,
   getNextStepAfterDocumentType,
   getPreviousStepBeforeSummary,
 } from './utils/documentTypeFlow';
@@ -25,11 +26,14 @@ import {
   selectPhotoPreview,
 } from '../../features/photo-upload/reducer';
 import { trackCardRequestEvent } from '../../mixpanel/trackEvent';
-import { resetForm as resetRequestForm } from '../../features/request-form/reducer';
+import {
+  resetForm as resetRequestForm,
+  setForm,
+} from '../../features/request-form/reducer';
+import { selectStatusUser } from '../../features/status/selectors';
 import { resetForm as resetConfirmationForm } from '../../features/confirmation/reducer';
 import { isNetworkError } from '../../utils/apiError';
 import { DraftChoice } from './DraftChoice';
-import { UpdatePersonalData } from './UpdatePersonalData';
 
 const steps = [
   {
@@ -65,7 +69,10 @@ const steps = [
   { title: 'Conferma e invia', content: SummaryStep },
 ];
 
-const TOTAL_STEPS = steps.length;
+const TOTAL_STEPS = steps.length - 1;
+
+const getDisplayedStep = (step: number) =>
+  step >= DOCUMENT_UPLOAD_STEP_INDEX ? step - 1 : step;
 
 const STEP_EVENT_NAMES = [
   'CED_CARD_REQUEST_APPLICANT_DATA',
@@ -77,7 +84,7 @@ const STEP_EVENT_NAMES = [
 ];
 
 const stepProperties = (step: number) => ({
-  step: step + 1,
+  step: getDisplayedStep(step) + 1,
   total_steps: TOTAL_STEPS,
 });
 
@@ -93,13 +100,13 @@ export default function CardRequestFlowPage() {
   const [currentStep, setCurrentStep] = useState(state?.step ?? 0);
   const [draftSaved, setDraftSaved] = useState(false);
   const [chooseDraft, setChooseDraft] = useState(state?.chooseDraft ?? false);
-  const [showPersonalDataHelp, setShowPersonalDataHelp] = useState(false);
   const stepRef = useRef<StepRef | null>(null);
   const recoveredPhotoPreview = useAppSelector(selectPhotoPreview);
   const [photoPreview, setPhotoPreview] = useState<string>(
     recoveredPhotoPreview ?? '',
   );
   const confirmationForm = useAppSelector(selectConfirmationForm);
+  const user = useAppSelector(selectStatusUser);
 
   const goNextStep = () => setCurrentStep((s) => s + 1);
 
@@ -166,6 +173,10 @@ export default function CardRequestFlowPage() {
     });
   }, [currentStep]);
 
+  if (!user) {
+    return <Navigate to={APP_ROUTES.LOADING} replace />;
+  }
+
   if (isLoading) {
     return <MobileSpinnerLoader title="Attendi qualche secondo" fullscreen />;
   }
@@ -227,6 +238,7 @@ export default function CardRequestFlowPage() {
         onResume={() => setChooseDraft(false)}
         onNew={() => {
           dispatch(resetRequestForm());
+          dispatch(setForm({ nome: user.givenName, cognome: user.familyName }));
           dispatch(resetConfirmationForm());
           dispatch(clearPhoto());
           setPhotoPreview('');
@@ -234,12 +246,6 @@ export default function CardRequestFlowPage() {
           setChooseDraft(false);
         }}
       />
-    );
-  }
-
-  if (showPersonalDataHelp) {
-    return (
-      <UpdatePersonalData onResume={() => setShowPersonalDataHelp(false)} />
     );
   }
 
@@ -300,10 +306,13 @@ export default function CardRequestFlowPage() {
         onBack={handleBack}
       />
 
-      <VSpacer size={8} />
-      <Box sx={{ px: 3 }}>
+      <VSpacer size={16} />
+      <Box sx={{ px: 3, '& > p': { fontSize: 18 } }}>
         <Body fontWeight="Semibold">{title}</Body>
-        <Stepper activeStep={currentStep} totalSteps={TOTAL_STEPS} />
+        <Stepper
+          activeStep={getDisplayedStep(currentStep)}
+          totalSteps={TOTAL_STEPS}
+        />
         <StepContent
           ref={stepRef}
           onEditApplicant={() => setCurrentStep(0)}
@@ -313,11 +322,6 @@ export default function CardRequestFlowPage() {
           onPhotoPreviewChange={(url: string) => setPhotoPreview(url)}
           photoPreview={photoPreview}
         />
-        {currentStep === 0 && (
-          <Button onClick={() => setShowPersonalDataHelp(true)}>
-            C’è un errore nei dati
-          </Button>
-        )}
       </Box>
 
       <Box
@@ -334,6 +338,7 @@ export default function CardRequestFlowPage() {
           onClick={isLastStep ? handleSubmit : handleNext}
           sx={{
             height: 52,
+            fontSize: 18,
             borderRadius: '10px',
             bgcolor: theme.palette.common.primaryButton,
           }}
@@ -359,6 +364,7 @@ export default function CardRequestFlowPage() {
             }
             sx={{
               mt: 1,
+              fontSize: 18,
               color: theme.palette.common.primaryButton,
             }}
           >

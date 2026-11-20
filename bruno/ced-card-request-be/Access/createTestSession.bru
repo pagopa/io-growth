@@ -13,13 +13,13 @@ post {
 body:json {
   {
     "fiscalCode": "{{fiscalCode}}",
-    "familyName": "{{name}}",
-    "givenName": "{{surname}}"
+    "familyName": "{{surname}}",
+    "givenName": "{{name}}"
   }
 }
 
 script:post-response {
-  if (res.status === 200) {  
+  if (res.status === 200) {
     bru.setEnvVar("sessionToken", res.body.token, { persist: false });
   }
 }

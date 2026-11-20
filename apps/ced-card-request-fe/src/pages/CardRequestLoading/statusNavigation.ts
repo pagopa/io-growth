@@ -1,14 +1,14 @@
 import type { NavigateFunction } from 'react-router-dom';
 
-import type { GetApplicationStatus200 } from '../../generated/model';
+import type { StatusResponse } from '../../features/read-only-apis/api';
 import { APP_ROUTES } from '../../app/routeConfig';
 
 interface StatusNavigationDependencies {
-  readonly getStatus: () => Promise<GetApplicationStatus200>;
+  readonly getStatus: () => Promise<StatusResponse>;
   readonly navigate: NavigateFunction;
   readonly recoverDraft: () => Promise<void>;
-  readonly resetDraft: () => void;
-  readonly saveStatus: (status: GetApplicationStatus200) => void;
+  readonly resetDraft: (user: StatusResponse['user']) => void;
+  readonly saveStatus: (status: StatusResponse) => void;
 }
 
 export const runStatusNavigation = async ({
@@ -23,7 +23,7 @@ export const runStatusNavigation = async ({
 
   switch (status.state) {
     case 'READY_FOR_NEW_DRAFT':
-      resetDraft();
+      resetDraft(status.user);
       navigate(APP_ROUTES.APPLICATION, { replace: true });
       return;
     case 'READY_FOR_PHOTO_UPLOAD':

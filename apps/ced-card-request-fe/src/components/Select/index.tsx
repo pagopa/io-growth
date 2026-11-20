@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useId, useState } from 'react';
 import type { ReactNode } from 'react';
 import {
   FormControl,
@@ -38,8 +38,14 @@ export const AppSelect = ({
   onOpen,
   onClose,
   renderCustomOptions,
+  labelId,
+  'aria-describedby': describedBy,
+  SelectDisplayProps,
   ...props
 }: AppSelectProps) => {
+  const id = useId();
+  const fieldLabelId = labelId ?? `${id}-label`;
+  const helperId = `${id}-helper`;
   const [open, setOpen] = useState(false);
   const isControlled = value !== undefined;
   const currentValue = isControlled ? value : defaultValue;
@@ -87,9 +93,21 @@ export const AppSelect = ({
       required={props.required}
       sx={sx}
     >
-      <InputLabel shrink={shrink}>{label}</InputLabel>
+      <InputLabel id={fieldLabelId} shrink={shrink}>
+        {label}
+      </InputLabel>
       <Select
         label={label}
+        labelId={fieldLabelId}
+        aria-describedby={
+          [describedBy, helperText ? helperId : undefined]
+            .filter(Boolean)
+            .join(' ') || undefined
+        }
+        SelectDisplayProps={{
+          ...SelectDisplayProps,
+          'aria-invalid': error || undefined,
+        }}
         value={isControlled ? value : undefined}
         defaultValue={isControlled ? undefined : defaultValue}
         open={open}
@@ -129,7 +147,10 @@ export const AppSelect = ({
         {renderOptions()}
       </Select>
       {helperText && (
-        <FormHelperText sx={{ fontSize: '0.875rem', fontWeight: 400 }}>
+        <FormHelperText
+          id={helperId}
+          sx={{ fontSize: '0.875rem', fontWeight: 400 }}
+        >
           {helperText}
         </FormHelperText>
       )}

@@ -83,7 +83,13 @@ export const AppRadioList = ({
           value={option.value}
           label={option.label}
           labelPlacement={labelPlacement}
-          control={<Radio icon={uncheckedIcon} checkedIcon={checkedIcon} />}
+          control={
+            <Radio
+              icon={uncheckedIcon}
+              checkedIcon={checkedIcon}
+              inputProps={{ 'aria-describedby': props['aria-describedby'] }}
+            />
+          }
           sx={itemSx}
         />
       </Box>

@@ -157,7 +157,6 @@ export default function CardRequestFlowPage() {
     draftSaved
       ? null
       : currentStep;
-  const previousVisibleStep = useRef(visibleStep);
 
   const withStatus = (content: ReactNode) => (
     <>
@@ -169,7 +168,8 @@ export default function CardRequestFlowPage() {
       >
         {isLoading
           ? LOADING_MESSAGE
-          : failedValidationAttempts > 0 && (
+          : visibleStep !== null &&
+            failedValidationAttempts > 0 && (
               <span key={failedValidationAttempts}>{VALIDATION_MESSAGE}</span>
             )}
       </Box>
@@ -203,13 +203,9 @@ export default function CardRequestFlowPage() {
 
   useEffect(() => {
     setFailedValidationAttempts(0);
-  }, [currentStep]);
-
-  useEffect(() => {
-    if (visibleStep !== null && previousVisibleStep.current !== visibleStep) {
+    if (visibleStep !== null) {
       stepHeadingRef.current?.focus();
     }
-    previousVisibleStep.current = visibleStep;
   }, [visibleStep]);
 
   useEffect(() => {

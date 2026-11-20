@@ -178,7 +178,6 @@ export default function CardRequestFlowPage() {
   );
 
   const handleBack = () => {
-    setFailedValidationAttempts(0);
     trackCardRequestEvent('CED_CARD_REQUEST_BACK', {
       event_type: 'tap',
       ...stepProperties(currentStep),
@@ -200,6 +199,10 @@ export default function CardRequestFlowPage() {
       event_type: 'screen_view',
       ...stepProperties(currentStep),
     });
+  }, [currentStep]);
+
+  useEffect(() => {
+    setFailedValidationAttempts(0);
   }, [currentStep]);
 
   useEffect(() => {
@@ -371,11 +374,12 @@ export default function CardRequestFlowPage() {
         subtitle={<Body>Completa i passaggi e invia la richiesta.</Body>}
         onBack={handleBack}
       />
+
       <VSpacer size={16} />
       <Box sx={{ px: 3 }}>
         <Box
           key={currentStep}
-          component="h3"
+          component="h2"
           ref={stepHeadingRef}
           tabIndex={-1}
           sx={{
@@ -404,6 +408,7 @@ export default function CardRequestFlowPage() {
           />
         </Box>
       </Box>
+
       <Box
         sx={{
           px: 3,
@@ -434,7 +439,6 @@ export default function CardRequestFlowPage() {
             onClick={
               cancelLabel === 'Riprendi più tardi'
                 ? () => {
-                    setFailedValidationAttempts(0);
                     trackCardRequestEvent('CED_CARD_REQUEST_RESUME_LATER', {
                       event_type: 'tap',
                       ...stepProperties(currentStep),

@@ -434,6 +434,7 @@ export default function CardRequestFlowPage() {
             onClick={
               cancelLabel === 'Riprendi più tardi'
                 ? () => {
+                    setFailedValidationAttempts(0);
                     trackCardRequestEvent('CED_CARD_REQUEST_RESUME_LATER', {
                       event_type: 'tap',
                       ...stepProperties(currentStep),

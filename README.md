@@ -55,7 +55,7 @@ pnpm devcontainer exec --workspace-folder . /bin/bash
 
 ### Using local machine
 
-This project uses specific versions of `node`, `pnpm` and `terraform`. To make sure your development setup matches with production follow the recommended installation methods.
+This project uses Node.js **24.22.1 (LTS)**, pinned in `.node-version`, and specific versions of `pnpm` and `terraform`. To make sure your development setup matches with production follow the recommended installation methods.
 
 1. Install and configure the following tools in your machine
 

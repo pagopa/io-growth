@@ -3,6 +3,7 @@ import ContentCopyOutlined from '@mui/icons-material/ContentCopyOutlined';
 import { MIButton, MIButtonProps } from '@pagopa/mui-italia';
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { useToast } from '../../contexts';
+import { visuallyHidden } from '../../utils/visuallyHidden.js';
 
 type MISolidButtonProps = Exclude<MIButtonProps, { variant: 'text' }>;
 
@@ -24,15 +25,6 @@ export interface CopyToClipboardButtonProps extends Omit<
     | 'success'
     | 'warning';
 }
-
-const visuallyHidden = {
-  position: 'absolute',
-  width: '1px',
-  height: '1px',
-  overflow: 'hidden',
-  clip: 'rect(0 0 0 0)',
-  whiteSpace: 'nowrap',
-} as const;
 
 export const CopyToClipboardButton = ({
   textToCopy,

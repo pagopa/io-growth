@@ -17,7 +17,14 @@ import {
   selectConfirmationForm,
   setField,
 } from '../../../../features/confirmation/reducer';
-import { forwardRef, useEffect, useImperativeHandle, useState } from 'react';
+import {
+  forwardRef,
+  useEffect,
+  useId,
+  useImperativeHandle,
+  useRef,
+  useState,
+} from 'react';
 import { CompanionAvailabilityRadioGroup } from './CompanionAvailabilityRadioGroup';
 import type { StepRef } from '../../types';
 
@@ -54,6 +61,8 @@ export const UploadDisabilityDocument = forwardRef<StepRef>(
     );
 
     const [uploadState, setUploadState] = useState<UploadState>('idle');
+    const fileInputRef = useRef<HTMLInputElement>(null);
+    const errorId = useId();
     const [uploadedDocument, setUploadedDocument] =
       useState<UploadedDocument | null>(null);
     const [validationError, setValidationError] = useState<string>();
@@ -273,7 +282,9 @@ export const UploadDisabilityDocument = forwardRef<StepRef>(
           <MarkdownRenderer content={markdownContent} />
           <Button
             variant="contained"
-            component="label"
+            onClick={() => fileInputRef.current?.click()}
+            aria-invalid={!!validationError || undefined}
+            aria-describedby={validationError ? errorId : undefined}
             sx={{
               bgcolor: theme.palette.common.primaryButton,
               textTransform: 'none',
@@ -281,17 +292,20 @@ export const UploadDisabilityDocument = forwardRef<StepRef>(
             }}
           >
             Carica file
-            <input
-              type="file"
-              accept=".pdf,.jpg"
-              hidden
-              onChange={handleFileChange}
-            />
           </Button>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept=".pdf,.jpg"
+            hidden
+            onChange={handleFileChange}
+          />
         </Box>
 
         {validationError && (
-          <ErrorBody fontSize="14px">* {validationError}</ErrorBody>
+          <Box id={errorId}>
+            <ErrorBody fontSize="14px">* {validationError}</ErrorBody>
+          </Box>
         )}
       </StepCard>
     );

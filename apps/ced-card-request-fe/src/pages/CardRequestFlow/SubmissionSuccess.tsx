@@ -80,6 +80,7 @@ Il numero identificativo della pratica non è disponibile al momento.`;
           {numDomus && (
             <CopyToClipboardButton
               textToCopy={numDomus}
+              a11yMessage="Numero Domus copiato"
               size="medium"
               variant="contained"
               sx={{

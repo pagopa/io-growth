@@ -240,6 +240,7 @@ export default function GenericError({
               label={`Errore ${errorCodeLabel}`}
               variant="outlined"
               iconColor="primary"
+              a11yMessage="Codice errore copiato"
               sx={{
                 width: '100%',
                 justifyContent: 'space-between',

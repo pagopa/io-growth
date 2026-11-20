@@ -8,7 +8,7 @@ info:
     All endpoints are protected by an opaque token in the Authorization header.
   version: 1.0.0
 servers:
-  - url: https://api.your-bff.it/v1
+  - url: https://api.ced.pagopa.it/api/ced-card/v1
     description: BFF production endpoint
 
 security:

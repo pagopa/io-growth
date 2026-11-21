@@ -19,7 +19,7 @@ module "portal_be_storage" {
 
 module "role_assignments_portal_be_storage" {
   source  = "pagopa-dx/azure-role-assignments/azurerm"
-  version = "~> 2.0"
+  version = "~> 5.0"
 
   principal_id    = module.common_container_app_environment.user_assigned_identity.principal_id
   subscription_id = data.azurerm_subscription.current.subscription_id

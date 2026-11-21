@@ -1,6 +1,6 @@
 module "container_app_environment" {
   source  = "pagopa-dx/azure-container-app-environment/azurerm"
-  version = "~> 1.2.0"
+  version = "~> 5.0.0"
 
   environment         = var.environment
   resource_group_name = var.resource_group_name

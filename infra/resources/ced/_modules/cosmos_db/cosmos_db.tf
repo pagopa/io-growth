@@ -1,6 +1,6 @@
 module "ced_cosmos_account" {
   source  = "pagopa-dx/azure-cosmos-account/azurerm"
-  version = "0.2.0"
+  version = "3.1.1"
 
   subnet_pep_id = var.subnet_pep_id
 

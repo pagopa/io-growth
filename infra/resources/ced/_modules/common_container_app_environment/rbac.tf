@@ -1,6 +1,6 @@
 module "role_assignments" {
   source  = "pagopa-dx/azure-role-assignments/azurerm"
-  version = "~> 2.0"
+  version = "~> 5.0"
 
   principal_id    = module.container_app_environment.user_assigned_identity.principal_id
   subscription_id = var.azure_subscription_id

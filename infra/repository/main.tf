@@ -1,6 +1,6 @@
 module "github_repository" {
   source  = "pagopa-dx/github-environment-bootstrap/github"
-  version = "~> 2.0"
+  version = "~> 3.0"
 
   repository = {
     name                   = "io-growth"

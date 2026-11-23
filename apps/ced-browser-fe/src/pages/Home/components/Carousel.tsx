@@ -194,6 +194,8 @@ export const Carousel = ({ list }: CarouselProps) => {
       <ScrollArea ref={containerRef} role="list" aria-label="Elenco partner">
         {extendedList.map((item, idx) => {
           const isLoopDuplicate = idx === 0 || idx === extendedList.length - 1;
+          const realIndex = mapExtendedToRealIndex(idx);
+          const isActive = !isLoopDuplicate && realIndex === activeIdx;
 
           return (
             <SlideBox
@@ -203,12 +205,12 @@ export const Carousel = ({ list }: CarouselProps) => {
               aria-label={
                 isLoopDuplicate
                   ? undefined
-                  : `Elemento ${mapExtendedToRealIndex(idx) + 1} di ${list.length}: ${item.title}`
+                  : `Elemento ${realIndex + 1} di ${list.length}: ${item.title}`
               }
-              aria-hidden={isLoopDuplicate ? true : undefined}
+              aria-hidden={isLoopDuplicate || !isActive ? true : undefined}
               onFocus={() => handleSlideFocus(idx, isLoopDuplicate)}
             >
-              <PartnerCard {...item} isInert={isLoopDuplicate} />
+              <PartnerCard {...item} isInert={isLoopDuplicate || !isActive} />
             </SlideBox>
           );
         })}

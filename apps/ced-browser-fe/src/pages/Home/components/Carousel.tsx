@@ -168,7 +168,7 @@ export const Carousel = ({ list }: CarouselProps) => {
   const handleSlideFocus = useCallback(
     (idx: number, isLoopDuplicate: boolean) => {
       if (!isLoopDuplicate) {
-        scrollToExtendedIndex(idx, 'smooth');
+        scrollToExtendedIndex(idx, 'auto');
       }
     },
     [scrollToExtendedIndex],
@@ -191,26 +191,17 @@ export const Carousel = ({ list }: CarouselProps) => {
       aria-roledescription="carousel"
       aria-label="Carosello partner in primo piano"
     >
-      <ScrollArea ref={containerRef} role="list" aria-label="Elenco partner">
+      <ScrollArea ref={containerRef}>
         {extendedList.map((item, idx) => {
           const isLoopDuplicate = idx === 0 || idx === extendedList.length - 1;
-          const realIndex = mapExtendedToRealIndex(idx);
-          const isActive = !isLoopDuplicate && realIndex === activeIdx;
 
           return (
             <SlideBox
               key={`${item.title}-${idx}`}
-              role="listitem"
-              aria-roledescription="slide"
-              aria-label={
-                isLoopDuplicate
-                  ? undefined
-                  : `Elemento ${realIndex + 1} di ${list.length}: ${item.title}`
-              }
-              aria-hidden={isLoopDuplicate || !isActive ? true : undefined}
+              aria-hidden={isLoopDuplicate ? true : undefined}
               onFocus={() => handleSlideFocus(idx, isLoopDuplicate)}
             >
-              <PartnerCard {...item} isInert={isLoopDuplicate || !isActive} />
+              <PartnerCard {...item} isInert={isLoopDuplicate} />
             </SlideBox>
           );
         })}
@@ -234,8 +225,7 @@ export const Carousel = ({ list }: CarouselProps) => {
           direction="row"
           alignItems="center"
           spacing={0.5}
-          role="group"
-          aria-label="Indicatori di pagina del carosello"
+          aria-hidden="true"
         >
           {list.map((_, idx) => (
             <StyledDots
@@ -243,8 +233,7 @@ export const Carousel = ({ list }: CarouselProps) => {
               type="button"
               onClick={() => onClickDots(idx)}
               className={activeIdx === idx ? 'active' : 'inactive'}
-              aria-label={`Vai all'elemento ${idx + 1} di ${list.length}`}
-              aria-current={activeIdx === idx ? 'true' : undefined}
+              tabIndex={-1}
             />
           ))}
         </Stack>

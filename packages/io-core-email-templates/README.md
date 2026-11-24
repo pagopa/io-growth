@@ -50,8 +50,48 @@ Running `pnpm --filter=@pagopa/io-core-email-templates generate`:
    `../partials/*.mjml` via `<mj-include>` for shared layout/branding.
 2. Create `src/<name>/meta.json` with `subject` and `text` string fields,
    using the same `{{placeholder}}` names referenced in the MJML markup.
-3. Run `pnpm generate` from the package folder to produce
+3. From the workspace root, run
+   `pnpm --filter=@pagopa/io-core-email-templates generate` to produce
    `src/<name>/<name>.json`, and commit it.
+
+## Opportunity notification scenarios
+
+The backend uses provider IDs shaped as `ced_<template-name>_v1`. Keep existing
+IDs stable and register the four new templates through the existing provider
+publication process before deploying their notification producers. Generating
+JSON does not register remote templates or change sender configuration.
+
+| Template                                          | Trigger                                                     | Recipient  |
+| ------------------------------------------------- | ----------------------------------------------------------- | ---------- |
+| `operator-opportunity-approved`                   | Department approves an opportunity                          | Operator   |
+| `operator-opportunity-rejected`                   | Department requests changes                                 | Operator   |
+| `operator-opportunity-published`                  | Publication notification job finds a visible opportunity    | Operator   |
+| `operator-opportunity-republished`                | Department republishes a suspended opportunity              | Operator   |
+| `operator-opportunity-deleted`                    | Operator deletes an opportunity                             | Operator   |
+| `operator-opportunity-republish-rejected` (new)   | Department refuses a republication request                  | Operator   |
+| `operator-opportunity-suspended` (new)            | Department applies or schedules suspension                  | Operator   |
+| `operator-opportunity-suspension-cancelled` (new) | Department cancels a scheduled suspension                   | Operator   |
+| `operator-opportunity-self-republished` (new)     | Operator republishes their self-suspended opportunity       | Operator   |
+| `admin-new-opportunity`                           | Operator submits a draft for review                         | Department |
+| `admin-revise-opportunity`                        | Operator resubmits after requested changes                  | Department |
+| `admin-opportunity-suspended`                     | Operator applies or schedules suspension                    | Department |
+| `admin-opportunity-deleted`                       | Operator deletes an eligible non-draft opportunity          | Department |
+| `admin-opportunity-republish-request`             | Operator requests republication after department suspension | Department |
+| `admin-opportunity-suspension-cancelled`          | Operator cancels their scheduled suspension                 | Department |
+| `admin-opportunity-republished`                   | Operator republishes their self-suspended opportunity       | Department |
+
+Operator self-republication queues two distinct messages: confirmation to the
+operator and notification to the department. State transitions and notification
+enqueueing share a database transaction.
+
+Dates in email attributes use `dd/mm/yyyy`: publication uses the stored
+availability date, suspension uses its effective date, and department cancellation
+uses the schedule being cancelled. The revision email intentionally omits an
+edit-by-edit description until a reliable change source is available.
+
+Run `pnpm --filter=@pagopa/io-core-email-templates test` from the workspace root
+after generation to check all 16 subjects, HTML/text copy, emphasis, links, and
+scenario-specific omissions. Logo presentation is not part of those assertions.
 
 ## Image hosting
 
@@ -64,11 +104,42 @@ in the compiled output, so generated templates always ship with a public URL.
 If an asset is renamed/added, make sure it's committed — the URL only resolves
 once the file exists on `main`.
 
+## Sync to onemail-template
+
+`scripts/sync-to-onemail-templates.sh` copies each generated
+`<name>/<name>.json` into the
+[onemail-template](https://github.com/pagopa/onemail-template) repo as
+`templates/ced/<name>/v<N>/template.json` (requires `jq`):
+
+- Template folder missing → creates `v1`.
+- Template folder present → compares the SHA-256 of the new file with the
+  `template.json` of the latest version: identical → nothing happens; different →
+  writes `v<N+1>/template.json`.
+
+`TemplateName` is rewritten to `ced_<name>_v<N>`, as required by the
+onemail-template validation, and the comparison is done on that rewritten
+content. Run it after `generate`; pass `--dry-run` to preview without writing.
+
+The two root paths are variables at the top of the script, set from the
+environment:
+
+| Variable     | Default                      | Description                                                      |
+| ------------ | ---------------------------- | ---------------------------------------------------------------- |
+| `SOURCE_DIR` | this package's `src/` folder | Folder containing the generated `<name>/<name>.json` files       |
+| `TARGET_DIR` | none (required)              | Client folder of the onemail-template repo (`.../templates/ced`) |
+
+The script exits with an error if `TARGET_DIR` is not set:
+
+```sh
+TARGET_DIR=~/work/onemail-template/templates/ced \
+  bash packages/io-core-email-templates/scripts/sync-to-onemail-templates.sh [--dry-run]
+```
+
 ## Scripts
 
-| Script                | Description                                                      |
-| --------------------- | ---------------------------------------------------------------- |
-| `generate`            | Compile all `.mjml`/`meta.json` sources into `<name>.json` files |
-| `build`               | `generate` + `tsc` (produces `dist/`)                            |
-| `typecheck`           | `tsc --noEmit`                                                   |
-| `lint` / `lint:check` | ESLint                                                           |
+| Script                | Description                                                         |
+| --------------------- | ------------------------------------------------------------------- |
+| `generate`            | Compile all `.mjml`/`meta.json` sources into `<name>.json` files    |
+| `build`               | Clean `dist/` + `tsc` (run `generate` separately for template JSON) |
+| `typecheck`           | `tsc --noEmit`                                                      |
+| `lint` / `lint:check` | ESLint                                                              |

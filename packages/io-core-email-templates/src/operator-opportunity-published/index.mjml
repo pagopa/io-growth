@@ -56,7 +56,9 @@
               abbiamo <strong>pubblicato</strong> l&rsquo;opportunità <strong>{{opportunityName}}</strong>.
             </p>
 
-            <p>L&rsquo;opportunità è ora disponibile su IO e sul sito del Dipartimento.</p>
+            <p>
+              L&rsquo;opportunità sarà disponibile su IO dal <strong>{{availabilityDate}}</strong>.
+            </p>
 
             <p>
               Per consultare o gestire le tue opportunità, accedi ad

@@ -1,7 +1,7 @@
 import { Box, Button, useTheme } from '@mui/material';
 import { Body, MobileSpinnerLoader, VSpacer } from '@pagopa/io-core-ui';
 import { useEffect, useRef, useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { APP_ROUTES } from '../../app/routeConfig';
 import { PageHeader, Stepper } from '../../components';
 import { SavedDraftDialog } from './SavedDraftDialog';
@@ -13,15 +13,27 @@ import SummaryStep from './steps/SummaryStep';
 import type { StepRef } from './types';
 import { useSaveDataByStep } from './hooks/useSaveDataByStep';
 import {
+  DOCUMENT_UPLOAD_STEP_INDEX,
   getNextStepAfterDocumentType,
   getPreviousStepBeforeSummary,
 } from './utils/documentTypeFlow';
 import GenericError from '../GenericError';
-import { useAppSelector } from '../../hooks';
+import { useAppDispatch, useAppSelector } from '../../hooks';
 import { selectConfirmationForm } from '../../features/confirmation/reducer';
 import UploadDocumentsStep from './steps/UploadDocumentsStep';
-import { selectPhotoPreview } from '../../features/photo-upload/reducer';
+import {
+  resetPhoto as clearPhoto,
+  selectPhotoPreview,
+} from '../../features/photo-upload/reducer';
 import { trackCardRequestEvent } from '../../mixpanel/trackEvent';
+import {
+  resetForm as resetRequestForm,
+  setForm,
+} from '../../features/request-form/reducer';
+import { selectStatusUser } from '../../features/status/selectors';
+import { resetForm as resetConfirmationForm } from '../../features/confirmation/reducer';
+import { isNetworkError } from '../../utils/apiError';
+import { DraftChoice } from './DraftChoice';
 
 const steps = [
   {
@@ -57,7 +69,10 @@ const steps = [
   { title: 'Conferma e invia', content: SummaryStep },
 ];
 
-const TOTAL_STEPS = steps.length;
+const TOTAL_STEPS = steps.length - 1;
+
+const getDisplayedStep = (step: number) =>
+  step >= DOCUMENT_UPLOAD_STEP_INDEX ? step - 1 : step;
 
 const STEP_EVENT_NAMES = [
   'CED_CARD_REQUEST_APPLICANT_DATA',
@@ -69,24 +84,29 @@ const STEP_EVENT_NAMES = [
 ];
 
 const stepProperties = (step: number) => ({
-  step: step + 1,
+  step: getDisplayedStep(step) + 1,
   total_steps: TOTAL_STEPS,
 });
 
 export default function CardRequestFlowPage() {
   const location = useLocation();
-  const state = location.state as { step: number };
+  const state = location.state as {
+    step?: number;
+    chooseDraft?: boolean;
+  } | null;
   const navigate = useNavigate();
+  const dispatch = useAppDispatch();
   const theme = useTheme();
   const [currentStep, setCurrentStep] = useState(state?.step ?? 0);
   const [draftSaved, setDraftSaved] = useState(false);
+  const [chooseDraft, setChooseDraft] = useState(state?.chooseDraft ?? false);
   const stepRef = useRef<StepRef | null>(null);
   const recoveredPhotoPreview = useAppSelector(selectPhotoPreview);
   const [photoPreview, setPhotoPreview] = useState<string>(
     recoveredPhotoPreview ?? '',
   );
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const confirmationForm = useAppSelector(selectConfirmationForm);
+  const user = useAppSelector(selectStatusUser);
 
   const goNextStep = () => setCurrentStep((s) => s + 1);
 
@@ -111,6 +131,9 @@ export default function CardRequestFlowPage() {
     draftErrorCode,
     photoErrorCode,
     confirmErrorCode,
+    draftError,
+    photoError,
+    confirmError,
     isLoading,
     resetDraft,
     resetPhoto,
@@ -150,6 +173,10 @@ export default function CardRequestFlowPage() {
     });
   }, [currentStep]);
 
+  if (!user) {
+    return <Navigate to={APP_ROUTES.LOADING} replace />;
+  }
+
   if (isLoading) {
     return <MobileSpinnerLoader title="Attendi qualche secondo" fullscreen />;
   }
@@ -158,20 +185,37 @@ export default function CardRequestFlowPage() {
     return (
       <GenericError
         errorCode={draftErrorCode}
+        title="Non è stato possibile salvare i dati"
+        description="Se il problema persiste, riprova in un secondo momento."
+        network={isNetworkError(draftError)}
         multiTitle="Ci sono alcuni errori nei tuoi dati anagrafici"
+        moreInfoLabel="Scopri di più"
         onRetry={saveFirstDraftData}
         onClose={resetDraft}
-        onBack={resetDraft}
       />
     );
   }
   if (isPhotoError) {
+    const isPhotoValidationError =
+      photoErrorCode?.length &&
+      photoErrorCode.every((code) => code >= 904 && code <= 911);
     return (
       <GenericError
         errorCode={photoErrorCode}
+        title="Non è stato possibile salvare la foto"
+        description="Se il problema persiste, riprova in un secondo momento."
+        network={isNetworkError(photoError)}
+        multiTitle="La foto non è idonea"
+        closeLabel={isPhotoValidationError ? 'Cambia foto' : undefined}
+        moreInfoLabel="Scopri di più"
         onRetry={savePhoto}
-        onClose={resetPhoto}
-        onBack={resetPhoto}
+        onClose={() => {
+          if (isPhotoValidationError) {
+            dispatch(clearPhoto());
+            setPhotoPreview('');
+          }
+          resetPhoto();
+        }}
       />
     );
   }
@@ -179,9 +223,28 @@ export default function CardRequestFlowPage() {
     return (
       <GenericError
         errorCode={confirmErrorCode}
+        title="Non è stato possibile salvare i dati"
+        description="Se il problema persiste, riprova in un secondo momento."
+        network={isNetworkError(confirmError)}
         onRetry={confirmRequest}
         onClose={resetConfirm}
-        onBack={resetConfirm}
+      />
+    );
+  }
+
+  if (chooseDraft) {
+    return (
+      <DraftChoice
+        onResume={() => setChooseDraft(false)}
+        onNew={() => {
+          dispatch(resetRequestForm());
+          dispatch(setForm({ nome: user.givenName, cognome: user.familyName }));
+          dispatch(resetConfirmationForm());
+          dispatch(clearPhoto());
+          setPhotoPreview('');
+          setCurrentStep(0);
+          setChooseDraft(false);
+        }}
       />
     );
   }
@@ -227,13 +290,7 @@ export default function CardRequestFlowPage() {
       event_type: 'tap',
       ...stepProperties(currentStep),
     });
-    // show loading overlay and simulate submit
-    setIsSubmitting(true);
-    try {
-      await confirmRequest();
-    } catch {
-      setIsSubmitting(false);
-    }
+    await confirmRequest();
   };
 
   return (
@@ -249,10 +306,13 @@ export default function CardRequestFlowPage() {
         onBack={handleBack}
       />
 
-      <VSpacer size={8} />
-      <Box sx={{ px: 3 }}>
+      <VSpacer size={16} />
+      <Box sx={{ px: 3, '& > p': { fontSize: 18 } }}>
         <Body fontWeight="Semibold">{title}</Body>
-        <Stepper activeStep={currentStep} totalSteps={TOTAL_STEPS} />
+        <Stepper
+          activeStep={getDisplayedStep(currentStep)}
+          totalSteps={TOTAL_STEPS}
+        />
         <StepContent
           ref={stepRef}
           onEditApplicant={() => setCurrentStep(0)}
@@ -262,13 +322,6 @@ export default function CardRequestFlowPage() {
           onPhotoPreviewChange={(url: string) => setPhotoPreview(url)}
           photoPreview={photoPreview}
         />
-        {isSubmitting && (
-          <MobileSpinnerLoader
-            fullscreen
-            title="Stiamo elaborando la tua richiesta"
-            description="Attendi qualche secondo"
-          />
-        )}
       </Box>
 
       <Box
@@ -281,10 +334,11 @@ export default function CardRequestFlowPage() {
         <Button
           fullWidth
           variant="contained"
-          disabled={isSubmitting}
+          disabled={isLoading}
           onClick={isLastStep ? handleSubmit : handleNext}
           sx={{
             height: 52,
+            fontSize: 18,
             borderRadius: '10px',
             bgcolor: theme.palette.common.primaryButton,
           }}
@@ -296,7 +350,7 @@ export default function CardRequestFlowPage() {
           <Button
             fullWidth
             variant="text"
-            disabled={isSubmitting}
+            disabled={isLoading}
             onClick={
               cancelLabel === 'Riprendi più tardi'
                 ? () => {
@@ -310,6 +364,7 @@ export default function CardRequestFlowPage() {
             }
             sx={{
               mt: 1,
+              fontSize: 18,
               color: theme.palette.common.primaryButton,
             }}
           >

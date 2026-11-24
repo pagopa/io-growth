@@ -4,6 +4,9 @@ import type { MessagePayload } from "../../../../domain/entities/message-outbox.
 import type { OpportunityDetail } from "../../../../domain/entities/opportunity.js";
 import type { ProfileRepository } from "../../../../domain/ports/outbound/persistence/profile.repository.js";
 
+export const formatOpportunityDate = (date: string): string =>
+  date.split("-").reverse().join("/");
+
 // Falls back to the opportunity id when no Italian display name is set.
 export const getOpportunityName = (data: OpportunityDetail): string =>
   data.localizedMetadata.find(

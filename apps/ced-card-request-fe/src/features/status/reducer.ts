@@ -1,16 +1,18 @@
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
 import { ApplicationState } from '../../generated/model';
+import type { StatusResponse } from '../read-only-apis/api';
 
 type StatusState = {
   idLavorazione: string;
   state?: ApplicationState;
   numDomus?: string;
+  user?: StatusResponse['user'];
 };
 
 const initialState: StatusState = {} as StatusState;
 
 const statusSlice = createSlice({
-  name: 'requestForm',
+  name: 'status',
   initialState,
   reducers: {
     setStatusField: (

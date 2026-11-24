@@ -57,7 +57,7 @@
             </p>
 
             <p>
-              L&rsquo;opportunità sarà disponibile su IO dal <span class="semibold">{{availabilityDate}}</span>.
+              L&rsquo;opportunità sarà disponibile su IO dal <strong>{{availabilityDate}}</strong>.
             </p>
 
             <p>

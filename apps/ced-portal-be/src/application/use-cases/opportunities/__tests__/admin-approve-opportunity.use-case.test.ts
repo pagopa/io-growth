@@ -84,6 +84,7 @@ describe("makeAdminApproveOpportunityUseCase", () => {
 
     expect(result).toEqual(ok(undefined));
     expect(deps.opportunityRepository.updateStatusById).toHaveBeenCalledWith({
+      changeRequestMessage: null,
       dateFrom: undefined,
       expectedStatuses: ["test_pending", "test_rejected"],
       opportunityId: MOCK_OPPORTUNITY_ID,
@@ -123,7 +124,7 @@ describe("makeAdminApproveOpportunityUseCase", () => {
               opportunityName: "Discount 20%",
               ...MOCK_EMAIL_LINKS,
             },
-            templateId: "ced_operator-opportunity-approved_v1",
+            templateId: "ced_operator-opportunity-approved_v2",
             to: mockProfile.contactEmail,
             type: "template",
           },

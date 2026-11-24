@@ -48,6 +48,24 @@ resource "azurerm_web_application_firewall_policy" "this" {
   resource_group_name = var.resource_group_name
   location            = var.location
 
+  custom_rules {
+    name      = "BlockBrotliRequestBody"
+    priority  = 1
+    rule_type = "MatchRule"
+    action    = "Block"
+
+    match_conditions {
+      match_variables {
+        variable_name = "RequestHeaders"
+        selector      = "Content-Encoding"
+      }
+
+      operator     = "Regex"
+      match_values = ["(^|,)\\s*br\\s*(,|$)"]
+      transforms   = ["Lowercase"]
+    }
+  }
+
   policy_settings {
     enabled                     = true
     mode                        = "Prevention"
@@ -104,20 +122,15 @@ resource "azurerm_web_application_firewall_policy" "this" {
 
       rule_group_override {
         rule_group_name = "REQUEST-942-APPLICATION-ATTACK-SQLI"
-        rule {
-          id      = "942340"
-          enabled = true
-          action  = "Log"
-        }
-        rule {
-          id      = "942450"
-          enabled = true
-          action  = "Log"
-        }
-        rule {
-          id      = "942200"
-          enabled = true
-          action  = "Log"
+
+        dynamic "rule" {
+          for_each = local.waf_sqli_rule_ids
+
+          content {
+            id      = rule.value
+            enabled = true
+            action  = "Log"
+          }
         }
       }
     }

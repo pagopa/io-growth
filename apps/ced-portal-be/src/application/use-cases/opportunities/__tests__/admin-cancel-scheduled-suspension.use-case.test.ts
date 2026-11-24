@@ -5,7 +5,13 @@ import { describe, expect, it, vi } from "vitest";
 import type { OpportunityDetail } from "../../../../domain/entities/opportunity.js";
 
 import { makeAdminCancelScheduledSuspensionUseCase } from "../admin-cancel-scheduled-suspension.use-case.js";
-import { createMockOpportunityRepository } from "./mocks.js";
+import {
+  createMockOpportunityRepository,
+  createMockProfileRepository,
+  MOCK_EMAIL_LINKS,
+  MOCK_OPERATOR_ID,
+  mockProfile,
+} from "./mocks.js";
 
 const MOCK_OPPORTUNITY_ID = "01JVMK3N8XQZP5T6G2WYHAB4CF";
 
@@ -29,6 +35,7 @@ const mockOpportunity = (
   id: MOCK_OPPORTUNITY_ID,
   localizedMetadata: [{ key: "name", language: "it", value: "Discount 20%" }],
   nationalTerritory: false,
+  operatorId: MOCK_OPERATOR_ID,
   placeIds: ["01JVMK3N8XQZP5T6G2WYHAB4CD"],
   status: "published",
   suspendedBy,
@@ -51,6 +58,17 @@ const validInput = {
   opportunityId: MOCK_OPPORTUNITY_ID,
 };
 
+const expectedCancellationMessage = {
+  templateAttributes: {
+    opportunityName: "Discount 20%",
+    suspensionDate: "01/08/2026",
+    ...MOCK_EMAIL_LINKS,
+  },
+  templateId: "ced_operator-opportunity-suspension-cancelled_v1",
+  to: mockProfile.contactEmail,
+  type: "template",
+};
+
 describe("makeAdminCancelScheduledSuspensionUseCase - happy path", () => {
   it("should cancel a pending department-scheduled suspension", async () => {
     const deps = makeDeps({
@@ -63,6 +81,8 @@ describe("makeAdminCancelScheduledSuspensionUseCase - happy path", () => {
     });
     const useCase = makeAdminCancelScheduledSuspensionUseCase(
       deps.opportunityRepository,
+      createMockProfileRepository(),
+      MOCK_EMAIL_LINKS,
     );
 
     const result = await useCase(validInput);
@@ -71,7 +91,9 @@ describe("makeAdminCancelScheduledSuspensionUseCase - happy path", () => {
     expect(
       deps.opportunityRepository.cancelScheduledSuspensionById,
     ).toHaveBeenCalledWith({
+      expectedSuspendFrom: "2026-08-01",
       opportunityId: MOCK_OPPORTUNITY_ID,
+      outboxMessages: [expectedCancellationMessage],
     });
   });
 
@@ -87,6 +109,8 @@ describe("makeAdminCancelScheduledSuspensionUseCase - happy path", () => {
     });
     const useCase = makeAdminCancelScheduledSuspensionUseCase(
       deps.opportunityRepository,
+      createMockProfileRepository(),
+      MOCK_EMAIL_LINKS,
     );
 
     const result = await useCase(validInput);
@@ -95,7 +119,9 @@ describe("makeAdminCancelScheduledSuspensionUseCase - happy path", () => {
     expect(
       deps.opportunityRepository.cancelScheduledSuspensionById,
     ).toHaveBeenCalledWith({
+      expectedSuspendFrom: "2026-08-01",
       opportunityId: MOCK_OPPORTUNITY_ID,
+      outboxMessages: [expectedCancellationMessage],
     });
   });
 });
@@ -109,6 +135,8 @@ describe("makeAdminCancelScheduledSuspensionUseCase - guard", () => {
     });
     const useCase = makeAdminCancelScheduledSuspensionUseCase(
       deps.opportunityRepository,
+      createMockProfileRepository(),
+      MOCK_EMAIL_LINKS,
     );
 
     const result = await useCase(validInput);
@@ -129,6 +157,8 @@ describe("makeAdminCancelScheduledSuspensionUseCase - guard", () => {
     });
     const useCase = makeAdminCancelScheduledSuspensionUseCase(
       deps.opportunityRepository,
+      createMockProfileRepository(),
+      MOCK_EMAIL_LINKS,
     );
 
     const result = await useCase(validInput);
@@ -166,6 +196,8 @@ describe("makeAdminCancelScheduledSuspensionUseCase - error propagation", () => 
     });
     const useCase = makeAdminCancelScheduledSuspensionUseCase(
       deps.opportunityRepository,
+      createMockProfileRepository(),
+      MOCK_EMAIL_LINKS,
     );
 
     const result = await useCase(validInput);
@@ -184,6 +216,8 @@ describe("makeAdminCancelScheduledSuspensionUseCase - error propagation", () => 
     });
     const useCase = makeAdminCancelScheduledSuspensionUseCase(
       deps.opportunityRepository,
+      createMockProfileRepository(),
+      MOCK_EMAIL_LINKS,
     );
 
     const result = await useCase(validInput);
@@ -200,6 +234,8 @@ describe("makeAdminCancelScheduledSuspensionUseCase - input validation", () => {
     const deps = makeDeps();
     const useCase = makeAdminCancelScheduledSuspensionUseCase(
       deps.opportunityRepository,
+      createMockProfileRepository(),
+      MOCK_EMAIL_LINKS,
     );
 
     const result = await useCase({ opportunityId: "not-a-ulid" });

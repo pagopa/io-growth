@@ -3,6 +3,10 @@
   "vulnerabilityAlerts": {
     "rangeStrategy": "bump"
   },
+  "extends": [
+    "config:recommended",
+    "github>pagopa/dx//renovate-presets/default"
+  ],
   "packageRules": [
     {
       "matchManagers": ["github-actions"],

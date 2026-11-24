@@ -12,11 +12,18 @@ import {
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { z } from "zod";
 
+import type { EmailLinks } from "../../../domain/entities/message-outbox.js";
 import type { MaterializedViewRepository } from "../../../domain/ports/outbound/materialized-view.repository.js";
 import type { OpportunityRepository } from "../../../domain/ports/outbound/persistence/opportunity.repository.js";
+import type { ProfileRepository } from "../../../domain/ports/outbound/persistence/profile.repository.js";
 
+import { buildOperatorOpportunityRepublishedMessage } from "../../../domain/entities/message-outbox.js";
 import { OPPORTUNITY_STATUS } from "../../../domain/entities/opportunity.js";
 import { validateUseCaseInput } from "../utils/validate-use-case-input.js";
+import {
+  buildOperatorMessages,
+  getOpportunityName,
+} from "./utils/operator-notification.js";
 
 const AdminRepublishOpportunityInputSchema = z.object({
   opportunityId: z.ulid(),
@@ -40,6 +47,8 @@ export const makeAdminRepublishOpportunityUseCase =
   (
     opportunityRepository: OpportunityRepository,
     materializedViewRepository: MaterializedViewRepository,
+    profileRepository: ProfileRepository,
+    emailLinks: EmailLinks,
   ): AdminRepublishOpportunityUseCase =>
   async (input) =>
     validateUseCaseInput(AdminRepublishOpportunityInputSchema, input).andThen(
@@ -59,14 +68,31 @@ export const makeAdminRepublishOpportunityUseCase =
               ),
             );
 
-          return new ResultAsync(
-            opportunityRepository.republishById({
-              opportunityId: validatedInput.opportunityId,
-            }),
-          ).andThen(() =>
-            new ResultAsync(materializedViewRepository.refreshAll()).orElse(
-              () => okAsync(undefined),
-            ),
-          );
+          const opportunityName = getOpportunityName(data);
+
+          return buildOperatorMessages(
+            profileRepository,
+            data.operatorId,
+            (to) =>
+              buildOperatorOpportunityRepublishedMessage({
+                links: emailLinks,
+                opportunityName,
+                to,
+              }),
+          )
+            .andThen(
+              (outboxMessages) =>
+                new ResultAsync(
+                  opportunityRepository.republishById({
+                    opportunityId: validatedInput.opportunityId,
+                    outboxMessages,
+                  }),
+                ),
+            )
+            .andThen(() =>
+              new ResultAsync(materializedViewRepository.refreshAll()).orElse(
+                () => okAsync(undefined),
+              ),
+            );
         }),
     );

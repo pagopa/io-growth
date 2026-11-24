@@ -8,7 +8,6 @@ type CONFIG = {
   ANALYTICS_TOKEN: string;
   ANALYTICS_API_HOST: string;
   ANALYTICS_PERSISTENCE: string;
-  ANALYTICS_LOG_IP: string;
   ANALYTICS_DEBUG: string;
 };
 
@@ -33,7 +32,6 @@ export const initAnalytics = (
     deviceId,
     ANALYTICS_API_HOST,
     ANALYTICS_DEBUG,
-    ANALYTICS_LOG_IP,
     ANALYTICS_ENABLE,
     ANALYTICS_PERSISTENCE,
     ANALYTICS_TOKEN,
@@ -49,7 +47,8 @@ export const initAnalytics = (
       cookie_domain: '.ioapp.it', // change this value with your dev domain
       cookie_expiration: 0,
       debug: isEnvConfigEnabled(ANALYTICS_DEBUG),
-      ip: isEnvConfigEnabled(ANALYTICS_LOG_IP),
+      // Prevent Mixpanel from enriching events with IP-derived geolocation.
+      ip: false,
       persistence: ANALYTICS_PERSISTENCE as Persistence,
       secure_cookie: true, // change this value as false if you run in local .env
     });

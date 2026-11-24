@@ -342,18 +342,28 @@ app.register(async (app) => {
   );
   mountOperatorDeleteOpportunityHandler(
     app,
-    makeOperatorDeleteOpportunityUseCase(opportunityRepository),
+    makeOperatorDeleteOpportunityUseCase(
+      opportunityRepository,
+      profileRepository,
+      mailingConfig,
+    ),
   );
   mountOperatorSuspendOpportunityHandler(
     app,
     makeOperatorSuspendOpportunityUseCase(
       opportunityRepository,
       materializedViewRepository,
+      profileRepository,
+      mailingConfig,
     ),
   );
   mountOperatorCancelScheduledSuspensionHandler(
     app,
-    makeOperatorCancelScheduledSuspensionUseCase(opportunityRepository),
+    makeOperatorCancelScheduledSuspensionUseCase(
+      opportunityRepository,
+      profileRepository,
+      mailingConfig,
+    ),
   );
   mountAdminListPendingOnboardingsHandler(
     app,
@@ -414,33 +424,51 @@ app.register(async (app) => {
     makeAdminSuspendOpportunityUseCase(
       opportunityRepository,
       materializedViewRepository,
+      profileRepository,
+      emailLinks,
     ),
   );
   mountAdminRejectOpportunityRepublishHandler(
     app,
-    makeAdminRejectOpportunityRepublishUseCase(opportunityRepository),
+    makeAdminRejectOpportunityRepublishUseCase(
+      opportunityRepository,
+      profileRepository,
+      emailLinks,
+    ),
   );
   mountAdminRepublishOpportunityHandler(
     app,
     makeAdminRepublishOpportunityUseCase(
       opportunityRepository,
       materializedViewRepository,
+      profileRepository,
+      emailLinks,
     ),
   );
   mountOperatorRequestOpportunityRepublishHandler(
     app,
-    makeOperatorRequestOpportunityRepublishUseCase(opportunityRepository),
+    makeOperatorRequestOpportunityRepublishUseCase(
+      opportunityRepository,
+      profileRepository,
+      mailingConfig,
+    ),
   );
   mountOperatorRepublishOpportunityHandler(
     app,
     makeOperatorRepublishOpportunityUseCase(
       opportunityRepository,
       materializedViewRepository,
+      profileRepository,
+      mailingConfig,
     ),
   );
   mountAdminCancelScheduledSuspensionHandler(
     app,
-    makeAdminCancelScheduledSuspensionUseCase(opportunityRepository),
+    makeAdminCancelScheduledSuspensionUseCase(
+      opportunityRepository,
+      profileRepository,
+      emailLinks,
+    ),
   );
 });
 

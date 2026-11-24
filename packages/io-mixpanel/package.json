@@ -1,7 +1,7 @@
 {
   "name": "@pagopa/io-mixpanel",
   "private": true,
-  "version": "1.0.3",
+  "version": "1.0.4",
   "type": "module",
   "main": "dist/mixpanel-lib.umd.js",
   "module": "dist/mixpanel-lib.es.js",
@@ -10,6 +10,7 @@
     "dev": "vite",
     "build": "vite build && tsc",
     "preview": "vite preview",
+    "test": "vitest run",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "format": "prettier --check .",

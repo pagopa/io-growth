@@ -263,6 +263,9 @@ const updateStatusById =
         const result = await tx
           .update(opportunity)
           .set({
+            ...(input.changeRequestMessage === null
+              ? { changeRequestMessage: null }
+              : {}),
             ...(input.dateFrom ? { dateFrom: input.dateFrom } : {}),
             status: input.status,
             updatedAt: new Date(),
@@ -319,6 +322,9 @@ const deleteByIdAndOperatorId =
             ),
           );
         updateCount = result.count;
+        if (updateCount > 0) {
+          await enqueueMessagesInTransaction(tx, input.outboxMessages);
+        }
       });
 
       if (updateCount === 0) {
@@ -341,25 +347,32 @@ const suspendByIdAndOperatorId =
     input: SuspendByIdAndOperatorIdInput,
   ): Promise<Result<void, ConflictError | GenericError>> => {
     try {
-      const result = await db
-        .update(opportunity)
-        .set({
-          ...(input.suspendFrom
-            ? { suspendFrom: input.suspendFrom }
-            : { status: OPPORTUNITY_STATUS.SUSPENDED }),
-          suspendedBy: ACTOR_TYPE.OPERATOR,
-          suspensionMessage: input.suspensionMessage,
-          updatedAt: new Date(),
-        })
-        .where(
-          and(
-            eq(opportunity.id, input.opportunityId),
-            eq(opportunity.operatorId, input.operatorId),
-            eq(opportunity.status, OPPORTUNITY_STATUS.PUBLISHED),
-            isNull(opportunity.suspendFrom),
-          ),
-        );
-      if (result.count === 0) {
+      let updateCount = 0;
+      await db.transaction(async (tx) => {
+        const result = await tx
+          .update(opportunity)
+          .set({
+            ...(input.suspendFrom
+              ? { suspendFrom: input.suspendFrom }
+              : { status: OPPORTUNITY_STATUS.SUSPENDED }),
+            suspendedBy: ACTOR_TYPE.OPERATOR,
+            suspensionMessage: input.suspensionMessage,
+            updatedAt: new Date(),
+          })
+          .where(
+            and(
+              eq(opportunity.id, input.opportunityId),
+              eq(opportunity.operatorId, input.operatorId),
+              eq(opportunity.status, OPPORTUNITY_STATUS.PUBLISHED),
+              isNull(opportunity.suspendFrom),
+            ),
+          );
+        updateCount = result.count;
+        if (updateCount > 0) {
+          await enqueueMessagesInTransaction(tx, input.outboxMessages);
+        }
+      });
+      if (updateCount === 0) {
         return err(
           new ConflictError("Opportunity status was modified concurrently"),
         );
@@ -378,32 +391,40 @@ const cancelScheduledSuspensionByIdAndOperatorId =
     input: CancelScheduledSuspensionByIdAndOperatorIdInput,
   ): Promise<Result<void, ConflictError | GenericError>> => {
     try {
-      const result = await db
-        .update(opportunity)
-        .set({
-          suspendedBy: null,
-          suspendFrom: null,
-          suspensionMessage: null,
-          updatedAt: new Date(),
-        })
-        .where(
-          and(
-            eq(opportunity.id, input.opportunityId),
-            eq(opportunity.operatorId, input.operatorId),
-            eq(opportunity.status, OPPORTUNITY_STATUS.PUBLISHED),
-            isNotNull(opportunity.suspendFrom),
-            // Operators can only cancel their own schedule: a
-            // department-scheduled suspension is out of their reach.
-            eq(opportunity.suspendedBy, ACTOR_TYPE.OPERATOR),
-          ),
-        );
-      if (result.count === 0) {
-        return err(
-          new ConflictError("Opportunity status was modified concurrently"),
-        );
-      }
+      await db.transaction(async (tx) => {
+        const result = await tx
+          .update(opportunity)
+          .set({
+            suspendedBy: null,
+            suspendFrom: null,
+            suspensionMessage: null,
+            updatedAt: new Date(),
+          })
+          .where(
+            and(
+              eq(opportunity.id, input.opportunityId),
+              eq(opportunity.operatorId, input.operatorId),
+              eq(opportunity.status, OPPORTUNITY_STATUS.PUBLISHED),
+              isNotNull(opportunity.suspendFrom),
+              // Operators can only cancel their own schedule: a
+              // department-scheduled suspension is out of their reach.
+              eq(opportunity.suspendedBy, ACTOR_TYPE.OPERATOR),
+            ),
+          );
+
+        if (result.count === 0) {
+          throw new ConflictError(
+            "Opportunity status was modified concurrently",
+          );
+        }
+
+        await enqueueMessagesInTransaction(tx, input.outboxMessages);
+      });
       return ok(undefined);
     } catch (error) {
+      if (error instanceof ConflictError) {
+        return err(error);
+      }
       return err(
         new GenericError(
           `Failed to cancel scheduled suspension: ${String(error)}`,
@@ -418,21 +439,28 @@ const cancelScheduledSuspensionById =
     input: CancelScheduledSuspensionByIdInput,
   ): Promise<Result<void, ConflictError | GenericError>> => {
     try {
-      const result = await db
-        .update(opportunity)
-        .set({
-          suspendedBy: null,
-          suspendFrom: null,
-          suspensionMessage: null,
-          updatedAt: new Date(),
-        })
-        .where(
-          and(
-            eq(opportunity.id, input.opportunityId),
-            eq(opportunity.status, OPPORTUNITY_STATUS.PUBLISHED),
-            isNotNull(opportunity.suspendFrom),
-          ),
-        );
+      const result = await db.transaction(async (tx) => {
+        const result = await tx
+          .update(opportunity)
+          .set({
+            suspendedBy: null,
+            suspendFrom: null,
+            suspensionMessage: null,
+            updatedAt: new Date(),
+          })
+          .where(
+            and(
+              eq(opportunity.id, input.opportunityId),
+              eq(opportunity.status, OPPORTUNITY_STATUS.PUBLISHED),
+              isNotNull(opportunity.suspendFrom),
+              eq(opportunity.suspendFrom, input.expectedSuspendFrom),
+            ),
+          );
+        if (result.count > 0) {
+          await enqueueMessagesInTransaction(tx, input.outboxMessages);
+        }
+        return result;
+      });
       if (result.count === 0) {
         return err(
           new ConflictError("Opportunity status was modified concurrently"),
@@ -475,6 +503,7 @@ const rejectRepublishById =
             "Opportunity status was modified concurrently",
           );
         }
+        await enqueueMessagesInTransaction(tx, input.outboxMessages);
       });
       return ok(undefined);
     } catch (error) {
@@ -519,6 +548,8 @@ const republishById =
             "Opportunity status was modified concurrently",
           );
         }
+
+        await enqueueMessagesInTransaction(tx, input.outboxMessages);
       });
       return ok(undefined);
     } catch (error) {
@@ -562,6 +593,8 @@ const republishByIdAndOperatorId =
             "Opportunity status was modified concurrently",
           );
         }
+
+        await enqueueMessagesInTransaction(tx, input.outboxMessages);
       });
       return ok(undefined);
     } catch (error) {
@@ -645,6 +678,8 @@ const requestRepublishByIdAndOperatorId =
             "Opportunity status was modified concurrently",
           );
         }
+
+        await enqueueMessagesInTransaction(tx, input.outboxMessages);
       });
       return ok(undefined);
     } catch (error) {
@@ -665,22 +700,28 @@ const suspendById =
     input: SuspendByIdInput,
   ): Promise<Result<void, ConflictError | GenericError>> => {
     try {
-      const result = await db
-        .update(opportunity)
-        .set({
-          ...(input.suspendFrom
-            ? { suspendFrom: input.suspendFrom }
-            : { status: OPPORTUNITY_STATUS.SUSPENDED, suspendFrom: null }),
-          suspendedBy: ACTOR_TYPE.DEPARTMENT,
-          suspensionMessage: input.suspensionMessage,
-          updatedAt: new Date(),
-        })
-        .where(
-          and(
-            eq(opportunity.id, input.opportunityId),
-            eq(opportunity.status, OPPORTUNITY_STATUS.PUBLISHED),
-          ),
-        );
+      const result = await db.transaction(async (tx) => {
+        const result = await tx
+          .update(opportunity)
+          .set({
+            ...(input.suspendFrom
+              ? { suspendFrom: input.suspendFrom }
+              : { status: OPPORTUNITY_STATUS.SUSPENDED, suspendFrom: null }),
+            suspendedBy: ACTOR_TYPE.DEPARTMENT,
+            suspensionMessage: input.suspensionMessage,
+            updatedAt: new Date(),
+          })
+          .where(
+            and(
+              eq(opportunity.id, input.opportunityId),
+              eq(opportunity.status, OPPORTUNITY_STATUS.PUBLISHED),
+            ),
+          );
+        if (result.count > 0) {
+          await enqueueMessagesInTransaction(tx, input.outboxMessages);
+        }
+        return result;
+      });
       if (result.count === 0) {
         return err(
           new ConflictError("Opportunity status was modified concurrently"),

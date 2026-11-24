@@ -5,7 +5,15 @@ import { describe, expect, it, vi } from "vitest";
 import type { OpportunityDetail } from "../../../../domain/entities/opportunity.js";
 
 import { makeOperatorCancelScheduledSuspensionUseCase } from "../operator-cancel-scheduled-suspension.use-case.js";
-import { createMockOpportunityRepository, MOCK_OPERATOR_ID } from "./mocks.js";
+import {
+  createMockOpportunityRepository,
+  createMockProfileRepository,
+  MOCK_ADMIN_EMAIL,
+  MOCK_EMAIL_LINKS,
+  MOCK_MAILING_CONFIG,
+  MOCK_OPERATOR_ID,
+  mockProfile,
+} from "./mocks.js";
 
 const MOCK_OPPORTUNITY_ID = "01JVMK3N8XQZP5T6G2WYHAB4CF";
 
@@ -41,11 +49,31 @@ const makeDeps = (overrides?: {
   opportunityRepository?: Partial<
     Parameters<typeof createMockOpportunityRepository>[0]
   >;
+  profile?: typeof mockProfile | undefined;
+  profileLookupFails?: boolean;
 }) => ({
   opportunityRepository: createMockOpportunityRepository(
     overrides?.opportunityRepository,
   ),
+  profileRepository: createMockProfileRepository({
+    getByOperatorId: vi
+      .fn()
+      .mockResolvedValue(
+        overrides?.profileLookupFails
+          ? err(new GenericError("profile down"))
+          : ok(
+              "profile" in (overrides ?? {}) ? overrides?.profile : mockProfile,
+            ),
+      ),
+  }),
 });
+
+const makeUseCase = (deps: ReturnType<typeof makeDeps>) =>
+  makeOperatorCancelScheduledSuspensionUseCase(
+    deps.opportunityRepository,
+    deps.profileRepository,
+    MOCK_MAILING_CONFIG,
+  );
 
 const validInput = {
   operatorId: MOCK_OPERATOR_ID,
@@ -64,9 +92,7 @@ describe("makeOperatorCancelScheduledSuspensionUseCase - happy path", () => {
           .mockResolvedValue(ok(mockOpportunity("2026-08-01"))),
       },
     });
-    const useCase = makeOperatorCancelScheduledSuspensionUseCase(
-      deps.opportunityRepository,
-    );
+    const useCase = makeUseCase(deps);
 
     const result = await useCase(validInput);
 
@@ -76,8 +102,50 @@ describe("makeOperatorCancelScheduledSuspensionUseCase - happy path", () => {
     ).toHaveBeenCalledWith({
       operatorId: MOCK_OPERATOR_ID,
       opportunityId: MOCK_OPPORTUNITY_ID,
+      outboxMessages: [
+        {
+          templateAttributes: {
+            operatorName: mockProfile.displayName,
+            opportunityName: "Discount 20%",
+            ...MOCK_EMAIL_LINKS,
+          },
+          templateId: "ced_admin-opportunity-suspension-cancelled_v1",
+          to: MOCK_ADMIN_EMAIL,
+          type: "template",
+        },
+      ],
     });
+    expect(deps.profileRepository.getByOperatorId).toHaveBeenCalledWith(
+      MOCK_OPERATOR_ID,
+    );
   });
+
+  it.each([
+    ["the operator profile lookup fails", { profileLookupFails: true }],
+    ["the operator has no profile", { profile: undefined }],
+  ])(
+    "should cancel without notifying the department when %s",
+    async (_, overrides) => {
+      const deps = makeDeps({
+        ...overrides,
+        opportunityRepository: {
+          cancelScheduledSuspensionByIdAndOperatorId: vi
+            .fn()
+            .mockResolvedValue(ok(undefined)),
+          findByIdAndOperatorId: vi
+            .fn()
+            .mockResolvedValue(ok(mockOpportunity("2026-08-01"))),
+        },
+      });
+
+      const result = await makeUseCase(deps)(validInput);
+
+      expect(result).toEqual(ok(undefined));
+      expect(
+        deps.opportunityRepository.cancelScheduledSuspensionByIdAndOperatorId,
+      ).toHaveBeenCalledWith({ ...validInput, outboxMessages: [] });
+    },
+  );
 });
 
 describe("makeOperatorCancelScheduledSuspensionUseCase - guard", () => {
@@ -87,9 +155,7 @@ describe("makeOperatorCancelScheduledSuspensionUseCase - guard", () => {
         findByIdAndOperatorId: vi.fn().mockResolvedValue(ok(undefined)),
       },
     });
-    const useCase = makeOperatorCancelScheduledSuspensionUseCase(
-      deps.opportunityRepository,
-    );
+    const useCase = makeUseCase(deps);
 
     const result = await useCase(validInput);
 
@@ -109,9 +175,7 @@ describe("makeOperatorCancelScheduledSuspensionUseCase - guard", () => {
           .mockResolvedValue(ok(mockOpportunity(null))),
       },
     });
-    const useCase = makeOperatorCancelScheduledSuspensionUseCase(
-      deps.opportunityRepository,
-    );
+    const useCase = makeUseCase(deps);
 
     const result = await useCase(validInput);
 
@@ -137,9 +201,7 @@ describe("makeOperatorCancelScheduledSuspensionUseCase - guard", () => {
           .mockResolvedValue(ok(mockOpportunity("2026-08-01", "department"))),
       },
     });
-    const useCase = makeOperatorCancelScheduledSuspensionUseCase(
-      deps.opportunityRepository,
-    );
+    const useCase = makeUseCase(deps);
 
     const result = await useCase(validInput);
 
@@ -174,9 +236,7 @@ describe("makeOperatorCancelScheduledSuspensionUseCase - error propagation", () 
           .mockResolvedValue(ok(mockOpportunity("2026-08-01"))),
       },
     });
-    const useCase = makeOperatorCancelScheduledSuspensionUseCase(
-      deps.opportunityRepository,
-    );
+    const useCase = makeUseCase(deps);
 
     const result = await useCase(validInput);
 
@@ -192,9 +252,7 @@ describe("makeOperatorCancelScheduledSuspensionUseCase - error propagation", () 
         findByIdAndOperatorId: vi.fn().mockResolvedValue(err(repoError)),
       },
     });
-    const useCase = makeOperatorCancelScheduledSuspensionUseCase(
-      deps.opportunityRepository,
-    );
+    const useCase = makeUseCase(deps);
 
     const result = await useCase(validInput);
 
@@ -208,9 +266,7 @@ describe("makeOperatorCancelScheduledSuspensionUseCase - error propagation", () 
 describe("makeOperatorCancelScheduledSuspensionUseCase - input validation", () => {
   it("should return ValidationError when operatorId is not a ULID", async () => {
     const deps = makeDeps();
-    const useCase = makeOperatorCancelScheduledSuspensionUseCase(
-      deps.opportunityRepository,
-    );
+    const useCase = makeUseCase(deps);
 
     const result = await useCase({ ...validInput, operatorId: "invalid" });
 
@@ -224,9 +280,7 @@ describe("makeOperatorCancelScheduledSuspensionUseCase - input validation", () =
 
   it("should return ValidationError when opportunityId is not a ULID", async () => {
     const deps = makeDeps();
-    const useCase = makeOperatorCancelScheduledSuspensionUseCase(
-      deps.opportunityRepository,
-    );
+    const useCase = makeUseCase(deps);
 
     const result = await useCase({
       ...validInput,

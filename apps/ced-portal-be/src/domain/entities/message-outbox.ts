@@ -9,13 +9,37 @@ export const MESSAGE_OUTBOX_STATUS = {
   SENT: "sent",
 } as const;
 
-export const ADMIN_NEW_OPPORTUNITY_TEMPLATE_ID = "ced_admin-new-opportunity_v1";
+export const ADMIN_NEW_OPPORTUNITY_TEMPLATE_ID = "ced_admin-new-opportunity_v2";
+export const ADMIN_OPPORTUNITY_DELETED_TEMPLATE_ID =
+  "ced_admin-opportunity-deleted_v1";
+export const ADMIN_OPPORTUNITY_REPUBLISH_REQUEST_TEMPLATE_ID =
+  "ced_admin-opportunity-republish-request_v1";
+export const ADMIN_OPPORTUNITY_REPUBLISHED_TEMPLATE_ID =
+  "ced_admin-opportunity-republished_v1";
+export const ADMIN_OPPORTUNITY_SUSPENDED_TEMPLATE_ID =
+  "ced_admin-opportunity-suspended_v1";
+export const ADMIN_OPPORTUNITY_SUSPENSION_CANCELLED_TEMPLATE_ID =
+  "ced_admin-opportunity-suspension-cancelled_v1";
+export const ADMIN_REVISE_OPPORTUNITY_TEMPLATE_ID =
+  "ced_admin-revise-opportunity_v1";
 export const OPERATOR_OPPORTUNITY_APPROVED_TEMPLATE_ID =
-  "ced_operator-opportunity-approved_v1";
+  "ced_operator-opportunity-approved_v2";
+export const OPERATOR_OPPORTUNITY_DELETED_TEMPLATE_ID =
+  "ced_operator-opportunity-deleted_v1";
 export const OPERATOR_OPPORTUNITY_PUBLISHED_TEMPLATE_ID =
-  "ced_operator-opportunity-published_v1";
+  "ced_operator-opportunity-published_v2";
 export const OPERATOR_OPPORTUNITY_REJECTED_TEMPLATE_ID =
-  "ced_operator-opportunity-rejected_v1";
+  "ced_operator-opportunity-rejected_v2";
+export const OPERATOR_OPPORTUNITY_REPUBLISHED_TEMPLATE_ID =
+  "ced_operator-opportunity-republished_v1";
+export const OPERATOR_OPPORTUNITY_REPUBLISH_REJECTED_TEMPLATE_ID =
+  "ced_operator-opportunity-republish-rejected_v1";
+export const OPERATOR_OPPORTUNITY_SELF_REPUBLISHED_TEMPLATE_ID =
+  "ced_operator-opportunity-self-republished_v1";
+export const OPERATOR_OPPORTUNITY_SUSPENDED_TEMPLATE_ID =
+  "ced_operator-opportunity-suspended_v1";
+export const OPERATOR_OPPORTUNITY_SUSPENSION_CANCELLED_TEMPLATE_ID =
+  "ced_operator-opportunity-suspension-cancelled_v1";
 
 export const HtmlMessagePayloadSchema = z.object({
   html: z.string().min(1),
@@ -87,6 +111,112 @@ export const buildAdminNewOpportunityMessage = (input: {
   type: "template",
 });
 
+export const buildAdminOpportunityDeletedMessage = (input: {
+  deletionDate: string;
+  deletionMessage: string;
+  links: EmailLinks;
+  operatorName: string;
+  opportunityName: string;
+  to: string;
+}): TemplateMessagePayload => ({
+  templateAttributes: {
+    deletionDate: input.deletionDate,
+    deletionMessage: input.deletionMessage,
+    operatorName: input.operatorName,
+    opportunityName: input.opportunityName,
+    ...input.links,
+  },
+  templateId: ADMIN_OPPORTUNITY_DELETED_TEMPLATE_ID,
+  to: input.to,
+  type: "template",
+});
+
+export const buildAdminOpportunityRepublishedMessage = (input: {
+  links: EmailLinks;
+  operatorName: string;
+  opportunityName: string;
+  to: string;
+}): TemplateMessagePayload => ({
+  templateAttributes: {
+    operatorName: input.operatorName,
+    opportunityName: input.opportunityName,
+    ...input.links,
+  },
+  templateId: ADMIN_OPPORTUNITY_REPUBLISHED_TEMPLATE_ID,
+  to: input.to,
+  type: "template",
+});
+
+export const buildAdminOpportunityRepublishRequestMessage = (input: {
+  links: EmailLinks;
+  operatorName: string;
+  opportunityName: string;
+  republishMessage: string;
+  to: string;
+}): TemplateMessagePayload => ({
+  templateAttributes: {
+    operatorName: input.operatorName,
+    opportunityName: input.opportunityName,
+    republishMessage: input.republishMessage,
+    ...input.links,
+  },
+  templateId: ADMIN_OPPORTUNITY_REPUBLISH_REQUEST_TEMPLATE_ID,
+  to: input.to,
+  type: "template",
+});
+
+export const buildAdminOpportunitySuspensionCancelledMessage = (input: {
+  links: EmailLinks;
+  operatorName: string;
+  opportunityName: string;
+  to: string;
+}): TemplateMessagePayload => ({
+  templateAttributes: {
+    operatorName: input.operatorName,
+    opportunityName: input.opportunityName,
+    ...input.links,
+  },
+  templateId: ADMIN_OPPORTUNITY_SUSPENSION_CANCELLED_TEMPLATE_ID,
+  to: input.to,
+  type: "template",
+});
+
+export const buildAdminOpportunitySuspendedMessage = (input: {
+  links: EmailLinks;
+  operatorName: string;
+  opportunityName: string;
+  suspensionDate: string;
+  suspensionMessage: string;
+  to: string;
+}): TemplateMessagePayload => ({
+  templateAttributes: {
+    operatorName: input.operatorName,
+    opportunityName: input.opportunityName,
+    suspensionDate: input.suspensionDate,
+    suspensionMessage: input.suspensionMessage,
+    ...input.links,
+  },
+  templateId: ADMIN_OPPORTUNITY_SUSPENDED_TEMPLATE_ID,
+  to: input.to,
+  type: "template",
+});
+
+export const buildAdminReviseOpportunityMessage = (input: {
+  links: EmailLinks;
+  operatorName: string;
+  opportunityName: string;
+  to: string;
+}): TemplateMessagePayload => ({
+  templateAttributes: {
+    operatorName: input.operatorName,
+    opportunityName: input.opportunityName,
+    ...input.links,
+  },
+  templateId: ADMIN_REVISE_OPPORTUNITY_TEMPLATE_ID,
+  to: input.to,
+  type: "template",
+});
+
 export const buildOperatorOpportunityApprovedMessage = (input: {
   availabilityDate: string;
   links: EmailLinks;
@@ -103,12 +233,28 @@ export const buildOperatorOpportunityApprovedMessage = (input: {
   type: "template",
 });
 
-export const buildOperatorOpportunityPublishedMessage = (input: {
+export const buildOperatorOpportunityDeletedMessage = (input: {
   links: EmailLinks;
   opportunityName: string;
   to: string;
 }): TemplateMessagePayload => ({
   templateAttributes: {
+    opportunityName: input.opportunityName,
+    ...input.links,
+  },
+  templateId: OPERATOR_OPPORTUNITY_DELETED_TEMPLATE_ID,
+  to: input.to,
+  type: "template",
+});
+
+export const buildOperatorOpportunityPublishedMessage = (input: {
+  availabilityDate: string;
+  links: EmailLinks;
+  opportunityName: string;
+  to: string;
+}): TemplateMessagePayload => ({
+  templateAttributes: {
+    availabilityDate: input.availabilityDate,
     opportunityName: input.opportunityName,
     ...input.links,
   },
@@ -129,6 +275,82 @@ export const buildOperatorOpportunityRejectedMessage = (input: {
     ...input.links,
   },
   templateId: OPERATOR_OPPORTUNITY_REJECTED_TEMPLATE_ID,
+  to: input.to,
+  type: "template",
+});
+
+export const buildOperatorOpportunityRepublishedMessage = (input: {
+  links: EmailLinks;
+  opportunityName: string;
+  to: string;
+}): TemplateMessagePayload => ({
+  templateAttributes: {
+    opportunityName: input.opportunityName,
+    ...input.links,
+  },
+  templateId: OPERATOR_OPPORTUNITY_REPUBLISHED_TEMPLATE_ID,
+  to: input.to,
+  type: "template",
+});
+
+export const buildOperatorOpportunityRepublishRejectedMessage = (input: {
+  links: EmailLinks;
+  opportunityName: string;
+  to: string;
+}): TemplateMessagePayload => ({
+  templateAttributes: {
+    opportunityName: input.opportunityName,
+    ...input.links,
+  },
+  templateId: OPERATOR_OPPORTUNITY_REPUBLISH_REJECTED_TEMPLATE_ID,
+  to: input.to,
+  type: "template",
+});
+
+export const buildOperatorOpportunitySelfRepublishedMessage = (input: {
+  links: EmailLinks;
+  opportunityName: string;
+  to: string;
+}): TemplateMessagePayload => ({
+  templateAttributes: {
+    opportunityName: input.opportunityName,
+    ...input.links,
+  },
+  templateId: OPERATOR_OPPORTUNITY_SELF_REPUBLISHED_TEMPLATE_ID,
+  to: input.to,
+  type: "template",
+});
+
+export const buildOperatorOpportunitySuspendedMessage = (input: {
+  links: EmailLinks;
+  opportunityName: string;
+  suspensionDate: string;
+  suspensionMessage: string;
+  to: string;
+}): TemplateMessagePayload => ({
+  templateAttributes: {
+    opportunityName: input.opportunityName,
+    suspensionDate: input.suspensionDate,
+    suspensionMessage: input.suspensionMessage,
+    ...input.links,
+  },
+  templateId: OPERATOR_OPPORTUNITY_SUSPENDED_TEMPLATE_ID,
+  to: input.to,
+  type: "template",
+});
+
+export const buildOperatorOpportunitySuspensionCancelledMessage = (input: {
+  links: EmailLinks;
+  opportunityName: string;
+  suspensionDate: string;
+  to: string;
+}): TemplateMessagePayload => ({
+  templateAttributes: {
+    opportunityName: input.opportunityName,
+    suspensionDate: input.suspensionDate,
+    ...input.links,
+  },
+  templateId: OPERATOR_OPPORTUNITY_SUSPENSION_CANCELLED_TEMPLATE_ID,
   to: input.to,
   type: "template",
 });

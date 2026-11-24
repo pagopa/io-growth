@@ -20,7 +20,7 @@ export function PageHeader({
   const navigate = useNavigate();
   const theme = useTheme();
   return (
-    <Box sx={{ px: 3, pt: 3, pb: 2 }}>
+    <Box sx={{ px: 3, pt: 5, pb: 2 }}>
       <ButtonBase
         onClick={onBack ?? (() => navigate(-1))}
         sx={{
@@ -40,9 +40,13 @@ export function PageHeader({
 
       {leadingContent && <Box sx={{ mb: 3 }}>{leadingContent}</Box>}
 
-      {title && <Title text={title} variant="MD" />}
+      {title && <Title text={title} variant="LG" fontWeight={700} />}
 
-      {subtitle && <Box sx={{ mt: title ? 0.5 : 0 }}>{subtitle}</Box>}
+      {subtitle && (
+        <Box sx={{ mt: title ? 0.5 : 0, '& p': { fontSize: 18 } }}>
+          {subtitle}
+        </Box>
+      )}
     </Box>
   );
 }

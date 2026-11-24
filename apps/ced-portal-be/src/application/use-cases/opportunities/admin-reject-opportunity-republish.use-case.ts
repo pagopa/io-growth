@@ -12,10 +12,17 @@ import {
 import { errAsync, ResultAsync } from "neverthrow";
 import { z } from "zod";
 
+import type { EmailLinks } from "../../../domain/entities/message-outbox.js";
 import type { OpportunityRepository } from "../../../domain/ports/outbound/persistence/opportunity.repository.js";
+import type { ProfileRepository } from "../../../domain/ports/outbound/persistence/profile.repository.js";
 
+import { buildOperatorOpportunityRepublishRejectedMessage } from "../../../domain/entities/message-outbox.js";
 import { OPPORTUNITY_STATUS } from "../../../domain/entities/opportunity.js";
 import { validateUseCaseInput } from "../utils/validate-use-case-input.js";
+import {
+  buildOperatorMessages,
+  getOpportunityName,
+} from "./utils/operator-notification.js";
 
 const AdminRejectOpportunityRepublishInputSchema = z.object({
   opportunityId: z.ulid(),
@@ -39,6 +46,8 @@ export type AdminRejectOpportunityRepublishUseCase = UseCase<
 export const makeAdminRejectOpportunityRepublishUseCase =
   (
     opportunityRepository: OpportunityRepository,
+    profileRepository: ProfileRepository,
+    emailLinks: EmailLinks,
   ): AdminRejectOpportunityRepublishUseCase =>
   async (input) =>
     validateUseCaseInput(
@@ -67,11 +76,22 @@ export const makeAdminRejectOpportunityRepublishUseCase =
             ),
           );
 
-        return new ResultAsync(
-          opportunityRepository.rejectRepublishById({
-            opportunityId: validatedInput.opportunityId,
-            republishRejectionMessage: validatedInput.republishRejectionMessage,
+        return buildOperatorMessages(profileRepository, data.operatorId, (to) =>
+          buildOperatorOpportunityRepublishRejectedMessage({
+            links: emailLinks,
+            opportunityName: getOpportunityName(data),
+            to,
           }),
+        ).andThen(
+          (outboxMessages) =>
+            new ResultAsync(
+              opportunityRepository.rejectRepublishById({
+                opportunityId: validatedInput.opportunityId,
+                outboxMessages,
+                republishRejectionMessage:
+                  validatedInput.republishRejectionMessage,
+              }),
+            ),
         );
       }),
     );

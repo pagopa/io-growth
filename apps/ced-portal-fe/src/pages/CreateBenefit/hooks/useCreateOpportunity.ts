@@ -10,10 +10,12 @@ import {
 import { useToast } from '../../../contexts';
 import { useCallback } from 'react';
 import {
+  selectAccessPoint,
   selectSelectedLocationIds,
   selectSelectedWebsiteIds,
 } from '../../../features/places/selectors';
 import { hasStatus } from '../../../core/api/baseApi';
+import { getPlacesPayload } from '../utils/getPlacesPayload';
 
 type UpsertOptions = {
   isDraft?: boolean;
@@ -27,7 +29,7 @@ const typedObjectEntries = <T extends Record<PropertyKey, unknown>>(
 ): Array<[keyof T, T[keyof T]]> =>
   Object.entries(object) as Array<[keyof T, T[keyof T]]>;
 
-const getApiErrorMessage = (error: unknown) => {
+export const getApiErrorMessage = (error: unknown) => {
   if (hasStatus(error, 409)) {
     return 'È già in corso una modifica dell’opportunità. Riprova più tardi.';
   }
@@ -85,6 +87,7 @@ export const useCreateOpportunity = () => {
 
   const locationsIds = useAppSelector(selectSelectedLocationIds);
   const websiteIds = useAppSelector(selectSelectedWebsiteIds);
+  const accessPoint = useAppSelector(selectAccessPoint);
 
   const { showToast } = useToast();
 
@@ -117,14 +120,22 @@ export const useCreateOpportunity = () => {
 
       const normalizedUrl = opportunity.url?.trim() || undefined;
 
-      const payload: OpportunityCreateRequest = {
-        ...opportunity,
-        url: normalizedUrl,
-        placeIds: [...locationsIds, ...websiteIds],
-        localizedMetadata,
-      };
-
       try {
+        const { placeIds, nationalTerritory } = getPlacesPayload({
+          accessPoint,
+          nationalTerritory: opportunity.nationalTerritory,
+          locationIds: locationsIds,
+          websiteIds,
+        });
+
+        const payload: OpportunityCreateRequest = {
+          ...opportunity,
+          url: normalizedUrl,
+          nationalTerritory,
+          placeIds,
+          localizedMetadata,
+        };
+
         if (!sourceOpportunityId) {
           const data = await createOpportunity(payload).unwrap();
 
@@ -146,8 +157,8 @@ export const useCreateOpportunity = () => {
         const updatePayload: OpportunityUpdatePayload = {
           ...payload,
           url: normalizedUrl,
-          nationalTerritory: opportunity.nationalTerritory ?? false,
-          placeIds: [...locationsIds, ...websiteIds],
+          nationalTerritory: nationalTerritory ?? false,
+          placeIds,
           updatedAt: sourceOpportunityUpdatedAt,
         };
 
@@ -172,6 +183,7 @@ export const useCreateOpportunity = () => {
       }
     },
     [
+      accessPoint,
       createOpportunity,
       locationsIds,
       opportunity,

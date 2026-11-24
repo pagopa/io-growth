@@ -13,6 +13,7 @@ import * as schema from "./schema/index.js";
 import { opportunity } from "./schema/tables.js";
 
 interface VisibleOpportunityRow extends Record<string, unknown> {
+  availabilityDate: string;
   email: string;
   id: string;
   name: string;
@@ -29,6 +30,7 @@ export const createDrizzleOpportunityNotificationRepository = (
         // is checked too: the reset trigger would otherwise undo the flag below.
         const rows = await tx.execute<VisibleOpportunityRow>(sql`
           SELECT
+            to_char(o.date_from, 'DD/MM/YYYY') AS "availabilityDate",
             o.id::text AS id,
             p.contact_email AS email,
             COALESCE(
@@ -54,6 +56,7 @@ export const createDrizzleOpportunityNotificationRepository = (
           tx,
           rows.map((row) =>
             buildOperatorOpportunityPublishedMessage({
+              availabilityDate: row.availabilityDate,
               links: emailLinks,
               opportunityName: row.name,
               to: row.email,

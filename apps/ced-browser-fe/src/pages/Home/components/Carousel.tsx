@@ -232,7 +232,8 @@ export const Carousel = ({ list }: CarouselProps) => {
           direction="row"
           alignItems="center"
           spacing={0.5}
-          aria-hidden="true"
+          role="group"
+          aria-label="Indicatori di pagina del carosello"
         >
           {list.map((_, idx) => (
             <StyledDots
@@ -240,7 +241,7 @@ export const Carousel = ({ list }: CarouselProps) => {
               type="button"
               onClick={() => onClickDots(idx)}
               className={activeIdx === idx ? 'active' : 'inactive'}
-              tabIndex={-1}
+              aria-label={`Indicatore ${idx + 1} di ${list.length}${activeIdx === idx ? ', selezionato' : ''}`}
             />
           ))}
         </Stack>

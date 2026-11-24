@@ -192,7 +192,7 @@ export function EntitiesSearch({
     );
   };
   return (
-    <Box role="search" aria-label="Ricerca opportunità">
+    <Box role="search" aria-label="Ricerca enti e strutture">
       <Box
         component="header"
         sx={{

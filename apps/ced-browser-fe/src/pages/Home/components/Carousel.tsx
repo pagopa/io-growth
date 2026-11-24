@@ -181,7 +181,10 @@ export const Carousel = ({ list }: CarouselProps) => {
         aria-roledescription="carousel"
         aria-label="Carosello partner in primo piano"
       >
-        <PartnerCard {...list[0]} />
+        <PartnerCard
+          {...list[0]}
+          accessibilityLabel={`${list[0].title}, 1 su 1`}
+        />
       </CarouselContainer>
     );
 
@@ -201,7 +204,11 @@ export const Carousel = ({ list }: CarouselProps) => {
               aria-hidden={isLoopDuplicate ? true : undefined}
               onFocus={() => handleSlideFocus(idx, isLoopDuplicate)}
             >
-              <PartnerCard {...item} isInert={isLoopDuplicate} />
+              <PartnerCard
+                {...item}
+                isInert={isLoopDuplicate}
+                accessibilityLabel={`${item.title}, ${mapExtendedToRealIndex(idx) + 1} su ${list.length}`}
+              />
             </SlideBox>
           );
         })}

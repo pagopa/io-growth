@@ -47,9 +47,6 @@ export const CompanionAvailabilityRadioGroup = ({
     <Box>
       <RadioGroup
         aria-label="Hai diritto all'accompagnatore?"
-        aria-describedby={
-          hasError ? COMPANION_AVAILABILITY_ERROR_ID : undefined
-        }
         aria-invalid={hasError || undefined}
         aria-required="true"
         name="dirittoAccompagnatore"

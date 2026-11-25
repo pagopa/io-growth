@@ -37,8 +37,6 @@ import { DraftChoice } from './DraftChoice';
 import { visuallyHidden } from '../../utils/visuallyHidden.js';
 
 const LOADING_MESSAGE = 'Attendi qualche secondo';
-const VALIDATION_MESSAGE =
-  'Non puoi proseguire. Controlla gli errori in questo passaggio.';
 
 const steps = [
   {
@@ -166,12 +164,7 @@ export default function CardRequestFlowPage() {
         aria-atomic="true"
         sx={visuallyHidden}
       >
-        {isLoading
-          ? LOADING_MESSAGE
-          : visibleStep !== null &&
-            failedValidationAttempts > 0 && (
-              <span key={failedValidationAttempts}>{VALIDATION_MESSAGE}</span>
-            )}
+        {isLoading ? LOADING_MESSAGE : null}
       </Box>
       {content}
     </>
@@ -220,6 +213,10 @@ export default function CardRequestFlowPage() {
             'input[type="radio"]:not(:disabled)',
           )
         : invalidField;
+    if (focusTarget === document.activeElement) {
+      // Re-trigger focus when assistive technology leaves DOM focus on this control.
+      focusTarget?.blur();
+    }
     focusTarget?.focus();
   }, [failedValidationAttempts]);
 

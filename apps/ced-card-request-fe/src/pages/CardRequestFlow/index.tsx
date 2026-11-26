@@ -213,11 +213,14 @@ export default function CardRequestFlowPage() {
             'input[type="radio"]:not(:disabled)',
           )
         : invalidField;
+    if (!focusTarget) return;
     if (focusTarget === document.activeElement) {
       // Re-trigger focus when assistive technology leaves DOM focus on this control.
-      focusTarget?.blur();
+      focusTarget.blur();
     }
-    focusTarget?.focus();
+    // Defer the focus to the next frame so assistive technology registers the change after the blur.
+    const frame = requestAnimationFrame(() => focusTarget.focus());
+    return () => cancelAnimationFrame(frame);
   }, [failedValidationAttempts]);
 
   useEffect(() => {

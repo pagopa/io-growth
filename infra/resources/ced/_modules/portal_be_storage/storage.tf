@@ -3,7 +3,7 @@
 ###
 module "portal_be_storage" {
   source  = "pagopa-dx/azure-storage-account/azurerm"
-  version = "~> 4.1"
+  version = "~> 6.0"
 
   environment = {
     prefix          = var.prefix

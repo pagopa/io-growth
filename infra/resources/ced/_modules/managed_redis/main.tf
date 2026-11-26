@@ -1,6 +1,6 @@
 module "azure_managed_redis" {
   source  = "pagopa-dx/azure-managed-redis/azurerm"
-  version = "~> 0.1"
+  version = "~> 3.0"
 
   environment         = var.environment
   resource_group_name = var.resource_group_name

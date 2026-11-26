@@ -35,7 +35,7 @@ resource "azurerm_resource_group" "data_rg" {
 
 module "azure_core_values" {
   source  = "pagopa-dx/azure-core-values-exporter/azurerm"
-  version = "~> 0.0"
+  version = "~> 3.0"
 
   core_state = local.core_state
 }

@@ -1,6 +1,6 @@
 module "postgres_server" {
   source  = "pagopa-dx/azure-postgres-server/azurerm"
-  version = "~> 3.0"
+  version = "~> 6.0"
 
   environment         = var.environment
   resource_group_name = var.resource_group_name

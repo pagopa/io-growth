@@ -1,6 +1,6 @@
 module "azure-PROD-CED_core_values" {
   source  = "pagopa-dx/azure-core-values-exporter/azurerm"
-  version = "~> 0.0"
+  version = "~> 3.0"
 
   providers = {
     azurerm = azurerm.PROD-CED
@@ -17,7 +17,7 @@ module "azure-PROD-CED_core_values" {
 
 module "azure-PROD-CED_bootstrap" {
   source  = "pagopa-dx/azure-github-environment-bootstrap/azurerm"
-  version = "~> 4.0"
+  version = "~> 7.0"
 
   providers = {
     azurerm = azurerm.PROD-CED

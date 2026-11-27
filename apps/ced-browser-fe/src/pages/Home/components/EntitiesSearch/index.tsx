@@ -22,6 +22,7 @@ import { SearchResultsSkeleton } from './SearchResultsSkeleton';
 import { PlaceSearchItem } from '../../../../generated/model';
 import { RecentSearches } from './RecentSearches';
 import { trackBrowserEvent } from '../../../../mixpanel/trackEvent';
+import { trackSearchResultTapped } from './trackSearchResultTapped';
 
 type EntitiesSearchProps = {
   isSearchActive: boolean;
@@ -106,13 +107,7 @@ export function EntitiesSearch({
           JSON.stringify(updatedRecentSearches),
         );
       }
-      trackBrowserEvent('CED_SEARCH_RESULTS_TAPPED', {
-        type: selectedItem?.type,
-        location_name: selectedItem?.name,
-        organization_name: selectedItem?.entityId,
-        // The API currently returns the entity identifier rather than the display name.
-        city_name: selectedItem?.address?.city,
-      });
+      trackSearchResultTapped(selectedItem);
       if (selectedItem?.type === 'profile' && selectedItem.entityId) {
         navigate(toEntityDetailRoute(selectedItem.entityId), {
           state: { source: 'search_result' },

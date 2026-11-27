@@ -16,36 +16,52 @@ import { trackBrowserEvent } from '../../mixpanel/trackEvent';
 
 interface EuropeanOpportunity {
   country: string;
+  lang: string;
+  targetLang?: string;
   url: string;
 }
 
 const opportunities: EuropeanOpportunity[] = [
   {
     country: 'Belgio',
+    lang: 'en',
+    targetLang: 'inglese',
     url: 'https://eudisabilitycard.be/en',
   },
   {
     country: 'Finlandia',
+    lang: 'en',
+    targetLang: 'inglese',
     url: 'https://vammaiskortti.fi/en/frontpage/',
   },
   {
     country: 'Estonia',
+    lang: 'en',
+    targetLang: 'inglese',
     url: 'https://www.eesti.ee/eraisik/en/artikkel/disabled-people/determination-of-disability/disability-card',
   },
   {
     country: 'Cipro',
+    lang: 'en',
+    targetLang: 'inglese',
     url: 'https://www.eudisabilitycard.gov.cy/en/home',
   },
   {
     country: 'Malta',
+    lang: 'en',
+    targetLang: 'inglese',
     url: 'https://www.eudisabilitycard.org.mt/',
   },
   {
     country: 'Romania',
+    lang: 'en',
+    targetLang: 'inglese',
     url: 'http://www.dizab.eurocard.gov.ro/?lang=en',
   },
   {
     country: 'Slovenia',
+    lang: 'en',
+    targetLang: 'inglese',
     url: 'https://invalidska-kartica.si/en/',
   },
 ];
@@ -92,15 +108,16 @@ export default function EuropeanOpportunitiesPage() {
       />
       <Box sx={{ px: 2 }}>
         <List disablePadding>
-          {opportunities.map(({ url, country }, index) => (
+          {opportunities.map(({ url, country, lang, targetLang }, index) => (
             <Box key={country}>
               <ListItem disablePadding>
                 <ListItemButton
                   component="a"
                   href={url}
+                  hrefLang={lang}
                   target="_blank"
                   rel="noopener noreferrer"
-                  aria-label={`${country}, si apre in una risorsa esterna`}
+                  aria-label={`${country}, si apre in una risorsa esterna${targetLang ? ` in ${targetLang}` : ''}`}
                   onClick={(event) => {
                     event.preventDefault();
                     euOpportunityClick({ url, country });

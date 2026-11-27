@@ -1,6 +1,7 @@
 import { Check } from '@mui/icons-material';
 import { Box, Button, useTheme } from '@mui/material';
-import { Title, VSpacer } from '@pagopa/io-core-ui';
+import { VSpacer } from '@pagopa/io-core-ui';
+import { FocusedNoticeTitle } from '../../components/FlowNotice/index.js';
 import { MarkdownRenderer } from '../../components/Typography/MarkdownRender';
 import { CopyToClipboardButton } from '../../components';
 import { useAppSelector } from '../../hooks';
@@ -65,7 +66,7 @@ Il numero identificativo della pratica non è disponibile al momento.`;
           />
         </Box>
 
-        <Title variant="MD" text="Richiesta inviata!" />
+        <FocusedNoticeTitle text="Richiesta inviata!" />
         <VSpacer size={8} />
         <MarkdownRenderer content={markdownContent} />
         <VSpacer size={32} />

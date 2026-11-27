@@ -1,7 +1,8 @@
 import CheckRoundedIcon from '@mui/icons-material/CheckRounded';
 import { Box, Button, useTheme } from '@mui/material';
-import { Body, MobileSpinnerLoader, Title, VSpacer } from '@pagopa/io-core-ui';
+import { Body, MobileSpinnerLoader, VSpacer } from '@pagopa/io-core-ui';
 import { useEffect, useState } from 'react';
+import { FocusedNoticeTitle } from '../../components/FlowNotice/index.js';
 
 interface SavedDraftDialogProps {
   onClose: () => void;
@@ -59,10 +60,7 @@ export function SavedDraftDialog({
       <VSpacer size={8} />
 
       <Box sx={{ maxWidth: 270, textAlign: 'center' }}>
-        <Title
-          text="Abbiamo salvato una bozza della tua richiesta"
-          variant="MD"
-        />
+        <FocusedNoticeTitle text="Abbiamo salvato una bozza della tua richiesta" />
         <VSpacer size={8} />
         <Body>Torna più tardi e riparti da dove avevi lasciato.</Body>
       </Box>

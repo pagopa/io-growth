@@ -70,6 +70,7 @@ export const AppRadioList = ({
   itemSx,
   labelPlacement,
   divider,
+  'aria-describedby': describedBy,
   ...props
 }: AppRadioListProps) => (
   <RadioGroup
@@ -83,7 +84,13 @@ export const AppRadioList = ({
           value={option.value}
           label={option.label}
           labelPlacement={labelPlacement}
-          control={<Radio icon={uncheckedIcon} checkedIcon={checkedIcon} />}
+          control={
+            <Radio
+              icon={uncheckedIcon}
+              checkedIcon={checkedIcon}
+              inputProps={{ 'aria-describedby': describedBy }}
+            />
+          }
           sx={itemSx}
         />
       </Box>

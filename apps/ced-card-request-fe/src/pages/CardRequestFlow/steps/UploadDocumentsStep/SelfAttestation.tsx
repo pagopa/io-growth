@@ -6,14 +6,18 @@ import { CompanionAvailabilityRadioGroup } from './CompanionAvailabilityRadioGro
 import { AppDatePicker, AppSelect, AppTextField } from '../../../../components';
 import { useAttestationDataForm, validateAttestationField } from './constants';
 import type { StepRef } from '../../types';
-import { useToast } from '../../../../contexts';
-import { makeSelectConfirmationField } from '../../../../features/confirmation/reducer';
+import {
+  makeSelectConfirmationField,
+  type ConfirmationFormState,
+} from '../../../../features/confirmation/reducer.js';
 import { useAppSelector } from '../../../../hooks';
+
+type FieldErrors = Partial<Record<keyof ConfirmationFormState, string>>;
 
 export const SelfAttestation = forwardRef<StepRef>(
   function SelfAttestation(_, ref) {
     const attestationForm = useAttestationDataForm();
-    const { showToast } = useToast();
+    const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
     const selectedCompanionValue = useAppSelector(makeSelectConfirmationField)(
       'dirittoAccompagnatore',
     );
@@ -21,29 +25,22 @@ export const SelfAttestation = forwardRef<StepRef>(
 
     useImperativeHandle(ref, () => ({
       validate: () => {
+        const errors: FieldErrors = {};
         for (const item of attestationForm) {
           const error = validateAttestationField(
             item.value,
             item.field,
             item.rules,
           );
-          if (error) {
-            showToast('Completa le informazioni per continuare', 'error');
-            return false;
-          }
+          if (error) errors[item.field] = error;
         }
 
-        if (
-          selectedCompanionValue === null ||
-          selectedCompanionValue === undefined
-        ) {
-          setCompanionError('* Campo obbligatorio');
-          showToast('Completa le informazioni per continuare', 'error');
-          return false;
-        }
-
-        setCompanionError(undefined);
-        return true;
+        const missingCompanion = selectedCompanionValue == null;
+        setFieldErrors(errors);
+        setCompanionError(
+          missingCompanion ? '* Campo obbligatorio' : undefined,
+        );
+        return Object.keys(errors).length === 0 && !missingCompanion;
       },
     }));
 
@@ -61,11 +58,20 @@ export const SelfAttestation = forwardRef<StepRef>(
               ({ field, type, rules, onChange, ...rest }) => {
                 const handleChange = (e: { target: { value: unknown } }) => {
                   onChange(e);
+                  setFieldErrors((previous) => ({
+                    ...previous,
+                    [field]: undefined,
+                  }));
+                };
+                const errorProps = {
+                  error: !!fieldErrors[field],
+                  helperText: fieldErrors[field],
                 };
                 if (type === 'date') {
                   return (
                     <AppDatePicker
                       key={field}
+                      {...errorProps}
                       required={rules?.required}
                       onChange={(value) => handleChange({ target: { value } })}
                       {...rest}
@@ -76,6 +82,7 @@ export const SelfAttestation = forwardRef<StepRef>(
                   return (
                     <AppSelect
                       key={field}
+                      {...errorProps}
                       required={rules?.required}
                       onChange={handleChange}
                       {...rest}
@@ -85,6 +92,7 @@ export const SelfAttestation = forwardRef<StepRef>(
                 return (
                   <AppTextField
                     key={field}
+                    {...errorProps}
                     required={rules?.required}
                     onChange={handleChange}
                     {...rest}

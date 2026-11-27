@@ -1,6 +1,6 @@
 import { Box, Button, useTheme } from '@mui/material';
 import { Body, MobileSpinnerLoader, VSpacer } from '@pagopa/io-core-ui';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { APP_ROUTES } from '../../app/routeConfig';
 import { PageHeader, Stepper } from '../../components';
@@ -34,6 +34,9 @@ import { selectStatusUser } from '../../features/status/selectors';
 import { resetForm as resetConfirmationForm } from '../../features/confirmation/reducer';
 import { isNetworkError } from '../../utils/apiError';
 import { DraftChoice } from './DraftChoice';
+import { visuallyHidden } from '../../utils/visuallyHidden.js';
+
+const LOADING_MESSAGE = 'Attendi qualche secondo';
 
 const steps = [
   {
@@ -100,7 +103,10 @@ export default function CardRequestFlowPage() {
   const [currentStep, setCurrentStep] = useState(state?.step ?? 0);
   const [draftSaved, setDraftSaved] = useState(false);
   const [chooseDraft, setChooseDraft] = useState(state?.chooseDraft ?? false);
+  const [failedValidationAttempts, setFailedValidationAttempts] = useState(0);
   const stepRef = useRef<StepRef | null>(null);
+  const stepHeadingRef = useRef<HTMLHeadingElement>(null);
+  const stepFieldsRef = useRef<HTMLDivElement>(null);
   const recoveredPhotoPreview = useAppSelector(selectPhotoPreview);
   const [photoPreview, setPhotoPreview] = useState<string>(
     recoveredPhotoPreview ?? '',
@@ -140,6 +146,30 @@ export default function CardRequestFlowPage() {
     resetConfirm,
   } = useSaveDataByStep(goNextStep);
 
+  const visibleStep =
+    isLoading ||
+    isDraftError ||
+    isPhotoError ||
+    isConfirmError ||
+    chooseDraft ||
+    draftSaved
+      ? null
+      : currentStep;
+
+  const withStatus = (content: ReactNode) => (
+    <>
+      <Box
+        role="status"
+        aria-live="polite"
+        aria-atomic="true"
+        sx={visuallyHidden}
+      >
+        {isLoading ? LOADING_MESSAGE : null}
+      </Box>
+      {content}
+    </>
+  );
+
   const handleBack = () => {
     trackCardRequestEvent('CED_CARD_REQUEST_BACK', {
       event_type: 'tap',
@@ -165,6 +195,35 @@ export default function CardRequestFlowPage() {
   }, [currentStep]);
 
   useEffect(() => {
+    setFailedValidationAttempts(0);
+    if (visibleStep !== null) {
+      stepHeadingRef.current?.focus();
+    }
+  }, [visibleStep]);
+
+  useEffect(() => {
+    if (!failedValidationAttempts) return;
+
+    const invalidField = stepFieldsRef.current?.querySelector<HTMLElement>(
+      '[aria-invalid="true"]:not([aria-hidden="true"]):not(:disabled):not([aria-disabled="true"])',
+    );
+    const focusTarget =
+      invalidField?.getAttribute('role') === 'radiogroup'
+        ? invalidField.querySelector<HTMLInputElement>(
+            'input[type="radio"]:not(:disabled)',
+          )
+        : invalidField;
+    if (!focusTarget) return;
+    if (focusTarget === document.activeElement) {
+      // Re-trigger focus when assistive technology leaves DOM focus on this control.
+      focusTarget.blur();
+    }
+    // Defer the focus to the next frame so assistive technology registers the change after the blur.
+    const frame = requestAnimationFrame(() => focusTarget.focus());
+    return () => cancelAnimationFrame(frame);
+  }, [failedValidationAttempts]);
+
+  useEffect(() => {
     requestAnimationFrame(() => {
       window.scrollTo({
         top: 0,
@@ -178,11 +237,13 @@ export default function CardRequestFlowPage() {
   }
 
   if (isLoading) {
-    return <MobileSpinnerLoader title="Attendi qualche secondo" fullscreen />;
+    return withStatus(
+      <MobileSpinnerLoader title={LOADING_MESSAGE} fullscreen />,
+    );
   }
 
   if (isDraftError) {
-    return (
+    return withStatus(
       <GenericError
         errorCode={draftErrorCode}
         title="Non è stato possibile salvare i dati"
@@ -192,14 +253,14 @@ export default function CardRequestFlowPage() {
         moreInfoLabel="Scopri di più"
         onRetry={saveFirstDraftData}
         onClose={resetDraft}
-      />
+      />,
     );
   }
   if (isPhotoError) {
     const isPhotoValidationError =
       photoErrorCode?.length &&
       photoErrorCode.every((code) => code >= 904 && code <= 911);
-    return (
+    return withStatus(
       <GenericError
         errorCode={photoErrorCode}
         title="Non è stato possibile salvare la foto"
@@ -216,11 +277,11 @@ export default function CardRequestFlowPage() {
           }
           resetPhoto();
         }}
-      />
+      />,
     );
   }
   if (isConfirmError) {
-    return (
+    return withStatus(
       <GenericError
         errorCode={confirmErrorCode}
         title="Non è stato possibile salvare i dati"
@@ -228,12 +289,12 @@ export default function CardRequestFlowPage() {
         network={isNetworkError(confirmError)}
         onRetry={confirmRequest}
         onClose={resetConfirm}
-      />
+      />,
     );
   }
 
   if (chooseDraft) {
-    return (
+    return withStatus(
       <DraftChoice
         onResume={() => setChooseDraft(false)}
         onNew={() => {
@@ -245,23 +306,27 @@ export default function CardRequestFlowPage() {
           setCurrentStep(0);
           setChooseDraft(false);
         }}
-      />
+      />,
     );
   }
 
   if (draftSaved) {
-    return (
+    return withStatus(
       <SavedDraftDialog
         onClose={() => navigate(APP_ROUTES.HOME)}
         onResume={() => setDraftSaved(false)}
-      />
+      />,
     );
   }
 
   const handleNext = async () => {
     if (stepRef.current) {
       const isValid = await stepRef.current.validate();
-      if (!isValid) return;
+      if (!isValid) {
+        setFailedValidationAttempts((attempts) => attempts + 1);
+        return;
+      }
+      setFailedValidationAttempts(0);
       trackCardRequestEvent('CED_CARD_REQUEST_STEP_COMPLETED', {
         event_type: 'tap',
         ...stepProperties(currentStep),
@@ -293,7 +358,7 @@ export default function CardRequestFlowPage() {
     await confirmRequest();
   };
 
-  return (
+  return withStatus(
     <Box
       sx={{
         minHeight: '100dvh',
@@ -307,21 +372,37 @@ export default function CardRequestFlowPage() {
       />
 
       <VSpacer size={16} />
-      <Box sx={{ px: 3, '& > p': { fontSize: 18 } }}>
-        <Body fontWeight="Semibold">{title}</Body>
+      <Box sx={{ px: 3 }}>
+        <Box
+          key={currentStep}
+          component="h2"
+          ref={stepHeadingRef}
+          tabIndex={-1}
+          sx={{
+            m: 0,
+            fontSize: '18px',
+            lineHeight: '24px',
+            fontWeight: 600,
+            color: theme.palette.common.neutralBlack,
+          }}
+        >
+          {title}
+        </Box>
         <Stepper
           activeStep={getDisplayedStep(currentStep)}
           totalSteps={TOTAL_STEPS}
         />
-        <StepContent
-          ref={stepRef}
-          onEditApplicant={() => setCurrentStep(0)}
-          onEditAddress={() => setCurrentStep(1)}
-          onEditPhoto={() => setCurrentStep(2)}
-          onEditJudgment={() => setCurrentStep(4)}
-          onPhotoPreviewChange={(url: string) => setPhotoPreview(url)}
-          photoPreview={photoPreview}
-        />
+        <Box ref={stepFieldsRef}>
+          <StepContent
+            ref={stepRef}
+            onEditApplicant={() => setCurrentStep(0)}
+            onEditAddress={() => setCurrentStep(1)}
+            onEditPhoto={() => setCurrentStep(2)}
+            onEditJudgment={() => setCurrentStep(4)}
+            onPhotoPreviewChange={(url: string) => setPhotoPreview(url)}
+            photoPreview={photoPreview}
+          />
+        </Box>
       </Box>
 
       <Box
@@ -372,6 +453,6 @@ export default function CardRequestFlowPage() {
           </Button>
         )}
       </Box>
-    </Box>
+    </Box>,
   );
 }

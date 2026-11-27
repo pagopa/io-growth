@@ -12,7 +12,6 @@ import {
   setField,
 } from '../../../../features/confirmation/reducer';
 import { useAppDispatch, useAppSelector } from '../../../../hooks';
-import { useEffect, useRef } from 'react';
 
 const YES_NO_OPTIONS = [
   {
@@ -36,25 +35,19 @@ export const CompanionAvailabilityRadioGroup = ({
   helperText,
 }: CompanionAvailabilityRadioGroupProps) => {
   const dispatch = useAppDispatch();
-  const firstRadioRef = useRef<HTMLInputElement>(null);
   const selectedValue = useAppSelector(makeSelectConfirmationField)(
     'dirittoAccompagnatore',
   );
   const currentValue =
     selectedValue === true ? 'yes' : selectedValue === false ? 'no' : '';
 
-  useEffect(() => {
-    if (error) {
-      firstRadioRef.current?.focus();
-    }
-  }, [error]);
+  const hasError = error && currentValue === '';
 
   return (
     <Box>
       <RadioGroup
         aria-label="Hai diritto all'accompagnatore?"
-        aria-describedby={error ? COMPANION_AVAILABILITY_ERROR_ID : undefined}
-        aria-invalid={error || undefined}
+        aria-invalid={hasError || undefined}
         aria-required="true"
         name="dirittoAccompagnatore"
         value={currentValue}
@@ -75,7 +68,11 @@ export const CompanionAvailabilityRadioGroup = ({
               control={
                 <Radio
                   disableRipple
-                  inputRef={index === 0 ? firstRadioRef : undefined}
+                  inputProps={{
+                    'aria-describedby': hasError
+                      ? COMPANION_AVAILABILITY_ERROR_ID
+                      : undefined,
+                  }}
                   icon={
                     <Box
                       sx={{
@@ -152,7 +149,7 @@ export const CompanionAvailabilityRadioGroup = ({
           </Box>
         ))}
       </RadioGroup>
-      {error && helperText && (
+      {hasError && helperText && (
         <FormHelperText
           id={COMPANION_AVAILABILITY_ERROR_ID}
           error

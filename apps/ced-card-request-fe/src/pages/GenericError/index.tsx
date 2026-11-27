@@ -1,11 +1,15 @@
 import { ArrowBack, PriorityHigh } from '@mui/icons-material';
 import { Box, Button, ButtonBase, useTheme } from '@mui/material';
 import type { SvgIconComponent } from '@mui/icons-material';
-import { Body, Title, VSpacer } from '@pagopa/io-core-ui';
+import { Body, VSpacer } from '@pagopa/io-core-ui';
 import { useCallback, useMemo, type ReactNode } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { CopyToClipboardButton } from '../../components/CopyToClipboardButton';
-import { NoticeIcon, NoticeLayout } from '../../components/FlowNotice';
+import {
+  FocusedNoticeTitle,
+  NoticeIcon,
+  NoticeLayout,
+} from '../../components/FlowNotice/index.js';
 import maintenanceIcon from '../../components/FlowNotice/maintenance.svg';
 import { useTrackErrorEvent } from '../../mixpanel/useTrackErrorEvent';
 import { GENERIC_ERROR_CONFIG } from './constants';
@@ -217,7 +221,7 @@ export default function GenericError({
       <NoticeLayout>
         <NoticeIcon icon={ErrorIcon} />
 
-        <Title variant="MD" text={content.title} />
+        <FocusedNoticeTitle text={content.title} />
         <VSpacer size={8} />
         {typeof content.description === 'string' ? (
           <Body>{content.description}</Body>

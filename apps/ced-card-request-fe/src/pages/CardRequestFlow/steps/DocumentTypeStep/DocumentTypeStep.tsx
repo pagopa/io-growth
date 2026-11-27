@@ -1,6 +1,12 @@
 import { Box, FormControl } from '@mui/material';
 import { Body, ErrorBody, Title, VSpacer } from '@pagopa/io-core-ui';
-import { forwardRef, useImperativeHandle, useRef, useState } from 'react';
+import {
+  forwardRef,
+  useId,
+  useImperativeHandle,
+  useRef,
+  useState,
+} from 'react';
 import {
   AppRadioList,
   type RadioListOption,
@@ -68,6 +74,7 @@ function RadioCard({
   error?: string;
   onChange: (v: string) => void;
 }>) {
+  const errorId = useId();
   return (
     <StepCard>
       <Title text={title} variant="SM" />
@@ -83,13 +90,20 @@ function RadioCard({
         sx={{ mt: 3, width: '100%', bgcolor: 'transparent' }}
       >
         <AppRadioList
+          aria-label={title}
+          aria-invalid={!!error || undefined}
+          aria-describedby={error ? errorId : undefined}
           value={value}
           options={options}
           onChange={onChange}
           divider
           itemSx={itemSx}
         />
-        {error && <ErrorBody>{error}</ErrorBody>}
+        {error && (
+          <Box id={errorId}>
+            <ErrorBody>{error}</ErrorBody>
+          </Box>
+        )}
       </FormControl>
     </StepCard>
   );

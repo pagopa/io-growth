@@ -8,7 +8,13 @@ import {
   VSpacer,
 } from '@pagopa/io-core-ui';
 import { MIButton } from '@pagopa/mui-italia';
-import { forwardRef, useImperativeHandle, useState } from 'react';
+import {
+  forwardRef,
+  useId,
+  useImperativeHandle,
+  useRef,
+  useState,
+} from 'react';
 import { MarkdownRenderer } from '../../../../components/Typography/MarkdownRender';
 import { StepCard } from '../../StepCard';
 import type { StepRef } from '../../types';
@@ -54,6 +60,8 @@ export const PhotoUploadStep = forwardRef<StepRef, PhotoUploadProps>(
     const theme = useTheme();
     const [photo, setPhoto] = useState<File | null>(null);
     const [error, setError] = useState<string>('');
+    const fileInputRef = useRef<HTMLInputElement>(null);
+    const errorId = useId();
     const [guidelinesOpen, setGuidelinesOpen] = useState(false);
 
     const photoBase64 = useAppSelector(selectB64Photo);
@@ -222,7 +230,9 @@ export const PhotoUploadStep = forwardRef<StepRef, PhotoUploadProps>(
           <Body fontWeight="Semibold">Aggiungi una foto</Body>
           <Button
             variant="contained"
-            component="label"
+            onClick={() => fileInputRef.current?.click()}
+            aria-invalid={!!error || undefined}
+            aria-describedby={error ? errorId : undefined}
             sx={{
               bgcolor: theme.palette.common.primaryButton,
               textTransform: 'none',
@@ -230,16 +240,21 @@ export const PhotoUploadStep = forwardRef<StepRef, PhotoUploadProps>(
             }}
           >
             Aggiungi
-            <input
-              type="file"
-              accept="image/jpeg, image/jpg, image/png, application/image"
-              hidden
-              onChange={handleFileChange}
-            />
           </Button>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/jpeg, image/jpg, image/png, application/image"
+            hidden
+            onChange={handleFileChange}
+          />
         </Box>
 
-        {error && <ErrorBody fontSize="14px">{error}</ErrorBody>}
+        {error && (
+          <Box id={errorId}>
+            <ErrorBody fontSize="14px">{error}</ErrorBody>
+          </Box>
+        )}
       </StepCard>
     );
   },

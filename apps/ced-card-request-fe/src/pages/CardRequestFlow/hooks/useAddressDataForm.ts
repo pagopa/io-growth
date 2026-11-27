@@ -1,3 +1,4 @@
+import type { TextFieldProps } from '@mui/material';
 import { setField } from '../../../features/request-form/reducer';
 import { useAppDispatch, useAppSelector } from '../../../hooks';
 import { NuovaDomandaInBozzaRequest } from '../../../generated/model';
@@ -9,6 +10,7 @@ type AddressDataFormType = {
   type: 'text' | 'select';
   field: keyof NuovaDomandaInBozzaRequest;
   options?: Array<{ value: string; label: string }>;
+  inputProps?: TextFieldProps['inputProps'];
   rules?: ValidationRules;
 };
 
@@ -46,6 +48,7 @@ const ADDRESS_DATA_FORM_CONFIG: AddressDataFormType[] = [
     label: 'CAP',
     field: 'capRec',
     type: 'text',
+    inputProps: { inputMode: 'numeric' },
     rules: { required: true, maxLength: 5 },
   },
   {

@@ -15,7 +15,8 @@ export const PartnerCard = ({
   logoUrl,
   onClick,
   isInert = false,
-}: PartnerCardProps) => {
+  accessibilityLabel = title,
+}: PartnerCardProps & { accessibilityLabel?: string }) => {
   const cardContent = (
     <>
       <CardMedia
@@ -96,7 +97,7 @@ export const PartnerCard = ({
   return (
     <Card
       role={onClick ? undefined : 'group'}
-      aria-label={onClick ? undefined : title}
+      aria-label={onClick ? undefined : accessibilityLabel}
       tabIndex={!onClick && !isInert ? 0 : undefined}
       sx={(theme) => ({
         width: 210,
@@ -115,7 +116,7 @@ export const PartnerCard = ({
       {onClick ? (
         <CardActionArea
           onClick={isInert ? undefined : onClick}
-          aria-label={title}
+          aria-label={accessibilityLabel}
           tabIndex={isInert ? -1 : undefined}
           aria-hidden={isInert ? true : undefined}
           sx={(theme) => ({

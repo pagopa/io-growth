@@ -112,7 +112,7 @@ export const BenefitDetailsSection = ({
         <AppSelect options={benefitTypeOptions} />
       </CompanionFormField>
       {caregiverBenefit?.type === 'discount' && (
-        <DiscountFields benefit={caregiverBenefit} />
+        <DiscountFields benefit={caregiverBenefit} attempted={attempted} />
       )}
       <CompanionFormField
         hide={
@@ -123,6 +123,12 @@ export const BenefitDetailsSection = ({
         disabled={disabledNotLocalizedField}
         name={'companionOtherBenefitTypeDescription'}
         path="caregiverBenefit.description"
+        required
+        error={
+          !!attempted &&
+          caregiverBenefit?.type === 'other' &&
+          !caregiverBenefit.description
+        }
         onChange={(event) =>
           dispatch(
             setBenefit({
@@ -147,6 +153,13 @@ export const BenefitDetailsSection = ({
         disabled={disabledNotLocalizedField}
         name={'companionFixedPrice'}
         path={'caregiverBenefit.value'}
+        required
+        error={
+          !!attempted &&
+          caregiverBenefit?.type ===
+            BenefitReducedFixedPriceType.reduced_fixed_price &&
+          !caregiverBenefit.value
+        }
         onChange={(event) =>
           dispatch(
             setBenefit({

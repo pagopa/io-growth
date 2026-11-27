@@ -39,7 +39,7 @@ export const useGetFirstStepValidation = () => {
     const { type } = benefit;
     switch (type) {
       case 'discount':
-        return !!benefit.value || !!benefit.discountType;
+        return !!benefit.value && !!benefit.discountType;
       case 'reduced_fixed_price':
         return !!benefit.value;
       case 'other':

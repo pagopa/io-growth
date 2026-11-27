@@ -104,7 +104,9 @@ export const useCreateOpportunity = () => {
         opportunity.localizedMetadata,
       ).reduce<OpportunityCreateRequest['localizedMetadata']>(
         (acc, [language, record]) => {
-          const entries = typedObjectEntries(record);
+          const entries = typedObjectEntries(record).filter(
+            ([, value]) => value !== '',
+          );
 
           return [
             ...acc,

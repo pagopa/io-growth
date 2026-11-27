@@ -1,4 +1,4 @@
-import { useState, type ComponentType } from 'react';
+import { useEffect, useState, type ComponentType } from 'react';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { Box, Button, Container, Typography } from '@mui/material';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -82,6 +82,15 @@ export default function CreateBenefitPage() {
   };
 
   const sourceOpportunityId = location.state?.sourceOpportunityId ?? null;
+
+  // New opportunity: drop places left over from a previous flow.
+  // When editing, useHydrateFromSourceOpportunity sets them instead.
+  useEffect(() => {
+    if (!sourceOpportunityId) {
+      dispatch(resetPlaces());
+    }
+  }, [dispatch, sourceOpportunityId]);
+
   useHydrateFromSourceOpportunity(sourceOpportunityId);
   const { data: sourceOpportunity } = useGetOpportunityDetailQuery(
     sourceOpportunityId ?? '',

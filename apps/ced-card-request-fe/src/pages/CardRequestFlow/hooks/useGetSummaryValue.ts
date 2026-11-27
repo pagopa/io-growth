@@ -38,6 +38,7 @@ export const useGetSummaryValue = () => {
     siglaProvinciaRec,
     civicoRec,
     datiAggiuntiviRec,
+    pressoDenominazione,
   } = useAppSelector(selectRequestForm);
 
   const user = useAppSelector(selectStatusUser);
@@ -63,7 +64,7 @@ export const useGetSummaryValue = () => {
     { label: 'CAP', value: capRec },
     { label: 'Comune', value: descrizioneComuneRec },
     { label: 'Provincia', value: siglaProvinciaRec },
-    { label: 'Nome sul citofono', value: `${nome} ${cognome}` },
+    { label: 'Nome sul citofono', value: pressoDenominazione ?? '' },
     { label: 'Altri dettagli', value: datiAggiuntiviRec ?? '' },
   ];
 

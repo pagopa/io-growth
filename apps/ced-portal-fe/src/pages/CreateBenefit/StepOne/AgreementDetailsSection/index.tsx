@@ -175,7 +175,7 @@ export function AgreementDetailsSection({
             <AppSelect options={benefitTypeOptions} />
           </DetailFormField>
 
-          <DiscountBenefitFields />
+          <DiscountBenefitFields attempted={attempted} />
 
           <DetailFormField
             hide={
@@ -185,6 +185,13 @@ export function AgreementDetailsSection({
             disabled={disabledNotLocalizedField}
             name={'fixedPrice'}
             path={'beneficiaryBenefit.value'}
+            required
+            error={
+              attempted &&
+              benefitType?.type ===
+                BenefitReducedFixedPriceType.reduced_fixed_price &&
+              !benefitType.value
+            }
             onChange={(event) =>
               handleFieldChange('beneficiaryBenefit', {
                 type: BenefitReducedFixedPriceType.reduced_fixed_price,
@@ -206,6 +213,12 @@ export function AgreementDetailsSection({
             name={'otherBenefitTypeDescription'}
             disabled={disabledNotLocalizedField}
             path={'beneficiaryBenefit.description'}
+            required
+            error={
+              attempted &&
+              benefitType?.type === BenefitOtherType.other &&
+              !benefitType.description
+            }
             onChange={(event) =>
               handleFieldChange('beneficiaryBenefit', {
                 type: BenefitOtherType.other,

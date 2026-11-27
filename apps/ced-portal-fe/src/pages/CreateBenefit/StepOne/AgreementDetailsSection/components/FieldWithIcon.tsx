@@ -9,6 +9,7 @@ type FieldWithIconProps = {
   error?: boolean;
   errorMessage?: string;
   disabled?: boolean;
+  required?: boolean;
 };
 
 export const FieldWithIcon = ({
@@ -19,6 +20,7 @@ export const FieldWithIcon = ({
   errorMessage,
   onChange,
   disabled,
+  required,
 }: FieldWithIconProps) => {
   return (
     <Stack direction="row" spacing={1} alignItems="stretch">
@@ -46,6 +48,7 @@ export const FieldWithIcon = ({
         onChange={onChange}
         fullWidth
         disabled={disabled}
+        required={required}
       />
     </Stack>
   );

@@ -20,7 +20,9 @@ import {
 } from '../../../../../generated/model';
 import { setBenefit } from '../../../../../features/opportunityCreation/opportunityCreationSlice';
 
-export const DiscountBenefitFields = () => {
+export const DiscountBenefitFields = ({
+  attempted,
+}: Readonly<{ attempted?: boolean }>) => {
   const dispatch = useAppDispatch();
   const activeLanguage = useAppSelector(selectActiveFormLanguage);
   const disabledNotLocalizedField = activeLanguage !== 'it';
@@ -95,6 +97,8 @@ export const DiscountBenefitFields = () => {
     !!benefitDiscountValue &&
     benefitDiscountValue < 10;
 
+  const benefitValueMissing = !!attempted && !benefitDiscountValue;
+
   return (
     <Stack spacing={1.25}>
       <AppRadioGroup
@@ -118,8 +122,13 @@ export const DiscountBenefitFields = () => {
           ]
         }
         value={benefitDiscountValue || ''}
-        error={benefitPercentageError}
-        errorMessage={copy.detailsForm.discountValueError}
+        required
+        error={benefitPercentageError || benefitValueMissing}
+        errorMessage={
+          benefitPercentageError
+            ? copy.detailsForm.discountValueError
+            : undefined
+        }
       />
     </Stack>
   );

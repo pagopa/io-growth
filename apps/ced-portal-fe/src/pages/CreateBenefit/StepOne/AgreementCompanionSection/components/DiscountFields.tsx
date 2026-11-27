@@ -22,10 +22,12 @@ import { setBenefit } from '../../../../../features/opportunityCreation/opportun
 type DiscountFieldsProps = {
   sameValues?: boolean;
   benefit: BenefitDiscount;
+  attempted?: boolean;
 };
 export const DiscountFields = ({
   sameValues,
   benefit,
+  attempted,
 }: DiscountFieldsProps) => {
   const dispatch = useAppDispatch();
   const activeLanguage = useAppSelector(selectActiveFormLanguage);
@@ -181,6 +183,8 @@ export const DiscountFields = ({
           fullWidth
           value={companionDiscountValue}
           label={copy.discountValueLabel[companionDiscountValueType]}
+          required
+          error={!!attempted && !companionDiscountValue}
           disabled={disabledNotLocalizedField}
           onChange={(event) => handleChange(Number(event.target.value))}
         />
